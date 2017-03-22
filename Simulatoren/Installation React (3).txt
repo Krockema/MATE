@@ -1,0 +1,1 @@
+Im aktuellen Projekt rechtsklick auf Verweise, hinzufügen, React.NET.dll auswählen, ok.

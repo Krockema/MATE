@@ -1,0 +1,1013 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpSim</name>
+    </assembly>
+    <members>
+        <member name="T:SharpSim.SimForm">
+            <summary>
+            
+            </summary>
+            <summary>
+            Form that exhibits outputs of the simulation.
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:SharpSim.SimForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:SharpSim.SimForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.richTextBox1">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.richTextBox2">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.groupBox1">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.groupBox2">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.rtxt1">
+            <summary>
+            Holds information related with executed events.
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.trackListArray">
+            <summary>
+            An array that holds a set of string variables. Each string variable holds all executed event name, time and entity information for that replication.
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.tSimForm">
+            <summary>
+            Is used to exhibit event executions on Simulation form.
+            </summary>
+        </member>
+        <member name="F:SharpSim.SimForm.terminated">
+            <summary>
+            True if all replications are completed.
+            </summary>
+        </member>
+        <member name="M:SharpSim.SimForm.#ctor">
+            <summary>
+            Constructs a new SimForm.
+            </summary>
+        </member>
+        <member name="M:SharpSim.SimForm.Subscribe(SharpSim.Event)">
+            <summary>
+            Is used by form to subscribe to event indicated.
+            </summary>
+            <param name="event1"></param>
+        </member>
+        <member name="M:SharpSim.SimForm.DelegateExecute(System.Object,SharpSim.EventInfoArgs)">
+            <summary>
+            Delegate method invoked automatically on event's execution.
+            </summary>
+            <param name="object1"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:SharpSim.SimForm.Write(System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            Method triggered by tSimForm thread. Is used to exhibit executed events on Simulation form.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:SharpSim.Event">
+            <summary>
+            Represents a node in an Event Graph. An event is an occurence which causes a state change in the system.
+            @author Arda Ceylan
+            Version 1.1 note (EV): In this version overloaded method for ComputeValue is created.
+            Compute Value takes a List in which the first element is distribution name.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.events">
+            <summary>
+            List of events
+            </summary>
+            
+        </member>
+        <member name="F:SharpSim.Event.no">
+            <summary>
+            Identification number of the event.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.name">
+            <summary>
+            Name of the event. (Ex: Run)
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.executionTime">
+            <summary>
+            Simulation time which the event will be executed.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.priority">
+            <summary>
+            Priority of the event.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.exitingEdge">
+            <summary>
+            A dictionary which keeps all the edges exiting from that event.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.parameter">
+            <summary>
+            Is used for parameter passing. Edge attributes are set to event parameters automatically.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.parameterList">
+            <summary>
+            Is used in case edge attribute is a list type.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.queue">
+            <summary>
+            In case of presence of a queue in the system, entities waiting for service can be kept in relevant event's queue.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.triggering">
+            <summary>
+            Keeps the triggering event's information.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.counter">
+            <summary>
+            version 1.2 note: counter for loop events foreach entity
+            </summary>
+        </member>
+        <member name="F:SharpSim.Event.EventExecuted">
+            <summary>
+            Each event publishes its execution through this delegate.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Event.#ctor(System.String,System.String,System.Int32)">
+            <summary>
+            Constructs a new Event with the given arguments
+            </summary>
+            <param name="no"> Identification number of the event. </param>
+            <param name="name"> Name of the event. </param>
+            <param name="priority"> Priority of the event. </param>
+        </member>
+        <member name="M:SharpSim.Event.#ctor(System.String,System.String,System.Int32,System.Double)">
+            <summary>
+            Constructs a new Event with the given arguments
+            </summary>
+            <param name="no"> Identification number of the event. </param>
+            <param name="name"> Name of the event. </param>
+            <param name="priority"> Priority of the event. </param>
+            <param name="executionTime"> Simulation time which the event will be executed. </param>
+        </member>
+        <member name="M:SharpSim.Event.OnEventExecution(SharpSim.EventInfoArgs)">
+            <summary>
+            Publishes the execution of the event.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:SharpSim.Event.SubscribeEventExecutionHandler(SharpSim.Event)">
+            <summary>
+            Is used by events to subscribe to the event indicated as an argument.
+            </summary>
+            <param name="evnt"></param>
+        </member>
+        <member name="M:SharpSim.Event.DelegateExecuteEventExecutionHandler(System.Object,SharpSim.EventInfoArgs)">
+            <summary>
+            Subscribed event's delegate method. When an event is executed, subscribed (following) events' delegate methods
+            are invoked automatically. This method provides the scheduling of the following event to future event list if
+            connecting edge's condition allows.
+            </summary>
+            <param name="object1"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:SharpSim.Event.DeepCopy(SharpSim.Edge,System.Int32,System.Double)">
+            <summary>
+            Deep copies an event to instantiate a seperate event which are going to be inserted in the future event list.
+            </summary>
+            <param name="edge"></param>
+            <param name="i"></param>
+            <param name="triggeringEventTime"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SharpSim.Event.EventExecutionHandler">
+            <summary>
+            A delegate definition used for publishing event executions.
+            </summary>
+            <param name="object1"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:SharpSim.EventInfoArgs">
+            <summary>
+            An inherited EventArgs class.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.EventInfoArgs.evnt">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:SharpSim.EventInfoArgs.#ctor(SharpSim.Event)">
+            <summary>
+            
+            </summary>
+            <param name="evnt"></param>
+        </member>
+        <member name="T:SharpSim.DataSetProcessor">
+            <summary>
+            Version 1.2 Note: Provides a platform where all data related to simulation model can get from xml document.
+            @author Emre VAROL
+            </summary>
+        </member>
+        <member name="F:SharpSim.DataSetProcessor.ofd1">
+            <summary>
+            Is used to generate an open file dialog to select an xml document to read
+            </summary>
+        </member>
+        <member name="F:SharpSim.DataSetProcessor.sfd1">
+            <summary>
+            Is used to generate a save file dialog to write an xml document.
+            </summary>
+        </member>
+        <member name="M:SharpSim.DataSetProcessor.RunRead">
+            <summary>
+            Is used to read simulation input data from xml document.
+            </summary>
+            <returns>Data set</returns>
+        </member>
+        <member name="M:SharpSim.DataSetProcessor.WriteXml(System.Data.DataSet)">
+            <summary>
+            Is used to write an xml document from a data set.
+            </summary>
+            <param name="W_Ds">Data set</param>
+        </member>
+        <member name="T:SharpSim.Edge">
+            <summary>
+            Represents an arc in an Event Graph. An edge is a connection line between two events.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.name">
+            <summary>
+            Name of the edge.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.sourceEvent">
+            <summary>
+            Arc's departing event.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.targetEvent">
+            <summary>
+            Arc's arriving event.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.multiplyingEdge">
+            <summary>
+            Is used in case an entity is divided into multi-Entity.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.interEventTime">
+            <summary>
+            Simulation time passed on that arc.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.distribution">
+            <summary>
+            Version 1.1 note (EV): In this version overloaded method for ComputeValue is created.
+            Compute Value takes a List in which the first element is distribution name.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.dist">
+            <summary>
+            The name of the distribution which is used to compute the time passed on that arc.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.distEnum">
+            <summary>
+            Version 1.2 note (EV): The enumeration of the distribution which is used to compute the time passed on that arc.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.param1">
+            <summary>
+            A parameter of the distribution.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.param2">
+            <summary>
+            A parameter of the distribution.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.attribute">
+            <summary>
+            Is used for parameter passing. Edge attributes are set to event parameters automatically.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.attributeList">
+            <summary>
+            Is used in case multi entity should be passed.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.condition">
+            <summary>
+            If true, following event is scheduled.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.edgeList">
+            <summary>
+            Keeps a list of the defined edges.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.cancellingEdge">
+            <summary>
+            Edge's default value
+            </summary>
+        </member>
+        <member name="F:SharpSim.Edge.cancelAllEvents">
+            <summary>
+            Version 1.2 note(EV) : Edge's default value. 
+            If true it cancels all events in fel for designated entity or entities
+            </summary>
+        </member>
+        <member name="M:SharpSim.Edge.#ctor(System.String,SharpSim.Event,SharpSim.Event)">
+            <summary>
+            Constructs a new Edge with the given arguments
+            </summary>
+            <param name="name"> Name of the edge. </param>
+            <param name="sourceEvent"> Arc's departing event. </param>
+            <param name="targetEvent"> Arc's arriving event. </param>
+        </member>
+        <member name="M:SharpSim.Edge.#ctor(System.String,SharpSim.Event,SharpSim.Event,System.Boolean)">
+            <summary>
+            Version 1.1 note(EV) : In this version overloaded method for Edge is created.
+            Constructs a new Cancelling Edge with the given arguments
+            </summary>
+            <param name="name"></param>
+            <param name="sourceEvent"></param>
+            <param name="targetEvent"></param>
+            <param name="cancelling"></param>
+        </member>
+        <member name="M:SharpSim.Edge.SetAllEdgeConditionsToTrue">
+            <summary>
+            Sets all edge conditions to true.
+            </summary>
+        </member>
+        <member name="T:SharpSim.Simulation">
+            <summary>
+            Provides a simulation platform where all the elements of the model can interact with each other.
+            Includes the main properties of the simulation such as future event list and simulation time and the
+            mechanism which handles event scheduling algorithm.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.fel">
+            <summary>
+            Holds the events to be executed.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.clock">
+            <summary>
+            Simulation time.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.replication">
+            <summary>
+            Number of times the model will be replicated with the given configuration.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.felStart">
+            <summary>
+            Holds the events whose execution times are set at the start of the simulation.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.rndgnrt">
+            <summary>
+            Is used to produce random numbers.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.seedNo">
+            <summary>
+            Is used as a seed for Random type variable.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.randomizeSeed">
+            <summary>
+            If true, produces a new seed for each replication.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.replicationNow">
+            <summary>
+            Indicates 
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.events">
+            <summary>
+            A dictionary which keeps the events of the model
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.edges">
+            <summary>
+            A dictionary which keeps the edges of the model
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.form1">
+            <summary>
+            Exhibits the executed events and outputs of the simulation.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.tSim">
+            <summary>
+            Is used to run the simulation using thread.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.tOutput">
+            <summary>
+            Is used to exhibit outputs of the simulation.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.threadLock">
+            <summary>
+            Is used for synchronization.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Simulation.trackList">
+            <summary>
+            If true, executed events are exhibited on the Simulation form.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Simulation.#ctor(System.Boolean,System.Int32,System.Boolean)">
+            <summary>
+            Constructs a new Simulation with the given arguments
+            </summary>
+            <param name="trackList"> If true, exhibits executed events on the Simulation form. </param>
+            <param name="replication"> Keeps the number of times the model will be replicated with the given configuration. </param>
+            <param name="randomizeSeed"> If true, produces a new seed for each replication. </param>
+        </member>
+        <member name="M:SharpSim.Simulation.#ctor(System.Boolean,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Constructs a new Simulation with the given arguments
+            </summary>
+            <param name="trackList"> If true, exhibits executed events on the Simulation form. </param>
+            <param name="replication"> Keeps the number of times the model will be replicated with the given configuration. </param>
+            <param name="randomizeSeed"> If true, produces a new seed for each replication. </param>
+            <param name="seedNo"> Is used as a seed for Random type variable. </param>
+        </member>
+        <member name="M:SharpSim.Simulation.ResetSimulation">
+            <summary>
+            Is used to reset simulation.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateEvents(NExcel.Sheet)">
+            <summary>
+            Is used to instantiate events with the arguments obtained from a spreadsheet.
+            </summary>
+            <param name="sheet"> a spreadsheet which involves argument information for a set of events </param>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateEvents(System.Data.DataTable)">
+            <summary>
+            Version 1.2 note: Is used to instantiate events with the arguments obtained from an xml
+            @author Emre VAROL
+            </summary>
+            <param name="table">an xml data table which involves argument information for a set of events</param>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateEdges(NExcel.Sheet)">
+            <summary>
+            Is used to instantiate edges with the arguments obtained from a spreadsheet.
+            </summary>
+            <param name="sheet"> a spreadsheet which involves argument information for a set of edges </param>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateEdges(System.Data.DataTable)">
+            <summary>
+            Version 1.2 note: Is used to instantiate edges with the arguments obtained from an xml.
+            @author Emre VAROL
+            </summary>
+            <param name="table">an xml data table which involves argument information for a set of edges</param>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateStats(NExcel.Sheet)">
+            <summary>
+            Is used to create data structures to collect statistical information. Gets the information from a spreadsheet.
+            </summary>
+            <param name="sheet"> a spreadsheet which involves names of the statistics to be collected. </param>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateStats(System.Data.DataTable)">
+            <summary>
+            Version 1.2 note: Is used to create data structures to collect statistical information. Gets the information from an xml.
+            @author Emre VAROL
+            </summary>
+            <param name="table">an xml data table which involves names of the statistics to be collected.</param>
+        </member>
+        <member name="M:SharpSim.Simulation.CreateStats(System.String)">
+            <summary>
+            Is used to create data structures to collect statistical information.
+            </summary>
+            <param name="data"> the name of the statistics </param>
+        </member>
+        <member name="M:SharpSim.Simulation.StartSimulationThread">
+            <summary>
+            Starts the simulation thread.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Simulation.Run">
+            <summary>
+            Starts the simulation.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Simulation.RunEngine">
+            <summary>
+            Runs the simulation for each replication.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Simulation.Write(System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            Is used to exhibit output of the simulation.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:SharpSim.Simulation.ExecuteEvent(SharpSim.Event)">
+            <summary>
+            Executes the event.
+            </summary>
+            <param name="evnt"></param>
+        </member>
+        <member name="M:SharpSim.Simulation.PutInFel(SharpSim.Event)">
+            <summary>
+            Inserts the newly scheduled event in the future event list considering execution time and priority.
+            </summary>
+            <param name="evnt"></param>
+            <returns> Returns the order number which the event should be inserted. </returns>
+        </member>
+        <member name="T:SharpSim.RandomGenerate">
+            <summary>
+            This class handles issues related with random number generation.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.rnd">
+            <summary>
+            Is used to generate random numbers.
+            </summary>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.#ctor">
+            <summary>
+            Constructs a new RandomGenerate.
+            </summary>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.#ctor(System.Int32)">
+            <summary>
+            Constructs a new RandomGenerate.
+            </summary>
+            <param name="seed"> Is used as a seed for Random type variable. </param>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetRandomDoubleNumber(System.Double,System.Double)">
+            <summary>
+            Version 1.2 note: Generate random double numbers between min and max
+            @author Emre VAROL
+            </summary>
+            <param name="minimum">Minimum value</param>
+            <param name="maximum">Maximum value</param>
+            <returns>Double</returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.ComputeValue(System.Collections.Generic.List{System.Object})">
+            <summary> 
+            Version 1.1 note: In this version overloaded method for ComputeValue is created.
+            Compute Value takes a List in which the first element is distribution name.
+            @author Emre VAROL
+            </summary>
+            <param name="simDist"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.ComputeValue(System.String,System.Double,System.Double)">
+            <summary>
+            Version 1.1 note: In this version overloaded method for ComputeValue and more distributions are created.
+            Generates a random number according with given arguments.
+            @author Emre VAROL
+            </summary>
+            <param name="dist"> The name of the distribution which is used to compute the time passed on that arc. </param>
+            <param name="param1"> First parameter of the distribution. </param>
+            <param name="param2"> Second parameter of the distribution. (if necessary) </param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.ComputeValue(SharpSim.RandomGenerate.dist,System.Double,System.Double)">
+            <summary>
+            Version 1.2 note: In this version overloaded method for ComputeValue and more distributions are created.
+            Generates a random number according with given arguments.
+            @author Emre VAROL
+            </summary>
+            <param name="distribution">The enumeration of the distribution which is used to compute the time passed on that arc.</param>
+            <param name="param1"> First parameter of the distribution. </param>
+            <param name="param2"> Second parameter of the distribution. (if necessary) </param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GenerateBool(System.Double)">
+            <summary>
+            Generates a boolean value considering the success rate.
+            </summary>
+            <param name="criticalValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GenerateInteger(System.Int32)">
+            <summary>
+            Generates an integer value between 0 and provided value.
+            </summary>
+            <param name="criticalValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetUniform">
+            <summary>
+            Produce a uniform random sample from the open interval (0, 1).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetUniform(System.Double,System.Double)">
+            <summary>
+            Produce a random sample from the open interval (a, b).
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetNormal">
+            <summary>
+            Get normal (Gaussian) random sample with mean 0 and standard deviation 1
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetNormal(System.Double,System.Double)">
+            <summary>
+             Get normal (Gaussian) random sample with specified mean and standard deviation
+            </summary>
+            <param name="mean"></param>
+            <param name="standardDeviation"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetExponential">
+            <summary>
+            Get exponential random sample with mean 1
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetExponential(System.Double)">
+            <summary>
+            Get exponential random sample with specified mean
+            </summary>
+            <param name="mean"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetGamma(System.Double,System.Double)">
+            <summary>
+            Get gamma random sample with parameters
+            </summary>
+            <param name="shape"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetChiSquare(System.Double)">
+            <summary>
+            Get Chi Square random sample with parameter
+            </summary>
+            <param name="degreesOfFreedom"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetInverseGamma(System.Double,System.Double)">
+            <summary>
+            Get inverse gamma random sample with parameters
+            </summary>
+            <param name="shape"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetWeibull(System.Double,System.Double)">
+            <summary>
+            Get weibull random sample with parameters
+            </summary>
+            <param name="shape"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetCauchy(System.Double,System.Double)">
+            <summary>
+            Get cauchy random sample with parameters
+            </summary>
+            <param name="median"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetStudentT(System.Double)">
+            <summary>
+            Get student T random sample with parameters
+            </summary>
+            <param name="degreesOfFreedom"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetLaplace(System.Double,System.Double)">
+            <summary>
+            Get laplace random sample with parameters
+            The Laplace distribution is also known as the double exponential distribution.
+            </summary>
+            <param name="mean"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetLogNormal(System.Double,System.Double)">
+            <summary>
+            Get LogNormal random sample with parameters
+            </summary>
+            <param name="mu"></param>
+            <param name="sigma"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.RandomGenerate.GetBeta(System.Double,System.Double)">
+            <summary>
+            Get beta random sample with parameters
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SharpSim.RandomGenerate.dist">
+            <summary>
+            Version 1.2 note: Is added to prevent faulty user entry.
+            @author Emre VAROL
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.none">
+            <summary>
+            no distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.exponential">
+            <summary>
+            Exponential Distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.normal">
+            <summary>
+            Normal distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.uniform">
+            <summary>
+            Uniform distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.gamma">
+            <summary>
+            Gamma distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.chiSquare">
+            <summary>
+            ChiSquare distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.inverseGamma">
+            <summary>
+            InverseGamma distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.weibull">
+            <summary>
+            Weibull distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.cauchy">
+            <summary>
+            Cauchy distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.studentT">
+            <summary>
+            StudenT distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.laplace">
+            <summary>
+            Laplace distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.logNormal">
+            <summary>
+            LogNormal distribution
+            </summary>
+        </member>
+        <member name="F:SharpSim.RandomGenerate.dist.beta">
+            <summary>
+            Beta distribution
+            </summary>
+        </member>
+        <member name="T:SharpSim.Stats">
+            <summary>
+            Provides some easy statistical collection and exhibition features.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.Stats.Dictionary">
+            <summary>
+            A dictionary that holds statistical information for any replication.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Stats.globalDictionary">
+            <summary>
+            A dictionary that holds statistical information for all replications.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Stats.stats">
+            <summary>
+            A dictionary that holds statistical information.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Stats.CollectStats(System.String,System.Double)">
+            <summary>
+            Collects stats and computes some statistical basics.
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:SharpSim.Stats.CollectStats(System.String,System.Double[])">
+            <summary>
+            Version 1.1 note(EV): Overloaded method of collects stats. This computes time weighted average.
+            </summary>
+            <param name="key"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:SharpSim.Stats.CollectCounter(System.String,System.Boolean)">
+            <summary>
+            Collects stats of counter type statistics and computes some statistical basics.
+            </summary>
+            <param name="key"></param>
+            <param name="pointer"></param>
+        </member>
+        <member name="M:SharpSim.Stats.StatsComputations">
+            <summary>
+            Computes final statistics which are going to be exhibited as outputs.
+            </summary>
+        </member>
+        <member name="M:SharpSim.Stats.AddDataToStatsGlobalDictionary(System.String,System.Double)">
+            <summary>
+            Adds related statistics to global dictionary which holds statistics for all replications.
+            </summary>
+            <param name="key"></param>
+            <param name="data"></param>
+        </member>
+        <member name="M:SharpSim.Stats.ResetDictionary">
+            <summary>
+            Resets dictionary which holds statistics for any replication.
+            </summary>
+        </member>
+        <member name="T:SharpSim.BasicStats">
+            <summary>
+            Is used to hold statistical information.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.counter">
+            <summary>
+            Number of times.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.total">
+            <summary>
+            Total value.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.mean">
+            <summary>
+            Mean for all entries.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.standardDeviation">
+            <summary>
+            Standard deviation for all entries.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.variation">
+            <summary>
+            Variation for all entries.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.confidenceInterval">
+            <summary>
+            Confidence interval.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.timeWeightedAverage">
+            <summary>
+            Time Weighted Average
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.time">
+            <summary>
+            The simulation time at which this stats is recorded.
+            </summary>
+        </member>
+        <member name="F:SharpSim.BasicStats.value">
+            <summary>
+            The value that will be recorded at this simulation time.
+            </summary>
+        </member>
+        <member name="T:SharpSim.Resource">
+            <summary>
+            Limited capabilities of the system.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="T:SharpSim.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:SharpSim.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:SharpSim.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="T:SharpSim.Entity">
+            <summary>
+            Moving objects among events.
+            @author Arda Ceylan
+            </summary>
+        </member>
+        <member name="F:SharpSim.Entity.identifier">
+            <summary>
+            Identification tag of the entity.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Entity.history">
+            <summary>
+            A dictionary which keeps the identification number and execution times of the events visited by the entity.
+            Furthermore, scheduling times of the events are kept in this dictionary either. So each event has two entries
+            in the dictionary.
+            </summary>
+        </member>
+        <member name="F:SharpSim.Entity.eventHistory">
+            <summary>
+            Version 1.2 note: Event history keeps event name and its all execution times through the simulation in a dynamic list.
+            @author Emre VAROL
+            </summary>
+        </member>
+        <member name="F:SharpSim.Entity.scheduledEventHistory">
+            <summary>
+            Version 1.2 note: Scheduled event history keeps event name and its all scheduled times through the simulation in a dynamic list.
+            @author Emre VAROL
+            </summary>
+        </member>
+        <member name="M:SharpSim.Entity.#ctor">
+            <summary>
+            Constructs a new Entity without any argument
+            </summary>
+        </member>
+        <member name="M:SharpSim.Entity.#ctor(System.Object)">
+            <summary>
+            Constructs a new Entity with the given argument.
+            </summary>
+            <param name="identifier"></param>
+        </member>
+        <member name="M:SharpSim.Entity.ReturnInterval(System.String,System.String)">
+            <summary>
+            Returns time passed between events' execution or scheduling times ()
+            (Ex: ReturnInterval(2s, 2) returns time passed between scheduling and execution of the event for an entity.)
+            </summary>
+            <param name="no1"></param>
+            <param name="no2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpSim.Entity.ReturnIntervalEventHistory(System.String,System.String)">
+            <summary>
+            @EV
+            Returns time passed between events' execution or scheduling times ()
+            (Ex: ReturnInterval(2s, 2) returns time passed between scheduling and execution of the event for an entity.)
+            </summary>
+            <param name="no1"></param>
+            <param name="no2"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
