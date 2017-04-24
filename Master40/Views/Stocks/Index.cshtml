@@ -1,0 +1,60 @@
+@model IEnumerable<Master_DB_Test.Models.DB.Stock>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Max)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Min)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Current)
+                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Article)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Max)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Min)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Current)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Article.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.StockID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.StockID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.StockID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

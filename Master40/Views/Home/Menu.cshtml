@@ -1,0 +1,15 @@
+﻿@using Microsoft.CodeAnalysis
+@model IEnumerable<Master40.Models.MenuItem>
+<ul>
+    @foreach (var item in Model)
+    {
+
+        <li>
+            @Html.DisplayFor(modelItem => item.MenuText)
+        </li>
+        @if (item.Children != null && item.Children.Count > 0)
+        {
+             <li>@Html.Partial("Menu", item.Children) </li>
+         }
+    }
+</ul>

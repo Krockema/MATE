@@ -1,0 +1,51 @@
+@model IEnumerable<Master40.Models.DB.Article>
+    @if(Model.Count() > 0){
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ArticleBom.Count)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Count)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ArticleBomID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ArticleBomID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ArticleBomID">Delete</a>
+                    </td>
+                </tr>
+                if(item.ArticleBom.Child != null)
+                {
+                    <tr>
+                        <td></td>
+                        <td colspan="3">
+                            @Html.Partial("View", item.ChildArticleBom)
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+}

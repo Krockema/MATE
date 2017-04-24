@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Master40.Models.MenuItem>
+<div class="jumbotron">
+    <h1>Industrial Enterprise Resource Planning</h1>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <h2>Welcome Master ERP 4.0</h2>
+        <p>
+            Contoso University is a sample ERP application that
+            demonstrates production planning on an Industrial 4.0 environment.
+        </p>
+    </div>
+    <div class="col-md-4">
+        <h2>Build it from scratch</h2>
+        <p>You can build the application by following the steps in a series of tutorials.</p>
+        <p><a class="btn btn-default" href="https://localhost">See the tutorial &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Download it</h2>
+        <p>You can download the completed project from GitHub.</p>
+        <p><a class="btn btn-default" href="https://github.com/krockema">See project source code &raquo;</a></p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        Menue<br/>
+
+                 @Html.Partial("Menu", Model)
+</div>
+
+</div>

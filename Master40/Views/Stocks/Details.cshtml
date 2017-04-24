@@ -1,0 +1,49 @@
+@model Master_DB_Test.Models.DB.Stock
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Stock</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Max)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Max)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Min)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Min)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Current)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Current)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Article)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Article.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.StockID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

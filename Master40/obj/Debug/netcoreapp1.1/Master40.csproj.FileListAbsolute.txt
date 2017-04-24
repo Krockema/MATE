@@ -1,0 +1,9 @@
+C:\Users\marti\Source\Repos\Master-4.0\Master40\bin\Debug\netcoreapp1.1\Master40.deps.json
+C:\Users\marti\Source\Repos\Master-4.0\Master40\bin\Debug\netcoreapp1.1\Master40.runtimeconfig.json
+C:\Users\marti\Source\Repos\Master-4.0\Master40\bin\Debug\netcoreapp1.1\Master40.runtimeconfig.dev.json
+C:\Users\marti\Source\Repos\Master-4.0\Master40\bin\Debug\netcoreapp1.1\Master40.dll
+C:\Users\marti\Source\Repos\Master-4.0\Master40\bin\Debug\netcoreapp1.1\Master40.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Master40\obj\Debug\netcoreapp1.1\Master40.csprojResolveAssemblyReference.cache
+C:\Users\marti\Source\Repos\Master-4.0\Master40\obj\Debug\netcoreapp1.1\Master40.AssemblyInfo.cs
+C:\Users\marti\Source\Repos\Master-4.0\Master40\obj\Debug\netcoreapp1.1\Master40.dll
+C:\Users\marti\Source\Repos\Master-4.0\Master40\obj\Debug\netcoreapp1.1\Master40.pdb
