@@ -7,6 +7,10 @@
   <PropertyGroup>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\css\menu.css" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="cldrjs" Version="0.4.8" />
     <PackageReference Include="jquery-globalize" Version="1.2.3" />
@@ -26,6 +30,9 @@
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0" />
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
 
 </Project>

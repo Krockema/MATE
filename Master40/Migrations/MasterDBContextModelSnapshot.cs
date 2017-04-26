@@ -176,7 +176,7 @@ namespace Master40.Migrations
 
                     b.Property<int>("BusinessPartnerId");
 
-                    b.Property<DateTime>("DeliveryDateTime");
+                    b.Property<int>("DueTime");
 
                     b.Property<string>("Name");
 
@@ -214,7 +214,7 @@ namespace Master40.Migrations
 
                     b.Property<int>("BusinessPartnerId");
 
-                    b.Property<DateTime>("DeliveryDateTime");
+                    b.Property<int>("DueTime");
 
                     b.Property<string>("Name");
 

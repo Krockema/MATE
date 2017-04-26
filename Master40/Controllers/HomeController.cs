@@ -21,12 +21,25 @@ namespace Master40.Controllers
             var model = new List<MenuItem>();
            
                 model = _context.MenuItems
-                .Where(m => m.MenuId == 1)
-                .Include(m => m.Children)
-                .Where(m => m.Parent != null)
+                .Where(m => m.MenuId == 1).ToList().Where(m => m.Parent == null)
+                //.Include(m => m.Children).Where(m => m.MenuId == 1).Where(m => m.Parent != null)
+                //.Where(m => m.ParentMenuItemId == m.MenuId)
                 .ToList();
 
             return View(model);
+        }
+
+        public IActionResult Menu()
+        {
+            var model = new List<MenuItem>();
+
+            model = _context.MenuItems
+            .Where(m => m.MenuId == 1).ToList().Where(m => m.Parent == null)
+            //.Include(m => m.Children).Where(m => m.MenuId == 1).Where(m => m.Parent != null)
+            //.Where(m => m.ParentMenuItemId == m.MenuId)
+            .ToList();
+
+            return PartialView(model);
         }
 
         public IActionResult About()

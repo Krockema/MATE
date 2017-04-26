@@ -9,7 +9,7 @@ namespace Master40.Models.DB
     {
         public int OrderId { get; set; }
         public string Name { get; set; }
-        public DateTime DeliveryDateTime { get; set; }
+        public int DueTime { get; set; }
         public int BusinessPartnerId { get; set; }
         public BusinessPartner BusinessPartner { get; set; }
         public virtual ICollection<OrderPart> OrderParts { get; set; }

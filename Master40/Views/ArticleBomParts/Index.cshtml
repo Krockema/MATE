@@ -1,0 +1,10 @@
+﻿@model IEnumerable<Master40.Models.DB.ArticleBomPart>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Index</h2>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+@Html.Partial("BomPart", Model)
