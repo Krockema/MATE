@@ -55,3 +55,10 @@ Master40/bin/Debug/netcoreapp1.1/Master40.runtimeconfig.dev.json
 Master40/bin/Debug/netcoreapp1.1/Master40.deps.json
 Master40/bin/Debug/netcoreapp1.1/Master40.dll
 Master40/bin/Debug/netcoreapp1.1/Master40.dll
+
+Master40/bin*
+Master40/obj*
+Simulatoren/*
+.vs
+Master40/obj/project.assets.json
+Master40/obj/Debug/netcoreapp1.1/CoreCompileInputs.cache
