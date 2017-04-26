@@ -45,3 +45,13 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+Master40/obj/project.assets.json
+*.props
+Master40/obj/Debug/netcoreapp1.1/Master40.pdb
+*.dll
+Master40/obj/Debug/netcoreapp1.1/Master40.csprojResolveAssemblyReference.cache
+*.cache
+Master40/bin/Debug/netcoreapp1.1/Master40.runtimeconfig.dev.json
+Master40/bin/Debug/netcoreapp1.1/Master40.deps.json
+Master40/bin/Debug/netcoreapp1.1/Master40.dll
+Master40/bin/Debug/netcoreapp1.1/Master40.dll
