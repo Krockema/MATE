@@ -13,22 +13,26 @@ namespace Master40.BusinessLogic.MRP
         void GrossRequirement();
     }
 
-    class DemandForecast : IDemandForecast
+    internal class DemandForecast : IDemandForecast
     {
-        private MasterDBContext _context;
-        DemandForecast(MasterDBContext context)
+        private readonly MasterDBContext _context;
+
+        internal DemandForecast(MasterDBContext context)
         {
-           _context = context;
+            _context = context;
         }
 
         void IDemandForecast.NetRequirement()
         {
-           var b =  _context.ArticleBoms.Include(a => a.Article);
+            var b =  _context.ArticleBoms.Include(a => a.Article);
+            //Calculate net requirements from context
+            //Access Article bill of materials and the order 
         }
 
         void IDemandForecast.GrossRequirement()
         {
-
+            //calculate gross requirements from context
+            //Access stock and net requirements
 
         }
     }
