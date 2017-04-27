@@ -15,9 +15,9 @@ namespace Master40.BusinessLogic.MRP
     {
         void IProcessMrp.Process()
         {
-            IDemandForecast demand = new DemandForecast();
-            demand.NetRequirement();
-            demand.GrossRequirement();
+            //IDemandForecast demand = new DemandForecast();
+            //demand.NetRequirement();
+            //demand.GrossRequirement();
             IScheduling schedule = new Scheduling();
             schedule.BackwardScheduling();
             schedule.ForwardScheduling();
