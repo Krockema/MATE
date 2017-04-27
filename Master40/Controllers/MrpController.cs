@@ -12,11 +12,9 @@ namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
-        private readonly MasterDBContext _context;
         private readonly IProcessMrp _processMrp;
-        public MrpController(MasterDBContext context, IProcessMrp processMrp)
+        public MrpController(IProcessMrp processMrp)
         {
-            _context = context;
             _processMrp = processMrp;
         }
         public IActionResult Index()
