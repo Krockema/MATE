@@ -33,22 +33,24 @@ namespace Master40.Controllers
             var masterDBContext = _context.Articles
                 .Where(a => a.ArticleID == 1).ToList();
 
-            var articleList = new List<Article>();
+            var articleList = new  List<Article>();
             foreach (var item in masterDBContext)
             {
-                 articleList.Add(getRecursive(item, item.ArticleID));
+                var article = await getRecursiveAsync(item, item.ArticleID);
+                articleList.Add(article);
             }
             return View(articleList);
         }
 
-        public Article getRecursive(Article article, int? id)
+        public async Task<Article> getRecursiveAsync(Article article, int? id)
         {
             article.ArticleChilds = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == id);
 
             foreach (var item in article.ArticleChilds)
             {
-                getRecursive(item.ArticleParent, item.ArticleChildId);
+                await getRecursiveAsync(item.ArticleParent, item.ArticleChildId);
             }
+            await Task.Yield();
             return article;
         }
 

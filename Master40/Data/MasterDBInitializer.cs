@@ -131,11 +131,11 @@ namespace Master40.Data
                 new MenuItem{MenuText = "Business Partner", LinkUrl = "BusinessPartners", MenuOrder = 4},
                 new MenuItem{MenuText = "Operations", LinkUrl = "#", MenuOrder = 2, ParentMenuItemId = 1},
                 new MenuItem{MenuText = "Article", LinkUrl = "Articles", MenuOrder = 1, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article BOM", LinkUrl = "ArticlesBom", MenuOrder = 2, ParentMenuItemId = 1},
+                new MenuItem{MenuText = "Article BOM", LinkUrl = "ArticlesBoms", MenuOrder = 2, ParentMenuItemId = 1},
                 new MenuItem{MenuText = "Article Stock", LinkUrl = "Stocks",  MenuOrder = 1, ParentMenuItemId = 1},
                 new MenuItem{MenuText = "Operation Chart", LinkUrl = "OperationCharts",  MenuOrder = 1, ParentMenuItemId = 5},
                 new MenuItem{MenuText = "Operation Tools", LinkUrl = "OperationTools",  MenuOrder = 1, ParentMenuItemId = 5},
-                new MenuItem{MenuText = "Operation Machine", LinkUrl = "OperationMachine",  MenuOrder = 1, ParentMenuItemId = 5},
+                new MenuItem{MenuText = "Operation Machine", LinkUrl = "OperationMachines",  MenuOrder = 1, ParentMenuItemId = 5},
             };
             menu.MenuItems = menuItems;
             menu.MenuName = "Master 4.0";
