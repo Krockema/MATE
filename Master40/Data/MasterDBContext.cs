@@ -10,7 +10,6 @@ namespace Master40.Data
         
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleBom> ArticleBoms { get; set; }
-        public DbSet<ArticleBomPart> ArticleBomParts { get; set; }
         public DbSet<ArticleType> ArticleTypes { get; set; }
         public DbSet<BusinessPartner> BusinessPartners{ get; set; }
 
@@ -31,6 +30,8 @@ namespace Master40.Data
         public DbSet<Menu> Menus { get; set; }
 
         public DbSet<MenuItem> MenuItems { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()
@@ -40,6 +41,16 @@ namespace Master40.Data
                 .HasForeignKey<Stock>(b => b.ArticleForeignKey);
 
             modelBuilder.Entity<Stock>().ToTable("Stock");
+
+            modelBuilder.Entity<ArticleBom>()
+                .HasOne(pt => pt.ArticleParent)
+                .WithMany(p => p.ArticleBoms)
+                .HasForeignKey(pt => pt.ArticleParentId);
+
+            modelBuilder.Entity<ArticleBom>()
+                .HasOne(pt => pt.ArticleChild)
+                .WithMany(t => t.ArticleChilds)
+                .HasForeignKey(pt => pt.ArticleChildId);
         }
     }
 }

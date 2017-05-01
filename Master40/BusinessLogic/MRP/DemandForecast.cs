@@ -24,7 +24,7 @@ namespace Master40.BusinessLogic.MRP
 
         void IDemandForecast.NetRequirement()
         {
-            var b =  _context.ArticleBoms.Include(a => a.Article);
+            var b =  _context.ArticleBoms;
             //Calculate net requirements from context
             //Access Article bill of materials and the order 
         }

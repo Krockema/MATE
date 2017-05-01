@@ -22,8 +22,34 @@ namespace Master40.Controllers
         // GET: ArticleBoms
         public async Task<IActionResult> Index()
         {
-            var masterDBContext = _context.ArticleBoms.Include(a => a.Article);
-            return View(await masterDBContext.ToListAsync());
+            /*
+            var masterDBContext = _context.ArticleBoms
+                .Where(a => a.ArticleParentId == 1)
+                .Include(a => a.ArticleChild)
+                .Include(a => a.ArticleParent)
+                .ThenInclude(b => b.ArticleChilds).ToList().Where(a => 1 == 1);
+                */
+
+            var masterDBContext = _context.Articles
+                .Where(a => a.ArticleID == 1).ToList();
+
+            var articleList = new List<Article>();
+            foreach (var item in masterDBContext)
+            {
+                 articleList.Add(getRecursive(item, item.ArticleID));
+            }
+            return View(articleList);
+        }
+
+        public Article getRecursive(Article article, int? id)
+        {
+            article.ArticleChilds = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == id);
+
+            foreach (var item in article.ArticleChilds)
+            {
+                getRecursive(item.ArticleParent, item.ArticleChildId);
+            }
+            return article;
         }
 
         // GET: ArticleBoms/Details/5
@@ -35,7 +61,8 @@ namespace Master40.Controllers
             }
 
             var articleBom = await _context.ArticleBoms
-                .Include(a => a.Article)
+                .Include(a => a.ArticleChild)
+                .Include(a => a.ArticleParent)
                 .SingleOrDefaultAsync(m => m.ArticleBomId == id);
             if (articleBom == null)
             {
@@ -48,7 +75,8 @@ namespace Master40.Controllers
         // GET: ArticleBoms/Create
         public IActionResult Create()
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name");
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID");
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID");
             return View();
         }
 
@@ -57,7 +85,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleBomId,Name,ArticleId")] ArticleBom articleBom)
+        public async Task<IActionResult> Create([Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +93,8 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name", articleBom.ArticleId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -82,7 +111,8 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name", articleBom.ArticleId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -91,7 +121,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,Name,ArticleId")] ArticleBom articleBom)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
         {
             if (id != articleBom.ArticleBomId)
             {
@@ -118,7 +148,8 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -131,7 +162,8 @@ namespace Master40.Controllers
             }
 
             var articleBom = await _context.ArticleBoms
-                .Include(a => a.Article)
+                .Include(a => a.ArticleChild)
+                .Include(a => a.ArticleParent)
                 .SingleOrDefaultAsync(m => m.ArticleBomId == id);
             if (articleBom == null)
             {

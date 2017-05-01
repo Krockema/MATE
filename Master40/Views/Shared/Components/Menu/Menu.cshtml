@@ -4,10 +4,10 @@
 {
     @if (item.Children != null && item.Children.Count > 0)
      {
-         <li data-toggle="collapse" data-target="#@item.LinkUrl" class="collapsed">
+         <li data-toggle="collapse" data-target="#Menu-@item.MenuId@item.MenuItemId" class="collapsed">
              <a href="#"> @item.MenuText <span class="arrow"></span></a>
          </li>
-         <ul class="sub-menu collapse" id="@item.LinkUrl">
+         <ul class="sub-menu collapse" id="Menu-@item.MenuId@item.MenuItemId">
              @Html.Partial("~/Views/Shared/Components/Menu/Menu.cshtml", item.Children)
          </ul>
     }

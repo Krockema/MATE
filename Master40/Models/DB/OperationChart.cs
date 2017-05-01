@@ -15,6 +15,5 @@ namespace Master40.Models.DB
         public int? MachineId { get; set; }
         public Machine Machine { get; set; }
         public int ArticleBomPartId { get; set; }
-        public ArticleBomPart ArticleBomPart { get; set; }
     }
 }

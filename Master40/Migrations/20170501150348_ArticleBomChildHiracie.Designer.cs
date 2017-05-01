@@ -8,8 +8,8 @@ using Master40.Data;
 namespace Master40.Migrations
 {
     [DbContext(typeof(MasterDBContext))]
-    [Migration("20170426115334_TimeFix2")]
-    partial class TimeFix2
+    [Migration("20170501150348_ArticleBomChildHiracie")]
+    partial class ArticleBomChildHiracie
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -48,14 +48,19 @@ namespace Master40.Migrations
                     b.Property<int>("ArticleBomId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("ArticleId");
+                    b.Property<int?>("ArticleChildId");
+
+                    b.Property<int>("ArticleParentId");
 
                     b.Property<string>("Name");
 
+                    b.Property<int>("Quantity");
+
                     b.HasKey("ArticleBomId");
 
-                    b.HasIndex("ArticleId")
-                        .IsUnique();
+                    b.HasIndex("ArticleChildId");
+
+                    b.HasIndex("ArticleParentId");
 
                     b.ToTable("ArticleBoms");
                 });
@@ -65,23 +70,7 @@ namespace Master40.Migrations
                     b.Property<int>("ArticleBomPartsId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("ArticleBomId");
-
-                    b.Property<int>("ArticleId");
-
-                    b.Property<double>("Count");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int?>("ParrentArticleBomPartId");
-
                     b.HasKey("ArticleBomPartsId");
-
-                    b.HasIndex("ArticleBomId");
-
-                    b.HasIndex("ArticleId");
-
-                    b.HasIndex("ParrentArticleBomPartId");
 
                     b.ToTable("ArticleBomParts");
                 });
@@ -334,26 +323,14 @@ namespace Master40.Migrations
 
             modelBuilder.Entity("Master40.Models.DB.ArticleBom", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
-                        .WithOne("ArticleBom")
-                        .HasForeignKey("Master40.Models.DB.ArticleBom", "ArticleId");
-                });
+                    b.HasOne("Master40.Models.DB.Article", "ArticleChild")
+                        .WithMany("ArticleChilds")
+                        .HasForeignKey("ArticleChildId");
 
-            modelBuilder.Entity("Master40.Models.DB.ArticleBomPart", b =>
-                {
-                    b.HasOne("Master40.Models.DB.ArticleBom", "ArticleBom")
-                        .WithMany("ArticleBomParts")
-                        .HasForeignKey("ArticleBomId")
+                    b.HasOne("Master40.Models.DB.Article", "ArticleParent")
+                        .WithMany("ArticleBoms")
+                        .HasForeignKey("ArticleParentId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Master40.Models.DB.Article", "Article")
-                        .WithMany()
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Master40.Models.DB.ArticleBomPart", "ParrentArticleBomPart")
-                        .WithMany("ChildArticleBomParts")
-                        .HasForeignKey("ParrentArticleBomPartId");
                 });
 
             modelBuilder.Entity("Master40.Models.DB.MachineTool", b =>
@@ -367,7 +344,7 @@ namespace Master40.Migrations
             modelBuilder.Entity("Master40.Models.DB.OperationChart", b =>
                 {
                     b.HasOne("Master40.Models.DB.ArticleBomPart", "ArticleBomPart")
-                        .WithMany("OperationCharts")
+                        .WithMany()
                         .HasForeignKey("ArticleBomPartId")
                         .OnDelete(DeleteBehavior.Cascade);
 

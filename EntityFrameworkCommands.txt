@@ -1,0 +1,15 @@
+## Entity Framework im Projektordner ausführen
+cd .\Repos\Master-4.0\Master40\
+
+## änderung hinzufügen
+dotnet ef migrations add <name für die änderung>
+
+## rückgängig machen
+dotnet ef migrations remove 
+
+## änderungen an die Datenbank Pushen
+dotnet ef database update
+
+## Datenbank löschen
+dotnet ef database drop
+

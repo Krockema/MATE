@@ -13,11 +13,13 @@ namespace Master40.Models.DB
         [Key]
         public int ArticleID { get; set; }
         public string Name { get; set; }
-        
+
         [Display(Name = "Packing Unit")]
         public int UnitID { get; set; }
+        public virtual Unit Unit { get; set; }
         [Display(Name = "Article Type")]
         public int ArticleTypeID { get; set; }
+        public virtual ArticleType ArticleType { get; set; }
         //[DisplayFormat(DataFormatString = "{0:0,0}")]
         // 
         [DataType(DataType.Currency)]
@@ -26,10 +28,10 @@ namespace Master40.Models.DB
         [DataType(DataType.Date)]
         //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         public DateTime CreationDate { get; set; }
-
-        public Unit Unit { get; set; }
-        public ArticleType ArticleType { get; set; }
         public Stock Stock { get; set; }
-        public ArticleBom ArticleBom { get; set; }
+        public virtual IEnumerable<ArticleBom> ArticleBoms { get; set; }
+        public virtual IEnumerable<ArticleBom> ArticleChilds { get; set; }
+        // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 
+
     }
 }

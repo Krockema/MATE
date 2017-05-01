@@ -44,7 +44,6 @@ namespace Master40.Data
                 context.Units.Add(u);
             }
             context.SaveChanges();
-
             // Articles
             var articles = new Article[]
             {
@@ -54,6 +53,7 @@ namespace Master40.Data
             new Article{Name="Chassis", ArticleTypeID = articleTypes.Single( s => s.Name == "Assembly").ArticleTypeID, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitID = units.Single( s => s.Name == "Pieces").UnitID, Price = 15.00},
 
             new Article{Name="Rad", ArticleTypeID = articleTypes.Single( s => s.Name == "Material").ArticleTypeID, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitID = units.Single( s => s.Name == "Pieces").UnitID, Price = 1.00},
+            new Article{Name="Felge", ArticleTypeID = articleTypes.Single( s => s.Name == "Material").ArticleTypeID, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 2, UnitID = units.Single( s => s.Name == "Pieces").UnitID, Price = 1.00},
             new Article{Name="Bodenplatte", ArticleTypeID = articleTypes.Single( s => s.Name == "Material").ArticleTypeID, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitID = units.Single( s => s.Name == "Pieces").UnitID, Price = 4.00},
             new Article{Name="Aufliegeplatte", ArticleTypeID = articleTypes.Single( s => s.Name == "Material").ArticleTypeID, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitID = units.Single( s => s.Name == "Pieces").UnitID, Price = 3.00},
             
@@ -106,39 +106,36 @@ namespace Master40.Data
                 context.SaveChanges();
             }
 
-            var articleBom = new ArticleBom();
-
-            var articleBomParts = new List<ArticleBomPart>{
-                new ArticleBomPart { ArticleId = articles.Single(a => a.Name == "Kipper").ArticleID, Count = 1, Name = "Kipper" },
-                new ArticleBomPart {ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleID, ParrentArticleBomPartId = 1, Count = 1, Name = "Rahmengestell" },
-                new ArticleBomPart {ArticleId = articles.Single(a => a.Name == "Ladebehälter").ArticleID, ParrentArticleBomPartId = 1, Count = 1, Name = "Ladebehälter" },
-                new ArticleBomPart {ArticleId = articles.Single(a => a.Name == "Chassis").ArticleID, Count = 1, ParrentArticleBomPartId = 1, Name = "Chassis" },
-                new ArticleBomPart {ArticleId = articles.Single(a => a.Name == "Rad").ArticleID, Count = 4, ParrentArticleBomPartId = 2, Name = "Rad" },
-                new ArticleBomPart {ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleID, Count = 1, ParrentArticleBomPartId = 2, Name = "Bodenplatte" },
-                new ArticleBomPart {ArticleId = articles.Single(a => a.Name == "Achse").ArticleID, Count = 2, ParrentArticleBomPartId = 2, Name = "Achse" },
-
+            var articleBom = new List<ArticleBom>
+            {
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Kipper").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Rahmengestell").ArticleID, Name = "Rahmengestell", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Kipper").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Ladebehälter").ArticleID, Name = "Ladebehälter", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Kipper").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Chassis").ArticleID, Name = "Chassis", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Rahmengestell").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Bodenplatte").ArticleID, Name = "Bodenplatte", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Rahmengestell").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Achse").ArticleID, Name = "Achse", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Achse").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Rad").ArticleID, Name = "Rad", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Rad").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Felge").ArticleID, Name = "Felge", Quantity = 1 },
+                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Achse").ArticleID, ArticleChildId = articles.Single(a => a.Name == "Dübel").ArticleID, Name = "Dübel", Quantity = 1 }
             };
-
-            articleBom.ArticleBomParts = articleBomParts;
-            articleBom.ArticleId = articles.Single(a => a.Name == "Kipper").ArticleID;
-            articleBom.Name = "Kipper";
-            context.ArticleBoms.Add(articleBom);
+            foreach (var item in articleBom)
+            {
+                context.ArticleBoms.Add(item);
+            }
             context.SaveChanges();
 
             var menu = new Menu();
             var menuItems = new List<MenuItem>{
-                new MenuItem{MenuText = "Article", LinkUrl = "Index", MenuOrder = 1},
-                new MenuItem{MenuText = "Order", LinkUrl = "Index", MenuOrder = 2},
-                new MenuItem{MenuText = "Purchase", LinkUrl = "Index", MenuOrder = 3},
-                new MenuItem{MenuText = "Purchase Position", LinkUrl = "Index", MenuOrder = 1, ParentMenuItemId = 3 },
-                new MenuItem{MenuText = "Business Partner", LinkUrl = "Index", MenuOrder = 4},
-                new MenuItem{MenuText = "Article", LinkUrl = "Index", MenuOrder = 1, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article BOM", LinkUrl = "Index", MenuOrder = 2, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article BOM Part", LinkUrl = "Index", MenuOrder = 3, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article Stock", LinkUrl = "Index",  MenuOrder = 1, ParentMenuItemId = 7},
-                new MenuItem{MenuText = "Operation Chart", LinkUrl = "Index",  MenuOrder = 1, ParentMenuItemId = 7},
-                new MenuItem{MenuText = "Operation Tools", LinkUrl = "Index",  MenuOrder = 1, ParentMenuItemId = 7},
-                new MenuItem{MenuText = "Operation Machine", LinkUrl = "Index",  MenuOrder = 1, ParentMenuItemId = 7},
+                new MenuItem{MenuText = "Article", LinkUrl = "#", MenuOrder = 1},
+                new MenuItem{MenuText = "Order", LinkUrl = "Orders", MenuOrder = 2},
+                new MenuItem{MenuText = "Purchase", LinkUrl = "Purchases", MenuOrder = 3},
+                new MenuItem{MenuText = "Business Partner", LinkUrl = "BusinessPartners", MenuOrder = 4},
+                new MenuItem{MenuText = "Operations", LinkUrl = "#", MenuOrder = 2, ParentMenuItemId = 1},
+                new MenuItem{MenuText = "Article", LinkUrl = "Articles", MenuOrder = 1, ParentMenuItemId = 1},
+                new MenuItem{MenuText = "Article BOM", LinkUrl = "ArticlesBom", MenuOrder = 2, ParentMenuItemId = 1},
+                new MenuItem{MenuText = "Article Stock", LinkUrl = "Stocks",  MenuOrder = 1, ParentMenuItemId = 1},
+                new MenuItem{MenuText = "Operation Chart", LinkUrl = "OperationCharts",  MenuOrder = 1, ParentMenuItemId = 5},
+                new MenuItem{MenuText = "Operation Tools", LinkUrl = "OperationTools",  MenuOrder = 1, ParentMenuItemId = 5},
+                new MenuItem{MenuText = "Operation Machine", LinkUrl = "OperationMachine",  MenuOrder = 1, ParentMenuItemId = 5},
             };
             menu.MenuItems = menuItems;
             menu.MenuName = "Master 4.0";

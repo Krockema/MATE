@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.Models.DB.ArticleBom>
+@model IEnumerable<Master40.Models.DB.Article>
 
 @{
     ViewData["Title"] = "Index";
@@ -10,33 +10,72 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article)
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeliveryPeriod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Unit)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Article.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ArticleBomId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ArticleBomId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ArticleBomId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeliveryPeriod)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreationDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ArticleType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Unit.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ArticleID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ArticleID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ArticleID">Delete</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <h1>Bomstructure</h1>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.Partial("ArticleBom", item.ArticleBoms)
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+

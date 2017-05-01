@@ -14,16 +14,28 @@
     <dl class="dl-horizontal">
         <input type="hidden" asp-for="ArticleBomId" />
         <dt>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Quantity)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Article)
+            @Html.DisplayNameFor(model => model.ArticleChild)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Article.ArticleID)
+            @Html.DisplayFor(model => model.ArticleChild.ArticleID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ArticleParent)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ArticleParent.ArticleID)
         </dd>
     </dl>
     
