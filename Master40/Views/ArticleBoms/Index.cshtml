@@ -32,7 +32,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Unit)
             </th>
-            <th></th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -64,13 +64,33 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="6">
-                    <h1>Bomstructure</h1>
+                <td colspan="7">
+                    <h3>Bomstructure</h3>
                 </td>
             </tr>
             <tr>
-                <td>
-                    @Html.Partial("ArticleBom", item.ArticleBoms)
+                <td colspan="7">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Level</th>
+                                <th>
+                                    Quantity
+                                </th>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    ArticleChild
+                                </th>
+                                <th>
+                                    ArticleParent
+                                </th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                     @Html.Partial("ArticleBom", item.ArticleBoms, new ViewDataDictionary(ViewData) { { "level", "" } })
+                    </table>
                 </td>
             </tr>
         }

@@ -125,17 +125,17 @@ namespace Master40.Data
 
             var menu = new Menu();
             var menuItems = new List<MenuItem>{
-                new MenuItem{MenuText = "Article", LinkUrl = "#", MenuOrder = 1},
-                new MenuItem{MenuText = "Order", LinkUrl = "Orders", MenuOrder = 2},
-                new MenuItem{MenuText = "Purchase", LinkUrl = "Purchases", MenuOrder = 3},
-                new MenuItem{MenuText = "Business Partner", LinkUrl = "BusinessPartners", MenuOrder = 4},
-                new MenuItem{MenuText = "Operations", LinkUrl = "#", MenuOrder = 2, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article", LinkUrl = "Articles", MenuOrder = 1, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article BOM", LinkUrl = "ArticlesBoms", MenuOrder = 2, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Article Stock", LinkUrl = "Stocks",  MenuOrder = 1, ParentMenuItemId = 1},
-                new MenuItem{MenuText = "Operation Chart", LinkUrl = "OperationCharts",  MenuOrder = 1, ParentMenuItemId = 5},
-                new MenuItem{MenuText = "Operation Tools", LinkUrl = "OperationTools",  MenuOrder = 1, ParentMenuItemId = 5},
-                new MenuItem{MenuText = "Operation Machine", LinkUrl = "OperationMachines",  MenuOrder = 1, ParentMenuItemId = 5},
+                new MenuItem{MenuText = "Article", LinkUrl = "#", MenuOrder = 1, Action="Index", Symbol="fa-th-list"},
+                new MenuItem{MenuText = "Order", LinkUrl = "Orders", MenuOrder = 2, Action="Index", Symbol="fa-archive"},
+                new MenuItem{MenuText = "Purchase", LinkUrl = "Purchases", MenuOrder = 3, Action="Index", Symbol="fa-shopping-cart"},
+                new MenuItem{MenuText = "Business Partner", LinkUrl = "BusinessPartners", MenuOrder = 4, Action="Index", Symbol="fa-group"},
+                new MenuItem{MenuText = "Article", LinkUrl = "Articles", MenuOrder = 1, ParentMenuItemId = 1, Action="Index", Symbol="fa-archive"},
+                new MenuItem{MenuText = "Operations", LinkUrl = "#", MenuOrder = 2, ParentMenuItemId = 1, Action="Index", Symbol="fa-th-list"},
+                new MenuItem{MenuText = "Article BOM", LinkUrl = "ArticlesBoms", MenuOrder = 2, ParentMenuItemId = 1, Action="Index", Symbol="fa-sitemap"},
+                new MenuItem{MenuText = "Article Stock", LinkUrl = "Stocks",  MenuOrder = 1, ParentMenuItemId = 1,  Action="Index", Symbol="fa-stackexchange"},
+                new MenuItem{MenuText = "Operation Chart", LinkUrl = "OperationCharts",  MenuOrder = 1, ParentMenuItemId = 6, Action="Index", Symbol="fa-tasks"},
+                new MenuItem{MenuText = "Operation Tools", LinkUrl = "OperationTools",  MenuOrder = 1, ParentMenuItemId = 6, Action="Index", Symbol="fa-wrench"},
+                new MenuItem{MenuText = "Operation Machine", LinkUrl = "OperationMachines",  MenuOrder = 1, ParentMenuItemId = 6, Action="Index", Symbol="fa-gears"},
             };
             menu.MenuItems = menuItems;
             menu.MenuName = "Master 4.0";

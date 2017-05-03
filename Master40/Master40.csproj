@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Content Include="wwwroot\css\menu.css" />
+    <Content Include="wwwroot\css\MenuV2.css" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="cldrjs" Version="0.4.8" />
