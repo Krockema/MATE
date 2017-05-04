@@ -89,7 +89,9 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                     @Html.Partial("ArticleBom", item.ArticleBoms, new ViewDataDictionary(ViewData) { { "level", "" } })
+                        <tbody>
+                            @Html.Partial("ArticleBom", item.ArticleBoms, new ViewDataDictionary(ViewData) { { "level", "" } })
+                        </tbody>
                     </table>
                 </td>
             </tr>
