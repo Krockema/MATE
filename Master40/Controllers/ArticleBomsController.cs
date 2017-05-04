@@ -31,7 +31,8 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles
-                .Where(a => a.ArticleId == 1).ToList();
+                .Where(a => a.ArticleId == 1)
+                .ToList();
 
             var articleList = new  List<Article>();
             foreach (var item in masterDBContext)

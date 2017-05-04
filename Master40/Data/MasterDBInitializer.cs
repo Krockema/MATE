@@ -133,10 +133,12 @@ namespace Master40.Data
                 new MenuItem{MenuText = "Article", LinkUrl = "Articles", MenuOrder = 1, ParentMenuItemId = 1, Action="Index", Symbol="fa-archive"},
                 new MenuItem{MenuText = "Operations", LinkUrl = "#", MenuOrder = 2, ParentMenuItemId = 1, Action="Index", Symbol="fa-th-list"},
                 new MenuItem{MenuText = "Article BOM", LinkUrl = "ArticleBoms", MenuOrder = 2, ParentMenuItemId = 1, Action="Index", Symbol="fa-sitemap"},
-                new MenuItem{MenuText = "Article Stock", LinkUrl = "Stocks",  MenuOrder = 1, ParentMenuItemId = 1,  Action="Index", Symbol="fa-stackexchange"},
+                new MenuItem{MenuText = "Article Stock", LinkUrl = "Stocks",  MenuOrder = 1, ParentMenuItemId = 1,  Action="Index", Symbol="fa-dropbox"},
                 new MenuItem{MenuText = "Operation Chart", LinkUrl = "OperationCharts",  MenuOrder = 1, ParentMenuItemId = 6, Action="Index", Symbol="fa-tasks"},
                 new MenuItem{MenuText = "Operation Tools", LinkUrl = "OperationTools",  MenuOrder = 1, ParentMenuItemId = 6, Action="Index", Symbol="fa-wrench"},
                 new MenuItem{MenuText = "Operation Machine", LinkUrl = "OperationMachines",  MenuOrder = 1, ParentMenuItemId = 6, Action="Index", Symbol="fa-gears"},
+                new MenuItem{MenuText = "Planung Simulations", LinkUrl = "#",  MenuOrder = 4, Action="Index", Symbol="fa-spinner"},
+                new MenuItem{MenuText = "MRP", LinkUrl = "Mrp",  MenuOrder = 5, ParentMenuItemId = 12, Action="Index", Symbol="fa-magic"},
             };
             menu.MenuItems = menuItems;
             menu.MenuName = "Master 4.0";

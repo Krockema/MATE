@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.Data;
 using Master40.Models.DB;
 using Microsoft.EntityFrameworkCore;
+using Master40.Models;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -11,14 +12,16 @@ namespace Master40.BusinessLogic.MRP
     {
         Collection<ArticleBom> NetRequirement(int orderId);
         void GrossRequirement(Collection<ArticleBom> articles);
+        List<LogMessage> Logger { get; set; }
     }
 
     internal class DemandForecast : IDemandForecast
     {
         private readonly MasterDBContext _context;
-
+        public List<LogMessage> Logger { get; set; }
         internal DemandForecast(MasterDBContext context)
         {
+            Logger = new List<LogMessage>();
             _context = context;
         }
 
@@ -67,8 +70,9 @@ namespace Master40.BusinessLogic.MRP
         {
             foreach (var bom in boms)
             {
-                System.Diagnostics.Debug.WriteLine(bom.Name + " " + bom.Quantity + " " + bom.ArticleChild + " " +
-                                                   bom.ArticleParent);
+                var msg = bom.Name + " " + bom.Quantity + " " + bom.ArticleChild + " " + bom.ArticleParent;
+                System.Diagnostics.Debug.WriteLine(msg);
+                Logger.Add( new LogMessage() { MessageType = MessageType.success, Message = msg } );
 
                 var tempBom = bom;
                 tempBom.Quantity *= multiplier;

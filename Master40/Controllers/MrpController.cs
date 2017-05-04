@@ -19,12 +19,18 @@ namespace Master40.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            if (_processMrp.Logger == null)
+            {
+                _processMrp.Logger = new List<LogMessage>() {
+                    new LogMessage() { MessageType = MessageType.success, Message = "Nothing logged yet.", MessageNumber = 1 }
+                };
+            }
+            return View(_processMrp.Logger);
         }
 
-        public IActionResult MrpProcessing()
+        [HttpGet("[Controller]/MrpProcessing/{id}")]
+        public IActionResult MrpProcessing(int? id)
         {
-            ViewData["Message"] = "Your application description page.";
             //TODO: hand over dynamic orderId
             _processMrp.Process(1);
             return RedirectToAction("Index");
