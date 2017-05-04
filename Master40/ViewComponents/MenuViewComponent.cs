@@ -27,7 +27,8 @@ namespace Master40.ViewComponents
         private IEnumerable<MenuItem> GetItemsAsync(int id)
         {
             return _context.MenuItems
-                .Where(m => m.MenuId == id).OrderBy(x => x.MenuOrder).ToList().Where(m => m.Parent == null).OrderBy(x => x.MenuOrder).ToList();
+                .Where(m => m.MenuId == id).OrderBy(x => x.MenuOrder).ToList()
+                .Where(m => m.Parent == null).OrderBy(x => x.MenuOrder).ToList();
         }
     }
 }

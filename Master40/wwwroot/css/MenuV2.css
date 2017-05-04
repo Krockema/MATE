@@ -20,9 +20,9 @@
 }
 
 .main-menu {
-    background: #fbfbfb;
+    background: #222;
     border-right: 1px solid #e5e5e5;
-    position: absolute;
+    position: fixed;
     top: 50px;
     bottom: 0;
     height: 100%;
@@ -113,7 +113,7 @@ nav {
 
     .main-menu li:hover > a, nav.main-menu li.active > a, .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus, .dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus, .no-touch .dashboard-page nav.dashboard-menu ul li:hover a, .dashboard-page nav.dashboard-menu ul li.active a {
         color: #fff;
-        background-color: #5fa2db;
+        background-color: #ff6a00;
     }
 
 .area {
@@ -132,14 +132,16 @@ nav {
 
 ul .sub-menu {
     /* background-color: #181c20; */
-    background-color: #cecece;
+    background-color: #303030;
     border: none;
+    color: azure !important;
     line-height: 28px;
     /* border-bottom: 1px solid #23282e; */
 }
 ul ul .sub-menu {
     /* background-color: #181c20; */
-    background-color: #bababa;
+    background-color: #404040;
+    color: azure !important;
     border: none;
     line-height: 28px;
     /* border-bottom: 1px solid #23282e; */
