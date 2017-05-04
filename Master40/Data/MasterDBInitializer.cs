@@ -143,6 +143,36 @@ namespace Master40.Data
             context.Menus.Add(menu);
             context.SaveChanges();
 
+            //create Businesspartner
+            var businessPartner = new BusinessPartner(){Debitor = true,Kreditor = true,Name = "Toys'R'us Spielwarenabteilung"};
+            context.BusinessPartners.Add(businessPartner);
+            context.SaveChanges();
+
+            //create order
+            var orders = new List<Order>() { 
+                new Order(){BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 10, Name = "Kipperbestellung"},
+                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 9, Name = "Kipperbestellung" },
+                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 8, Name = "Kipperbestellung" }
+            };
+            foreach (var order in orders)
+            {
+                context.Orders.Add(order);
+            }
+            context.SaveChanges();
+
+            //create orderParts
+            var orderParts = new List<OrderPart>()
+            {
+                new OrderPart(){Amount = 5, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleID, OrderId = 1},
+                new OrderPart(){Amount = 6, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleID, OrderId = 2},
+                new OrderPart(){Amount = 7, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleID, OrderId = 3},
+            };
+            foreach (var orderPart in orderParts)
+            {
+                context.OrderParts.Add(orderPart);
+            }
+            context.SaveChanges();
+
 
         }
     }

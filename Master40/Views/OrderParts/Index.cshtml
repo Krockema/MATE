@@ -1,0 +1,48 @@
+@model IEnumerable<Master40.Models.DB.OrderPart>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Amount)
+                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Article)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Article.ArticleID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.OrderId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.OrderPartId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.OrderPartId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.OrderPartId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

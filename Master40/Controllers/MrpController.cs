@@ -25,7 +25,8 @@ namespace Master40.Controllers
         public IActionResult MrpProcessing()
         {
             ViewData["Message"] = "Your application description page.";
-            _processMrp.Process();
+            //TODO: hand over dynamic orderId
+            _processMrp.Process(1);
             return RedirectToAction("Index");
         }
        

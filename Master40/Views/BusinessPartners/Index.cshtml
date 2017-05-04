@@ -1,0 +1,48 @@
+@model IEnumerable<Master40.Models.DB.BusinessPartner>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Debitor)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Kreditor)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Debitor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Kreditor)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.BusinessPartnerId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.BusinessPartnerId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.BusinessPartnerId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
