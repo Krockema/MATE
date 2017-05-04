@@ -392,7 +392,7 @@ module.exports = function (grunt) {
     'saucelabs-qunit': {
       all: {
         options: {
-          build: process.env.TRAVIS_JOB_ID,
+          build: process.env.TRAVIS_JOB_Id,
           throttled: 10,
           maxRetries: 3,
           maxPollRetries: 4,
@@ -455,7 +455,7 @@ module.exports = function (grunt) {
   // Skip HTML validation if running a different subset of the test suite
   if (runSubset('validate-html') &&
       // Skip HTML5 validator on Travis when [skip validator] is in the commit message
-      isUndefOrNonZero(process.env.TWBS_DO_VALIDATOR)) {
+      isUndefOrNonZero(process.env.TWBS_DO_VALIdATOR)) {
     testSubtasks.push('validate-html');
   }
   // Only run Sauce Labs tests if there's a Sauce access key

@@ -669,7 +669,7 @@ Read more details about locale at [UTS#35 locale][].
 
 ### CLDR Errors
 
-- **`E_INVALID_CLDR`**
+- **`E_INVALId_CLDR`**
 
   Thrown when a CLDR item has an invalid or unexpected value.
 
@@ -683,13 +683,13 @@ Read more details about locale at [UTS#35 locale][].
 
 ### Parameter Errors
 
-- **`E_INVALID_PAR_TYPE`**
+- **`E_INVALId_PAR_TYPE`**
 
   Thrown when a parameter has an invalid type on any static or instance methods.
 
   [Read more...](doc/error/e-invalid-par-type.md)
 
-- **`E_INVALID_PAR_VALUE`**
+- **`E_INVALId_PAR_VALUE`**
 
   Thrown for certain parameters when the type is correct, but the value is
   invalid.

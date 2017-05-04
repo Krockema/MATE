@@ -21,10 +21,10 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ArticleChild.ArticleID)
+                    @Html.DisplayFor(modelItem => item.ArticleChild.ArticleId)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ArticleParent.ArticleID)
+                    @Html.DisplayFor(modelItem => item.ArticleParent.ArticleId)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ArticleBomId">Edit</a> |

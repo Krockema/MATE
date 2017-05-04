@@ -19,10 +19,10 @@ namespace Master40.Migrations
 
             modelBuilder.Entity("Master40.Models.DB.Article", b =>
                 {
-                    b.Property<int>("ArticleID")
+                    b.Property<int>("ArticleId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("ArticleTypeID");
+                    b.Property<int>("ArticleTypeId");
 
                     b.Property<DateTime>("CreationDate");
 
@@ -32,13 +32,13 @@ namespace Master40.Migrations
 
                     b.Property<double>("Price");
 
-                    b.Property<int>("UnitID");
+                    b.Property<int>("UnitId");
 
-                    b.HasKey("ArticleID");
+                    b.HasKey("ArticleId");
 
-                    b.HasIndex("ArticleTypeID");
+                    b.HasIndex("ArticleTypeId");
 
-                    b.HasIndex("UnitID");
+                    b.HasIndex("UnitId");
 
                     b.ToTable("Article");
                 });
@@ -67,12 +67,12 @@ namespace Master40.Migrations
 
             modelBuilder.Entity("Master40.Models.DB.ArticleType", b =>
                 {
-                    b.Property<int>("ArticleTypeID")
+                    b.Property<int>("ArticleTypeId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Name");
 
-                    b.HasKey("ArticleTypeID");
+                    b.HasKey("ArticleTypeId");
 
                     b.ToTable("ArticleTypes");
                 });
@@ -225,7 +225,7 @@ namespace Master40.Migrations
 
             modelBuilder.Entity("Master40.Models.DB.Stock", b =>
                 {
-                    b.Property<int>("StockID")
+                    b.Property<int>("StockId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("ArticleForeignKey");
@@ -238,7 +238,7 @@ namespace Master40.Migrations
 
                     b.Property<string>("Name");
 
-                    b.HasKey("StockID");
+                    b.HasKey("StockId");
 
                     b.HasIndex("ArticleForeignKey")
                         .IsUnique();
@@ -248,12 +248,12 @@ namespace Master40.Migrations
 
             modelBuilder.Entity("Master40.Models.DB.Unit", b =>
                 {
-                    b.Property<int>("UnitID")
+                    b.Property<int>("UnitId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Name");
 
-                    b.HasKey("UnitID");
+                    b.HasKey("UnitId");
 
                     b.ToTable("Units");
                 });
@@ -304,12 +304,12 @@ namespace Master40.Migrations
                 {
                     b.HasOne("Master40.Models.DB.ArticleType", "ArticleType")
                         .WithMany()
-                        .HasForeignKey("ArticleTypeID")
+                        .HasForeignKey("ArticleTypeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Master40.Models.DB.Unit", "Unit")
                         .WithMany()
-                        .HasForeignKey("UnitID")
+                        .HasForeignKey("UnitId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

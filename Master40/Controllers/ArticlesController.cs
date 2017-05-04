@@ -37,7 +37,7 @@ namespace Master40.Controllers
             var article = await _context.Articles
                 .Include(a => a.ArticleType)
                 .Include(a => a.Unit)
-                .SingleOrDefaultAsync(m => m.ArticleID == id);
+                .SingleOrDefaultAsync(m => m.ArticleId == id);
             if (article == null)
             {
                 return NotFound();
@@ -49,8 +49,8 @@ namespace Master40.Controllers
         // GET: Articles/Create
         public IActionResult Create()
         {
-            ViewData["ArticleTypeID"] = new SelectList(_context.ArticleTypes, "ArticleTypeID", "Name");
-            ViewData["UnitID"] = new SelectList(_context.Units, "UnitID", "Name");
+            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name");
+            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleID,Name,UnitID,ArticleTypeID,Price,DeliveryPeriod,CreationDate")] Article article)
+        public async Task<IActionResult> Create([Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] Article article)
         {
             if (ModelState.IsValid)
             {
@@ -67,8 +67,8 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleTypeID"] = new SelectList(_context.ArticleTypes, "ArticleTypeID", "Name", article.ArticleTypeID);
-            ViewData["UnitID"] = new SelectList(_context.Units, "UnitID", "Name", article.UnitID);
+            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name", article.ArticleTypeId);
+            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name", article.UnitId);
             return View(article);
         }
 
@@ -80,13 +80,13 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var article = await _context.Articles.SingleOrDefaultAsync(m => m.ArticleID == id);
+            var article = await _context.Articles.SingleOrDefaultAsync(m => m.ArticleId == id);
             if (article == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleTypeID"] = new SelectList(_context.ArticleTypes, "ArticleTypeID", "Name", article.ArticleTypeID);
-            ViewData["UnitID"] = new SelectList(_context.Units, "UnitID", "Name", article.UnitID);
+            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name", article.ArticleTypeId);
+            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name", article.UnitId);
             return View(article);
         }
 
@@ -95,9 +95,9 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleID,Name,UnitID,ArticleTypeID,Price,DeliveryPeriod,CreationDate")] Article article)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] Article article)
         {
-            if (id != article.ArticleID)
+            if (id != article.ArticleId)
             {
                 return NotFound();
             }
@@ -111,7 +111,7 @@ namespace Master40.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArticleExists(article.ArticleID))
+                    if (!ArticleExists(article.ArticleId))
                     {
                         return NotFound();
                     }
@@ -122,8 +122,8 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleTypeID"] = new SelectList(_context.ArticleTypes, "ArticleTypeID", "Name", article.ArticleTypeID);
-            ViewData["UnitID"] = new SelectList(_context.Units, "UnitID", "Name", article.UnitID);
+            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name", article.ArticleTypeId);
+            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name", article.UnitId);
             return View(article);
         }
 
@@ -138,7 +138,7 @@ namespace Master40.Controllers
             var article = await _context.Articles
                 .Include(a => a.ArticleType)
                 .Include(a => a.Unit)
-                .SingleOrDefaultAsync(m => m.ArticleID == id);
+                .SingleOrDefaultAsync(m => m.ArticleId == id);
             if (article == null)
             {
                 return NotFound();
@@ -152,7 +152,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var article = await _context.Articles.SingleOrDefaultAsync(m => m.ArticleID == id);
+            var article = await _context.Articles.SingleOrDefaultAsync(m => m.ArticleId == id);
             _context.Articles.Remove(article);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -160,7 +160,7 @@ namespace Master40.Controllers
 
         private bool ArticleExists(int id)
         {
-            return _context.Articles.Any(e => e.ArticleID == id);
+            return _context.Articles.Any(e => e.ArticleId == id);
         }
     }
 }

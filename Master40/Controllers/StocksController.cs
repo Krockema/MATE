@@ -36,7 +36,7 @@ namespace Master40.Controllers
 
             var stock = await _context.Stocks
                 .Include(s => s.Article)
-                .SingleOrDefaultAsync(m => m.StockID == id);
+                .SingleOrDefaultAsync(m => m.StockId == id);
             if (stock == null)
             {
                 return NotFound();
@@ -48,7 +48,7 @@ namespace Master40.Controllers
         // GET: Stocks/Create
         public IActionResult Create()
         {
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleID", "Name");
+            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name");
             return View();
         }
 
@@ -57,7 +57,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StockID,Name,Max,Min,Current,ArticleForeignKey")] Stock stock)
+        public async Task<IActionResult> Create([Bind("StockId,Name,Max,Min,Current,ArticleForeignKey")] Stock stock)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +65,7 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleID", "Name", stock.ArticleForeignKey);
+            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name", stock.ArticleForeignKey);
             return View(stock);
         }
 
@@ -77,12 +77,12 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var stock = await _context.Stocks.SingleOrDefaultAsync(m => m.StockID == id);
+            var stock = await _context.Stocks.SingleOrDefaultAsync(m => m.StockId == id);
             if (stock == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleID", "Name", stock.ArticleForeignKey);
+            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name", stock.ArticleForeignKey);
             return View(stock);
         }
 
@@ -91,9 +91,9 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StockID,Name,Max,Min,Current,ArticleForeignKey")] Stock stock)
+        public async Task<IActionResult> Edit(int id, [Bind("StockId,Name,Max,Min,Current,ArticleForeignKey")] Stock stock)
         {
-            if (id != stock.StockID)
+            if (id != stock.StockId)
             {
                 return NotFound();
             }
@@ -107,7 +107,7 @@ namespace Master40.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StockExists(stock.StockID))
+                    if (!StockExists(stock.StockId))
                     {
                         return NotFound();
                     }
@@ -118,7 +118,7 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleID", "Name", stock.ArticleForeignKey);
+            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name", stock.ArticleForeignKey);
             return View(stock);
         }
 
@@ -132,7 +132,7 @@ namespace Master40.Controllers
 
             var stock = await _context.Stocks
                 .Include(s => s.Article)
-                .SingleOrDefaultAsync(m => m.StockID == id);
+                .SingleOrDefaultAsync(m => m.StockId == id);
             if (stock == null)
             {
                 return NotFound();
@@ -146,7 +146,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var stock = await _context.Stocks.SingleOrDefaultAsync(m => m.StockID == id);
+            var stock = await _context.Stocks.SingleOrDefaultAsync(m => m.StockId == id);
             _context.Stocks.Remove(stock);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -154,7 +154,7 @@ namespace Master40.Controllers
 
         private bool StockExists(int id)
         {
-            return _context.Stocks.Any(e => e.StockID == id);
+            return _context.Stocks.Any(e => e.StockId == id);
         }
     }
 }

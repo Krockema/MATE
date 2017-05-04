@@ -16,11 +16,11 @@ namespace Master40.Models.DB
         */ 
         [Key]
         public int ArticleBomId { get; set; }
-        public int ArticleParentId { get; set; }
+        public int? ArticleParentId { get; set; }
         public Article ArticleParent { get; set; }
         public int? ArticleChildId { get; set; }
         public Article ArticleChild { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public string Name { get; set; }
 
     }

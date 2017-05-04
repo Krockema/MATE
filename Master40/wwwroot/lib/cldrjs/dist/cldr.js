@@ -369,7 +369,7 @@
 
 
 	var validateType = function( value, name, check, expected ) {
-		validate( "E_INVALID_PAR_TYPE", check, {
+		validate( "E_INVALId_PAR_TYPE", check, {
 			expected: expected,
 			name: name,
 			value: value
@@ -604,7 +604,7 @@
 		// Get the variant subtags (calendar, collation, currency, etc).
 		// refs:
 		// - http://www.unicode.org/reports/tr35/#Field_Definitions
-		// - http://www.unicode.org/reports/tr35/#Language_and_Locale_IDs
+		// - http://www.unicode.org/reports/tr35/#Language_and_Locale_Ids
 		// - http://www.unicode.org/reports/tr35/#Unicode_locale_identifier
 
 		// When a locale id does not specify a language, or territory (region), or script, they are obtained by Likely Subtags.

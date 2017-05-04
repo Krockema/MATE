@@ -10,19 +10,19 @@ namespace Master40.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_ArticleBoms_Article_ArticleID",
+                name: "FK_ArticleBoms_Article_ArticleId",
                 table: "ArticleBoms");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_ArticleBoms_ArticleBoms_ParrentArticleBomID",
+                name: "FK_ArticleBoms_ArticleBoms_ParrentArticleBomId",
                 table: "ArticleBoms");
 
             migrationBuilder.DropIndex(
-                name: "IX_ArticleBoms_ArticleID",
+                name: "IX_ArticleBoms_ArticleId",
                 table: "ArticleBoms");
 
             migrationBuilder.DropIndex(
-                name: "IX_ArticleBoms_ParrentArticleBomID",
+                name: "IX_ArticleBoms_ParrentArticleBomId",
                 table: "ArticleBoms");
 
             migrationBuilder.DropColumn(
@@ -30,16 +30,16 @@ namespace Master40.Migrations
                 table: "ArticleBoms");
 
             migrationBuilder.DropColumn(
-                name: "ParrentArticleBomID",
+                name: "ParrentArticleBomId",
                 table: "ArticleBoms");
 
             migrationBuilder.RenameColumn(
-                name: "ArticleID",
+                name: "ArticleId",
                 table: "ArticleBoms",
                 newName: "ArticleId");
 
             migrationBuilder.RenameColumn(
-                name: "ArticleBomID",
+                name: "ArticleBomId",
                 table: "ArticleBoms",
                 newName: "ArticleBomId");
 
@@ -74,7 +74,7 @@ namespace Master40.Migrations
                         name: "FK_ArticleBomParts_Article_ArticleId",
                         column: x => x.ArticleId,
                         principalTable: "Article",
-                        principalColumn: "ArticleID",
+                        principalColumn: "ArticleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ArticleBomParts_ArticleBomParts_ParrentArticleBomPartId",
@@ -110,7 +110,7 @@ namespace Master40.Migrations
                 table: "ArticleBoms",
                 column: "ArticleId",
                 principalTable: "Article",
-                principalColumn: "ArticleID",
+                principalColumn: "ArticleId",
                 onDelete: ReferentialAction.Restrict);
         }
 
@@ -130,15 +130,15 @@ namespace Master40.Migrations
             migrationBuilder.RenameColumn(
                 name: "ArticleId",
                 table: "ArticleBoms",
-                newName: "ArticleID");
+                newName: "ArticleId");
 
             migrationBuilder.RenameColumn(
                 name: "ArticleBomId",
                 table: "ArticleBoms",
-                newName: "ArticleBomID");
+                newName: "ArticleBomId");
 
             migrationBuilder.AlterColumn<int>(
-                name: "ArticleID",
+                name: "ArticleId",
                 table: "ArticleBoms",
                 nullable: false,
                 oldClrType: typeof(int),
@@ -151,34 +151,34 @@ namespace Master40.Migrations
                 defaultValue: 0.0);
 
             migrationBuilder.AddColumn<int>(
-                name: "ParrentArticleBomID",
+                name: "ParrentArticleBomId",
                 table: "ArticleBoms",
                 nullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArticleBoms_ArticleID",
+                name: "IX_ArticleBoms_ArticleId",
                 table: "ArticleBoms",
-                column: "ArticleID");
+                column: "ArticleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArticleBoms_ParrentArticleBomID",
+                name: "IX_ArticleBoms_ParrentArticleBomId",
                 table: "ArticleBoms",
-                column: "ParrentArticleBomID");
+                column: "ParrentArticleBomId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ArticleBoms_Article_ArticleID",
+                name: "FK_ArticleBoms_Article_ArticleId",
                 table: "ArticleBoms",
-                column: "ArticleID",
+                column: "ArticleId",
                 principalTable: "Article",
-                principalColumn: "ArticleID",
+                principalColumn: "ArticleId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ArticleBoms_ArticleBoms_ParrentArticleBomID",
+                name: "FK_ArticleBoms_ArticleBoms_ParrentArticleBomId",
                 table: "ArticleBoms",
-                column: "ParrentArticleBomID",
+                column: "ParrentArticleBomId",
                 principalTable: "ArticleBoms",
-                principalColumn: "ArticleBomID",
+                principalColumn: "ArticleBomId",
                 onDelete: ReferentialAction.Restrict);
         }
     }

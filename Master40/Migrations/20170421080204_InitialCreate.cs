@@ -13,55 +13,55 @@ namespace Master40.Migrations
                 name: "ArticleTypes",
                 columns: table => new
                 {
-                    ArticleTypeID = table.Column<int>(nullable: false)
+                    ArticleTypeId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArticleTypes", x => x.ArticleTypeID);
+                    table.PrimaryKey("PK_ArticleTypes", x => x.ArticleTypeId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Units",
                 columns: table => new
                 {
-                    UnitID = table.Column<int>(nullable: false)
+                    UnitId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Units", x => x.UnitID);
+                    table.PrimaryKey("PK_Units", x => x.UnitId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Article",
                 columns: table => new
                 {
-                    ArticleID = table.Column<int>(nullable: false)
+                    ArticleId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ArticleTypeID = table.Column<int>(nullable: false),
+                    ArticleTypeId = table.Column<int>(nullable: false),
                     CreationDate = table.Column<DateTime>(nullable: false),
                     DeliveryPeriod = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Price = table.Column<double>(nullable: false),
-                    UnitID = table.Column<int>(nullable: false)
+                    UnitId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Article", x => x.ArticleID);
+                    table.PrimaryKey("PK_Article", x => x.ArticleId);
                     table.ForeignKey(
-                        name: "FK_Article_ArticleTypes_ArticleTypeID",
-                        column: x => x.ArticleTypeID,
+                        name: "FK_Article_ArticleTypes_ArticleTypeId",
+                        column: x => x.ArticleTypeId,
                         principalTable: "ArticleTypes",
-                        principalColumn: "ArticleTypeID",
+                        principalColumn: "ArticleTypeId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Article_Units_UnitID",
-                        column: x => x.UnitID,
+                        name: "FK_Article_Units_UnitId",
+                        column: x => x.UnitId,
                         principalTable: "Units",
-                        principalColumn: "UnitID",
+                        principalColumn: "UnitId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -69,26 +69,26 @@ namespace Master40.Migrations
                 name: "ArticleBom",
                 columns: table => new
                 {
-                    ArticleBomID = table.Column<int>(nullable: false)
+                    ArticleBomId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ArticleID = table.Column<int>(nullable: false),
+                    ArticleId = table.Column<int>(nullable: false),
                     Count = table.Column<int>(nullable: false),
-                    ParrentArticleBomID = table.Column<int>(nullable: true)
+                    ParrentArticleBomId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArticleBom", x => x.ArticleBomID);
+                    table.PrimaryKey("PK_ArticleBom", x => x.ArticleBomId);
                     table.ForeignKey(
-                        name: "FK_ArticleBom_Article_ArticleID",
-                        column: x => x.ArticleID,
+                        name: "FK_ArticleBom_Article_ArticleId",
+                        column: x => x.ArticleId,
                         principalTable: "Article",
-                        principalColumn: "ArticleID",
+                        principalColumn: "ArticleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ArticleBom_ArticleBom_ParrentArticleBomID",
-                        column: x => x.ParrentArticleBomID,
+                        name: "FK_ArticleBom_ArticleBom_ParrentArticleBomId",
+                        column: x => x.ParrentArticleBomId,
                         principalTable: "ArticleBom",
-                        principalColumn: "ArticleBomID",
+                        principalColumn: "ArticleBomId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -96,7 +96,7 @@ namespace Master40.Migrations
                 name: "Stock",
                 columns: table => new
                 {
-                    StockID = table.Column<int>(nullable: false)
+                    StockId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ArticleForeignKey = table.Column<int>(nullable: false),
                     Current = table.Column<decimal>(nullable: false),
@@ -106,34 +106,34 @@ namespace Master40.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Stock", x => x.StockID);
+                    table.PrimaryKey("PK_Stock", x => x.StockId);
                     table.ForeignKey(
                         name: "FK_Stock_Article_ArticleForeignKey",
                         column: x => x.ArticleForeignKey,
                         principalTable: "Article",
-                        principalColumn: "ArticleID",
+                        principalColumn: "ArticleId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Article_ArticleTypeID",
+                name: "IX_Article_ArticleTypeId",
                 table: "Article",
-                column: "ArticleTypeID");
+                column: "ArticleTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Article_UnitID",
+                name: "IX_Article_UnitId",
                 table: "Article",
-                column: "UnitID");
+                column: "UnitId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArticleBom_ArticleID",
+                name: "IX_ArticleBom_ArticleId",
                 table: "ArticleBom",
-                column: "ArticleID");
+                column: "ArticleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArticleBom_ParrentArticleBomID",
+                name: "IX_ArticleBom_ParrentArticleBomId",
                 table: "ArticleBom",
-                column: "ParrentArticleBomID");
+                column: "ParrentArticleBomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Stock_ArticleForeignKey",

@@ -49,7 +49,7 @@ namespace Master40.Controllers
         // GET: OrderParts/Create
         public IActionResult Create()
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name");
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Name");
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "Name");
             return View();
         }
@@ -67,7 +67,7 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name", orderPart.ArticleId);
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Name", orderPart.ArticleId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "Name", orderPart.OrderId);
             return View(orderPart);
         }
@@ -85,7 +85,7 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name", orderPart.ArticleId);
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Name", orderPart.ArticleId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "Name", orderPart.OrderId);
             return View(orderPart);
         }
@@ -122,7 +122,7 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleID", "Name", orderPart.ArticleId);
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Name", orderPart.ArticleId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "Name", orderPart.OrderId);
             return View(orderPart);
         }

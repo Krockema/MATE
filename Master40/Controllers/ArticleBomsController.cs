@@ -31,12 +31,12 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles
-                .Where(a => a.ArticleID == 1).ToList();
+                .Where(a => a.ArticleId == 1).ToList();
 
             var articleList = new  List<Article>();
             foreach (var item in masterDBContext)
             {
-                var article = await getRecursiveAsync(item, item.ArticleID);
+                var article = await getRecursiveAsync(item, item.ArticleId);
                 articleList.Add(article);
             }
             return View(articleList);
@@ -77,8 +77,8 @@ namespace Master40.Controllers
         // GET: ArticleBoms/Create
         public IActionResult Create()
         {
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID");
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID");
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
             return View();
         }
 
@@ -95,8 +95,8 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleParentId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -113,8 +113,8 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleParentId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -150,8 +150,8 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleID", "ArticleID", articleBom.ArticleParentId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleParentId);
             return View(articleBom);
         }
 

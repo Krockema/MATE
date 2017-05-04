@@ -7,7 +7,7 @@ namespace Master40.Models.DB
     public class Unit
     {
         [Key]
-        public int UnitID { get; set; }
+        public int UnitId { get; set; }
         public String Name { get; set; }
     }
 }

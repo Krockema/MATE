@@ -107,7 +107,7 @@ namespace Master40.Migrations
                 table: "ArticleBoms",
                 column: "ArticleChildId",
                 principalTable: "Article",
-                principalColumn: "ArticleID",
+                principalColumn: "ArticleId",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
@@ -115,7 +115,7 @@ namespace Master40.Migrations
                 table: "ArticleBoms",
                 column: "ArticleParentId",
                 principalTable: "Article",
-                principalColumn: "ArticleID",
+                principalColumn: "ArticleId",
                 onDelete: ReferentialAction.Cascade);
         }
 
@@ -219,7 +219,7 @@ namespace Master40.Migrations
                 table: "ArticleBoms",
                 column: "ArticleId",
                 principalTable: "Article",
-                principalColumn: "ArticleID",
+                principalColumn: "ArticleId",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
@@ -235,7 +235,7 @@ namespace Master40.Migrations
                 table: "ArticleBomParts",
                 column: "ArticleId",
                 principalTable: "Article",
-                principalColumn: "ArticleID",
+                principalColumn: "ArticleId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(

@@ -14,7 +14,7 @@ var allTypes = {
 
 function assertParameterType( expect, type, fn ) {
 	Object.keys( allTypes ).filter( not( type ) ).forEach(function( type ) {
-		expect( fn( allTypes[ type ] ) ).to.throw( Error, /E_INVALID_PAR_TYPE/ );
+		expect( fn( allTypes[ type ] ) ).to.throw( Error, /E_INVALId_PAR_TYPE/ );
 	});
 }
 

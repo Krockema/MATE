@@ -937,7 +937,7 @@ $.validator.addMethod("url2", function(value, element) {
  *
  * Works with all kind of text inputs.
  *
- * @example <input type="text" size="20" name="VehicleID" class="{required:true,vinUS:true}" />
+ * @example <input type="text" size="20" name="VehicleId" class="{required:true,vinUS:true}" />
  * @desc Declares a required input element whose value must be a valid vehicle identification number.
  *
  * @name $.validator.methods.vinUS

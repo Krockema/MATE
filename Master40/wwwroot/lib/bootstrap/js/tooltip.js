@@ -182,7 +182,7 @@
 
       var $tip = this.tip()
 
-      var tipId = this.getUID(this.type)
+      var tipId = this.getUId(this.type)
 
       this.setContent()
       $tip.attr('id', tipId)
@@ -421,7 +421,7 @@
     return title
   }
 
-  Tooltip.prototype.getUID = function (prefix) {
+  Tooltip.prototype.getUId = function (prefix) {
     do prefix += ~~(Math.random() * 1000000)
     while (document.getElementById(prefix))
     return prefix

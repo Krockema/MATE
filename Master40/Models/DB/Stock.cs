@@ -5,7 +5,7 @@ namespace Master40.Models.DB
     public class Stock
     {
         [Key]
-        public int StockID { get; set; }
+        public int StockId { get; set; }
 
         public string Name { get; set; }
         public decimal Max { get; set; }

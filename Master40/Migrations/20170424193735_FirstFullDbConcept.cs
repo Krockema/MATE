@@ -117,7 +117,7 @@ namespace Master40.Migrations
                         name: "FK_OrderParts_Article_ArticleId",
                         column: x => x.ArticleId,
                         principalTable: "Article",
-                        principalColumn: "ArticleID",
+                        principalColumn: "ArticleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_OrderParts_Orders_OrderId",
@@ -144,7 +144,7 @@ namespace Master40.Migrations
                         name: "FK_PurchaseParts_Article_ArticleId",
                         column: x => x.ArticleId,
                         principalTable: "Article",
-                        principalColumn: "ArticleID",
+                        principalColumn: "ArticleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PurchaseParts_Purchases_PurchaseId",

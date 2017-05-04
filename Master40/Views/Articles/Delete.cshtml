@@ -12,7 +12,7 @@
     <h4>Article</h4>
     <hr />
     <dl class="dl-horizontal">
-        <input type="hidden" asp-for="ArticleID" />
+        <input type="hidden" asp-for="ArticleId" />
         <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
@@ -41,13 +41,13 @@
             @Html.DisplayNameFor(model => model.ArticleType)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ArticleType.ArticleTypeID)
+            @Html.DisplayFor(model => model.ArticleType.ArticleTypeId)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Unit)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Unit.UnitID)
+            @Html.DisplayFor(model => model.Unit.UnitId)
         </dd>
     </dl>
     

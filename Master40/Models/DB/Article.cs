@@ -11,14 +11,14 @@ namespace Master40.Models.DB
     {
 
         [Key]
-        public int ArticleID { get; set; }
+        public int ArticleId { get; set; }
         public string Name { get; set; }
 
         [Display(Name = "Packing Unit")]
-        public int UnitID { get; set; }
+        public int UnitId { get; set; }
         public virtual Unit Unit { get; set; }
         [Display(Name = "Article Type")]
-        public int ArticleTypeID { get; set; }
+        public int ArticleTypeId { get; set; }
         public virtual ArticleType ArticleType { get; set; }
         //[DisplayFormat(DataFormatString = "{0:0,0}")]
         // 

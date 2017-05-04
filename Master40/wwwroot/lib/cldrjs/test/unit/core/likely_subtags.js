@@ -28,7 +28,7 @@ define([
 		});
 
 		it( "should lookup und_scripts's", function() {
-			expect( likelySubtags( Cldr, cldr, [ "und", "Java", "ZZ" ] ) ).to.eql( [ "jv", "Java", "ID" ] );
+			expect( likelySubtags( Cldr, cldr, [ "und", "Java", "ZZ" ] ) ).to.eql( [ "jv", "Java", "Id" ] );
 		});
 
 		it( "should lookup root", function() {

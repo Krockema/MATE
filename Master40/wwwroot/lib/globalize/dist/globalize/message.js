@@ -1895,7 +1895,7 @@ var validateMessagePresence = function( path, value ) {
 var validateMessageType = function( path, value ) {
 	path = path.join( "/" );
 	validate(
-		"E_INVALID_MESSAGE",
+		"E_INVALId_MESSAGE",
 		"Invalid message content `{path}`. {expected} expected.",
 		typeof value === "string",
 		{

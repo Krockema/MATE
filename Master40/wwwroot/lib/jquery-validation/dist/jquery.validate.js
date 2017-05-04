@@ -773,9 +773,9 @@ $.extend( $.validator, {
 		},
 
 		showLabel: function( element, message ) {
-			var place, group, errorID,
+			var place, group, errorId,
 				error = this.errorsFor( element ),
-				elementID = this.idOrName( element ),
+				elementId = this.idOrName( element ),
 				describedBy = $( element ).attr( "aria-describedby" );
 			if ( error.length ) {
 				// refresh error/success class
@@ -785,7 +785,7 @@ $.extend( $.validator, {
 			} else {
 				// create error element
 				error = $( "<" + this.settings.errorElement + ">" )
-					.attr( "id", elementID + "-error" )
+					.attr( "id", elementId + "-error" )
 					.addClass( this.settings.errorClass )
 					.html( message || "" );
 
@@ -807,18 +807,18 @@ $.extend( $.validator, {
 				// Link error back to the element
 				if ( error.is( "label" ) ) {
 					// If the error is a label, then associate using 'for'
-					error.attr( "for", elementID );
-				} else if ( error.parents( "label[for='" + elementID + "']" ).length === 0 ) {
+					error.attr( "for", elementId );
+				} else if ( error.parents( "label[for='" + elementId + "']" ).length === 0 ) {
 					// If the element is not a child of an associated label, then it's necessary
 					// to explicitly apply aria-describedby
 
-					errorID = error.attr( "id" ).replace( /(:|\.|\[|\]|\$)/g, "\\$1");
+					errorId = error.attr( "id" ).replace( /(:|\.|\[|\]|\$)/g, "\\$1");
 					// Respect existing non-error aria-describedby
 					if ( !describedBy ) {
-						describedBy = errorID;
-					} else if ( !describedBy.match( new RegExp( "\\b" + errorID + "\\b" ) ) ) {
+						describedBy = errorId;
+					} else if ( !describedBy.match( new RegExp( "\\b" + errorId + "\\b" ) ) ) {
 						// Add to end of list if not already present
-						describedBy += " " + errorID;
+						describedBy += " " + errorId;
 					}
 					$( element ).attr( "aria-describedby", describedBy );
 
