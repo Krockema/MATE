@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Master40.BusinessLogic.MRP;
-using Master40.Data;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
-        //private readonly IDemandForecast _demandForecast;
         private readonly IProcessMrp _processMrp;
-        public MrpController(/*IDemandForecast demandForecast,*/ IProcessMrp processMrp)
+        public MrpController(IProcessMrp processMrp)
         {
             _processMrp = processMrp;
-            //_demandForecast = demandForecast;
         }
         public IActionResult Index()
         {
@@ -33,8 +26,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MrpProcessing/{id}")]
         public IActionResult MrpProcessing(int id)
         {
-            //TODO: hand over dynamic orderId
-            //IProcessMrp processMrp = new ProcessMrp(_demandForecast);
+            //call to process MRP I and II
             _processMrp.Process(id);
             return RedirectToAction("Index");
         }
