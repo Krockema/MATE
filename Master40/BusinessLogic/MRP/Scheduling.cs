@@ -11,7 +11,6 @@ namespace Master40.BusinessLogic.MRP
         void BackwardScheduling();
         void ForwardScheduling();
         void CapacityScheduling();
-        void BatchSizeScheduling();
     }
 
     class Scheduling : IScheduling
@@ -30,10 +29,6 @@ namespace Master40.BusinessLogic.MRP
         {
             
         }
-
-        void IScheduling.BatchSizeScheduling()
-        {
-            
-        }
+        
     }
 }

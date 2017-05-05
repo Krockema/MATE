@@ -42,11 +42,13 @@ namespace Master40.BusinessLogic.MRP
                 System.Diagnostics.Debug.WriteLine(order.Name, order.OrderId);
 
                 //get Orderparts from Order
-                var parts = _context.OrderParts.Include(a => a.Article).Where(a => a.OrderId == orderId);
+                var parts = _context.OrderParts.AsNoTracking()
+                    .Include(a => a.Article)
+                    .Where(a => a.OrderId == orderId);
 
                 foreach (var part in parts)
                 {
-                    var msg = "Articles ordered: " +_context.Articles.Single(a=>a.ArticleId==part.ArticleId).Name + " " + part.Amount;
+                    var msg = "Articles ordered: " +_context.Articles.AsNoTracking().Single(a=>a.ArticleId==part.ArticleId).Name + " " + part.Amount;
                     Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
                     
                     //get bom for every orderpart
@@ -96,7 +98,10 @@ namespace Master40.BusinessLogic.MRP
             foreach (var need in needs)
             {
                 //get the actual item from db
-                var tempNeed = _context.ArticleBoms.Include(a => a.ArticleChild).Include(a => a.ArticleChild.Stock).Single(a => a.ArticleBomId == need.ArticleBomId);
+                var tempNeed = _context.ArticleBoms.AsNoTracking()
+                    .Include(a => a.ArticleChild)
+                    .Include(a => a.ArticleChild.Stock)
+                    .Single(a => a.ArticleBomId == need.ArticleBomId);
                 
                 //plannedStock is the amount of this article in stock after taking out the amount needed
                 var plannedStock = tempNeed.ArticleChild.Stock.Current - need.Quantity;
@@ -149,7 +154,7 @@ namespace Master40.BusinessLogic.MRP
                         //recursively call this method for the children
                         DeleteChildren(ref needs, need, need.Quantity);
                     //Change Quantity for how many articles are in stock
-                    needs[needs.IndexOf(need)].Quantity-=amount*_context.ArticleBoms.Single(a => a.ArticleChildId == need.ArticleChildId).Quantity;
+                    needs[needs.IndexOf(need)].Quantity-=amount*_context.ArticleBoms.AsNoTracking().Single(a => a.ArticleChildId == need.ArticleChildId).Quantity;
                 }
             }
         }
