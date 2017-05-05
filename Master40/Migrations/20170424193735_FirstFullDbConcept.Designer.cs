@@ -193,7 +193,7 @@ namespace Master40.Migrations
                     b.Property<int>("OrderPartId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Amount");
+                    b.Property<int>("Quantity");
 
                     b.Property<int>("ArticleId");
 
@@ -231,7 +231,7 @@ namespace Master40.Migrations
                     b.Property<int>("PurchasePartId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Amount");
+                    b.Property<int>("Quantity");
 
                     b.Property<int>("ArticleId");
 

@@ -59,7 +59,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderPartId,OrderId,ArticleId,Amount")] OrderPart orderPart)
+        public async Task<IActionResult> Create([Bind("OrderPartId,OrderId,ArticleId,Quantity")] OrderPart orderPart)
         {
             if (ModelState.IsValid)
             {
@@ -95,7 +95,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderPartId,OrderId,ArticleId,Amount")] OrderPart orderPart)
+        public async Task<IActionResult> Edit(int id, [Bind("OrderPartId,OrderId,ArticleId,Quantity")] OrderPart orderPart)
         {
             if (id != orderPart.OrderPartId)
             {

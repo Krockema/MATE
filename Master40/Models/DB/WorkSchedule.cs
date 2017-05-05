@@ -5,15 +5,16 @@ using System.Threading.Tasks;
 
 namespace Master40.Models.DB
 {
-    public class OperationChart
+    public class WorkSchedule
     {
-        public int OperationChartId { get; set; }
+        public int WorkScheduleId { get; set; }
+        public int HirachieNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
         public int? MachineToolId { get; set; }
         public MachineTool MachineTool { get; set; }
-        public int? MachineId { get; set; }
-        public Machine Machine { get; set; }
-        public int ArticleBomPartId { get; set; }
+        public int? MachineGroupId { get; set; }
+        public MachineGroup MachineGroup { get; set; }
+        public ICollection<ArticleToWorkSchedule> ArticleToWorkSchedules { get; set; }
     }
 }

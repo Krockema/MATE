@@ -10,6 +10,6 @@ namespace Master40.Models.DB
         public int MachineId { get; set; }
         public string Name { get; set; }
         public string Capacity { get; set; }
-        public ICollection<MachineTool> MachineTools { get; set; }
+        public virtual ICollection<MachineTool> MachineTools { get; set; }
     }
 }

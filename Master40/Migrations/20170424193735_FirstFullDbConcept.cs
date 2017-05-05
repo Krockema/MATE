@@ -106,7 +106,7 @@ namespace Master40.Migrations
                 {
                     OrderPartId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Amount = table.Column<int>(nullable: false),
+                    Quantity = table.Column<int>(nullable: false),
                     ArticleId = table.Column<int>(nullable: false),
                     OrderId = table.Column<int>(nullable: false)
                 },
@@ -133,7 +133,7 @@ namespace Master40.Migrations
                 {
                     PurchasePartId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Amount = table.Column<int>(nullable: false),
+                    Quantity = table.Column<int>(nullable: false),
                     ArticleId = table.Column<int>(nullable: false),
                     PurchaseId = table.Column<int>(nullable: false)
                 },

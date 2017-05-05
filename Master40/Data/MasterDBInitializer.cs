@@ -166,9 +166,9 @@ namespace Master40.Data
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Amount = 5, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 1},
-                new OrderPart(){Amount = 6, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 2},
-                new OrderPart(){Amount = 7, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 3},
+                new OrderPart(){Quantity = 5, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 1},
+                new OrderPart(){Quantity = 6, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 2},
+                new OrderPart(){Quantity = 7, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 3},
             };
             foreach (var orderPart in orderParts)
             {

@@ -15,7 +15,7 @@ namespace Master40.Data
 
         public DbSet<Machine> Machines { get; set; }
         public DbSet<MachineTool> MachineTools { get; set; }
-        public DbSet<OperationChart> OperationCharts { get; set; }
+        public DbSet<WorkSchedule> OperationCharts { get; set; }
 
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderPart> OrderParts{ get; set; }
@@ -40,6 +40,9 @@ namespace Master40.Data
                 .WithOne(s => s.Article)
                 .HasForeignKey<Stock>(b => b.ArticleForeignKey);
 
+            modelBuilder.Entity<ArticleToWorkSchedule>()
+                .HasKey(a => new { a.ArticleId, a.WorkScheduleId });
+
             modelBuilder.Entity<Stock>().ToTable("Stock");
 
             modelBuilder.Entity<ArticleBom>()
@@ -51,6 +54,16 @@ namespace Master40.Data
                 .HasOne(pt => pt.ArticleChild)
                 .WithMany(t => t.ArticleChilds)
                 .HasForeignKey(pt => pt.ArticleChildId);
+
+            modelBuilder.Entity<ProductionOrderBom>()
+                .HasOne(pt => pt.ParentProductionOrder)
+                .WithMany(p => p.ProductionOrderBoms)
+                .HasForeignKey(pt => pt.ParentProductionOrderId);
+
+            modelBuilder.Entity<ProductionOrderBom>()
+                .HasOne(pt => pt.ProductionOrder)
+                .WithMany(t => t.ChildProductionOrderBoms)
+                .HasForeignKey(pt => pt.ProductionOrderId);
         }
     }
 }

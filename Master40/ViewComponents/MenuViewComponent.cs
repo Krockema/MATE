@@ -20,14 +20,14 @@ namespace Master40.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(int menueId)
         {
-            var menu = GetItemsAsync(menueId);
+            var menu = await GetItemsAsync(menueId);
             return View("Menu", menu);
         }
 
-        private IEnumerable<MenuItem> GetItemsAsync(int id)
+        private async Task<ICollection<MenuItem>> GetItemsAsync(int id)
         {
-            return _context.MenuItems
-                .Where(m => m.MenuId == id).OrderBy(x => x.MenuOrder).ToList()
+            return await _context.MenuItems
+                .Where(m => m.MenuId == id).OrderBy(x => x.MenuOrder).ToAsyncEnumerable()
                 .Where(m => m.Parent == null).OrderBy(x => x.MenuOrder).ToList();
         }
     }

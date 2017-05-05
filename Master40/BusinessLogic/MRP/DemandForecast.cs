@@ -48,7 +48,7 @@ namespace Master40.BusinessLogic.MRP
 
                 foreach (var part in parts)
                 {
-                    var msg = "Articles ordered: " +_context.Articles.AsNoTracking().Single(a=>a.ArticleId==part.ArticleId).Name + " " + part.Amount;
+                    var msg = "Articles ordered: " +_context.Articles.AsNoTracking().Single(a=>a.ArticleId==part.ArticleId).Name + " " + part.Quantity;
                     Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
                     
                     //get bom for every orderpart
@@ -61,9 +61,9 @@ namespace Master40.BusinessLogic.MRP
                     //manually add ordered Item, because its head of the bom
                     needs.Add(_context.ArticleBoms.AsNoTracking().Single(a => a.ArticleBomId == 1));
                     //multiply Quantity of the material with the amount ordered
-                    needs[0].Quantity *= part.Amount;
+                    needs[0].Quantity *= part.Quantity;
                     //recursively going through bom to list every attached article
-                    GetNeeds(ref needs, boms, part.Amount);
+                    GetNeeds(ref needs, boms, part.Quantity);
                     
                 }
             }
@@ -130,8 +130,8 @@ namespace Master40.BusinessLogic.MRP
 
                 //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
                 if (plannedStock < tempNeed.ArticleChild.Stock.Min)
-                    //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
-                    ;
+                //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
+                { }
             }
             foreach (var need in needs)
             {

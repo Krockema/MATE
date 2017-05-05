@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Master40.Models.DB
 {
@@ -14,5 +15,6 @@ namespace Master40.Models.DB
 
         public int ArticleForeignKey { get; set; }
         public Article Article { get; set; }
+        public ICollection<DemandStock> DemandStock { get; set; }
     }
 }

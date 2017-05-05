@@ -160,6 +160,19 @@ ul .sub-menu .nav-text:before {
     padding-left: 15px;
 }
 
+
+
+.main-menu ul :not(collapsed) .arrow:before,
+.main-menu li :not(collapsed) .arrow:before {
+    font-family: FontAwesome;
+    content: "\f078";
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 10px;
+    vertical-align: middle;
+    /* float: right; */
+}
+/*
 .main-menu li {
     cursor: pointer;
     .collapsed
@@ -174,19 +187,9 @@ ul .sub-menu .nav-text:before {
     padding-left: 10px;
     padding-right: 10px;
     vertical-align: middle;
-    float: right;
+    /* float: right; 
 }
 
 }
 }
-
-.main-menu ul :not(collapsed) .arrow:before,
-.main-menu li :not(collapsed) .arrow:before {
-    font-family: FontAwesome;
-    content: "\f078";
-    display: inline-block;
-    padding-left: 10px;
-    padding-right: 10px;
-    vertical-align: middle;
-    /* float: right; */
-}
+*/
