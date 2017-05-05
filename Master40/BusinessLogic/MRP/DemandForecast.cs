@@ -9,8 +9,8 @@ namespace Master40.BusinessLogic.MRP
 {
     public interface IDemandForecast
     {
-        List<ArticleBom> NetRequirement(int orderId);
-        void GrossRequirement(List<ArticleBom> articles);
+        List<ArticleBom> GrossRequirement(int orderId);
+        void NetRequirement(List<ArticleBom> articles);
         List<LogMessage> Logger { get; set; }
     }
 
@@ -30,7 +30,7 @@ namespace Master40.BusinessLogic.MRP
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns>List</returns>
-        List<ArticleBom> IDemandForecast.NetRequirement(int orderId)
+        List<ArticleBom> IDemandForecast.GrossRequirement(int orderId)
         {
             var needs = new List<ArticleBom>();
             //get Order from Database
@@ -92,7 +92,7 @@ namespace Master40.BusinessLogic.MRP
         /// Uses List from NetRequirements to start productionorders if there are not enough materials in stock
         /// </summary>
         /// <param name="needs">List</param>
-        void IDemandForecast.GrossRequirement(List<ArticleBom> needs)
+        void IDemandForecast.NetRequirement(List<ArticleBom> needs)
         {
             //Iterate through needs-List from the method NetRequirements
             foreach (var need in needs)

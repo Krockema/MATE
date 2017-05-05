@@ -31,7 +31,7 @@ namespace Master40.BusinessLogic.MRP
         {
             //execute demand forecast
             IDemandForecast demand = new DemandForecast(_context);
-            demand.GrossRequirement(demand.NetRequirement(orderId));
+            demand.NetRequirement(demand.GrossRequirement(orderId));
             Logger = demand.Logger;
             
 
