@@ -1,8 +1,29 @@
-﻿@model dynamic
+﻿@model List<Master40.Models.LogMessage>
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    int LineNumber = 0;
 }
 
-<h2>title</h2>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>MRP </h2>
+        <p>
+            Container to Prpcess the MRP Run and Show the Results.
+        </p>
+        <p><a  class="btn btn-default" href="Mrp/MrpProcessing/1">Process MRP</a></p>
+    </div>
+    <div class="col-md-8">
+        <h2>Result</h2>
+        @foreach (var item in Model)
+        {
+            <div class="alert alert-@item.MessageType.ToString()">
+                 @{ LineNumber = LineNumber+1; }
+                <strong> @LineNumber.ToString() :</strong> @Html.DisplayFor(modelItem => item.Message)
+            </div>
+        }
+    </div>
+</div>

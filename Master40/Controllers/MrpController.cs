@@ -12,22 +12,30 @@ namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
-        private readonly IDemandForecast _demandForecast;
-        public MrpController(IDemandForecast demandForecast)
+        //private readonly IDemandForecast _demandForecast;
+        private readonly IProcessMrp _processMrp;
+        public MrpController(/*IDemandForecast demandForecast,*/ IProcessMrp processMrp)
         {
-            _demandForecast = demandForecast;
+            _processMrp = processMrp;
+            //_demandForecast = demandForecast;
         }
         public IActionResult Index()
         {
-            return View();
+            if (_processMrp.Logger == null)
+            {
+                _processMrp.Logger = new List<LogMessage>() {
+                    new LogMessage() { MessageType = MessageType.success, Message = "Nothing logged yet.", MessageNumber = 1 }
+                };
+            }
+            return View(_processMrp.Logger);
         }
 
-        public IActionResult MrpProcessing()
+        [HttpGet("[Controller]/MrpProcessing/{id}")]
+        public IActionResult MrpProcessing(int id)
         {
-            ViewData["Message"] = "Your application description page.";
             //TODO: hand over dynamic orderId
-            IProcessMrp processMrp = new ProcessMrp(_demandForecast);
-            processMrp.Process(1);
+            //IProcessMrp processMrp = new ProcessMrp(_demandForecast);
+            _processMrp.Process(id);
             return RedirectToAction("Index");
         }
        
