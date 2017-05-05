@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.BusinessLogic.MRP;
-//using Master40.BusinessLogic.MRP;
 using Master40.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,7 +37,7 @@ namespace Master40
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddSingleton<IProcessMrp,ProcessMrp>();
+            services.AddSingleton<IDemandForecast,DemandForecast>();
             
 
             services.Configure<RequestLocalizationOptions>(

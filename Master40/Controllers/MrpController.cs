@@ -12,10 +12,10 @@ namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
-        private readonly IProcessMrp _processMrp;
-        public MrpController(IProcessMrp processMrp)
+        private readonly IDemandForecast _demandForecast;
+        public MrpController(IDemandForecast demandForecast)
         {
-            _processMrp = processMrp;
+            _demandForecast = demandForecast;
         }
         public IActionResult Index()
         {
@@ -26,7 +26,8 @@ namespace Master40.Controllers
         {
             ViewData["Message"] = "Your application description page.";
             //TODO: hand over dynamic orderId
-            _processMrp.Process(1);
+            IProcessMrp processMrp = new ProcessMrp(_demandForecast);
+            processMrp.Process(1);
             return RedirectToAction("Index");
         }
        

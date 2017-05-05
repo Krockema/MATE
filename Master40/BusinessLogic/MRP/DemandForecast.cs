@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Master40.BusinessLogic.MRP
 {
-    internal interface IDemandForecast
+    public interface IDemandForecast
     {
         Collection<ArticleBom> NetRequirement(int orderId);
         void GrossRequirement(Collection<ArticleBom> articles);
     }
 
-    internal class DemandForecast : IDemandForecast
+    public class DemandForecast : IDemandForecast
     {
         private readonly MasterDBContext _context;
 
-        internal DemandForecast(MasterDBContext context)
+        public DemandForecast(MasterDBContext context)
         {
             _context = context;
         }
@@ -41,25 +41,21 @@ namespace Master40.BusinessLogic.MRP
                 {
                     System.Diagnostics.Debug.WriteLine(part.Article.Name + " " + part.OrderId);
                     //get Bom for every orderpart
-                    var articles = _context.Articles.Where(a => a.ArticleId == part.ArticleId).AsEnumerable<Article>();
-                    var boms = _context.ArticleBoms.Include(a => a.ArticleChild).Include(a => a.ArticleParent).Where(a => a.ArticleParentId == part.ArticleId).AsEnumerable<ArticleBom>();
-                    //var boms = part.Article.ArticleBoms;
-                    foreach (var article in articles)
-                    {
-                        /*need.Add(new ArticleBom()
-                        {
-                            Name = article.Name,
-                            ArticleChildId = article.ArticleId,
-                            Quantity = part.Amount
-                        });*/
-                    }
-                    need.Add(_context.ArticleBoms.Single(a => a.ArticleBomId == 1));
+                    var boms = _context.ArticleBoms.AsNoTracking()
+                        .Include(a => a.ArticleChild)
+                        .Include(a => a.ArticleParent)
+                        .Where(a => a.ArticleParentId == part.ArticleId)
+                        .ToList();
+                    
+                    var tempBom = _context.ArticleBoms.AsNoTracking().Single(a => a.ArticleBomId == 1);
+                    need.Add(tempBom);
                     need[0].Quantity *= part.Amount;
                     //recursively going through bom
                     GetNeeds(ref need, boms, part.Amount);
-
+                    
                 }
             }
+            
             return need;
         }
 
@@ -76,7 +72,7 @@ namespace Master40.BusinessLogic.MRP
 
                 if (bom.ArticleChildId != null)
                 {
-                    GetNeeds(ref need, _context.ArticleBoms.Where(a => a.ArticleParentId == bom.ArticleChildId), bom.Quantity);
+                    GetNeeds(ref need, _context.ArticleBoms.AsNoTracking().Where(a => a.ArticleParentId == bom.ArticleChildId), bom.Quantity);
                 }
             }
         }
@@ -86,12 +82,12 @@ namespace Master40.BusinessLogic.MRP
         {
             foreach (var need in needs)
             {
-                var tempNeed = _context.ArticleBoms.Include(a => a.ArticleChild).Include(a => a.ArticleChild.Stock).Where(a => a.ArticleBomId == need.ArticleBomId).AsEnumerable();
+                var tempNeed = _context.ArticleBoms.Include(a => a.ArticleChild).Include(a => a.ArticleChild.Stock).Single(a => a.ArticleBomId == need.ArticleBomId);
                 //TODO: parent auflösen und evt children überspringen
-                var plannedStock = tempNeed.First().ArticleChild.Stock.Current - need.Quantity;
-                if (tempNeed.First().ArticleChild.Stock.Current > 0)
+                var plannedStock = tempNeed.ArticleChild.Stock.Current - need.Quantity;
+                if (tempNeed.ArticleChild.Stock.Current > 0)
                 {
-                    var amount = need.Quantity - tempNeed.First().ArticleChild.Stock.Current;
+                    var amount = need.Quantity - tempNeed.ArticleChild.Stock.Current;
                     if (amount < 0) amount = need.Quantity;
                     DeleteChildren(ref needs,need, amount);
                 }
@@ -102,7 +98,7 @@ namespace Master40.BusinessLogic.MRP
                     System.Diagnostics.Debug.WriteLine("plannedStock < 0");
                     plannedStock = 0;
                 }
-                if (plannedStock < need.ArticleChild.Stock.Min)
+                if (plannedStock < tempNeed.ArticleChild.Stock.Min)
                     //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
                     System.Diagnostics.Debug.WriteLine("Order to produce "+ (need.ArticleChild.Stock.Max - plannedStock) + " pieces to fill up stock");
                 

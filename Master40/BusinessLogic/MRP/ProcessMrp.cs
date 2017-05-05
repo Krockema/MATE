@@ -18,19 +18,19 @@ namespace Master40.BusinessLogic.MRP
 
     public class ProcessMrp : IProcessMrp
     {
-        private readonly MasterDBContext _context;
+        private readonly IDemandForecast _demandForecast;
 
-        public ProcessMrp(MasterDBContext context)
+        public ProcessMrp(IDemandForecast demandForecast)
         {
-            _context = context;
+            _demandForecast = demandForecast;
             System.Diagnostics.Debug.WriteLine("MRP service initialized");
+            
         }
 
         void IProcessMrp.Process(int orderId)
         {
-            IDemandForecast demand = new DemandForecast(_context);
-            demand.GrossRequirement(
-                demand.NetRequirement(orderId));
+            _demandForecast.GrossRequirement(
+                _demandForecast.NetRequirement(orderId));
 
             IScheduling schedule = new Scheduling();
             schedule.BackwardScheduling();
