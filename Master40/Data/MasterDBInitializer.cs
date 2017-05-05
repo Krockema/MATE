@@ -94,9 +94,9 @@ namespace Master40.Data
                     {
                         ArticleForeignKey = article.Value,
                         Name = "Stock: " + article.Key,
-                        Min = 10,
-                        Max = 100,
-                        Current = 50
+                        Min = 0,
+                        Max = 50,
+                        Current = 0
                     }
                 };
                 foreach (Stock s in Stocks)
