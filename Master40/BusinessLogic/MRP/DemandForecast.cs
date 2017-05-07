@@ -14,6 +14,7 @@ namespace Master40.BusinessLogic.MRP
         List<LogMessage> Logger { get; set; }
     }
 
+    /*
     public class DemandForecast : IDemandForecast
     {
         private readonly MasterDBContext _context;
@@ -53,13 +54,13 @@ namespace Master40.BusinessLogic.MRP
                     
                     //get bom for every orderpart
                     var boms = _context.ArticleBoms.AsNoTracking()
-                        .Include(a => a.ArticleChild)
-                        .Include(a => a.ArticleParent)
-                        .Where(a => a.ArticleParentId == part.ArticleId)
+                        .Include(a => a.ArticleBomItems)
+                        .ThenInclude(a => a.Article)
+                        .Where(a => a.ArticleId == part.ArticleId)
                         .ToList();
                     
                     //manually add ordered Item, because its head of the bom
-                    needs.Add(_context.ArticleBoms.AsNoTracking().Single(a => a.ArticleBomId == 1));
+                    needs.Add(_context.ArticleBom.AsNoTracking().Single(a => a.ArticleBomId == 1));
                     //multiply Quantity of the material with the amount ordered
                     needs[0].Quantity *= part.Quantity;
                     //recursively going through bom to list every attached article
@@ -159,4 +160,5 @@ namespace Master40.BusinessLogic.MRP
             }
         }
     }
+    */
 }

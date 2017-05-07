@@ -16,7 +16,7 @@ namespace Master40.Controllers
 
         public ArticleBomsController(MasterDBContext context)
         {
-            _context = context;    
+            _context = context;
         }
 
         // GET: ArticleBoms
@@ -30,31 +30,21 @@ namespace Master40.Controllers
                 .ThenInclude(b => b.ArticleChilds).ToList().Where(a => 1 == 1);
                 */
 
-            var masterDBContext = _context.Articles
+            var articleBom = _context.ArticleBoms.Include(a => a.ArticleBomItems)
                 .Where(a => a.ArticleId == 1)
                 .ToList();
 
-            var articleList = new  List<Article>();
-            foreach (var item in masterDBContext)
+            var articleList = new List<ArticleBom>();
+            foreach (var item in articleBom)
             {
-                var article = await GetRecursiveAsync(item, item.ArticleId);
-                articleList.Add(article);
+                var bom = await MasterDbHelper.GetArticleBomRecursive(_context, item, item.ArticleId);
+                articleList.Add(bom);
             }
             return View(articleList);
         }
-
-        public async Task<Article> GetRecursiveAsync(Article article, int? id)
-        {
-            article.ArticleChilds = await _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == id).ToListAsync();
-
-            foreach (var item in article.ArticleChilds)
-            {
-                await GetRecursiveAsync(item.ArticleParent, item.ArticleChildId);
-            }
-            await Task.Yield();
-            return article;
-        }
-
+    }
+}
+        /*
         // GET: ArticleBoms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -193,3 +183,4 @@ namespace Master40.Controllers
         }
     }
 }
+*/

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Master40.Models.DB.ArticleBom>
+﻿@model IEnumerable<Master40.Models.DB.ArticleBomItem>
 @{
     string level = ViewData["level"]?.ToString() ?? "";
     level = (level != "") ?  level + "." : level;
@@ -21,21 +21,25 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ArticleChild.ArticleId)
+                    @Html.DisplayFor(modelItem => item.ArticleBom.ArticleId)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ArticleParent.ArticleId)
+                    @Html.DisplayFor(modelItem => item.Article.ArticleId)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ArticleBomId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ArticleBomId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ArticleBomId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.ArticleBomItemId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ArticleBomItemId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ArticleBomItemId">Delete</a>
                 </td>
             </tr>
-            if (item.ArticleChild.ArticleBoms != null)
-            {   
-                ViewData["level"] = level + count.ToString(); 
-                @Html.Partial("ArticleBom", item.ArticleChild.ArticleBoms, this.ViewData)
+                if (item.Article.ArticleBoms != null)
+                {
+                    foreach (var bom in item.Article.ArticleBoms)
+                    {
+                    ViewData["level"] = level + count.ToString();
+                    @Html.Partial("ArticleBom", bom.ArticleBomItems, this.ViewData)
+                }
+
             }
-        }
-}
+       }
+   }

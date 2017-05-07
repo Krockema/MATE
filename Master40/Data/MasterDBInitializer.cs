@@ -105,24 +105,35 @@ namespace Master40.Data
                 }
                 context.SaveChanges();
             }
-
             var articleBom = new List<ArticleBom>
             {
-                new ArticleBom { ArticleParentId = null, ArticleChildId = articles.Single(a => a.Name == "Kipper").ArticleId,Name = "Kipper",Quantity = 1},
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Kipper").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, Name = "Rahmengestell", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Kipper").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Ladebehälter").ArticleId, Name = "Ladebehälter", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Kipper").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Chassis").ArticleId, Name = "Chassis", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Bodenplatte").ArticleId, Name = "Bodenplatte", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Achse").ArticleId, Name = "Achse", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Achse").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Rad").ArticleId, Name = "Rad", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Rad").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Felge").ArticleId, Name = "Felge", Quantity = 1 },
-                new ArticleBom { ArticleParentId = articles.Single(a => a.Name == "Achse").ArticleId, ArticleChildId = articles.Single(a => a.Name == "Dübel").ArticleId, Name = "Dübel", Quantity = 1 }
+                new ArticleBom { ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, Name = "Kipper", ArticleBomItems = new List<ArticleBomItem> {
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Rahmengestell").ArticleId, Name="Rahmengestell", Quantity = 1 },
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Ladebehälter").ArticleId, Name="Ladebehälter", Quantity = 1 },
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Chassis").ArticleId, Name="Chassis", Quantity = 1 }
+                    }
+                },
+                new ArticleBom { ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, Name = "Rahmengestell", ArticleBomItems = new List<ArticleBomItem> {
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Bodenplatte").ArticleId, Name="Bodenplatte", Quantity = 1 },
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Achse").ArticleId, Name="Achse", Quantity = 2 },
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Rad").ArticleId, Name="Rad", Quantity = 4 }
+                    }
+                },
+                new ArticleBom { ArticleId = articles.Single(a => a.Name == "Rad").ArticleId, Name = "Rad", ArticleBomItems = new List<ArticleBomItem> {
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Felge").ArticleId, Name="Felge", Quantity = 1 },
+                    new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Dübel").ArticleId, Name="Dübel", Quantity = 1 },
+                 }
+                }
             };
             foreach (var item in articleBom)
             {
                 context.ArticleBoms.Add(item);
             }
             context.SaveChanges();
+
+
+
+
 
             var menu = new Menu();
             var menuItems = new List<MenuItem>{

@@ -34,6 +34,7 @@ namespace Master40
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Database Context
+
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             
