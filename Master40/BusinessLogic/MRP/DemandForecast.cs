@@ -9,12 +9,12 @@ namespace Master40.BusinessLogic.MRP
 {
     public interface IDemandForecast
     {
-        List<ArticleBom> GrossRequirement(int orderId);
-        void NetRequirement(List<ArticleBom> articles);
+        List<ArticleBomItem> GrossRequirement(int orderId);
+        void NetRequirement(List<ArticleBomItem> articles);
         List<LogMessage> Logger { get; set; }
     }
 
-    /*
+    
     public class DemandForecast : IDemandForecast
     {
         private readonly MasterDBContext _context;
@@ -31,9 +31,9 @@ namespace Master40.BusinessLogic.MRP
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns>List</returns>
-        List<ArticleBom> IDemandForecast.GrossRequirement(int orderId)
+        List<ArticleBomItem> IDemandForecast.GrossRequirement(int orderId)
         {
-            var needs = new List<ArticleBom>();
+            var needs = new List<ArticleBomItem>();
             //get Order from Database
             var orders = _context.Orders.Include(a => a.OrderParts).Where(a => a.OrderId == orderId);
             
@@ -53,38 +53,50 @@ namespace Master40.BusinessLogic.MRP
                     Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
                     
                     //get bom for every orderpart
-                    var boms = _context.ArticleBoms.AsNoTracking()
+                    var bomItems = _context.ArticleBoms.AsNoTracking()
                         .Include(a => a.ArticleBomItems)
-                        .ThenInclude(a => a.Article)
-                        .Where(a => a.ArticleId == part.ArticleId)
+                        .Single(a => a.ArticleId == part.ArticleId)
+                        .ArticleBomItems
                         .ToList();
-                    
+
                     //manually add ordered Item, because its head of the bom
-                    needs.Add(_context.ArticleBom.AsNoTracking().Single(a => a.ArticleBomId == 1));
-                    //multiply Quantity of the material with the amount ordered
-                    needs[0].Quantity *= part.Quantity;
+                    //needs.Add(_context.ArticleBomItems.AsNoTracking().Include(a => a.ArticleBom).Include(a => a.Article).Single(a => a.ArticleId == part.ArticleId));
+                    var article = _context.Articles.AsNoTracking().Single(a => a.ArticleId == part.ArticleId);
+                    needs.Add(new ArticleBomItem()
+                    {
+                        ArticleId = article.ArticleId,
+                        Article = article,
+                        ArticleBom = null,
+                        Quantity = part.Quantity,
+                        Name = article.Name
+                        
+                    });
                     //recursively going through bom to list every attached article
-                    GetNeeds(ref needs, boms, part.Quantity);
+                    GetNeeds(ref needs, bomItems, part.Quantity);
                     
                 }
             }
             return needs;
         }
 
-        private void GetNeeds(ref List<ArticleBom> needs, IEnumerable<ArticleBom> boms,  decimal multiplier)
+        private void GetNeeds(ref List<ArticleBomItem> needs, List<ArticleBomItem> bomItems,  decimal multiplier)
         {
             //Iterate through boms to add them to the list "needs"
-            foreach (var bom in boms)
+            foreach (var bomItem in bomItems)
             {
                 //multiply Quantity with the multiplier which consists of the Quantity of the parent article
-                var tempBom = bom;
-                tempBom.Quantity *= multiplier;
-                needs.Add(tempBom);
+                var tempBomItem = bomItem;
+                tempBomItem.Quantity *= multiplier;
+                needs.Add(tempBomItem);
 
-                if (bom.ArticleChildId != null)
+                var bom = _context.ArticleBoms.AsNoTracking().Include(a => a.ArticleBomItems).Where(a => a.ArticleId == bomItem.ArticleId);
+
+
+                if (bom.Any()) 
                 {
                     //If the article has a child recursively call this method to resolve its bom
-                    GetNeeds(ref needs, _context.ArticleBoms.AsNoTracking().Where(a => a.ArticleParentId == bom.ArticleChildId), bom.Quantity);
+                    
+                    GetNeeds(ref needs, bom.First().ArticleBomItems.ToList(), bomItem.Quantity);
                 }
             }
         }
@@ -93,24 +105,21 @@ namespace Master40.BusinessLogic.MRP
         /// Uses List from NetRequirements to start productionorders if there are not enough materials in stock
         /// </summary>
         /// <param name="needs">List</param>
-        void IDemandForecast.NetRequirement(List<ArticleBom> needs)
+        void IDemandForecast.NetRequirement(List<ArticleBomItem> needs)
         {
             //Iterate through needs-List from the method NetRequirements
             foreach (var need in needs)
             {
                 //get the actual item from db
-                var tempNeed = _context.ArticleBoms.AsNoTracking()
-                    .Include(a => a.ArticleChild)
-                    .Include(a => a.ArticleChild.Stock)
-                    .Single(a => a.ArticleBomId == need.ArticleBomId);
+                var article = _context.Articles.AsNoTracking().Include(a => a.Stock).Single(a => a.ArticleId == need.ArticleId);
                 
                 //plannedStock is the amount of this article in stock after taking out the amount needed
-                var plannedStock = tempNeed.ArticleChild.Stock.Current - need.Quantity;
+                var plannedStock = article.Stock.Current - need.Quantity;
 
                 //if there is at least one or more of this article in stock
-                if (tempNeed.ArticleChild.Stock.Current > 0)
+                if (article.Stock.Current > 0)
                 {
-                    var amount = need.Quantity - tempNeed.ArticleChild.Stock.Current;
+                    var amount = need.Quantity - article.Stock.Current;
                     if (amount < 0) amount = need.Quantity;
 
                     //Delete/update the children of this article
@@ -130,35 +139,37 @@ namespace Master40.BusinessLogic.MRP
                 }
 
                 //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
-                if (plannedStock < tempNeed.ArticleChild.Stock.Min)
+                if (plannedStock < article.Stock.Min)
                 //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
                 { }
             }
-            foreach (var need in needs)
+            /*foreach (var need in needs)
             {
                 if (need.Quantity > 0)
                 {
                     var msg = "Articles in the needs-list: " + need.Name + " " + need.Quantity.ToString("#.##");
                     Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
                 }
-            }
+            }*/
         }
 
-        private void DeleteChildren(ref List<ArticleBom> needs, ArticleBom bomNeed, decimal amount)
+        private void DeleteChildren(ref List<ArticleBomItem> needs, ArticleBomItem bomNeed, decimal amount)
         {
             foreach (var need in needs)
             {
                 //ParentId == null means its the head-article
-                if (need.ArticleParentId != null && need.ArticleParentId == bomNeed.ArticleChildId)
+                if (need.ArticleBom != null)
                 {
-                    if (need.ArticleChildId != null)
+                    var bom = _context.ArticleBoms.AsNoTracking().Single(a => a.ArticleId == need.ArticleId);
+                    if (bom != null)
                         //recursively call this method for the children
                         DeleteChildren(ref needs, need, need.Quantity);
                     //Change Quantity for how many articles are in stock
-                    needs[needs.IndexOf(need)].Quantity-=amount*_context.ArticleBoms.AsNoTracking().Single(a => a.ArticleChildId == need.ArticleChildId).Quantity;
+                    //substract the amount of not needed items * the amount of items needed for one head-article
+                    needs[needs.IndexOf(need)].Quantity-=amount*_context.ArticleBomItems.AsNoTracking().Single(a => a.ArticleId == need.ArticleId).Quantity;
                 }
             }
         }
     }
-    */
+    
 }

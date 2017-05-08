@@ -30,13 +30,13 @@ namespace Master40.BusinessLogic.MRP
         void IProcessMrp.Process(int orderId)
         {
             //execute demand forecast
-          //  IDemandForecast demand = new DemandForecast(_context);
-         //   demand.NetRequirement(demand.GrossRequirement(orderId));
-          //  Logger = demand.Logger;
+            IDemandForecast demand = new DemandForecast(_context);
+            demand.NetRequirement(demand.GrossRequirement(orderId));
+            Logger = demand.Logger;
             
 
             //execute scheduling
-            IScheduling schedule = new Scheduling();
+            IScheduling schedule = new Scheduling(_context);
             schedule.BackwardScheduling();
             schedule.ForwardScheduling();
             schedule.CapacityScheduling();
