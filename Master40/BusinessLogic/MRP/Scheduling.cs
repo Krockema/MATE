@@ -100,7 +100,7 @@ namespace Master40.BusinessLogic.MRP
                 manufacturingSchedule.items.Add(new ManufacturingScheduleItem()
                 {
                     //ToDo: write over to ProductionOrder -> new ProductionOrders from Forecast don´t have ID for WorkSchedules
-                    MachineGroupId = workSchedules.Last().MachineGroup.MachineGroupId,
+                    MachineGroupId = workSchedules.Last().MachineGroupId,
                     EndTime = -1,
                     StartTime = timeHelper,
                     ProductionOrderId = order.ProductionOrderId,
