@@ -8,9 +8,17 @@ namespace Master40.Models.DB
     public class ProductionOrderBom
     {
         public int ProductionOrderBomId { get; set; }
-        public int ProductionOrderId { get; set; }
-        public ProductionOrder ProductionOrder { get; set; }
-        public ICollection<ProductionOrderBomItem> ProductionOrderBomItems { get; set; }
+
+
+        public int? ProductionOrderParentId { get; set; }
+        public ProductionOrder ProductionOrderParent { get; set; }
+        public int ProductionOrderChildId { get; set; }
+        public ProductionOrder ProductionOrderChild { get; set; }
+
+
+        public decimal Quantity { get; set; }
         public string Name { get; set; }
+        public int Start { get; set; }
+        public int End { get; set; }
     }
 }

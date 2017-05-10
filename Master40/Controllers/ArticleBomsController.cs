@@ -30,21 +30,18 @@ namespace Master40.Controllers
                 .ThenInclude(b => b.ArticleChilds).ToList().Where(a => 1 == 1);
                 */
 
-            var articleBom = _context.ArticleBoms.Include(a => a.ArticleBomItems)
-                .Where(a => a.ArticleId == 1)
-                .ToList();
+            var masterDBContext = _context.Articles
+                .Where(a => a.ArticleId == 1).ToList();
 
-            var articleList = new List<ArticleBom>();
-            foreach (var item in articleBom)
+            var articleList = new List<Article>();
+            foreach (var item in masterDBContext)
             {
-                var bom = await MasterDbHelper.GetArticleBomRecursive(_context, item, item.ArticleId);
-                articleList.Add(bom);
+                var article = await MasterDbHelper.GetArticleBomRecursive(_context, item, item.ArticleId);
+                articleList.Add(article);
             }
             return View(articleList);
         }
-    }
-}
-        /*
+
         // GET: ArticleBoms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -183,4 +180,3 @@ namespace Master40.Controllers
         }
     }
 }
-*/

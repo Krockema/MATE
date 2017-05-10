@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.Models.DB.ArticleBom>
+@model IEnumerable<Master40.Models.DB.Article>
 
 @{
     ViewData["Title"] = "Index";
@@ -15,22 +15,22 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Article.Name)
+                @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article.Price)
+                @Html.DisplayNameFor(model => model.Price)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article.DeliveryPeriod)
+                @Html.DisplayNameFor(model => model.DeliveryPeriod)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article.CreationDate)
+                @Html.DisplayNameFor(model => model.CreationDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article.ArticleType)
+                @Html.DisplayNameFor(model => model.ArticleType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article.Unit)
+                @Html.DisplayNameFor(model => model.Unit)
             </th>
             <th>Action</th>
         </tr>
@@ -43,19 +43,19 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Article.Price)
+                    @Html.DisplayFor(modelItem => item.Price)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Article.DeliveryPeriod)
+                    @Html.DisplayFor(modelItem => item.DeliveryPeriod)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Article.CreationDate)
+                    @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Article.ArticleType.Name)
+                    @Html.DisplayFor(modelItem => item.ArticleType.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Article.Unit.Name)
+                    @Html.DisplayFor(modelItem => item.Unit.Name)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ArticleId">Edit</a> |
@@ -90,8 +90,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
-                                @Html.Partial("ArticleBom", item.ArticleBomItems, new ViewDataDictionary(ViewData) { { "level", null } })
+                            @Html.Partial("ArticleBom", item.ArticleBoms, new ViewDataDictionary(ViewData) { { "level", null } })
                         </tbody>
                     </table>
                 </td>
@@ -99,6 +98,5 @@
         }
     </tbody>
 </table>
-
 
 

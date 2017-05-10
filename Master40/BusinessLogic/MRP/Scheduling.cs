@@ -51,11 +51,8 @@ namespace Master40.BusinessLogic.MRP
                 {
                     //get abstract workSchedule
                     var abstractWorkSchedule = _context.WorkSchedules.Single(a => a.WorkScheduleId ==
-                                                                              _context.ArticleToWorkSchedule.Include(
-                                                                                      b => b.WorkSchedule)
-                                                                                  .ThenInclude(b => b.MachineGroup)
-                                                                                  .Single(
-                                                                                      b => b.ArticleId == order.ArticleId)
+                                                                              _context.WorkSchedules.Include(b => b.MachineGroup)
+                                                                                  .Single(b => b.ArticleId == order.ArticleId)
                                                                                   .WorkScheduleId
                     );
 
@@ -87,17 +84,17 @@ namespace Master40.BusinessLogic.MRP
                        po2Pows.Last()
                     };
                     //find parents
-                    var parents = _context.ArticleBoms.Include(a => a.Article).Where(c => c.ArticleId == order.ArticleId);
+                    var parents = _context.ArticleBoms.Include(a => a.ArticleParent).Where(c => c.ArticleChildId == order.ArticleId);
                     List<int> parentsId;
                     if (parents.Any())
-                        parentsId = (from p in parents select new { p.Article.ArticleId }).Cast<int>().ToList();
+                        parentsId = (from p in parents select new { p.ArticleParent.ArticleId }).Cast<int>().ToList();
                     else
                         parentsId = null;
                     //find children
-                    var children = _context.ArticleBomItems.Include(a => a.Article).Where(c => c.ArticleId == order.ArticleId);
+                    var children = _context.ArticleBoms.Include(a => a.ArticleChild).Where(c => c.ArticleChildId == order.ArticleId);
                     List<int> childrenId;
                     if (children.Any())
-                        childrenId = (from p in children select new { p.Article.ArticleId }).Cast<int>().ToList();
+                        childrenId = (from p in children select new { p.ArticleChild.ArticleId }).Cast<int>().ToList();
                     else
                         childrenId = null;
                     if (workSchedules.Last().MachineGroupId != null)

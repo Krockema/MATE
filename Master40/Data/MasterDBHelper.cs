@@ -9,23 +9,16 @@ namespace Master40.Data
 {
     public class MasterDbHelper
     {
-        public async static Task<ArticleBom> GetArticleBomRecursive(MasterDBContext context, ArticleBom articleBom, int ArticleId)
+        public async static Task<Article> GetArticleBomRecursive(MasterDBContext context, Article article, int ArticleId)
         {
-            articleBom.ArticleBomItems = await context.ArticleBomItems
-            .Include(a => a.Article)
-                .ThenInclude(b => b.ArticleBoms)
-            .Where(a => a.ArticleBom.ArticleId == ArticleId)
-            .ToListAsync();
+            article.ArticleChilds = context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == ArticleId);
 
-            foreach (var bomItem in articleBom.ArticleBomItems)
+            foreach (var item in article.ArticleChilds)
             {
-                foreach (var articleBomItem in bomItem.Article.ArticleBoms)
-                {
-                    await GetArticleBomRecursive(context, articleBomItem, articleBomItem.ArticleId);
-                }
+                await GetArticleBomRecursive(context, item.ArticleParent, item.ArticleChildId);
             }
             await Task.Yield();
-            return articleBom;
+            return article;
 
         }
 

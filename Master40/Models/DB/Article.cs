@@ -30,10 +30,10 @@ namespace Master40.Models.DB
         public DateTime CreationDate { get; set; }
         public Stock Stock { get; set; }
 
-        public virtual ICollection<ArticleBom> ArticleBoms { get; set; }
-        public virtual ICollection<ArticleBomItem> ArticleBomItems { get; set; }
+        public virtual IEnumerable<ArticleBom> ArticleBoms { get; set; }
+        public virtual IEnumerable<ArticleBom> ArticleChilds { get; set; }
         // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 
-        public virtual ICollection<ArticleToWorkSchedule> ArticleToWorkSchedules { get; set; }
+        public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
         public virtual ICollection<ProductionOrder> ProductionOrders { get; set; }
         public virtual ICollection<ArticleToDemand> ArtilceToDemand { get; set; }
 

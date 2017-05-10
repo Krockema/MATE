@@ -10,9 +10,7 @@ namespace Master40.Data
         
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleBom> ArticleBoms { get; set; }
-        public DbSet<ArticleBomItem> ArticleBomItems { get; set; }
         public DbSet<ArticleType> ArticleTypes { get; set; }
-        public DbSet<ArticleToWorkSchedule> ArticleToWorkSchedule { get; set; }
         public DbSet<BusinessPartner> BusinessPartners{ get; set; }
         public DbSet<Demand> Demands { get; set; }
         public DbSet<DemandOrder> DemandOrders { get; set; }
@@ -27,7 +25,6 @@ namespace Master40.Data
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<ProductionOrder> ProductionOrders { get; set; }
         public DbSet<ProductionOrderBom> ProductionOrderBoms { get; set; }
-        public DbSet<ProductionOrderBomItem> ProductionOrderBomItems { get; set; }
         public DbSet<ProductionOrderToProductionOrderWorkSchedule> ProductionOrderToProductionOrderWorkSchedules { get; set; }
         public DbSet<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
         public DbSet<PurchasePart> PurchaseParts { get; set; }
@@ -51,31 +48,27 @@ namespace Master40.Data
                 .WithOne(s => s.Article)
                 .HasForeignKey<Stock>(b => b.ArticleForeignKey);
 
-            modelBuilder.Entity<ArticleToWorkSchedule>()
-                .HasKey(a => new { a.ArticleId, a.WorkScheduleId });
-
             modelBuilder.Entity<Stock>().ToTable("Stock");
 
             modelBuilder.Entity<ArticleBom>()
-                .HasOne(a => a.Article)
-                .WithMany(b => b.ArticleBoms)
-                .HasForeignKey(fk => fk.ArticleId);
+                .HasOne(pt => pt.ArticleParent)
+                .WithMany(p => p.ArticleBoms)
+                .HasForeignKey(pt => pt.ArticleParentId);
 
-            modelBuilder.Entity<ArticleBomItem>()
-                .HasOne(a => a.Article)
-                .WithMany(b => b.ArticleBomItems)
-                .HasForeignKey(fk => fk.ArticleId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<ArticleBom>()
+                .HasOne(pt => pt.ArticleChild)
+                .WithMany(t => t.ArticleChilds)
+                .HasForeignKey(pt => pt.ArticleChildId);
 
             modelBuilder.Entity<ProductionOrderBom>()
-                .HasOne(p => p.ProductionOrder)
+                .HasOne(p => p.ProductionOrderParent)
                 .WithMany(b => b.ProductionOrderBoms)
-                .HasForeignKey(fk => fk.ProductionOrderId);
+                .HasForeignKey(fk => fk.ProductionOrderParentId);
 
-            modelBuilder.Entity<ProductionOrderBomItem>()
-                .HasOne(p => p.ProductionOrder)
-                .WithMany(b => b.ProductionOrderBomItems)
-                .HasForeignKey(fk => fk.ProductionOrderId)
+            modelBuilder.Entity<ProductionOrderBom>()
+                .HasOne(p => p.ProductionOrderChild)
+                .WithMany(b => b.ProdProductionOrderBomChilds)
+                .HasForeignKey(fk => fk.ProductionOrderChildId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
 
             /*

@@ -32,9 +32,9 @@ namespace Master40.BusinessLogic.MRP
             await Task.Run(() => {
             
                 //execute demand forecast
-                IDemandForecast demand = new DemandForecast(_context);
-                var productionOrders = demand.NetRequirement(demand.GrossRequirement(orderId));
-                Logger = demand.Logger;
+                //IDemandForecast demand = new DemandForecast(_context);
+                //var productionOrders = demand.NetRequirement(demand.GrossRequirement(orderId));
+                //Logger = demand.Logger;
             
 
                 //execute scheduling
@@ -43,7 +43,7 @@ namespace Master40.BusinessLogic.MRP
                 //var backward = schedule.BackwardScheduling(manufacturingSchedule);
                 //var forward = schedule.ForwardScheduling(manufacturingSchedule);
                 //schedule.CapacityScheduling(backward, forward);
-                Logger = demand.Logger;
+                //Logger = demand.Logger;
                 
             });
         }

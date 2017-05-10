@@ -9,14 +9,15 @@ namespace Master40.BusinessLogic.MRP
 {
     public interface IDemandForecast
     {
-        List<ArticleBomItem> GrossRequirement(int orderId);
-        List<ProductionOrder> NetRequirement(List<ArticleBomItem> articles);
+        //List<ArticleBomItem> GrossRequirement(int orderId);
+        //List<ProductionOrder> NetRequirement(List<ArticleBomItem> articles);
         List<LogMessage> Logger { get; set; }
     }
 
     
-    public class DemandForecast : IDemandForecast
+    public class DemandForecast //: IDemandForecast
     {
+        /*
         private readonly MasterDBContext _context;
         //public DemandForecast(MasterDBContext context)
         public List<LogMessage> Logger { get; set; }
@@ -187,6 +188,7 @@ namespace Master40.BusinessLogic.MRP
             else needs[needs.IndexOf(bomNeed)].Quantity -= amount;
 
         }
+        */
     }
     
 }
