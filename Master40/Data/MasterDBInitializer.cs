@@ -123,8 +123,8 @@ namespace Master40.Data
                         Name = "Stock: " + article.Key,
                         Min = 0,
                         Max = 50,
-                        Current = 0
-                    }
+                        Current = (article.Key == "Kipper") ? 1 : 0
+            }
                 };
                 foreach (Stock s in Stocks)
                 {
