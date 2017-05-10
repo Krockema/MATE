@@ -44,6 +44,32 @@ namespace Master40.Data
                 context.Units.Add(u);
             }
             context.SaveChanges();
+
+
+
+            var machines = new Machine[] {
+                new Machine{Capacity=1, Name="Säge", Count = 1, MachineGroup = new MachineGroup{ Name = "Zuschnitt" } },
+                new Machine{Capacity=1, Name="Bohrer", Count = 1, MachineGroup = new MachineGroup{ Name = "Bohrwerk" } },
+                new Machine{Capacity=1, Name="MontagePlatform", Count=1, MachineGroup = new MachineGroup{ Name = "Montage" }}
+            };
+            foreach (var m in machines)
+            {
+                context.Machines.Add(m);
+            }
+            context.SaveChanges();
+
+            var machineTools = new MachineTool[]
+            {
+                new MachineTool{MachineId=machines.Single(m => m.Name == "Säge").MachineId, SetupTime=1, Name="Sägeblatt 1mm Zahnabstant"},
+                new MachineTool{MachineId=machines.Single(m => m.Name == "Bohrer").MachineId, SetupTime=1, Name="M6 Bohrkopf"},
+            };
+            foreach (var mt in machineTools)
+            {
+                context.MachineTools.Add(mt);
+            }
+            context.SaveChanges();
+
+
             // Articles
             var articles = new Article[]
             {
@@ -65,6 +91,7 @@ namespace Master40.Data
             new Article{Name="Achse", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").ArticleTypeId, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").UnitId, Price = 0.50},
             new Article{Name="Knopf", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").ArticleTypeId, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Kilo").UnitId, Price = 0.05},
             new Article{Name="Kippgelenk", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").ArticleTypeId, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").UnitId, Price = 1},
+            new Article{Name="Holz 1,5m x 3,0m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").ArticleTypeId, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").UnitId, Price = 5},
 
             new Article{Name="Unterlegscheibe", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").ArticleTypeId, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10,UnitId = units.Single( s => s.Name == "Kilo").UnitId, Price = 0.05},
             new Article{Name="Leim", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").ArticleTypeId, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Kilo").UnitId, Price = 5.00},

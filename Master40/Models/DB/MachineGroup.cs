@@ -10,10 +10,8 @@ namespace Master40.Models.DB
     {
         [Key]
         public int MachineGroupId { get; set; }
-        public int Count { get; set; }
         public string Name { get; set; }
-        public int WorkScheduleItemId { get; set; }
-        public WorkSchedule WorkSchedule { get; set; }
+        public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
         public virtual ICollection<Machine> Machines  { get; set; }
     }
 }

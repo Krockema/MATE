@@ -9,6 +9,7 @@ namespace Master40.Models.DB
     {
         public int MachineToolId { get; set; }
         public int MachineId { get; set; }
+        public string Name { get; set; }
         public Machine Machine { get; set; }
         public int SetupTime { get; set; }
     }
