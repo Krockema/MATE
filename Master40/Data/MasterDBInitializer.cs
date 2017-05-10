@@ -69,7 +69,6 @@ namespace Master40.Data
             }
             context.SaveChanges();
 
-
             // Articles
             var articles = new Article[]
             {
@@ -132,6 +131,49 @@ namespace Master40.Data
                 }
                 context.SaveChanges();
             }
+            var workSchedule = new WorkSchedule[]
+            {
+                new WorkSchedule{ Name = "Kipper Hochzeit", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ Name = "Kipper Ladefläche Kleben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 20 },
+                new WorkSchedule{ Name = "Rahmen zuschneiden", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Säge").MachineGroupId
+                                  , HierarchyNumber = 10, MachineToolId = machineTools.Single(n=> n.Name=="Sägeblatt 1mm Zahnabstant").MachineToolId },
+                new WorkSchedule{ Name = "Löcher für Achse vorbohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Bohrer").MachineGroupId
+                                  , HierarchyNumber = 20, MachineToolId = machineTools.Single(n=> n.Name=="M6 Bohrkopf").MachineToolId },
+                new WorkSchedule{ Name = "Achse mit Rahmen Verschrauben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ Name = "Felge auf Rad Aufziehen", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ Name = "Rad mit Achse verschrauben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 20 },
+
+            };
+            foreach (var ws in workSchedule)
+            {
+                context.WorkSchedules.Add(ws);
+            }
+            context.SaveChanges();
+
+            var articleWorkSchedule = new ArticleToWorkSchedule[]
+            {
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Kipper Hochzeit").WorkScheduleId },
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Kipper Ladefläche Kleben").WorkScheduleId },
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Achse mit Rahmen Verschrauben").WorkScheduleId },
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Rad mit Achse verschrauben").WorkScheduleId },
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Löcher für Achse vorbohren").WorkScheduleId },
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Rahmen zuschneiden").WorkScheduleId },
+                new ArticleToWorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rad").ArticleId
+                                           , WorkScheduleId = workSchedule.Single(w => w.Name == "Rad mit Achse verschrauben").WorkScheduleId },
+
+            };
+            foreach (var atws in articleWorkSchedule)
+            {
+                context.ArticleToWorkSchedule.Add(atws);
+            }
+            context.SaveChanges();
+            
             var articleBom = new List<ArticleBom>
             {
                 new ArticleBom { ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, Name = "Kipper", ArticleBomItems = new List<ArticleBomItem> {
@@ -149,14 +191,19 @@ namespace Master40.Data
                 new ArticleBom { ArticleId = articles.Single(a => a.Name == "Rad").ArticleId, Name = "Rad", ArticleBomItems = new List<ArticleBomItem> {
                     new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Felge").ArticleId, Name="Felge", Quantity = 1 },
                     new ArticleBomItem { ArticleId =  articles.Single(a => a.Name == "Dübel").ArticleId, Name="Dübel", Quantity = 1 },
-                 }
-                }
-            };
-            foreach (var item in articleBom)
-            {
-                context.ArticleBoms.Add(item);
+                    }
+                },
+                new ArticleBom { ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleId, Name = "Bodenplatte", ArticleBomItems = new List<ArticleBomItem> {
+                     new ArticleBomItem { ArticleId = articles.Single(a => a.Name =="Holz 1,5m x 3,0m").ArticleId, Name = "Holz 1,5m x 3,0m", Quantity = 1 }
+                } 
             }
-            context.SaveChanges();
+            
+        };
+        foreach (var item in articleBom)
+        {
+            context.ArticleBoms.Add(item);
+        }
+        context.SaveChanges();
 
 
 
