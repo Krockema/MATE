@@ -176,7 +176,13 @@ namespace Master40.BusinessLogic.MRP
                         //Change Quantity for how many articles are in stock
                         //substract the amount of not needed items * the amount of items needed for one head-article
                     }
-                    needs[needs.IndexOf(need)].Quantity -= amount * _context.ArticleBomItems.AsNoTracking().Single(a => a.ArticleId == need.ArticleId).Quantity;
+                    if (need.ArticleBom != null)
+                        needs[needs.IndexOf(need)].Quantity -= amount *
+                                                               _context.ArticleBomItems.AsNoTracking()
+                                                                   .Single(a => a.ArticleId == need.ArticleId)
+                                                                   .Quantity;
+                    else
+                        needs[needs.IndexOf(need)].Quantity -= amount;
                 }   
             }
         }
