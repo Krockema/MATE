@@ -10,8 +10,8 @@ namespace Master40.BusinessLogic.MRP
 {
     public interface IDemandForecast
     {
-        Task<List<ArticleBomItem>> GrossRequirement(int orderId);
-        Task<List<ProductionOrder>> NetRequirement(List<ArticleBomItem> articles);
+        List<ArticleBomItem> GrossRequirement(int orderId);
+        List<ProductionOrder> NetRequirement(List<ArticleBomItem> articles);
         List<LogMessage> Logger { get; set; }
     }
 
@@ -32,10 +32,10 @@ namespace Master40.BusinessLogic.MRP
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns>List</returns>
-        async Task<List<ArticleBomItem>> IDemandForecast.GrossRequirement(int orderId)
+        List<ArticleBomItem> IDemandForecast.GrossRequirement(int orderId)
         {
             var needs = new List<ArticleBomItem>();
-            await Task.Run(() => {
+            
                 //get Orderparts from Order
                 var parts = _context.OrderParts.AsNoTracking()
                     .Include(a => a.Article)
@@ -71,7 +71,6 @@ namespace Master40.BusinessLogic.MRP
                     GetNeeds(ref needs, bomItems, part.Quantity);
                 }
                
-            });
             return needs;
         }
 
@@ -101,10 +100,10 @@ namespace Master40.BusinessLogic.MRP
         /// Uses List from NetRequirements to start productionorders if there are not enough materials in stock
         /// </summary>
         /// <param name="needs">List</param>
-        async Task<List<ProductionOrder>> IDemandForecast.NetRequirement(List<ArticleBomItem> needs)
+        List<ProductionOrder> IDemandForecast.NetRequirement(List<ArticleBomItem> needs)
         {
             List<ProductionOrder> productionOrders = new List<ProductionOrder>();
-            await Task.Run(() => {
+            
              
                 //Iterate through needs-List from the method NetRequirements
                 foreach (var need in needs)
@@ -120,6 +119,10 @@ namespace Master40.BusinessLogic.MRP
                     {
                         var amount = need.Quantity - article.Stock.Current;
                         if (amount < 0) amount = need.Quantity;
+
+                        var msg = "Articles in stock: " + article.Name + " " + article.Stock.Current;
+                        Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
+
 
                         //Delete/update the children of this article
                         //Example: if 2 "Kipper" are in stock and 5 are required, 3 have to be produced
@@ -159,7 +162,6 @@ namespace Master40.BusinessLogic.MRP
                     }
                 }*/
 
-            });
             return productionOrders;
         }
 

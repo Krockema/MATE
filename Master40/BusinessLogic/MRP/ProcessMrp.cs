@@ -29,19 +29,22 @@ namespace Master40.BusinessLogic.MRP
 
         async void IProcessMrp.Process(int orderId)
         {
-            //execute demand forecast
-            IDemandForecast demand = new DemandForecast(_context);
-            var productionOrders = await demand.NetRequirement(await demand.GrossRequirement(orderId));
-            Logger = demand.Logger;
+            await Task.Run(() => {
+            
+                //execute demand forecast
+                IDemandForecast demand = new DemandForecast(_context);
+                var productionOrders = demand.NetRequirement(demand.GrossRequirement(orderId));
+                Logger = demand.Logger;
             
 
-            //execute scheduling
-            IScheduling schedule = new Scheduling(_context);
-            //var manufacturingSchedule = await schedule.CreateSchedule(orderId, productionOrders);
-            //var backward = await schedule.BackwardScheduling(manufacturingSchedule);
-            //var forward = await schedule.ForwardScheduling(manufacturingSchedule);
-            //await schedule.CapacityScheduling(backward, forward);
-            Logger = demand.Logger;
+                //execute scheduling
+                IScheduling schedule = new Scheduling(_context);
+                //var manufacturingSchedule = schedule.CreateSchedule(orderId, productionOrders);
+                //var backward = schedule.BackwardScheduling(manufacturingSchedule);
+                //var forward = schedule.ForwardScheduling(manufacturingSchedule);
+                //schedule.CapacityScheduling(backward, forward);
+                Logger = demand.Logger;
+            });
         }
     }
 
