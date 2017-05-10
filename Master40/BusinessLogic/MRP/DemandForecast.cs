@@ -10,7 +10,7 @@ namespace Master40.BusinessLogic.MRP
     public interface IDemandForecast
     {
         List<ArticleBomItem> GrossRequirement(int orderId);
-        void NetRequirement(List<ArticleBomItem> articles);
+        List<ProductionOrder> NetRequirement(List<ArticleBomItem> articles);
         List<LogMessage> Logger { get; set; }
     }
 
@@ -40,8 +40,6 @@ namespace Master40.BusinessLogic.MRP
             //for every orderPart get its bom
             foreach (var order in orders)
             {
-                System.Diagnostics.Debug.WriteLine(order.Name, order.OrderId);
-
                 //get Orderparts from Order
                 var parts = _context.OrderParts.AsNoTracking()
                     .Include(a => a.Article)
@@ -105,8 +103,9 @@ namespace Master40.BusinessLogic.MRP
         /// Uses List from NetRequirements to start productionorders if there are not enough materials in stock
         /// </summary>
         /// <param name="needs">List</param>
-        void IDemandForecast.NetRequirement(List<ArticleBomItem> needs)
+        List<ProductionOrder> IDemandForecast.NetRequirement(List<ArticleBomItem> needs)
         {
+            List<ProductionOrder> productionOrders = new List<ProductionOrder>();
             //Iterate through needs-List from the method NetRequirements
             foreach (var need in needs)
             {
@@ -134,14 +133,22 @@ namespace Master40.BusinessLogic.MRP
                     var msg = "Articles ordered to produce: " + need.Name + " " + need.Quantity.ToString("#.##");
                     Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
                     //TODO: implement productionOrder with orderId for -PlannedStock
+                    productionOrders.Add(new ProductionOrder()
+                    {
+                        Article = need.Article,
+                        ArticleId = need.ArticleId,
+                        Quantity = need.Quantity,
+
+
+                    });
                     //Set PlannedStock to zero because the rest will already be produced
                     plannedStock = 0;
                 }
 
                 //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
                 if (plannedStock < article.Stock.Min)
-                //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
-                { }
+                    //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
+                    ;
             }
             /*foreach (var need in needs)
             {
@@ -151,6 +158,7 @@ namespace Master40.BusinessLogic.MRP
                     Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
                 }
             }*/
+            return productionOrders;
         }
 
         private void DeleteChildren(ref List<ArticleBomItem> needs, ArticleBomItem bomNeed, decimal amount)
@@ -160,6 +168,7 @@ namespace Master40.BusinessLogic.MRP
                 //ParentId == null means its the head-article
                 if (need.ArticleBom != null)
                 {
+                    //TODO: single falsch und != null auch!
                     var bom = _context.ArticleBoms.AsNoTracking().Single(a => a.ArticleId == need.ArticleId);
                     if (bom != null)
                         //recursively call this method for the children

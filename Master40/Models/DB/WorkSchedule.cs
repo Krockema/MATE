@@ -8,7 +8,7 @@ namespace Master40.Models.DB
     public class WorkSchedule
     {
         public int WorkScheduleId { get; set; }
-        public int HirachieNumber { get; set; }
+        public int HierarchyNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
         public int? MachineToolId { get; set; }

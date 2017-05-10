@@ -14,7 +14,7 @@ namespace Master40.Models.DB
         public Article Article { get; set; }
         public ICollection<ProductionOrderBom> ProductionOrderBoms {get; set; }
         public ICollection<ProductionOrderBomItem> ProductionOrderBomItems { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public string Name { get; set; }
         public ICollection<ProductionOrderToProductionOrderWorkSchedule> ProductionOrderToProductionOrderWorkSchedule { get; set; }
     }

@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.BusinessLogic.Helper;
 using Master40.Data;
 using Master40.Models;
+using Master40.Models.DB;
+using Microsoft.EntityFrameworkCore;
 
 namespace Master40.BusinessLogic.MRP
 {
 
     interface IScheduling
     {
-        void BackwardScheduling();
-        void ForwardScheduling();
+        ManufacturingSchedule CreateSchedule(int orderId, List<ProductionOrder> productionOrders);
+        ManufacturingSchedule BackwardScheduling(ManufacturingSchedule manufacturingSchedule );
+        void ForwardScheduling(ManufacturingSchedule manufacturingSchedule);
         void CapacityScheduling();
     }
 
@@ -24,12 +29,151 @@ namespace Master40.BusinessLogic.MRP
             Logger = new List<LogMessage>();
             _context = context;
         }
-        void IScheduling.BackwardScheduling()
+
+        public ManufacturingSchedule CreateSchedule(int orderId, List<ProductionOrder> productionOrders)
         {
+
+            var orders = productionOrders;
+            var headOrder = _context.Orders.Single(a => a.OrderId == orderId);
+
+            var msg = "ProductionOrders received: " + orders.Count;
+            Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
+
+            var workSchedules = new List<ProductionOrderWorkSchedule>();
+            var po2pows = _context.ProductionOrderToProductionOrderWorkSchedules;
+
+            var timeHelper = headOrder.DueTime;
+            var manufacturingSchedule = new ManufacturingSchedule();
+
+            foreach (var order in orders)
+            {
+                //get abstract workSchedule
+                var abstractWorkSchedule = _context.WorkSchedules.Single(a => a.WorkScheduleId ==
+                                                                          _context.ArticleToWorkSchedule.Include(
+                                                                                  b => b.WorkSchedule)
+                                                                              .ThenInclude(b => b.MachineGroup)
+                                                                              .Single(
+                                                                                  b => b.ArticleId == order.ArticleId)
+                                                                              .WorkScheduleId
+                );
+
+                //add specific workSchedule
+                workSchedules.Add(new ProductionOrderWorkSchedule()
+                {
+                    Duration = abstractWorkSchedule.Duration,
+                    HierarchyNumber = abstractWorkSchedule.HierarchyNumber,
+                    MachineGroupId = abstractWorkSchedule.MachineGroupId,
+                    MachineGroup = abstractWorkSchedule.MachineGroup,
+                    MachineTool = abstractWorkSchedule.MachineTool,
+                    MachineToolId = abstractWorkSchedule.MachineToolId,
+                    Name = abstractWorkSchedule.Name,
+                    ProductionOrderToWorkSchedules = null
+
+                });
+
+                po2pows.Add(new ProductionOrderToProductionOrderWorkSchedule()
+                {
+                    ProductionOrder = order,
+                    ProductionOrderId = order.ProductionOrderId,
+                    ProductionOrderWorkSchedule = workSchedules.Last(),
+                    ProductionOrderWorkScheduleId = workSchedules.Last().ProductionOrderWorkScheduleId
+
+                });
+                workSchedules.Last().ProductionOrderToWorkSchedules = new Collection<ProductionOrderToProductionOrderWorkSchedule>()
+                {
+                   po2pows.Last()
+                };
+                var parents = _context.ArticleBoms.Include(a => a.Article).Where(c => c.ArticleId == order.ArticleId);
+                List<int> parentsId;
+                if (parents.Any())
+                    parentsId = (from p in parents select new { p.Article.ArticleId }).Cast<int>().ToList();
+                else
+                    parentsId = null;
+                var children = _context.ArticleBomItems.Include(a => a.Article).Where(c => c.ArticleId == order.ArticleId);
+                List<int> childrenId;
+                if (children.Any())
+                    childrenId = (from p in children select new { p.Article.ArticleId }).Cast<int>().ToList();
+                else
+                    childrenId = null;
+                manufacturingSchedule.items.Add(new ManufacturingScheduleItem()
+                {
+                    //ToDo: write over to ProductionOrder -> new ProductionOrders from Forecast don´t have ID for WorkSchedules
+                    MachineGroupId = workSchedules.Last().MachineGroup.MachineGroupId,
+                    EndTime = -1,
+                    StartTime = timeHelper,
+                    ProductionOrderId = order.ProductionOrderId,
+                    ArticleId = order.ArticleId,
+                    Duration = workSchedules.Last().Duration,
+                    ParentsArticleId = parentsId,
+                    ChildrenArticleId = childrenId
+                });
+            }
+            return manufacturingSchedule;
+        }
+        ManufacturingSchedule IScheduling.BackwardScheduling(ManufacturingSchedule manufacturingSchedule)
+        {
+            manufacturingSchedule = Backward(manufacturingSchedule, 0);
             
+           
+            return manufacturingSchedule;
         }
 
-        void IScheduling.ForwardScheduling()
+        private ManufacturingSchedule Backward(ManufacturingSchedule manufacturingSchedule,
+            int counter)
+        {
+            var endTime = manufacturingSchedule.items.First().StartTime;
+            //find parents
+            for (int i = 0; i < manufacturingSchedule.items.ElementAt(counter).ParentsArticleId.Count; i++)
+            {
+                for (int j = 0; j < manufacturingSchedule.items.Count; j++)
+                {
+                    if (manufacturingSchedule.items.ElementAt(j).ArticleId == manufacturingSchedule.items.ElementAt(counter).ParentsArticleId.ElementAt(i))
+                    {
+                        if (manufacturingSchedule.items.ElementAt(counter).EndTime > manufacturingSchedule.items.ElementAt(j).StartTime)
+                            manufacturingSchedule.items.ElementAt(counter).EndTime = manufacturingSchedule.items.ElementAt(j).StartTime;
+                    }
+
+                }
+               
+            }
+            //find next free spot on the machine
+            for (int i = 0; i < manufacturingSchedule.items.Count; i++)
+            {
+                if (manufacturingSchedule.items.ElementAt(i).MachineGroupId == manufacturingSchedule.items.ElementAt(counter).MachineGroupId)
+                {
+                    //ToDo: 2. Bedingung anschauen
+                    if (manufacturingSchedule.items.ElementAt(i).StartTime > -1)
+                        if ((manufacturingSchedule.items.ElementAt(i).StartTime < manufacturingSchedule.items.ElementAt(counter).StartTime 
+                                && manufacturingSchedule.items.ElementAt(i).EndTime > manufacturingSchedule.items.ElementAt(counter).StartTime )
+                            || manufacturingSchedule.items.ElementAt(i).StartTime < manufacturingSchedule.items.ElementAt(counter).EndTime
+                                && manufacturingSchedule.items.ElementAt(i).StartTime > manufacturingSchedule.items.ElementAt(counter).StartTime)
+                        { 
+                            manufacturingSchedule.items.ElementAt(counter).EndTime = manufacturingSchedule.items.ElementAt(i).StartTime;
+                            manufacturingSchedule.items.ElementAt(counter).StartTime =
+                                manufacturingSchedule.items.ElementAt(counter).EndTime -
+                                manufacturingSchedule.items.ElementAt(counter).Duration;
+                            i = -1;
+                        }
+                }
+            }
+
+            //call children to be calculated
+            foreach (var child in manufacturingSchedule.items.ElementAt(counter).ChildrenArticleId)
+            {
+                for (int i=0; i < manufacturingSchedule.items.Count; i++)
+                {
+                    if (manufacturingSchedule.items.ElementAt(i).ArticleId == child)
+                    {
+                        Backward(manufacturingSchedule, i);
+                        break;
+                    }
+                }
+            }
+            return manufacturingSchedule;
+        }
+
+
+        void IScheduling.ForwardScheduling(ManufacturingSchedule manufacturingSchedule)
         {
             
         }

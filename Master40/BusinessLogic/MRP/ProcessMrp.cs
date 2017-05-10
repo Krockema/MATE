@@ -31,16 +31,17 @@ namespace Master40.BusinessLogic.MRP
         {
             //execute demand forecast
             IDemandForecast demand = new DemandForecast(_context);
-            demand.NetRequirement(demand.GrossRequirement(orderId));
+            var productionOrders = demand.NetRequirement(demand.GrossRequirement(orderId));
             Logger = demand.Logger;
             
 
             //execute scheduling
             IScheduling schedule = new Scheduling(_context);
-            schedule.BackwardScheduling();
-            schedule.ForwardScheduling();
-            schedule.CapacityScheduling();
-            
+            var manufacturingSchedule = schedule.CreateSchedule(orderId, productionOrders);
+            //var backward = schedule.BackwardScheduling(manufacturingSchedule);
+            //var forward = schedule.ForwardScheduling(manufacturingSchedule);
+            //schedule.CapacityScheduling(backward, forward);
+            Logger = demand.Logger;
         }
     }
 
