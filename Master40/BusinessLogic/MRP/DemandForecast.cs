@@ -34,45 +34,40 @@ namespace Master40.BusinessLogic.MRP
         List<ArticleBomItem> IDemandForecast.GrossRequirement(int orderId)
         {
             var needs = new List<ArticleBomItem>();
-            //get Order from Database
-            var orders = _context.Orders.Include(a => a.OrderParts).Where(a => a.OrderId == orderId);
-            
+           
+            //get Orderparts from Order
+            var parts = _context.OrderParts.AsNoTracking()
+                .Include(a => a.Article)
+                .Where(a => a.OrderId == orderId);
             //for every orderPart get its bom
-            foreach (var order in orders)
+            foreach (var part in parts)
             {
-                //get Orderparts from Order
-                var parts = _context.OrderParts.AsNoTracking()
-                    .Include(a => a.Article)
-                    .Where(a => a.OrderId == orderId);
+                var msg = "Articles ordered: " +
+                          _context.Articles.AsNoTracking().Single(a => a.ArticleId == part.ArticleId).Name + " " +
+                          part.Quantity;
+                Logger.Add(new LogMessage() {MessageType = MessageType.success, Message = msg});
 
-                foreach (var part in parts)
+                //get bom for every orderpart
+                var bomItems = _context.ArticleBoms.AsNoTracking()
+                    .Include(a => a.ArticleBomItems)
+                    .Single(a => a.ArticleId == part.ArticleId)
+                    .ArticleBomItems
+                    .ToList();
+
+                //manually add ordered Item, because its head of the bom
+                //needs.Add(_context.ArticleBomItems.AsNoTracking().Include(a => a.ArticleBom).Include(a => a.Article).Single(a => a.ArticleId == part.ArticleId));
+                var article = _context.Articles.AsNoTracking().Single(a => a.ArticleId == part.ArticleId);
+                needs.Add(new ArticleBomItem()
                 {
-                    var msg = "Articles ordered: " +_context.Articles.AsNoTracking().Single(a=>a.ArticleId==part.ArticleId).Name + " " + part.Quantity;
-                    Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
-                    
-                    //get bom for every orderpart
-                    var bomItems = _context.ArticleBoms.AsNoTracking()
-                        .Include(a => a.ArticleBomItems)
-                        .Single(a => a.ArticleId == part.ArticleId)
-                        .ArticleBomItems
-                        .ToList();
+                    ArticleId = article.ArticleId,
+                    Article = article,
+                    ArticleBom = null,
+                    Quantity = part.Quantity,
+                    Name = article.Name
 
-                    //manually add ordered Item, because its head of the bom
-                    //needs.Add(_context.ArticleBomItems.AsNoTracking().Include(a => a.ArticleBom).Include(a => a.Article).Single(a => a.ArticleId == part.ArticleId));
-                    var article = _context.Articles.AsNoTracking().Single(a => a.ArticleId == part.ArticleId);
-                    needs.Add(new ArticleBomItem()
-                    {
-                        ArticleId = article.ArticleId,
-                        Article = article,
-                        ArticleBom = null,
-                        Quantity = part.Quantity,
-                        Name = article.Name
-                        
-                    });
-                    //recursively going through bom to list every attached article
-                    GetNeeds(ref needs, bomItems, part.Quantity);
-                    
-                }
+                });
+                //recursively going through bom to list every attached article
+                GetNeeds(ref needs, bomItems, part.Quantity);
             }
             return needs;
         }
@@ -137,7 +132,7 @@ namespace Master40.BusinessLogic.MRP
                     {
                         Article = need.Article,
                         ArticleId = need.ArticleId,
-                        Quantity = need.Quantity,
+                        Quantity = need.Quantity
 
 
                     });
@@ -165,18 +160,17 @@ namespace Master40.BusinessLogic.MRP
         {
             foreach (var need in needs)
             {
-                //ParentId == null means its the head-article
-                if (need.ArticleBom != null)
+                if (need.ArticleBomId == bomNeed.ArticleBomId)
                 {
-                    //TODO: single falsch und != null auch!
-                    var bom = _context.ArticleBoms.AsNoTracking().Single(a => a.ArticleId == need.ArticleId);
-                    if (bom != null)
+                    if (bomNeed.ArticleBom != null)
+                    {
                         //recursively call this method for the children
                         DeleteChildren(ref needs, need, need.Quantity);
-                    //Change Quantity for how many articles are in stock
-                    //substract the amount of not needed items * the amount of items needed for one head-article
-                    needs[needs.IndexOf(need)].Quantity-=amount*_context.ArticleBomItems.AsNoTracking().Single(a => a.ArticleId == need.ArticleId).Quantity;
-                }
+                        //Change Quantity for how many articles are in stock
+                        //substract the amount of not needed items * the amount of items needed for one head-article
+                    }
+                    needs[needs.IndexOf(need)].Quantity -= amount * _context.ArticleBomItems.AsNoTracking().Single(a => a.ArticleId == need.ArticleId).Quantity;
+                }   
             }
         }
     }
