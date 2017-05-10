@@ -120,7 +120,7 @@ namespace Master40.BusinessLogic.MRP
                     if (amount < 0) amount = need.Quantity;
 
                     var msg = "Articles in stock: " + article.Name + " " + article.Stock.Current;
-                    Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
+                    Logger.Add(new LogMessage() { MessageType = MessageType.success,Message = msg });
 
 
                     //Delete/update the children of this article

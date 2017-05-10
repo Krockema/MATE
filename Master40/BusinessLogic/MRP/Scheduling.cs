@@ -13,8 +13,8 @@ namespace Master40.BusinessLogic.MRP
 
     interface IScheduling
     {
-        Task<ManufacturingSchedule> CreateSchedule(int orderId, List<ProductionOrder> productionOrders);
-        Task<ManufacturingSchedule> BackwardScheduling(ManufacturingSchedule manufacturingSchedule );
+        ManufacturingSchedule CreateSchedule(int orderId, List<ProductionOrder> productionOrders);
+        ManufacturingSchedule BackwardScheduling(ManufacturingSchedule manufacturingSchedule );
         void ForwardScheduling(ManufacturingSchedule manufacturingSchedule);
         void CapacityScheduling();
     }
@@ -29,35 +29,33 @@ namespace Master40.BusinessLogic.MRP
             _context = context;
         }
 
-        public async Task<ManufacturingSchedule> CreateSchedule(int orderId, List<ProductionOrder> productionOrders)
+        public ManufacturingSchedule CreateSchedule(int orderId, List<ProductionOrder> productionOrders)
         {
 
             var manufacturingSchedule = new ManufacturingSchedule();
-            await Task.Run(() => {
-            
+            var orders = productionOrders;
+            var headOrder = _context.Orders.Single(a => a.OrderId == orderId);
 
-                var orders = productionOrders;
-                var headOrder = _context.Orders.Single(a => a.OrderId == orderId);
+            var msg = "ProductionOrders received: " + orders.Count;
+            Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
 
-                var msg = "ProductionOrders received: " + orders.Count;
-                Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
+            var workSchedules = new List<ProductionOrderWorkSchedule>();
+            var po2Pows = new List<ProductionOrderToProductionOrderWorkSchedule>();//_context.ProductionOrderToProductionOrderWorkSchedules;
 
-                var workSchedules = new List<ProductionOrderWorkSchedule>();
-                var po2Pows = _context.ProductionOrderToProductionOrderWorkSchedules;
+            var timeHelper = headOrder.DueTime;
 
-                var timeHelper = headOrder.DueTime;
-
-                foreach (var order in orders)
+            foreach (var order in orders)
+            {
+                //get abstract workSchedule
+                var a2Ws = _context.ArticleToWorkSchedule
+                    .Include(b => b.WorkSchedule)
+                    .ThenInclude(b => b.MachineGroup)
+                    .Where(b => b.ArticleId == order.ArticleId);
+                foreach (var workSchedule in a2Ws)
                 {
-                    //get abstract workSchedule
-                    var abstractWorkSchedule = _context.WorkSchedules.Single(a => a.WorkScheduleId ==
-                                                                              _context.ArticleToWorkSchedule.Include(
-                                                                                      b => b.WorkSchedule)
-                                                                                  .ThenInclude(b => b.MachineGroup)
-                                                                                  .Single(
-                                                                                      b => b.ArticleId == order.ArticleId)
-                                                                                  .WorkScheduleId
-                    );
+                    var abstractWorkSchedule = _context.WorkSchedules
+                                                .Single(a => a.WorkScheduleId == workSchedule.WorkScheduleId);
+                                                                            
 
                     //add specific workSchedule
                     workSchedules.Add(new ProductionOrderWorkSchedule()
@@ -84,13 +82,17 @@ namespace Master40.BusinessLogic.MRP
                     });
                     workSchedules.Last().ProductionOrderToWorkSchedules = new Collection<ProductionOrderToProductionOrderWorkSchedule>()
                     {
-                       po2Pows.Last()
+                        po2Pows.Last()
                     };
                     //find parents
-                    var parents = _context.ArticleBoms.Include(a => a.Article).Where(c => c.ArticleId == order.ArticleId);
+                    var parents = _context.ArticleBomItems.Include(a => a.Article).Where(c => c.ArticleId == order.ArticleId);
                     List<int> parentsId;
                     if (parents.Any())
-                        parentsId = (from p in parents select new { p.Article.ArticleId }).Cast<int>().ToList();
+                        foreach (var parent in parents)
+                        {
+                            //parentsId = _context.ArticleBoms.Include(a => a.Article).Single(a => a.ArticleBomId)
+                        }
+                        
                     else
                         parentsId = null;
                     //find children
@@ -112,7 +114,7 @@ namespace Master40.BusinessLogic.MRP
                             ProductionOrderId = order.ProductionOrderId,
                             ArticleId = order.ArticleId,
                             Duration = workSchedules.Last().Duration,
-                            ParentsArticleId = parentsId,
+                            //ParentsArticleId = parentsId,
                             ChildrenArticleId = childrenId
                         });
                     }
@@ -127,22 +129,20 @@ namespace Master40.BusinessLogic.MRP
                             ProductionOrderId = order.ProductionOrderId,
                             ArticleId = order.ArticleId,
                             Duration = workSchedules.Last().Duration,
-                            ParentsArticleId = parentsId,
+                            //ParentsArticleId = parentsId,
                             ChildrenArticleId = childrenId
                         });
                     }
-                        
                 }
-                //ToDo: push to database po2Pows  and workSchedules and propably manufacturingSchedule
-            });
+            }
+            //ToDo: push to database po2Pows  and workSchedules and propably manufacturingSchedule
             return manufacturingSchedule;
         }
-        async Task<ManufacturingSchedule> IScheduling.BackwardScheduling(ManufacturingSchedule manufacturingSchedule)
+        ManufacturingSchedule IScheduling.BackwardScheduling(ManufacturingSchedule manufacturingSchedule)
         {
-            await Task.Run(() => {
-                manufacturingSchedule = Backward(manufacturingSchedule, 0);
-                //ToDo: propably push Schedule
-            });
+            
+            manufacturingSchedule = Backward(manufacturingSchedule, 0);
+            //ToDo: propably push Schedule
             return manufacturingSchedule;
         }
 
