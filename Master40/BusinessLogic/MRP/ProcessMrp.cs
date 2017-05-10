@@ -13,7 +13,7 @@ namespace Master40.BusinessLogic.MRP
     public interface IProcessMrp
     {
         List<LogMessage> Logger { get; set; }
-        void Process(int orderId);
+        Task Process(int orderId);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -27,7 +27,7 @@ namespace Master40.BusinessLogic.MRP
 
         }
 
-        async void IProcessMrp.Process(int orderId)
+        async Task IProcessMrp.Process(int orderId)
         {
             await Task.Run(() => {
             
@@ -44,6 +44,7 @@ namespace Master40.BusinessLogic.MRP
                 //var forward = schedule.ForwardScheduling(manufacturingSchedule);
                 //schedule.CapacityScheduling(backward, forward);
                 Logger = demand.Logger;
+                
             });
         }
     }

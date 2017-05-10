@@ -21,7 +21,7 @@
         @foreach (var item in Model)
         {
             <div class="alert alert-@item.MessageType.ToString()">
-                 @{ LineNumber = LineNumber+1; }
+                @{ LineNumber = LineNumber + 1; }
                 <strong> @LineNumber.ToString() :</strong> @Html.DisplayFor(modelItem => item.Message)
             </div>
         }

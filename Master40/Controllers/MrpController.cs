@@ -2,6 +2,7 @@
 using Master40.BusinessLogic.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Master40.Controllers
 {
@@ -24,11 +25,14 @@ namespace Master40.Controllers
         }
 
         [HttpGet("[Controller]/MrpProcessing/{id}")]
-        public IActionResult MrpProcessing(int id)
+        public async Task<IActionResult> MrpProcessing(int id)
         {
             //call to process MRP I and II
-            _processMrp.Process(id);
-            return RedirectToAction("Index");
+            await _processMrp.Process(id);
+
+            await Task.Yield();
+
+            return View("Index", _processMrp.Logger);
         }
        
         public IActionResult Error()
