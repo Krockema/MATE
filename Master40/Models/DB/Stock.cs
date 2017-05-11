@@ -15,6 +15,7 @@ namespace Master40.Models.DB
 
         public int ArticleForeignKey { get; set; }
         public Article Article { get; set; }
-        public ICollection<DemandStock> DemandStock { get; set; }
+        public virtual ICollection<DemandStock> DemandStocks { get; set; }
+        public virtual ICollection<DemandProviderStock> DemandProviderStocks { get; set; }
     }
 }

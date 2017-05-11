@@ -12,10 +12,9 @@ namespace Master40.Data
         public DbSet<ArticleBom> ArticleBoms { get; set; }
         public DbSet<ArticleType> ArticleTypes { get; set; }
         public DbSet<BusinessPartner> BusinessPartners{ get; set; }
-        public DbSet<Demand> Demands { get; set; }
-        public DbSet<DemandOrder> DemandOrders { get; set; }
-        public DbSet<DemandPurchase> DemandPurchases { get; set; }
-        public DbSet<DemandStock> DemandStock { get; set; }
+        public DbSet<DemandToProvider> Demands { get; set; }
+
+        //public DbSet<DemandToProvider> DemandToProvider { get; set; }
         public DbSet<Machine> Machines { get; set; }
         public DbSet<MachineGroup> MachineGroups { get; set; }
         public DbSet<MachineTool> MachineTools { get; set; }
@@ -50,6 +49,9 @@ namespace Master40.Data
 
             modelBuilder.Entity<Stock>().ToTable("Stock");
 
+            modelBuilder.Entity<ArticleToDemand>()
+                .HasKey(a => new { a.ArticleId, a.DemandToProviderId });
+
             modelBuilder.Entity<ArticleBom>()
                 .HasOne(pt => pt.ArticleParent)
                 .WithMany(p => p.ArticleBoms)
@@ -69,6 +71,55 @@ namespace Master40.Data
                 .HasOne(p => p.ProductionOrderChild)
                 .WithMany(b => b.ProdProductionOrderBomChilds)
                 .HasForeignKey(fk => fk.ProductionOrderChildId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+
+
+
+            modelBuilder.Entity<DemandToProvider>()
+                .HasOne(d => d.DemandRequester)
+                .WithMany(r => r.DemandProvider)
+                .HasForeignKey(fk => fk.DemandRequesterId);
+
+            modelBuilder.Entity<DemandProviderProductionOrder>()
+                .HasOne(d => d.ProductionOrder)
+                .WithMany(r => r.DemandProviderProductionOrders)
+                .HasForeignKey(fk => fk.ProductionOrderId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<DemandProviderPurchasePart>()
+                .HasOne(d => d.PurchasePart)
+                .WithMany(r => r.DemandProviderPurchaseParts)
+                .HasForeignKey(fk => fk.PurchasePartId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<DemandProviderStock>()
+                .HasOne(d => d.Stock)
+                .WithMany(r => r.DemandProviderStocks)
+                .HasForeignKey(fk => fk.StockId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<DemandStock>()
+                .HasOne(d => d.Stock)
+                .WithMany(r => r.DemandStocks)
+                .HasForeignKey(fk => fk.StockId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<DemandProductionOrderBom>()
+                .HasOne(d => d.ProductionOrderBom)
+                .WithMany(r => r.DemandProductionOrderBoms)
+                .HasForeignKey(fk => fk.ProductionOrderBomId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<DemandOrderPart>()
+                .HasOne(d => d.OrderPart)
+                .WithMany(r => r.DemandOdrderParts)
+                .HasForeignKey(fk => fk.OrderPartId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ArticleToDemand>()
+                .HasOne(d => d.Article)
+                .WithMany(r => r.ArtilceToDemand)
+                .HasForeignKey(fk => fk.ArticleId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<ArticleToDemand>()
+                .HasOne(d => d.DemandToProvider)
+                .WithMany(r => r.ArticleToDemand)
+                .HasForeignKey(fk => fk.DemandToProviderId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
 
             /*

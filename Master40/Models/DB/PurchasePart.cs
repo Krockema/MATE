@@ -13,6 +13,6 @@ namespace Master40.Models.DB
         public int ArticleId { get; set; }
         public Article Article { get; set; }
         public int Quantity { get; set; }
-        public ICollection<DemandPurchase> DemandPurchases { get; set; }
+        public virtual ICollection<DemandProviderPurchasePart> DemandProviderPurchaseParts { get; set; }
     }
 }
