@@ -15,9 +15,11 @@ namespace Master40.Models.DB
     {
         [Key]
         public int DemandId { get; set; }
-        public ICollection<ArticleToDemand> ArticleToDemand { get; set; }
+        public int ArticleId { get; set; }
+
+        public Article Article { get; set; }
         [Required]
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public int? DemandRequesterId { get; set; }
 
         public DemandToProvider DemandRequester { get; set; }

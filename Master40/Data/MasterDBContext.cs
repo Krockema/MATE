@@ -49,9 +49,6 @@ namespace Master40.Data
 
             modelBuilder.Entity<Stock>().ToTable("Stock");
 
-            modelBuilder.Entity<ArticleToDemand>()
-                .HasKey(a => new { a.ArticleId, a.DemandToProviderId });
-
             modelBuilder.Entity<ArticleBom>()
                 .HasOne(pt => pt.ArticleParent)
                 .WithMany(p => p.ArticleBoms)
@@ -109,17 +106,6 @@ namespace Master40.Data
                 .HasOne(d => d.OrderPart)
                 .WithMany(r => r.DemandOdrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ArticleToDemand>()
-                .HasOne(d => d.Article)
-                .WithMany(r => r.ArtilceToDemand)
-                .HasForeignKey(fk => fk.ArticleId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
-            modelBuilder.Entity<ArticleToDemand>()
-                .HasOne(d => d.DemandToProvider)
-                .WithMany(r => r.ArticleToDemand)
-                .HasForeignKey(fk => fk.DemandToProviderId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
 
             /*

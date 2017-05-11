@@ -35,7 +35,7 @@ namespace Master40.Models.DB
         // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 
         public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
         public virtual ICollection<ProductionOrder> ProductionOrders { get; set; }
-        public virtual ICollection<ArticleToDemand> ArtilceToDemand { get; set; }
+        public virtual ICollection<DemandToProvider> DemandToProviders { get; set; }
 
     }
 }
