@@ -15,6 +15,8 @@ namespace Master40.Models.DB
         public MachineTool MachineTool { get; set; }
         public int? MachineGroupId { get; set; }
         public MachineGroup MachineGroup { get; set; }
-        public virtual ICollection<ProductionOrderToProductionOrderWorkSchedule> ProductionOrderToWorkSchedules { get; set; }
+        public int ProductionOrderId { get; set; }
+        public int Start { get; set; }
+        public int End { get; set; }
     }
 }
