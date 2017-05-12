@@ -11,6 +11,9 @@
   <ItemGroup>
     <Content Include="wwwroot\css\menu.css" />
     <Content Include="wwwroot\css\MenuV2.css" />
+    <Content Include="wwwroot\css\simpleTimeline.css" />
+    <Content Include="wwwroot\lib\timeline\resize.js" />
+    <Content Include="wwwroot\lib\timeline\simpleTimeline.js" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="cldrjs" Version="0.4.8" />

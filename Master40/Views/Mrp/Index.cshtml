@@ -12,7 +12,7 @@
     <div class="col-md-4">
         <h2>MRP </h2>
         <p>
-            Container to Prpcess the MRP Run and Show the Results.
+            Container to Process the MRP Run and Show the Results.
         </p>
         <p><a  class="btn btn-default" href="~/Mrp/MrpProcessing/1">Process MRP</a></p>
     </div>
@@ -25,5 +25,10 @@
                 <strong> @LineNumber.ToString() :</strong> @Html.DisplayFor(modelItem => item.Message)
             </div>
         }
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @await Component.InvokeAsync("ProductionTimeline", new { productionOrderId = 1 })
     </div>
 </div>

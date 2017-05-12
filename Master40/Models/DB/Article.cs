@@ -29,7 +29,6 @@ namespace Master40.Models.DB
         //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         public DateTime CreationDate { get; set; }
         public Stock Stock { get; set; }
-
         public virtual IEnumerable<ArticleBom> ArticleBoms { get; set; }
         public virtual IEnumerable<ArticleBom> ArticleChilds { get; set; }
         // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 

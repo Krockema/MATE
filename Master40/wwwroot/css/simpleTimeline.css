@@ -1,0 +1,212 @@
+.timeline-box {		
+	position: relative;	
+}
+
+.timeline-phase {
+	position: absolute;		
+}
+
+.timeline-indicator-line {
+	position: absolute;
+	border-left: 1px dashed dimgray;
+}
+
+.timeline-phase-header {
+	position: absolute;
+	font-size: smaller;
+	white-space: nowrap;	
+	color: dimgray;
+}
+
+.timeline-bar {
+	position: absolute;
+	text-align: center;	
+	border-style: solid;
+	cursor: pointer;
+	border-radius: 7px;	
+}
+
+#timeline-collapse {	
+	cursor: pointer;
+	font-size: 20px;
+	line-height: 20px;
+	position: absolute;
+	padding: 0 1px;
+	top: 12px;
+	right: 12px;
+	background-color: rgba(235,235,235,.8);
+	border-radius: 2px;	
+	z-index: 10001;
+}
+
+#timeline-collapse:before {
+	content: "\25b2";
+}
+
+#timeline-expand {	
+	cursor: pointer;
+	font-size: 20px;
+	line-height: 20px;
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	padding: 0 1px;	
+	background-color: rgba(235,235,235,.8);
+	border-radius: 2px;	
+	z-index: 10001;
+}
+
+#timeline-expand:before {	
+	content: "\25bc";	
+}
+
+/* -------------------------------------------------------------------------------------------- */
+/* 	BEGIN POPUP STYLES
+	
+	This portion was adapted from Leaflet v0.7 style sheet for popups, which is licensed as 
+	follows (see https://github.com/Leaflet/Leaflet):
+
+	Copyright (c) 2010-2016, Vladimir Agafonkin
+	Copyright (c) 2010-2011, CloudMade
+	All rights reserved.
+
+	Redistribution and use in source and binary forms, with or without modification, are
+	permitted provided that the following conditions are met:
+
+	   1. Redistributions of source code must retain the above copyright notice, this list of
+		  conditions and the following disclaimer.
+
+	   2. Redistributions in binary form must reproduce the above copyright notice, this list
+		  of conditions and the following disclaimer in the documentation and/or other materials
+		  provided with the distribution.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+	EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+	MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+	SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+	HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+	TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+.timeline-popup {
+	position: absolute;
+	text-align: center;
+	z-index: 99999;
+}
+
+.timeline-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;	
+}
+
+.timeline-popup-content {
+	margin: 19px 0 .75em 0;
+	padding: 0 1em 0 1em;
+	line-height: 1.4;
+	max-width: 420px;
+	max-height: 420px;
+	overflow: auto;
+}
+
+.timeline-popup-content p {
+	margin: .5em 0;
+}
+
+.timeline-popup-tip-container {
+	margin: 0 auto;
+	width: 40px;
+	height: 20px;
+	position: relative;
+	overflow: hidden;
+}
+
+.timeline-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+	margin: -10px auto 0;
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	     -o-transform: rotate(45deg);
+	        transform: rotate(45deg);
+}
+
+.timeline-popup-content-wrapper, 
+.timeline-popup-tip {
+	background: white;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.8);
+}
+
+a.timeline-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 4px 4px 0 0;
+	text-align: center;
+	width: 18px;
+	height: 14px;
+	font: 16px/14px Tahoma, Verdana, sans-serif;
+	color: #c3c3c3;
+	text-decoration: none;
+	font-weight: bold;
+	background: transparent;
+}
+
+a.timeline-popup-close-button:hover {
+	color: #999;
+}
+
+.timeline-popup-scrolled {
+	overflow: auto;
+	border-bottom: 1px solid #ddd;
+	border-top: 1px solid #ddd;
+}
+/* END POPUP STYLES */
+/* -------------------------------------------------------------------------------------------- */
+#timeline {
+    position: relative;
+    margin-top: 50px;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid dimgray;
+    box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.75);
+}
+
+#timeline .selected {
+    font-weight: bold;
+    box-shadow: 0px 0px 3px 1px gray;
+}
+
+#timeline-collapse {
+    top: 355px
+}
+
+.machineName {
+    text-align: left;
+    border: none;
+    width: 100px;
+}
+
+.styleA {
+    color: darkgreen;
+    background-color: lightgreen;
+}
+
+.styleB {
+    color: darkred;
+    background-color: mistyrose;
+}
+
+.styleC {
+    color: darkblue;
+    background-color: lightblue;
+}
+
+.timeline-unused-phase, .name-phase {
+    background: repeating-linear-gradient( -45deg, rgba(255,255,255,0.85), rgba(255,255,255,0.85) 10px, rgba(235,235,235,0.85) 10px, rgba(235,235,235,0.85) 20px );
+}
