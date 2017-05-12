@@ -17,6 +17,6 @@ namespace Master40.Models.DB
         public decimal Quantity { get; set; }
         public string Name { get; set; }
         public virtual ICollection<DemandProviderProductionOrder> DemandProviderProductionOrders { get; set; }
-        public virtual ICollection<ProductionOrderToProductionOrderWorkSchedule> ProductionOrderToProductionOrderWorkSchedule { get; set; }
+        public virtual ICollection<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
     }
 }

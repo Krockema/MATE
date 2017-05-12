@@ -28,10 +28,6 @@ namespace Master40.BusinessLogic.MRP
         }
         
   
-        /// <summary>
-        /// Uses List from NetRequirements to start productionorders if there are not enough materials in stock
-        /// </summary>
-        /// <param name="needs">List</param>
         ProductionOrder IDemandForecast.NetRequirement(DemandOrderPart demand, int orderId)
         {
            //get the actual item from db

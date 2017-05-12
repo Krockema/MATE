@@ -14,7 +14,6 @@ namespace Master40.Models.DB
         public ProductionOrder ProductionOrderParent { get; set; }
         public int ProductionOrderChildId { get; set; }
         public ProductionOrder ProductionOrderChild { get; set; }
-        public virtual ICollection<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
         public virtual ICollection<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public decimal Quantity { get; set; }
         public string Name { get; set; }

@@ -16,6 +16,7 @@ namespace Master40.Models.DB
         public int? MachineGroupId { get; set; }
         public MachineGroup MachineGroup { get; set; }
         public int ProductionOrderId { get; set; }
+        public ProductionOrder ProductionOrder { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
     }
