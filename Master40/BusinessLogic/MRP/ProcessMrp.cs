@@ -69,8 +69,8 @@ namespace Master40.BusinessLogic.MRP
             {
                 Logger.Add(log);
             }
+            _context.SaveChanges();
             
-
             if (productionOrder != null)
             {
                 schedule.CreateSchedule(orderPartId, productionOrder);
@@ -91,6 +91,7 @@ namespace Master40.BusinessLogic.MRP
                             Article = child.ArticleChild,
                             Quantity = productionOrder.Quantity * (int) child.Quantity,
                             DemandRequesterId = demandRequester.DemandId,
+                            DemandRequester = (DemandToProvider)demandRequester,
                             DemandProvider = new List<DemandToProvider>()
                         }, demand, demandRequester,orderPartId);
                     }

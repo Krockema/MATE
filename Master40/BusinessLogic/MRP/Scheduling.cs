@@ -87,7 +87,7 @@ namespace Master40.BusinessLogic.MRP
                     workSchedule.End = workSchedule.Start;
                 }
                 workSchedule.Start = workSchedule.End - workSchedule.Duration;
-                
+                _context.ProductionOrderWorkSchedule.Add(workSchedule);
             }
         }
 
