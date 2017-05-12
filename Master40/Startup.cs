@@ -39,7 +39,7 @@ namespace Master40
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             
             services.AddSingleton<IProcessMrp,ProcessMrp>();
-
+            
             services.Configure<RequestLocalizationOptions>(
                 opts =>
                 {
@@ -55,7 +55,7 @@ namespace Master40
                     // UI strings that we have localized.
                     opts.SupportedUICultures = supportedCultures;
                 });
-
+                
 
             // Add Framework Service
             services.AddMvc();

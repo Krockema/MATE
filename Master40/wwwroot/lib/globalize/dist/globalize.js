@@ -255,7 +255,7 @@ var validateParameterRange = function( value, name, minimum, maximum ) {
 
 var validateParameterType = function( value, name, check, expected ) {
 	validate(
-		"E_INVALId_PAR_TYPE",
+		"E_INVALID_PAR_TYPE",
 		"Invalid `{name}` parameter ({value}). {expected} expected.",
 		check,
 		{

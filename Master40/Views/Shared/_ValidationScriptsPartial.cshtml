@@ -1,6 +1,49 @@
 ﻿<environment names="Development">
+    
     <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <script src="~/lib/globalize/dist/globalize.js"></script>
+    <script src="~/lib/jquery-validation-globalize/jquery.validate.globalize.js"></script>
+    <script type="text/javascript">
+        (function ($, Globalize) {
+
+            // Tell the validator that we want numbers parsed using Globalize
+
+            $.validator.methods.number = function (value, element) {
+                var val = Globalize.parseFloat(value);
+                return this.optional(element) || ($.isNumeric(val));
+            };
+
+            $.validator.methods.min = function (value, element, param) {
+                var val = Globalize.parseFloat(value);
+                return this.optional(element) || val >= param;
+            };
+
+            $.validator.methods.max = function (value, element, param) {
+                var val = Globalize.parseFloat(value);
+                return this.optional(element) || val <= param;
+            };
+
+            $.validator.methods.range = function (value, element, param) {
+                var val = Globalize.parseFloat(value);
+                return this.optional(element) || (val >= param[0] && val <= param[1]);
+            };
+
+            // Tell the validator that we want dates parsed using Globalize
+
+            $.validator.methods.date = function (value, element) {
+                var val = Globalize.parseDate(value);
+                return this.optional(element) || (val);
+            };
+
+        }(jQuery, Globalize));
+
+        $(document).ready(function () {
+            // Set Globalize to german
+            Globalize.culture("de-DE");
+        });
+
+    </script>
 </environment>
 <environment names="Staging,Production">
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"

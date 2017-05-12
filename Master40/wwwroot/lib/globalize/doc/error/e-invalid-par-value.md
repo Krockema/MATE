@@ -1,4 +1,4 @@
-## E_INVALId_PAR_VALUE
+## E_INVALID_PAR_VALUE
 
 Thrown for certain parameters when the type is correct, but the value is
 invalid. Currently, the only parameter with such validation is the date format
@@ -10,6 +10,6 @@ Error object:
 
 | Attribute | Value |
 | --- | --- |
-| code | `E_INVALId_PAR_VALUE` |
+| code | `E_INVALID_PAR_VALUE` |
 | name | Name of the invalid parameter |
 | value | Invalid value |

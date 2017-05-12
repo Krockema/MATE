@@ -29,6 +29,7 @@
     "commit": "ca1639c6265ea0a4e9d5dc8431efc81a90f4fc42"
   },
   "_source": "https://github.com/jquery/globalize.git",
-  "_target": "^1.0.0",
-  "_originalSource": "globalize"
+  "_target": "1.2.3",
+  "_originalSource": "globalize",
+  "_direct": true
 }

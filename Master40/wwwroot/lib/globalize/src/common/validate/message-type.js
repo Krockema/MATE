@@ -5,7 +5,7 @@ define([
 return function( path, value ) {
 	path = path.join( "/" );
 	validate(
-		"E_INVALId_MESSAGE",
+		"E_INVALID_MESSAGE",
 		"Invalid message content `{path}`. {expected} expected.",
 		typeof value === "string",
 		{
