@@ -26,22 +26,23 @@ namespace Master40.BusinessLogic.MRP
 
         async Task IProcessMrp.Process(int orderId)
         {
-            await Task.Run(() => {
-            
+           await Task.Run(() => {
+                
                 var order = _context.OrderParts.Where(a => a.OrderId == orderId);
-                foreach (var orderPart in order)
+                
+                foreach (var orderPart in order.ToList())
                 {
                     var manufacturingSchedule = new ManufacturingSchedule();
-                    ExecutePlanning(null,null,orderPart.OrderPartId);
-                    //Todo: Push to db
+                    ExecutePlanning(null,null,null,order.First().OrderPartId);
+                    //schedule.ForwardScheduling(manufacturingScheduleItem);
+                    //schedule.CapacityScheduling();
+                    _context.SaveChanges();
                 }
-                
-
-            });
+           });
         }
 
         // gross, net requirement, create schedule, backward, forward, call children
-        private void ExecutePlanning(DemandOrderPart demand, DemandOrderPart demandRequester,int orderPartId)
+        private void ExecutePlanning(IDemandToProvider demand, IDemandToProvider parent,IDemandToProvider demandRequester,int orderPartId)
         {
             var orderPart = _context.OrderParts.Include(a => a.Article).Single(a => a.OrderPartId == orderPartId);
             if (demand == null)
@@ -54,38 +55,44 @@ namespace Master40.BusinessLogic.MRP
                     ArticleId = orderPart.ArticleId,
                     OrderPart = orderPart,
                     IsProvided = false,
+                    DemandProvider = new List<DemandToProvider>(),
+                    
                 };
                 demandRequester = demand;
+
             }
-           
+            
             IDemandForecast demandForecast = new DemandForecast(_context);
             IScheduling schedule = new Scheduling(_context);
-            var productionOrders = demandForecast.NetRequirement(demand, orderPartId);
+            var productionOrder = demandForecast.NetRequirement(demand, parent, orderPartId);
             foreach (var log in demandForecast.Logger)
             {
                 Logger.Add(log);
             }
             
-            var manufacturingScheduleItem = schedule.CreateSchedule(orderPartId, productionOrders);
-            
-            schedule.BackwardScheduling(manufacturingScheduleItem);
-            //schedule.ForwardScheduling(manufacturingScheduleItem);
-            if (productionOrders != null)
+
+            if (productionOrder != null)
             {
+                schedule.CreateSchedule(orderPartId, productionOrder);
+
+                schedule.BackwardScheduling(productionOrder);
+                
                 var children =
-                    _context.ArticleBoms.Include(a => a.ArticleChild)
+                    _context.ArticleBoms.Include(a => a.ArticleChild).ThenInclude(a => a.ArticleBoms)
                         .Where(a => a.ArticleParentId == demand.ArticleId);
                 if (children.Any())
                 {
                     foreach (var child in children)
                     {
-                        ExecutePlanning(new DemandOrderPart()
+                        ExecutePlanning(new DemandProductionOrderBom()
                         {
+                            ProductionOrderBomId = child.ArticleBomId,
                             ArticleId = child.ArticleChildId,
                             Article = child.ArticleChild,
-                            Quantity = productionOrders.Quantity * (int) child.Quantity,
-                            DemandRequesterId = demandRequester.DemandId
-                        }, demandRequester,orderPartId);
+                            Quantity = productionOrder.Quantity * (int) child.Quantity,
+                            DemandRequesterId = demandRequester.DemandId,
+                            DemandProvider = new List<DemandToProvider>()
+                        }, demand, demandRequester,orderPartId);
                     }
                 }
             }

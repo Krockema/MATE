@@ -6,12 +6,24 @@ using System.Threading.Tasks;
 
 namespace Master40.Models.DB
 {
+    public interface IDemandToProvider
+    {
+        int DemandId { get; set; }
+        int ArticleId { get; set; }
+        Article Article { get; set; }
+        decimal Quantity { get; set; }
+        int? DemandRequesterId { get; set; }
+        DemandToProvider DemandRequester { get; set; }
+        List<DemandToProvider> DemandProvider { get; set; }
+        bool IsProvided { get; set; }
+    }
+
     /// <summary>
     /// derived Class for Damand to DemandProvider
     /// To Access a specific Demand use:
     /// var purchaseDemands = context.Demands.OfType<DemandPurchase>().ToList();
     /// </summary>
-    public class DemandToProvider
+    public class DemandToProvider : IDemandToProvider
     {
         [Key]
         public int DemandId { get; set; }
