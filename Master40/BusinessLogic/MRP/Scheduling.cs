@@ -36,7 +36,7 @@ namespace Master40.BusinessLogic.MRP
             var timeHelper = headOrder.Order.DueTime;
 
             //get abstract workSchedule
-            var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId);
+            var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
 
             foreach (var abstractWorkSchedule in abstractWorkSchedules)
             {
@@ -57,17 +57,18 @@ namespace Master40.BusinessLogic.MRP
                     ProductionOrderId = productionOrder.ProductionOrderId
                 };
                 _context.ProductionOrderWorkSchedule.Add(workSchedule);
+                _context.SaveChanges();
 
             }
 
         }
-        void IScheduling.BackwardScheduling(ProductionOrder productionOrder)
+        public void BackwardScheduling(ProductionOrder productionOrder)
         {
            var workSchedules = _context.ProductionOrderWorkSchedule
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.ProductionOrderBoms)
                 .ThenInclude(a => a.ProductionOrderParent)
-                .Where(a => a.ProductionOrderId == productionOrder.ProductionOrderId);
+                .Where(a => a.ProductionOrderId == productionOrder.ProductionOrderId).ToList();
             foreach (var workSchedule in workSchedules)
             {
                 ProductionOrderBom parent = null;
@@ -87,8 +88,9 @@ namespace Master40.BusinessLogic.MRP
                     workSchedule.End = workSchedule.Start;
                 }
                 workSchedule.Start = workSchedule.End - workSchedule.Duration;
-                _context.ProductionOrderWorkSchedule.Add(workSchedule);
+                _context.ProductionOrderWorkSchedule.Update(workSchedule);
             }
+            _context.SaveChanges();
         }
 
 

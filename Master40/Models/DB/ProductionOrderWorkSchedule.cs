@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace Master40.Models.DB
 {
     public class ProductionOrderWorkSchedule
     {
+        [Key]
         public int ProductionOrderWorkScheduleId { get; set; }
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }

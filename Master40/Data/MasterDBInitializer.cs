@@ -215,9 +215,9 @@ namespace Master40.Data
 
             //create order
             var orders = new List<Order>() { 
-                new Order(){BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 10, Name = "Kipperbestellung"},
-                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 9, Name = "Kipperbestellung" },
-                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 8, Name = "Kipperbestellung" }
+                new Order(){BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 40, Name = "Kipperbestellung"},
+                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 35, Name = "Kipperbestellung" },
+                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 45, Name = "Kipperbestellung" }
             };
             foreach (var order in orders)
             {

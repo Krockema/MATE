@@ -69,7 +69,6 @@ namespace Master40.BusinessLogic.MRP
             {
                 Logger.Add(log);
             }
-            _context.SaveChanges();
             
             if (productionOrder != null)
             {
@@ -79,7 +78,7 @@ namespace Master40.BusinessLogic.MRP
                 
                 var children =
                     _context.ArticleBoms.Include(a => a.ArticleChild).ThenInclude(a => a.ArticleBoms)
-                        .Where(a => a.ArticleParentId == demand.ArticleId);
+                        .Where(a => a.ArticleParentId == demand.ArticleId).ToList();
                 if (children.Any())
                 {
                     foreach (var child in children)

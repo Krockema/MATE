@@ -55,7 +55,7 @@ namespace Master40.BusinessLogic.MRP
             //if the plannedStock is below zero articles have to be produced    
             if (plannedStock < 0)
             {
-                var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId);
+                var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
                 if (children.Any())
                 {
                     var msg = "Articles ordered to produce: " + demand.Article.Name + " " + (-plannedStock);
@@ -86,7 +86,7 @@ namespace Master40.BusinessLogic.MRP
                     demandProviderProductionOrder.ProductionOrderId = productionOrder.ProductionOrderId;
                     _context.Demands.Add(demandProviderProductionOrder);
                     _context.ProductionOrders.Add(productionOrder);
-
+                    
                     if (parent != null)
                     {
                         demandProviderProductionOrder.DemandRequester = parent.DemandRequester;

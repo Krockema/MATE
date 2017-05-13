@@ -21,6 +21,63 @@ namespace Master40.Data
             return article;
 
         }
+        /// <summary>
+        /// copies am Article and his Childs to ProductionOrder
+        /// Creates Demand Provider for Production oder and DemandRequests for childs
+        /// </summary>
+        /// <returns></returns>
+        public static ProductionOrder CopyArticleToProductionOrder(MasterDBContext context, int articleId, decimal quantity, int demandRequesterId)
+        {
+            var article = context.Articles.Include(a => a.ArticleBoms).ThenInclude(c => c.ArticleChild).Single(a=> a.ArticleId == articleId);
+            var mainProductionOrder = new ProductionOrder {
+                ArticleId = article.ArticleId,
+                Name = "Prod. Auftrag: " + article.Name,
+                Quantity = quantity,
+            };
+            context.ProductionOrders.Add(mainProductionOrder);
 
+            var demandProvider = new DemandProviderProductionOrder()
+            {
+                ProductionOrderId = mainProductionOrder.ProductionOrderId,
+                Quantity = quantity,
+                ArticleId = article.ArticleId,
+                DemandRequesterId = demandRequesterId,
+            };
+            context.Demands.Add(demandProvider);
+
+            foreach (var item in article.ArticleBoms)
+            {
+                var prodOrder = new ProductionOrder
+                {
+                    ArticleId = item.ArticleChildId,
+                    Name = "Prod. Auftrag: " + article.Name,
+                    Quantity = quantity * item.Quantity,
+                };
+                context.ProductionOrders.Add(prodOrder);
+
+
+
+                var prodOrderBom = new ProductionOrderBom
+                {
+                    Quantity = quantity * item.Quantity,
+                    ProductionOrderParentId = mainProductionOrder.ProductionOrderId,
+                    ProductionOrderChildId = prodOrder.ProductionOrderId
+                };
+                context.ProductionOrderBoms.Add(prodOrderBom);
+
+                var demandRequester = new DemandProductionOrderBom
+                {
+                    ProductionOrderBomId = prodOrderBom.ProductionOrderBomId,
+                    Quantity = quantity,
+                    ArticleId = item.ArticleChildId,
+                    DemandRequesterId = demandProvider.DemandId, // nicht sicher
+                };
+                context.Demands.Add(demandRequester);
+
+            }
+            context.SaveChanges();
+
+            return mainProductionOrder;
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace Master40
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             
-            services.AddSingleton<IProcessMrp,ProcessMrp>();
+            services.AddSingleton<IProcessMrp, ProcessMrp>();
             
             services.Configure<RequestLocalizationOptions>(
                 opts =>
