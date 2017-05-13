@@ -12,6 +12,9 @@
     <Content Include="wwwroot\css\menu.css" />
     <Content Include="wwwroot\css\MenuV2.css" />
     <Content Include="wwwroot\css\simpleTimeline.css" />
+    <Content Include="wwwroot\images\connected-data-flow-chart.svg" />
+    <Content Include="wwwroot\images\data-analytics-symbol.svg" />
+    <Content Include="wwwroot\images\data-flow-chart.svg" />
     <Content Include="wwwroot\lib\timeline\resize.js" />
     <Content Include="wwwroot\lib\timeline\simpleTimeline.js" />
   </ItemGroup>

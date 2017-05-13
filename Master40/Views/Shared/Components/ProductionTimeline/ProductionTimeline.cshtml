@@ -1,9 +1,9 @@
-﻿@model string
+﻿@model string[]
 
 
 
 <div id="timeline"> </div>
-
+<!--
     <p>Play with the timeline:</p>
     <ul>
         <li>Click the items in the timeline. <span id='clicked-item'></span></li>
@@ -11,7 +11,7 @@
         <li><a href="#" onclick="add_item()">Add an item</a></li>
         <li><a href="#" onclick="remove_selected_item()">Remove selected item</a></li>
     </ul>
-     @Model;
+    -->
 <script>
         var timeline;
 		$(document).ready(timeline_init);
@@ -19,20 +19,20 @@
 		function timeline_init() {
 			var options = {
 				phases: [
-					{start: -1, end: 0, indicatorsEvery: 1 , share: .12, className: 'name-phase' },
-					{ start: 1, end: 20, indicatorsEvery: 1, share: .3  },
+					{ start: @Model[2] -1, end: @Model[2], indicatorsEvery: 1 , share: .12, className: 'name-phase' },
+					{ start: @Model[2], end: @Model[3], indicatorsEvery: 1, share: .87  }
 				],
 				formatHeader: function (v) {
-					if(v < 0) return 'Machines';
-					if(v > 0) return v + ' ';
-					return ' ';
+					if(v < @Model[2]) return 'Machines';
+					// if(v > 0) return v + ' ';
+					return v + ' ';
 				},
 				barHeight: 25,
 				fontSize: 16
 			};
 
 			// note: item 'Lonely' has a popup text attached
-            var data = @Html.Raw(Model);
+            var data = @Html.Raw(Model[0]);
             timeline = $('#timeline');
             timeline.simpleTimeline(options, data);				
 			timeline.on('timeline:barclick', timeline_clicked);

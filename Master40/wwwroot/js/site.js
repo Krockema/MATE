@@ -18,22 +18,7 @@ function timeline_init() {
     };
 
     // note: item 'Lonely' has a popup text attached
-    var data = [
-        [{ id: 'Säge', start: -1, end: 0, className: 'machineName' },
-        { id: 'PO 1', start: 1, end: 4, className: 'styleA' },
-        { id: 'PO 2', start: 6, end: 8, className: 'styleB' }],
-
-        [{ id: 'Bohrer', start: -1, end: 0, className: 'machineName' },
-        { id: 'PO 1', start: 5, end: 9, className: 'styleA' },
-        { id: 'PO 2', start: 9, end: 13, className: 'styleB' }],
-
-        [{ id: '1. Assembly', start: -1, end: 0, className: 'machineName' },
-        { id: 'PO 1', start: 10, end: 13, className: 'styleB', popup_html: 'I am <b>ALLMOST</b> finished!' }],
-
-        [{ id: '2. Assembly', start: -1, end: 0, className: 'machineName' },
-        { id: 'PO 3', start: 14, end: 17, className: 'styleC' }]
-    ];
-    //data = @Html.Raw(Model);
+    data = @Html.Raw(Model);
     timeline = $('#timeline');
     timeline.simpleTimeline(options, data);
     timeline.on('timeline:barclick', timeline_clicked);
