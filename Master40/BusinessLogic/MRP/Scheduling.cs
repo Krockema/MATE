@@ -124,7 +124,54 @@ namespace Master40.BusinessLogic.MRP
 
         public void ForwardScheduling(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            var b = productionOrderWorkSchedules;
+            productionOrderWorkSchedules.Reverse();
+            foreach (var workSchedule in productionOrderWorkSchedules)
+            {
+                var children = new List<ProductionOrderBom>();
+                var hierarchy = 100000;
+                foreach (var schedule in workSchedule.ProductionOrder.ProductionOrderWorkSchedule)
+                {
+                    if (schedule.HierarchyNumber > workSchedule.HierarchyNumber && schedule.HierarchyNumber < hierarchy)
+                        hierarchy = schedule.HierarchyNumber;
+                }
+                if (hierarchy == 100000)
+                {
+                    foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == workSchedule.ProductionOrderId))
+                    {
+                        if (pob.ProductionOrderChildId != workSchedule.ProductionOrder.ProductionOrderId)
+                            children.Add(pob);
+                    }
+                    //set start- and endtime 
+                    if (children.Any())
+                    {
+                        var childEnd = 0;
+                        foreach (var child in children)
+                        {
+                            foreach (var childSchedule in child.ProductionOrderChild.ProductionOrderWorkSchedule)
+                            {
+                                if (childSchedule.End > childEnd) childEnd = childSchedule.End;
+                            }
+                        }
+                        workSchedule.Start = childEnd;
+                    }
+                    else
+                    {
+                        //initial value of start is duetime of the order
+                        workSchedule.Start = 0;
+                    }
+                }
+                else
+                {
+                    workSchedule.Start =
+                        _context.ProductionOrderWorkSchedule.Single(
+                            a =>
+                                (a.HierarchyNumber == hierarchy) &&
+                                (a.ProductionOrderId == workSchedule.ProductionOrderId)).End;
+                }
+                workSchedule.End = workSchedule.Start + workSchedule.Duration;
+                _context.ProductionOrderWorkSchedule.Update(workSchedule);
+            }
+            _context.SaveChanges();
         }
 
         public void CapacityScheduling()

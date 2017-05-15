@@ -37,8 +37,8 @@ namespace Master40.BusinessLogic.MRP
                     //schedule.CapacityScheduling();
                     _context.SaveChanges();
                     var schedule = new Scheduling(_context);
-                    schedule.BackwardScheduling(workSchedules);
-                    //schedule.ForwardScheduling(forwardWorkSchedules);
+                    //schedule.BackwardScheduling(workSchedules);
+                    schedule.ForwardScheduling(forwardWorkSchedules);
                }
            });
         }
