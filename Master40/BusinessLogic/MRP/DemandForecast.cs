@@ -61,32 +61,33 @@ namespace Master40.BusinessLogic.MRP
                     var msg = "Articles ordered to produce: " + demand.Article.Name + " " + (-plannedStock);
                     Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
 
-                    var demandProviderProductionOrder = new DemandProviderProductionOrder()
-                    {
-                        DemandRequesterId = null,
-                        Quantity = -plannedStock,
-                        Article = demand.Article,
-                        ArticleId = demand.ArticleId,
 
-                    };
 
                     productionOrder = new ProductionOrder()
                     {
                         Article = demand.Article,
                         ArticleId = demand.Article.ArticleId,
                         Quantity = -plannedStock,
-                        DemandProviderProductionOrders = new List<DemandProviderProductionOrder>()
-                        {
-                            demandProviderProductionOrder
-                        },
-                        
                     };
-                    demand.DemandProvider.Add(demandProviderProductionOrder);
-                    demandProviderProductionOrder.ProductionOrder = productionOrder;
-                    demandProviderProductionOrder.ProductionOrderId = productionOrder.ProductionOrderId;
-                    _context.Demands.Add(demandProviderProductionOrder);
                     _context.ProductionOrders.Add(productionOrder);
+                    _context.SaveChanges();
+                    var demandProviderProductionOrder = new DemandProviderProductionOrder()
+                    {
+                        DemandRequesterId = null,
+                        Quantity = -plannedStock,
+                        Article = demand.Article,
+                        ArticleId = demand.ArticleId,
+                        ProductionOrderId = productionOrder.ProductionOrderId,
+
+                    };
+                    _context.Demands.Add(demandProviderProductionOrder);
+                    _context.SaveChanges();
+
+                    demand.DemandProvider.Add(demandProviderProductionOrder);
                     
+                    
+
+
                     if (parent != null)
                     {
                         demandProviderProductionOrder.DemandRequester = parent.DemandRequester;
@@ -95,28 +96,28 @@ namespace Master40.BusinessLogic.MRP
                             _context.ArticleBoms.Single(
                                 a => (a.ArticleChildId == demand.ArticleId) && (a.ArticleParentId == parent.ArticleId));
 
-                        ProductionOrder productionOrderParent = null;
+                        //find parent
+                        ProductionOrder productionOrderParent = null; 
                         foreach (var provider in parent.DemandProvider)
                         {
                             if (provider.GetType() == typeof(DemandProviderProductionOrder))
                                 productionOrderParent = ((DemandProviderProductionOrder)provider).ProductionOrder;
                         }
-                        
+                        //relationship to parent
                         var productionOrderBom = new ProductionOrderBom()
                         {
                             Quantity = bom.Quantity *productionOrder.Quantity,
                             ProductionOrderChildId = productionOrder.ProductionOrderId,
-                            ProductionOrderChild = productionOrder,
-                            ProductionOrderParent = productionOrderParent
+                            ProductionOrderParentId = productionOrderParent.ProductionOrderId
 
                         };
-                        productionOrder.ProductionOrderBoms = new List<ProductionOrderBom>()
-                        {
-                            productionOrderBom
-                        };
+
                         _context.ProductionOrderBoms.Add(productionOrderBom);
+                        
                     }
-                    
+
+
+                    _context.SaveChanges();
                 }
                 else
                 {

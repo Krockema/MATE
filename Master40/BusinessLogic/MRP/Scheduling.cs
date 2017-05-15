@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,9 +14,9 @@ namespace Master40.BusinessLogic.MRP
 
     interface IScheduling
     {
-        void CreateSchedule(int orderPartId, ProductionOrder productionOrder);
-        void BackwardScheduling(ProductionOrder productionOrder);
-        void ForwardScheduling(ProductionOrder productionOrder);
+        List<ProductionOrderWorkSchedule> CreateSchedule(int orderPartId, ProductionOrder productionOrder);
+        void BackwardScheduling(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules);
+        void ForwardScheduling(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules);
         void CapacityScheduling();
     }
 
@@ -29,7 +30,7 @@ namespace Master40.BusinessLogic.MRP
             _context = context;
         }
 
-        public void CreateSchedule(int orderPartId, ProductionOrder productionOrder)
+        public List<ProductionOrderWorkSchedule> CreateSchedule(int orderPartId, ProductionOrder productionOrder)
         {
             var headOrder = _context.OrderParts.Include(a => a.Order).Single(a => a.OrderPartId == orderPartId);
             
@@ -38,6 +39,7 @@ namespace Master40.BusinessLogic.MRP
             //get abstract workSchedule
             var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
 
+            var workSchedules = new List<ProductionOrderWorkSchedule>();
             foreach (var abstractWorkSchedule in abstractWorkSchedules)
             {
 
@@ -58,34 +60,60 @@ namespace Master40.BusinessLogic.MRP
                 };
                 _context.ProductionOrderWorkSchedule.Add(workSchedule);
                 _context.SaveChanges();
-
+                workSchedules.Add(workSchedule);
             }
+            return workSchedules;
 
         }
-        public void BackwardScheduling(ProductionOrder productionOrder)
+        
+        
+
+        public void BackwardScheduling(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-           var workSchedules = _context.ProductionOrderWorkSchedule
-                .Include(a => a.ProductionOrder)
-                .ThenInclude(a => a.ProductionOrderBoms)
-                .ThenInclude(a => a.ProductionOrderParent)
-                .Where(a => a.ProductionOrderId == productionOrder.ProductionOrderId).ToList();
-            foreach (var workSchedule in workSchedules)
+            foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 ProductionOrderBom parent = null;
-                foreach (var pob in workSchedule.ProductionOrder.ProductionOrderBoms)
+                var d = workSchedule.ProductionOrder.ProductionOrderBoms;
+                int hierarchy = -1;
+                foreach (var schedule in workSchedule.ProductionOrder.ProductionOrderWorkSchedule)
                 {
-                    if (pob.ProductionOrderParentId != workSchedule.ProductionOrder.ArticleId)
-                        parent = pob;
+                    if (schedule.HierarchyNumber < workSchedule.HierarchyNumber && schedule.HierarchyNumber > hierarchy)
+                        hierarchy = schedule.HierarchyNumber;
                 }
-                //set start- and endtime 
-                if (parent != null)
+                if (hierarchy == -1)
                 {
-                    workSchedule.End = parent.Start;
+                    foreach (
+                        var pob in
+                        _context.ProductionOrderBoms.Where(
+                            a => a.ProductionOrderChildId == workSchedule.ProductionOrderId))
+                    {
+                        if (pob.ProductionOrderParentId != workSchedule.ProductionOrder.ProductionOrderId)
+                            parent = pob;
+                    }
+                    //set start- and endtime 
+                    if (parent != null)
+                    {
+                        int parentStart = workSchedule.Start;
+                        foreach (var parentSchedule in parent.ProductionOrderParent.ProductionOrderWorkSchedule)
+                        {
+                            if (parentSchedule.Start < parentStart) parentStart = parentSchedule.Start;
+                        }
+                        
+                        workSchedule.End = parentStart;
+                    }
+                    else
+                    {
+                        //initial value of start is duetime of the order
+                        workSchedule.End = workSchedule.Start;
+                    }
                 }
                 else
                 {
-                    //initial value of start is duetime of the order
-                    workSchedule.End = workSchedule.Start;
+                    workSchedule.End =
+                        _context.ProductionOrderWorkSchedule.Single(
+                            a =>
+                                (a.HierarchyNumber == hierarchy) &&
+                                (a.ProductionOrderId == workSchedule.ProductionOrderId)).Start;
                 }
                 workSchedule.Start = workSchedule.End - workSchedule.Duration;
                 _context.ProductionOrderWorkSchedule.Update(workSchedule);
@@ -94,12 +122,12 @@ namespace Master40.BusinessLogic.MRP
         }
 
 
-        void IScheduling.ForwardScheduling(ProductionOrder productionOrder)
+        public void ForwardScheduling(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-
+            var b = productionOrderWorkSchedules;
         }
 
-        void IScheduling.CapacityScheduling()
+        public void CapacityScheduling()
         {
 
         }
