@@ -30,7 +30,7 @@ namespace Master40.Controllers
                 .ThenInclude(b => b.ArticleChilds).ToList().Where(a => 1 == 1);
                 */
 
-            var masterDBContext = _context.Articles
+            var masterDBContext = _context.Articles.Include(w => w.WorkSchedules)
                 .Where(a => a.ArticleId == 1).ToList();
 
             var articleList = new List<Article>();

@@ -137,10 +137,13 @@ namespace Master40.Data
                 new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, Name = "Kipper Ladefläche Kleben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 20 },
                 new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId,  Name = "Rahmen zuschneiden", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Säge").MachineGroupId
                                   , HierarchyNumber = 10, MachineToolId = machineTools.Single(n=> n.Name=="Sägeblatt 1mm Zahnabstant").MachineToolId },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, Name = "Löcher für Achse vorbohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Bohrer").MachineGroupId
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, Name = "Löcher für Achse in den Rahmen bohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Bohrer").MachineGroupId
                                   , HierarchyNumber = 20, MachineToolId = machineTools.Single(n=> n.Name=="M6 Bohrkopf").MachineToolId },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleId, Name = "Achse mit Rahmen Verschrauben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 10 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleId, Name = "Felge auf Rad Aufziehen", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 10 },
+                
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Bodenplatte").ArticleId, Name = "Bodenplatte zuschneiden", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Säge").MachineGroupId
+                                    , HierarchyNumber = 10, MachineToolId = machineTools.Single(n=> n.Name=="M6 Bohrkopf").MachineToolId },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rahmengestell").ArticleId, Name = "Achse mit Rahmen Verschrauben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 30 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rad").ArticleId, Name = "Felge auf Rad Aufziehen", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 10 },
                 new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Rad").ArticleId, Name = "Rad mit Achse verschrauben", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="MontagePlatform").MachineGroupId, HierarchyNumber = 20 },
 
             };

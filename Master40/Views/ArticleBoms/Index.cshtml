@@ -32,6 +32,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Unit)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkSchedules)
+            </th>
             <th>Action</th>
         </tr>
     </thead>
@@ -56,6 +59,17 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Unit.Name)
+                </td>
+                <td>
+                    @foreach (var ag in item.WorkSchedules)
+                    {
+                        <table>
+                            <tr>
+                                <td style="width: 25px;">@ag.HierarchyNumber</td>
+                                <td>@ag.Name</td>
+                            </tr>
+                        </table>
+                    }
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ArticleId">Edit</a> |

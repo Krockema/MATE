@@ -46,11 +46,11 @@ namespace Master40.ViewComponents
             string group = pows.First().MachineGroup.Name;
             foreach (var item in pows)
             {
-                if (group != item.MachineGroup.Name)
-                {
+                //if (group != item.MachineGroup.Name)
+                //{
                     group = item.MachineGroup.Name;
                     t = t + "],[{ id: '" + item.MachineGroup.Name + "', start: " + (Convert.ToInt32(minStart) - 1).ToString() + ", end: " + minStart + ", className: 'machineName' }";
-                }
+                //}
                 t = t + ",{ id: '" + item.Name + "', start: " + item.Start.ToString() + ", end: " + item.End.ToString() + ", className: 'styleA'}";
 
             }

@@ -27,15 +27,26 @@
                 @Html.DisplayFor(modelItem => item.ArticleParent.ArticleId)
             </td>
             <td>
+                @foreach (var ag in item.ArticleChild.WorkSchedules)
+                {
+                    <table>
+                        <tr>
+                            <td style="width: 25px;">@ag.HierarchyNumber</td>
+                            <td>@ag.Name</td>
+                        </tr>
+                    </table>
+                }
+            </td>
+            <td>
                 <a asp-action="Edit" asp-route-id="@item.ArticleBomId">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.ArticleBomId">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.ArticleBomId">Delete</a>
             </td>
         </tr>
-                    if (item.ArticleChild.ArticleBoms != null)
-                    {
-                        ViewData["level"] = level + count.ToString();
-                        @Html.Partial("ArticleBom", item.ArticleChild.ArticleBoms, this.ViewData)
-                        }
-                    }
-                    }
+        if (item.ArticleChild.ArticleBoms != null)
+        {
+            ViewData["level"] = level + count.ToString();
+            @Html.Partial("ArticleBom", item.ArticleChild.ArticleBoms, this.ViewData)
+            }
+        }
+}

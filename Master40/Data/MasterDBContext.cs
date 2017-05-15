@@ -129,6 +129,9 @@ namespace Master40.Data
                 .HasForeignKey(pt => pt.ProductionOderBomId);
                 */
         }
+
+
+        public DbSet<Master40.Models.DB.DemandProductionOrderBom> DemandProductionOrderBom { get; set; }
     }
 }
 

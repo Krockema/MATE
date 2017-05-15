@@ -29,6 +29,19 @@ namespace Master40.Controllers
             return View(model);
         }
 
+
+        public async Task<IActionResult> ReloadDb()
+        {
+            await Task.Run(() =>
+                {
+                    _context.Database.EnsureDeleted();
+                    MasterDBInitializer.DbInitialize(_context);
+                }
+            );
+
+            return View("Index");
+        }
+
         public IActionResult Menu()
         {
             var model = new List<MenuItem>();

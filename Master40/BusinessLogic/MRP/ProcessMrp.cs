@@ -44,7 +44,11 @@ namespace Master40.BusinessLogic.MRP
         }
 
         // gross, net requirement, create schedule, backward, forward, call children
-        private List<ProductionOrderWorkSchedule> ExecutePlanning(IDemandToProvider demand, IDemandToProvider parent,IDemandToProvider demandRequester,int orderPartId, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        private List<ProductionOrderWorkSchedule> ExecutePlanning(IDemandToProvider demand, 
+                                                                    IDemandToProvider parent,
+                                                                    IDemandToProvider demandRequester,
+                                                                    int orderPartId, 
+                                                                    List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             var orderPart = _context.OrderParts.Include(a => a.Article).Single(a => a.OrderPartId == orderPartId);
             if (demand == null)
@@ -78,13 +82,11 @@ namespace Master40.BusinessLogic.MRP
                 {
                     productionOrderWorkSchedules.Add(workSchedule);
                 }
-                
-                
 
-                
                 var children =
-                    _context.ArticleBoms.Include(a => a.ArticleChild).ThenInclude(a => a.ArticleBoms)
-                        .Where(a => a.ArticleParentId == demand.ArticleId).ToList();
+                    _context.ArticleBoms.Include(a => a.ArticleChild)
+                                            .ThenInclude(a => a.ArticleBoms)
+                                        .Where(a => a.ArticleParentId == demand.ArticleId).ToList();
                 if (children.Any())
                 {
                     foreach (var child in children)

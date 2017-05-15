@@ -11,7 +11,9 @@ namespace Master40.Data
     {
         public async static Task<Article> GetArticleBomRecursive(MasterDBContext context, Article article, int ArticleId)
         {
-            article.ArticleChilds = context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == ArticleId);
+            article.ArticleChilds = context.ArticleBoms.Include(a => a.ArticleChild)
+                                                        .ThenInclude(w => w.WorkSchedules)
+                                                        .Where(a => a.ArticleParentId == ArticleId).ToList();
 
             foreach (var item in article.ArticleChilds)
             {
@@ -21,6 +23,24 @@ namespace Master40.Data
             return article;
 
         }
+
+
+        public async static Task<ProductionOrder> GetProductionOrderBomRecursive(MasterDBContext context, ProductionOrder prodOrder, int productionOrderId)
+        {
+            prodOrder.ProdProductionOrderBomChilds = context.ProductionOrderBoms
+                                                            .Include(a => a.ProductionOrderChild)
+                                                            .ThenInclude(w => w.ProductionOrderWorkSchedule)
+                                                            .Where(a => a.ProductionOrderParentId == productionOrderId).ToList();
+
+            foreach (var item in prodOrder.ProdProductionOrderBomChilds)
+            {
+                await GetProductionOrderBomRecursive(context, item.ProductionOrderParent, item.ProductionOrderChildId);
+            }
+            await Task.Yield();
+            return prodOrder;
+
+        }
+
         /// <summary>
         /// copies am Article and his Childs to ProductionOrder
         /// Creates Demand Provider for Production oder and DemandRequests for childs
