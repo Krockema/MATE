@@ -23,7 +23,7 @@ namespace Master40.ViewComponents
             var pows = _context.ProductionOrderWorkSchedule
                                 .Include(m => m.MachineGroup)
                                 .Include(a => a.ProductionOrder)
-                                .ThenInclude(a => a.Article).OrderBy(a => a.MachineGroup).ToList();
+                                .ThenInclude(a => a.Article).OrderBy(a => a.PlanningType).ThenBy(a => a.MachineGroup).ToList();
             if (pows.Count == 0)
             {
                 return View("ProductionTimeline", new string[4]); ;

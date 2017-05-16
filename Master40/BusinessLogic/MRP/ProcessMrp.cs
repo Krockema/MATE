@@ -31,24 +31,21 @@ namespace Master40.BusinessLogic.MRP
                 
                 foreach (var orderPart in order.ToList())
                 {
-                    var workSchedules = new List<ProductionOrderWorkSchedule>();
-                    workSchedules = ExecutePlanning(null,null,null,orderPart.OrderPartId, workSchedules);
-                    var forwardWorkSchedules = workSchedules;
+                    ExecutePlanning(null,null,null,orderPart.OrderPartId);
                     //schedule.CapacityScheduling();
                     _context.SaveChanges();
                     var schedule = new Scheduling(_context);
-                    //schedule.BackwardScheduling(workSchedules);
-                    schedule.ForwardScheduling(forwardWorkSchedules);
+                    schedule.BackwardScheduling(orderPart);
+                    schedule.ForwardScheduling(orderPart);
                }
            });
         }
 
         // gross, net requirement, create schedule, backward, forward, call children
-        private List<ProductionOrderWorkSchedule> ExecutePlanning(IDemandToProvider demand, 
+        private void ExecutePlanning(IDemandToProvider demand, 
                                                                     IDemandToProvider parent,
                                                                     IDemandToProvider demandRequester,
-                                                                    int orderPartId, 
-                                                                    List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+                                                                    int orderPartId)
         {
             var orderPart = _context.OrderParts.Include(a => a.Article).Single(a => a.OrderPartId == orderPartId);
             if (demand == null)
@@ -64,7 +61,13 @@ namespace Master40.BusinessLogic.MRP
                     DemandProvider = new List<DemandToProvider>(),
                     
                 };
+                _context.Demands.Add((DemandOrderPart) demand);
+                _context.SaveChanges();
+                demand.DemandRequesterId = demand.DemandId;
+                _context.Update(demand);
+
                 demandRequester = demand;
+
 
             }
             
@@ -78,20 +81,17 @@ namespace Master40.BusinessLogic.MRP
             
             if (productionOrder != null)
             {
-                foreach (var workSchedule in schedule.CreateSchedule(orderPartId, productionOrder))
-                {
-                    productionOrderWorkSchedules.Add(workSchedule);
-                }
-
-                var children =
-                    _context.ArticleBoms.Include(a => a.ArticleChild)
-                                            .ThenInclude(a => a.ArticleBoms)
-                                        .Where(a => a.ArticleParentId == demand.ArticleId).ToList();
+                schedule.CreateSchedule(orderPartId, productionOrder);
+                var children = _context.ArticleBoms
+                                    .Include(a => a.ArticleChild)
+                                    .ThenInclude(a => a.ArticleBoms)
+                                    .Where(a => a.ArticleParentId == demand.ArticleId)
+                                    .ToList();
                 if (children.Any())
                 {
                     foreach (var child in children)
                     {
-                        productionOrderWorkSchedules = ExecutePlanning(new DemandProductionOrderBom()
+                        ExecutePlanning(new DemandProductionOrderBom()
                         {
                             ProductionOrderBomId = child.ArticleBomId,
                             ArticleId = child.ArticleChildId,
@@ -100,11 +100,10 @@ namespace Master40.BusinessLogic.MRP
                             DemandRequesterId = demandRequester.DemandId,
                             DemandRequester = (DemandToProvider)demandRequester,
                             DemandProvider = new List<DemandToProvider>()
-                        }, demand, demandRequester,orderPartId, productionOrderWorkSchedules);
+                        }, demand, demandRequester,orderPartId);
                     }
                 }
             }
-            return productionOrderWorkSchedules;
         }
 
 

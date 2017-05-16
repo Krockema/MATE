@@ -99,6 +99,7 @@ namespace Master40.BusinessLogic.MRP
                     {
                         demandProviderProductionOrder.DemandRequester = parent.DemandRequester;
                         demandProviderProductionOrder.DemandRequesterId = parent.DemandRequesterId;
+                        _context.Demands.Update(demandProviderProductionOrder);
                         var bom =
                             _context.ArticleBoms.Single(
                                 a => (a.ArticleChildId == demand.ArticleId) && (a.ArticleParentId == parent.ArticleId));

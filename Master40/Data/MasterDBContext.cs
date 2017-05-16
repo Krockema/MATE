@@ -103,7 +103,7 @@ namespace Master40.Data
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
             modelBuilder.Entity<DemandOrderPart>()
                 .HasOne(d => d.OrderPart)
-                .WithMany(r => r.DemandOdrderParts)
+                .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
 
