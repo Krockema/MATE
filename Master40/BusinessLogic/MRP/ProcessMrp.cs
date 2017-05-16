@@ -43,9 +43,9 @@ namespace Master40.BusinessLogic.MRP
 
         // gross, net requirement, create schedule, backward, forward, call children
         private void ExecutePlanning(IDemandToProvider demand, 
-                                                                    IDemandToProvider parent,
-                                                                    IDemandToProvider demandRequester,
-                                                                    int orderPartId)
+                                     IDemandToProvider parent,
+                                     IDemandToProvider demandRequester,
+                                     int orderPartId)
         {
             var orderPart = _context.OrderParts.Include(a => a.Article).Single(a => a.OrderPartId == orderPartId);
             if (demand == null)
@@ -65,12 +65,8 @@ namespace Master40.BusinessLogic.MRP
                 _context.SaveChanges();
                 demand.DemandRequesterId = demand.DemandId;
                 _context.Update(demand);
-
                 demandRequester = demand;
-
-
             }
-            
             IDemandForecast demandForecast = new DemandForecast(_context);
             IScheduling schedule = new Scheduling(_context);
             var productionOrder = demandForecast.NetRequirement(demand, parent, orderPartId);

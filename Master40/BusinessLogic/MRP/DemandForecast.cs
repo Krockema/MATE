@@ -28,13 +28,6 @@ namespace Master40.BusinessLogic.MRP
         }
 
         //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
-        //TODO: TOOOOOOOOOOOOOOOOOOOOOOOOOOOO LONG !
         ProductionOrder IDemandForecast.NetRequirement(IDemandToProvider demand, IDemandToProvider parent, int orderId)
         {
             //get the actual item from db

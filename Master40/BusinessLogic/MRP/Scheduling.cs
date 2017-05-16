@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Master40.BusinessLogic.Helper;
 using Master40.Data;
 using Master40.Extensions;
 using Master40.Models;
@@ -39,12 +35,8 @@ namespace Master40.BusinessLogic.MRP
 
             //get abstract workSchedule
             var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
-
-            var workSchedules = new List<ProductionOrderWorkSchedule>();
             foreach (var abstractWorkSchedule in abstractWorkSchedules)
             {
-
-
                 //add specific workSchedule
                 var workScheduleBackward = new ProductionOrderWorkSchedule()
                 {
@@ -61,7 +53,7 @@ namespace Master40.BusinessLogic.MRP
                     PlanningType = PlanningType.Backward
                 };
                 var workScheduleForward = new ProductionOrderWorkSchedule();
-                workScheduleBackward.CopyPropertiesTo<ProductionOrderWorkSchedule>(workScheduleForward);
+                workScheduleBackward.CopyPropertiesTo(workScheduleForward);
                 workScheduleForward.PlanningType = PlanningType.Forward;
                 _context.ProductionOrderWorkSchedule.Add(workScheduleForward);
                 _context.ProductionOrderWorkSchedule.Add(workScheduleBackward);
@@ -77,8 +69,7 @@ namespace Master40.BusinessLogic.MRP
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 ProductionOrderBom parent = null;
-                var d = workSchedule.ProductionOrder.ProductionOrderBoms;
-                int hierarchy = 100000;
+                var hierarchy = 100000;
                 foreach (var schedule in workSchedule.ProductionOrder.ProductionOrderWorkSchedule)
                 {
                     if (schedule.HierarchyNumber > workSchedule.HierarchyNumber && schedule.HierarchyNumber < hierarchy)
@@ -202,24 +193,5 @@ namespace Master40.BusinessLogic.MRP
             }
             return productionOrderWorkSchedules;
         }
-        /*
-        private static void SortProductionOrderWorkSchedules(
-            List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
-        {
-            for (int i = 0; i < productionOrderWorkSchedules.Count - 1; i++)
-            {
-                if (productionOrderWorkSchedules.ElementAt(i).HierarchyNumber >
-                    productionOrderWorkSchedules.ElementAt(i + 1).HierarchyNumber
-                    &&
-                    productionOrderWorkSchedules.ElementAt(i).ProductionOrderId ==
-                    productionOrderWorkSchedules.ElementAt(i + 1).ProductionOrderId)
-                {
-                    var helper = productionOrderWorkSchedules.ElementAt(i);
-                    productionOrderWorkSchedules[i] = productionOrderWorkSchedules.ElementAt(i + 1);
-                    productionOrderWorkSchedules[i + 1] = helper;
-                    i = -1;
-                }
-            }
-        }*/
     }
 }
