@@ -27,7 +27,7 @@ namespace Master40.BusinessLogic.MRP
         {
            await Task.Run(() => {
                 
-                var order = _context.OrderParts.Where(a => a.OrderId == orderId);
+                var order = _context.OrderParts.Where(a => a.OrderId == orderId).Include(a => a.Article);
                 
                 foreach (var orderPart in order.ToList())
                 {

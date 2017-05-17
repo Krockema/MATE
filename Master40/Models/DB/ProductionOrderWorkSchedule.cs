@@ -22,7 +22,9 @@ namespace Master40.Models.DB
         public ProductionOrder ProductionOrder { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
-        public PlanningType PlanningType { get; set; }
+        public int StartBackward { get; set; }
+        public int EndBackward { get; set; }
+        public int StartForward { get; set; }
+        public int EndForward { get; set; }
     }
-    public enum PlanningType { Backward,Forward,Capacity }
 }

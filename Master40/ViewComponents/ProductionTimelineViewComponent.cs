@@ -23,15 +23,22 @@ namespace Master40.ViewComponents
             var pows = _context.ProductionOrderWorkSchedule
                                 .Include(m => m.MachineGroup)
                                 .Include(a => a.ProductionOrder)
-                                .ThenInclude(a => a.Article).OrderBy(a => a.PlanningType).ThenBy(a => a.MachineGroup).ToList();
+                                .ThenInclude(a => a.Article).OrderBy(a => a.MachineGroup).ToList();
             if (pows.Count == 0)
             {
                 return View("ProductionTimeline", new string[4]); ;
             }
 
             var tl = new string[4];
-            var maxEnd = pows.OrderBy(x => x.End).Last().End;
-            var minStart = pows.OrderBy(x => x.Start).First().Start;
+            var maxEnd = pows.OrderBy(x => x.EndBackward).Last().EndBackward;
+            var maxEndForward = pows.OrderBy(x => x.EndForward).Last().EndForward;
+            if (maxEnd < maxEndForward)
+                maxEnd = maxEndForward;
+                
+            var minStart = pows.OrderBy(x => x.StartBackward).First().StartBackward;
+            var minStartForward = pows.OrderBy(x => x.StartForward).First().StartForward;
+            if (minStart > minStartForward)
+                minStart = minStartForward;
             tl[2] = minStart.ToString();
             tl[3] = maxEnd.ToString();
 
@@ -51,14 +58,24 @@ namespace Master40.ViewComponents
                     group = item.MachineGroup.Name;
                     t = t + "],[{ id: '" + item.MachineGroup.Name + "', start: " + (Convert.ToInt32(minStart) - 1).ToString() + ", end: " + minStart + ", className: 'machineName' }";
                 //}
-                t = t + ",{ id: '" + item.Name + "', start: " + item.Start.ToString() + ", end: " + item.End.ToString() + ", className: 'styleA'}";
+                t = t + ",{ id: '" + item.Name + "', start: " + item.StartBackward.ToString() + ", end: " + item.EndBackward.ToString() + ", className: 'styleA'}";
+
+            }
+            foreach (var item in pows)
+            {
+                //if (group != item.MachineGroup.Name)
+                //{
+                group = item.MachineGroup.Name;
+                t = t + "],[{ id: '" + item.MachineGroup.Name + "', start: " + (Convert.ToInt32(minStart) - 1).ToString() + ", end: " + minStart + ", className: 'machineName' }";
+                //}
+                t = t + ",{ id: '" + item.Name + "', start: " + item.StartForward.ToString() + ", end: " + item.EndForward.ToString() + ", className: 'styleA'}";
 
             }
             t = t + "]]";
             tl[0] = t;
             tl[1] = "{ start: " + minStart + ", end: " + maxEnd + ", indicatorsEvery: 1, share: .3  }";
 
-            /*
+           /*
             var data = [
 
                  [{ id: 'Säge', start: -1, end: 0, className: 'machineName' },

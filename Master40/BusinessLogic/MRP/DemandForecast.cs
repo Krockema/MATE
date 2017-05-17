@@ -9,7 +9,6 @@ namespace Master40.BusinessLogic.MRP
 {
     public interface IDemandForecast
     {
-        //List<ArticleBom> GrossRequirement(int orderId);
         ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, int orderId);
         List<LogMessage> Logger { get; set; }
     }
@@ -17,7 +16,6 @@ namespace Master40.BusinessLogic.MRP
 
     public class DemandForecast : IDemandForecast
     {
-
         private readonly MasterDBContext _context;
         //public DemandForecast(MasterDBContext context)
         public List<LogMessage> Logger { get; set; }
