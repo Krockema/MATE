@@ -31,75 +31,86 @@ namespace Master40.BusinessLogic.MRP
                 
                 foreach (var orderPart in order.ToList())
                 {
-                    ExecutePlanning(null,null,null,orderPart.OrderPartId);
-                    //schedule.CapacityScheduling();
+                    //MRP I
+                    ExecutePlanning(null,null,null,orderPart);
                     _context.SaveChanges();
+                    //MRP II 
                     var schedule = new Scheduling(_context);
                     schedule.BackwardScheduling(orderPart);
                     schedule.ForwardScheduling(orderPart);
+                    //schedule.CapacityScheduling();
                }
            });
         }
-
-        // gross, net requirement, create schedule, backward, forward, call children
+        
         private void ExecutePlanning(IDemandToProvider demand, 
                                      IDemandToProvider parent,
                                      IDemandToProvider demandRequester,
-                                     int orderPartId)
+                                     OrderPart orderPart)
         {
-            var orderPart = _context.OrderParts.Include(a => a.Article).Single(a => a.OrderPartId == orderPartId);
+            //checks if the method is called for the first time
             if (demand == null)
             {
-                demand = new DemandOrderPart()
-                {
-                    OrderPartId = orderPartId,
-                    Quantity = orderPart.Quantity,
-                    Article = orderPart.Article,
-                    ArticleId = orderPart.ArticleId,
-                    OrderPart = orderPart,
-                    IsProvided = false,
-                    DemandProvider = new List<DemandToProvider>(),
-                    
-                };
-                _context.Demands.Add((DemandOrderPart) demand);
-                _context.SaveChanges();
-                demand.DemandRequesterId = demand.DemandId;
-                _context.Update(demand);
+                demand = CreateDemandOrderPart(orderPart);
                 demandRequester = demand;
             }
             IDemandForecast demandForecast = new DemandForecast(_context);
             IScheduling schedule = new Scheduling(_context);
-            var productionOrder = demandForecast.NetRequirement(demand, parent, orderPartId);
+
+            var productionOrder = demandForecast.NetRequirement(demand, parent, orderPart.OrderPartId);
             foreach (var log in demandForecast.Logger)
             {
                 Logger.Add(log);
             }
-            
-            if (productionOrder != null)
+
+            if (productionOrder == null)
             {
-                schedule.CreateSchedule(orderPartId, productionOrder);
-                var children = _context.ArticleBoms
-                                    .Include(a => a.ArticleChild)
-                                    .ThenInclude(a => a.ArticleBoms)
-                                    .Where(a => a.ArticleParentId == demand.ArticleId)
-                                    .ToList();
-                if (children.Any())
-                {
-                    foreach (var child in children)
-                    {
-                        ExecutePlanning(new DemandProductionOrderBom()
-                        {
-                            ProductionOrderBomId = child.ArticleBomId,
-                            ArticleId = child.ArticleChildId,
-                            Article = child.ArticleChild,
-                            Quantity = productionOrder.Quantity * (int) child.Quantity,
-                            DemandRequesterId = demandRequester.DemandId,
-                            DemandRequester = (DemandToProvider)demandRequester,
-                            DemandProvider = new List<DemandToProvider>()
-                        }, demand, demandRequester,orderPartId);
-                    }
-                }
+                //there was enough in stock, so this does not have to be produced
+                return;
             }
+            schedule.CreateSchedule(orderPart.OrderPartId, productionOrder);
+            var children = _context.ArticleBoms
+                                .Include(a => a.ArticleChild)
+                                .ThenInclude(a => a.ArticleBoms)
+                                .Where(a => a.ArticleParentId == demand.ArticleId)
+                                .ToList();
+            if (!children.Any())
+            {
+                return;
+            }
+            foreach (var child in children)
+            {
+                ExecutePlanning(new DemandProductionOrderBom()
+                {
+                    ProductionOrderBomId = child.ArticleBomId,
+                    ArticleId = child.ArticleChildId,
+                    Article = child.ArticleChild,
+                    Quantity = productionOrder.Quantity * (int) child.Quantity,
+                    DemandRequesterId = demandRequester.DemandId,
+                    DemandRequester = (DemandToProvider)demandRequester,
+                    DemandProvider = new List<DemandToProvider>()
+                }, demand, demandRequester,orderPart);
+            }
+        }
+
+        private IDemandToProvider CreateDemandOrderPart(OrderPart orderPart)
+        {
+            var demand = new DemandOrderPart()
+            {
+                OrderPartId = orderPart.OrderPartId,
+                Quantity = orderPart.Quantity,
+                Article = orderPart.Article,
+                ArticleId = orderPart.ArticleId,
+                OrderPart = orderPart,
+                IsProvided = false,
+                DemandProvider = new List<DemandToProvider>(),
+
+            };
+            _context.Demands.Add(demand);
+            _context.SaveChanges();
+            demand.DemandRequesterId = demand.DemandId;
+            _context.Update(demand);
+            return demand;
         }
 
 
