@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Master40.BusinessLogic.Helper;
 using Master40.Data;
@@ -15,6 +16,7 @@ namespace Master40.BusinessLogic.MRP
         void CreateSchedule(int orderPartId, ProductionOrder productionOrder);
         void BackwardScheduling(OrderPart orderPart);
         void ForwardScheduling(OrderPart orderPart);
+        void SetActivitySlack(OrderPart orderPart);
         void CapacityScheduling();
     }
 
@@ -124,10 +126,47 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        
+        public void SetActivitySlack(OrderPart orderPart)
+        {
+            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(orderPart);
+            var minForward = GetMinForward(productionOrderWorkSchedules);
+            var minBackward = GetMinBackward(productionOrderWorkSchedules);
+            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
+            {
+                if ((productionOrderWorkSchedule.StartBackward - minBackward) > (productionOrderWorkSchedule.StartForward-minForward))
+                    productionOrderWorkSchedule.ActivitySlack = (productionOrderWorkSchedule.StartBackward - minBackward) - (productionOrderWorkSchedule.StartForward - minForward);
+                else
+                    productionOrderWorkSchedule.ActivitySlack = (productionOrderWorkSchedule.StartForward - minForward) - (productionOrderWorkSchedule.StartBackward - minBackward);
+                _context.ProductionOrderWorkSchedule.Update(productionOrderWorkSchedule);
+            }
+            _context.SaveChanges();
+        }
+
         public void CapacityScheduling()
         {
 
+        }
+
+        private int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            var minForward = productionOrderWorkSchedules.First().StartForward;
+            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
+            {
+                if (productionOrderWorkSchedule.StartForward < minForward)
+                    minForward = productionOrderWorkSchedule.StartForward;
+            }
+            return minForward;
+        }
+
+        private int GetMinBackward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            var minBackward = productionOrderWorkSchedules.First().StartBackward;
+            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
+            {
+                if (productionOrderWorkSchedule.StartBackward < minBackward)
+                    minBackward = productionOrderWorkSchedule.StartBackward;
+            }
+            return minBackward;
         }
 
         //returns a list of all workSchedules for the given orderPart and planningType
@@ -207,5 +246,6 @@ namespace Master40.BusinessLogic.MRP
             return workSchedule.StartForward;
         }
 
+        
     }
 }

@@ -26,5 +26,6 @@ namespace Master40.Models.DB
         public int EndBackward { get; set; }
         public int StartForward { get; set; }
         public int EndForward { get; set; }
+        public int ActivitySlack { get; set; }
     }
 }
