@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Master40.Data;
 using Master40.Models.DB;
@@ -33,7 +34,7 @@ namespace Master40.BusinessLogic.MRP
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = GetPlannedStock(stock,demand);
             ProductionOrder productionOrder = null;
-
+            CreateStockReservation(stock, demand);
             //if the plannedStock is below zero, articles have to be produced for its negative amount 
             if (plannedStock < 0)
             {
@@ -55,7 +56,7 @@ namespace Master40.BusinessLogic.MRP
                 }
                 else
                 {
-                    CreatePurchase(demand, plannedStock);
+                    CreatePurchase(demand, -plannedStock);
                 }
                 
                 //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
@@ -63,10 +64,6 @@ namespace Master40.BusinessLogic.MRP
                 //CreateProductionOrder()
                 //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
 
-            }
-            else
-            {
-                CreateStockReservation();
             }
             return productionOrder;
         }
@@ -148,33 +145,70 @@ namespace Master40.BusinessLogic.MRP
             _context.ProductionOrderBoms.Add(productionOrderBom);
         }
 
-        private void CreatePurchase(IDemandToProvider demand, decimal plannedStock)
+        private void CreatePurchase(IDemandToProvider demand, decimal amount)
         {
-            //Todo: implement
-            /*var purchase = new Purchase()
-                    {
-                        
-                    };
-                    var purchasePart = new DemandProviderPurchasePart()
-                    {
-                        Quantity = -plannedStock,
-                        Article = demand.Article,
-                        ArticleId = demand.ArticleId,
-                        DemandRequesterId = demand.DemandRequesterId,
-                        DemandRequester = demand.DemandRequester,
-                        
-                    };
-                    _context.PurchaseParts.Add(purchase);*/
+            var providerPurchasePart = new DemandProviderPurchasePart()
+            {
+                Quantity = amount,
+                Article = demand.Article,
+                ArticleId = demand.ArticleId,
+                DemandRequesterId = demand.DemandRequesterId,
+                DemandRequester = demand.DemandRequester,
+                
+            };
+            var articleToPurchase = _context.ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
+            
+            var purchase = new Purchase()
+            {
+                BusinessPartnerId = articleToPurchase.BusinessPartnerId,
+                DueTime = articleToPurchase.DueTime
+            };
+            amount = Math.Ceiling(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
+            var purchasePart = new PurchasePart()
+            {
+                ArticleId = demand.ArticleId,
+                Quantity = (int) amount,
+                DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>() {providerPurchasePart},
+                PurchaseId = purchase.PurchaseId
+            };
+            purchase.PurchaseParts = new List<PurchasePart>()
+            {
+                purchasePart
+            };
+            _context.Demands.Add(providerPurchasePart);
+            _context.Purchases.Add(purchase);
+            _context.PurchaseParts.Add(purchasePart);
+            _context.SaveChanges();
 
-            var msg = "Articles ordered to purchase: " + demand.Article.Name + " " + (-plannedStock);
+            var msg = "Articles ordered to purchase: " + demand.Article.Name + " " + (amount);
             Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
+           
+            
         }
 
-        private void CreateStockReservation()
+        private void CreateStockReservation(Stock stock, IDemandToProvider demand)
         {
-            //Todo: implement
-            //create ProviderStock entry
-            //create demandstock entry
+            if (stock.Current == 0)
+                return;
+            //get all reservations for this article
+            var stockReservations = _context.Demands.OfType<DemandProviderStock>().Where(a => a.ArticleId == demand.ArticleId);
+            var current = stock.Current;
+            foreach (var stockReservation in stockReservations)
+            {
+                current -= stockReservation.Quantity;
+            }
+            decimal quantity;
+            quantity = demand.Quantity > current ? current : demand.Quantity;
+            var demandProviderStock = new DemandProviderStock()
+            {
+                ArticleId = stock.ArticleForeignKey,
+                Quantity = quantity,
+                DemandRequesterId = demand.DemandRequesterId,
+                IsProvided = true,
+                StockId = stock.StockId
+            };
+           _context.Demands.Add(demandProviderStock);
+            _context.SaveChanges();
         }
 
     }

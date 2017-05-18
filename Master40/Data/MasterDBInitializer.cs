@@ -220,13 +220,18 @@ namespace Master40.Data
 
             var artToBusinessPartner = new ArticleToBusinessPartner[]
             {
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Dübel").ArticleId },
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Chasssis").ArticleId },
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Ladebehälter").ArticleId },
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Achse").ArticleId },
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Holz 1,5m x 3,0m").ArticleId },
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Felge").ArticleId },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Dübel").ArticleId , PackSize = 100, Price = 0.10, DueTime = 2},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Chassis").ArticleId,PackSize = 1, Price = 2, DueTime = 2},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Ladebehälter").ArticleId,PackSize = 1, Price = 3, DueTime = 2},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Achse").ArticleId,PackSize = 10, Price = 0.50, DueTime = 2},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Holz 1,5m x 3,0m").ArticleId,PackSize = 1, Price = 1, DueTime = 2},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Felge").ArticleId, PackSize = 10,Price = 0.20, DueTime = 2},
             };
+            foreach (var art in artToBusinessPartner)
+            {
+                context.ArticleToBusinessPartners.Add(art);
+            }
+            context.SaveChanges();
 
             //create order
             var orders = new List<Order>() { 

@@ -11,6 +11,7 @@ namespace Master40.Data
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleBom> ArticleBoms { get; set; }
         public DbSet<ArticleType> ArticleTypes { get; set; }
+        public DbSet<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public DbSet<BusinessPartner> BusinessPartners{ get; set; }
         public DbSet<DemandToProvider> Demands { get; set; }
 

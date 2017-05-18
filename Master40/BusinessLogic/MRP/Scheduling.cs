@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Master40.BusinessLogic.Helper;
 using Master40.Data;
@@ -126,14 +125,16 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
+        //find activity slack between backward- and forwardSchedule
         public void SetActivitySlack(OrderPart orderPart)
         {
             var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(orderPart);
+            //Get minimum of each schedule to make the numbers relative and comparable
             var minForward = GetMinForward(productionOrderWorkSchedules);
             var minBackward = GetMinBackward(productionOrderWorkSchedules);
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
-                if ((productionOrderWorkSchedule.StartBackward - minBackward) > (productionOrderWorkSchedule.StartForward-minForward))
+                if ((productionOrderWorkSchedule.StartBackward - minBackward) > (productionOrderWorkSchedule.StartForward - minForward))
                     productionOrderWorkSchedule.ActivitySlack = (productionOrderWorkSchedule.StartBackward - minBackward) - (productionOrderWorkSchedule.StartForward - minForward);
                 else
                     productionOrderWorkSchedule.ActivitySlack = (productionOrderWorkSchedule.StartForward - minForward) - (productionOrderWorkSchedule.StartBackward - minBackward);
