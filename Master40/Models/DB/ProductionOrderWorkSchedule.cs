@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.BusinessLogic.Helper;
 
 namespace Master40.Models.DB
 {
-    public class ProductionOrderWorkSchedule
+    public class ProductionOrderWorkSchedule : IWorkSchedule
     {
         [Key]
         public int ProductionOrderWorkScheduleId { get; set; }
@@ -15,13 +16,16 @@ namespace Master40.Models.DB
         public int Duration { get; set; }
         public int? MachineToolId { get; set; }
         public MachineTool MachineTool { get; set; }
-        public int? MachineGroupId { get; set; }
+        public int MachineGroupId { get; set; }
         public MachineGroup MachineGroup { get; set; }
         public int ProductionOrderId { get; set; }
         public ProductionOrder ProductionOrder { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
-        public PlanningType PlanningType { get; set; }
+        public int StartBackward { get; set; }
+        public int EndBackward { get; set; }
+        public int StartForward { get; set; }
+        public int EndForward { get; set; }
+        public int ActivitySlack { get; set; }
     }
-    public enum PlanningType { Backward,Forward,Capacity }
 }
