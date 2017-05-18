@@ -31,13 +31,13 @@ namespace Master40.ViewComponents
                     .OrderBy(a => a.MachineGroup).ToList();
 
 
-            var today = DateTime.Now.GetEpochSeconds();
+            var today = DateTime.Now.GetEpochMilliseconds();
 
             foreach (var item in pows)
             {
                 schedule.Add(new ProductionTimeline
                 {
-                    Name = item.Name,
+                    Name = item.MachineGroup.Name,
                     Desc = "&rarr; ",
                     Values =
                     new List<ProductionTimelineItem>
@@ -45,8 +45,8 @@ namespace Master40.ViewComponents
                        new ProductionTimelineItem
                        {
                            Id = item.ProductionOrderWorkScheduleId.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
-                           From = "/Date(" + (today + item.StartBackward * 86400000).ToString() + ")/",
-                           To =  "/Date(" + (today + item.EndBackward * 86400000).ToString() + ")/",
+                           From = "/Date(" + (today + (long)item.StartBackward * 86400000).ToString() + ")/",
+                           To =  "/Date(" + (today + (long)(item.EndBackward-1) * 86400000).ToString() + ")/",
                            CustomClass =  "ganttGreen", Dep = ""
                         },
                     }

@@ -46,10 +46,10 @@ namespace Master40.Extensions
             public int B { get; set; }
         }
     
-        public static int GetEpochSeconds(this DateTime date)
+        public static long GetEpochMilliseconds(this DateTime date)
         {
             TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            return (int)t.TotalSeconds;
+            return (long)t.TotalMilliseconds;
         }
     }
 }
