@@ -212,15 +212,27 @@ namespace Master40.Data
             context.SaveChanges();
 
             //create Businesspartner
-            var businessPartner = new BusinessPartner(){Debitor = true,Kreditor = true,Name = "Toys'R'us Spielwarenabteilung"};
+            var businessPartner = new BusinessPartner(){Debitor = true,Kreditor = false,Name = "Toys'R'us Spielwarenabteilung"};
+            var businessPartner2 = new BusinessPartner() { Debitor = false, Kreditor = true, Name = "Material Großhandel" };
             context.BusinessPartners.Add(businessPartner);
+            context.BusinessPartners.Add(businessPartner2);
             context.SaveChanges();
+
+            var artToBusinessPartner = new ArticleToBusinessPartner[]
+            {
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Dübel").ArticleId },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Chasssis").ArticleId },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Ladebehälter").ArticleId },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Achse").ArticleId },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Holz 1,5m x 3,0m").ArticleId },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.BusinessPartnerId, ArticleId = articles.Single(x => x.Name == "Felge").ArticleId },
+            };
 
             //create order
             var orders = new List<Order>() { 
-                new Order(){BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 40, Name = "Kipperbestellung"},
-                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 35, Name = "Kipperbestellung" },
-                new Order() { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 45, Name = "Kipperbestellung" }
+                new Order {BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 40, Name = "Kipperbestellung"},
+                new Order { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 35, Name = "Kipperbestellung" },
+                new Order { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 45, Name = "Kipperbestellung" }
             };
             foreach (var order in orders)
             {
