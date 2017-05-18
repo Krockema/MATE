@@ -12,12 +12,16 @@
         <link rel="stylesheet" href="~/css/MenuV2.css" />
         <link rel="stylesheet" href="~/css/font-awesome.css" />
         <link rel="stylesheet" href="~/css/simpleTimeline.css" />
+        <link href="~/css/jQuerryGantt.css" rel="stylesheet" />
         <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/tether/dist/js/tether.js"></script>
+        <!--<script src="~/lib/tether/dist/js/tether.js"></script>-->
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/jquery-gantt/jquery.fn.gantt.js"></script>
+        <script src="~/js/moment.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="~/lib/timeline/resize.js"></script>
-        <script src="~/lib/timeline/simpleTimeline.js"></script>
+        <script src="~/js/prettify.js"></script>
+        <!--<script src="~/lib/timeline/resize.js"></script>
+        <script src="~/lib/timeline/simpleTimeline.js"></script>-->
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -64,17 +68,7 @@
         @await Component.InvokeAsync("Menu", new { menueId = 1 })
     </ul>
 </nav>
-        <!--
-            <div class="nav-side-menu">
-                <div class="brand">Master Menu</div>
-                <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
-                <div class="menu-list">
-                    <ul id="menu-content" class="menu-content collapse out">
-                        @await Component.InvokeAsync("Menu", new { menueId = 1 })
-                    </ul>
-                </div>
-            </div>
-                -->
+
                 <!-- /#sidebar-wrapper -->
                 <!-- Page Content -->
     <div style="margin-left: 65px;">

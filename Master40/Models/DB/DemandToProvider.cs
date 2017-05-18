@@ -15,7 +15,8 @@ namespace Master40.Models.DB
         int? DemandRequesterId { get; set; }
         DemandToProvider DemandRequester { get; set; }
         List<DemandToProvider> DemandProvider { get; set; }
-        bool IsProvided { get; set; }
+        int StateId { get; set; }
+        State State { get; set; }
     }
 
     /// <summary>
@@ -38,7 +39,9 @@ namespace Master40.Models.DB
         public virtual List<DemandToProvider> DemandProvider { get; set; }
 
         [Required]
-        public bool IsProvided { get; set; }
+        public int StateId { get; set; }
+
+        public State State { get; set; } 
         //public ICollection<ArticleToDemand> ArtilceToDemand { get; set; }
     }
 

@@ -44,8 +44,20 @@ namespace Master40.Data
                 context.Units.Add(u);
             }
             context.SaveChanges();
-
-
+            var states = new State[]
+            {
+                new State{ Name = "Created" },
+                new State{ Name = "Provider exist" },
+                new State{ Name = "Schedules exist" },
+                new State{ Name = "Exists in Capacity Plan" },
+                new State{ Name = "Produced" },
+                new State{ Name = "Deliverd" }
+            };
+            foreach (var s in states)
+            {
+                context.States.Add(s);
+            }
+            context.SaveChanges();
 
             var machines = new Machine[] {
                 new Machine{Capacity=1, Name="Säge", Count = 1, MachineGroup = new MachineGroup{ Name = "Zuschnitt" } },

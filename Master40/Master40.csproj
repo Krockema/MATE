@@ -9,12 +9,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="wwwroot\css\jQuerryGantt.css" />
     <Content Include="wwwroot\css\menu.css" />
     <Content Include="wwwroot\css\MenuV2.css" />
     <Content Include="wwwroot\css\simpleTimeline.css" />
     <Content Include="wwwroot\images\connected-data-flow-chart.svg" />
     <Content Include="wwwroot\images\data-analytics-symbol.svg" />
     <Content Include="wwwroot\images\data-flow-chart.svg" />
+    <Content Include="wwwroot\images\grid.png" />
+    <Content Include="wwwroot\images\icon_sprite.png" />
+    <Content Include="wwwroot\images\slider_handle.png" />
+    <Content Include="wwwroot\js\moment.min.js" />
+    <Content Include="wwwroot\js\prettify.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\dataDays.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\dataDaysEnh.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\dataHours.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\jquery.cookie.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\jquery.fn.gantt.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\jquery.fn.gantt.min.js" />
+    <Content Include="wwwroot\lib\jquery-gantt\jquery.min.js" />
     <Content Include="wwwroot\lib\timeline\resize.js" />
     <Content Include="wwwroot\lib\timeline\simpleTimeline.js" />
   </ItemGroup>

@@ -27,6 +27,7 @@ namespace Master40.Data
         public DbSet<ProductionOrderBom> ProductionOrderBoms { get; set; }
         public DbSet<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
         public DbSet<PurchasePart> PurchaseParts { get; set; }
+        public DbSet<State> States { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
