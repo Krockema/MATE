@@ -12,11 +12,10 @@ namespace Master40.BusinessLogic.MRP
 
     interface IScheduling
     {
-        void CreateSchedule(int orderPartId, ProductionOrder productionOrder);
-        void BackwardScheduling(OrderPart orderPart);
-        void ForwardScheduling(OrderPart orderPart);
-        void SetActivitySlack(OrderPart orderPart);
-        void CapacityScheduling();
+        void CreateSchedule(IDemandToProvider demand, ProductionOrder productionOrder);
+        void BackwardScheduling(IDemandToProvider demand);
+        void ForwardScheduling(IDemandToProvider demand);
+        void SetActivitySlack(IDemandToProvider demand);  
     }
 
     class Scheduling : IScheduling
@@ -32,12 +31,11 @@ namespace Master40.BusinessLogic.MRP
         /// <summary>
         /// Creates a ProductionOrderWorkScheduleItem in the database
         /// </summary>
-        /// <param name="orderPartId"></param>
+        /// <param name="demand"></param>
         /// <param name="productionOrder"></param>
-        public void CreateSchedule(int orderPartId, ProductionOrder productionOrder)
+        public void CreateSchedule(IDemandToProvider demand, ProductionOrder productionOrder)
         {
-            var headOrder = _context.OrderParts.Include(a => a.Order).Single(a => a.OrderPartId == orderPartId);
-            var timeHelper = headOrder.Order.DueTime;
+            var dueTime = GetDueTime(demand);
             var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
             foreach (var abstractWorkSchedule in abstractWorkSchedules)
             {
@@ -47,24 +45,24 @@ namespace Master40.BusinessLogic.MRP
                 workSchedule.Duration *= (int) productionOrder.Quantity;
                 workSchedule.ProductionOrderId = productionOrder.ProductionOrderId;
                 workSchedule.End = -1;
-                workSchedule.Start = timeHelper;
+                workSchedule.Start = dueTime;
                 workSchedule.EndBackward = -1;
-                workSchedule.StartBackward = timeHelper;
+                workSchedule.StartBackward = dueTime;
                 workSchedule.EndForward = -1;
-                workSchedule.StartForward = timeHelper;
+                workSchedule.StartForward = dueTime;
 
                 _context.ProductionOrderWorkSchedule.Add(workSchedule);
                 _context.SaveChanges();
             }
         }
-        
+
         /// <summary>
         /// Set Start- and Endtime for ProductionOrderWorkSchedules for the given OrderPart excluding capacities in a backward schedule
         /// </summary>
-        /// <param name="orderPart"></param>
-        public void BackwardScheduling(OrderPart orderPart)
+        /// <param name="demand"></param>
+        public void BackwardScheduling(IDemandToProvider demand)
         {
-            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(orderPart);
+            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(demand);
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 //Set hierarchy to something high that every workSchedule found will overwrite this value
@@ -94,10 +92,10 @@ namespace Master40.BusinessLogic.MRP
         /// <summary>
         /// Set Start- and Endtime for ProductionOrderWorkSchedules for the given OrderPart excluding capacities in a forward schedule
         /// </summary>
-        /// <param name="orderPart"></param>
-        public void ForwardScheduling(OrderPart orderPart)
+        /// <param name="demand"></param>
+        public void ForwardScheduling(IDemandToProvider demand)
         {
-            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(orderPart);
+            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(demand);
             productionOrderWorkSchedules.Reverse();
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
@@ -126,9 +124,9 @@ namespace Master40.BusinessLogic.MRP
         }
 
         //find activity slack between backward- and forwardSchedule
-        public void SetActivitySlack(OrderPart orderPart)
+        public void SetActivitySlack(IDemandToProvider demand)
         {
-            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(orderPart);
+            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(demand);
             //Get minimum of each schedule to make the numbers relative and comparable
             var minForward = GetMinForward(productionOrderWorkSchedules);
             var minBackward = GetMinBackward(productionOrderWorkSchedules);
@@ -143,9 +141,12 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        public void CapacityScheduling()
+        private int GetDueTime(IDemandToProvider demand)
         {
-
+            var dueTime = 9999;
+            if (demand.GetType() == typeof(DemandOrderPart))
+                dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.OrderPartId == ((DemandOrderPart)demand).OrderPartId).Order.DueTime;
+            return dueTime;
         }
 
         private int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
@@ -171,15 +172,14 @@ namespace Master40.BusinessLogic.MRP
         }
 
         //returns a list of all workSchedules for the given orderPart and planningType
-        private List<ProductionOrderWorkSchedule> GetProductionOrderWorkSchedules(OrderPart orderPart)
+        private List<ProductionOrderWorkSchedule> GetProductionOrderWorkSchedules(IDemandToProvider demand)
         {
             var productionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>();
-            var demandOrderPart = _context.Demands.OfType<DemandOrderPart>().Single(a => a.OrderPartId == orderPart.OrderPartId);
-            foreach (var demand in demandOrderPart.DemandProvider)
+            foreach (var demandProvider in demand.DemandProvider)
             {
-                if (demand.GetType() == typeof(DemandProviderProductionOrder))
+                if (demandProvider.GetType() == typeof(DemandProviderProductionOrder))
                     foreach (var schedule in _context.ProductionOrderWorkSchedule.Where(a =>
-                                                    a.ProductionOrderId == ((DemandProviderProductionOrder)demand).ProductionOrderId)
+                                                    a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
                                                     .OrderBy(a => a.ProductionOrder).ThenByDescending(a => a.HierarchyNumber).ToList())
                     {
                         productionOrderWorkSchedules.Add(schedule);

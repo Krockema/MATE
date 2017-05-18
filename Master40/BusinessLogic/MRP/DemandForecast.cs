@@ -10,7 +10,7 @@ namespace Master40.BusinessLogic.MRP
 {
     public interface IDemandForecast
     {
-        ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, int orderId);
+        ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent);
         List<LogMessage> Logger { get; set; }
     }
 
@@ -27,7 +27,7 @@ namespace Master40.BusinessLogic.MRP
             _context = context;
         }
         
-        ProductionOrder IDemandForecast.NetRequirement(IDemandToProvider demand, IDemandToProvider parent, int orderId)
+        ProductionOrder IDemandForecast.NetRequirement(IDemandToProvider demand, IDemandToProvider parent)
         {
             
             var stock = _context.Stocks.Include(a => a.DemandStocks)
@@ -59,13 +59,42 @@ namespace Master40.BusinessLogic.MRP
                     CreatePurchase(demand, -plannedStock);
                 }
                 
-                //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
-                //if (plannedStock < stock.Min)
-                //CreateProductionOrder()
-                //TODO: implement productionOrder with seperate Id for Max - (Current - Quantity)
+                
 
             }
-            return productionOrder;
+            //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
+            if (parent == null && plannedStock < stock.Min)
+            {
+                if (plannedStock < 0)
+                    CreateStockDemand(demand, stock, stock.Min);
+                else CreateStockDemand(demand, stock, stock.Min - plannedStock);
+                
+            }
+                
+                //CreateProductionOrder()
+                return productionOrder;
+        }
+
+        private void CreateStockDemand(IDemandToProvider demand, Stock stock, decimal amount)
+        {
+            //Großes Todo: bei lagerdisposition hier ansetzen! -> evt alle provider für lagerbedarfe zusammenfassen?
+            /*
+            var demandStock = new DemandStock()
+            {
+                Quantity = amount,
+                Article = demand.Article,
+                ArticleId = demand.ArticleId,
+                IsProvided = false,
+                DemandProvider = new List<DemandToProvider>(),
+                StockId = stock.StockId,
+                
+
+            };
+            _context.Demands.Add(demandStock);
+            _context.SaveChanges();
+            demandStock.DemandRequesterId = demandStock.DemandId;
+            _context.SaveChanges();
+            */
         }
 
         private ProductionOrder CreateProductionOrder(IDemandToProvider demand, decimal amount)

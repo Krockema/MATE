@@ -132,7 +132,7 @@ namespace Master40.Data
                     {
                         ArticleForeignKey = article.Value,
                         Name = "Stock: " + article.Key,
-                        Min = 0,
+                        Min = (article.Key == "Kipper") ? 1 : 0,
                         Max = 50,
                         Current = (article.Key == "Kipper") ? 1 : 0
             }
@@ -260,9 +260,9 @@ namespace Master40.Data
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Quantity = 5, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 1},
-                new OrderPart(){Quantity = 6, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 2},
-                new OrderPart(){Quantity = 7, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 3},
+                new OrderPart(){Quantity = 5, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 6, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 2, IsPlanned = false},
+                new OrderPart(){Quantity = 7, ArticleId = articles.Single(a => a.Name == "Kipper").ArticleId, OrderId = 3, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)
             {

@@ -24,11 +24,11 @@ namespace Master40.Controllers
             return View(_processMrp.Logger);
         }
 
-        [HttpGet("[Controller]/MrpProcessing/{id}")]
-        public async Task<IActionResult> MrpProcessing(int id)
+        [HttpGet("[Controller]/MrpProcessing")]
+        public async Task<IActionResult> MrpProcessing()
         {
             //call to process MRP I and II
-            await _processMrp.Process(id);
+            await _processMrp.Process();
 
             await Task.Yield();
 
