@@ -11,7 +11,8 @@ namespace Master40.BusinessLogic.MRP
     public interface IProcessMrp
     {
         List<LogMessage> Logger { get; set; }
-        Task Process(int orderId);
+        Task Process();
+        void ProcessDemand(IDemandToProvider demand);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -23,43 +24,47 @@ namespace Master40.BusinessLogic.MRP
             _context = context;
         }
 
-        async Task IProcessMrp.Process(int orderId)
+        async Task IProcessMrp.Process()
         {
            await Task.Run(() => {
                 
-                var order = _context.OrderParts.Where(a => a.OrderId == orderId).Include(a => a.Article);
+                var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article);
                 
-                foreach (var orderPart in order.ToList())
+                foreach (var orderPart in orderParts.ToList())
                 {
-                    //MRP I
-                    ExecutePlanning(null,null,null,orderPart);
-                    _context.SaveChanges();
-                    //MRP II 
-                    var schedule = new Scheduling(_context);
-                    schedule.BackwardScheduling(orderPart);
-                    schedule.ForwardScheduling(orderPart);
-                    _context.SaveChanges();
-                    schedule.SetActivitySlack(orderPart);
-                    //schedule.CapacityScheduling();
+                   ProcessDemand(CreateDemandOrderPart(orderPart));
                 }
+                var capacity = new CapacityScheduling(_context);
+               capacity.GifflerThompsonScheduling();
+               foreach (var orderPart in orderParts.ToList())
+               {
+                  orderPart.IsPlanned = true; 
+               }
+               
            });
         }
-        
-        private void ExecutePlanning(IDemandToProvider demand, 
-                                     IDemandToProvider parent,
-                                     IDemandToProvider demandRequester,
-                                     OrderPart orderPart)
+
+        public void ProcessDemand(IDemandToProvider demand)
         {
-            //checks if the method is called for the first time
-            if (demand == null)
-            {
-                demand = CreateDemandOrderPart(orderPart);
-                demandRequester = demand;
-            }
+            //MRP I
+            ExecutePlanning(demand, null);
+            _context.SaveChanges();
+            //MRP II 
+            var schedule = new Scheduling(_context);
+            schedule.BackwardScheduling(demand);
+            schedule.ForwardScheduling(demand);
+            schedule.SetActivitySlack(demand);
+            //schedule.CapacityScheduling();
+            _context.SaveChanges();
+        }
+
+        private void ExecutePlanning(IDemandToProvider demand, 
+                                     IDemandToProvider parent)
+        {
             IDemandForecast demandForecast = new DemandForecast(_context);
             IScheduling schedule = new Scheduling(_context);
 
-            var productionOrder = demandForecast.NetRequirement(demand, parent, orderPart.OrderPartId);
+            var productionOrder = demandForecast.NetRequirement(demand, parent);
             foreach (var log in demandForecast.Logger)
             {
                 Logger.Add(log);
@@ -70,7 +75,7 @@ namespace Master40.BusinessLogic.MRP
                 //there was enough in stock, so this does not have to be produced
                 return;
             }
-            schedule.CreateSchedule(orderPart.OrderPartId, productionOrder);
+            schedule.CreateSchedule(demand, productionOrder);
             var children = _context.ArticleBoms
                                 .Include(a => a.ArticleChild)
                                 .ThenInclude(a => a.ArticleBoms)
@@ -88,10 +93,9 @@ namespace Master40.BusinessLogic.MRP
                     ArticleId = child.ArticleChildId,
                     Article = child.ArticleChild,
                     Quantity = productionOrder.Quantity * (int) child.Quantity,
-                    DemandRequesterId = demandRequester.DemandId,
-                    DemandRequester = (DemandToProvider)demandRequester,
+                    DemandRequesterId = demand.DemandRequesterId,
                     DemandProvider = new List<DemandToProvider>()
-                }, demand, demandRequester,orderPart);
+                }, demand);
             }
         }
 
@@ -112,6 +116,7 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
             demand.DemandRequesterId = demand.DemandId;
             _context.Update(demand);
+            _context.SaveChanges();
             return demand;
         }
 

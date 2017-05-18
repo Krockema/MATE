@@ -17,6 +17,8 @@ namespace Master40.Models.DB
         public Article Article { get; set; }
         public int Quantity { get; set; }
         public virtual ICollection<DemandOrderPart> DemandOrderParts { get; set; }
+        public bool IsPlanned { get; set; }
+        
         /*
         [NotMapped]
         public int RequesterId { get => this.OrderPartId; }
