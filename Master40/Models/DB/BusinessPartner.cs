@@ -13,5 +13,6 @@ namespace Master40.Models.DB
         public bool Kreditor { get; set; }
         public virtual ICollection<Purchase> Purchases { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<ArticleToBusinessPartner> ArticleToBusinesspartner { get; set; }
     }
 }

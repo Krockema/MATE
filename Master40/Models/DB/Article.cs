@@ -35,6 +35,7 @@ namespace Master40.Models.DB
         public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
         public virtual ICollection<ProductionOrder> ProductionOrders { get; set; }
         public virtual ICollection<DemandToProvider> DemandToProviders { get; set; }
+        public virtual ICollection<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set;}
 
     }
 }

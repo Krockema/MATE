@@ -31,7 +31,7 @@ namespace Master40.Data
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
 
 
-
+        public DbSet<DemandProductionOrderBom> DemandProductionOrderBom { get; set; }
 
         public DbSet<Menu> Menus { get; set; }
 
@@ -70,6 +70,8 @@ namespace Master40.Data
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
 
 
+            modelBuilder.Entity<ArticleToBusinessPartner>()
+                .HasKey(x => new { x.ArticleId, x.BusinessPartnerId });
 
             modelBuilder.Entity<DemandToProvider>()
                 .HasOne(d => d.DemandRequester)
@@ -129,9 +131,6 @@ namespace Master40.Data
                 .HasForeignKey(pt => pt.ProductionOderBomId);
                 */
         }
-
-
-        public DbSet<Master40.Models.DB.DemandProductionOrderBom> DemandProductionOrderBom { get; set; }
     }
 }
 
