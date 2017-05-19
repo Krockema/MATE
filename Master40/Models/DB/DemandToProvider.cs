@@ -15,9 +15,11 @@ namespace Master40.Models.DB
         int? DemandRequesterId { get; set; }
         DemandToProvider DemandRequester { get; set; }
         List<DemandToProvider> DemandProvider { get; set; }
-        int StateId { get; set; }
         State State { get; set; }
+
     }
+
+    
 
     /// <summary>
     /// derived Class for Damand to DemandProvider

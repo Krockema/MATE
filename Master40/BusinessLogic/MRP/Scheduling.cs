@@ -149,7 +149,7 @@ namespace Master40.BusinessLogic.MRP
             return dueTime;
         }
 
-        private int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        internal int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             var minForward = productionOrderWorkSchedules.First().StartForward;
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -160,7 +160,7 @@ namespace Master40.BusinessLogic.MRP
             return minForward;
         }
 
-        private int GetMinBackward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        internal int GetMinBackward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             var minBackward = productionOrderWorkSchedules.First().StartBackward;
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)

@@ -5,10 +5,17 @@ using System.Threading.Tasks;
 
 namespace Master40.Models.DB
 {
-    public class State
+    public enum State
     {
-        public int StateId { get; set; }
-        public string Name { get; set; } 
-
+        Created,
+        ProviderExist,
+        SchedulesExist,
+        ExistsInCapacityPlan,
+        Produced,
+        Deliverd,
+        Purchased,
     }
+
+
+
 }
