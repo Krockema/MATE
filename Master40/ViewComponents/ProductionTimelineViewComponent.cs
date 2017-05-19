@@ -35,6 +35,14 @@ namespace Master40.ViewComponents
 
             foreach (var item in pows)
             {
+                var c = await MasterDbHelper.GetPriorProductionOrderWorkSchedules(_context, item);
+                var dependencies = ""; 
+                if (c.Count() > 0)
+                {
+                    dependencies = c.FirstOrDefault().ProductionOrderWorkScheduleId.ToString();
+                };
+
+
                 schedule.Add(new ProductionTimeline
                 {
                     Name = item.MachineGroup.Name,
@@ -45,9 +53,9 @@ namespace Master40.ViewComponents
                        new ProductionTimelineItem
                        {
                            Id = item.ProductionOrderWorkScheduleId.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
-                           From = "/Date(" + (today + (long)item.StartBackward * 86400000).ToString() + ")/",
-                           To =  "/Date(" + (today + (long)(item.EndBackward-1) * 86400000).ToString() + ")/",
-                           CustomClass =  "ganttGreen", Dep = ""
+                           From = "/Date(" + (today + (long)item.StartBackward * 3600000).ToString() + ")/",
+                           To =  "/Date(" + (today + (long)(item.EndBackward) * 3600000).ToString() + ")/",
+                           CustomClass =  "ganttGreen", Dep = "" + dependencies
                         },
                     }
                 });

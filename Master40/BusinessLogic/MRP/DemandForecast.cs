@@ -233,7 +233,7 @@ namespace Master40.BusinessLogic.MRP
                 ArticleId = stock.ArticleForeignKey,
                 Quantity = quantity,
                 DemandRequesterId = demand.DemandRequesterId,
-                IsProvided = true,
+                //IsProvided = true,
                 StockId = stock.StockId
             };
            _context.Demands.Add(demandProviderStock);

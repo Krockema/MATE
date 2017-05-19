@@ -11,7 +11,7 @@
 
             var data = @Html.Raw(Model)
 
-                $(".gantt").gantt({ source: data, navigate: 'scroll', scale: 'days', maxScale: 'days', minScale: 'days', itemsPerPage: '25' });
+                $(".gantt").gantt({ source: data, navigate: 'scroll', scale: 'hours', maxScale: 'hours', minScale: 'days', itemsPerPage: '25' });
 
         })
     );

@@ -108,7 +108,7 @@ namespace Master40.BusinessLogic.MRP
                 Article = orderPart.Article,
                 ArticleId = orderPart.ArticleId,
                 OrderPart = orderPart,
-                IsProvided = false,
+                //IsProvided = false,
                 DemandProvider = new List<DemandToProvider>(),
 
             };

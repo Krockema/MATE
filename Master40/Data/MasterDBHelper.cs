@@ -41,6 +41,50 @@ namespace Master40.Data
 
         }
 
+        public static Task<List<ProductionOrderWorkSchedule>> GetPriorProductionOrderWorkSchedules(MasterDBContext context, ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        {
+            var rs = Task.Run(() =>
+            {
+                var priorItems = new List<ProductionOrderWorkSchedule>();
+                // If == min Hirachie --> get Pevious Article -> Higest Hirachie Workschedule Item
+                var maxHirachie = context.ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
+                                                    .Max(x => x.HierarchyNumber);
+
+                if (maxHirachie == productionOrderWorkSchedule.HierarchyNumber)
+                {
+                    // get Previous Article
+                    var priorBom = context.ProductionOrderBoms
+                                                .Include(x => x.ProductionOrderParent)
+                                                    .ThenInclude(x => x.ProductionOrderWorkSchedule)
+                                                .Where(x => x.ProductionOrderParentId == productionOrderWorkSchedule.ProductionOrderId).ToList();
+
+                    // out of each Part get Highest Workschedule
+                    foreach (var item in priorBom)
+                    {
+                        var prior = item.ProductionOrderParent.ProductionOrderWorkSchedule.OrderBy(x => x.HierarchyNumber).FirstOrDefault();
+                        if (prior != null)
+                        {
+                            priorItems.Add(prior);
+                        }
+                    }
+                }
+                else
+                {
+                    // get Previous Workschedule
+                    priorItems.Add(context.ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId
+                                                            && x.HierarchyNumber > productionOrderWorkSchedule.HierarchyNumber)
+                                                             .OrderByDescending(x => x.HierarchyNumber).FirstOrDefault());
+                }
+                return priorItems;
+            });
+
+            return rs;
+        }
+
+
+
+
+
         /// <summary>
         /// copies am Article and his Childs to ProductionOrder
         /// Creates Demand Provider for Production oder and DemandRequests for childs
