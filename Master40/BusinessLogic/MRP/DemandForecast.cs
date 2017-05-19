@@ -71,8 +71,8 @@ namespace Master40.BusinessLogic.MRP
                 
             }
                 
-                //CreateProductionOrder()
-                return productionOrder;
+            //CreateProductionOrder()
+            return productionOrder;
         }
 
         private void CreateStockDemand(IDemandToProvider demand, Stock stock, decimal amount)
@@ -183,7 +183,7 @@ namespace Master40.BusinessLogic.MRP
                 ArticleId = demand.ArticleId,
                 DemandRequesterId = demand.DemandRequesterId,
                 DemandRequester = demand.DemandRequester,
-                
+                State = State.Created
             };
             var articleToPurchase = _context.ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
             
@@ -233,7 +233,6 @@ namespace Master40.BusinessLogic.MRP
                 ArticleId = stock.ArticleForeignKey,
                 Quantity = quantity,
                 DemandRequesterId = demand.DemandRequesterId,
-                IsProvided = true,
                 StockId = stock.StockId
             };
            _context.Demands.Add(demandProviderStock);

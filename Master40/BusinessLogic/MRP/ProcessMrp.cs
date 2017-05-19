@@ -54,7 +54,8 @@ namespace Master40.BusinessLogic.MRP
             schedule.BackwardScheduling(demand);
             schedule.ForwardScheduling(demand);
             schedule.SetActivitySlack(demand);
-            //schedule.CapacityScheduling();
+            demand.State = State.SchedulesExist;
+            _context.Demands.Update((DemandToProvider)demand);
             _context.SaveChanges();
         }
 
@@ -65,6 +66,8 @@ namespace Master40.BusinessLogic.MRP
             IScheduling schedule = new Scheduling(_context);
 
             var productionOrder = demandForecast.NetRequirement(demand, parent);
+            demand.State = State.ProviderExist;
+
             foreach (var log in demandForecast.Logger)
             {
                 Logger.Add(log);
@@ -94,7 +97,8 @@ namespace Master40.BusinessLogic.MRP
                     Article = child.ArticleChild,
                     Quantity = productionOrder.Quantity * (int) child.Quantity,
                     DemandRequesterId = demand.DemandRequesterId,
-                    DemandProvider = new List<DemandToProvider>()
+                    DemandProvider = new List<DemandToProvider>(),
+                    State = State.Created
                 }, demand);
             }
         }
@@ -108,9 +112,8 @@ namespace Master40.BusinessLogic.MRP
                 Article = orderPart.Article,
                 ArticleId = orderPart.ArticleId,
                 OrderPart = orderPart,
-                IsProvided = false,
                 DemandProvider = new List<DemandToProvider>(),
-
+                State = State.Created
             };
             _context.Demands.Add(demand);
             _context.SaveChanges();
