@@ -1,12 +1,10 @@
 ﻿using Master40.Data;
-using Master40.Models.DB;
+using Master40.Data.Context;
+using Master40.DB.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Master40.Extensions.ExtensionMethods;
 
 namespace Master40.ViewComponents
 {
@@ -28,7 +26,7 @@ namespace Master40.ViewComponents
                 var articleList = new List<ProductionOrder>();
                 foreach (var item in masterDBContext)
                 {
-                    var article = await MasterDbHelper.GetProductionOrderBomRecursive(_context, item, item.ProductionOrderId);
+                    var article = await MasterDbHelper.GetProductionOrderBomRecursive(_context, item, item.Id);
                     articleList.Add(article);
                 }
                 return View(articleList);

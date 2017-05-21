@@ -3,9 +3,7 @@ using Master40.BusinessLogic.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Master40.Data;
-using Master40.Extensions;
+using Master40.Data.Context;
 
 namespace Master40.Controllers
 {

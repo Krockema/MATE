@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.Data;
-using Master40.Models.DB;
 using Master40.Models;
 using Microsoft.EntityFrameworkCore;
+using Master40.DB.Models;
+using Master40.Data.Context;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -92,7 +92,7 @@ namespace Master40.BusinessLogic.MRP
             {
                 ExecutePlanning(new DemandProductionOrderBom()
                 {
-                    ProductionOrderBomId = child.ArticleBomId,
+                    ProductionOrderBomId = child.Id,
                     ArticleId = child.ArticleChildId,
                     Article = child.ArticleChild,
                     Quantity = productionOrder.Quantity * (int) child.Quantity,
@@ -107,7 +107,7 @@ namespace Master40.BusinessLogic.MRP
         {
             var demand = new DemandOrderPart()
             {
-                OrderPartId = orderPart.OrderPartId,
+                OrderPartId = orderPart.Id,
                 Quantity = orderPart.Quantity,
                 Article = orderPart.Article,
                 ArticleId = orderPart.ArticleId,
@@ -117,7 +117,7 @@ namespace Master40.BusinessLogic.MRP
             };
             _context.Demands.Add(demand);
             _context.SaveChanges();
-            demand.DemandRequesterId = demand.DemandId;
+            demand.DemandRequesterId = demand.Id;
             _context.Update(demand);
             _context.SaveChanges();
             return demand;

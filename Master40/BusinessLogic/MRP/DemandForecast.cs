@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.Data;
-using Master40.Models.DB;
 using Microsoft.EntityFrameworkCore;
 using Master40.Models;
+using Master40.DB.Models;
+using Master40.Data.Context;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -102,7 +102,7 @@ namespace Master40.BusinessLogic.MRP
             var productionOrder = new ProductionOrder()
             {
                 Article = demand.Article,
-                ArticleId = demand.Article.ArticleId,
+                ArticleId = demand.Article.Id,
                 Quantity = amount,
             };
             var msg = "Articles ordered to produce: " + demand.Article.Name + " " + (amount);
@@ -120,7 +120,7 @@ namespace Master40.BusinessLogic.MRP
             //check for reservations for the article
             foreach (var demandStock in stock.DemandStocks)
             {
-                if (demandStock.StockId == stock.StockId)
+                if (demandStock.StockId == stock.Id)
                     amountReserved += demandStock.Quantity;
             }
             //plannedStock is the amount of this article in stock after taking out the amount needed
@@ -142,7 +142,7 @@ namespace Master40.BusinessLogic.MRP
                 Quantity = amount,
                 Article = demand.Article,
                 ArticleId = demand.ArticleId,
-                ProductionOrderId = productionOrder.ProductionOrderId,
+                ProductionOrderId = productionOrder.Id,
             };
             _context.Demands.Add(demandProviderProductionOrder);
             _context.SaveChanges();
@@ -166,7 +166,7 @@ namespace Master40.BusinessLogic.MRP
             var productionOrderBom = new ProductionOrderBom()
             {
                 Quantity = bom.Quantity * productionOrder.Quantity,
-                ProductionOrderChildId = productionOrder.ProductionOrderId,
+                ProductionOrderChildId = productionOrder.Id,
                 ProductionOrderParent = productionOrderParent
 
             };
@@ -198,7 +198,7 @@ namespace Master40.BusinessLogic.MRP
                 ArticleId = demand.ArticleId,
                 Quantity = (int) amount,
                 DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>() {providerPurchasePart},
-                PurchaseId = purchase.PurchaseId
+                PurchaseId = purchase.Id
             };
             purchase.PurchaseParts = new List<PurchasePart>()
             {
@@ -233,7 +233,7 @@ namespace Master40.BusinessLogic.MRP
                 ArticleId = stock.ArticleForeignKey,
                 Quantity = quantity,
                 DemandRequesterId = demand.DemandRequesterId,
-                StockId = stock.StockId
+                StockId = stock.Id
             };
            _context.Demands.Add(demandProviderStock);
             _context.SaveChanges();

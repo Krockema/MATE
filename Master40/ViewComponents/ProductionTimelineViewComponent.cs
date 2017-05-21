@@ -1,8 +1,7 @@
 ﻿using Master40.Data;
 using Master40.Extensions;
 using Master40.Models;
-using Master40.Models.DB;
-using Microsoft.AspNetCore.Http;
+using Master40.DB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Master40.Extensions.ExtensionMethods;
+using Master40.Data.Context;
 
 namespace Master40.ViewComponents
 {
@@ -48,7 +47,7 @@ namespace Master40.ViewComponents
 
 
                 var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
-                                       join d in demand on c.DemandRequesterId equals d.DemandId
+                                       join d in demand on c.DemandRequesterId equals d.Id
                                        select c).ToList();
 
                 pows = (from p in pows
@@ -67,10 +66,10 @@ namespace Master40.ViewComponents
                 {
                     var demand = _context.Demands.OfType<DemandOrderPart>()
                             .Include(x => x.OrderPart)
-                            .Where(o => o.OrderPart.OrderId == item.OrderId).ToList();
+                            .Where(o => o.OrderPart.OrderId == item.Id).ToList();
 
                     var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
-                                           join d in demand on c.DemandRequesterId equals d.DemandId
+                                           join d in demand on c.DemandRequesterId equals d.Id
                                            select c).ToList();
 
                     var powDetails = (from p in pows
@@ -84,7 +83,7 @@ namespace Master40.ViewComponents
             }
 
 
-            var orderSelection = new SelectList(_context.Orders, "OrderId", "Name", orderId);
+            var orderSelection = new SelectList(_context.Orders, "Id", "Name", orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
 
             return View("ProductionTimeline", JsonConvert.SerializeObject(schedule));
@@ -100,7 +99,7 @@ namespace Master40.ViewComponents
                 var dependencies = "";
                 if (c.Count() > 0)
                 {
-                    dependencies = c.FirstOrDefault().ProductionOrderWorkScheduleId.ToString();
+                    dependencies = c.FirstOrDefault().Id.ToString();
                 };
 
                 schedule.Add(new ProductionTimeline
@@ -112,7 +111,7 @@ namespace Master40.ViewComponents
                     {
                        new ProductionTimelineItem
                        {
-                           Id = item.ProductionOrderWorkScheduleId.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
+                           Id = item.Id.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
                            From = "/Date(" + (today + (long)item.StartBackward * 3600000).ToString() + ")/",
                            To =  "/Date(" + (today + (long)(item.EndBackward) * 3600000).ToString() + ")/",
                            CustomClass =  gc.ToString(), Dep = "" + dependencies

@@ -54,5 +54,8 @@
   <ItemGroup>
     <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Master40.DB\Master40.DB\Master40.DB.csproj" />
+  </ItemGroup>
 
 </Project>

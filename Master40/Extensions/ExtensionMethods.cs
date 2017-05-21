@@ -37,19 +37,18 @@ namespace Master40.Extensions
             }
             return colorList;
         }
-        
-        public class Color 
-        {
-            public int A { get; set; }
-            public int R { get; set; }
-            public int G { get; set; }
-            public int B { get; set; }
-        }
     
         public static long GetEpochMilliseconds(this DateTime date)
         {
             TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
             return (long)t.TotalMilliseconds;
         }
+    }
+    public class Color
+    {
+        public int A { get; set; }
+        public int R { get; set; }
+        public int G { get; set; }
+        public int B { get; set; }
     }
 }

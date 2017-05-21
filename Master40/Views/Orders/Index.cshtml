@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.Models.DB.Order>
+@model IEnumerable<Master40.DB.Models.Order>
 
 @{
     ViewData["Title"] = "Index";
@@ -35,12 +35,12 @@
                 @Html.DisplayFor(modelItem => item.DueTime)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BusinessPartner.BusinessPartnerId)
+                @Html.DisplayFor(modelItem => item.BusinessPartner.Id)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
 }

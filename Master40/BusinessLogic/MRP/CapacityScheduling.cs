@@ -4,9 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.Data;
 using Master40.Models;
-using Master40.Models.DB;
-using Microsoft.EntityFrameworkCore;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using Master40.Data.Context;
+using Master40.DB.Models;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -58,7 +57,7 @@ namespace Master40.BusinessLogic.MRP
         {
             var provider =
                 _context.Demands.OfType<DemandProviderProductionOrder>()
-                    .Where(a => a.DemandRequesterId == requester.DemandId)
+                    .Where(a => a.DemandRequesterId == requester.Id)
                     .ToList();
             var schedules = new List<ProductionOrderWorkSchedule>();
             foreach (var prov in provider)
@@ -112,7 +111,7 @@ namespace Master40.BusinessLogic.MRP
                         foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId))
                         {
                             //check if its the head element which points to itself
-                            if (pob.ProductionOrderParentId != plannedSchedule.ProductionOrder.ProductionOrderId)
+                            if (pob.ProductionOrderParentId != plannedSchedule.ProductionOrder.Id)
                             {
                                 var parents = pob.ProductionOrderParent.ProductionOrderWorkSchedule;
                                 ProductionOrderWorkSchedule lowestHierarchyMember = parents.First();
@@ -136,7 +135,7 @@ namespace Master40.BusinessLogic.MRP
                 var hasChildren = false;
                 foreach (var bom in productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms)
                 {
-                    if (bom.ProductionOrderParent.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
+                    if (bom.ProductionOrderParent.Id == productionOrderWorkSchedule.ProductionOrderId)
                     {
                         hasChildren = true;
                         break;

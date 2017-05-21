@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Master40.BusinessLogic.MRP;
 using Master40.Data;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Master40.Data.Context;
 
 namespace Master40
 {
@@ -90,7 +88,7 @@ namespace Master40
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            MasterDBInitializer.DbInitialize(context);
+            MasterDBInitializerSmall.DbInitialize(context);
         }
     }
 }

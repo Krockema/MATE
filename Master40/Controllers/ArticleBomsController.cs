@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.Data;
-using Master40.Models.DB;
+using Master40.Data.Context;
+using Master40.DB.Models;
 
 namespace Master40.Controllers
 {
@@ -31,12 +32,12 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles.Include(w => w.WorkSchedules)
-                .Where(a => a.ArticleId == 1).ToList();
+                .Where(a => a.Id == 1).ToList();
 
             var articleList = new List<Article>();
             foreach (var item in masterDBContext)
             {
-                var article = await MasterDbHelper.GetArticleBomRecursive(_context, item, item.ArticleId);
+                var article = await MasterDbHelper.GetArticleBomRecursive(_context, item, item.Id);
                 articleList.Add(article);
             }
             return View(articleList);
@@ -53,7 +54,7 @@ namespace Master40.Controllers
             var articleBom = await _context.ArticleBoms
                 .Include(a => a.ArticleChild)
                 .Include(a => a.ArticleParent)
-                .SingleOrDefaultAsync(m => m.ArticleBomId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (articleBom == null)
             {
                 return NotFound();
@@ -96,7 +97,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(m => m.ArticleBomId == id);
+            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(m => m.Id == id);
             if (articleBom == null)
             {
                 return NotFound();
@@ -113,7 +114,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
         {
-            if (id != articleBom.ArticleBomId)
+            if (id != articleBom.Id)
             {
                 return NotFound();
             }
@@ -127,7 +128,7 @@ namespace Master40.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArticleBomExists(articleBom.ArticleBomId))
+                    if (!ArticleBomExists(articleBom.Id))
                     {
                         return NotFound();
                     }
@@ -154,7 +155,7 @@ namespace Master40.Controllers
             var articleBom = await _context.ArticleBoms
                 .Include(a => a.ArticleChild)
                 .Include(a => a.ArticleParent)
-                .SingleOrDefaultAsync(m => m.ArticleBomId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (articleBom == null)
             {
                 return NotFound();
@@ -168,7 +169,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(m => m.ArticleBomId == id);
+            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(m => m.Id == id);
             _context.ArticleBoms.Remove(articleBom);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -176,7 +177,7 @@ namespace Master40.Controllers
 
         private bool ArticleBomExists(int id)
         {
-            return _context.ArticleBoms.Any(e => e.ArticleBomId == id);
+            return _context.ArticleBoms.Any(e => e.Id == id);
         }
     }
 }
