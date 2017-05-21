@@ -3,15 +3,20 @@ using Master40.BusinessLogic.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Master40.Data;
+using Master40.Extensions;
 
 namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
         private readonly IProcessMrp _processMrp;
-        public MrpController(IProcessMrp processMrp)
+        private readonly MasterDBContext _context;
+        public MrpController(IProcessMrp processMrp, MasterDBContext context)
         {
             _processMrp = processMrp;
+            _context = context;
         }
         public IActionResult Index()
         {
@@ -21,6 +26,8 @@ namespace Master40.Controllers
                     new LogMessage() { MessageType = MessageType.success, Message = "Nothing logged yet.", MessageNumber = 1 }
                 };
             }
+
+
             return View(_processMrp.Logger);
         }
 

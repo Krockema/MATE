@@ -1,12 +1,10 @@
 ﻿using Master40.Models.DB;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Master40.Models;
 
-namespace Master40.Data
+namespace Master40.DB.Repository
 {
     public static class MasterDBInitializer
     {
@@ -233,9 +231,9 @@ namespace Master40.Data
 
             //create order
             var orders = new List<Order>() { 
-                new Order {BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 40, Name = "Erste Kipperbestellung"},
-                new Order { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 35, Name = "Zweite Kipperbestellung" },
-                new Order { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 45, Name = "Dritte Kipperbestellung" }
+                new Order {BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 40, Name = "Kipperbestellung"},
+                new Order { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 35, Name = "Kipperbestellung" },
+                new Order { BusinessPartnerId = businessPartner.BusinessPartnerId, DueTime = 45, Name = "Kipperbestellung" }
             };
             foreach (var order in orders)
             {

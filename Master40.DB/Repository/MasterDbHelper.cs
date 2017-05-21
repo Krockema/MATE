@@ -1,30 +1,13 @@
 ﻿using Master40.Models.DB;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Master40.Data
+namespace Master40.DB.Repository
 {
     public class MasterDbHelper
     {
-        public async static Task<Article> GetArticleBomRecursive(MasterDBContext context, Article article, int ArticleId)
-        {
-            article.ArticleChilds = context.ArticleBoms.Include(a => a.ArticleChild)
-                                                        .ThenInclude(w => w.WorkSchedules)
-                                                        .Where(a => a.ArticleParentId == ArticleId).ToList();
-
-            foreach (var item in article.ArticleChilds)
-            {
-                await GetArticleBomRecursive(context, item.ArticleParent, item.ArticleChildId);
-            }
-            await Task.Yield();
-            return article;
-
-        }
-
-
         public async static Task<ProductionOrder> GetProductionOrderBomRecursive(MasterDBContext context, ProductionOrder prodOrder, int productionOrderId)
         {
             prodOrder.ProdProductionOrderBomChilds = context.ProductionOrderBoms
@@ -64,7 +47,7 @@ namespace Master40.Data
                         var prior = item.ProductionOrderParent.ProductionOrderWorkSchedule.OrderBy(x => x.HierarchyNumber).FirstOrDefault();
                         if (prior != null)
                         {
-                            priorItems.Add(prior);
+                           // priorItems.Add(prior);
                         }
                     }
                 }

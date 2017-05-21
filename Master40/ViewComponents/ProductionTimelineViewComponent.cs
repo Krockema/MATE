@@ -1,9 +1,12 @@
 ﻿using Master40.Data;
+using Master40.Extensions;
 using Master40.Models;
+using Master40.Models.DB;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,27 +24,84 @@ namespace Master40.ViewComponents
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int productionOrderId)
+        public async Task<IViewComponentResult> InvokeAsync()
+        {
+
+
+            var pows = _context.ProductionOrderWorkSchedule
+                                .Include(m => m.MachineGroup)
+                                .Include(a => a.ProductionOrder)
+                                    .ThenInclude(p => p.ProductionOrderBoms)
+                                .Include(a => a.ProductionOrder)
+                                    .ThenInclude(x => x.DemandProviderProductionOrders)
+                                .OrderBy(a => a.MachineGroup).ToList();
+            //.ToList();
+            var schedule = new List<ProductionTimeline>();
+            int orderId = -1;
+            if (Request.Method == "POST" && Request.Form["Order"] != "-1")
+            {
+                orderId = Convert.ToInt32(Request.Form["Order"]);
+
+                var demand = _context.Demands.OfType<DemandOrderPart>()
+                                            .Include(x => x.OrderPart)
+                                        .Where(o => o.OrderPart.OrderId == orderId).ToList();
+
+
+                var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
+                                       join d in demand on c.DemandRequesterId equals d.DemandId
+                                       select c).ToList();
+
+                pows = (from p in pows
+                        join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
+                        select p).ToList();
+
+                schedule = await CreateTimelineForProductionOrder(pows, (ganttColors)1);
+            }
+            else
+            {
+                var orderParts = _context.Orders.ToList();
+                int n = 1;
+
+
+                foreach (var item in orderParts)
+                {
+                    var demand = _context.Demands.OfType<DemandOrderPart>()
+                            .Include(x => x.OrderPart)
+                            .Where(o => o.OrderPart.OrderId == item.OrderId).ToList();
+
+                    var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
+                                           join d in demand on c.DemandRequesterId equals d.DemandId
+                                           select c).ToList();
+
+                    var powDetails = (from p in pows
+                            join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
+                            select p).ToList();
+
+                    schedule.AddRange(await CreateTimelineForProductionOrder(powDetails, (ganttColors)n++));
+                }
+
+
+            }
+
+
+            var orderSelection = new SelectList(_context.Orders, "OrderId", "Name", orderId);
+            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
+
+            return View("ProductionTimeline", JsonConvert.SerializeObject(schedule));
+        }
+
+        private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionOrderWorkSchedule> pows, ganttColors gc)
         {
             var schedule = new List<ProductionTimeline>();
-            var pows = _context.ProductionOrderWorkSchedule
-                    .Include(m => m.MachineGroup)
-                    .Include(a => a.ProductionOrder)
-                        .ThenInclude(p => p.ProductionOrderBoms)
-                    .OrderBy(a => a.MachineGroup).ToList();
-
-
             var today = DateTime.Now.GetEpochMilliseconds();
-
             foreach (var item in pows)
             {
                 var c = await MasterDbHelper.GetPriorProductionOrderWorkSchedules(_context, item);
-                var dependencies = ""; 
+                var dependencies = "";
                 if (c.Count() > 0)
                 {
                     dependencies = c.FirstOrDefault().ProductionOrderWorkScheduleId.ToString();
                 };
-
 
                 schedule.Add(new ProductionTimeline
                 {
@@ -55,33 +115,40 @@ namespace Master40.ViewComponents
                            Id = item.ProductionOrderWorkScheduleId.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
                            From = "/Date(" + (today + (long)item.StartBackward * 3600000).ToString() + ")/",
                            To =  "/Date(" + (today + (long)(item.EndBackward) * 3600000).ToString() + ")/",
-                           CustomClass =  "ganttGreen", Dep = "" + dependencies
+                           CustomClass =  gc.ToString(), Dep = "" + dependencies
                         },
                     }
                 });
             }
-            
-
-
-            return View("ProductionTimeline", JsonConvert.SerializeObject(schedule));
+            return schedule;
         }
+
+        public enum ganttColors
+        {
+            ganttRed,
+            ganttBlue,
+            ganttOrange,
+            ganttGreen,
+            ganttGray
+        }
+
         /*
-        [
-            {
-                "name": " Step A ", "desc": "&rarr; Step B", "values": [{ "id": "b0", "from": "/Date(1320182000000)/", "to": "/Date(1320301600000)/", "desc": "Id: 0<br/>Name:   Step A", "label": " Step A", "customClass": "ganttRed", "dep": "b1" },
-                { "id": "bx", "from": "/Date(1320601600000)/", "to": "/Date(1320870400000)/", "desc": "Id: 0<br/>Name:   Step A", "label": " Step A", "customClass": "ganttRed", "dep": "b1" }]
-            },
-            { "name": " Step B ", "desc": "&rarr; step C", "values": [{ "id": "b1", "from": "/Date(1320601600000)/", "to": "/Date(1320870400000)/", "desc": "Id: 1<br/>Name:   Step B", "label": " Step B", "customClass": "ganttOrange", "dep": "b2" }] },
-            { "name": " Step C ", "desc": "&rarr; step D", "values": [{ "id": "b2", "from": "/Date(1321192000000)/", "to": "/Date(1321500400000)/", "desc": "Id: 2<br/>Name:   Step C", "label": " Step C", "customClass": "ganttGreen", "dep": "b3" }] },
-            { "name": " Step D ", "desc": "&rarr; step E", "values": [{ "id": "b3", "from": "/Date(1320302400000)/", "to": "/Date(1320551600000)/", "desc": "Id: 3<br/>Name:   Step D", "label": " Step D", "dep": "b4" }] },
-            { "name": " Step E ", "desc": "&mdash;", "values": [{ "id": "b4", "from": "/Date(1320802400000)/", "to": "/Date(1321994800000)/", "desc": "Id: 4<br/>Name:   Step E", "label": " Step E", "customClass": "ganttRed" }] },
-            { "name": " Step F ", "desc": "&rarr; step B", "values": [{ "id": "b5", "from": "/Date(1320192000000)/", "to": "/Date(1320401600000)/", "desc": "Id: 5<br/>Name:   Step F", "label": " Step F", "customClass": "ganttOrange", "dep": "b1" }] },
-            { "name": " Step G ", "desc": "&rarr; step C", "values": [{ "id": "b6", "from": "/Date(1320401600000)/", "to": "/Date(1320570400000)/", "desc": "Id: 6<br/>Name:   Step G", "label": " Step G", "customClass": "ganttGreen", "dep": "b8" }] },
-            { "name": " Step H ", "desc": "&rarr; Step J", "values": [{ "id": "b7", "from": "/Date(1321192000000)/", "to": "/Date(1321500400000)/", "desc": "Id: 7<br/>Name:   Step H", "label": " Step H", "dep": "b9" }] },
-            { "name": " Step I ", "desc": "&rarr; Step H", "values": [{ "id": "b8", "from": "/Date(1320302400000)/", "to": "/Date(1320551600000)/", "desc": "Id: 8<br/>Name:   Step I", "label": " Step I", "customClass": "ganttRed", "dep": "b7" }] },
-            { "name": " Step J ", "desc": "&mdash;", "values": [{ "id": "b9", "from": "/Date(1320802400000)/", "to": "/Date(1321994800000)/", "desc": "Id: 9<br/>Name:   Step J", "label": " Step J", "customClass": "ganttOrange" }] }
-        ];
-        */
+[
+   {
+       "name": " Step A ", "desc": "&rarr; Step B", "values": [{ "id": "b0", "from": "/Date(1320182000000)/", "to": "/Date(1320301600000)/", "desc": "Id: 0<br/>Name:   Step A", "label": " Step A", "customClass": "ganttRed", "dep": "b1" },
+       { "id": "bx", "from": "/Date(1320601600000)/", "to": "/Date(1320870400000)/", "desc": "Id: 0<br/>Name:   Step A", "label": " Step A", "customClass": "ganttRed", "dep": "b1" }]
+   },
+   { "name": " Step B ", "desc": "&rarr; step C", "values": [{ "id": "b1", "from": "/Date(1320601600000)/", "to": "/Date(1320870400000)/", "desc": "Id: 1<br/>Name:   Step B", "label": " Step B", "customClass": "ganttOrange", "dep": "b2" }] },
+   { "name": " Step C ", "desc": "&rarr; step D", "values": [{ "id": "b2", "from": "/Date(1321192000000)/", "to": "/Date(1321500400000)/", "desc": "Id: 2<br/>Name:   Step C", "label": " Step C", "customClass": "ganttGreen", "dep": "b3" }] },
+   { "name": " Step D ", "desc": "&rarr; step E", "values": [{ "id": "b3", "from": "/Date(1320302400000)/", "to": "/Date(1320551600000)/", "desc": "Id: 3<br/>Name:   Step D", "label": " Step D", "dep": "b4" }] },
+   { "name": " Step E ", "desc": "&mdash;", "values": [{ "id": "b4", "from": "/Date(1320802400000)/", "to": "/Date(1321994800000)/", "desc": "Id: 4<br/>Name:   Step E", "label": " Step E", "customClass": "ganttRed" }] },
+   { "name": " Step F ", "desc": "&rarr; step B", "values": [{ "id": "b5", "from": "/Date(1320192000000)/", "to": "/Date(1320401600000)/", "desc": "Id: 5<br/>Name:   Step F", "label": " Step F", "customClass": "ganttOrange", "dep": "b1" }] },
+   { "name": " Step G ", "desc": "&rarr; step C", "values": [{ "id": "b6", "from": "/Date(1320401600000)/", "to": "/Date(1320570400000)/", "desc": "Id: 6<br/>Name:   Step G", "label": " Step G", "customClass": "ganttGreen", "dep": "b8" }] },
+   { "name": " Step H ", "desc": "&rarr; Step J", "values": [{ "id": "b7", "from": "/Date(1321192000000)/", "to": "/Date(1321500400000)/", "desc": "Id: 7<br/>Name:   Step H", "label": " Step H", "dep": "b9" }] },
+   { "name": " Step I ", "desc": "&rarr; Step H", "values": [{ "id": "b8", "from": "/Date(1320302400000)/", "to": "/Date(1320551600000)/", "desc": "Id: 8<br/>Name:   Step I", "label": " Step I", "customClass": "ganttRed", "dep": "b7" }] },
+   { "name": " Step J ", "desc": "&mdash;", "values": [{ "id": "b9", "from": "/Date(1320802400000)/", "to": "/Date(1321994800000)/", "desc": "Id: 9<br/>Name:   Step J", "label": " Step J", "customClass": "ganttOrange" }] }
+];
+*/
         public async Task<IViewComponentResult> InvokeAsyncOld(int productionOrderId)
         {
             var pows = _context.ProductionOrderWorkSchedule

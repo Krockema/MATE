@@ -19,9 +19,6 @@
     font-size: 14px;
 }
 
-.nav-side-menu .toggle-btn {
-   /* display: none; */
-}
 
 .nav-side-menu ul,
 .nav-side-menu li {
@@ -31,8 +28,8 @@
     line-height: 35px;
     cursor: pointer;
             
-.collapsed{
-    .arrow:before{
+.collapsed {
+    .arrow:before {
                 font-family: FontAwesome;
                 content: "\f053";
                 display: inline-block;
@@ -42,7 +39,6 @@
                 float:right;
         }
     }
-
 }
 
 .nav-side-menu ul :not(collapsed) .arrow:before,
