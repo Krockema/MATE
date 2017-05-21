@@ -1,7 +1,0 @@
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\bin\Debug\netcoreapp1.1\Master40.DB.deps.json
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\bin\Debug\netcoreapp1.1\Master40.DB.dll
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\obj\Debug\netcoreapp1.1\Master40.DB.csprojResolveAssemblyReference.cache
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\obj\Debug\netcoreapp1.1\Master40.DB.AssemblyInfo.cs
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\bin\Debug\netcoreapp1.1\Master40.DB.pdb
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\obj\Debug\netcoreapp1.1\Master40.DB.dll
-C:\Users\marti\Source\Repos\Master-4.0\Master40.DB\Master40.DB\obj\Debug\netcoreapp1.1\Master40.DB.pdb
