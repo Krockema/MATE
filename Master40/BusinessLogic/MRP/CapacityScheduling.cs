@@ -35,18 +35,39 @@ namespace Master40.BusinessLogic.MRP
                     var msg = "Plannable elements: " + plannableSchedule.Name;
                     Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
                 }
-                ActivitySlackRule(plannableSchedules);
+                var shortest = ActivitySlackRule(plannableSchedules, schedule);
 
+
+                plannableSchedules.Remove(shortest);
             }
         }
 
-        private void ActivitySlackRule(List<ProductionOrderWorkSchedule> plannableSchedules)
+        private ProductionOrderWorkSchedule ActivitySlackRule(List<ProductionOrderWorkSchedule> plannableSchedules, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            //int shortest;
+            //Todo: remove activityslack in schedule and only call getremaintimefromparents if value is zeron
+            ProductionOrderWorkSchedule shortest = null;
             foreach (var plannableSchedule in plannableSchedules)
             {
-                //plannableSchedule.
+                //get duetime
+                var orderPartId = _context.Demands.OfType<DemandOrderPart>().Single(a => a.DemandRequesterId == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId).OrderPartId;
+                var dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == orderPartId).Order.DueTime;
+
+                //get remaining time
+                plannableSchedule.ActivitySlack = GetRemainTimeFromParents(plannableSchedule, productionOrderWorkSchedules);
+
+                if (shortest == null || shortest.ActivitySlack > plannableSchedule.ActivitySlack)
+                    shortest = plannableSchedule;
             }
+            return shortest;
+        }
+
+        private int GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            var parent = FindHierarchyParent(productionOrderWorkSchedules, schedule);
+            if (parent == null) parent = FindBomParent(schedule);
+            if (parent == null) return schedule.Duration;
+            
+            return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
         }
 
         private List<ProductionOrderWorkSchedule> GetSchedule()
@@ -145,7 +166,7 @@ namespace Master40.BusinessLogic.MRP
             {
                 if (mainSchedule.ProductionOrderId == plannedSchedule.ProductionOrderId)
                 {
-                    if (mainSchedule.HierarchyNumber > plannedSchedule.ProductionOrderId &&
+                    if (mainSchedule.HierarchyNumber > plannedSchedule.HierarchyNumber &&
                         mainSchedule.HierarchyNumber < hierarchyParentNumber)
                     {
                         hierarchyParent = mainSchedule;
