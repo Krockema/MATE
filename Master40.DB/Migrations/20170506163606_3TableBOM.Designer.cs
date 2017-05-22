@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Master40.Data.Context;
+using Master40.DB.Data.Context;
 
-namespace Master40.Migrations
+namespace Master40.DBMigrations
 {
     [DbContext(typeof(MasterDBContext))]
     [Migration("20170506163606_3TableBOM")]

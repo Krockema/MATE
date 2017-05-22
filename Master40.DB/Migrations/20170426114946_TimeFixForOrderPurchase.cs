@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Master40.Migrations
+namespace Master40.DBMigrations
 {
     public partial class TimeFixForOrderPurchase : Migration
     {

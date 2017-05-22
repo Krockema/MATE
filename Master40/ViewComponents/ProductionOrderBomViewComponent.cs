@@ -1,5 +1,5 @@
-﻿using Master40.Data;
-using Master40.Data.Context;
+﻿using Master40.DB.Data;
+using Master40.DB.Data.Context;
 using Master40.DB.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

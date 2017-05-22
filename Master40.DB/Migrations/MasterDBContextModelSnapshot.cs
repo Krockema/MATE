@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Master40.Data.Context;
+using Master40.DB.Data.Context;
 
 namespace Master40.DB.Migrations
 {
