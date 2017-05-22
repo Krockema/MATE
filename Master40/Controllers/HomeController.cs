@@ -39,6 +39,8 @@ namespace Master40.Controllers
                             MasterDBInitializerMedium.DbInitialize(_context);
                             break;
                         default:
+                            _context.Database.EnsureDeleted();
+                            MasterDBInitializerLarge.DbInitialize(_context);
                             break;
                     }
                     

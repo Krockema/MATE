@@ -7,4 +7,8 @@ namespace Master40.DB
         [Key]
         public int Id { get; set; }
     }
+
+    public interface IAggregateRoot {
+
+    }
 }
