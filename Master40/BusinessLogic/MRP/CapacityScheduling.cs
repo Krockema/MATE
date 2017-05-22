@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Master40.Data;
 using Master40.Models;
 using Master40.Models.DB;
 using Microsoft.EntityFrameworkCore;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -27,14 +24,27 @@ namespace Master40.BusinessLogic.MRP
         public void GifflerThompsonScheduling()
         {
             var schedule = GetSchedule();
-            var plannableSchedule = new List<ProductionOrderWorkSchedule>();
-            var plannedSchedule = new List<ProductionOrderWorkSchedule>();
-            plannableSchedule = GetPlannables(schedule,plannedSchedule);
-            while (plannableSchedule.Any())
+            var plannableSchedules = new List<ProductionOrderWorkSchedule>();
+            var plannedSchedules = new List<ProductionOrderWorkSchedule>();
+            plannableSchedules = GetPlannables(schedule,plannedSchedules);
+            while (plannableSchedules.Any())
             {
-                var msg = "Plannable elements: " + plannableSchedule.First().Name;
-                Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
-                plannableSchedule.Remove(plannableSchedule.First());
+                foreach (var plannableSchedule in plannableSchedules)
+                {
+                    var msg = "Plannable elements: " + plannableSchedule.Name;
+                    Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
+                }
+                ActivitySlackRule(plannableSchedules);
+
+            }
+        }
+
+        private void ActivitySlackRule(List<ProductionOrderWorkSchedule> plannableSchedules)
+        {
+            int shortest;
+            foreach (var plannableSchedule in plannableSchedules)
+            {
+                plannableSchedule.
             }
         }
 
@@ -57,7 +67,7 @@ namespace Master40.BusinessLogic.MRP
         private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester)
         {
             var provider =
-                _context.Demands.OfType<DemandProviderProductionOrder>()
+                _context.Demands.OfType<DemandProviderProductionOrder>().Include(a => a.ProductionOrder).ThenInclude(b => b.ProductionOrderBoms)
                     .Where(a => a.DemandRequesterId == requester.DemandId)
                     .ToList();
             var schedules = new List<ProductionOrderWorkSchedule>();
@@ -81,52 +91,17 @@ namespace Master40.BusinessLogic.MRP
                 //iterate through to check their parents in hierarchy/bom
                 foreach (var plannedSchedule in plannedSchedules)
                 {
-                    ProductionOrderWorkSchedule hierarchyParent = null;
-                    int hierarchyParentNumber = 100000;
-                    
-                    //find next higher element
-                    foreach (var mainSchedule in productionOrderWorkSchedules)
-                    {
-                        if (mainSchedule.ProductionOrderId == plannedSchedule.ProductionOrderId)
-                        { 
-                            if (mainSchedule.HierarchyNumber > plannedSchedule.ProductionOrderId &&
-                                mainSchedule.HierarchyNumber < hierarchyParentNumber)
-                            {
-                                hierarchyParent = mainSchedule;
-                                hierarchyParentNumber = mainSchedule.HierarchyNumber;
-                            }
-                        }
-
-                    }
+                    var hierarchyParent = FindHierarchyParent(productionOrderWorkSchedules,plannedSchedule);
                     // if there is a higher hierarchy
-                    if (hierarchyParent != null)
-                    {
-                        if (!plannedSchedules.Contains(hierarchyParent))
-                            if (!plannableSchedules.Contains(hierarchyParent))
-                                plannableSchedules.Add(hierarchyParent);
-                    }
+                    if (hierarchyParent != null && !plannedSchedules.Contains(hierarchyParent) && plannableSchedules.Contains(hierarchyParent))
+                        plannableSchedules.Add(hierarchyParent);
+                    
                     //search for parent
                     else
                     {
-                        ProductionOrderWorkSchedule parentSchedule = null;
-                        foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId))
-                        {
-                            //check if its the head element which points to itself
-                            if (pob.ProductionOrderParentId != plannedSchedule.ProductionOrder.ProductionOrderId)
-                            {
-                                var parents = pob.ProductionOrderParent.ProductionOrderWorkSchedule;
-                                ProductionOrderWorkSchedule lowestHierarchyMember = parents.First();
-                                //find lowest hierarchy
-                                foreach (var parent in parents)
-                                {
-                                    if (parent.HierarchyNumber < lowestHierarchyMember.HierarchyNumber)
-                                        lowestHierarchyMember = parent;
-                                }
-                                if (!plannedSchedules.Contains(lowestHierarchyMember))
-                                    if (!plannableSchedules.Contains(lowestHierarchyMember))
-                                        plannableSchedules.Add(lowestHierarchyMember);
-                            }
-                        }
+                        var lowestHierarchyMember = FindBomParent(plannedSchedule);
+                        if (lowestHierarchyMember != null && !plannedSchedules.Contains(lowestHierarchyMember) && !plannableSchedules.Contains(lowestHierarchyMember))
+                            plannableSchedules.Add(lowestHierarchyMember);
                     }
                 }
             }
@@ -143,7 +118,7 @@ namespace Master40.BusinessLogic.MRP
                     }
                 }
                 if (hasChildren)
-                    break;
+                    continue;
                 //find out if its the lowest element in hierarchy
                 var isLowestHierarchy = true;
                 foreach (var mainSchedule in productionOrderWorkSchedules)
@@ -157,6 +132,54 @@ namespace Master40.BusinessLogic.MRP
             }
             return plannableSchedules;
         }
+
+        private ProductionOrderWorkSchedule FindHierarchyParent(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, ProductionOrderWorkSchedule plannedSchedule  )
+        {
+
+            ProductionOrderWorkSchedule hierarchyParent = null;
+            int hierarchyParentNumber = 100000;
+
+            //find next higher element
+            foreach (var mainSchedule in productionOrderWorkSchedules)
+            {
+                if (mainSchedule.ProductionOrderId == plannedSchedule.ProductionOrderId)
+                {
+                    if (mainSchedule.HierarchyNumber > plannedSchedule.ProductionOrderId &&
+                        mainSchedule.HierarchyNumber < hierarchyParentNumber)
+                    {
+                        hierarchyParent = mainSchedule;
+                        hierarchyParentNumber = mainSchedule.HierarchyNumber;
+                    }
+                }
+
+            }
+            return hierarchyParent;
+        }
+
+        private ProductionOrderWorkSchedule FindBomParent(ProductionOrderWorkSchedule plannedSchedule)
+        {
+            ProductionOrderWorkSchedule lowestHierarchyMember = null;
+            foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId))
+            {
+                //check if its the head element which points to itself
+                if (pob.ProductionOrderParentId != plannedSchedule.ProductionOrder.ProductionOrderId)
+                {
+                    var parents = pob.ProductionOrderParent.ProductionOrderWorkSchedule;
+                    lowestHierarchyMember = parents.First();
+                    //find lowest hierarchy
+                    foreach (var parent in parents)
+                    {
+                        if (parent.HierarchyNumber < lowestHierarchyMember.HierarchyNumber)
+                            lowestHierarchyMember = parent;
+                    }
+                    break;
+                }
+            }
+            return lowestHierarchyMember;
+        }
+
     }
+
+   
     
 }
