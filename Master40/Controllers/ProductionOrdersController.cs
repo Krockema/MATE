@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.Data;
-using Master40.Models.DB;
+using Master40.Data.Context;
+using Master40.DB.Models;
 
 namespace Master40.Controllers
 {
@@ -36,7 +34,7 @@ namespace Master40.Controllers
 
             var productionOrder = await _context.ProductionOrders
                 .Include(p => p.Article)
-                .SingleOrDefaultAsync(m => m.ProductionOrderId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (productionOrder == null)
             {
                 return NotFound();
@@ -77,7 +75,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(m => m.ProductionOrderId == id);
+            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(m => m.Id == id);
             if (productionOrder == null)
             {
                 return NotFound();
@@ -93,7 +91,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ProductionOrderId,ArticleId,Quantity,Name")] ProductionOrder productionOrder)
         {
-            if (id != productionOrder.ProductionOrderId)
+            if (id != productionOrder.Id)
             {
                 return NotFound();
             }
@@ -107,7 +105,7 @@ namespace Master40.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductionOrderExists(productionOrder.ProductionOrderId))
+                    if (!ProductionOrderExists(productionOrder.Id))
                     {
                         return NotFound();
                     }
@@ -132,7 +130,7 @@ namespace Master40.Controllers
 
             var productionOrder = await _context.ProductionOrders
                 .Include(p => p.Article)
-                .SingleOrDefaultAsync(m => m.ProductionOrderId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (productionOrder == null)
             {
                 return NotFound();
@@ -146,7 +144,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(m => m.ProductionOrderId == id);
+            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(m => m.Id == id);
             _context.ProductionOrders.Remove(productionOrder);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -154,7 +152,7 @@ namespace Master40.Controllers
 
         private bool ProductionOrderExists(int id)
         {
-            return _context.ProductionOrders.Any(e => e.ProductionOrderId == id);
+            return _context.ProductionOrders.Any(e => e.Id == id);
         }
     }
 }

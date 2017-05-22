@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Master40.BusinessLogic.Helper;
-using Master40.Data;
 using Master40.Extensions;
 using Master40.Models;
-using Master40.Models.DB;
 using Microsoft.EntityFrameworkCore;
+using Master40.DB.Models;
+using Master40.DB.Models.Interfaces;
+using Master40.Data.Context;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -43,7 +43,7 @@ namespace Master40.BusinessLogic.MRP
                 var workSchedule = new ProductionOrderWorkSchedule();
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.Duration *= (int) productionOrder.Quantity;
-                workSchedule.ProductionOrderId = productionOrder.ProductionOrderId;
+                workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.End = -1;
                 workSchedule.Start = dueTime;
                 workSchedule.EndBackward = -1;
@@ -145,7 +145,7 @@ namespace Master40.BusinessLogic.MRP
         {
             var dueTime = 9999;
             if (demand.GetType() == typeof(DemandOrderPart))
-                dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.OrderPartId == ((DemandOrderPart)demand).OrderPartId).Order.DueTime;
+                dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId).Order.DueTime;
             return dueTime;
         }
 
@@ -196,7 +196,7 @@ namespace Master40.BusinessLogic.MRP
             //search for parents
             foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == workSchedule.ProductionOrderId))
             {
-                if (pob.ProductionOrderParentId != workSchedule.ProductionOrder.ProductionOrderId)
+                if (pob.ProductionOrderParentId != workSchedule.ProductionOrder.Id)
                     parent = pob;
             }
             if (parent != null)
@@ -223,7 +223,7 @@ namespace Master40.BusinessLogic.MRP
             var children = new List<ProductionOrderBom>();
             foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == workSchedule.ProductionOrderId))
             {
-                if (pob.ProductionOrderChildId != workSchedule.ProductionOrder.ProductionOrderId)
+                if (pob.ProductionOrderChildId != workSchedule.ProductionOrder.Id)
                     children.Add(pob);
             }
             

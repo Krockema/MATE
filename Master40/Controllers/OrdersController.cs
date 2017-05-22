@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.Data;
-using Master40.Models.DB;
+using Master40.Data.Context;
+using Master40.DB.Models;
 
 namespace Master40.Controllers
 {
@@ -36,7 +34,7 @@ namespace Master40.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.BusinessPartner)
-                .SingleOrDefaultAsync(m => m.OrderId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
@@ -77,7 +75,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders.SingleOrDefaultAsync(m => m.OrderId == id);
+            var order = await _context.Orders.SingleOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
@@ -93,7 +91,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("OrderId,Name,DueTime,BusinessPartnerId")] Order order)
         {
-            if (id != order.OrderId)
+            if (id != order.Id)
             {
                 return NotFound();
             }
@@ -107,7 +105,7 @@ namespace Master40.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderExists(order.OrderId))
+                    if (!OrderExists(order.Id))
                     {
                         return NotFound();
                     }
@@ -132,7 +130,7 @@ namespace Master40.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.BusinessPartner)
-                .SingleOrDefaultAsync(m => m.OrderId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
@@ -146,7 +144,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.Orders.SingleOrDefaultAsync(m => m.OrderId == id);
+            var order = await _context.Orders.SingleOrDefaultAsync(m => m.Id == id);
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -154,7 +152,7 @@ namespace Master40.Controllers
 
         private bool OrderExists(int id)
         {
-            return _context.Orders.Any(e => e.OrderId == id);
+            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

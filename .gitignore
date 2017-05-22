@@ -311,3 +311,6 @@ Master40/obj/Master40.csproj.nuget.g.props
 *.cache
 /Master40/BusinessLogic/MRP/ProcessingMrp.cs
 /Master40/BusinessLogic/MRP/ProcessingMrp.cs
+Master40.DB/Data/Context/MasterDBContext.cs
+Master40.DB/Data/Context/MasterDBContext.cs
+Master40.DB/Data/Context/MasterDBHelper.cs

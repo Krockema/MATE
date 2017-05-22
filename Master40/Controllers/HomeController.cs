@@ -6,53 +6,48 @@ using Master40.Data;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Master40.Data.Context;
 
 namespace Master40.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly Data.MasterDBContext _context;
+        private readonly MasterDBContext _context;
         public HomeController(MasterDBContext context)
         {
             _context = context;
         }
         public IActionResult Index()
         {
-            var model = new List<MenuItem>();
-           
-                model = _context.MenuItems
-                .Where(m => m.MenuId == 1).ToList().Where(m => m.Parent == null)
-                //.Include(m => m.Children).Where(m => m.MenuId == 1).Where(m => m.Parent != null)
-                //.Where(m => m.ParentMenuItemId == m.MenuId)
-                .ToList();
-
-            return View(model);
+            return View();
         }
 
 
-        public async Task<IActionResult> ReloadDb()
+        [HttpGet("[Controller]/ReloadDb/{size}")]
+        public async Task<IActionResult> ReloadDb(string size)
         {
             await Task.Run(() =>
                 {
-                    _context.Database.EnsureDeleted();
-                    MasterDBInitializer.DbInitialize(_context);
+                    switch (size)
+                    {
+                        case "small":
+                            _context.Database.EnsureDeleted();
+                            MasterDBInitializerSmall.DbInitialize(_context);
+                            break;
+                        case "Medium":
+                            _context.Database.EnsureDeleted();
+                            MasterDBInitializerMedium.DbInitialize(_context);
+                            break;
+                        default:
+                            _context.Database.EnsureDeleted();
+                            MasterDBInitializerLarge.DbInitialize(_context);
+                            break;
+                    }
+                    
                 }
             );
 
             return View("Index");
-        }
-
-        public IActionResult Menu()
-        {
-            var model = new List<MenuItem>();
-
-            model = _context.MenuItems
-            .Where(m => m.MenuId == 1).ToList().Where(m => m.Parent == null)
-            //.Include(m => m.Children).Where(m => m.MenuId == 1).Where(m => m.Parent != null)
-            //.Where(m => m.ParentMenuItemId == m.MenuId)
-            .ToList();
-
-            return PartialView(model);
         }
 
         public IActionResult About()

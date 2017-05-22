@@ -1,8 +1,7 @@
-﻿using Master40.Models;
-using Master40.Models.DB;
+﻿using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Master40.Data
+namespace Master40.Data.Context
 {
     public class MasterDBContext : DbContext
     {
@@ -30,13 +29,7 @@ namespace Master40.Data
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
-
-
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBom { get; set; }
-
-        public DbSet<Menu> Menus { get; set; }
-
-        public DbSet<MenuItem> MenuItems { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -72,7 +65,7 @@ namespace Master40.Data
 
 
             modelBuilder.Entity<ArticleToBusinessPartner>()
-                .HasKey(x => new { x.ArticleId, x.BusinessPartnerId });
+                .HasAlternateKey(x => new { x.ArticleId, x.BusinessPartnerId });
 
             modelBuilder.Entity<DemandToProvider>()
                 .HasOne(d => d.DemandRequester)

@@ -1,7 +1,33 @@
 ﻿@model string
 
+<form method="post" asp-action="Index" onchange="submitform()">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="gantt"></div>
+        </div>
+    </div>
+    <div class="form-horizontal">
+        <h4>Filter Options</h4>
+        <hr />
+        <div class="col-md-10">
+            <div class="form-group">
+                <label class="control-label col-md-2">Order</label>
+                <div class="col-md-10">
+                    <select class="form-control" asp-items="ViewBag.OrderId" name="Order"></select>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="gantt"></div>
+    <!--
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Apply" class="btn btn-default" />
+        </div>
+    </div>
+    -->
+</form>
+
 
 <script>
 
@@ -11,7 +37,7 @@
 
             var data = @Html.Raw(Model)
 
-                $(".gantt").gantt({ source: data, navigate: 'scroll', scale: 'days', maxScale: 'days', minScale: 'days', itemsPerPage: '25' });
+                $(".gantt").gantt({ source: data, navigate: 'scroll', scale: 'hours', maxScale: 'months', minScale: 'hours', itemsPerPage: '25' });
 
         })
     );

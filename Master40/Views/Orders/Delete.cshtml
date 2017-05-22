@@ -1,4 +1,4 @@
-@model Master40.Models.DB.Order
+@model Master40.DB.Models.Order
 
 @{
     ViewData["Title"] = "Delete";
@@ -29,7 +29,7 @@
             @Html.DisplayNameFor(model => model.BusinessPartner)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.BusinessPartner.BusinessPartnerId)
+            @Html.DisplayFor(model => model.BusinessPartner.Id)
         </dd>
     </dl>
     

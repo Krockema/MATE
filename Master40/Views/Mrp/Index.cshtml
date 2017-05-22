@@ -5,12 +5,16 @@
     Layout = "_Layout";
     int LineNumber = 0;
 }
+<script>
+    function submitform() {
+        $('form').submit();
+    }
+</script>
 
-<div class="row">
-    <div class="col-md-12">
-        @await Component.InvokeAsync("ProductionTimeline")
-    </div>
-</div>
+
+@await Component.InvokeAsync("ProductionTimeline")
+
+
 
 <div class="row">
     <div class="col-md-8">
@@ -18,7 +22,7 @@
         <p>
             Container to Process the MRP Run and Show the Results.
         </p>
-        <p><a  class="btn btn-default" href="~/Mrp/MrpProcessing">Process MRP</a></p>
+        <p><a class="btn btn-default" href="~/Mrp/MrpProcessing">Process MRP</a></p>
     </div>
     <div class="col-md-4">
         <h2>Result</h2>
@@ -28,7 +32,6 @@
                 @{ LineNumber = LineNumber + 1; }
                 <strong> @LineNumber.ToString() :</strong> @Html.DisplayFor(modelItem => item.Message)
             </div>
-        }
+                    }
     </div>
 </div>
-

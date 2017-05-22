@@ -159,8 +159,8 @@
 				$dataPanel = $rightPanel.find('.dataPanel');
 				
 				element.gantt = $('<div class="fn-gantt" />').append(content);
-
-				$(element).html(element.gantt);
+                
+                $(element).html(element.gantt);
 
 				element.scrollNavigation.panelMargin = parseInt($dataPanel.css('margin-left').replace('px',''));
 				element.scrollNavigation.panelMaxPos = ($dataPanel.width() - $rightPanel.width());

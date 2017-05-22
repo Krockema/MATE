@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.Data;
-using Master40.Models.DB;
+using Master40.Data.Context;
+using Master40.DB.Models;
 
 namespace Master40.Controllers
 {
@@ -37,7 +35,7 @@ namespace Master40.Controllers
             var article = await _context.Articles
                 .Include(a => a.ArticleType)
                 .Include(a => a.Unit)
-                .SingleOrDefaultAsync(m => m.ArticleId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (article == null)
             {
                 return NotFound();
@@ -80,7 +78,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var article = await _context.Articles.SingleOrDefaultAsync(m => m.ArticleId == id);
+            var article = await _context.Articles.SingleOrDefaultAsync(m => m.Id == id);
             if (article == null)
             {
                 return NotFound();
@@ -97,7 +95,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] Article article)
         {
-            if (id != article.ArticleId)
+            if (id != article.Id)
             {
                 return NotFound();
             }
@@ -111,7 +109,7 @@ namespace Master40.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArticleExists(article.ArticleId))
+                    if (!ArticleExists(article.Id))
                     {
                         return NotFound();
                     }
@@ -138,7 +136,7 @@ namespace Master40.Controllers
             var article = await _context.Articles
                 .Include(a => a.ArticleType)
                 .Include(a => a.Unit)
-                .SingleOrDefaultAsync(m => m.ArticleId == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (article == null)
             {
                 return NotFound();
@@ -152,7 +150,7 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var article = await _context.Articles.SingleOrDefaultAsync(m => m.ArticleId == id);
+            var article = await _context.Articles.SingleOrDefaultAsync(m => m.Id == id);
             _context.Articles.Remove(article);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -160,7 +158,7 @@ namespace Master40.Controllers
 
         private bool ArticleExists(int id)
         {
-            return _context.Articles.Any(e => e.ArticleId == id);
+            return _context.Articles.Any(e => e.Id == id);
         }
     }
 }
