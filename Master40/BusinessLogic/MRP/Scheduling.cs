@@ -151,7 +151,7 @@ namespace Master40.BusinessLogic.MRP
 
         internal int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            var minForward = productionOrderWorkSchedules.First().StartForward;
+            var minForward = -100000;
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
                 if (productionOrderWorkSchedule.StartForward < minForward)
@@ -162,7 +162,7 @@ namespace Master40.BusinessLogic.MRP
 
         internal int GetMinBackward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            var minBackward = productionOrderWorkSchedules.First().StartBackward;
+            var minBackward = -100000;
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
                 if (productionOrderWorkSchedule.StartBackward < minBackward)
