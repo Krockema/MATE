@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Master40.Data;
 using Master40.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.Data.Context;
@@ -8,6 +7,10 @@ using Master40.DB.Models;
 
 namespace Master40.BusinessLogic.MRP
 {
+    //Todo: Kapazitätsplanung anzeigen
+    //Todo: technologische Reihenfolge einbeziehen
+    //Todo: getInitialPlannables
+   
     interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
@@ -24,10 +27,11 @@ namespace Master40.BusinessLogic.MRP
         }
         public void GifflerThompsonScheduling()
         {
-            var schedule = GetSchedule();
+            var productionOrderWorkSchedules = GetSchedules();
+            productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
             var plannedSchedules = new List<ProductionOrderWorkSchedule>();
-            plannableSchedules = GetPlannables(schedule,plannedSchedules);
+            plannableSchedules = GetPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
             while (plannableSchedules.Any())
             {
                 foreach (var plannableSchedule in plannableSchedules)
@@ -35,42 +39,116 @@ namespace Master40.BusinessLogic.MRP
                     var msg = "Plannable elements: " + plannableSchedule.Name;
                     Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
                 }
-                var shortest = ActivitySlackRule(plannableSchedules, schedule);
-
-
+                //find next element by using the activity slack rule
+                plannableSchedules = CalculateActivitySlack(plannableSchedules);
+                var shortest = GetShortest(plannableSchedules);
+                
+                //build conflict set
+                List<ProductionOrderWorkSchedule> conflictSet = GetConflictSet(shortest, plannableSchedules, productionOrderWorkSchedules);
+                foreach (var conflict in conflictSet)
+                {
+                    conflict.Start += shortest.Duration;
+                }
+                shortest.End = shortest.Start + shortest.Duration;
+                plannedSchedules.Add(shortest);
                 plannableSchedules.Remove(shortest);
+                var parent = GetParent(shortest, productionOrderWorkSchedules);
+                if (parent != null && !plannableSchedules.Contains(parent)) plannableSchedules.Add(parent);
+                _context.ProductionOrderWorkSchedule.Update(shortest);
+                //plannableSchedules = GetPlannables(productionOrderWorkSchedules, plannedSchedules, plannableSchedules);
             }
+            _context.SaveChanges();
         }
 
-        private ProductionOrderWorkSchedule ActivitySlackRule(List<ProductionOrderWorkSchedule> plannableSchedules, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        private bool IsTechnologicallyAllowed(ProductionOrderWorkSchedule schedule, List<ProductionOrderWorkSchedule> plannedSchedules)
         {
-            //Todo: remove activityslack in schedule and only call getremaintimefromparents if value is zeron
+            var isAllowed = true;
+            //check for every child if its planned
+            foreach (var bom in schedule.ProductionOrder.ProductionOrderBoms)
+            {
+                if (bom.ProductionOrderChildId != schedule.ProductionOrderId)
+                {
+                    foreach (var childSchedule in bom.ProductionOrderChild.ProductionOrderWorkSchedule)
+                    {
+                        if (!plannedSchedules.Contains(childSchedule)) isAllowed = false;
+                    }
+                }
+            }
+            
+
+            return isAllowed;
+        }
+
+        private List<ProductionOrderWorkSchedule> GetConflictSet(ProductionOrderWorkSchedule shortest,
+            List<ProductionOrderWorkSchedule> plannableSchedules, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules )
+        {
+            var conflictSet = new List<ProductionOrderWorkSchedule>();
+
+            foreach (var plannableSchedule in plannableSchedules)
+            {
+                if (plannableSchedule.MachineGroupId == shortest.MachineGroupId && !plannableSchedule.Equals(shortest))
+                    conflictSet.Add(plannableSchedule);
+            }
+            GetParent(shortest,productionOrderWorkSchedules);
+            return conflictSet;
+        }
+
+        private ProductionOrderWorkSchedule GetShortest(List<ProductionOrderWorkSchedule> plannableSchedules)
+        {
             ProductionOrderWorkSchedule shortest = null;
             foreach (var plannableSchedule in plannableSchedules)
             {
-                //get duetime
-                var orderPartId = _context.Demands.OfType<DemandOrderPart>().Single(a => a.DemandRequesterId == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId).OrderPartId;
-                var dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == orderPartId).Order.DueTime;
-
-                //get remaining time
-                plannableSchedule.ActivitySlack = GetRemainTimeFromParents(plannableSchedule, productionOrderWorkSchedules);
-
                 if (shortest == null || shortest.ActivitySlack > plannableSchedule.ActivitySlack)
                     shortest = plannableSchedule;
             }
             return shortest;
         }
 
-        private int GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        private ProductionOrderWorkSchedule GetParent(ProductionOrderWorkSchedule schedule,List<ProductionOrderWorkSchedule> productionOrderWorkSchedules )
         {
             var parent = FindHierarchyParent(productionOrderWorkSchedules, schedule);
             if (parent == null) parent = FindBomParent(schedule);
+            return parent;
+        }
+
+        private List<ProductionOrderWorkSchedule> CalculateWorkTimeWithParents(List<ProductionOrderWorkSchedule> schedules)
+        {
+            foreach (var schedule in schedules)
+            {
+                schedule.WorkTimeWithParents = GetRemainTimeFromParents(schedule, schedules);
+            }
+            return schedules;
+        }
+
+        private List<ProductionOrderWorkSchedule> CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
+        {
+            foreach (var plannableSchedule in plannableSchedules)
+            {
+                //get duetime
+                var orderPartId = _context.Demands.OfType<DemandOrderPart>()
+                                        .Single(a => a.DemandRequesterId == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId)
+                                        .OrderPartId;
+                var dueTime = _context.OrderParts
+                                .Include(a => a.Order)
+                                .Single(a => a.Id == orderPartId)
+                                .Order
+                                .DueTime;
+
+                //get remaining time
+                plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - plannableSchedule.Start;
+            }
+            return plannableSchedules;
+        }
+
+        private int GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            var parent = GetParent(schedule,productionOrderWorkSchedules);
             if (parent == null) return schedule.Duration;
             
             return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
         }
 
-        private List<ProductionOrderWorkSchedule> GetSchedule()
+        private List<ProductionOrderWorkSchedule> GetSchedules()
         {
             var demandRequester = _context.Demands.Where(b => b.State == State.SchedulesExist).ToList();
            
@@ -104,27 +182,17 @@ namespace Master40.BusinessLogic.MRP
         }
 
         private List<ProductionOrderWorkSchedule> GetPlannables(
-            List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, List<ProductionOrderWorkSchedule> plannedSchedules )
+            List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, List<ProductionOrderWorkSchedule> plannedSchedules, List<ProductionOrderWorkSchedule> plannableSchedules)
         {
-            var plannableSchedules = new List<ProductionOrderWorkSchedule>();
             //are there any planned schedules
             if (plannedSchedules.Any())
             {
                 //iterate through to check their parents in hierarchy/bom
                 foreach (var plannedSchedule in plannedSchedules)
                 {
-                    var hierarchyParent = FindHierarchyParent(productionOrderWorkSchedules,plannedSchedule);
-                    // if there is a higher hierarchy
-                    if (hierarchyParent != null && !plannedSchedules.Contains(hierarchyParent) && plannableSchedules.Contains(hierarchyParent))
-                        plannableSchedules.Add(hierarchyParent);
-                    
-                    //search for parent
-                    else
-                    {
-                        var lowestHierarchyMember = FindBomParent(plannedSchedule);
-                        if (lowestHierarchyMember != null && !plannedSchedules.Contains(lowestHierarchyMember) && !plannableSchedules.Contains(lowestHierarchyMember))
-                            plannableSchedules.Add(lowestHierarchyMember);
-                    }
+                    var parent = GetParent(plannedSchedule, productionOrderWorkSchedules);
+                    if (parent != null && !plannedSchedules.Contains(parent) && !plannableSchedules.Contains(parent))
+                        plannableSchedules.Add(parent);
                 }
             }
 

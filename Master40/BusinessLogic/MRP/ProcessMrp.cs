@@ -40,7 +40,7 @@ namespace Master40.BusinessLogic.MRP
                {
                   orderPart.IsPlanned = true; 
                }
-               
+               _context.SaveChanges();
            });
         }
 
@@ -53,7 +53,6 @@ namespace Master40.BusinessLogic.MRP
             var schedule = new Scheduling(_context);
             schedule.BackwardScheduling(demand);
             schedule.ForwardScheduling(demand);
-            schedule.SetActivitySlack(demand);
             demand.State = State.SchedulesExist;
             _context.Demands.Update((DemandToProvider)demand);
             _context.SaveChanges();

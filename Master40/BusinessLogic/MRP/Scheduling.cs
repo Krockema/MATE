@@ -14,8 +14,7 @@ namespace Master40.BusinessLogic.MRP
     {
         void CreateSchedule(IDemandToProvider demand, ProductionOrder productionOrder);
         void BackwardScheduling(IDemandToProvider demand);
-        void ForwardScheduling(IDemandToProvider demand);
-        void SetActivitySlack(IDemandToProvider demand);  
+        void ForwardScheduling(IDemandToProvider demand); 
     }
 
     class Scheduling : IScheduling
@@ -45,7 +44,7 @@ namespace Master40.BusinessLogic.MRP
                 workSchedule.Duration *= (int) productionOrder.Quantity;
                 workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.End = -1;
-                workSchedule.Start = dueTime;
+                workSchedule.Start = 0;
                 workSchedule.EndBackward = -1;
                 workSchedule.StartBackward = dueTime;
                 workSchedule.EndForward = -1;
@@ -122,24 +121,7 @@ namespace Master40.BusinessLogic.MRP
             }
             _context.SaveChanges();
         }
-
-        //find activity slack between backward- and forwardSchedule
-        public void SetActivitySlack(IDemandToProvider demand)
-        {
-            var productionOrderWorkSchedules = GetProductionOrderWorkSchedules(demand);
-            //Get minimum of each schedule to make the numbers relative and comparable
-            var minForward = GetMinForward(productionOrderWorkSchedules);
-            var minBackward = GetMinBackward(productionOrderWorkSchedules);
-            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
-            {
-                if ((productionOrderWorkSchedule.StartBackward - minBackward) > (productionOrderWorkSchedule.StartForward - minForward))
-                    productionOrderWorkSchedule.ActivitySlack = (productionOrderWorkSchedule.StartBackward - minBackward) - (productionOrderWorkSchedule.StartForward - minForward);
-                else
-                    productionOrderWorkSchedule.ActivitySlack = (productionOrderWorkSchedule.StartForward - minForward) - (productionOrderWorkSchedule.StartBackward - minBackward);
-                _context.ProductionOrderWorkSchedule.Update(productionOrderWorkSchedule);
-            }
-            _context.SaveChanges();
-        }
+        
 
         private int GetDueTime(IDemandToProvider demand)
         {

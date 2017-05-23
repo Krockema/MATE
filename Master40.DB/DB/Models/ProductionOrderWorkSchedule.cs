@@ -21,5 +21,6 @@ namespace Master40.DB.Models
         public int StartForward { get; set; }
         public int EndForward { get; set; }
         public int ActivitySlack { get; set; }
+        public int WorkTimeWithParents { get; set; }
     }
 }
