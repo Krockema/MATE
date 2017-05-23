@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Master40.Migrations
+namespace Master40.DBMigrations
 {
     public partial class ArticleBomParts : Migration
     {

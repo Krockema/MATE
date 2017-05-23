@@ -1,4 +1,4 @@
-﻿using Master40.Data.Context;
+﻿using Master40.DB.Data.Context;
 using Master40.DB;
 using Master40.DB.Data.Repository;
 using Microsoft.EntityFrameworkCore;

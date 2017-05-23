@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Master40.Data;
-using Master40.Models;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Master40.Data.Context;
+using Master40.DB.Data.Context;
 
 namespace Master40.Controllers
 {

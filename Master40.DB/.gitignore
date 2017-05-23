@@ -60,21 +60,19 @@ Temporary Items
 *.userprefs
 
 # Build results
-Master40/[Dd]ebug/
-Master40/[Dd]ebugPublic/
-Master40/[Rr]elease/
-Master40/[Rr]eleases/
-Master40/x64/
-Master40/x86/
-Master40/bld/
-Master40/[Bb]in/
-Master40/[Oo]bj/
-Master40/[Ll]og/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
 
 # Visual Studio 2015 cache/options directory
-Master40/.vscode/
-Master40/.vs/
-.vscode/
+
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
@@ -82,8 +80,8 @@ Master40/.vs/
 
 
 # MSTest test Results
-Master40/[Tt]est[Rr]esult*/
-Master40/[Bb]uild[Ll]og.*
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
 
 # NUNIT
 *.VisualState.xml
@@ -95,11 +93,10 @@ TestResult.xml
 dlldata.c
 
 # .NET Core
-Master40/project.lock.json
-Master40/Master40.csproj.user
-Master40/project.fragment.lock.json
-Master40/artifacts/
-Master40/**/Properties/launchSettings.json
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
 *_i.c
 *_p.c
 *_i.h
@@ -305,7 +302,3 @@ paket-files/
 # Telerik's JustMock configuration file
 *.jmconfig
 
-*.cache
-
-Master40/obj/*
-Master40.DB/obj/*

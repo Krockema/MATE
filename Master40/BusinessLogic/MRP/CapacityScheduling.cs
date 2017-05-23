@@ -2,7 +2,7 @@
 using System.Linq;
 using Master40.Models;
 using Microsoft.EntityFrameworkCore;
-using Master40.Data.Context;
+using Master40.DB.Data.Context;
 using Master40.DB.Models;
 
 namespace Master40.BusinessLogic.MRP
