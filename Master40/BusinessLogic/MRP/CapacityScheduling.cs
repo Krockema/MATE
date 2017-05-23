@@ -7,10 +7,6 @@ using Master40.DB.Models;
 
 namespace Master40.BusinessLogic.MRP
 {
-    //Todo: Kapazitätsplanung anzeigen
-    //Todo: technologische Reihenfolge einbeziehen
-    //Todo: getInitialPlannables
-   
     interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
@@ -31,7 +27,7 @@ namespace Master40.BusinessLogic.MRP
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
             var plannedSchedules = new List<ProductionOrderWorkSchedule>();
-            plannableSchedules = GetPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
+            plannableSchedules = GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
             while (plannableSchedules.Any())
             {
                 foreach (var plannableSchedule in plannableSchedules)
@@ -47,15 +43,30 @@ namespace Master40.BusinessLogic.MRP
                 List<ProductionOrderWorkSchedule> conflictSet = GetConflictSet(shortest, plannableSchedules, productionOrderWorkSchedules);
                 foreach (var conflict in conflictSet)
                 {
-                    conflict.Start += shortest.Duration;
+                    var index = productionOrderWorkSchedules.IndexOf(conflict);
+                    if (shortest.Start + shortest.Duration > productionOrderWorkSchedules[index].Start)
+                    {
+                        productionOrderWorkSchedules[index].Start += shortest.Start + shortest.Duration;
+                        if (plannableSchedules.Contains(conflict))
+                            plannableSchedules[plannableSchedules.IndexOf(conflict)].Start += shortest.Duration;
+                    }
                 }
                 shortest.End = shortest.Start + shortest.Duration;
                 plannedSchedules.Add(shortest);
                 plannableSchedules.Remove(shortest);
                 var parent = GetParent(shortest, productionOrderWorkSchedules);
-                if (parent != null && !plannableSchedules.Contains(parent)) plannableSchedules.Add(parent);
-                _context.ProductionOrderWorkSchedule.Update(shortest);
-                //plannableSchedules = GetPlannables(productionOrderWorkSchedules, plannedSchedules, plannableSchedules);
+                if (parent != null && !plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent,plannedSchedules)) plannableSchedules.Add(parent);
+               // _context.ProductionOrderWorkSchedule.Update(shortest);
+            }
+            foreach (var plannedSchedule in plannedSchedules)
+            {
+                var pows = _context.ProductionOrderWorkSchedule.Find(plannedSchedule.Id);
+                
+                pows.Start = plannedSchedule.Start;
+                pows.End = plannedSchedule.End;
+                pows.ActivitySlack = plannedSchedule.ActivitySlack;
+                _context.ProductionOrderWorkSchedule.Update(pows);
+                _context.SaveChanges();
             }
             _context.SaveChanges();
         }
@@ -89,7 +100,9 @@ namespace Master40.BusinessLogic.MRP
                 if (plannableSchedule.MachineGroupId == shortest.MachineGroupId && !plannableSchedule.Equals(shortest))
                     conflictSet.Add(plannableSchedule);
             }
-            GetParent(shortest,productionOrderWorkSchedules);
+            var parent = GetParent(shortest, productionOrderWorkSchedules);
+            if (parent != null)
+                conflictSet.Add(parent);
             return conflictSet;
         }
 
@@ -181,21 +194,9 @@ namespace Master40.BusinessLogic.MRP
             return schedules;
         }
 
-        private List<ProductionOrderWorkSchedule> GetPlannables(
+        private List<ProductionOrderWorkSchedule> GetInitialPlannables(
             List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, List<ProductionOrderWorkSchedule> plannedSchedules, List<ProductionOrderWorkSchedule> plannableSchedules)
         {
-            //are there any planned schedules
-            if (plannedSchedules.Any())
-            {
-                //iterate through to check their parents in hierarchy/bom
-                foreach (var plannedSchedule in plannedSchedules)
-                {
-                    var parent = GetParent(plannedSchedule, productionOrderWorkSchedules);
-                    if (parent != null && !plannedSchedules.Contains(parent) && !plannableSchedules.Contains(parent))
-                        plannableSchedules.Add(parent);
-                }
-            }
-
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
                 var hasChildren = false;
