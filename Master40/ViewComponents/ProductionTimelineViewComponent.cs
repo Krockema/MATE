@@ -59,6 +59,14 @@ namespace Master40.ViewComponents
                             join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
                             select p).ToList();
                     schedule.AddRange(await GetDataForProductionOrderTimeline(pows, n++, orderId, planningState));
+                } else
+                {
+                    var orderParts = _context.Orders.ToList();
+
+                    foreach (var item in orderParts)
+                    {
+                        schedule.AddRange(await GetDataForProductionOrderTimeline(pows, n++, item.Id, planningState));
+                    }
                 }
             }
             else
