@@ -35,12 +35,9 @@ namespace Master40.DB.Data.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()
-                .ToTable("Article")
                 .HasOne(a => a.Stock)
                 .WithOne(s => s.Article)
                 .HasForeignKey<Stock>(b => b.ArticleForeignKey);
-
-            modelBuilder.Entity<Stock>().ToTable("Stock");
 
             modelBuilder.Entity<ArticleBom>()
                 .HasOne(pt => pt.ArticleParent)
@@ -102,25 +99,6 @@ namespace Master40.DB.Data.Context
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
-
-            /*
-            modelBuilder.Entity<ArticleBomItem>()
-    .HasOne(pt => pt.Article)
-    .WithMany(p => p.ArticleBomItems)
-    .HasForeignKey(pt => pt.ArticleId);
-            modelBuilder.Entity<ArticleBomItem>()
-                .HasOne(pt => pt.ArticleBom)
-                .WithMany(t => t.ArticleBomItems)
-                .HasForeignKey(pt => pt.ArticleBomId);
-            modelBuilder.Entity<ProductionOrderBomItem>()
-                .HasOne(pt => pt.ProductionOrder)
-                .WithMany(p => p.ProductionOrderBomItems)
-                .HasForeignKey(pt => pt.ProductionOrderId);
-            modelBuilder.Entity<ProductionOrderBomItem>()
-                .HasOne(pt => pt.ProductionOderBom)
-                .WithMany(t => t.ProductionOrderBomItems)
-                .HasForeignKey(pt => pt.ProductionOderBomId);
-                */
         }
     }
 }

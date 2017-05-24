@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Master40.DB.Data.Repository
 {
@@ -20,10 +21,15 @@ namespace Master40.DB.Data.Repository
             this.context = context;
             entities = context.Set<T>();
         }
-        public IEnumerable<T> GetAll()
+        public IQueryable<T> GetAll()
         {
-            return entities.AsEnumerable();
+            return entities;
         }
+        public IQueryable<T> Find(Expression<Func<T, Boolean>> predicate)
+        {
+            return entities.Where(predicate);
+        }
+
 
         public T Get(long id)
         {
