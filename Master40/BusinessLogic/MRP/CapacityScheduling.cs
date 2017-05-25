@@ -7,12 +7,12 @@ using Master40.DB.Models;
 
 namespace Master40.BusinessLogic.MRP
 {
-    interface ICapacityScheduling
+    internal interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
     }
 
-    class CapacityScheduling : ICapacityScheduling
+    internal class CapacityScheduling : ICapacityScheduling
     {
         private readonly MasterDBContext _context;
         public List<LogMessage> Logger { get; set; }
@@ -25,50 +25,33 @@ namespace Master40.BusinessLogic.MRP
         {
             var productionOrderWorkSchedules = GetSchedules();
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
+
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
             var plannedSchedules = new List<ProductionOrderWorkSchedule>();
-            plannableSchedules = GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
+            GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
+
             while (plannableSchedules.Any())
             {
-                foreach (var plannableSchedule in plannableSchedules)
-                {
-                    var msg = "Plannable elements: " + plannableSchedule.Name;
-                    Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
-                }
                 //find next element by using the activity slack rule
-                plannableSchedules = CalculateActivitySlack(plannableSchedules);
+                CalculateActivitySlack(plannableSchedules);
                 var shortest = GetShortest(plannableSchedules);
                 
                 //build conflict set
-                List<ProductionOrderWorkSchedule> conflictSet = GetConflictSet(shortest, plannableSchedules, productionOrderWorkSchedules);
-                foreach (var conflict in conflictSet)
-                {
-                    var index = productionOrderWorkSchedules.IndexOf(conflict);
-                    if (shortest.Start + shortest.Duration > productionOrderWorkSchedules[index].Start)
-                    {
-                        productionOrderWorkSchedules[index].Start += shortest.Start + shortest.Duration;
-                        if (plannableSchedules.Contains(conflict))
-                            plannableSchedules[plannableSchedules.IndexOf(conflict)].Start += shortest.Duration;
-                    }
-                }
+                var conflictSet = GetConflictSet(shortest, plannableSchedules, productionOrderWorkSchedules);
+
+                //set starttimes of conflicts after the shortest process
+                SolveConflicts(shortest, conflictSet, productionOrderWorkSchedules);
                 shortest.End = shortest.Start + shortest.Duration;
+
                 plannedSchedules.Add(shortest);
                 plannableSchedules.Remove(shortest);
+
+                //search for parent and if available and allowed add it to the schedule
                 var parent = GetParent(shortest, productionOrderWorkSchedules);
                 if (parent != null && !plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent,plannedSchedules)) plannableSchedules.Add(parent);
-               // _context.ProductionOrderWorkSchedule.Update(shortest);
-            }
-            foreach (var plannedSchedule in plannedSchedules)
-            {
-                var pows = _context.ProductionOrderWorkSchedule.Find(plannedSchedule.Id);
-                
-                pows.Start = plannedSchedule.Start;
-                pows.End = plannedSchedule.End;
-                pows.ActivitySlack = plannedSchedule.ActivitySlack;
-                _context.ProductionOrderWorkSchedule.Update(pows);
+                _context.ProductionOrderWorkSchedule.Update(shortest);
                 _context.SaveChanges();
             }
-            _context.SaveChanges();
         }
 
         private bool IsTechnologicallyAllowed(ProductionOrderWorkSchedule schedule, List<ProductionOrderWorkSchedule> plannedSchedules)
@@ -85,8 +68,6 @@ namespace Master40.BusinessLogic.MRP
                     }
                 }
             }
-            
-
             return isAllowed;
         }
 
@@ -106,6 +87,20 @@ namespace Master40.BusinessLogic.MRP
             return conflictSet;
         }
 
+        private void SolveConflicts(ProductionOrderWorkSchedule shortest, List<ProductionOrderWorkSchedule> conflictSet,
+            List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+
+            foreach (var conflict in conflictSet)
+            {
+                var index = productionOrderWorkSchedules.IndexOf(conflict);
+                if (shortest.Start + shortest.Duration > productionOrderWorkSchedules[index].Start)
+                {
+                    productionOrderWorkSchedules[index].Start = shortest.Start + shortest.Duration + 1;
+                }
+            }
+        }
+
         private ProductionOrderWorkSchedule GetShortest(List<ProductionOrderWorkSchedule> plannableSchedules)
         {
             ProductionOrderWorkSchedule shortest = null;
@@ -119,8 +114,7 @@ namespace Master40.BusinessLogic.MRP
 
         private ProductionOrderWorkSchedule GetParent(ProductionOrderWorkSchedule schedule,List<ProductionOrderWorkSchedule> productionOrderWorkSchedules )
         {
-            var parent = FindHierarchyParent(productionOrderWorkSchedules, schedule);
-            if (parent == null) parent = FindBomParent(schedule);
+            var parent = FindHierarchyParent(productionOrderWorkSchedules, schedule) ?? FindBomParent(schedule);
             return parent;
         }
 
@@ -133,7 +127,7 @@ namespace Master40.BusinessLogic.MRP
             return schedules;
         }
 
-        private List<ProductionOrderWorkSchedule> CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
+        private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
         {
             foreach (var plannableSchedule in plannableSchedules)
             {
@@ -149,8 +143,10 @@ namespace Master40.BusinessLogic.MRP
 
                 //get remaining time
                 plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - plannableSchedule.Start;
+                _context.ProductionOrderWorkSchedule.Update(plannableSchedule);
+                
             }
-            return plannableSchedules;
+            _context.SaveChanges();
         }
 
         private int GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
@@ -194,7 +190,7 @@ namespace Master40.BusinessLogic.MRP
             return schedules;
         }
 
-        private List<ProductionOrderWorkSchedule> GetInitialPlannables(
+        private void GetInitialPlannables(
             List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, List<ProductionOrderWorkSchedule> plannedSchedules, List<ProductionOrderWorkSchedule> plannableSchedules)
         {
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -221,7 +217,6 @@ namespace Master40.BusinessLogic.MRP
                    plannableSchedules.Add(productionOrderWorkSchedule);
 
             }
-            return plannableSchedules;
         }
 
         private ProductionOrderWorkSchedule FindHierarchyParent(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, ProductionOrderWorkSchedule plannedSchedule  )
