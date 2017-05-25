@@ -5,6 +5,11 @@ using System.Linq.Expressions;
 
 namespace Master40.DB.Data.Repository
 {
+    public interface IDbContext
+    {
+        ISet<TEntity> Set<TEntity>() where TEntity : BaseEntity;
+        int SaveChanges();
+    }
     public interface IRepository<T> where T : BaseEntity
     {
         IQueryable<T> GetAll();

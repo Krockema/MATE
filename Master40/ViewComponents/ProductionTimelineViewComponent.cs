@@ -22,9 +22,44 @@ namespace Master40.ViewComponents
             _context = context;
         }
 
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            //.Definitions();
+            var orders = new List<int>();
+            int orderId = -1;
+            int schedulingState = 1;
+            if (Request.Method == "POST")
+            {   // catch scheduling state
+                schedulingState = Convert.ToInt32(Request.Form["SchedulingState"]);
+                orderId = Convert.ToInt32(Request.Form["Order"]);
+                // If Order is not selected.
+                if (orderId == -1)
+                {   // for all Orders
+                    orders = _context.Orders.Select(x => x.Id).ToList();
+                }
+                else
+                {  // for the specified Order
+                   orders.Add(Convert.ToInt32(Request.Form["Order"]));
+                }
+            }
+            else
+            {   // default
+                orders = orders = _context.Orders.Select(x => x.Id).ToList();
+            }
 
+            var schedule = await GetSchedulesForOrderList(orders, schedulingState);
+            // Fill Select Fields
+            var orderSelection = new SelectList(_context.Orders, "Id", "Name", orderId);
+            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
+            ViewData["SchedulingState"] = SchedulingState(schedulingState);
+
+            // return schedule
+            return View("ProductionTimeline", JsonConvert.SerializeObject(schedule));
+        }
+
+        private async Task<List<ProductionTimeline>> GetSchedulesForOrderList(List<int> orders, int schedulingState)
+        {
 
             var pows = _context.ProductionOrderWorkSchedule
                                 .Include(m => m.MachineGroup)
@@ -33,68 +68,31 @@ namespace Master40.ViewComponents
                                 .Include(a => a.ProductionOrder)
                                     .ThenInclude(x => x.DemandProviderProductionOrders)
                                 .OrderBy(a => a.MachineGroup).ToList();
-            //.ToList();
-            var schedule = new List<ProductionTimeline>();
-            int orderId = -1;
-            int planningState = 1;
-            int n = 1;
-            if (Request.Method == "POST")
+
+
+            var color = 0;
+            var orderSchedule = new List<ProductionTimeline>();
+
+            foreach(var id in orders)
             {
-
-                planningState = Convert.ToInt32(Request.Form["State"]);
-                if (Request.Form["Order"] == -1)
-                {
-                    orderId = Convert.ToInt32(Request.Form["Order"]);
-
-                    var demand = _context.Demands.OfType<DemandOrderPart>()
-                                                .Include(x => x.OrderPart)
-                                            .Where(o => o.OrderPart.OrderId == orderId).ToList();
-
-
-                    var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
-                                           join d in demand on c.DemandRequesterId equals d.Id
-                                           select c).ToList();
-
-                    pows = (from p in pows
-                            join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
-                            select p).ToList();
-                    schedule.AddRange(await GetDataForProductionOrderTimeline(pows, n++, orderId, planningState));
-                } else
-                {
-                    var orderParts = _context.Orders.ToList();
-
-                    foreach (var item in orderParts)
-                    {
-                        schedule.AddRange(await GetDataForProductionOrderTimeline(pows, n++, item.Id, planningState));
-                    }
-                }
-            }
-            else
-            {
-                var orderParts = _context.Orders.ToList();
-
-                foreach (var item in orderParts)
-                {
-                    schedule.AddRange(await GetDataForProductionOrderTimeline(pows, n++, item.Id, planningState));
-                }
-            }
-
-            var orderSelection = new SelectList(_context.Orders, "Id", "Name", orderId);
-            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
-
-            return View("ProductionTimeline", JsonConvert.SerializeObject(schedule));
+                orderSchedule.AddRange(await GetDataForProductionOrderTimeline(pows, color++, id, schedulingState));
+            };
+            return orderSchedule;
         }
 
         private async Task<List<ProductionTimeline>> GetDataForProductionOrderTimeline(List<ProductionOrderWorkSchedule> pows, int n, int orderId, int planningState)
         {
+            // get the corrosponding Order Parts to Order
             var demand = _context.Demands.OfType<DemandOrderPart>()
                     .Include(x => x.OrderPart)
                     .Where(o => o.OrderPart.OrderId == orderId).ToList();
 
+            // get Damand Providers for this Order
             var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
                                    join d in demand on c.DemandRequesterId equals d.Id
                                    select c).ToList();
 
+            // get Production OrderWorkSchedule for 
             var powDetails = (from p in pows
                               join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
                               select p).ToList();
@@ -116,7 +114,7 @@ namespace Master40.ViewComponents
                     dependencies = c.FirstOrDefault().Id.ToString();
                 };
 
-                // chose planning method.
+                // chose planning method. and select start and end Dependend
                 long start, end;
                 switch (planningState)
                 {
@@ -133,9 +131,6 @@ namespace Master40.ViewComponents
                         end = item.End;
                         break;
                 }
-
-
-
 
                 schedule.Add(new ProductionTimeline
                 {
@@ -166,85 +161,15 @@ namespace Master40.ViewComponents
             ganttGray
         }
 
-        public async Task<IViewComponentResult> InvokeAsyncOld(int productionOrderId)
+        private SelectList SchedulingState(int selectedItem)
         {
-            var pows = _context.ProductionOrderWorkSchedule
-                                .Include(m => m.MachineGroup)
-                                .Include(a => a.ProductionOrder)
-                                .ThenInclude(a => a.Article).OrderBy(a => a.MachineGroup).ToList();
-            if (pows.Count == 0)
-            {
-                return View("ProductionTimeline", new string[4]); ;
-            }
-
-            var tl = new string[4];
-            var maxEnd = pows.OrderBy(x => x.EndBackward).Last().EndBackward;
-            var maxEndForward = pows.OrderBy(x => x.EndForward).Last().EndForward;
-            if (maxEnd < maxEndForward)
-                maxEnd = maxEndForward;
-                
-            var minStart = pows.OrderBy(x => x.StartBackward).First().StartBackward;
-            var minStartForward = pows.OrderBy(x => x.StartForward).First().StartForward;
-            if (minStart > minStartForward)
-                minStart = minStartForward;
-            tl[2] = minStart.ToString();
-            tl[3] = maxEnd.ToString();
-
-            // coloring the timeline - maybe later
-            var color = Extensions.ExtensionMethods.GetGradients(
-                new Color { R = 0, A = 0, B = 0, G = 0 },
-                new Color { R = 255, A = 255, B = 0, G = 0 },
-                pows.Count()
-                );
-
-            string t = "[[{ id: '" + pows.First().MachineGroup.Name + "', start: " + (Convert.ToInt32(minStart) - 1).ToString() + ", end: " + minStart + ", className: 'machineName' }";
-            string group = pows.First().MachineGroup.Name;
-            foreach (var item in pows)
-            {
-                //if (group != item.MachineGroup.Name)
-                //{
-                    group = item.MachineGroup.Name;
-                    t = t + "],[{ id: '" + item.MachineGroup.Name + "', start: " + (Convert.ToInt32(minStart) - 1).ToString() + ", end: " + minStart + ", className: 'machineName' }";
-                //}
-                t = t + ",{ id: '" + item.Name + "', start: " + item.StartBackward.ToString() + ", end: " + item.EndBackward.ToString() + ", className: 'styleA'}";
-
-            }
-            foreach (var item in pows)
-            {
-                //if (group != item.MachineGroup.Name)
-                //{
-                group = item.MachineGroup.Name;
-                t = t + "],[{ id: '" + item.MachineGroup.Name + "', start: " + (Convert.ToInt32(minStart) - 1).ToString() + ", end: " + minStart + ", className: 'machineName' }";
-                //}
-                t = t + ",{ id: '" + item.Name + "', start: " + item.StartForward.ToString() + ", end: " + item.EndForward.ToString() + ", className: 'styleA'}";
-
-            }
-            t = t + "]]";
-            tl[0] = t;
-            tl[1] = "{ start: " + minStart + ", end: " + maxEnd + ", indicatorsEvery: 1, share: .3  }";
-
-           /*
-            var data = [
-
-                 [{ id: 'Säge', start: -1, end: 0, className: 'machineName' },
-					{ id: 'PO 1', start: 1, end: 4, className: 'styleA' },
-					{ id: 'PO 2', start: 6, end: 8, className: 'styleB' }],
-
-
-                [{ id: 'Bohrer', start: -1, end: 0, className: 'machineName' },
-					{ id: 'PO 1', start: 5, end: 9, className: 'styleA' },
-					{ id: 'PO 2', start: 9, end: 13, className: 'styleB' }],
-
-				[{ id: '1. Assembly', start: -1, end: 0, className: 'machineName' },
-					{ id: 'PO 1', start: 10, end: 13, className: 'styleB', popup_html: 'I am <b>ALLMOST</b> finished!' }],
-
-				[{ id: '2. Assembly', start: -1, end: 0, className: 'machineName' },
-					{ id: 'PO 3', start: 14, end: 17, className: 'styleC' }]
-			];
-    */
-
-            return View("ProductionTimeline", tl);
+             return new SelectList(new List<SelectListItem> {
+                new SelectListItem() { Text="Backward", Value="1"},
+                new SelectListItem() { Text="Forward", Value="2"},
+                new SelectListItem() { Text="Giffler-Thompson", Value="3"},
+            },"Value", "Text", selectedItem);
         }
+
     }
 
 }
