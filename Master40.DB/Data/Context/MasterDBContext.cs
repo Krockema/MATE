@@ -1,9 +1,10 @@
-﻿using Master40.DB.Models;
+﻿using Master40.DB.Data.Repository;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
 {
-    public class MasterDBContext : DbContext
+    public class MasterDBContext : DbContext 
     {
         public MasterDBContext(DbContextOptions<MasterDBContext> options) : base(options) { }
 
@@ -39,6 +40,9 @@ namespace Master40.DB.Data.Context
                 .WithOne(s => s.Article)
                 .HasForeignKey<Stock>(b => b.ArticleForeignKey);
 
+            modelBuilder.Entity<ArticleToBusinessPartner>()
+                .HasAlternateKey(x => new { x.ArticleId, x.BusinessPartnerId });
+
             modelBuilder.Entity<ArticleBom>()
                 .HasOne(pt => pt.ArticleParent)
                 .WithMany(p => p.ArticleBoms)
@@ -59,10 +63,6 @@ namespace Master40.DB.Data.Context
                 .WithMany(b => b.ProdProductionOrderBomChilds)
                 .HasForeignKey(fk => fk.ProductionOrderChildId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
-
-
-            modelBuilder.Entity<ArticleToBusinessPartner>()
-                .HasAlternateKey(x => new { x.ArticleId, x.BusinessPartnerId });
 
             modelBuilder.Entity<DemandToProvider>()
                 .HasOne(d => d.DemandRequester)

@@ -1,18 +1,20 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.DB.Data.Context;
+using Master40.DB.Data.Repository;
 using Master40.DB.Models;
 
 namespace Master40.Controllers
 {
     public class OrdersController : Controller
     {
-        private readonly MasterDBContext _context;
+        private readonly OrderDomainContext _context;
 
-        public OrdersController(MasterDBContext context)
+        public OrdersController(OrderDomainContext context)
         {
             _context = context;    
         }
@@ -20,8 +22,8 @@ namespace Master40.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var masterDBContext = _context.Orders.Include(o => o.BusinessPartner);
-            return View(await masterDBContext.ToListAsync());
+            var orderDomainContext = _context.GetAllOrders;
+            return View(await orderDomainContext.ToListAsync());
         }
 
         // GET: Orders/Details/5
@@ -46,7 +48,7 @@ namespace Master40.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "BusinessPartnerId", "Name");
+            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Id");
             return View();
         }
 
@@ -55,7 +57,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,Name,DueTime,BusinessPartnerId")] Order order)
+        public async Task<IActionResult> Create([Bind("Name,DueTime,BusinessPartnerId,Id")] Order order)
         {
             if (ModelState.IsValid)
             {
@@ -63,7 +65,7 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "BusinessPartnerId", "BusinessPartnerId", order.BusinessPartnerId);
+            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Id", order.BusinessPartnerId);
             return View(order);
         }
 
@@ -80,7 +82,7 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "BusinessPartnerId", "BusinessPartnerId", order.BusinessPartnerId);
+            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Id", order.BusinessPartnerId);
             return View(order);
         }
 
@@ -89,7 +91,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,Name,DueTime,BusinessPartnerId")] Order order)
+        public async Task<IActionResult> Edit(int id, [Bind("Name,DueTime,BusinessPartnerId,Id")] Order order)
         {
             if (id != order.Id)
             {
@@ -116,7 +118,7 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "BusinessPartnerId", "BusinessPartnerId", order.BusinessPartnerId);
+            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Id", order.BusinessPartnerId);
             return View(order);
         }
 

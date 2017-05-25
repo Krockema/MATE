@@ -27,11 +27,11 @@
             @Html.DisplayNameFor(model => model.BusinessPartner)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.BusinessPartner.BusinessPartnerId)
+            @Html.DisplayFor(model => model.BusinessPartner.Id)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

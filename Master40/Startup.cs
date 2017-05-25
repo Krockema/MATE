@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Repository;
 
 namespace Master40
 {
@@ -31,10 +32,13 @@ namespace Master40
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Database Context
-
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            
+
+            services.AddDbContext<OrderDomainContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             
             services.Configure<RequestLocalizationOptions>(
