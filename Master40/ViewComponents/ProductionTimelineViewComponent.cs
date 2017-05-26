@@ -75,12 +75,12 @@ namespace Master40.ViewComponents
 
             foreach(var id in orders)
             {
-                orderSchedule.AddRange(await GetDataForProductionOrderTimeline(pows, color++, id, schedulingState));
+                await GetDataForProductionOrderTimeline(orderSchedule, pows, color++, id, schedulingState);
             };
             return orderSchedule;
         }
 
-        private async Task<List<ProductionTimeline>> GetDataForProductionOrderTimeline(List<ProductionOrderWorkSchedule> pows, int n, int orderId, int planningState)
+        private async Task<List<ProductionTimeline>> GetDataForProductionOrderTimeline(List<ProductionTimeline> schedule, List<ProductionOrderWorkSchedule> pows, int n, int orderId, int schedulingState)
         {
             // get the corrosponding Order Parts to Order
             var demand = _context.Demands.OfType<DemandOrderPart>()
@@ -98,58 +98,92 @@ namespace Master40.ViewComponents
                               select p).ToList();
 
             
-            return await CreateTimelineForProductionOrder(powDetails, (ganttColors)n, planningState);
+            return await CreateTimelineForProductionOrder(schedule, powDetails, (ganttColors)n, schedulingState);
         }
 
-        private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionOrderWorkSchedule> pows, ganttColors gc, int planningState)
+        private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionTimeline> schedule,List<ProductionOrderWorkSchedule> pows, ganttColors gc, int schedulingState)
         {
-            var schedule = new List<ProductionTimeline>();
             var today = DateTime.Now.GetEpochMilliseconds();
             foreach (var item in pows)
             {
-                var c = await MasterDbHelper.GetPriorProductionOrderWorkSchedules(_context, item);
+                
                 var dependencies = "";
-                if (c.Count() > 0)
-                {
-                    dependencies = c.FirstOrDefault().Id.ToString();
-                };
-
                 // chose planning method. and select start and end Dependend
-                long start, end;
-                switch (planningState)
+                string start, end;
+                switch (schedulingState)
                 {
                     case 1:
-                        start = item.StartBackward;
-                        end = item.EndBackward;
+                        start = (today + item.StartBackward * 3600000).ToString();
+                        end = (today + item.EndBackward * 3600000).ToString();
                         break;
                     case 2:
-                        start = item.StartForward;
-                        end = item.EndForward;
+                        start = (today + item.StartForward * 3600000).ToString();
+                        end = (today + item.EndForward * 3600000).ToString(); 
                         break;
                     default:
-                        start = item.Start;
-                        end = item.End;
+                        start = (today + item.Start * 3600000).ToString();
+                        end = (today + item.End * 3600000).ToString();
                         break;
                 }
 
-                schedule.Add(new ProductionTimeline
+
+                if (schedulingState == 1 || schedulingState == 2 || schedule.Find(x => x.Name == item.MachineGroup.Name) == null)
                 {
-                    Name = item.MachineGroup.Name,
-                    Desc = "&rarr; ",
-                    Values =
-                    new List<ProductionTimelineItem>
+                    // only follow dependencies during forward / backward schedule.
+                    if (schedulingState != 3)
                     {
-                       new ProductionTimelineItem
-                       {
-                           Id = item.Id.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
-                           From = "/Date(" + (today + start * 3600000).ToString() + ")/",
-                           To =  "/Date(" + (today + end * 3600000).ToString() + ")/",
-                           CustomClass =  gc.ToString(), Dep = "" + dependencies
-                        },
+                        var c = await MasterDbHelper.GetPriorProductionOrderWorkSchedules(_context, item);
+                        if (c.Count() > 0)
+                            dependencies = c.FirstOrDefault().Id.ToString();
                     }
-                });
+                    schedule.Add(new ProductionTimeline
+                    {
+                        Name = item.MachineGroup.Name,
+                        Desc = "&rarr; ",
+                        Values =
+                      new List<ProductionTimelineItem>
+                      {
+                           new ProductionTimelineItem
+                           {
+                               Id = item.Id.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
+                               From = "/Date(" + start + ")/",
+                               To =  "/Date(" + end + ")/",
+                               CustomClass =  gc.ToString(),
+                               Dep = "" + dependencies
+                            },
+                      }
+                    });
+                } else
+                { // add only one new item.
+                    schedule.Find(x => x.Name == item.MachineGroup.Name).Values.Add(new ProductionTimelineItem
+                    {
+                        Id = item.Id.ToString(),
+                        Desc = item.Name,
+                        Label = "P.O.: " + item.ProductionOrderId.ToString(),
+                        From = "/Date(" + start + ")/",
+                        To = "/Date(" + end + ")/",
+                        CustomClass = gc.ToString(),
+                        Dep = "" + dependencies
+                    });
+                }
+
+         
             }
             return schedule;
+        }
+
+        public ProductionTimelineItem productionTimelineItem(ProductionOrderWorkSchedule item, string start, string end, ganttColors gc, string dependencies)
+        {
+            return new ProductionTimelineItem
+            {
+                Id = item.Id.ToString(),
+                Desc = item.Name,
+                Label = "P.O.: " + item.ProductionOrderId.ToString(),
+                From = "/Date(" + start + ")/",
+                To = "/Date(" + end + ")/",
+                CustomClass = gc.ToString(),
+                Dep = "" + dependencies
+            };
         }
 
         public enum ganttColors
