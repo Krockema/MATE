@@ -10,19 +10,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Repository;
 
 namespace Master40.ViewComponents
 {
     public class ProductionTimelineViewComponent : ViewComponent
     {
-        private readonly MasterDBContext _context;
+        private readonly ProductionDomainContext _context;
 
-        public ProductionTimelineViewComponent(MasterDBContext context)
+        public ProductionTimelineViewComponent(ProductionDomainContext context)
         {
             _context = context;
         }
 
-
+        /// <summary>
+        /// called from ViewComponent.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IViewComponentResult> InvokeAsync()
         {
             //.Definitions();
@@ -58,6 +62,12 @@ namespace Master40.ViewComponents
             return View("ProductionTimeline", JsonConvert.SerializeObject(schedule));
         }
 
+        /// <summary>
+        /// Get All Relevant Production Work Schedules an dpass them for each Order To 
+        /// </summary>
+        /// <param name="orders"></param>
+        /// <param name="schedulingState"></param>
+        /// <returns></returns>
         private async Task<List<ProductionTimeline>> GetSchedulesForOrderList(List<int> orders, int schedulingState)
         {
 
@@ -80,7 +90,19 @@ namespace Master40.ViewComponents
             return orderSchedule;
         }
 
-        private async Task<List<ProductionTimeline>> GetDataForProductionOrderTimeline(List<ProductionTimeline> schedule, List<ProductionOrderWorkSchedule> pows, int n, int orderId, int schedulingState)
+        /// <summary>
+        /// Reciving required Data for the Timeline and push them further to 
+        /// create TimelineForProductionOrder
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <param name="pows"></param>
+        /// <param name="n"></param>
+        /// <param name="orderId"></param>
+        /// <param name="schedulingState"></param>
+        /// <returns></returns>
+        private async Task<List<ProductionTimeline>> GetDataForProductionOrderTimeline(List<ProductionTimeline> schedule, 
+                                                                                       List<ProductionOrderWorkSchedule> pows,
+                                                                                       int n, int orderId, int schedulingState)
         {
             // get the corrosponding Order Parts to Order
             var demand = _context.Demands.OfType<DemandOrderPart>()
@@ -101,13 +123,19 @@ namespace Master40.ViewComponents
             return await CreateTimelineForProductionOrder(schedule, powDetails, (ganttColors)n, schedulingState);
         }
 
+        /// <summary>
+        /// Create List Of ProductionTimeline seperated by Order
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <param name="pows"></param>
+        /// <param name="gc"></param>
+        /// <param name="schedulingState"></param>
+        /// <returns></returns>
         private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionTimeline> schedule,List<ProductionOrderWorkSchedule> pows, ganttColors gc, int schedulingState)
         {
             var today = DateTime.Now.GetEpochMilliseconds();
             foreach (var item in pows)
             {
-                
-                var dependencies = "";
                 // chose planning method. and select start and end Dependend
                 string start, end;
                 switch (schedulingState)
@@ -129,32 +157,36 @@ namespace Master40.ViewComponents
 
                 if (schedulingState == 1 || schedulingState == 2 || schedule.Find(x => x.Name == item.MachineGroup.Name) == null)
                 {
+
                     // only follow dependencies during forward / backward schedule.
+                    var dependencies = "";
                     if (schedulingState != 3)
                     {
-                        var c = await MasterDbHelper.GetPriorProductionOrderWorkSchedules(_context, item);
+                        var c = await _context.GetPriorProductionOrderWorkSchedules(item);
                         if (c.Count() > 0)
                             dependencies = c.FirstOrDefault().Id.ToString();
                     }
+
+                    // Add Timeline with first Timeline Item item
                     schedule.Add(new ProductionTimeline
                     {
                         Name = item.MachineGroup.Name,
                         Desc = "&rarr; ",
                         Values =
-                      new List<ProductionTimelineItem>
-                      {
-                           new ProductionTimelineItem
-                           {
-                               Id = item.Id.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
-                               From = "/Date(" + start + ")/",
-                               To =  "/Date(" + end + ")/",
-                               CustomClass =  gc.ToString(),
-                               Dep = "" + dependencies
+                        new List<ProductionTimelineItem>
+                        {
+                            new ProductionTimelineItem
+                            {
+                                Id = item.Id.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
+                                From = "/Date(" + start + ")/",
+                                To =  "/Date(" + end + ")/",
+                                CustomClass =  gc.ToString(),
+                                Dep = "" + dependencies
                             },
-                      }
+                        }
                     });
                 } else
-                { // add only one new item.
+                { // add only one new item to a existing Timeline.
                     schedule.Find(x => x.Name == item.MachineGroup.Name).Values.Add(new ProductionTimelineItem
                     {
                         Id = item.Id.ToString(),
@@ -163,7 +195,7 @@ namespace Master40.ViewComponents
                         From = "/Date(" + start + ")/",
                         To = "/Date(" + end + ")/",
                         CustomClass = gc.ToString(),
-                        Dep = "" + dependencies
+                        Dep = ""
                     });
                 }
 
@@ -186,6 +218,9 @@ namespace Master40.ViewComponents
             };
         }
 
+        /// <summary>
+        /// All Posible gantt colors.
+        /// </summary>
         public enum ganttColors
         {
             ganttRed,
@@ -195,6 +230,12 @@ namespace Master40.ViewComponents
             ganttGray
         }
 
+
+        /// <summary>
+        /// Select List for Diagrammsettings (Forward / Backward / GT)
+        /// </summary>
+        /// <param name="selectedItem"></param>
+        /// <returns></returns>
         private SelectList SchedulingState(int selectedItem)
         {
              return new SelectList(new List<SelectListItem> {

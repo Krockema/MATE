@@ -1,12 +1,16 @@
 ﻿using Master40.DB.Data.Repository;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Master40.DB.Data.Context
 {
     public class MasterDBContext : DbContext 
     {
+        private DbContextOptions<ProductionDomainContext> options;
+
         public MasterDBContext(DbContextOptions<MasterDBContext> options) : base(options) { }
+
 
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleBom> ArticleBoms { get; set; }

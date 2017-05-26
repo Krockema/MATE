@@ -7,14 +7,15 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
 using Master40.DB.Models;
+using Master40.DB.Data.Repository;
 
 namespace Master40.Controllers
 {
     public class ArticleBomsController : Controller
     {
-        private readonly MasterDBContext _context;
+        private readonly ProductionDomainContext _context;
 
-        public ArticleBomsController(MasterDBContext context)
+        public ArticleBomsController(ProductionDomainContext context)
         {
             _context = context;
         }
@@ -36,7 +37,7 @@ namespace Master40.Controllers
             var articleList = new List<Article>();
             foreach (var item in masterDBContext)
             {
-                var article = await MasterDbHelper.GetArticleBomRecursive(_context, item, item.Id);
+                var article = await _context.GetArticleBomRecursive(item, item.Id);
                 articleList.Add(article);
             }
             return View(articleList);

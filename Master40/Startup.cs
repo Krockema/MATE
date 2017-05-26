@@ -38,7 +38,10 @@ namespace Master40
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<ProductionDomainContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             
             services.Configure<RequestLocalizationOptions>(
