@@ -104,17 +104,17 @@ namespace Master40.ViewComponents
                                                                                        List<ProductionOrderWorkSchedule> pows,
                                                                                        int n, int orderId, int schedulingState)
         {
-            // get the corrosponding Order Parts to Order
+            // get the corresponding Order Parts to Order
             var demand = _context.Demands.OfType<DemandOrderPart>()
                     .Include(x => x.OrderPart)
                     .Where(o => o.OrderPart.OrderId == orderId).ToList();
 
-            // get Damand Providers for this Order
+            // get Demand Providers for this Order
             var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
                                    join d in demand on c.DemandRequesterId equals d.Id
                                    select c).ToList();
 
-            // get Production OrderWorkSchedule for 
+            // get ProductionOrderWorkSchedule for 
             var powDetails = (from p in pows
                               join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
                               select p).ToList();
@@ -131,91 +131,113 @@ namespace Master40.ViewComponents
         /// <param name="gc"></param>
         /// <param name="schedulingState"></param>
         /// <returns></returns>
-        private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionTimeline> schedule,List<ProductionOrderWorkSchedule> pows, ganttColors gc, int schedulingState)
+        private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionTimeline> schedule,
+            List<ProductionOrderWorkSchedule> pows, ganttColors gc, int schedulingState)
         {
-            var today = DateTime.Now.GetEpochMilliseconds();
             foreach (var item in pows)
             {
                 // chose planning method. and select start and end Dependend
-                string start, end;
-                switch (schedulingState)
+                string start = "", end = "";
+                DefineStartEnd(ref start, ref end, schedulingState, item);
+
+                if (schedulingState == 1 ||
+                    schedulingState == 2 ||
+                    (schedule.Find(x => x.Name == item.MachineGroup.Name) == null && schedulingState == 3))
                 {
-                    case 1:
-                        start = (today + item.StartBackward * 3600000).ToString();
-                        end = (today + item.EndBackward * 3600000).ToString();
-                        break;
-                    case 2:
-                        start = (today + item.StartForward * 3600000).ToString();
-                        end = (today + item.EndForward * 3600000).ToString(); 
-                        break;
-                    default:
-                        start = (today + item.Start * 3600000).ToString();
-                        end = (today + item.End * 3600000).ToString();
-                        break;
-                }
-
-
-                if (schedulingState == 1 || schedulingState == 2 || schedule.Find(x => x.Name == item.MachineGroup.Name) == null)
-                {
-
                     // only follow dependencies during forward / backward schedule.
                     var dependencies = "";
-                    if (schedulingState != 3)
+                    if (schedulingState == 1 || schedulingState == 2)
                     {
                         var c = await _context.GetPriorProductionOrderWorkSchedules(item);
                         if (c.Count() > 0)
                             dependencies = c.FirstOrDefault().Id.ToString();
                     }
-
                     // Add Timeline with first Timeline Item item
                     schedule.Add(new ProductionTimeline
                     {
                         Name = item.MachineGroup.Name,
                         Desc = "&rarr; ",
                         Values =
-                        new List<ProductionTimelineItem>
-                        {
-                            new ProductionTimelineItem
+                            new List<ProductionTimelineItem>
                             {
-                                Id = item.Id.ToString(), Desc = item.Name, Label = "P.O.: " + item.ProductionOrderId.ToString(),
-                                From = "/Date(" + start + ")/",
-                                To =  "/Date(" + end + ")/",
-                                CustomClass =  gc.ToString(),
-                                Dep = "" + dependencies
-                            },
-                        }
-                    });
-                } else
-                { // add only one new item to a existing Timeline.
-                    schedule.Find(x => x.Name == item.MachineGroup.Name).Values.Add(new ProductionTimelineItem
-                    {
-                        Id = item.Id.ToString(),
-                        Desc = item.Name,
-                        Label = "P.O.: " + item.ProductionOrderId.ToString(),
-                        From = "/Date(" + start + ")/",
-                        To = "/Date(" + end + ")/",
-                        CustomClass = gc.ToString(),
-                        Dep = ""
+                                CreateProductionTimelineItem(item, start, end, gc, dependencies, schedulingState)
+                            }
                     });
                 }
+                else if (schedulingState == 3)
+                {
+                    // add only one new item to a existing Timeline.
+                    schedule.Find(x => x.Name == item.MachineGroup.Name).Values.Add(CreateProductionTimelineItem(item, start, end, gc, "", schedulingState));
 
-         
+                }
+                else if (schedulingState == 4)
+                {
+                    if (schedule.Find(x => x.Name == "OrderId " + GetOrderId(item).ToString()) == null)
+                    {
+                        // Add Timeline with first Timeline Item item
+                        schedule.Add(new ProductionTimeline
+                        {
+                            Name = "OrderId " + GetOrderId(item),
+                            Desc = "&rarr; ",
+                            Values =
+                                new List<ProductionTimelineItem>
+                                {
+                                    CreateProductionTimelineItem(item,start,end,gc,"",schedulingState)
+                                }
+                        });
+                    }
+                    else
+                    {
+                        schedule.Find(x => x.Name == "OrderId " + GetOrderId(item).ToString())
+                            .Values.Add(CreateProductionTimelineItem(item, start, end, gc, "", schedulingState));
+                    }
+
+                }
+
             }
             return schedule;
         }
 
-        public ProductionTimelineItem productionTimelineItem(ProductionOrderWorkSchedule item, string start, string end, ganttColors gc, string dependencies)
+        private void DefineStartEnd(ref string start, ref string end, int schedulingState, ProductionOrderWorkSchedule item)
         {
-            return new ProductionTimelineItem
+            var today = DateTime.Now.GetEpochMilliseconds();
+            switch (schedulingState)
+            {
+                case 1:
+                    start = (today + item.StartBackward * 3600000).ToString();
+                    end = (today + item.EndBackward * 3600000).ToString();
+                    break;
+                case 2:
+                    start = (today + item.StartForward * 3600000).ToString();
+                    end = (today + item.EndForward * 3600000).ToString();
+                    break;
+                default:
+                    start = (today + item.Start * 3600000).ToString();
+                    end = (today + item.End * 3600000).ToString();
+                    break;
+            }
+        }
+
+        private int GetOrderId(ProductionOrderWorkSchedule pow)
+        {
+            DemandOrderPart requester = (DemandOrderPart) pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester;
+            var orderId = _context.OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
+            return orderId;
+        }
+
+        public ProductionTimelineItem CreateProductionTimelineItem(ProductionOrderWorkSchedule item, string start, string end, ganttColors gc, string dependencies, int schedulingState)
+        {
+            var timelineItem =  new ProductionTimelineItem
             {
                 Id = item.Id.ToString(),
                 Desc = item.Name,
-                Label = "P.O.: " + item.ProductionOrderId.ToString(),
                 From = "/Date(" + start + ")/",
                 To = "/Date(" + end + ")/",
                 CustomClass = gc.ToString(),
-                Dep = "" + dependencies
+                Dep = ""
             };
+            timelineItem.Label = schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId;
+            return timelineItem;
         }
 
         /// <summary>
@@ -241,7 +263,8 @@ namespace Master40.ViewComponents
              return new SelectList(new List<SelectListItem> {
                 new SelectListItem() { Text="Backward", Value="1"},
                 new SelectListItem() { Text="Forward", Value="2"},
-                new SelectListItem() { Text="Giffler-Thompson", Value="3"},
+                new SelectListItem() { Text="Giffler-Thompson Machinebased", Value="3"},
+                new SelectListItem() { Text="Giffler-Thompson Orderbased", Value ="4"},
             },"Value", "Text", selectedItem);
         }
 
