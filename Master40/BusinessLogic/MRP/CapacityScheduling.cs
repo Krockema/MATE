@@ -159,11 +159,12 @@ namespace Master40.BusinessLogic.MRP
 
         private List<ProductionOrderWorkSchedule> GetSchedules()
         {
-            var demandRequester = _context.Demands.Where(b => b.State == State.SchedulesExist).ToList();
+            var demandRequester = _context.Demands.Where(b => b.State == State.ForwardScheduleExists || b.State == State.ExistsInCapacityPlan).ToList();
            
             var productionOrderWorkSchedule = new List<ProductionOrderWorkSchedule>();
             foreach (var demandReq in demandRequester)
             {
+                demandReq.State = State.ForwardScheduleExists;
                 var schedules = GetProductionSchedules(demandReq);
                 foreach (var schedule in schedules)
                 {

@@ -11,8 +11,8 @@ namespace Master40.BusinessLogic.MRP
     public interface IProcessMrp
     {
         List<LogMessage> Logger { get; set; }
-        Task Process();
-        void ProcessDemand(IDemandToProvider demand);
+        Task Process(MrpTask task);
+        void ProcessDemand(IDemandToProvider demand, MrpTask task);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -24,36 +24,63 @@ namespace Master40.BusinessLogic.MRP
             _context = context;
         }
 
-        async Task IProcessMrp.Process()
+        async Task IProcessMrp.Process(MrpTask task)
         {
-           await Task.Run(() => {
-                
-                var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article);
-                
-                foreach (var orderPart in orderParts.ToList())
-                {
-                   ProcessDemand(CreateDemandOrderPart(orderPart));
-                }
-                var capacity = new CapacityScheduling(_context);
-               capacity.GifflerThompsonScheduling();
-               foreach (var orderPart in orderParts.ToList())
+           await Task.Run(() =>
+           {
+               IDemandToProvider demand;
+               
+               var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article);
+               if (task != MrpTask.GifflerThompson)
                {
-                  orderPart.IsPlanned = true; 
+                   foreach (var orderPart in orderParts.ToList())
+                   {
+                       var demandOrderParts = _context.Demands.OfType<DemandOrderPart>().Where(a => a.OrderPartId == orderPart.Id);
+                       if (demandOrderParts.Any())
+                       {
+                           demand = demandOrderParts.First();
+                       }
+                       else
+                       {
+                           demand = CreateDemandOrderPart(orderPart);
+                           //MRP I
+                           ExecutePlanning(demand, null);
+                           _context.SaveChanges();
+                       }
+                       
+                       //MRP II
+                       ProcessDemand(demand, task);
+                   }
+               }
+               if ((task == MrpTask.All || task == MrpTask.GifflerThompson) && orderParts.Any())
+               {
+                   var capacity = new CapacityScheduling(_context);
+                   capacity.GifflerThompsonScheduling();
+                   foreach (var orderPart in orderParts.ToList())
+                   {
+                       orderPart.IsPlanned = true;
+                   }
                }
                _context.SaveChanges();
            });
         }
 
-        public void ProcessDemand(IDemandToProvider demand)
-        {
-            //MRP I
-            ExecutePlanning(demand, null);
-            _context.SaveChanges();
-            //MRP II 
+        public void ProcessDemand(IDemandToProvider demand, MrpTask task)
+        { 
             var schedule = new Scheduling(_context);
-            schedule.BackwardScheduling(demand);
-            schedule.ForwardScheduling(demand);
-            demand.State = State.SchedulesExist;
+            if (task == MrpTask.All || task == MrpTask.Backward)
+            {
+                schedule.BackwardScheduling(demand);
+                demand.State = State.BackwardScheduleExists;
+            }
+
+
+            if (task == MrpTask.All || task == MrpTask.Forward)
+            {
+                schedule.ForwardScheduling(demand);
+                demand.State = State.ForwardScheduleExists;
+            }
+                
             _context.Demands.Update((DemandToProvider)demand);
             _context.SaveChanges();
         }
@@ -123,6 +150,14 @@ namespace Master40.BusinessLogic.MRP
         }
 
 
+    }
+
+    public enum MrpTask
+    {
+        All,
+        Forward,
+        Backward,
+        GifflerThompson
     }
 
 

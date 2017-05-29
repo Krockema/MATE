@@ -4,7 +4,8 @@
     {
         Created,
         ProviderExist,
-        SchedulesExist,
+        BackwardScheduleExists,
+        ForwardScheduleExists,
         ExistsInCapacityPlan,
         Produced,
         Deliverd,

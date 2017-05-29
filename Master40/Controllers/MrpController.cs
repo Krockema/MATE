@@ -33,13 +33,46 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpProcessing()
         {
             //call to process MRP I and II
-            await _processMrp.Process();
+            await _processMrp.Process(MrpTask.All);
 
             await Task.Yield();
 
             return View("Index", _processMrp.Logger);
         }
-       
+
+        [HttpGet("[Controller]/MrpBackward")]
+        public async Task<IActionResult> MrpBackward()
+        {
+            //call to process MRP I and II
+            await _processMrp.Process(MrpTask.Backward);
+
+            await Task.Yield();
+
+            return View("Index", _processMrp.Logger);
+        }
+
+        [HttpGet("[Controller]/MrpForward")]
+        public async Task<IActionResult> MrpForward()
+        {
+            //call to process MRP I and II
+            await _processMrp.Process(MrpTask.Forward);
+
+            await Task.Yield();
+
+            return View("Index", _processMrp.Logger);
+        }
+
+        [HttpGet("[Controller]/MrpGifflerThompson")]
+        public async Task<IActionResult> MrpGifflerThompson()
+        {
+            //call to process MRP I and II
+            await _processMrp.Process(MrpTask.GifflerThompson);
+
+            await Task.Yield();
+
+            return View("Index", _processMrp.Logger);
+        }
+
         public IActionResult Error()
         {
             return View();
