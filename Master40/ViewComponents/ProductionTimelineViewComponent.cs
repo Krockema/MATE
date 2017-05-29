@@ -140,64 +140,66 @@ namespace Master40.ViewComponents
                 string start = "", end = "";
                 DefineStartEnd(ref start, ref end, schedulingState, item);
 
-                if (schedulingState == 1 ||
-                    schedulingState == 2 ||
-                    (schedule.Find(x => x.Name == item.MachineGroup.Name) == null && schedulingState == 3))
+                if (schedulingState != 4)
                 {
                     // only follow dependencies during forward / backward schedule.
                     var dependencies = "";
                     if (schedulingState == 1 || schedulingState == 2)
                     {
                         var c = await _context.GetPriorProductionOrderWorkSchedules(item);
-                        if (c.Count() > 0)
+                        if (c.Any())
                             dependencies = c.FirstOrDefault().Id.ToString();
                     }
-                    // Add Timeline with first Timeline Item item
-                    schedule.Add(new ProductionTimeline
-                    {
-                        Name = item.MachineGroup.Name,
-                        Desc = "&rarr; ",
-                        Values =
-                            new List<ProductionTimelineItem>
-                            {
-                                CreateProductionTimelineItem(item, start, end, gc, dependencies, schedulingState)
-                            }
-                    });
+                    AddToSchedule(schedule, item, item.MachineGroup.Name,
+                        CreateProductionTimelineItem(item, start, end, gc, dependencies, schedulingState));
                 }
-                else if (schedulingState == 3)
+                else
                 {
-                    // add only one new item to a existing Timeline.
-                    schedule.Find(x => x.Name == item.MachineGroup.Name).Values.Add(CreateProductionTimelineItem(item, start, end, gc, "", schedulingState));
-
-                }
-                else if (schedulingState == 4)
-                {
-                    if (schedule.Find(x => x.Name == "OrderId " + GetOrderId(item).ToString()) == null)
-                    {
-                        // Add Timeline with first Timeline Item item
-                        schedule.Add(new ProductionTimeline
-                        {
-                            Name = "OrderId " + GetOrderId(item),
-                            Desc = "&rarr; ",
-                            Values =
-                                new List<ProductionTimelineItem>
-                                {
-                                    CreateProductionTimelineItem(item,start,end,gc,"",schedulingState)
-                                }
-                        });
-                    }
-                    else
-                    {
-                        schedule.Find(x => x.Name == "OrderId " + GetOrderId(item).ToString())
-                            .Values.Add(CreateProductionTimelineItem(item, start, end, gc, "", schedulingState));
-                    }
-
+                    AddToSchedule(schedule, item, "OrderId " + GetOrderId(item),
+                        CreateProductionTimelineItem(item, start, end, gc, "", schedulingState));
                 }
 
             }
             return schedule;
         }
 
+        /// <summary>
+        /// Checks if the schedule item already exists, if not it creates a new element
+        /// </summary>
+        /// <param name="schedule"></param>
+        /// <param name="item"></param>
+        /// <param name="name"></param>
+        /// <param name="productionTimelineItem"></param>
+        private void AddToSchedule(List<ProductionTimeline> schedule, ProductionOrderWorkSchedule item, string name, ProductionTimelineItem productionTimelineItem)
+        {
+            if (schedule.Find(x => x.Name == name) == null)
+            {
+                // Add Timeline with first Timeline Item item
+                schedule.Add(new ProductionTimeline
+                {
+                    Name = name,
+                    Desc = "&rarr; ",
+                    Values =
+                        new List<ProductionTimelineItem>
+                        {
+                            productionTimelineItem
+                        }
+                });
+            }
+            else
+            {
+                schedule.Find(x => x.Name == name)
+                    .Values.Add(productionTimelineItem);
+            }
+        }
+
+        /// <summary>
+        /// Defines start and end for the ganttchart
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="schedulingState"></param>
+        /// <param name="item"></param>
         private void DefineStartEnd(ref string start, ref string end, int schedulingState, ProductionOrderWorkSchedule item)
         {
             var today = DateTime.Now.GetEpochMilliseconds();
@@ -218,25 +220,40 @@ namespace Master40.ViewComponents
             }
         }
 
+        /// <summary>
+        /// returns the OrderId for the ProductionOrderWorkSchedule
+        /// </summary>
+        /// <param name="pow"></param>
+        /// <returns></returns>
         private int GetOrderId(ProductionOrderWorkSchedule pow)
         {
-            DemandOrderPart requester = (DemandOrderPart) pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester;
+            var requester = (DemandOrderPart) pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester;
             var orderId = _context.OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
             return orderId;
         }
 
+        /// <summary>
+        /// Creates new TimelineItem with a label depending on the schedulingState
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="gc"></param>
+        /// <param name="dependencies"></param>
+        /// <param name="schedulingState"></param>
+        /// <returns></returns>
         public ProductionTimelineItem CreateProductionTimelineItem(ProductionOrderWorkSchedule item, string start, string end, ganttColors gc, string dependencies, int schedulingState)
         {
-            var timelineItem =  new ProductionTimelineItem
+            var timelineItem = new ProductionTimelineItem
             {
                 Id = item.Id.ToString(),
                 Desc = item.Name,
                 From = "/Date(" + start + ")/",
                 To = "/Date(" + end + ")/",
                 CustomClass = gc.ToString(),
-                Dep = ""
+                Dep = "",
+                Label = schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId
             };
-            timelineItem.Label = schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId;
             return timelineItem;
         }
 
