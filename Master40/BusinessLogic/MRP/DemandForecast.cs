@@ -58,9 +58,6 @@ namespace Master40.BusinessLogic.MRP
                 {
                     CreatePurchase(demand, -plannedStock);
                 }
-                
-                
-
             }
             //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
             if (parent == null && plannedStock < stock.Min)

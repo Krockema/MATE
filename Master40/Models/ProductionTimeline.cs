@@ -26,7 +26,10 @@ namespace Master40.Models
         public string Desc { get; set; }
         [JsonProperty("values")]
         public List<ProductionTimelineItem> Values { get; set; }
-        
+        [JsonIgnore]
+        public int Id { get; set; }
+        [JsonIgnore]
+        public int GroupId { get; set; }
     }
 
     [JsonObject]
@@ -46,6 +49,10 @@ namespace Master40.Models
         public string CustomClass { get; set; }
         [JsonProperty("dep")]
         public string Dep { get; set; }
+        [JsonIgnore]
+        public long IntFrom { get; set; }
+        [JsonIgnore]
+        public long IntTo { get; set; }
         
     }
 }

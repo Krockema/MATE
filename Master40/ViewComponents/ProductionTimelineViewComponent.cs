@@ -17,7 +17,7 @@ namespace Master40.ViewComponents
     public class ProductionTimelineViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
-
+        private List<MachineGantt> machineGantts;
         public ProductionTimelineViewComponent(ProductionDomainContext context)
         {
             _context = context;
@@ -82,12 +82,30 @@ namespace Master40.ViewComponents
 
             var color = 0;
             var orderSchedule = new List<ProductionTimeline>();
-
-            foreach(var id in orders)
+            if (schedulingState == 4)
+                SetMachineColor();
+            foreach (var id in orders)
             {
                 await GetDataForProductionOrderTimeline(orderSchedule, pows, color++, id, schedulingState);
-            };
+            }
+                
             return orderSchedule;
+        }
+
+        private void SetMachineColor()
+        {
+            machineGantts = new List<MachineGantt>();
+            var machineGroups = _context.MachineGroups;
+            var color = 0;
+            foreach (var machineGroup in machineGroups)
+            {
+                machineGantts.Add(new MachineGantt()
+                {
+                    GanttColor = (ganttColors)color,
+                    MachineGroupId = machineGroup.Id
+                });
+                color++;
+            }
         }
 
         /// <summary>
@@ -134,6 +152,7 @@ namespace Master40.ViewComponents
         private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionTimeline> schedule,
             List<ProductionOrderWorkSchedule> pows, ganttColors gc, int schedulingState)
         {
+
             foreach (var item in pows)
             {
                 // chose planning method. and select start and end Dependend
@@ -150,29 +169,35 @@ namespace Master40.ViewComponents
                         if (c.Any())
                             dependencies = c.FirstOrDefault().Id.ToString();
                     }
-                    AddToSchedule(schedule, item, item.MachineGroup.Name,
+                    AddToSchedule(schedule, schedulingState, item.MachineGroup.Name,
                         CreateProductionTimelineItem(item, start, end, gc, dependencies, schedulingState));
                 }
                 else
                 {
-                    AddToSchedule(schedule, item, "OrderId " + GetOrderId(item),
-                        CreateProductionTimelineItem(item, start, end, gc, "", schedulingState));
+                    AddToSchedule(schedule, schedulingState, "OrderId " + GetOrderId(item),
+                        CreateProductionTimelineItem(item, start, end, GetMachineColor(item) , "", schedulingState));
                 }
 
             }
+            
             return schedule;
+        }
+
+        private ganttColors GetMachineColor(ProductionOrderWorkSchedule item)
+        {
+            return machineGantts.Find(a => a.MachineGroupId == item.MachineGroupId).GanttColor;
         }
 
         /// <summary>
         /// Checks if the schedule item already exists, if not it creates a new element
         /// </summary>
         /// <param name="schedule"></param>
-        /// <param name="item"></param>
+        /// <param name="schedulingState"></param>
         /// <param name="name"></param>
         /// <param name="productionTimelineItem"></param>
-        private void AddToSchedule(List<ProductionTimeline> schedule, ProductionOrderWorkSchedule item, string name, ProductionTimelineItem productionTimelineItem)
+        private void AddToSchedule(List<ProductionTimeline> schedule, int schedulingState, string name, ProductionTimelineItem productionTimelineItem)
         {
-            if (schedule.Find(x => x.Name == name) == null)
+            if (schedule.Find(x => x.Name == name) == null || schedulingState <= 2)
             {
                 // Add Timeline with first Timeline Item item
                 schedule.Add(new ProductionTimeline
@@ -183,13 +208,71 @@ namespace Master40.ViewComponents
                         new List<ProductionTimelineItem>
                         {
                             productionTimelineItem
-                        }
+                        },
+                    Id = schedule.Count
                 });
+                schedule.Last().GroupId = schedule.Last().Id;
             }
             else
             {
-                schedule.Find(x => x.Name == name)
-                    .Values.Add(productionTimelineItem);
+                CheckForStacking(productionTimelineItem, schedule, name);
+            }
+        }
+
+        private void CheckForStacking(ProductionTimelineItem productionTimelineItem, List<ProductionTimeline> schedule, string name)
+        {
+            var firstRow = schedule.Find(x => x.Name == name);
+            var rows = schedule.FindAll(x => x.GroupId == firstRow.GroupId);
+            int rowId;
+            rowId = -1;
+            foreach (var row in rows)
+            {
+                var items = schedule.Find(a => a.Id == row.Id).Values;
+                var stacking = false;
+                foreach (var item in items)
+                {
+                    if ((item.IntFrom < productionTimelineItem.IntFrom &&
+                         item.IntTo > productionTimelineItem.IntTo)
+                        ||
+                        (item.IntFrom > productionTimelineItem.IntFrom &&
+                         item.IntTo < productionTimelineItem.IntTo)
+                        ||
+                        (item.IntFrom < productionTimelineItem.IntTo &&
+                         item.IntTo > productionTimelineItem.IntTo))
+                    {
+                        stacking = true;
+                    }
+                }
+                if (!stacking)
+                {
+                    rowId = row.Id;
+                    break;
+                }
+            }
+            AddSubSchedule(productionTimelineItem, schedule, rowId, name);
+        }
+
+        private void AddSubSchedule(ProductionTimelineItem productionTimelineItem, List<ProductionTimeline> schedule, int rowId, string name)
+        {
+            if (rowId > -1)
+            {
+                //add to schedule
+                schedule.Find(a => a.Id == rowId).Values.Add(productionTimelineItem);
+            }
+            else
+            {
+                //create new subschedule
+                schedule.Add(new ProductionTimeline()
+                {
+                    Desc = "&rarr; ",
+                    Values =
+                        new List<ProductionTimelineItem>
+                        {
+                            productionTimelineItem
+                        },
+                    GroupId = schedule.Find(a => a.Name == name).GroupId,
+                    Id = schedule.Count
+                });
             }
         }
 
@@ -250,11 +333,19 @@ namespace Master40.ViewComponents
                 Desc = item.Name,
                 From = "/Date(" + start + ")/",
                 To = "/Date(" + end + ")/",
+                IntFrom = Convert.ToInt64(start),
+                IntTo = Convert.ToInt64(end),
                 CustomClass = gc.ToString(),
-                Dep = "",
+                Dep = dependencies,
                 Label = schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId
             };
             return timelineItem;
+        }
+
+        internal class MachineGantt
+        {
+            public ganttColors GanttColor { get; set; }
+            public int MachineGroupId { get; set; }
         }
 
         /// <summary>
