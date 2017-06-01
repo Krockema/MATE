@@ -33,7 +33,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpProcessing()
         {
             //call to process MRP I and II
-            await _processMrp.Process(MrpTask.All);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
 
             await Task.Yield();
 
@@ -44,7 +44,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpBackward()
         {
             //call to process MRP I and II
-            await _processMrp.Process(MrpTask.Backward);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
 
             await Task.Yield();
 
@@ -55,7 +55,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpForward()
         {
             //call to process MRP I and II
-            await _processMrp.Process(MrpTask.Forward);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
 
             await Task.Yield();
 
@@ -66,7 +66,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpGifflerThompson()
         {
             //call to process MRP I and II
-            await _processMrp.Process(MrpTask.GifflerThompson);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
 
             await Task.Yield();
 

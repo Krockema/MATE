@@ -11,7 +11,7 @@ namespace Master40.BusinessLogic.MRP
     public interface IProcessMrp
     {
         List<LogMessage> Logger { get; set; }
-        Task Process(MrpTask task);
+        Task CreateAndProcessOrderDemand(MrpTask task);
         void ProcessDemand(IDemandToProvider demand, MrpTask task);
     }
 
@@ -24,45 +24,46 @@ namespace Master40.BusinessLogic.MRP
             _context = context;
         }
 
-        async Task IProcessMrp.Process(MrpTask task)
+        async Task IProcessMrp.CreateAndProcessOrderDemand(MrpTask task)
         {
-           await Task.Run(() =>
-           {
-               IDemandToProvider demand;
-               
-               var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article);
-               if (task != MrpTask.GifflerThompson)
-               {
-                   foreach (var orderPart in orderParts.ToList())
-                   {
-                       var demandOrderParts = _context.Demands.OfType<DemandOrderPart>().Where(a => a.OrderPartId == orderPart.Id);
-                       if (demandOrderParts.Any())
-                       {
-                           demand = demandOrderParts.First();
-                       }
-                       else
-                       {
-                           demand = CreateDemandOrderPart(orderPart);
-                           //MRP I
-                           ExecutePlanning(demand, null);
-                           _context.SaveChanges();
-                       }
-                       
-                       //MRP II
-                       ProcessDemand(demand, task);
-                   }
-               }
-               if ((task == MrpTask.All || task == MrpTask.GifflerThompson) && orderParts.Any())
-               {
-                   var capacity = new CapacityScheduling(_context);
-                   capacity.GifflerThompsonScheduling();
-                   foreach (var orderPart in orderParts.ToList())
-                   {
-                       orderPart.IsPlanned = true;
-                   }
-               }
-               _context.SaveChanges();
-           });
+            await Task.Run(() =>
+            {
+                var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article);
+                if (task != MrpTask.GifflerThompson)
+                {
+                    foreach (var orderPart in orderParts.ToList())
+                    {
+                        var demandOrderParts =
+                            _context.Demands.OfType<DemandOrderPart>().Where(a => a.OrderPartId == orderPart.Id);
+                        IDemandToProvider demand;
+                        if (demandOrderParts.Any())
+                        {
+                            demand = demandOrderParts.First();
+                        }
+                        else
+                        {
+                            demand = CreateDemandOrderPart(orderPart);
+                            _context.SaveChanges();
+                        }
+                        RunMrp(demand, task);
+
+                        orderPart.IsPlanned = true;
+                    }
+                }
+            });
+        }
+
+        public void RunMrp(IDemandToProvider demand, MrpTask task)
+        {
+            ExecutePlanning(demand, null, task);
+            ProcessDemand(demand, task);
+    
+            if (task == MrpTask.All || task == MrpTask.GifflerThompson)
+            {
+                var capacity = new CapacityScheduling(_context);
+                capacity.GifflerThompsonScheduling();
+            }
+            _context.SaveChanges();
         }
 
         public void ProcessDemand(IDemandToProvider demand, MrpTask task)
@@ -73,9 +74,8 @@ namespace Master40.BusinessLogic.MRP
                 schedule.BackwardScheduling(demand);
                 demand.State = State.BackwardScheduleExists;
             }
-
-
-            if (task == MrpTask.All || task == MrpTask.Forward)
+            
+            if ((task == MrpTask.All && CheckNeedForward(demand)) || task == MrpTask.Forward)
             {
                 schedule.ForwardScheduling(demand);
                 demand.State = State.ForwardScheduleExists;
@@ -85,13 +85,30 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        private void ExecutePlanning(IDemandToProvider demand, 
-                                     IDemandToProvider parent)
+        private bool CheckNeedForward(IDemandToProvider demand)
         {
-            IDemandForecast demandForecast = new DemandForecast(_context);
+            var forwardNecessary = false;
+            var demandProviderProductionOrders = _context.Demands.OfType<DemandProviderProductionOrder>()
+                .Where(a => a.DemandRequesterId == demand.DemandRequesterId);
+            foreach (var demandProviderProductionOrder in demandProviderProductionOrders)
+            {
+                var schedules = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                    .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId);
+                foreach (var schedule in schedules)
+                {
+                    if (schedule.StartBackward < 0) forwardNecessary = true;
+                }
+            }
+            return forwardNecessary;
+        }
+
+        private void ExecutePlanning(IDemandToProvider demand, 
+                                     IDemandToProvider parent, MrpTask task)
+        {
+            IDemandForecast demandForecast = new DemandForecast(_context, this);
             IScheduling schedule = new Scheduling(_context);
 
-            var productionOrder = demandForecast.NetRequirement(demand, parent);
+            var productionOrder = demandForecast.NetRequirement(demand, parent, task);
             demand.State = State.ProviderExist;
 
             foreach (var log in demandForecast.Logger)
@@ -125,7 +142,7 @@ namespace Master40.BusinessLogic.MRP
                     DemandRequesterId = demand.DemandRequesterId,
                     DemandProvider = new List<DemandToProvider>(),
                     State = State.Created
-                }, demand);
+                }, demand, task);
             }
         }
 
