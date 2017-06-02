@@ -190,11 +190,16 @@ namespace Master40.BusinessLogic.MRP
             {
                 Quantity = bom.Quantity * productionOrder.Quantity,
                 ProductionOrderChildId = productionOrder.Id,
-                ProductionOrderParent = productionOrderParent
-
+                ProductionOrderParent = productionOrderParent,
             };
-
+            
             _context.ProductionOrderBoms.Add(productionOrderBom);
+            if (demand.GetType() == typeof(DemandProductionOrderBom))
+            {
+                ((DemandProductionOrderBom) demand).ProductionOrderBomId = productionOrderBom.Id;
+                _context.Add(demand);
+            }
+            _context.SaveChanges();
         }
 
         private void CreatePurchaseDemand(IDemandToProvider demand, decimal amount)

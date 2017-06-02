@@ -28,7 +28,7 @@ namespace Master40.BusinessLogic.MRP
         {
             await Task.Run(() =>
             {
-                var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article);
+                var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article).ToList();
                 if (task != MrpTask.GifflerThompson)
                 {
                     foreach (var orderPart in orderParts.ToList())
@@ -46,23 +46,63 @@ namespace Master40.BusinessLogic.MRP
                             _context.SaveChanges();
                         }
                         RunMrp(demand, task);
-
                         orderPart.IsPlanned = true;
                     }
                 }
+                if (task == MrpTask.All || task == MrpTask.GifflerThompson)
+                {
+                    var capacity = new CapacityScheduling(_context);
+                    var machineList = capacity.CapacityPlanning();
+                    if (capacity.CapacityLevelingNeeded(machineList))
+                        capacity.GifflerThompsonScheduling();
+                    else
+                    {
+                        foreach (var orderPart in orderParts)
+                        {
+                            SetStartEndFromTermination(orderPart);
+                        }
+                    }
+                }
+                   
+                
             });
+        }
+
+        private void SetStartEndFromTermination(OrderPart orderPart)
+        {
+            var demand = _context.Demands.OfType<DemandOrderPart>().Single(a => a.OrderPartId == orderPart.Id);
+            var schedules = _context.ProductionOrderWorkSchedule
+                .Include(a => a.ProductionOrder)
+                .ThenInclude(a => a.DemandProviderProductionOrders)
+                .ThenInclude(a => a.DemandRequester)
+                .Where(a => a.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId == demand.Id)
+                .ToList();
+            foreach (var schedule in schedules)
+            {
+                if (schedule.EndForward - schedule.StartForward > 0)
+                {
+                    schedule.End = schedule.EndForward;
+                    schedule.Start = schedule.StartForward;
+                }
+                else
+                {
+                    schedule.End = schedule.EndBackward;
+                    schedule.Start = schedule.StartBackward;
+                }
+                _context.ProductionOrderWorkSchedule.Update(schedule);
+                _context.SaveChanges();
+            }
         }
 
         public void RunMrp(IDemandToProvider demand, MrpTask task)
         {
-            ExecutePlanning(demand, null, task);
+            if (demand.State == State.Created)
+                ExecutePlanning(demand, null, task);
             ProcessDemand(demand, task);
     
-            if (task == MrpTask.All || task == MrpTask.GifflerThompson)
-            {
-                var capacity = new CapacityScheduling(_context);
-                capacity.GifflerThompsonScheduling();
-            }
+           
+
+            
             _context.SaveChanges();
         }
 
@@ -135,10 +175,9 @@ namespace Master40.BusinessLogic.MRP
             {
                 ExecutePlanning(new DemandProductionOrderBom()
                 {
-                    ProductionOrderBomId = child.Id,
                     ArticleId = child.ArticleChildId,
                     Article = child.ArticleChild,
-                    Quantity = productionOrder.Quantity * (int) child.Quantity,
+                    Quantity = productionOrder.Quantity * (int)child.Quantity,
                     DemandRequesterId = demand.DemandRequesterId,
                     DemandProvider = new List<DemandToProvider>(),
                     State = State.Created

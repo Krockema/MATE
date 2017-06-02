@@ -10,6 +10,8 @@ namespace Master40.BusinessLogic.MRP
     internal interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
+        List<MachineGroupProductionOrderWorkSchedules> CapacityPlanning();
+        bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedules> machineList);
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -53,6 +55,81 @@ namespace Master40.BusinessLogic.MRP
                 _context.SaveChanges();
             }
         }
+
+        public List<MachineGroupProductionOrderWorkSchedules> CapacityPlanning()
+        {
+            //Stack for every hour and machinegroup
+            var productionOrderWorkSchedules = GetSchedules();
+            var machineList = new List<MachineGroupProductionOrderWorkSchedules>();
+
+            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
+            {
+                var machine = machineList.Find(a => a.MachineGroupId == productionOrderWorkSchedule.MachineGroupId);
+                if (machine != null)
+                    AddToMachineGroup(machine, productionOrderWorkSchedule);
+                else
+                {
+                    machineList.Add(new MachineGroupProductionOrderWorkSchedules()
+                    {
+                        MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
+                        ProductionOrderWorkSchedulesInHours = new List<ProductionOrderWorkSchedulesInHours>()
+                    });
+                    AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
+                }
+            }
+            //if it exceeds capacity limits giffler-thompson has to be called
+
+            return machineList;
+        }
+
+        public bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedules> machineList )
+        {
+            foreach (var machine in machineList)
+            {
+                foreach (var hour in machine.ProductionOrderWorkSchedulesInHours)
+                {
+                    if (_context.Machines.Single(a => a.MachineGroupId == machine.MachineGroupId).Capacity < hour.ProductionOrderWorkSchedules.Count)
+                        return true;
+                }
+            }
+            
+            return false;
+        }
+
+        private void AddToMachineGroup(MachineGroupProductionOrderWorkSchedules machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        {
+            var start = productionOrderWorkSchedule.StartBackward;
+            var end = productionOrderWorkSchedule.EndBackward;
+            if (productionOrderWorkSchedule.ProductionOrder.DemandProviderProductionOrders.First().State == State.ForwardScheduleExists)
+            {
+                start = productionOrderWorkSchedule.StartForward;
+                end = productionOrderWorkSchedule.EndForward;
+            }
+
+            for (var i = start; i < end; i++)
+            {
+                var found = false;
+                foreach (var listOfProductionOrderWorkSchedulesInHourse in machine.ProductionOrderWorkSchedulesInHours)
+                {
+                    if (listOfProductionOrderWorkSchedulesInHourse.Time == i)
+                    {
+                        listOfProductionOrderWorkSchedulesInHourse.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) machine.ProductionOrderWorkSchedulesInHours.Add(new ProductionOrderWorkSchedulesInHours()
+                {
+                    Time = i,
+                    ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
+                    {
+                        productionOrderWorkSchedule
+                    }
+                });
+            }
+        }
+
+       
 
         private bool IsTechnologicallyAllowed(ProductionOrderWorkSchedule schedule, List<ProductionOrderWorkSchedule> plannedSchedules)
         {
@@ -132,14 +209,17 @@ namespace Master40.BusinessLogic.MRP
             foreach (var plannableSchedule in plannableSchedules)
             {
                 //get duetime
-                var orderPartId = _context.Demands.OfType<DemandOrderPart>()
-                                        .Single(a => a.DemandRequesterId == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId)
-                                        .OrderPartId;
-                var dueTime = _context.OrderParts
+                var demand = _context.Demands.Single(a => a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId);
+                var dueTime = 9999;
+                if (demand.GetType() == typeof(DemandOrderPart))
+                {
+                    dueTime = _context.OrderParts
                                 .Include(a => a.Order)
-                                .Single(a => a.Id == orderPartId)
+                                .Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId)
                                 .Order
                                 .DueTime;
+                }
+                
 
                 //get remaining time
                 plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - plannableSchedule.Start;
@@ -159,7 +239,10 @@ namespace Master40.BusinessLogic.MRP
 
         private List<ProductionOrderWorkSchedule> GetSchedules()
         {
-            var demandRequester = _context.Demands.Where(b => b.State == State.ForwardScheduleExists || b.State == State.ExistsInCapacityPlan).ToList();
+            var demandRequester = _context.Demands.Where(b => b.State == State.BackwardScheduleExists 
+                                                            || b.State == State.ExistsInCapacityPlan 
+                                                            || b.State == State.ForwardScheduleExists)
+                                                            .ToList();
            
             var productionOrderWorkSchedule = new List<ProductionOrderWorkSchedule>();
             foreach (var demandReq in demandRequester)
@@ -178,7 +261,7 @@ namespace Master40.BusinessLogic.MRP
         {
             var provider =
                 _context.Demands.OfType<DemandProviderProductionOrder>().Include(a => a.ProductionOrder).ThenInclude(b => b.ProductionOrderBoms)
-                    .Where(a => a.DemandRequesterId == requester.Id)
+                    .Where(a => a.DemandRequester.DemandRequesterId == requester.Id)
                     .ToList();
             var schedules = new List<ProductionOrderWorkSchedule>();
             foreach (var prov in provider)
@@ -264,9 +347,19 @@ namespace Master40.BusinessLogic.MRP
             }
             return lowestHierarchyMember;
         }
-
+    }
+    public class MachineGroupProductionOrderWorkSchedules
+    {
+        public int MachineGroupId { get; set; }
+        public List<ProductionOrderWorkSchedulesInHours> ProductionOrderWorkSchedulesInHours { get; set; }
     }
 
-   
-    
+    public class ProductionOrderWorkSchedulesInHours
+    {
+        public int Time { get; set; }
+        public List<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
+    }
+
+
+
 }

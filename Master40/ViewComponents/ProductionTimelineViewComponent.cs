@@ -7,10 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
+using Microsoft.CodeAnalysis;
 
 namespace Master40.ViewComponents
 {
@@ -123,21 +125,44 @@ namespace Master40.ViewComponents
                                                                                        int n, int orderId, int schedulingState)
         {
             // get the corresponding Order Parts to Order
-            var demand = _context.Demands.OfType<DemandOrderPart>()
+            var demands = _context.Demands.OfType<DemandOrderPart>()
                     .Include(x => x.OrderPart)
-                    .Where(o => o.OrderPart.OrderId == orderId).ToList();
+                    .Where(o => o.OrderPart.OrderId == orderId)
+                    //.Join(_context.Demands.OfType<DemandProductionOrderBom>(),dop => dop.Id,dpob => dpob.DemandRequesterId,(dop,dpob) => new {DemandOrderPart = dop, DemandProductionOrderBom = dpob})
+                    .ToList();
+            var demandboms = new List<DemandProductionOrderBom>();
+            foreach (var demand in demands)
+            {
+                var boms =
+                    _context.Demands.OfType<DemandProductionOrderBom>().Where(a => a.DemandRequesterId == demand.Id);
+                foreach (var bom in boms)
+                {
+                   demandboms.Add(bom); 
+                }
+            }
+            
 
             // get Demand Providers for this Order
             var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
-                                   join d in demand on c.DemandRequesterId equals d.Id
+                                   join d in demands on c.DemandRequesterId equals ((IDemandToProvider)d).Id
                                    select c).ToList();
+            var demandBomProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
+                join d in demandboms on c.DemandRequesterId equals d.Id
+                select c).ToList();
+
+
+            /*var demandBomProviders = _context.Demands.OfType<DemandProviderProductionOrder>()
+                .Join(demandboms, po => po.Id, bom => bom.Id,
+                    (po, bom) => new {DemandProviderProductionOrder = po, DemandProductionOrderBom = bom});*/
 
             // get ProductionOrderWorkSchedule for 
             var powDetails = (from p in pows
                               join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
                               select p).ToList();
-
+            var powBoms = (from p in pows join dbp in demandBomProviders on p.ProductionOrderId equals dbp.ProductionOrderId select p).ToList();
             
+            powDetails.AddRange(powBoms);
+
             return await CreateTimelineForProductionOrder(schedule, powDetails, (ganttColors)n, schedulingState);
         }
 
@@ -231,14 +256,17 @@ namespace Master40.ViewComponents
                 var stacking = false;
                 foreach (var item in items)
                 {
-                    if ((item.IntFrom < productionTimelineItem.IntFrom &&
-                         item.IntTo > productionTimelineItem.IntTo)
+                    if ((item.IntFrom <= productionTimelineItem.IntFrom &&
+                         item.IntTo > productionTimelineItem.IntFrom)
+                        ||
+                        (item.IntFrom < productionTimelineItem.IntTo &&
+                        item.IntTo >= productionTimelineItem.IntTo)
                         ||
                         (item.IntFrom > productionTimelineItem.IntFrom &&
                          item.IntTo < productionTimelineItem.IntTo)
                         ||
-                        (item.IntFrom < productionTimelineItem.IntTo &&
-                         item.IntTo > productionTimelineItem.IntTo))
+                        (item.IntFrom <= productionTimelineItem.IntFrom &&
+                         item.IntTo >= productionTimelineItem.IntTo))
                     {
                         stacking = true;
                     }
@@ -310,7 +338,8 @@ namespace Master40.ViewComponents
         /// <returns></returns>
         private int GetOrderId(ProductionOrderWorkSchedule pow)
         {
-            var requester = (DemandOrderPart) pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester;
+            //call requester.requester to make sure that also the DemandProductionOrderBoms find the DemandOrderPart
+            var requester = (DemandOrderPart) pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
             var orderId = _context.OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
             return orderId;
         }

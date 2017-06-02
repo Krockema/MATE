@@ -41,7 +41,6 @@ namespace Master40.BusinessLogic.MRP
                 //add specific workSchedule
                 var workSchedule = new ProductionOrderWorkSchedule();
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
-                workSchedule.Duration *= (int) productionOrder.Quantity;
                 workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.End = -1;
                 workSchedule.Start = 0;
@@ -125,9 +124,10 @@ namespace Master40.BusinessLogic.MRP
 
         private int GetDueTime(IDemandToProvider demand)
         {
+            demand = _context.Demands.Include(a => a.DemandRequester).Single(a => a.Id == demand.Id);
             var dueTime = 9999;
-            if (demand.GetType() == typeof(DemandOrderPart))
-                dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId).Order.DueTime;
+            if (demand.DemandRequester.GetType() == typeof(DemandOrderPart))
+                dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand.DemandRequester).OrderPartId).Order.DueTime;
             return dueTime;
         }
 
@@ -156,6 +156,11 @@ namespace Master40.BusinessLogic.MRP
         //returns a list of all workSchedules for the given orderPart and planningType
         private List<ProductionOrderWorkSchedule> GetProductionOrderWorkSchedules(IDemandToProvider demand)
         {
+            //get child(bom)-Demands
+            var bomDemands = 
+                _context.Demands.OfType<DemandProductionOrderBom>().Include(a => a.DemandProvider).Where(a => a.DemandRequesterId == demand.Id).ToList();
+            
+            //get initial pows
             var productionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>();
             foreach (var demandProvider in demand.DemandProvider)
             {
@@ -166,6 +171,22 @@ namespace Master40.BusinessLogic.MRP
                     {
                         productionOrderWorkSchedules.Add(schedule);
                     }
+            }
+
+            //get pows for bomDemands
+            foreach (var bomDemand in bomDemands)
+            {
+                foreach (var demandProvider in bomDemand.DemandProvider)
+                {
+                    if (demandProvider.GetType() == typeof(DemandProviderProductionOrder))
+                        foreach (var schedule in _context.ProductionOrderWorkSchedule.Where(a =>
+                                                        a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
+                                                        .OrderBy(a => a.ProductionOrder).ThenByDescending(a => a.HierarchyNumber).ToList())
+                        {
+                            productionOrderWorkSchedules.Add(schedule);
+                        }
+                }
+                
             }
             return productionOrderWorkSchedules;
         }
