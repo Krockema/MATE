@@ -1,18 +1,9 @@
 @model Master40.DB.Models.OrderPart
-
-@{
-    ViewData["Title"] = "Delete";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Delete</h2>
-
 <h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>OrderPart</h4>
     <hr />
     <dl class="dl-horizontal">
-        <input type="hidden" asp-for="OrderPartId" />
         <dt>
             @Html.DisplayNameFor(model => model.Quantity)
         </dt>
@@ -20,23 +11,31 @@
             @Html.DisplayFor(model => model.Quantity)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.IsPlanned)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsPlanned)
+        </dd>
+        <input type="hidden" asp-for="Id" />
+        <dt>
             @Html.DisplayNameFor(model => model.Article)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Article.ArticleId)
+            @Html.DisplayFor(model => model.Article.Id)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Order)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Order.OrderId)
+            @Html.DisplayFor(model => model.Order.Id)
         </dd>
     </dl>
     
     <form asp-action="Delete">
         <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            <a asp-action="Index">Back to List</a>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <input type="submit" value="Delete" class="btn btn-default" /> 
         </div>
     </form>
 </div>
+

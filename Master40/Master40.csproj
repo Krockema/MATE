@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BusinessLogic\Helper\**" />
+    <Content Remove="BusinessLogic\Helper\**" />
+    <EmbeddedResource Remove="BusinessLogic\Helper\**" />
+    <None Remove="BusinessLogic\Helper\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\css\jQuerryGantt.css" />
     <Content Include="wwwroot\css\menu.css" />
     <Content Include="wwwroot\css\MenuV2.css" />
@@ -53,7 +60,6 @@
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="BusinessLogic\Helper\" />
     <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
   <ItemGroup>

@@ -39,17 +39,16 @@
             @Html.DisplayNameFor(model => model.ArticleType)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ArticleType.ArticleTypeId)
+            @Html.DisplayFor(model => model.ArticleType.Id)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Unit)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Unit.UnitId)
+            @Html.DisplayFor(model => model.Unit.Id)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.ArticleId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

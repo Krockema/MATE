@@ -17,7 +17,7 @@ namespace Master40.DBMigrations
                 .HasAnnotation("ProductVersion", "1.1.1")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.Article", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.Article", b =>
                 {
                     b.Property<int>("ArticleId")
                         .ValueGeneratedOnAdd();
@@ -43,7 +43,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Article");
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.ArticleBom", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.ArticleBom", b =>
                 {
                     b.Property<int>("ArticleBomId")
                         .ValueGeneratedOnAdd();
@@ -65,7 +65,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ArticleBoms");
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.ArticleType", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.ArticleType", b =>
                 {
                     b.Property<int>("ArticleTypeId")
                         .ValueGeneratedOnAdd();
@@ -77,7 +77,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ArticleTypes");
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.Stock", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.Stock", b =>
                 {
                     b.Property<int>("StockId")
                         .ValueGeneratedOnAdd();
@@ -100,7 +100,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Stock");
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.Unit", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.Unit", b =>
                 {
                     b.Property<int>("UnitId")
                         .ValueGeneratedOnAdd();
@@ -112,36 +112,36 @@ namespace Master40.DBMigrations
                     b.ToTable("Units");
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.Article", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.Article", b =>
                 {
-                    b.HasOne("Master_DB_Test.Models.DB.ArticleType", "ArticleType")
+                    b.HasOne("Master_DB_Test.DB.Models.ArticleType", "ArticleType")
                         .WithMany()
                         .HasForeignKey("ArticleTypeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master_DB_Test.Models.DB.Unit", "Unit")
+                    b.HasOne("Master_DB_Test.DB.Models.Unit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.ArticleBom", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.ArticleBom", b =>
                 {
-                    b.HasOne("Master_DB_Test.Models.DB.Article", "Article")
+                    b.HasOne("Master_DB_Test.DB.Models.Article", "Article")
                         .WithMany("ArticleBom")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master_DB_Test.Models.DB.ArticleBom", "ParrentArticleBom")
+                    b.HasOne("Master_DB_Test.DB.Models.ArticleBom", "ParrentArticleBom")
                         .WithMany("ChildArticleBom")
                         .HasForeignKey("ParrentArticleBomId");
                 });
 
-            modelBuilder.Entity("Master_DB_Test.Models.DB.Stock", b =>
+            modelBuilder.Entity("Master_DB_Test.DB.Models.Stock", b =>
                 {
-                    b.HasOne("Master_DB_Test.Models.DB.Article", "Article")
+                    b.HasOne("Master_DB_Test.DB.Models.Article", "Article")
                         .WithOne("Stock")
-                        .HasForeignKey("Master_DB_Test.Models.DB.Stock", "ArticleForeignKey")
+                        .HasForeignKey("Master_DB_Test.DB.Models.Stock", "ArticleForeignKey")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
         }

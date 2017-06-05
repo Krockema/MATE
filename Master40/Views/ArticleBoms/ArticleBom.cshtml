@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Master40.Models.DB.ArticleBom>
+﻿@model IEnumerable<Master40.DB.Models.ArticleBom>
 @{
     string level = ViewData["level"]?.ToString() ?? "";
     level = (level != "") ? level + "." : level;
@@ -21,10 +21,10 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArticleChild.ArticleId)
+                @Html.DisplayFor(modelItem => item.ArticleChild.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArticleParent.ArticleId)
+                @Html.DisplayFor(modelItem => item.ArticleParent.Id)
             </td>
             <td>
                 @foreach (var ag in item.ArticleChild.WorkSchedules)
@@ -38,9 +38,9 @@
                 }
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ArticleBomId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ArticleBomId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ArticleBomId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
         if (item.ArticleChild.ArticleBoms != null)

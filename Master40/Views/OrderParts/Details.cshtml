@@ -1,14 +1,7 @@
 @model Master40.DB.Models.OrderPart
 
-@{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Details</h2>
-
 <div>
-    <h4>OrderPart</h4>
+    <h4>OrderParts for Order No.: @Html.DisplayFor(model => model.Order.Id)</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -18,20 +11,19 @@
             @Html.DisplayFor(model => model.Quantity)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.IsPlanned)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsPlanned)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Article)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Article.ArticleId)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Order)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Order.OrderId)
+            @Html.DisplayFor(model => model.Article.Name)
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderPartId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
 </div>

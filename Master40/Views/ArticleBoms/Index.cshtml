@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.Models.DB.Article>
+@model IEnumerable<Master40.DB.Models.Article>
 
 @{
     ViewData["Title"] = "Index";
@@ -72,9 +72,9 @@
                     }
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ArticleId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ArticleId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ArticleId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
             <tr>

@@ -17,7 +17,7 @@ namespace Master40.DBMigrations
                 .HasAnnotation("ProductVersion", "1.1.1")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Master40.Models.DB.Article", b =>
+            modelBuilder.Entity("Master40.DB.Models.Article", b =>
                 {
                     b.Property<int>("ArticleId")
                         .ValueGeneratedOnAdd();
@@ -43,7 +43,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Article");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ArticleBom", b =>
+            modelBuilder.Entity("Master40.DB.Models.ArticleBom", b =>
                 {
                     b.Property<int>("ArticleBomId")
                         .ValueGeneratedOnAdd();
@@ -65,7 +65,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ArticleBoms");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ArticleToDemand", b =>
+            modelBuilder.Entity("Master40.DB.Models.ArticleToDemand", b =>
                 {
                     b.Property<int>("ArticleToDemandId")
                         .ValueGeneratedOnAdd();
@@ -83,7 +83,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ArticleToDemand");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ArticleType", b =>
+            modelBuilder.Entity("Master40.DB.Models.ArticleType", b =>
                 {
                     b.Property<int>("ArticleTypeId")
                         .ValueGeneratedOnAdd();
@@ -95,7 +95,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ArticleTypes");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.BusinessPartner", b =>
+            modelBuilder.Entity("Master40.DB.Models.BusinessPartner", b =>
                 {
                     b.Property<int>("BusinessPartnerId")
                         .ValueGeneratedOnAdd();
@@ -111,7 +111,7 @@ namespace Master40.DBMigrations
                     b.ToTable("BusinessPartners");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Demand", b =>
+            modelBuilder.Entity("Master40.DB.Models.Demand", b =>
                 {
                     b.Property<int>("DemandId")
                         .ValueGeneratedOnAdd();
@@ -125,7 +125,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Demands");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.DemandOrder", b =>
+            modelBuilder.Entity("Master40.DB.Models.DemandOrder", b =>
                 {
                     b.Property<int>("DemandOrderId")
                         .ValueGeneratedOnAdd();
@@ -146,7 +146,7 @@ namespace Master40.DBMigrations
                     b.ToTable("DemandOrders");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.DemandPurchase", b =>
+            modelBuilder.Entity("Master40.DB.Models.DemandPurchase", b =>
                 {
                     b.Property<int>("DemandPurchseId")
                         .ValueGeneratedOnAdd();
@@ -167,7 +167,7 @@ namespace Master40.DBMigrations
                     b.ToTable("DemandPurchases");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.DemandStock", b =>
+            modelBuilder.Entity("Master40.DB.Models.DemandStock", b =>
                 {
                     b.Property<int>("DemandStockId")
                         .ValueGeneratedOnAdd();
@@ -188,7 +188,7 @@ namespace Master40.DBMigrations
                     b.ToTable("DemandStock");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Machine", b =>
+            modelBuilder.Entity("Master40.DB.Models.Machine", b =>
                 {
                     b.Property<int>("MachineId")
                         .ValueGeneratedOnAdd();
@@ -208,7 +208,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Machines");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.MachineGroup", b =>
+            modelBuilder.Entity("Master40.DB.Models.MachineGroup", b =>
                 {
                     b.Property<int>("MachineGroupId")
                         .ValueGeneratedOnAdd();
@@ -220,7 +220,7 @@ namespace Master40.DBMigrations
                     b.ToTable("MachineGroups");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.MachineTool", b =>
+            modelBuilder.Entity("Master40.DB.Models.MachineTool", b =>
                 {
                     b.Property<int>("MachineToolId")
                         .ValueGeneratedOnAdd();
@@ -238,7 +238,7 @@ namespace Master40.DBMigrations
                     b.ToTable("MachineTools");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Order", b =>
+            modelBuilder.Entity("Master40.DB.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd();
@@ -256,7 +256,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.OrderPart", b =>
+            modelBuilder.Entity("Master40.DB.Models.OrderPart", b =>
                 {
                     b.Property<int>("OrderPartId")
                         .ValueGeneratedOnAdd();
@@ -276,7 +276,7 @@ namespace Master40.DBMigrations
                     b.ToTable("OrderParts");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrder", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrder", b =>
                 {
                     b.Property<int>("ProductionOrderId")
                         .ValueGeneratedOnAdd();
@@ -294,7 +294,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ProductionOrders");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrderBom", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrderBom", b =>
                 {
                     b.Property<int>("ProductionOrderBomId")
                         .ValueGeneratedOnAdd();
@@ -320,7 +320,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ProductionOrderBoms");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrderToProductionOrderWorkSchedule", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrderToProductionOrderWorkSchedule", b =>
                 {
                     b.Property<int>("ProductionOrderToProductionOrderWorkScheduleId")
                         .ValueGeneratedOnAdd();
@@ -338,7 +338,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ProductionOrderToProductionOrderWorkSchedules");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrderWorkSchedule", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrderWorkSchedule", b =>
                 {
                     b.Property<int>("ProductionOrderWorkScheduleId")
                         .ValueGeneratedOnAdd();
@@ -362,7 +362,7 @@ namespace Master40.DBMigrations
                     b.ToTable("ProductionOrderWorkSchedule");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Purchase", b =>
+            modelBuilder.Entity("Master40.DB.Models.Purchase", b =>
                 {
                     b.Property<int>("PurchaseId")
                         .ValueGeneratedOnAdd();
@@ -380,7 +380,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Purchases");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.PurchasePart", b =>
+            modelBuilder.Entity("Master40.DB.Models.PurchasePart", b =>
                 {
                     b.Property<int>("PurchasePartId")
                         .ValueGeneratedOnAdd();
@@ -400,7 +400,7 @@ namespace Master40.DBMigrations
                     b.ToTable("PurchaseParts");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Stock", b =>
+            modelBuilder.Entity("Master40.DB.Models.Stock", b =>
                 {
                     b.Property<int>("StockId")
                         .ValueGeneratedOnAdd();
@@ -423,7 +423,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Stock");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Unit", b =>
+            modelBuilder.Entity("Master40.DB.Models.Unit", b =>
                 {
                     b.Property<int>("UnitId")
                         .ValueGeneratedOnAdd();
@@ -435,7 +435,7 @@ namespace Master40.DBMigrations
                     b.ToTable("Units");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.WorkSchedule", b =>
+            modelBuilder.Entity("Master40.DB.Models.WorkSchedule", b =>
                 {
                     b.Property<int>("WorkScheduleId")
                         .ValueGeneratedOnAdd();
@@ -505,203 +505,203 @@ namespace Master40.DBMigrations
                     b.ToTable("MenuItems");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Article", b =>
+            modelBuilder.Entity("Master40.DB.Models.Article", b =>
                 {
-                    b.HasOne("Master40.Models.DB.ArticleType", "ArticleType")
+                    b.HasOne("Master40.DB.Models.ArticleType", "ArticleType")
                         .WithMany()
                         .HasForeignKey("ArticleTypeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.Unit", "Unit")
+                    b.HasOne("Master40.DB.Models.Unit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ArticleBom", b =>
+            modelBuilder.Entity("Master40.DB.Models.ArticleBom", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "ArticleChild")
+                    b.HasOne("Master40.DB.Models.Article", "ArticleChild")
                         .WithMany("ArticleChilds")
                         .HasForeignKey("ArticleChildId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.Article", "ArticleParent")
+                    b.HasOne("Master40.DB.Models.Article", "ArticleParent")
                         .WithMany("ArticleBoms")
                         .HasForeignKey("ArticleParentId");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ArticleToDemand", b =>
+            modelBuilder.Entity("Master40.DB.Models.ArticleToDemand", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
+                    b.HasOne("Master40.DB.Models.Article", "Article")
                         .WithMany("ArtilceToDemand")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.Demand", "Demand")
+                    b.HasOne("Master40.DB.Models.Demand", "Demand")
                         .WithMany("ArtilceToDemand")
                         .HasForeignKey("DemandId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.DemandOrder", b =>
+            modelBuilder.Entity("Master40.DB.Models.DemandOrder", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Demand", "Demand")
+                    b.HasOne("Master40.DB.Models.Demand", "Demand")
                         .WithOne("DemandOrders")
-                        .HasForeignKey("Master40.Models.DB.DemandOrder", "DemandId")
+                        .HasForeignKey("Master40.DB.Models.DemandOrder", "DemandId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.OrderPart", "OrderPart")
+                    b.HasOne("Master40.DB.Models.OrderPart", "OrderPart")
                         .WithMany("DemandOdrders")
                         .HasForeignKey("OrderPartId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.DemandPurchase", b =>
+            modelBuilder.Entity("Master40.DB.Models.DemandPurchase", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Demand", "Demand")
+                    b.HasOne("Master40.DB.Models.Demand", "Demand")
                         .WithOne("DemandPurchases")
-                        .HasForeignKey("Master40.Models.DB.DemandPurchase", "DemandId")
+                        .HasForeignKey("Master40.DB.Models.DemandPurchase", "DemandId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.PurchasePart", "PurchasePart")
+                    b.HasOne("Master40.DB.Models.PurchasePart", "PurchasePart")
                         .WithMany("DemandPurchases")
                         .HasForeignKey("PurchasePartId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.DemandStock", b =>
+            modelBuilder.Entity("Master40.DB.Models.DemandStock", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Demand", "Demand")
+                    b.HasOne("Master40.DB.Models.Demand", "Demand")
                         .WithOne("DemandStocks")
-                        .HasForeignKey("Master40.Models.DB.DemandStock", "DemandId")
+                        .HasForeignKey("Master40.DB.Models.DemandStock", "DemandId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.Stock", "Stock")
+                    b.HasOne("Master40.DB.Models.Stock", "Stock")
                         .WithMany("DemandStock")
                         .HasForeignKey("StockId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Machine", b =>
+            modelBuilder.Entity("Master40.DB.Models.Machine", b =>
                 {
-                    b.HasOne("Master40.Models.DB.MachineGroup", "MachineGroup")
+                    b.HasOne("Master40.DB.Models.MachineGroup", "MachineGroup")
                         .WithMany("Machines")
                         .HasForeignKey("MachineGroupId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.MachineTool", b =>
+            modelBuilder.Entity("Master40.DB.Models.MachineTool", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Machine", "Machine")
+                    b.HasOne("Master40.DB.Models.Machine", "Machine")
                         .WithMany("MachineTools")
                         .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Order", b =>
+            modelBuilder.Entity("Master40.DB.Models.Order", b =>
                 {
-                    b.HasOne("Master40.Models.DB.BusinessPartner", "BusinessPartner")
+                    b.HasOne("Master40.DB.Models.BusinessPartner", "BusinessPartner")
                         .WithMany("Orders")
                         .HasForeignKey("BusinessPartnerId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.OrderPart", b =>
+            modelBuilder.Entity("Master40.DB.Models.OrderPart", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
+                    b.HasOne("Master40.DB.Models.Article", "Article")
                         .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.Order", "Order")
+                    b.HasOne("Master40.DB.Models.Order", "Order")
                         .WithMany("OrderParts")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrder", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrder", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
+                    b.HasOne("Master40.DB.Models.Article", "Article")
                         .WithMany("ProductionOrders")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrderBom", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrderBom", b =>
                 {
-                    b.HasOne("Master40.Models.DB.ProductionOrder", "ProductionOrderChild")
+                    b.HasOne("Master40.DB.Models.ProductionOrder", "ProductionOrderChild")
                         .WithMany("ProdProductionOrderBomChilds")
                         .HasForeignKey("ProductionOrderChildId");
 
-                    b.HasOne("Master40.Models.DB.ProductionOrder", "ProductionOrderParent")
+                    b.HasOne("Master40.DB.Models.ProductionOrder", "ProductionOrderParent")
                         .WithMany("ProductionOrderBoms")
                         .HasForeignKey("ProductionOrderParentId");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrderToProductionOrderWorkSchedule", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrderToProductionOrderWorkSchedule", b =>
                 {
-                    b.HasOne("Master40.Models.DB.ProductionOrder", "ProductionOrder")
+                    b.HasOne("Master40.DB.Models.ProductionOrder", "ProductionOrder")
                         .WithMany("ProductionOrderToProductionOrderWorkSchedule")
                         .HasForeignKey("ProductionOrderId");
 
-                    b.HasOne("Master40.Models.DB.ProductionOrderWorkSchedule", "ProductionOrderWorkSchedule")
+                    b.HasOne("Master40.DB.Models.ProductionOrderWorkSchedule", "ProductionOrderWorkSchedule")
                         .WithMany("ProductionOrderToWorkSchedules")
                         .HasForeignKey("ProductionOrderWorkScheduleId");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.ProductionOrderWorkSchedule", b =>
+            modelBuilder.Entity("Master40.DB.Models.ProductionOrderWorkSchedule", b =>
                 {
-                    b.HasOne("Master40.Models.DB.MachineGroup", "MachineGroup")
+                    b.HasOne("Master40.DB.Models.MachineGroup", "MachineGroup")
                         .WithMany("ProductionOrderWorkSchedules")
                         .HasForeignKey("MachineGroupId");
 
-                    b.HasOne("Master40.Models.DB.MachineTool", "MachineTool")
+                    b.HasOne("Master40.DB.Models.MachineTool", "MachineTool")
                         .WithMany()
                         .HasForeignKey("MachineToolId");
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Purchase", b =>
+            modelBuilder.Entity("Master40.DB.Models.Purchase", b =>
                 {
-                    b.HasOne("Master40.Models.DB.BusinessPartner", "BusinessPartner")
+                    b.HasOne("Master40.DB.Models.BusinessPartner", "BusinessPartner")
                         .WithMany("Purchases")
                         .HasForeignKey("BusinessPartnerId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.PurchasePart", b =>
+            modelBuilder.Entity("Master40.DB.Models.PurchasePart", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
+                    b.HasOne("Master40.DB.Models.Article", "Article")
                         .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.Purchase", "Purchase")
+                    b.HasOne("Master40.DB.Models.Purchase", "Purchase")
                         .WithMany("PurchaseParts")
                         .HasForeignKey("PurchaseId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.Stock", b =>
+            modelBuilder.Entity("Master40.DB.Models.Stock", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
+                    b.HasOne("Master40.DB.Models.Article", "Article")
                         .WithOne("Stock")
-                        .HasForeignKey("Master40.Models.DB.Stock", "ArticleForeignKey")
+                        .HasForeignKey("Master40.DB.Models.Stock", "ArticleForeignKey")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Master40.Models.DB.WorkSchedule", b =>
+            modelBuilder.Entity("Master40.DB.Models.WorkSchedule", b =>
                 {
-                    b.HasOne("Master40.Models.DB.Article", "Article")
+                    b.HasOne("Master40.DB.Models.Article", "Article")
                         .WithMany("WorkSchedules")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.MachineGroup", "MachineGroup")
+                    b.HasOne("Master40.DB.Models.MachineGroup", "MachineGroup")
                         .WithMany("WorkSchedules")
                         .HasForeignKey("MachineGroupId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Master40.Models.DB.MachineTool", "MachineTool")
+                    b.HasOne("Master40.DB.Models.MachineTool", "MachineTool")
                         .WithMany()
                         .HasForeignKey("MachineToolId");
                 });

@@ -51,7 +51,7 @@ namespace Master40.ViewComponents
             }
             else
             {   // default
-                orders = orders = _context.Orders.Select(x => x.Id).ToList();
+                orders = _context.Orders.Select(x => x.Id).ToList();
             }
 
             var schedule = await GetSchedulesForOrderList(orders, schedulingState);

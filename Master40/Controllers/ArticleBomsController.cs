@@ -66,8 +66,8 @@ namespace Master40.Controllers
         // GET: ArticleBoms/Create
         public IActionResult Create()
         {
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name");
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name");
             return View();
         }
 
@@ -84,8 +84,8 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleParentId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -102,8 +102,8 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleParentId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleParentId);
             return View(articleBom);
         }
 
@@ -139,8 +139,8 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleBom.ArticleParentId);
+            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleChildId);
+            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleParentId);
             return View(articleBom);
         }
 

@@ -1,21 +1,17 @@
 @model IEnumerable<Master40.DB.Models.OrderPart>
 
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
-
-<h2>Index</h2>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Quantity)
-                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsPlanned)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Article)
             </th>
@@ -32,15 +28,27 @@
                 @Html.DisplayFor(modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Article.Id)
+                @Html.DisplayFor(modelItem => item.IsPlanned)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Article.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Order.Id)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-controller="OrderParts" asp-route-id="@item.Id"
+                   data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </a>
+                <a asp-action="Details" asp-controller="OrderParts" asp-route-id="@item.Id"
+                   data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </a>
+                <a asp-action="Delete" asp-controller="OrderParts" asp-route-id="@item.Id"
+                   data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </a>
             </td>
         </tr>
 }
