@@ -73,6 +73,17 @@ namespace Master40.Controllers
             return View("Index", _processMrp.Logger);
         }
 
+        [HttpGet("[Controller]/CapacityPlanning")]
+        public async Task<IActionResult> CapacityPlanning()
+        {
+            //call to process MRP I and II
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
+
+            await Task.Yield();
+
+            return View("Index", _processMrp.Logger);
+        }
+
         public IActionResult Error()
         {
             return View();

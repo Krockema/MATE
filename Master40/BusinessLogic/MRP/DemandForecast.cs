@@ -175,7 +175,7 @@ namespace Master40.BusinessLogic.MRP
         private void CreateProductionOrderBom(IDemandToProvider demand, IDemandToProvider parent, ProductionOrder productionOrder)
         {
             var bom =
-                _context.ArticleBoms.Single(
+                _context.ArticleBoms.AsNoTracking().Single(
                     a => (a.ArticleChildId == demand.ArticleId) && (a.ArticleParentId == parent.ArticleId));
 
             //find parent

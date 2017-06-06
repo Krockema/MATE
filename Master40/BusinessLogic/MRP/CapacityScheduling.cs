@@ -26,6 +26,7 @@ namespace Master40.BusinessLogic.MRP
         public void GifflerThompsonScheduling()
         {
             var productionOrderWorkSchedules = GetSchedules();
+            ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
@@ -38,7 +39,7 @@ namespace Master40.BusinessLogic.MRP
                 CalculateActivitySlack(plannableSchedules);
                 var shortest = GetShortest(plannableSchedules);
                 
-                //build conflict set
+                //build conflict set excluding the shortest process
                 var conflictSet = GetConflictSet(shortest, plannableSchedules, productionOrderWorkSchedules);
 
                 //set starttimes of conflicts after the shortest process
@@ -53,6 +54,15 @@ namespace Master40.BusinessLogic.MRP
                 if (parent != null && !plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent,plannedSchedules)) plannableSchedules.Add(parent);
                 _context.ProductionOrderWorkSchedule.Update(shortest);
                 _context.SaveChanges();
+            }
+        }
+
+        private void ResetStartEnd(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
+            {
+                productionOrderWorkSchedule.Start = 0;
+                productionOrderWorkSchedule.End = 0;
             }
         }
 
@@ -77,8 +87,6 @@ namespace Master40.BusinessLogic.MRP
                     AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
                 }
             }
-            //if it exceeds capacity limits giffler-thompson has to be called
-
             return machineList;
         }
 
@@ -247,7 +255,6 @@ namespace Master40.BusinessLogic.MRP
             var productionOrderWorkSchedule = new List<ProductionOrderWorkSchedule>();
             foreach (var demandReq in demandRequester)
             {
-                demandReq.State = State.ForwardScheduleExists;
                 var schedules = GetProductionSchedules(demandReq);
                 foreach (var schedule in schedules)
                 {

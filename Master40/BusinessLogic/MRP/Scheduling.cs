@@ -42,12 +42,12 @@ namespace Master40.BusinessLogic.MRP
                 var workSchedule = new ProductionOrderWorkSchedule();
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.ProductionOrderId = productionOrder.Id;
-                workSchedule.End = -1;
+                workSchedule.End = 0;
                 workSchedule.Start = 0;
-                workSchedule.EndBackward = -1;
-                workSchedule.StartBackward = dueTime;
-                workSchedule.EndForward = -1;
-                workSchedule.StartForward = dueTime;
+                workSchedule.EndBackward = 0;
+                workSchedule.StartBackward = 0;
+                workSchedule.EndForward = 0;
+                workSchedule.StartForward = 0;
 
                 _context.ProductionOrderWorkSchedule.Add(workSchedule);
                 _context.SaveChanges();
@@ -204,7 +204,7 @@ namespace Master40.BusinessLogic.MRP
             }
             if (parent != null)
             {
-                int parentStart = workSchedule.StartBackward;
+                var parentStart = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester);
                 foreach (var parentSchedule in parent.ProductionOrderParent.ProductionOrderWorkSchedule)
                 {
                     if (parentSchedule.StartBackward < parentStart) parentStart = parentSchedule.StartBackward;
@@ -214,8 +214,7 @@ namespace Master40.BusinessLogic.MRP
             }
             else
             {
-                //initial value of start is duetime of the order
-                workSchedule.EndBackward = workSchedule.StartBackward;
+                workSchedule.EndBackward = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester);
             }
             return workSchedule.EndBackward;
         }
@@ -244,7 +243,6 @@ namespace Master40.BusinessLogic.MRP
             }
             else
             {
-                //initial value of start is duetime of the order
                 workSchedule.StartForward = 0;
             }
             return workSchedule.StartForward;
