@@ -55,7 +55,7 @@ namespace Master40.BusinessLogic.MRP
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
                     var capacity = new CapacityScheduling(_context);
-                    List<MachineGroupProductionOrderWorkSchedules> machineList = null;
+                    List<MachineGroupProductionOrderWorkSchedule> machineList = null;
                     //Todo: single only works when machineList gets written into DB, when its done take last part out
                     if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
                         machineList = capacity.CapacityPlanning();
@@ -68,8 +68,6 @@ namespace Master40.BusinessLogic.MRP
                         {
                             SetStartEndFromTermination(demand);
                         }
-                        
-                       
                     }
                     foreach (var demand in demands)
                     {

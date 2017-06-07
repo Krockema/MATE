@@ -34,9 +34,9 @@ namespace Master40.DB.Data.Context
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
-        public DbSet<DemandProductionOrderBom> DemandProductionOrderBom { get; set; }
-
-
+        public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
+        public DbSet<ProductionOrderWorkSchedulesByTimeStep> ProductionOrderWorkSchedulesByTimeSteps { get; set; }
+        public DbSet<MachineGroupProductionOrderWorkSchedule> MachineGroupProductionOrderWorkSchedules { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()
