@@ -10,8 +10,8 @@ namespace Master40.BusinessLogic.MRP
     internal interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
-        List<MachineGroupProductionOrderWorkSchedules> CapacityPlanning();
-        bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedules> machineList);
+        List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning();
+        bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList);
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -66,11 +66,11 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
-        public List<MachineGroupProductionOrderWorkSchedules> CapacityPlanning()
+        public List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning()
         {
             //Stack for every hour and machinegroup
             var productionOrderWorkSchedules = GetSchedules();
-            var machineList = new List<MachineGroupProductionOrderWorkSchedules>();
+            var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
@@ -79,10 +79,10 @@ namespace Master40.BusinessLogic.MRP
                     AddToMachineGroup(machine, productionOrderWorkSchedule);
                 else
                 {
-                    machineList.Add(new MachineGroupProductionOrderWorkSchedules()
+                    machineList.Add(new MachineGroupProductionOrderWorkSchedule()
                     {
                         MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
-                        ProductionOrderWorkSchedulesInHours = new List<ProductionOrderWorkSchedulesInHours>()
+                        ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
                     });
                     AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
                 }
@@ -90,11 +90,11 @@ namespace Master40.BusinessLogic.MRP
             return machineList;
         }
 
-        public bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedules> machineList )
+        public bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList )
         {
             foreach (var machine in machineList)
             {
-                foreach (var hour in machine.ProductionOrderWorkSchedulesInHours)
+                foreach (var hour in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
                     if (_context.Machines.Single(a => a.MachineGroupId == machine.MachineGroupId).Capacity < hour.ProductionOrderWorkSchedules.Count)
                         return true;
@@ -104,7 +104,7 @@ namespace Master40.BusinessLogic.MRP
             return false;
         }
 
-        private void AddToMachineGroup(MachineGroupProductionOrderWorkSchedules machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        private void AddToMachineGroup(MachineGroupProductionOrderWorkSchedule machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
             var start = productionOrderWorkSchedule.StartBackward;
             var end = productionOrderWorkSchedule.EndBackward;
@@ -117,7 +117,7 @@ namespace Master40.BusinessLogic.MRP
             for (var i = start; i < end; i++)
             {
                 var found = false;
-                foreach (var listOfProductionOrderWorkSchedulesInHourse in machine.ProductionOrderWorkSchedulesInHours)
+                foreach (var listOfProductionOrderWorkSchedulesInHourse in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
                     if (listOfProductionOrderWorkSchedulesInHourse.Time == i)
                     {
@@ -126,7 +126,7 @@ namespace Master40.BusinessLogic.MRP
                         break;
                     }
                 }
-                if (!found) machine.ProductionOrderWorkSchedulesInHours.Add(new ProductionOrderWorkSchedulesInHours()
+                if (!found) machine.ProductionOrderWorkSchedulesByTimeSteps.Add(new ProductionOrderWorkSchedulesByTimeStep()
                 {
                     Time = i,
                     ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
@@ -355,18 +355,4 @@ namespace Master40.BusinessLogic.MRP
             return lowestHierarchyMember;
         }
     }
-    public class MachineGroupProductionOrderWorkSchedules
-    {
-        public int MachineGroupId { get; set; }
-        public List<ProductionOrderWorkSchedulesInHours> ProductionOrderWorkSchedulesInHours { get; set; }
-    }
-
-    public class ProductionOrderWorkSchedulesInHours
-    {
-        public int Time { get; set; }
-        public List<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
-    }
-
-
-
 }
