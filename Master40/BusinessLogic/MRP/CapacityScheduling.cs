@@ -25,7 +25,7 @@ namespace Master40.BusinessLogic.MRP
         }
         public void GifflerThompsonScheduling()
         {
-            var productionOrderWorkSchedules = GetSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules();
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
@@ -69,7 +69,7 @@ namespace Master40.BusinessLogic.MRP
         public List<MachineGroupProductionOrderWorkSchedules> CapacityPlanning()
         {
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules();
             var machineList = new List<MachineGroupProductionOrderWorkSchedules>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -245,9 +245,13 @@ namespace Master40.BusinessLogic.MRP
             return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
         }
 
-        private List<ProductionOrderWorkSchedule> GetSchedules()
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules()
         {
-            var demandRequester = _context.Demands.Where(b => b.State == State.BackwardScheduleExists 
+            var demandRequester = _context.Demands
+                                            .Include(a => a.DemandProvider)
+                                            .Include(a => a.DemandRequester)
+                                            .ThenInclude(a => a.DemandRequester)
+                                                    .Where(b => b.State == State.BackwardScheduleExists 
                                                             || b.State == State.ExistsInCapacityPlan 
                                                             || b.State == State.ForwardScheduleExists)
                                                             .ToList();
@@ -267,7 +271,11 @@ namespace Master40.BusinessLogic.MRP
         private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester)
         {
             var provider =
-                _context.Demands.OfType<DemandProviderProductionOrder>().Include(a => a.ProductionOrder).ThenInclude(b => b.ProductionOrderBoms)
+                _context.Demands.OfType<DemandProviderProductionOrder>()
+                    .Include(a => a.ProductionOrder)
+                    .ThenInclude(c => c.ProductionOrderWorkSchedule)
+                    .Include(b => b.ProductionOrder)
+                    .ThenInclude(d => d.ProductionOrderBoms)
                     .Where(a => a.DemandRequester.DemandRequesterId == requester.Id)
                     .ToList();
             var schedules = new List<ProductionOrderWorkSchedule>();

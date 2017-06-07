@@ -42,12 +42,6 @@ namespace Master40.BusinessLogic.MRP
                 var workSchedule = new ProductionOrderWorkSchedule();
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.ProductionOrderId = productionOrder.Id;
-                workSchedule.End = 0;
-                workSchedule.Start = 0;
-                workSchedule.EndBackward = 0;
-                workSchedule.StartBackward = 0;
-                workSchedule.EndForward = 0;
-                workSchedule.StartForward = 0;
 
                 _context.ProductionOrderWorkSchedule.Add(workSchedule);
                 _context.SaveChanges();
@@ -165,8 +159,8 @@ namespace Master40.BusinessLogic.MRP
             foreach (var demandProvider in demand.DemandProvider)
             {
                 if (demandProvider.GetType() == typeof(DemandProviderProductionOrder))
-                    foreach (var schedule in _context.ProductionOrderWorkSchedule.Where(a =>
-                                                    a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
+                    foreach (var schedule in _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                                                    .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
                                                     .OrderBy(a => a.ProductionOrder).ThenByDescending(a => a.HierarchyNumber).ToList())
                     {
                         productionOrderWorkSchedules.Add(schedule);
@@ -179,8 +173,8 @@ namespace Master40.BusinessLogic.MRP
                 foreach (var demandProvider in bomDemand.DemandProvider)
                 {
                     if (demandProvider.GetType() == typeof(DemandProviderProductionOrder))
-                        foreach (var schedule in _context.ProductionOrderWorkSchedule.Where(a =>
-                                                        a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
+                        foreach (var schedule in _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                                                        .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
                                                         .OrderBy(a => a.ProductionOrder).ThenByDescending(a => a.HierarchyNumber).ToList())
                         {
                             productionOrderWorkSchedules.Add(schedule);
@@ -197,7 +191,7 @@ namespace Master40.BusinessLogic.MRP
             ProductionOrderBom parent = null;
             
             //search for parents
-            foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == workSchedule.ProductionOrderId))
+            foreach (var pob in _context.ProductionOrderBoms.Include(a => a.ProductionOrderParent).ThenInclude(b => b.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderChildId == workSchedule.ProductionOrderId))
             {
                 if (pob.ProductionOrderParentId != workSchedule.ProductionOrder.Id)
                     parent = pob;
