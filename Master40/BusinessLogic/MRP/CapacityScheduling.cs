@@ -10,8 +10,8 @@ namespace Master40.BusinessLogic.MRP
     internal interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
-        List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning();
-        bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList);
+        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning();
+        bool CapacityLeveling(List<MachineGroupProductionOrderWorkSchedule> machineList);
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -28,6 +28,7 @@ namespace Master40.BusinessLogic.MRP
             var productionOrderWorkSchedules = GetProductionSchedules();
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
+            productionOrderWorkSchedules = CalculateNewDuration(productionOrderWorkSchedules);
 
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
             var plannedSchedules = new List<ProductionOrderWorkSchedule>();
@@ -57,6 +58,19 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
+        private List<ProductionOrderWorkSchedule> CalculateNewDuration(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            //Capacity vs Duration vs Quantity
+            //Todo: clone Pows for every machine
+            //Todo: change pows from machinegroup to machine
+            //Todo: calculate duration for every pows/machine
+            //Todo: which data do i need for gt alg?
+            //Todo: perhaps calc with starttime 2,5 for 2 machines so that 1 is at 2 and the other at 3?
+            //Todo: calc with duration of Quantity*duration/capacity
+
+            return productionOrderWorkSchedules;
+        }
+
         private void ResetStartEnd(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -66,7 +80,7 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
-        public List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning()
+        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning()
         {
             ClearMachineGroupProductionOrderWorkSchedule();
             //Stack for every hour and machinegroup
@@ -75,20 +89,24 @@ namespace Master40.BusinessLogic.MRP
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
-                var machine = machineList.Find(a => a.MachineGroupId == productionOrderWorkSchedule.MachineGroupId);
-                if (machine != null)
-                    AddToMachineGroup(machine, productionOrderWorkSchedule);
-                else
+                //calculate every pows for the amount of pieces ordered parallel
+                for (var i= 0; i<productionOrderWorkSchedule.ProductionOrder.Quantity; i++)
                 {
-                    var schedule = new MachineGroupProductionOrderWorkSchedule()
+                    var machine = machineList.Find(a => a.MachineGroupId == productionOrderWorkSchedule.MachineGroupId);
+                    if (machine != null)
+                        AddToMachineGroup(machine, productionOrderWorkSchedule);
+                    else
                     {
-                        MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
-                        ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
-                    };
-                    machineList.Add(schedule);
-                    _context.Add(schedule);
-                    _context.SaveChanges();
-                    AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
+                        var schedule = new MachineGroupProductionOrderWorkSchedule()
+                        {
+                            MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
+                            ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
+                        };
+                        machineList.Add(schedule);
+                        _context.Add(schedule);
+                        _context.SaveChanges();
+                        AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
+                    }
                 }
             }
             return machineList;
@@ -100,7 +118,7 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        public bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList )
+        public bool CapacityLeveling(List<MachineGroupProductionOrderWorkSchedule> machineList )
         {
             foreach (var machine in machineList)
             {
