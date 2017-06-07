@@ -68,6 +68,7 @@ namespace Master40.BusinessLogic.MRP
 
         public List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning()
         {
+            ClearMachineGroupProductionOrderWorkSchedule();
             //Stack for every hour and machinegroup
             var productionOrderWorkSchedules = GetProductionSchedules();
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
@@ -79,15 +80,24 @@ namespace Master40.BusinessLogic.MRP
                     AddToMachineGroup(machine, productionOrderWorkSchedule);
                 else
                 {
-                    machineList.Add(new MachineGroupProductionOrderWorkSchedule()
+                    var schedule = new MachineGroupProductionOrderWorkSchedule()
                     {
                         MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
                         ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
-                    });
+                    };
+                    machineList.Add(schedule);
+                    _context.Add(schedule);
+                    _context.SaveChanges();
                     AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
                 }
             }
             return machineList;
+        }
+
+        private void ClearMachineGroupProductionOrderWorkSchedule()
+        {
+            _context.MachineGroupProductionOrderWorkSchedules.RemoveRange(_context.MachineGroupProductionOrderWorkSchedules);
+            _context.SaveChanges();
         }
 
         public bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList )
@@ -117,23 +127,32 @@ namespace Master40.BusinessLogic.MRP
             for (var i = start; i < end; i++)
             {
                 var found = false;
-                foreach (var listOfProductionOrderWorkSchedulesInHourse in machine.ProductionOrderWorkSchedulesByTimeSteps)
+                foreach (var productionOrderWorkSchedulesByTimeStep in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
-                    if (listOfProductionOrderWorkSchedulesInHourse.Time == i)
+                    if (productionOrderWorkSchedulesByTimeStep.Time == i)
                     {
-                        listOfProductionOrderWorkSchedulesInHourse.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
+                        productionOrderWorkSchedulesByTimeStep.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
                         found = true;
+                        _context.Update(productionOrderWorkSchedulesByTimeStep);
+                        _context.SaveChanges();
                         break;
                     }
                 }
-                if (!found) machine.ProductionOrderWorkSchedulesByTimeSteps.Add(new ProductionOrderWorkSchedulesByTimeStep()
+                if (!found)
                 {
-                    Time = i,
-                    ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
-                    {
-                        productionOrderWorkSchedule
-                    }
-                });
+                    var timestep = new ProductionOrderWorkSchedulesByTimeStep()
+                        {
+                            Time = i,
+                            ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
+                            {
+                                productionOrderWorkSchedule
+                            }
+                        };
+                    machine.ProductionOrderWorkSchedulesByTimeSteps.Add(timestep);
+                    _context.Add(timestep);
+                    _context.SaveChanges();
+                }
+                    
             }
         }
 

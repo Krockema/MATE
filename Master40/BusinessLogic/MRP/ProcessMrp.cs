@@ -58,7 +58,9 @@ namespace Master40.BusinessLogic.MRP
                     List<MachineGroupProductionOrderWorkSchedule> machineList = null;
                     //Todo: single only works when machineList gets written into DB, when its done take last part out
                     if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
+                    {
                         machineList = capacity.CapacityPlanning();
+                    }
                     
                     if ((capacity.CapacityLevelingNeeded(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
                         capacity.GifflerThompsonScheduling();
