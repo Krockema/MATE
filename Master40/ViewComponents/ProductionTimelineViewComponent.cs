@@ -392,14 +392,14 @@ namespace Master40.ViewComponents
         /// <returns></returns>
         private SelectList SchedulingState(int selectedItem)
         {
-             return new SelectList(new List<SelectListItem> {
-                new SelectListItem() { Text="Backward", Value="1"},
-                new SelectListItem() { Text="Forward", Value="2"},
-                new SelectListItem() { Text="Giffler-Thompson Machinebased", Value="3"},
-                new SelectListItem() { Text="Giffler-Thompson Orderbased", Value ="4"},
-            },"Value", "Text", selectedItem);
+            var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
+
+            if (_context.ProductionOrderWorkSchedule.Max(x => x.StartForward) == 0)
+                itemList.Append(new SelectListItem() {Text = "Forward", Value = "2"});
+
+            itemList.Append(new SelectListItem() { Text = "Giffler-Thompson Machinebased", Value = "3" });
+            itemList.Append(new SelectListItem() { Text = "Giffler-Thompson Orderbased", Value = "4" });
+            return new SelectList( itemList, "Value", "Text", selectedItem);
         }
-
     }
-
 }
