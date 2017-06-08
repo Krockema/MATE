@@ -397,10 +397,10 @@ namespace Master40.ViewComponents
             var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
 
             if (_context.ProductionOrderWorkSchedule.Max(x => x.StartForward) == 0)
-                itemList.Append(new SelectListItem() {Text = "Forward", Value = "2"});
+                itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
 
-            itemList.Append(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
-            itemList.Append(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
+            itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
+            itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
             return new SelectList( itemList, "Value", "Text", selectedItem);
         }
     }
