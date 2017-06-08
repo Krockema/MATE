@@ -25,6 +25,7 @@ namespace Master40.BusinessLogic.MRP
         }
         public void GifflerThompsonScheduling()
         {
+            //Todo: set machines
             var productionOrderWorkSchedules = GetProductionSchedules();
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
@@ -41,7 +42,7 @@ namespace Master40.BusinessLogic.MRP
                 var shortest = GetShortest(plannableSchedules);
                 
                 //build conflict set excluding the shortest process
-                var conflictSet = GetConflictSet(shortest, plannableSchedules, productionOrderWorkSchedules);
+                var conflictSet = GetConflictSet(shortest, productionOrderWorkSchedules, plannedSchedules);
 
                 //set starttimes of conflicts after the shortest process
                 SolveConflicts(shortest, conflictSet, productionOrderWorkSchedules);
@@ -193,15 +194,14 @@ namespace Master40.BusinessLogic.MRP
             return isAllowed;
         }
 
-        private List<ProductionOrderWorkSchedule> GetConflictSet(ProductionOrderWorkSchedule shortest,
-            List<ProductionOrderWorkSchedule> plannableSchedules, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules )
+        private List<ProductionOrderWorkSchedule> GetConflictSet(ProductionOrderWorkSchedule shortest, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, List<ProductionOrderWorkSchedule> plannedSchedules)
         {
             var conflictSet = new List<ProductionOrderWorkSchedule>();
 
-            foreach (var plannableSchedule in plannableSchedules)
+            foreach (var schedule in productionOrderWorkSchedules)
             {
-                if (plannableSchedule.MachineGroupId == shortest.MachineGroupId && !plannableSchedule.Equals(shortest))
-                    conflictSet.Add(plannableSchedule);
+                if (schedule.MachineGroupId == shortest.MachineGroupId && !schedule.Equals(shortest) && !plannedSchedules.Contains(schedule))
+                    conflictSet.Add(schedule);
             }
             var parent = GetParent(shortest, productionOrderWorkSchedules);
             if (parent != null)

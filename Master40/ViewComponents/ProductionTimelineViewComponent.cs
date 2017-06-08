@@ -54,7 +54,7 @@ namespace Master40.ViewComponents
                 orders = _context.Orders.Select(x => x.Id).ToList();
             }
 
-            var schedule = await GetSchedulesForOrderList(orders, schedulingState);
+            var schedule = (await GetSchedulesForOrderList(orders, schedulingState)).OrderBy(a => a.GroupId).ThenBy(b => b.Id);
             // Fill Select Fields
             var orderSelection = new SelectList(_context.Orders, "Id", "Name", orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
@@ -189,17 +189,16 @@ namespace Master40.ViewComponents
                         if (c.Any())
                             dependencies = c.FirstOrDefault().Id.ToString();
                     }
-                    AddToSchedule(schedule, schedulingState, item.MachineGroup.Name,
+                    schedule = AddToSchedule(schedule, schedulingState, item.MachineGroup.Name,
                         CreateProductionTimelineItem(item, start, end, gc, dependencies, schedulingState));
                 }
                 else
                 {
-                    AddToSchedule(schedule, schedulingState, "OrderId " + GetOrderId(item),
+                    schedule = AddToSchedule(schedule, schedulingState, "ProductionOrderId " + item.ProductionOrderId,
                         CreateProductionTimelineItem(item, start, end, GetMachineColor(item) , "", schedulingState));
                 }
 
             }
-            
             return schedule;
         }
 
@@ -215,7 +214,7 @@ namespace Master40.ViewComponents
         /// <param name="schedulingState"></param>
         /// <param name="name"></param>
         /// <param name="productionTimelineItem"></param>
-        private void AddToSchedule(List<ProductionTimeline> schedule, int schedulingState, string name, ProductionTimelineItem productionTimelineItem)
+        private List<ProductionTimeline> AddToSchedule(List<ProductionTimeline> schedule, int schedulingState, string name, ProductionTimelineItem productionTimelineItem)
         {
             if (schedule.Find(x => x.Name == name) == null || schedulingState <= 2)
             {
@@ -237,9 +236,10 @@ namespace Master40.ViewComponents
             {
                 CheckForStacking(productionTimelineItem, schedule, name);
             }
+            return schedule;
         }
 
-        private void CheckForStacking(ProductionTimelineItem productionTimelineItem, List<ProductionTimeline> schedule, string name)
+        private List<ProductionTimeline> CheckForStacking(ProductionTimelineItem productionTimelineItem, List<ProductionTimeline> schedule, string name)
         {
             var firstRow = schedule.Find(x => x.Name == name);
             var rows = schedule.FindAll(x => x.GroupId == firstRow.GroupId);
@@ -272,10 +272,10 @@ namespace Master40.ViewComponents
                     break;
                 }
             }
-            AddSubSchedule(productionTimelineItem, schedule, rowId, name);
+            return AddSubSchedule(productionTimelineItem, schedule, rowId, name);
         }
 
-        private void AddSubSchedule(ProductionTimelineItem productionTimelineItem, List<ProductionTimeline> schedule, int rowId, string name)
+        private List<ProductionTimeline> AddSubSchedule(ProductionTimelineItem productionTimelineItem, List<ProductionTimeline> schedule, int rowId, string name)
         {
             if (rowId > -1)
             {
@@ -297,8 +297,9 @@ namespace Master40.ViewComponents
                     Id = schedule.Count
                 });
             }
+            return schedule;
         }
-
+        
         /// <summary>
         /// Defines start and end for the ganttchart
         /// </summary>
@@ -336,6 +337,7 @@ namespace Master40.ViewComponents
             //call requester.requester to make sure that also the DemandProductionOrderBoms find the DemandOrderPart
             var requester = (DemandOrderPart) pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
             var orderId = _context.OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
+            
             return orderId;
         }
 

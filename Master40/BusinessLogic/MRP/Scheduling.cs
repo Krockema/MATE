@@ -42,7 +42,7 @@ namespace Master40.BusinessLogic.MRP
                 var workSchedule = new ProductionOrderWorkSchedule();
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.ProductionOrderId = productionOrder.Id;
-
+                workSchedule.MachineId = null;
                 _context.ProductionOrderWorkSchedule.Add(workSchedule);
                 _context.SaveChanges();
             }
