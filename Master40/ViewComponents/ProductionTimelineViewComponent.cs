@@ -128,7 +128,6 @@ namespace Master40.ViewComponents
             var demands = _context.Demands.OfType<DemandOrderPart>()
                     .Include(x => x.OrderPart)
                     .Where(o => o.OrderPart.OrderId == orderId)
-                    //.Join(_context.Demands.OfType<DemandProductionOrderBom>(),dop => dop.Id,dpob => dpob.DemandRequesterId,(dop,dpob) => new {DemandOrderPart = dop, DemandProductionOrderBom = dpob})
                     .ToList();
             var demandboms = new List<DemandProductionOrderBom>();
             foreach (var demand in demands)
@@ -149,11 +148,7 @@ namespace Master40.ViewComponents
             var demandBomProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
                 join d in demandboms on c.DemandRequesterId equals d.Id
                 select c).ToList();
-
-
-            /*var demandBomProviders = _context.Demands.OfType<DemandProviderProductionOrder>()
-                .Join(demandboms, po => po.Id, bom => bom.Id,
-                    (po, bom) => new {DemandProviderProductionOrder = po, DemandProductionOrderBom = bom});*/
+           
 
             // get ProductionOrderWorkSchedule for 
             var powDetails = (from p in pows

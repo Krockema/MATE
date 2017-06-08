@@ -10,8 +10,8 @@ namespace Master40.BusinessLogic.MRP
     internal interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
-        List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning();
-        bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList);
+        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning();
+        bool CapacityLeveling(List<MachineGroupProductionOrderWorkSchedule> machineList);
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -25,9 +25,10 @@ namespace Master40.BusinessLogic.MRP
         }
         public void GifflerThompsonScheduling()
         {
-            var productionOrderWorkSchedules = GetSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules();
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
+            productionOrderWorkSchedules = CalculateNewDuration(productionOrderWorkSchedules);
 
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
             var plannedSchedules = new List<ProductionOrderWorkSchedule>();
@@ -57,6 +58,19 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
+        private List<ProductionOrderWorkSchedule> CalculateNewDuration(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        {
+            //Capacity vs Duration vs Quantity
+            //Todo: clone Pows for every machine
+            //Todo: change pows from machinegroup to machine
+            //Todo: calculate duration for every pows/machine
+            //Todo: which data do i need for gt alg?
+            //Todo: perhaps calc with starttime 2,5 for 2 machines so that 1 is at 2 and the other at 3?
+            //Todo: calc with duration of Quantity*duration/capacity
+
+            return productionOrderWorkSchedules;
+        }
+
         private void ResetStartEnd(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -66,31 +80,45 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
-        public List<MachineGroupProductionOrderWorkSchedule> CapacityPlanning()
+        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning()
         {
+            ClearMachineGroupProductionOrderWorkSchedule();
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules();
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
-                var machine = machineList.Find(a => a.MachineGroupId == productionOrderWorkSchedule.MachineGroupId);
-                if (machine != null)
-                    AddToMachineGroup(machine, productionOrderWorkSchedule);
-                else
+                //calculate every pows for the amount of pieces ordered parallel
+                for (var i= 0; i<productionOrderWorkSchedule.ProductionOrder.Quantity; i++)
                 {
-                    machineList.Add(new MachineGroupProductionOrderWorkSchedule()
+                    var machine = machineList.Find(a => a.MachineGroupId == productionOrderWorkSchedule.MachineGroupId);
+                    if (machine != null)
+                        AddToMachineGroup(machine, productionOrderWorkSchedule);
+                    else
                     {
-                        MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
-                        ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
-                    });
-                    AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
+                        var schedule = new MachineGroupProductionOrderWorkSchedule()
+                        {
+                            MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
+                            ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
+                        };
+                        machineList.Add(schedule);
+                        _context.Add(schedule);
+                        _context.SaveChanges();
+                        AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
+                    }
                 }
             }
             return machineList;
         }
 
-        public bool CapacityLevelingNeeded(List<MachineGroupProductionOrderWorkSchedule> machineList )
+        private void ClearMachineGroupProductionOrderWorkSchedule()
+        {
+            _context.MachineGroupProductionOrderWorkSchedules.RemoveRange(_context.MachineGroupProductionOrderWorkSchedules);
+            _context.SaveChanges();
+        }
+
+        public bool CapacityLeveling(List<MachineGroupProductionOrderWorkSchedule> machineList )
         {
             foreach (var machine in machineList)
             {
@@ -117,23 +145,32 @@ namespace Master40.BusinessLogic.MRP
             for (var i = start; i < end; i++)
             {
                 var found = false;
-                foreach (var listOfProductionOrderWorkSchedulesInHourse in machine.ProductionOrderWorkSchedulesByTimeSteps)
+                foreach (var productionOrderWorkSchedulesByTimeStep in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
-                    if (listOfProductionOrderWorkSchedulesInHourse.Time == i)
+                    if (productionOrderWorkSchedulesByTimeStep.Time == i)
                     {
-                        listOfProductionOrderWorkSchedulesInHourse.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
+                        productionOrderWorkSchedulesByTimeStep.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
                         found = true;
+                        _context.Update(productionOrderWorkSchedulesByTimeStep);
+                        _context.SaveChanges();
                         break;
                     }
                 }
-                if (!found) machine.ProductionOrderWorkSchedulesByTimeSteps.Add(new ProductionOrderWorkSchedulesByTimeStep()
+                if (!found)
                 {
-                    Time = i,
-                    ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
-                    {
-                        productionOrderWorkSchedule
-                    }
-                });
+                    var timestep = new ProductionOrderWorkSchedulesByTimeStep()
+                        {
+                            Time = i,
+                            ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
+                            {
+                                productionOrderWorkSchedule
+                            }
+                        };
+                    machine.ProductionOrderWorkSchedulesByTimeSteps.Add(timestep);
+                    _context.Add(timestep);
+                    _context.SaveChanges();
+                }
+                    
             }
         }
 
@@ -245,9 +282,13 @@ namespace Master40.BusinessLogic.MRP
             return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
         }
 
-        private List<ProductionOrderWorkSchedule> GetSchedules()
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules()
         {
-            var demandRequester = _context.Demands.Where(b => b.State == State.BackwardScheduleExists 
+            var demandRequester = _context.Demands
+                                            .Include(a => a.DemandProvider)
+                                            .Include(a => a.DemandRequester)
+                                            .ThenInclude(a => a.DemandRequester)
+                                                    .Where(b => b.State == State.BackwardScheduleExists 
                                                             || b.State == State.ExistsInCapacityPlan 
                                                             || b.State == State.ForwardScheduleExists)
                                                             .ToList();
@@ -267,7 +308,11 @@ namespace Master40.BusinessLogic.MRP
         private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester)
         {
             var provider =
-                _context.Demands.OfType<DemandProviderProductionOrder>().Include(a => a.ProductionOrder).ThenInclude(b => b.ProductionOrderBoms)
+                _context.Demands.OfType<DemandProviderProductionOrder>()
+                    .Include(a => a.ProductionOrder)
+                    .ThenInclude(c => c.ProductionOrderWorkSchedule)
+                    .Include(b => b.ProductionOrder)
+                    .ThenInclude(d => d.ProductionOrderBoms)
                     .Where(a => a.DemandRequester.DemandRequesterId == requester.Id)
                     .ToList();
             var schedules = new List<ProductionOrderWorkSchedule>();

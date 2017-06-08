@@ -47,7 +47,40 @@ namespace Master40.BusinessLogic.MRP
                     if (task == MrpTask.All || task==MrpTask.GifflerThompson)
                         orderPart.IsPlanned = true;
                 }
-                
+                var demands =
+                        _context.Demands.Where(
+                            a =>
+                                a.State == State.BackwardScheduleExists || a.State == State.ForwardScheduleExists ||
+                                a.State == State.ExistsInCapacityPlan).ToList();
+                if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
+                {
+                    var capacity = new CapacityScheduling(_context);
+                    List<MachineGroupProductionOrderWorkSchedule> machineList = null;
+                    //Todo: single only works when machineList gets written into DB, when its done take last part out
+                    if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
+                    {
+                        machineList = capacity.CapacityRequirementsPlanning();
+                    }
+                    
+                    if ((capacity.CapacityLeveling(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
+                        capacity.GifflerThompsonScheduling();
+                    else
+                    {
+                        foreach (var demand in demands)
+                        {
+                            SetStartEndFromTermination(demand);
+                        }
+                    }
+                    foreach (var demand in demands)
+                    {
+                        demand.State = State.ExistsInCapacityPlan;
+                    }
+                    
+                }
+
+                _context.Demands.UpdateRange(demands);
+                _context.SaveChanges();
+
             });
         }
 
@@ -98,42 +131,24 @@ namespace Master40.BusinessLogic.MRP
                 demand.State = State.ForwardScheduleExists;
             }
             _context.SaveChanges();
-
-            if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
-            {
-                var capacity = new CapacityScheduling(_context);
-                List<MachineGroupProductionOrderWorkSchedule> machineList = null;
-                //Todo: single only works when machineList gets written into DB, when its done take last part out
-                if (task == MrpTask.All || task == MrpTask.Capacity || task==MrpTask.GifflerThompson)
-                    machineList = capacity.CapacityPlanning();
-                if ((capacity.CapacityLevelingNeeded(machineList) && task==MrpTask.All) || task == MrpTask.GifflerThompson)
-                    capacity.GifflerThompsonScheduling();
-                else
-                {
-                    SetStartEndFromTermination(demand);
-                }
-                demand.State = State.ExistsInCapacityPlan;
-            }
-
-            _context.Demands.Update((DemandToProvider)demand);
-            _context.SaveChanges();
         }
 
         private bool CheckNeedForward(IDemandToProvider demand)
         {
-            var forwardNecessary = false;
             var demandProviderProductionOrders = _context.Demands.OfType<DemandProviderProductionOrder>()
                 .Where(a => a.DemandRequesterId == demand.DemandRequesterId);
+            if (demand.GetType() == typeof(DemandStock))
+                return true;
             foreach (var demandProviderProductionOrder in demandProviderProductionOrders)
             {
                 var schedules = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
                     .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId);
                 foreach (var schedule in schedules)
                 {
-                    if (schedule.StartBackward < 0) forwardNecessary = true;
+                    if (schedule.StartBackward < 0) return true;
                 }
             }
-            return forwardNecessary;
+            return false;
         }
 
         private void ExecutePlanning(IDemandToProvider demand, 
