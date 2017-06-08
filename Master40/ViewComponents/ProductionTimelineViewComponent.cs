@@ -399,8 +399,8 @@ namespace Master40.ViewComponents
             if (_context.ProductionOrderWorkSchedule.Max(x => x.StartForward) == 0)
                 itemList.Append(new SelectListItem() {Text = "Forward", Value = "2"});
 
-            itemList.Append(new SelectListItem() { Text = "Giffler-Thompson Machinebased", Value = "3" });
-            itemList.Append(new SelectListItem() { Text = "Giffler-Thompson Orderbased", Value = "4" });
+            itemList.Append(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
+            itemList.Append(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
             return new SelectList( itemList, "Value", "Text", selectedItem);
         }
     }

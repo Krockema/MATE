@@ -6,6 +6,7 @@ namespace Master40.DB.Models
     {
         public int Id { get; set; }
         public int MachineGroupId { get; set; }
+        public MachineGroup MachineGroup { get; set; }
         public virtual List<ProductionOrderWorkSchedulesByTimeStep> ProductionOrderWorkSchedulesByTimeSteps { get; set; }
     }
 }
