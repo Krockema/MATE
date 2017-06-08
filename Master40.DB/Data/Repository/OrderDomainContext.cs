@@ -76,5 +76,17 @@ namespace Master40.DB.Data.Repository
             }
         }
 
+        public IQueryable<Article> GetPuchaseableArticles
+        {
+            get
+            {
+                return Articles.Include(x => x.ArticleType)
+                    .Where(t => t.ArticleType.Name == "Material")
+                    .AsNoTracking();
+            }
+        }
+
+
+
     }
 }
