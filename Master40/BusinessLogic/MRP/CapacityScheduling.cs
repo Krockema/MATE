@@ -11,7 +11,7 @@ namespace Master40.BusinessLogic.MRP
     {
         void GifflerThompsonScheduling();
         List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning();
-        bool CapacityLeveling(List<MachineGroupProductionOrderWorkSchedule> machineList);
+        bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList);
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -23,6 +23,10 @@ namespace Master40.BusinessLogic.MRP
             Logger = new List<LogMessage>();
             _context = context;
         }
+
+        /// <summary>
+        /// An algorithm for capacity-leveling. Writes Start/End in ProductionOrderWorkSchedule.
+        /// </summary>
         public void GifflerThompsonScheduling()
         {
             //Todo: set machines
@@ -81,6 +85,10 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
+        /// <summary>
+        /// Calculates Capacities needed to use backward/forward termination
+        /// </summary>
+        /// <returns>capacity-plan</returns>
         public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning()
         {
             ClearMachineGroupProductionOrderWorkSchedule();
@@ -119,7 +127,12 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        public bool CapacityLeveling(List<MachineGroupProductionOrderWorkSchedule> machineList )
+        /// <summary>
+        /// checks if Capacity-leveling with Giffler-Thompson is necessary
+        /// </summary>
+        /// <param name="machineList"></param>
+        /// <returns>true if existing plan exceeds capacity limits</returns>
+        public bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList )
         {
             foreach (var machine in machineList)
             {

@@ -16,7 +16,7 @@ namespace Master40.DB.Data.Repository
         /// </summary>
         /// <param name="productionOrderWorkSchedule"></param>
         /// <returns>List<ProductionOrderWorkSchedule></returns>
-        public Task<List<ProductionOrderWorkSchedule>> GetSuccessorProductionOrderWorkSchedules(ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        public Task<List<ProductionOrderWorkSchedule>> GetFollowerProductionOrderWorkSchedules(ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
             var rs = Task.Run(() =>
             {

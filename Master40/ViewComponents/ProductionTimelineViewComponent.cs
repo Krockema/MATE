@@ -185,7 +185,7 @@ namespace Master40.ViewComponents
                     var dependencies = "";
                     if (schedulingState == 1 || schedulingState == 2)
                     {
-                        var c = await _context.GetSuccessorProductionOrderWorkSchedules(item);
+                        var c = await _context.GetFollowerProductionOrderWorkSchedules(item);
                         if (c.Any())
                             dependencies = c.FirstOrDefault().Id.ToString();
                     }
