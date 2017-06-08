@@ -63,7 +63,7 @@ namespace Master40.BusinessLogic.MRP
         {
             //Capacity vs Duration vs Quantity
             //Todo: clone Pows for every machine
-            //Todo: change pows from machinegroup to machine
+            //Todo: set pows machine
             //Todo: calculate duration for every pows/machine
             //Todo: which data do i need for gt alg?
             //Todo: perhaps calc with starttime 2,5 for 2 machines so that 1 is at 2 and the other at 3?
