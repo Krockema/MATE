@@ -69,6 +69,7 @@ namespace Master40.BusinessLogic.MRP
                         foreach (var demand in demands)
                         {
                             SetStartEndFromTermination(demand);
+                            //Todo: SetMachine();
                         }
                     }
                     foreach (var demand in demands)
