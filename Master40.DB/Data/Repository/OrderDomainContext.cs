@@ -53,7 +53,8 @@ namespace Master40.DB.Data.Repository
             {
                 return Orders.Include(x => x.OrderParts)
                                 .Include(x => x.BusinessPartner)
-                                .Where(x => x.BusinessPartner.Debitor);
+                                .Where(x => x.BusinessPartner.Debitor)
+                                .AsNoTracking();
             }
         }
 
@@ -65,7 +66,15 @@ namespace Master40.DB.Data.Repository
                             .Where(x => x.Id == id);
         }
 
-
+        public IQueryable<Article> GetSellableArticles
+        {
+            get
+            { 
+                return Articles.Include(x => x.ArticleType)
+                            .Where(t => t.ArticleType.Name == "Assembly")
+                            .AsNoTracking();
+            }
+        }
 
     }
 }

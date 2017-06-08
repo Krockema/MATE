@@ -50,7 +50,7 @@ namespace Master40.Controllers
         [HttpGet("OrderParts/Create/{OrderId}")]
         public IActionResult Create(string orderId)
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "Id", "Name");
+            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name");
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderId);
             return PartialView();
         }
@@ -70,7 +70,7 @@ namespace Master40.Controllers
                 ViewData["OrderId"] = orderPart.OrderId;
                 return View("../Orders/Index", orders);
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "Id", "Name", orderPart.ArticleId);
+            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
             return PartialView("Create", orderPart);
         }
@@ -88,7 +88,7 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "Id", "Name", orderPart.ArticleId);
+            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
             return PartialView("Edit", orderPart);
         }
@@ -127,7 +127,7 @@ namespace Master40.Controllers
                 ViewData["OrderId"] = orderPart.OrderId;
                 return View("../Orders/Index", await _context.GetAllOrders.ToListAsync());
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "Id", "Name", orderPart.ArticleId);
+            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
             ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
             return PartialView("Details", orderPart);
         }

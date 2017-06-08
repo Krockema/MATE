@@ -6,6 +6,6 @@ namespace Master40.DB.Models.Interfaces
         int HierarchyNumber { get; set; }
         string Name { get; set; }
         int Duration { get; set; }
-        int MachineGroupId { get; set; }
+        int MachineId { get; set; }
     }
 }
