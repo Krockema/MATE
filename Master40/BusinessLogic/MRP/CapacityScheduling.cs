@@ -4,6 +4,7 @@ using Master40.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
 using Master40.DB.Models;
+using System;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -12,6 +13,7 @@ namespace Master40.BusinessLogic.MRP
         void GifflerThompsonScheduling();
         List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning();
         bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList);
+        void SetMachines();
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -29,7 +31,6 @@ namespace Master40.BusinessLogic.MRP
         /// </summary>
         public void GifflerThompsonScheduling()
         {
-            //Todo: set machines
             var productionOrderWorkSchedules = GetProductionSchedules();
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
@@ -61,6 +62,7 @@ namespace Master40.BusinessLogic.MRP
                 _context.ProductionOrderWorkSchedule.Update(shortest);
                 _context.SaveChanges();
             }
+            SetMachines();
         }
 
         private List<ProductionOrderWorkSchedule> CalculateNewDuration(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
@@ -124,6 +126,7 @@ namespace Master40.BusinessLogic.MRP
         private void ClearMachineGroupProductionOrderWorkSchedule()
         {
             _context.MachineGroupProductionOrderWorkSchedules.RemoveRange(_context.MachineGroupProductionOrderWorkSchedules);
+            _context.ProductionOrderWorkSchedulesByTimeSteps.RemoveRange(_context.ProductionOrderWorkSchedulesByTimeSteps);
             _context.SaveChanges();
         }
 
@@ -138,7 +141,9 @@ namespace Master40.BusinessLogic.MRP
             {
                 foreach (var hour in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
-                    if (_context.Machines.Single(a => a.MachineGroupId == machine.MachineGroupId).Capacity < hour.ProductionOrderWorkSchedules.Count)
+                    var machines = _context.Machines.Where(a => a.MachineGroupId == machine.MachineGroupId);
+                    if (!machines.Any()) continue;
+                    if (machines.Count() < hour.ProductionOrderWorkSchedules.Count)
                         return true;
                 }
             }
@@ -411,6 +416,53 @@ namespace Master40.BusinessLogic.MRP
                 }
             }
             return lowestHierarchyMember;
+        }
+
+        public void SetMachines()
+        {
+            //gets called when plan is fitting to capacities
+            var schedules = GetProductionSchedules();
+            foreach (var schedule in schedules)
+            {
+                var machines = _context.Machines.Where(a => a.MachineGroupId == schedule.MachineGroupId).ToList();
+                if (!machines.Any()) continue;
+                var schedulesOnMachineGroup = schedules.FindAll(a => a.MachineGroupId == schedule.MachineGroupId && a.MachineId != null);
+                var crossingPows = new List<ProductionOrderWorkSchedule>();
+                foreach (var scheduleMg in schedulesOnMachineGroup)
+                {
+                    if (detectCrossing(schedule, scheduleMg))
+                        crossingPows.Add(schedule);
+                }
+                if (!crossingPows.Any()) schedule.MachineId = machines.First().Id;
+                else
+                {
+                    for (var i = 0; i < machines.Count(); i++)
+                    {
+                        if (crossingPows.Find(a => a.MachineId == machines[i].Id) != null) continue;
+                        schedule.MachineId = machines[i].Id;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private bool detectCrossing(ProductionOrderWorkSchedule schedule, ProductionOrderWorkSchedule scheduleMg)
+        {
+            if ((scheduleMg.Start <= schedule.Start &&
+                         scheduleMg.End > schedule.Start)
+                        ||
+                        (scheduleMg.Start < schedule.End &&
+                        scheduleMg.End >= schedule.End)
+                        ||
+                        (scheduleMg.Start > schedule.Start &&
+                         scheduleMg.End < schedule.End)
+                        ||
+                        (scheduleMg.Start <= schedule.Start &&
+                         scheduleMg.End >= schedule.End))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

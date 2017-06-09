@@ -32,7 +32,7 @@ namespace Master40.BusinessLogic.MRP
                 foreach (var orderPart in orderParts.ToList())
                 {
                     var demandOrderParts =
-                        _context.Demands.OfType<DemandOrderPart>().AsNoTracking().Where(a => a.OrderPartId == orderPart.Id).ToList();
+                        _context.Demands.OfType<DemandOrderPart>().AsNoTracking().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
                     IDemandToProvider demand;
                     if (demandOrderParts.Any())
                     {
@@ -80,8 +80,8 @@ namespace Master40.BusinessLogic.MRP
                 foreach (var demand in demands)
                 {
                     SetStartEndFromTermination(demand);
-                    //Todo: SetMachine();
                 }
+                capacity.SetMachines();
             }
             foreach (var demand in demands)
             {
@@ -135,6 +135,7 @@ namespace Master40.BusinessLogic.MRP
             {
                 schedule.ForwardScheduling(demand);
                 demand.State = State.ForwardScheduleExists;
+                //Todo: backward-Scheduling mit fixem Endpunkt
             }
             _context.SaveChanges();
         }
