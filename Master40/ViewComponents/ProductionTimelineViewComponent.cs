@@ -7,22 +7,22 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
-using Microsoft.CodeAnalysis;
+
 
 namespace Master40.ViewComponents
 {
     public class ProductionTimelineViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
-        private List<MachineGantt> machineGantts;
+        private List<MachineGantt> _machineGantts;
+        private long _today;
         public ProductionTimelineViewComponent(ProductionDomainContext context)
         {
             _context = context;
+            _today = DateTime.Now.GetEpochMilliseconds();
         }
 
         /// <summary>
@@ -96,14 +96,14 @@ namespace Master40.ViewComponents
 
         private void SetMachineColor()
         {
-            machineGantts = new List<MachineGantt>();
+            _machineGantts = new List<MachineGantt>();
             var machineGroups = _context.MachineGroups;
             var color = 0;
             foreach (var machineGroup in machineGroups)
             {
-                machineGantts.Add(new MachineGantt()
+                _machineGantts.Add(new MachineGantt()
                 {
-                    GanttColor = (ganttColors)color,
+                    GanttColor = (GanttColors)color,
                     MachineGroupId = machineGroup.Id
                 });
                 color++;
@@ -158,7 +158,7 @@ namespace Master40.ViewComponents
             
             powDetails.AddRange(powBoms);
 
-            return await CreateTimelineForProductionOrder(schedule, powDetails, (ganttColors)n, schedulingState);
+            return await CreateTimelineForProductionOrder(schedule, powDetails, (GanttColors)n, schedulingState);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Master40.ViewComponents
         /// <param name="schedulingState"></param>
         /// <returns></returns>
         private async Task<List<ProductionTimeline>> CreateTimelineForProductionOrder(List<ProductionTimeline> schedule,
-            List<ProductionOrderWorkSchedule> pows, ganttColors gc, int schedulingState)
+            List<ProductionOrderWorkSchedule> pows, GanttColors gc, int schedulingState)
         {
 
             foreach (var item in pows)
@@ -202,9 +202,9 @@ namespace Master40.ViewComponents
             return schedule;
         }
 
-        private ganttColors GetMachineColor(ProductionOrderWorkSchedule item)
+        private GanttColors GetMachineColor(ProductionOrderWorkSchedule item)
         {
-            return machineGantts.Find(a => a.MachineGroupId == item.MachineGroupId).GanttColor;
+            return _machineGantts.Find(a => a.MachineGroupId == item.MachineGroupId).GanttColor;
         }
 
         /// <summary>
@@ -309,20 +309,20 @@ namespace Master40.ViewComponents
         /// <param name="item"></param>
         private void DefineStartEnd(ref string start, ref string end, int schedulingState, ProductionOrderWorkSchedule item)
         {
-            var today = DateTime.Now.GetEpochMilliseconds();
+            
             switch (schedulingState)
             {
                 case 1:
-                    start = (today + item.StartBackward * 3600000).ToString();
-                    end = (today + item.EndBackward * 3600000).ToString();
+                    start = (_today + item.StartBackward * 3600000).ToString();
+                    end = (_today + item.EndBackward * 3600000).ToString();
                     break;
                 case 2:
-                    start = (today + item.StartForward * 3600000).ToString();
-                    end = (today + item.EndForward * 3600000).ToString();
+                    start = (_today + item.StartForward * 3600000).ToString();
+                    end = (_today + item.EndForward * 3600000).ToString();
                     break;
                 default:
-                    start = (today + item.Start * 3600000).ToString();
-                    end = (today + item.End * 3600000).ToString();
+                    start = (_today + item.Start * 3600000).ToString();
+                    end = (_today + item.End * 3600000).ToString();
                     break;
             }
         }
@@ -351,7 +351,7 @@ namespace Master40.ViewComponents
         /// <param name="dependencies"></param>
         /// <param name="schedulingState"></param>
         /// <returns></returns>
-        public ProductionTimelineItem CreateProductionTimelineItem(ProductionOrderWorkSchedule item, string start, string end, ganttColors gc, string dependencies, int schedulingState)
+        public ProductionTimelineItem CreateProductionTimelineItem(ProductionOrderWorkSchedule item, string start, string end, GanttColors gc, string dependencies, int schedulingState)
         {
             var timelineItem = new ProductionTimelineItem
             {
@@ -370,22 +370,9 @@ namespace Master40.ViewComponents
 
         internal class MachineGantt
         {
-            public ganttColors GanttColor { get; set; }
+            public GanttColors GanttColor { get; set; }
             public int MachineGroupId { get; set; }
         }
-
-        /// <summary>
-        /// All Posible gantt colors.
-        /// </summary>
-        public enum ganttColors
-        {
-            ganttRed,
-            ganttBlue,
-            ganttOrange,
-            ganttGreen,
-            ganttGray
-        }
-
 
         /// <summary>
         /// Select List for Diagrammsettings (Forward / Backward / GT)

@@ -243,6 +243,13 @@
         color: #626184 !important;
     }
 
+.fn-gantt .ganttBlue {
+    background-color: #90C3D4;
+}
+
+    .fn-gantt .ganttBlue .fn-label {
+        color: #3E92AD !important;
+    }
 .fn-gantt .ganttOrange {
     background-color: #FCD29A;
 }

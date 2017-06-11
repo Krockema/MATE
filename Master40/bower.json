@@ -9,7 +9,9 @@
     "jquery-validation-globalize": "1.0.0",
     "globalize": "1.2.3",
     "bootstrap": "v3.3.7",
-    "font-awesome": "Font-Awesome#v4.7.0"
+    "font-awesome": "Font-Awesome#v4.7.0",
+    "requirejs": "2.3.3",
+    "chart.js": "2.6.0"
   },
   "ignore": [
     "**/.*",
@@ -20,7 +22,6 @@
   "resolutions": {
     "globalize": "^1.0.0",
     "jquery-validation": "1.16.0",
-    "jquery": "3.2.1",
-    "bootstrap": "v4.0.0-alpha.6"
+    "jquery": "3.2.1"
   }
 }

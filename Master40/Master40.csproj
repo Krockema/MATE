@@ -39,6 +39,7 @@
     <Content Include="wwwroot\lib\timeline\simpleTimeline.js" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ChartJSCore" Version="1.0.3" />
     <PackageReference Include="cldrjs" Version="0.4.8" />
     <PackageReference Include="jquery-globalize" Version="1.2.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />

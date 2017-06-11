@@ -1,0 +1,8 @@
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+}
+<div><canvas id="lineChart"></canvas></div>
+
+<script>
+    @Html.Raw(chart.CreateChartCode("lineChart"));
+</script>
