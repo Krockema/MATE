@@ -16,16 +16,16 @@ namespace Master40.DB.Data.Repository
         /// </summary>
         /// <param name="productionOrderWorkSchedule"></param>
         /// <returns>List<ProductionOrderWorkSchedule></returns>
-        public Task<List<ProductionOrderWorkSchedule>> GetPriorProductionOrderWorkSchedules(ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        public Task<List<ProductionOrderWorkSchedule>> GetFollowerProductionOrderWorkSchedules(ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
             var rs = Task.Run(() =>
             {
                 var priorItems = new List<ProductionOrderWorkSchedule>();
-                // If == min Hirachie --> get Pevious Article -> Higest Hirachie Workschedule Item
-                var maxHirachie = ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
+                // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
+                var maxHierarchy = ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
                                                     .Max(x => x.HierarchyNumber);
 
-                if (maxHirachie == productionOrderWorkSchedule.HierarchyNumber)
+                if (maxHierarchy == productionOrderWorkSchedule.HierarchyNumber)
                 {
                     // get Previous Article
                     var priorBom = ProductionOrderBoms
@@ -46,9 +46,12 @@ namespace Master40.DB.Data.Repository
                 else
                 {
                     // get Previous Workschedule
-                    priorItems.Add(ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId
-                                                            && x.HierarchyNumber > productionOrderWorkSchedule.HierarchyNumber)
-                                                             .OrderByDescending(x => x.HierarchyNumber).FirstOrDefault());
+                    var previousPows =
+                        ProductionOrderWorkSchedule.Where(
+                                x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId
+                                     && x.HierarchyNumber > productionOrderWorkSchedule.HierarchyNumber)
+                            .OrderBy(x => x.HierarchyNumber).FirstOrDefault();
+                    priorItems.Add(previousPows);
                 }
                 return priorItems;
             });

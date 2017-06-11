@@ -32,7 +32,7 @@ namespace Master40.BusinessLogic.MRP
                 foreach (var orderPart in orderParts.ToList())
                 {
                     var demandOrderParts =
-                        _context.Demands.OfType<DemandOrderPart>().Where(a => a.OrderPartId == orderPart.Id).ToList();
+                        _context.Demands.OfType<DemandOrderPart>().AsNoTracking().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
                     IDemandToProvider demand;
                     if (demandOrderParts.Any())
                     {
@@ -44,50 +44,55 @@ namespace Master40.BusinessLogic.MRP
                         _context.SaveChanges();
                     }
                     RunMrp(demand, task);
-                    if (task == MrpTask.All || task==MrpTask.GifflerThompson)
-                        orderPart.IsPlanned = true;
                 }
-                var demands =
-                        _context.Demands.Where(
-                            a =>
-                                a.State == State.BackwardScheduleExists || a.State == State.ForwardScheduleExists ||
-                                a.State == State.ExistsInCapacityPlan).ToList();
+                
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
-                    var capacity = new CapacityScheduling(_context);
-                    List<MachineGroupProductionOrderWorkSchedule> machineList = null;
-                    //Todo: single only works when machineList gets written into DB, when its done take last part out
-                    if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
-                    {
-                        machineList = capacity.CapacityRequirementsPlanning();
-                    }
-                    
-                    if ((capacity.CapacityLeveling(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
-                        capacity.GifflerThompsonScheduling();
-                    else
-                    {
-                        foreach (var demand in demands)
-                        {
-                            SetStartEndFromTermination(demand);
-                            //Todo: SetMachine();
-                        }
-                    }
-                    foreach (var demand in demands)
-                    {
-                        demand.State = State.ExistsInCapacityPlan;
-                    }
-                    
+                    PlanCapacities(task);
                 }
-
-                _context.Demands.UpdateRange(demands);
+                foreach (var orderPart in orderParts)
+                {
+                    if (task == MrpTask.All || task == MrpTask.GifflerThompson)
+                        orderPart.IsPlanned = true;
+                }
                 _context.SaveChanges();
-
             });
+        }
+
+        private void PlanCapacities(MrpTask task)
+        {
+            var demands = _context.Demands.Where(a =>
+                               a.State == State.BackwardScheduleExists || a.State == State.ForwardScheduleExists ||
+                               a.State == State.ExistsInCapacityPlan).ToList();
+           
+            var capacity = new CapacityScheduling(_context);
+            List<MachineGroupProductionOrderWorkSchedule> machineList = null;
+            //Todo: single only works when machineList gets written into DB, when its done take last part out
+            if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
+            {
+                machineList = capacity.CapacityRequirementsPlanning();
+            }
+
+            if ((capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
+                capacity.GifflerThompsonScheduling();
+            else
+            {
+                foreach (var demand in demands)
+                {
+                    SetStartEndFromTermination(demand);
+                }
+                capacity.SetMachines();
+            }
+            foreach (var demand in demands)
+            {
+                demand.State = State.ExistsInCapacityPlan;
+            }
+            _context.Demands.UpdateRange(demands);
+            _context.SaveChanges();
         }
 
         private void SetStartEndFromTermination(IDemandToProvider demand)
         {
-            //var demand = _context.Demands.OfType<DemandOrderPart>().Single(a => a.OrderPartId == orderPart.Id);
             var schedules = _context.ProductionOrderWorkSchedule
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.DemandProviderProductionOrders)
@@ -130,6 +135,7 @@ namespace Master40.BusinessLogic.MRP
             {
                 schedule.ForwardScheduling(demand);
                 demand.State = State.ForwardScheduleExists;
+                //Todo: backward-Scheduling mit fixem Endpunkt
             }
             _context.SaveChanges();
         }
