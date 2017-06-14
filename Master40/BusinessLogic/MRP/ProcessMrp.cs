@@ -32,7 +32,7 @@ namespace Master40.BusinessLogic.MRP
                 foreach (var orderPart in orderParts.ToList())
                 {
                     var demandOrderParts =
-                        _context.Demands.OfType<DemandOrderPart>().AsNoTracking().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
+                        _context.Demands.OfType<DemandOrderPart>().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
                     IDemandToProvider demand;
                     if (demandOrderParts.Any())
                     {
@@ -82,14 +82,12 @@ namespace Master40.BusinessLogic.MRP
                 capacity.GifflerThompsonScheduling();
             }
             else
-
             {
-                capacity.GifflerThompsonScheduling();/*
                 foreach (var demand in demands)
                 {
                     SetStartEndFromTermination(demand);
                 }
-                capacity.SetMachines();*/
+                capacity.SetMachines();
             }
             foreach (var demand in demands)
             {
@@ -143,6 +141,10 @@ namespace Master40.BusinessLogic.MRP
             {
                 schedule.ForwardScheduling(demand);
                 demand.State = State.ForwardScheduleExists;
+                _context.Update(demand);
+                _context.SaveChanges();
+                schedule.BackwardScheduling(demand);
+
                 //Todo: backward-Scheduling mit fixem Endpunkt
             }
             _context.SaveChanges();
@@ -151,13 +153,13 @@ namespace Master40.BusinessLogic.MRP
         private bool CheckNeedForward(IDemandToProvider demand)
         {
             var demandProviderProductionOrders = _context.Demands.OfType<DemandProviderProductionOrder>()
-                .Where(a => a.DemandRequesterId == demand.DemandRequesterId);
+                .Where(a => a.DemandRequesterId == demand.DemandRequesterId).ToList();
             if (demand.GetType() == typeof(DemandStock))
                 return true;
             foreach (var demandProviderProductionOrder in demandProviderProductionOrders)
             {
                 var schedules = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
-                    .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId);
+                    .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId).ToList();
                 foreach (var schedule in schedules)
                 {
                     if (schedule.StartBackward < 0) return true;

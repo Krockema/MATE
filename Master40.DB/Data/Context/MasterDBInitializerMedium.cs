@@ -212,8 +212,8 @@ namespace Master40.DB.Data.Context
             //create order
             var orders = new List<Order>() { 
                 new Order {BusinessPartnerId = businessPartner.Id, DueTime = 40, Name = "Erste Kipperbestellung"},
-                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 35, Name = "Zweite Kipperbestellung" },
-                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 45, Name = "Dritte Kipperbestellung" }
+                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 100, Name = "Zweite Kipperbestellung" },
+                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 150, Name = "Dritte Kipperbestellung" }
             };
             foreach (var order in orders)
             {
@@ -224,8 +224,8 @@ namespace Master40.DB.Data.Context
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Quantity = 5, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 1, IsPlanned = false},
-                new OrderPart(){Quantity = 6, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 2, IsPlanned = false},
+                new OrderPart(){Quantity = 2, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 4, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 2, IsPlanned = false},
                 new OrderPart(){Quantity = 7, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 3, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)

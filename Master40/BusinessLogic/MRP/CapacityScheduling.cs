@@ -204,6 +204,11 @@ namespace Master40.BusinessLogic.MRP
 
         private int FindStartOnMachine(List<ProductionOrderWorkSchedule> plannedSchedules, int machineId, ProductionOrderWorkSchedule shortest)
         {
+            if (shortest.ProductionOrderId == 11)
+            {
+                var x = 1;
+            }
+                
             for (var i = plannedSchedules.Count-1; i >= 0; i--)
             {
                 if (plannedSchedules[i].MachineId == machineId)
