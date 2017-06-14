@@ -22,7 +22,7 @@ namespace Master40.DB.Models
         public int EndBackward { get; set; }
         public int StartForward { get; set; }
         public int EndForward { get; set; }
-        public int ActivitySlack { get; set; }
-        public int WorkTimeWithParents { get; set; }
+        public decimal ActivitySlack { get; set; }
+        public decimal WorkTimeWithParents { get; set; }
     }
 }

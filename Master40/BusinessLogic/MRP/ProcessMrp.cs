@@ -74,14 +74,22 @@ namespace Master40.BusinessLogic.MRP
             }
 
             if ((capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
-                capacity.GifflerThompsonScheduling();
-            else
             {
+                Logger.Add(new LogMessage()
+                {
+                    Message = "GT executed"
+                });
+                capacity.GifflerThompsonScheduling();
+            }
+            else
+
+            {
+                capacity.GifflerThompsonScheduling();/*
                 foreach (var demand in demands)
                 {
                     SetStartEndFromTermination(demand);
                 }
-                capacity.SetMachines();
+                capacity.SetMachines();*/
             }
             foreach (var demand in demands)
             {
