@@ -6,8 +6,6 @@ using Master40.DB.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using ChartJSCore.Models.Bar;
-using Master40.DB.Models;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using Master40.Extensions;
 
@@ -74,12 +72,12 @@ namespace Master40.ViewComponents
             switch (schedulingState)
             {
                 case 1:
-                    min = _context.ProductionOrderWorkSchedule.Where(x => x.StartForward < 9000).Min(x => x.StartForward);
-                    max = _context.ProductionOrderWorkSchedule.Where(x => x.EndForward < 9000).Max(x => x.EndForward);
-                    break;
-                case 2:
                     min = _context.ProductionOrderWorkSchedule.Where(x => x.StartBackward < 9000).Min(x => x.StartBackward);
                     max = _context.ProductionOrderWorkSchedule.Where(x => x.EndBackward < 9000).Max(x => x.EndBackward);
+                    break;
+                case 2:
+                    min = _context.ProductionOrderWorkSchedule.Where(x => x.StartForward < 9000).Min(x => x.StartForward);
+                    max = _context.ProductionOrderWorkSchedule.Where(x => x.EndForward < 9000).Max(x => x.EndForward);
                     break;
                 default:
                     min = _context.ProductionOrderWorkSchedule.Where(x => x.Start < 9000).Min(x => x.Start);
