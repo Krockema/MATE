@@ -266,11 +266,9 @@ namespace Master40.ViewComponents
                         stacking = true;
                     }
                 }
-                if (!stacking)
-                {
-                    rowId = row.Id;
-                    break;
-                }
+                if (stacking) continue;
+                rowId = row.Id;
+                break;
             }
             return AddSubSchedule(productionTimelineItem, schedule, rowId, name);
         }

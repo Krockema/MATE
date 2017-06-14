@@ -52,8 +52,9 @@ namespace Master40.ViewComponents
                 
                 chart.Data = data;
 
-                var axis = new List<Scale>() {new BarScale {Stacked = false}};
-                chart.Options = new Options() {Scales = new Scales {XAxes = axis, YAxes = axis}};
+                var xAxis = new List<Scale>() {new BarScale {Stacked = false}};
+                var yAxis = new List<Scale>() { new BarScale { Stacked = false, Ticks = new Tick{ BeginAtZero = true, Min = 0, Max = 3, StepSize = 1 } } };
+                chart.Options = new Options() {Scales = new Scales {XAxes = xAxis, YAxes = yAxis}};
 
                 return chart;
             });
