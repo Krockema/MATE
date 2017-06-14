@@ -43,11 +43,15 @@ namespace Master40.ViewComponents
 
 
                 data.Datasets = new List<Dataset>();
-                foreach (var id in machineGroups)
+                if (data.Labels.Any())
                 {
-                    data.Datasets.Add(GetCapacityForMachineGroupById(id, Convert.ToInt32(data.Labels.First()),
-                        Convert.ToInt32(data.Labels.Last()), schedulingState));
+                    foreach (var id in machineGroups)
+                    {
+                        data.Datasets.Add(GetCapacityForMachineGroupById(id, Convert.ToInt32(data.Labels.First()),
+                            Convert.ToInt32(data.Labels.Last()), schedulingState));
+                    }
                 }
+                
                 chart.Data = data;
 
                 var axis = new List<Scale>() {new BarScale {Stacked = false}};
