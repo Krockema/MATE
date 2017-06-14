@@ -126,13 +126,13 @@ namespace Master40.ViewComponents
                 switch (schedulingState)
                 {
                     case 1:
-                        item = productionOrderWorkSchedulesBy.Count(x => x.StartForward <= i && x.EndForward >= i);
+                        item = productionOrderWorkSchedulesBy.Count(x => x.StartBackward <= i && x.EndBackward > i);
                         break;
                     case 2:
-                        item = productionOrderWorkSchedulesBy.Count(x => x.StartBackward <= i && x.EndBackward >= i);
+                        item = productionOrderWorkSchedulesBy.Count(x => x.StartForward <= i && x.EndForward > i);
                         break;
                     default:
-                        item = productionOrderWorkSchedulesBy.Count(x => x.Start <= i && x.End >= i);
+                        item = productionOrderWorkSchedulesBy.Count(x => x.Start <= i && x.End > i);
                         break;
                 }
                 data.Add(item);
