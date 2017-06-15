@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
+using Hangfire;
 
 namespace Master40
 {
@@ -41,8 +42,11 @@ namespace Master40
             services.AddDbContext<ProductionDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            
+            string sConnectionString = Configuration.GetConnectionString("Hangfire");;
+            services.AddHangfire(x => x.UseSqlServerStorage(sConnectionString));
+
             services.AddSingleton<IProcessMrp, ProcessMrp>();
+            
             
             services.Configure<RequestLocalizationOptions>(
                 opts =>
@@ -60,9 +64,9 @@ namespace Master40
                     opts.SupportedUICultures = supportedCultures;
                 });
                 
-
             // Add Framework Service
             services.AddMvc();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,6 +90,14 @@ namespace Master40
             }
 
             app.UseStaticFiles();
+            app.UseSignalR();
+
+            var serverOptions = new BackgroundJobServerOptions()
+            {
+                ServerName = "ProcessingUnit",
+            };
+            app.UseHangfireServer(serverOptions);
+            app.UseHangfireDashboard();
 
             app.UseMvc(routes =>
             {

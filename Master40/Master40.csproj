@@ -41,6 +41,8 @@
   <ItemGroup>
     <PackageReference Include="ChartJSCore" Version="1.0.3" />
     <PackageReference Include="cldrjs" Version="0.4.8" />
+    <PackageReference Include="Gray.Microsoft.AspNetCore.Signalr.Server" Version="0.2.0-alpha1" />
+    <PackageReference Include="Hangfire" Version="1.6.13" />
     <PackageReference Include="jquery-globalize" Version="1.2.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />

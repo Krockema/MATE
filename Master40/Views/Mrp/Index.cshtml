@@ -5,18 +5,25 @@
     Layout = "_Layout";
     int LineNumber = 0;
 }
+
+
 <script>
     function submitform() {
         $('form').submit();
     }
 </script>
 
+<div class="col-md-12">
+    Processing State: <span id="MessageDisplay"></span>
+</div>
 
 @await Component.InvokeAsync("ProductionTimeline")
 
 
-
 <div class="row">
+    <div class="col-md-8 pull-right">
+        @await Component.InvokeAsync("MachineGroupCapacity")
+    </div>
     <div class="col-md-4 pull-right">
         <h2>MRP </h2>
         <p>
@@ -26,7 +33,7 @@
         </p>
         <div>
             <P>Iterate through each step</P>
-            <p><a class="btn btn-default btn-block" href="~/Mrp/MrpBackward">Schedule backward</a>
+            <p><a class="btn btn-default btn-block" href="#" onclick="startBackward()">Schedule backward</a>
             </p>
             <p><a class="btn btn-default btn-block" href="~/Mrp/MrpForward">Schedule forward</a>
             </p>
@@ -35,9 +42,6 @@
             <p><a class="btn btn-default btn-block" href="~/Mrp/MrpGifflerThompson">Giffler-Thompson</a>
             </p>
         </div>
-    </div>
-    <div class="col-md-8 pull-right">
-        @await Component.InvokeAsync("MachineGroupCapacity")
     </div>
     <div class="col-md-4 pull-left">
         <h2>Result</h2>
@@ -50,3 +54,19 @@
         }
     </div>
 </div>
+<script>
+    var processingProxy = $.connection.hub.createHubProxy("ProcessingHub");
+    processingProxy.on("clientListener", function (msg) {
+        $("#MessageDisplay").append(msg);
+    });
+
+
+    $.connection.hub.start().done(function () {
+        processingProxy.invoke('SystemReady')
+    })
+
+    function startBackward() {
+        processingProxy.invoke('StartBackwardScheduler')
+    }
+
+</script>

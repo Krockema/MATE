@@ -39,7 +39,7 @@ namespace Master40.ViewComponents
                 data.Labels = GetRangeForSchedulingType(schedulingState);
                 var machineGroups = _context.MachineGroups.Select(x => x.Id);
 
-
+                var yMaxScale = 0;
                 data.Datasets = new List<Dataset>();
                 if (data.Labels.Any())
                 {
@@ -47,13 +47,16 @@ namespace Master40.ViewComponents
                     {
                         data.Datasets.Add(GetCapacityForMachineGroupById(id, Convert.ToInt32(data.Labels.First()),
                             Convert.ToInt32(data.Labels.Last()), schedulingState));
+                        var tempMax = Convert.ToInt32(data.Datasets.Last().Data.Max());
+                        if (yMaxScale < tempMax)
+                            yMaxScale = tempMax;
                     }
                 }
                 
                 chart.Data = data;
-
+                
                 var xAxis = new List<Scale>() {new BarScale {Stacked = false}};
-                var yAxis = new List<Scale>() { new BarScale { Stacked = false, Ticks = new Tick{ BeginAtZero = true, Min = 0, Max = 3, StepSize = 1 } } };
+                var yAxis = new List<Scale>() { new BarScale { Stacked = false, Ticks = new Tick{ BeginAtZero = true, Min = 0, Max = yMaxScale, StepSize = 1 } } };
                 chart.Options = new Options() {Scales = new Scales {XAxes = xAxis, YAxes = yAxis}};
 
                 return chart;
@@ -119,8 +122,7 @@ namespace Master40.ViewComponents
             var productionOrderWorkSchedulesBy = _context.ProductionOrderWorkSchedule.Where(x => x.MachineGroupId == machineGroupId).AsNoTracking();
             
             var data = new List<double>();
-            var step = productionOrderWorkSchedulesBy.Count();
-            for (var i = minRange; i < maxRange - 1 ; i++)
+            for (var i = minRange; i < maxRange; i++)
             {
                 int item;
                 switch (schedulingState)
