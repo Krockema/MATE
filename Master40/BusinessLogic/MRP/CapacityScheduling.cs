@@ -14,8 +14,8 @@ namespace Master40.BusinessLogic.MRP
     internal interface ICapacityScheduling
     {
         void GifflerThompsonScheduling();
-        void CapacityRequirementsPlanning();
-        bool CapacityLevelingCheck();
+        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning();
+        bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList);
         void SetMachines();
     }
 
@@ -204,6 +204,11 @@ namespace Master40.BusinessLogic.MRP
 
         private int FindStartOnMachine(List<ProductionOrderWorkSchedule> plannedSchedules, int machineId, ProductionOrderWorkSchedule shortest)
         {
+            if (shortest.ProductionOrderId == 11)
+            {
+                var x = 1;
+            }
+                
             for (var i = plannedSchedules.Count-1; i >= 0; i--)
             {
                 if (plannedSchedules[i].MachineId == machineId)
@@ -228,7 +233,7 @@ namespace Master40.BusinessLogic.MRP
         /// Calculates Capacities needed to use backward/forward termination
         /// </summary>
         /// <returns>capacity-plan</returns>
-        public void CapacityRequirementsPlanning()
+        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning()
         {
             ClearMachineGroupProductionOrderWorkSchedule();
             //Stack for every hour and machinegroup
@@ -257,6 +262,7 @@ namespace Master40.BusinessLogic.MRP
                     }
                 }
             }
+            return machineList;
         }
 
         private void ClearMachineGroupProductionOrderWorkSchedule()
@@ -271,10 +277,8 @@ namespace Master40.BusinessLogic.MRP
         /// </summary>
         /// <param name="machineList"></param>
         /// <returns>true if existing plan exceeds capacity limits</returns>
-        public bool CapacityLevelingCheck()
+        public bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList )
         {
-            var machineList =
-                _context.MachineGroupProductionOrderWorkSchedules.Include(a => a.ProductionOrderWorkSchedulesByTimeSteps).ToList();
             foreach (var machine in machineList)
             {
                 foreach (var hour in machine.ProductionOrderWorkSchedulesByTimeSteps)
@@ -304,25 +308,30 @@ namespace Master40.BusinessLogic.MRP
                 var found = false;
                 foreach (var productionOrderWorkSchedulesByTimeStep in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
-                    if (productionOrderWorkSchedulesByTimeStep.Time != i) continue;
-                    productionOrderWorkSchedulesByTimeStep.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
-                    found = true;
-                    _context.Update(productionOrderWorkSchedulesByTimeStep);
-                    _context.SaveChanges();
-                    break;
-                }
-                if (found) continue;
-                var timestep = new ProductionOrderWorkSchedulesByTimeStep()
-                {
-                    Time = i,
-                    ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
+                    if (productionOrderWorkSchedulesByTimeStep.Time == i)
                     {
-                        productionOrderWorkSchedule
+                        productionOrderWorkSchedulesByTimeStep.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
+                        found = true;
+                        _context.Update(productionOrderWorkSchedulesByTimeStep);
+                        _context.SaveChanges();
+                        break;
                     }
-                };
-                machine.ProductionOrderWorkSchedulesByTimeSteps.Add(timestep);
-                _context.Add(timestep);
-                _context.SaveChanges();
+                }
+                if (!found)
+                {
+                    var timestep = new ProductionOrderWorkSchedulesByTimeStep()
+                        {
+                            Time = i,
+                            ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
+                            {
+                                productionOrderWorkSchedule
+                            }
+                        };
+                    machine.ProductionOrderWorkSchedulesByTimeSteps.Add(timestep);
+                    _context.Add(timestep);
+                    _context.SaveChanges();
+                }
+                    
             }
         }
 

@@ -66,13 +66,19 @@ namespace Master40.BusinessLogic.MRP
                                a.State == State.ExistsInCapacityPlan).ToList();
            
             var capacity = new CapacityScheduling(_context);
-            if (task == MrpTask.All || task == MrpTask.Capacity)
+            List<MachineGroupProductionOrderWorkSchedule> machineList = null;
+            //Todo: single only works when machineList gets written into DB, when its done take last part out
+            if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
             {
-                capacity.CapacityRequirementsPlanning();
+                machineList = capacity.CapacityRequirementsPlanning();
             }
 
-            if ((capacity.CapacityLevelingCheck() && task == MrpTask.All) || task == MrpTask.GifflerThompson)
+            if ((capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
             {
+                Logger.Add(new LogMessage()
+                {
+                    Message = "GT executed"
+                });
                 capacity.GifflerThompsonScheduling();
             }
             else
@@ -138,6 +144,8 @@ namespace Master40.BusinessLogic.MRP
                 _context.Update(demand);
                 _context.SaveChanges();
                 schedule.BackwardScheduling(demand);
+
+                //Todo: backward-Scheduling mit fixem Endpunkt
             }
             _context.SaveChanges();
         }
