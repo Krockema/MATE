@@ -5,6 +5,8 @@ using Master40.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Models;
 using Master40.DB.Data.Context;
+using Master40.SignalR;
+using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -13,15 +15,25 @@ namespace Master40.BusinessLogic.MRP
         List<LogMessage> Logger { get; set; }
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunMrp(IDemandToProvider demand, MrpTask task);
+        void EndBackwardScheduler();
+        
     }
 
     public class ProcessMrp : IProcessMrp
     {
+        private readonly IConnectionManager _connectionManager;
         private readonly MasterDBContext _context;
         public List<LogMessage> Logger { get; set; }
-        public ProcessMrp(MasterDBContext context)
+        public ProcessMrp(MasterDBContext context, IConnectionManager connectionManager)
         {
             _context = context;
+            _connectionManager = connectionManager;
+        }
+
+        public void EndBackwardScheduler()
+        {
+            _connectionManager.GetHubContext<ProcessingHub>()
+                .Clients.All.clientListener(Callback.ReturnMsgBox("Finished Backward!", MessageType.info));
         }
 
         async Task IProcessMrp.CreateAndProcessOrderDemand(MrpTask task)
