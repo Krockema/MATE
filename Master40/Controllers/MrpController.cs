@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Master40.BusinessLogic.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Hangfire;
+using Master40.BusinessLogic.Simulation;
 using Master40.DB.Data.Context;
-using Microsoft.AspNetCore.SignalR.Infrastructure;
-using Master40.SignalR;
+using Master40.DB.Data.Repository;
+using Master40.DB.Models;
 
 namespace Master40.Controllers
 {
@@ -15,12 +14,14 @@ namespace Master40.Controllers
     {
         private readonly IProcessMrp _processMrp;
         private readonly MasterDBContext _context;
-        private readonly IConnectionManager _connectionManager;
-        public MrpController(IProcessMrp processMrp, MasterDBContext context, IConnectionManager connectionManager)
+        private readonly Simulator _simulator;
+        private readonly ProductionDomainContext _productionContext;
+        public MrpController(IProcessMrp processMrp, MasterDBContext context, Simulator simulator, ProductionDomainContext productionContext)
         {
             _processMrp = processMrp;
             _context = context;
-            _connectionManager = connectionManager;
+            _simulator = simulator;
+            _productionContext = productionContext;
         }
         public IActionResult Index()
         {
@@ -39,7 +40,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpProcessing()
         {
             //call to process MRP I and II
-            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
 
             await Task.Yield();
 
@@ -47,24 +48,20 @@ namespace Master40.Controllers
         }
 
         [HttpGet("[Controller]/MrpBackward")]
-        public IActionResult MrpBackward()
+        public async Task<IActionResult> MrpBackward()
         {
             //call to process MRP I and II
-             var jobId = BackgroundJob.Enqueue(() => _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward));
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
 
+            await Task.Yield();
 
-            _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("Forward has Finished.");
-
-
-            return RedirectToAction("Index");
+            return View("Index", _processMrp.Logger);
         }
 
         [HttpGet("[Controller]/MrpForward")]
         public async Task<IActionResult> MrpForward()
         {
-            //call to process MRP I and II
-            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
 
             await Task.Yield();
 
@@ -74,8 +71,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MrpGifflerThompson")]
         public async Task<IActionResult> MrpGifflerThompson()
         {
-            //call to process MRP I and II
-            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
 
             await Task.Yield();
 
@@ -85,8 +81,17 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/CapacityPlanning")]
         public async Task<IActionResult> CapacityPlanning()
         {
-            //call to process MRP I and II
-            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
+
+            await Task.Yield();
+
+            return View("Index", _processMrp.Logger);
+        }
+
+        [HttpGet("[Controller]/Simulate")]
+        public async Task<IActionResult> Simulate()
+        {
+            await _simulator.Simulate();
 
             await Task.Yield();
 

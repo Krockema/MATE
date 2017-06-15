@@ -1,5 +1,8 @@
 ﻿using Master40.DB.Models.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Master40.DB.Models
 {
@@ -24,5 +27,7 @@ namespace Master40.DB.Models
         public int EndForward { get; set; }
         public decimal ActivitySlack { get; set; }
         public decimal WorkTimeWithParents { get; set; }
+
+        
     }
 }
