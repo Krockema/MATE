@@ -67,18 +67,14 @@ namespace Master40.BusinessLogic.MRP
            
             var capacity = new CapacityScheduling(_context);
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
-            //Todo: single only works when machineList gets written into DB, when its done take last part out
-            if (task == MrpTask.All || task == MrpTask.Capacity || task == MrpTask.GifflerThompson)
+
+            if (task == MrpTask.All || task == MrpTask.Capacity)
             {
                 machineList = capacity.CapacityRequirementsPlanning();
             }
 
-            if ((capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All) || task == MrpTask.GifflerThompson)
+            if (task == MrpTask.GifflerThompson || (capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All))
             {
-                Logger.Add(new LogMessage()
-                {
-                    Message = "GT executed"
-                });
                 capacity.GifflerThompsonScheduling();
             }
             else

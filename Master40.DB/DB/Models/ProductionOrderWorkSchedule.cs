@@ -24,5 +24,6 @@ namespace Master40.DB.Models
         public int EndForward { get; set; }
         public decimal ActivitySlack { get; set; }
         public decimal WorkTimeWithParents { get; set; }
+
     }
 }

@@ -204,11 +204,6 @@ namespace Master40.BusinessLogic.MRP
 
         private int FindStartOnMachine(List<ProductionOrderWorkSchedule> plannedSchedules, int machineId, ProductionOrderWorkSchedule shortest)
         {
-            if (shortest.ProductionOrderId == 11)
-            {
-                var x = 1;
-            }
-                
             for (var i = plannedSchedules.Count-1; i >= 0; i--)
             {
                 if (plannedSchedules[i].MachineId == machineId)
@@ -247,7 +242,7 @@ namespace Master40.BusinessLogic.MRP
                 {
                     var machine = machineList.Find(a => a.MachineGroupId == productionOrderWorkSchedule.MachineGroupId);
                     if (machine != null)
-                        AddToMachineGroup(machine, productionOrderWorkSchedule);
+                        machineList[machineList.IndexOf(machine)].ProductionOrderWorkSchedulesByTimeSteps=AddToMachineGroup(machine, productionOrderWorkSchedule);
                     else
                     {
                         var schedule = new MachineGroupProductionOrderWorkSchedule()
@@ -256,9 +251,7 @@ namespace Master40.BusinessLogic.MRP
                             ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
                         };
                         machineList.Add(schedule);
-                        _context.Add(schedule);
-                        _context.SaveChanges();
-                        AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
+                        machineList.Last().ProductionOrderWorkSchedulesByTimeSteps = AddToMachineGroup(machineList.Last(), productionOrderWorkSchedule);
                     }
                 }
             }
@@ -293,7 +286,7 @@ namespace Master40.BusinessLogic.MRP
             return false;
         }
 
-        private void AddToMachineGroup(MachineGroupProductionOrderWorkSchedule machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        private List<ProductionOrderWorkSchedulesByTimeStep> AddToMachineGroup(MachineGroupProductionOrderWorkSchedule machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
             var start = productionOrderWorkSchedule.StartBackward;
             var end = productionOrderWorkSchedule.EndBackward;
@@ -312,8 +305,6 @@ namespace Master40.BusinessLogic.MRP
                     {
                         productionOrderWorkSchedulesByTimeStep.ProductionOrderWorkSchedules.Add(productionOrderWorkSchedule);
                         found = true;
-                        _context.Update(productionOrderWorkSchedulesByTimeStep);
-                        _context.SaveChanges();
                         break;
                     }
                 }
@@ -328,11 +319,10 @@ namespace Master40.BusinessLogic.MRP
                             }
                         };
                     machine.ProductionOrderWorkSchedulesByTimeSteps.Add(timestep);
-                    _context.Add(timestep);
-                    _context.SaveChanges();
                 }
                     
             }
+            return machine.ProductionOrderWorkSchedulesByTimeSteps;
         }
 
        
