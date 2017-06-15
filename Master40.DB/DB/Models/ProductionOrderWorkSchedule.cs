@@ -1,12 +1,9 @@
 ﻿using Master40.DB.Models.Interfaces;
-using System.ComponentModel.DataAnnotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Master40.DB.DB.Interfaces;
 
 namespace Master40.DB.Models
 {
-    public class ProductionOrderWorkSchedule : BaseEntity, IWorkSchedule
+    public class ProductionOrderWorkSchedule : BaseEntity, IWorkSchedule, ISimulationProductionOrderWorkSchedule
     {
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
