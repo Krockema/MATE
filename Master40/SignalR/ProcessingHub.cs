@@ -38,9 +38,17 @@ namespace Master40.SignalR
     //Works
     public class HangfireTest
     {
+        private readonly IConnectionManager _connectionManager;
+
+        public HangfireTest(IConnectionManager connectionManager)
+        {
+            _connectionManager = connectionManager;
+        }
         public void Test(int d)
         {
             Console.WriteLine("BackgroundJob Execution");
+            _connectionManager.GetHubContext<ProcessingHub>()
+                .Clients.All.clientListener("Forward has Finished.");
         }
     }
 }

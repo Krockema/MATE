@@ -43,6 +43,9 @@ namespace Master40
             services.AddDbContext<ProductionDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<HangfireDBContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("Hangfire")));
+
             string sConnectionString = Configuration.GetConnectionString("Hangfire");;
             services.AddHangfire(x => x.UseSqlServerStorage(sConnectionString));
 
@@ -71,9 +74,13 @@ namespace Master40
             services.AddSignalR();
         }
 
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, MasterDBContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, MasterDBContext context, HangfireDBContext hangfireContext)
         {
+
+            MasterDBInitializerSmall.DbInitialize(context);
+            HangfireDBInitializer.DbInitialize(hangfireContext);
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(options.Value);
 
@@ -108,7 +115,7 @@ namespace Master40
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            MasterDBInitializerSmall.DbInitialize(context);
+
         }
     }
 }
