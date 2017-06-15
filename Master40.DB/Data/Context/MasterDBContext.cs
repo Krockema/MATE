@@ -2,6 +2,7 @@
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Master40.DB.DB.Models;
 
 namespace Master40.DB.Data.Context
 {
@@ -37,6 +38,7 @@ namespace Master40.DB.Data.Context
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public DbSet<ProductionOrderWorkSchedulesByTimeStep> ProductionOrderWorkSchedulesByTimeSteps { get; set; }
         public DbSet<MachineGroupProductionOrderWorkSchedule> MachineGroupProductionOrderWorkSchedules { get; set; }
+        public DbSet<SimulatedProductionOrderWorkSchedule> SimulatedProductionOrderWorkSchedules { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()
