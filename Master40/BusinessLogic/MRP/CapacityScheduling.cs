@@ -49,13 +49,8 @@ namespace Master40.BusinessLogic.MRP
                 CalculateActivitySlack(plannableSchedules);
                 var shortest = GetShortest(plannableSchedules);
 
-                //build conflict set excluding the shortest process
-                //var conflictSet = GetConflictSet(shortest, productionOrderWorkSchedules, plannedSchedules);
-
-                //set starttimes of conflicts after the shortest process
-                //SolveConflicts(shortest, conflictSet, productionOrderWorkSchedules);
-
                 plannableSchedules.Remove(shortest);
+                //Add a fix spot on a machine with start/end
                 var shortestList = AddMachineToPows(plannedSchedules, shortest);
                 plannedSchedules.AddRange(shortestList);
 

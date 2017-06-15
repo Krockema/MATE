@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using Master40.BusinessLogic.MRP;
+using Master40.BusinessLogic.Simulation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -43,6 +44,7 @@ namespace Master40
 
             
             services.AddSingleton<IProcessMrp, ProcessMrp>();
+            services.AddSingleton<Simulator>();
             
             services.Configure<RequestLocalizationOptions>(
                 opts =>
