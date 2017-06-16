@@ -29,11 +29,6 @@ namespace Master40.SignalR
             BackgroundJob.ContinueWith<IProcessMrp>(jobId, (x => _processMrp.EndBackwardScheduler()));
             Clients.All.clientListener(Callback.ReturnMsgBox("Start Backward...", MessageType.info));
         }
-
-        public void EndBackwardScheduler()
-        {
-            Clients.All.clientListener(Callback.ReturnMsgBox("Finished Backward!", MessageType.info));
-        }
     }
 
 

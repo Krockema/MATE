@@ -33,7 +33,7 @@ namespace Master40.BusinessLogic.MRP
         public void EndBackwardScheduler()
         {
             _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener(Callback.ReturnMsgBox("Finished Backward!", MessageType.info));
+                .Clients.All.clientListener("MrpProcessingComplete");
         }
 
         async Task IProcessMrp.CreateAndProcessOrderDemand(MrpTask task)

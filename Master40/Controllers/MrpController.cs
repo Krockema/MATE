@@ -102,5 +102,19 @@ namespace Master40.Controllers
         {
             return View();
         }
+
+        [HttpGet("[Controller]/ReloadGantt")]
+        public IActionResult ReloadGantt()
+        {
+            //call to ReloadGantt Diagramm
+            return ViewComponent("ProductionTimeline");
+        }
+        
+        [HttpGet("[Controller]/ReloadChart")]
+        public IActionResult ReloadChart()
+        {
+            //call to ReloadChart Diagramm
+            return ViewComponent("MachineGroupCapacity");
+        }
     }
 }

@@ -1,32 +1,32 @@
 ﻿@model string
 
 <form method="post" asp-action="Index" onchange="submitform()">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="gantt"></div>
-        </div>
-    </div>
-    <div class="form-horizontal">
-        <h4>Filter Options</h4>
+    <div class="form-inline">
+        <h5>Filter Options</h5>
         <hr />
-        <div class="col-md-10">
+        <div class="col-md-5">
             <div class="form-group">
-                <label class="control-label col-md-2">Order</label>
-                <div class="col-md-10">
+                <label class="control-label col-md-4">Order</label>
+                <div class="col-md-8">
                     <select class="form-control" asp-items="ViewBag.OrderId" name="Order" ></select>
                 </div>
             </div>
         </div>
-        <div class="col-md-10">
+        <div class="col-md-1"></div>
+        <div class="col-md-8">
             <div class="form-group">
-                <label class="control-label col-md-2">State of Planning</label>
-                <div class="col-md-10">
+                <label class="control-label col-md-4">State of Planning</label>
+                <div class="col-md-8">
                     <select class="form-control" asp-items="ViewBag.SchedulingState" name="SchedulingState"></select>
                 </div>
             </div>
         </div>
     </div>
-
+    <div class="row">
+        <div class="col-md-12">
+            <div class="gantt"></div>
+        </div>
+    </div>
     <!--
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
