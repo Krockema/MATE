@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Master40.DB.Models;
 using System.Linq;
 using System;
+using Master40.DB.DB.Interfaces;
+using Master40.DB.DB.Models;
 
 namespace Master40.DB.Data.Repository
 {
@@ -151,42 +153,66 @@ namespace Master40.DB.Data.Repository
 
             return mainProductionOrder;
         }
-        public bool ProductionOrderWorkScheduleIsLowestHierarchy(ProductionOrderWorkSchedule pows)
+
+        public bool ProductionOrderWorkScheduleIsLowestHierarchy(SimulationProductionOrderWorkSchedule spows)
         {
             var powsList = (from all in ProductionOrderWorkSchedule
-                         where (all.ProductionOrderId == pows.ProductionOrderId)
+                         where (all.ProductionOrderId == spows.ProductionOrderId)
                          select all);
-            return powsList.All(t => t.HierarchyNumber >= pows.HierarchyNumber);
+            return powsList.All(t => t.HierarchyNumber >= spows.HierarchyNumber);
         }
 
-        public bool ProductionOrderHasChildren(ProductionOrderWorkSchedule pows)
+        public bool ProductionOrderHasChildren(SimulationProductionOrderWorkSchedule spows)
         {
-            return ProductionOrderBoms.Any(a => a.ProductionOrderParentId == pows.ProductionOrderId);
+            return ProductionOrderBoms.Any(a => a.ProductionOrderParentId == spows.ProductionOrderId);
         }
     
-        public ProductionOrderWorkSchedule ProductionOrderWorkScheduleGetParent(ProductionOrderWorkSchedule pows)
+        public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetParent(SimulationProductionOrderWorkSchedule spows)
         {
-            return ProductionOrderWorkScheduleGetHierarchyParent(pows) ?? ProductionOrderWorkScheduleGetBomParent(pows);
+            return ProductionOrderWorkScheduleGetHierarchyParent(spows) ?? ProductionOrderWorkScheduleGetBomParent(spows);
         }
 
-        public ProductionOrderWorkSchedule ProductionOrderWorkScheduleGetHierarchyParent(
-            ProductionOrderWorkSchedule pows)
+        public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetHierarchyParent(
+            SimulationProductionOrderWorkSchedule spows)
         {
             var powsList = (from all in ProductionOrderWorkSchedule
-                            where (all.ProductionOrderId == pows.ProductionOrderId)
+                            where (all.ProductionOrderId == spows.ProductionOrderId)
                             select all);
             var hierarchyParents =
                 (from hierarchyPows in powsList
-                where (hierarchyPows.HierarchyNumber > pows.HierarchyNumber)
+                where (hierarchyPows.HierarchyNumber > spows.HierarchyNumber)
                 select hierarchyPows).ToList();
+            var pows = hierarchyParents?.OrderBy(i => i.HierarchyNumber).First();
+            if (pows == null)
+                return null;
+            var parentSpows = new SimulationProductionOrderWorkSchedule
+            {
+                ProductionOrderId = pows.ProductionOrderId,
+                HierarchyNumber = pows.HierarchyNumber,
+                End = pows.End,
+                Start = pows.Start
+            };
 
-            return hierarchyParents?.OrderBy(i => i.HierarchyNumber).First();
+            return parentSpows;
         }
 
-        public ProductionOrderWorkSchedule ProductionOrderWorkScheduleGetBomParent(ProductionOrderWorkSchedule pows)
+        public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetBomParent(SimulationProductionOrderWorkSchedule spows)
         {
-            var bom = ProductionOrderBoms.Where(a => a.ProductionOrderChildId == pows.ProductionOrderId);
-            return !bom.Any() ? null : bom.First().ProductionOrderParent.ProductionOrderWorkSchedule.FirstOrDefault(ProductionOrderWorkScheduleIsLowestHierarchy);
+            var bom = ProductionOrderBoms.Where(a => a.ProductionOrderChildId == spows.ProductionOrderId);
+            if (!bom.Any()) return null;
+            var pows = bom.First().ProductionOrderParent.ProductionOrderWorkSchedule;
+            return pows?.Select(singlePows => new SimulationProductionOrderWorkSchedule()
+            {
+                End = singlePows.End,
+                HierarchyNumber = singlePows.HierarchyNumber,
+                ProductionOrderId = singlePows.ProductionOrderId,
+                Start = singlePows.Start
+            }).FirstOrDefault(ProductionOrderWorkScheduleIsLowestHierarchy);
+        }
+        
+        public IDemandToProvider GetDemand(SimulationProductionOrderWorkSchedule pows)
+        {
+            return pows.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
         }
     }
 }

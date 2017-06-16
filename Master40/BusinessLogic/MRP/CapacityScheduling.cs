@@ -13,10 +13,10 @@ namespace Master40.BusinessLogic.MRP
 {
     internal interface ICapacityScheduling
     {
-        void GifflerThompsonScheduling();
-        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning();
+        void GifflerThompsonScheduling(int timer);
+        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int timer);
         bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList);
-        void SetMachines();
+        void SetMachines(int timer);
     }
 
     internal class CapacityScheduling : ICapacityScheduling
@@ -32,9 +32,9 @@ namespace Master40.BusinessLogic.MRP
         /// <summary>
         /// An algorithm for capacity-leveling. Writes Start/End in ProductionOrderWorkSchedule.
         /// </summary>
-        public void GifflerThompsonScheduling()
+        public void GifflerThompsonScheduling(int timer)
         {
-            var productionOrderWorkSchedules = GetProductionSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules(timer);
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
             
@@ -60,7 +60,7 @@ namespace Master40.BusinessLogic.MRP
                     plannableSchedules.Add(parent);
                 _context.SaveChanges();
             }
-            SetMachines();
+            SetMachines(timer);
         }
 
         private List<ProductionOrderWorkSchedule> AddMachineToPows(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest)
@@ -223,11 +223,10 @@ namespace Master40.BusinessLogic.MRP
         /// Calculates Capacities needed to use backward/forward termination
         /// </summary>
         /// <returns>capacity-plan</returns>
-        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning()
+        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int timer)
         {
-            ClearMachineGroupProductionOrderWorkSchedule();
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetProductionSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules(timer);
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -251,13 +250,6 @@ namespace Master40.BusinessLogic.MRP
                 }
             }
             return machineList;
-        }
-
-        private void ClearMachineGroupProductionOrderWorkSchedule()
-        {
-            _context.MachineGroupProductionOrderWorkSchedules.RemoveRange(_context.MachineGroupProductionOrderWorkSchedules);
-            _context.ProductionOrderWorkSchedulesByTimeSteps.RemoveRange(_context.ProductionOrderWorkSchedulesByTimeSteps);
-            _context.SaveChanges();
         }
 
         /// <summary>
@@ -339,35 +331,6 @@ namespace Master40.BusinessLogic.MRP
             return isAllowed;
         }
 
-        private List<ProductionOrderWorkSchedule> GetConflictSet(ProductionOrderWorkSchedule shortest, List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, List<ProductionOrderWorkSchedule> plannedSchedules)
-        {
-            var conflictSet = new List<ProductionOrderWorkSchedule>();
-
-            foreach (var schedule in productionOrderWorkSchedules)
-            {
-                if (schedule.MachineGroupId == shortest.MachineGroupId && !schedule.Equals(shortest) && !plannedSchedules.Contains(schedule))
-                    conflictSet.Add(schedule);
-            }
-            var parent = GetParent(shortest, productionOrderWorkSchedules);
-            if (parent != null)
-                conflictSet.Add(parent);
-            return conflictSet;
-        }
-
-        private void SolveConflicts(ProductionOrderWorkSchedule shortest, List<ProductionOrderWorkSchedule> conflictSet,
-            List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
-        {
-
-            foreach (var conflict in conflictSet)
-            {
-                var index = productionOrderWorkSchedules.IndexOf(conflict);
-                if (shortest.Start + shortest.Duration > productionOrderWorkSchedules[index].Start)
-                {
-                    productionOrderWorkSchedules[index].Start = shortest.Start + shortest.Duration + 1;
-                }
-            }
-        }
-
         private ProductionOrderWorkSchedule GetShortest(List<ProductionOrderWorkSchedule> plannableSchedules)
         {
             ProductionOrderWorkSchedule shortest = null;
@@ -432,7 +395,7 @@ namespace Master40.BusinessLogic.MRP
             return _context.Machines.Count(a => a.MachineGroupId == schedule.MachineGroupId);
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules()
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules(int timer)
         {
             var demandRequester = _context.Demands
                                             .Include(a => a.DemandProvider)
@@ -446,7 +409,7 @@ namespace Master40.BusinessLogic.MRP
             var productionOrderWorkSchedule = new List<ProductionOrderWorkSchedule>();
             foreach (var demandReq in demandRequester)
             {
-                var schedules = GetProductionSchedules(demandReq);
+                var schedules = GetProductionSchedules(demandReq, timer);
                 foreach (var schedule in schedules)
                 {
                     productionOrderWorkSchedule.Add(schedule);
@@ -455,7 +418,7 @@ namespace Master40.BusinessLogic.MRP
             return productionOrderWorkSchedule;
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester)
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester, int timer)
         {
             var provider =
                 _context.Demands.OfType<DemandProviderProductionOrder>()
@@ -470,7 +433,8 @@ namespace Master40.BusinessLogic.MRP
             {
                 foreach (var schedule in prov.ProductionOrder.ProductionOrderWorkSchedule)
                 {
-                    schedules.Add(schedule);
+                    if (schedule.Start > timer)
+                        schedules.Add(schedule);
                 }
             }
             return schedules;
@@ -550,10 +514,10 @@ namespace Master40.BusinessLogic.MRP
             return lowestHierarchyMember;
         }
 
-        public void SetMachines()
+        public void SetMachines(int timer)
         {
             //gets called when plan is fitting to capacities
-            var schedules = GetProductionSchedules();
+            var schedules = GetProductionSchedules(timer);
             foreach (var schedule in schedules)
             {
                 var machines = _context.Machines.Where(a => a.MachineGroupId == schedule.MachineGroupId).ToList();
@@ -587,10 +551,7 @@ namespace Master40.BusinessLogic.MRP
                         scheduleMg.End >= schedule.End)
                         ||
                         (scheduleMg.Start > schedule.Start &&
-                         scheduleMg.End < schedule.End)
-                        ||
-                        (scheduleMg.Start <= schedule.Start &&
-                         scheduleMg.End >= schedule.End))
+                         scheduleMg.End < schedule.End))
             {
                 return true;
             }

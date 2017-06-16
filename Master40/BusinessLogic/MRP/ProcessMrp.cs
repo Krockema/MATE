@@ -16,7 +16,9 @@ namespace Master40.BusinessLogic.MRP
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunMrp(IDemandToProvider demand, MrpTask task);
         void EndBackwardScheduler();
-        
+        void PlanCapacities(MrpTask task, int timer);
+
+
     }
 
     public class ProcessMrp : IProcessMrp
@@ -60,7 +62,7 @@ namespace Master40.BusinessLogic.MRP
                 
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
-                    PlanCapacities(task);
+                    PlanCapacities(task, 0);
                 }
                 foreach (var orderPart in orderParts)
                 {
@@ -71,7 +73,7 @@ namespace Master40.BusinessLogic.MRP
             });
         }
 
-        private void PlanCapacities(MrpTask task)
+        public void PlanCapacities(MrpTask task, int timer)
         {
             var demands = _context.Demands.Where(a =>
                                a.State == State.BackwardScheduleExists || a.State == State.ForwardScheduleExists ||
@@ -87,7 +89,7 @@ namespace Master40.BusinessLogic.MRP
 
             if (task == MrpTask.GifflerThompson || (capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All))
             {
-                capacity.GifflerThompsonScheduling();
+                capacity.GifflerThompsonScheduling(timer);
             }
             else
             {
@@ -152,8 +154,6 @@ namespace Master40.BusinessLogic.MRP
                 _context.Update(demand);
                 _context.SaveChanges();
                 schedule.BackwardScheduling(demand);
-
-                //Todo: backward-Scheduling mit fixem Endpunkt
             }
             _context.SaveChanges();
         }

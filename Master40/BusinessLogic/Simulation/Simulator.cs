@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.BusinessLogic.MRP;
 using Master40.DB.Data.Repository;
+using Master40.DB.DB.Interfaces;
+using Master40.DB.DB.Models;
 using Master40.DB.Models;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Master40.Extensions;
 
 namespace Master40.BusinessLogic.Simulation
 {
     public class Simulator
     {
         private readonly ProductionDomainContext _context;
-        public Simulator(ProductionDomainContext context)
+        private readonly IProcessMrp _processMrp;
+        public Simulator(ProductionDomainContext context, IProcessMrp processMrp)
         {
             _context = context;
+            _processMrp = processMrp;
         }
         
-        private void CreateInitialTable(TimeTable<ProductionOrderWorkSchedule> timeTable)
+        private void CreateInitialTable(TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
         {
             var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
             var provider = new List<DemandProviderProductionOrder>();
@@ -32,19 +36,25 @@ namespace Master40.BusinessLogic.Simulation
                     _context.ProductionOrderWorkSchedule.Where(
                         a => a.ProductionOrderId == singleProvider.ProductionOrderId));
             }
-            timeTable.Initial.AddRange(pows);
+            var spows = new List<SimulationProductionOrderWorkSchedule>();
+            foreach (var singlePows in pows)
+            {
+                spows.Add(new SimulationProductionOrderWorkSchedule());
+                singlePows.CopyPropertiesTo<ISimulationProductionOrderWorkSchedule>(spows.Last());
+            }
+            timeTable.Initial.AddRange(spows);
         }
 
-        private void FillAbleToStartList(TimeTable<ProductionOrderWorkSchedule> timeTable)
+        private void FillAbleToStartList(TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
         {
-            var helperPowsList = new List<ProductionOrderWorkSchedule>();
+            var helperSpowsList = new List<SimulationProductionOrderWorkSchedule>();
             foreach (var initial in timeTable.Initial)
             {
                 if (!_context.ProductionOrderWorkScheduleIsLowestHierarchy(initial))
                     continue;
                 if (!_context.ProductionOrderHasChildren(initial))
                     continue;
-                helperPowsList.Add(initial);
+                helperSpowsList.Add(initial);
             }
             
             foreach (var finished in timeTable.Finished)
@@ -52,28 +62,28 @@ namespace Master40.BusinessLogic.Simulation
                 var parent = _context.ProductionOrderWorkScheduleGetParent(finished);
                 if (parent != null && timeTable.Initial.Contains(parent))
                 {
-                    helperPowsList.Add(parent);
+                    helperSpowsList.Add(parent);
                 }
             }
-            foreach (var pows in helperPowsList)
+            foreach (var pows in helperSpowsList)
             {
                 AddToAbleToStart(pows, timeTable);
             }
         }
 
-        private void AddToAbleToStart(ProductionOrderWorkSchedule pows, TimeTable<ProductionOrderWorkSchedule> timeTable)
+        private void AddToAbleToStart(SimulationProductionOrderWorkSchedule pows, TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
         {
             timeTable.Initial.Remove(pows);
             timeTable.AbleToStart.Add(pows);
         }
 
-        private void AddToInProgress(ProductionOrderWorkSchedule pows, TimeTable<ProductionOrderWorkSchedule> timeTable)
+        private void AddToInProgress(SimulationProductionOrderWorkSchedule pows, TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
         {
             timeTable.AbleToStart.Remove(pows);
             timeTable.InProgress.Add(pows);
         }
 
-        private void AddToFinished(ProductionOrderWorkSchedule pows, TimeTable<ProductionOrderWorkSchedule> timeTable)
+        private void AddToFinished(SimulationProductionOrderWorkSchedule pows, TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
         {
             timeTable.InProgress.Remove(pows);
             timeTable.Finished.Add(pows);
@@ -85,15 +95,17 @@ namespace Master40.BusinessLogic.Simulation
             {
                 while (true)
                 {
-                    if (ProcessTimeline(new TimeTable<ProductionOrderWorkSchedule>()))
+                    if (ProcessTimeline(new TimeTable<SimulationProductionOrderWorkSchedule>()))
                         break;
                 }
             });
 
         }
 
-        public bool ProcessTimeline(TimeTable<ProductionOrderWorkSchedule> timeTable)
+        public bool ProcessTimeline(TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
         {
+            //Todo: implement statistics
+
             if (!timeTable.Initial.Any())
                 CreateInitialTable(timeTable);
 
@@ -111,8 +123,8 @@ namespace Master40.BusinessLogic.Simulation
                 if (timeTable.Timer - rnd <= 0)
                     rnd = 0;
 
-                var newDuration = item.Duration + rnd;
-                if (newDuration != item.Duration)
+                var newDuration = item.End - item.Start + rnd;
+                if (newDuration != item.End - item.Start)
                 {
                     var parent = _context.ProductionOrderWorkScheduleGetParent(item);
                     if (parent != null)
@@ -137,16 +149,32 @@ namespace Master40.BusinessLogic.Simulation
 
             }
 
+            if (timeTable.Timer > timeTable.RecalculateTimer)
+            {
+                Recalculate(timeTable.Timer);
+                timeTable.RecalculateTimer += 24;
+            }
+
             // Check for finished Items.
             var finished = timeTable.InProgress.Where(x => x.End <= timeTable.Timer);
             foreach (var item in finished)
             {
                 AddToFinished(item, timeTable);
+                if (_context.ProductionOrderWorkScheduleGetParent(item) != null ||
+                    timeTable.InProgress.Any(a => a.ProductionOrderId == item.ProductionOrderId))
+                    continue;
+                var demand = _context.GetDemand(item);
+                demand.State = State.Produced;
             }
 
 
             // if Progress is empty Stop.
             return timeTable.InProgress.Any();
+        }
+
+        private void Recalculate(int timer)
+        {
+            _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
         }
     }
     
