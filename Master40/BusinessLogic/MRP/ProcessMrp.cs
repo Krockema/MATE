@@ -84,7 +84,7 @@ namespace Master40.BusinessLogic.MRP
 
             if (task == MrpTask.All || task == MrpTask.Capacity)
             {
-                machineList = capacity.CapacityRequirementsPlanning();
+                machineList = capacity.CapacityRequirementsPlanning(timer);
             }
 
             if (task == MrpTask.GifflerThompson || (capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All))
@@ -97,7 +97,7 @@ namespace Master40.BusinessLogic.MRP
                 {
                     SetStartEndFromTermination(demand);
                 }
-                capacity.SetMachines();
+                capacity.SetMachines(timer);
             }
             foreach (var demand in demands)
             {
