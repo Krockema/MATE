@@ -12,11 +12,13 @@
         $('form').submit();
     }
 </script>
-
-<div class="col-md-12">
-    Processing State: <span id="MessageDisplay"></span>
+<hr/>
+<div class="row">
+    <div class="col-md-2">
+        <h4>Processing State:</h4>
+    </div>
+    <div id="MessageDisplay" class="col-md-2"></div>
 </div>
-
 @await Component.InvokeAsync("ProductionTimeline")
 
 
@@ -24,7 +26,7 @@
     <div class="col-md-8 pull-right">
         @await Component.InvokeAsync("MachineGroupCapacity")
     </div>
-    <div class="col-md-4 pull-right">
+    <div class="col-md-4 pull-left">
         <h2>MRP </h2>
         <p>
             Container to Process the MRP Run and Show the Results.

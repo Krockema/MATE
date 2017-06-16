@@ -25,6 +25,7 @@
     <Content Include="wwwroot\images\data-flow-chart.svg" />
     <Content Include="wwwroot\images\grid.png" />
     <Content Include="wwwroot\images\icon_sprite.png" />
+    <Content Include="wwwroot\images\loading.svg" />
     <Content Include="wwwroot\images\slider_handle.png" />
     <Content Include="wwwroot\js\moment.min.js" />
     <Content Include="wwwroot\js\prettify.js" />
