@@ -12,8 +12,8 @@ namespace Master40.BusinessLogic.Simulation
 {
     public interface ISimulator
     {
-        bool ProcessTimeline(TimeTable<ProductionOrderWorkSchedule> timeTable);
         Task Simulate();
+        bool ProcessTimeline(TimeTable<SimulationProductionOrderWorkSchedule> timeTable);
     }
 
     public class Simulator : ISimulator

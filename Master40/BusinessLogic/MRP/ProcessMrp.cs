@@ -15,10 +15,7 @@ namespace Master40.BusinessLogic.MRP
         List<LogMessage> Logger { get; set; }
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunMrp(IDemandToProvider demand, MrpTask task);
-        void EndBackwardScheduler();
         void PlanCapacities(MrpTask task, int timer);
-
-
     }
 
     public class ProcessMrp : IProcessMrp
@@ -30,12 +27,6 @@ namespace Master40.BusinessLogic.MRP
         {
             _context = context;
             _connectionManager = connectionManager;
-        }
-
-        public void EndBackwardScheduler()
-        {
-            _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("MrpProcessingComplete");
         }
 
         async Task IProcessMrp.CreateAndProcessOrderDemand(MrpTask task)
