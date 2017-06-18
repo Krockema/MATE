@@ -20,26 +20,35 @@ namespace Master40.ViewComponents
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+
+
+        public async Task<IViewComponentResult> InvokeAsync(int schedulingState)
         {
             var generateCharTask = Task.Run(() =>
             {
-                int schedulingState = 1;
+                // check if it hase Scheduling state is set
+                /*int schedulingState = 1;
                 if (Request.Method == "POST")
                 {
                     // catch scheduling state
                     schedulingState = Convert.ToInt32(Request.Form["SchedulingState"]);
                 }
-
+                */
+                // Create Chart Object
                 Chart chart = new Chart();
 
+                // charttype
                 chart.Type = "bar";
 
-                Data data = new Data();
-                data.Labels = GetRangeForSchedulingType(schedulingState);
+                // use available hight in Chart
+                chart.Options = new Options {MaintainAspectRatio = false};
+                var data = new Data { Labels = GetRangeForSchedulingType(schedulingState) };
                 var machineGroups = _context.MachineGroups.Select(x => x.Id);
 
+
                 var yMaxScale = 0;
+
+                // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
                 if (data.Labels.Any())
                 {
@@ -52,9 +61,9 @@ namespace Master40.ViewComponents
                             yMaxScale = tempMax;
                     }
                 }
-                
                 chart.Data = data;
-                
+
+                // Specifie xy Axis
                 var xAxis = new List<Scale>() {new BarScale {Stacked = false}};
                 var yAxis = new List<Scale>() { new BarScale { Stacked = false, Ticks = new Tick{ BeginAtZero = true, Min = 0, Max = yMaxScale, StepSize = 1 } } };
                 chart.Options = new Options() {Scales = new Scales {XAxes = xAxis, YAxes = yAxis}};
@@ -62,12 +71,21 @@ namespace Master40.ViewComponents
                 return chart;
             });
            
+            // create JS to Render Chart.
             ViewData["chart"] = await generateCharTask;
 
             return View($"MachineGroupCapacity");
 
         }
 
+        /// <summary>
+        /// creates Range for given Scheduling state
+        /// </summary>
+        /// <param name="schedulingState"></param>
+        /// 1: Backward
+        /// 2: Forward
+        /// 3: Default
+        /// <returns></returns>
         private List<string> GetRangeForSchedulingType(int schedulingState)
         {
             List<string> labeList = new List<string>();

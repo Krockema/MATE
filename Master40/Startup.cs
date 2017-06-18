@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
 using Hangfire;
+using Master40.SignalR;
 
 namespace Master40
 {
@@ -50,8 +51,8 @@ namespace Master40
             services.AddHangfire(x => x.UseSqlServerStorage(sConnectionString));
 
             services.AddSingleton<IProcessMrp, ProcessMrp>();
-            services.AddSingleton<Simulator>();
-            
+            services.AddSingleton<ISimulator, Simulator>();
+            services.AddSingleton<HubCallback>();
             
             services.Configure<RequestLocalizationOptions>(
                 opts =>

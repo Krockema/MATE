@@ -6,31 +6,77 @@ using Master40.BusinessLogic.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
+using Master40.BusinessLogic.Simulation;
 
 namespace Master40.SignalR
 {
     public class ProcessingHub : Hub
     {
         private readonly IProcessMrp _processMrp;
-        public ProcessingHub(IProcessMrp processMrp)
+        private readonly ISimulator _simulator;
+        private readonly HubCallback _hubCallback;
+
+        public ProcessingHub(IProcessMrp processMrp, ISimulator simulator, HubCallback hubCallback)
         {
             _processMrp = processMrp;
+            _simulator = simulator;
+            _hubCallback = hubCallback;
         }
         public void SystemReady()
         {
-            Clients.All.clientListener(Callback.ReturnMsgBox("SignalR Hub active.", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("SignalR Hub active.", MessageType.info));
+        }
+        
+        public void StartFullPlanning()
+        {
+            var jobId = BackgroundJob.Enqueue<IProcessMrp>(x =>
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All)
+            );
+            BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Full Cycle...", MessageType.info));
         }
 
         public void StartBackwardScheduler()
         {
-            var jobId = BackgroundJob.Enqueue<IProcessMrp>(x => //ht.Test(1)
+            var jobId = BackgroundJob.Enqueue<IProcessMrp>(x => 
                 _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward)
             );
-            BackgroundJob.ContinueWith<IProcessMrp>(jobId, (x => _processMrp.EndBackwardScheduler()));
-            Clients.All.clientListener(Callback.ReturnMsgBox("Start Backward...", MessageType.info));
+            BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Backward...", MessageType.info));
+        }
+
+        public void StartForwardScheduler()
+        {
+            var jobId = BackgroundJob.Enqueue<IProcessMrp>(x => 
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward)
+            );
+            BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Forwart...", MessageType.info));
+        }
+        public void StartCapacityPlanning()
+        {
+            var jobId = BackgroundJob.Enqueue<IProcessMrp>(x => 
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity)
+            );
+            BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Capacity Planning...", MessageType.info));
+        }
+        
+        public void StartGifflerThompsonPlanning()
+        {
+            var jobId = BackgroundJob.Enqueue<IProcessMrp>(x => 
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson)
+            );
+            BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start GT Planning...", MessageType.info));
+        }
+        public void StartSimulate()
+        {
+            var jobId = BackgroundJob.Enqueue<ISimulator>(x => _simulator.Simulate());
+            BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Simmulation...", MessageType.info));
         }
     }
-
 
     //Works
     public class HangfireTest

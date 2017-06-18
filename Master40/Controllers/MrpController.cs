@@ -13,15 +13,11 @@ namespace Master40.Controllers
     public class MrpController : Controller
     {
         private readonly IProcessMrp _processMrp;
-        private readonly MasterDBContext _context;
-        private readonly Simulator _simulator;
-        private readonly ProductionDomainContext _productionContext;
-        public MrpController(IProcessMrp processMrp, MasterDBContext context, Simulator simulator, ProductionDomainContext productionContext)
+        private readonly ISimulator _simulator;        
+        public MrpController(IProcessMrp processMrp, ISimulator simulator)
         {
             _processMrp = processMrp;
-            _context = context;
             _simulator = simulator;
-            _productionContext = productionContext;
         }
         public IActionResult Index()
         {
@@ -103,18 +99,18 @@ namespace Master40.Controllers
             return View();
         }
 
-        [HttpGet("[Controller]/ReloadGantt")]
-        public IActionResult ReloadGantt()
+        [HttpGet("[Controller]/ReloadGantt/{orderId}/{stateId}")]
+        public IActionResult ReloadGantt(int orderId, int stateId)
         {
             //call to ReloadGantt Diagramm
-            return ViewComponent("ProductionTimeline");
+            return ViewComponent("ProductionTimeline", new List<int> { orderId, stateId });
         }
         
-        [HttpGet("[Controller]/ReloadChart")]
-        public IActionResult ReloadChart()
+        [HttpGet("[Controller]/ReloadChart/{stateId}")]
+        public IActionResult ReloadChart(int stateId)
         {
             //call to ReloadChart Diagramm
-            return ViewComponent("MachineGroupCapacity");
+            return ViewComponent("MachineGroupCapacity", stateId);
         }
     }
 }

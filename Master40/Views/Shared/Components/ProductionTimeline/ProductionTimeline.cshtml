@@ -8,16 +8,15 @@
             <div class="form-group">
                 <label class="control-label col-md-4">Order</label>
                 <div class="col-md-8">
-                    <select class="form-control" asp-items="ViewBag.OrderId" name="Order" ></select>
+                    <select class="form-control" asp-items="ViewBag.OrderId" id="fcOrder" name="Order" ></select>
                 </div>
             </div>
-        </div>
-        <div class="col-md-1"></div>
-        <div class="col-md-8">
+        </div>        
+        <div class="col-md-7">
             <div class="form-group">
                 <label class="control-label col-md-4">State of Planning</label>
                 <div class="col-md-8">
-                    <select class="form-control" asp-items="ViewBag.SchedulingState" name="SchedulingState"></select>
+                    <select class="form-control" asp-items="ViewBag.SchedulingState" id="fcState" name="SchedulingState"></select>
                 </div>
             </div>
         </div>
@@ -40,13 +39,9 @@
 <script>
 
     $(document).ready(
-
         jQuery(function () {
-
             var data = @Html.Raw(Model)
-
                 $(".gantt").gantt({ source: data, navigate: 'scroll', scale: 'hours', maxScale: 'months', minScale: 'hours', itemsPerPage: '25' });
-
         })
     );
 

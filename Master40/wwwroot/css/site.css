@@ -49,3 +49,40 @@ textarea {
     line-height:30px;
     padding:0px 15px;
 }
+
+#ContentBlock {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    -webkit-margin-start: auto;
+    -webkit-margin-end: auto;
+    -webkit-padding-start: 0;
+    width: 344px;
+    background: white;
+    z-index: 99;
+    border: dashed 1px grey;
+}
+
+.loading {
+    background: white url(/images/loading.svg) no-repeat center;
+    min-height: 120px;
+}
+
+.panel-collapse-clickable {
+    cursor: pointer;  
+}
+
+.panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings'; /* essential for enabling glyphicon */
+    content: "\e114"; /* adjust as needed, taken from bootstrap.css */
+    float: right; /* adjust as needed */
+    /* color: grey; adjust as needed */
+}
+
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080"; /* adjust as needed, taken from bootstrap.css */
+}

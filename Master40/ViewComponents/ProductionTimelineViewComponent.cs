@@ -29,10 +29,13 @@ namespace Master40.ViewComponents
         /// called from ViewComponent.
         /// </summary>
         /// <returns></returns>
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(List<int> paramsList)
         {
             //.Definitions();
             var orders = new List<int>();
+            int orderId = paramsList[0];
+            int schedulingState = paramsList[1];
+            /*
             int orderId = -1;
             int schedulingState = 1;
             if (Request.Method == "POST")
@@ -40,20 +43,22 @@ namespace Master40.ViewComponents
                 schedulingState = Convert.ToInt32(Request.Form["SchedulingState"]);
                 orderId = Convert.ToInt32(Request.Form["Order"]);
                 // If Order is not selected.
+                */
                 if (orderId == -1)
                 {   // for all Orders
                     orders = _context.Orders.Select(x => x.Id).ToList();
                 }
                 else
                 {  // for the specified Order
-                   orders.Add(Convert.ToInt32(Request.Form["Order"]));
+                   orders.Add(orderId);
                 }
+                /*
             }
             else
             {   // default
                 orders = _context.Orders.Select(x => x.Id).ToList();
             }
-
+            */
             var schedule = (await GetSchedulesForOrderList(orders, schedulingState)).OrderBy(a => a.GroupId).ThenBy(b => b.Id);
             // Fill Select Fields
             var orderSelection = new SelectList(_context.Orders, "Id", "Name", orderId);

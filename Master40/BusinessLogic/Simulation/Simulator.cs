@@ -8,7 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Master40.BusinessLogic.Simulation
 {
-    public class Simulator
+    public interface ISimulator
+    {
+        bool ProcessTimeline(TimeTable<ProductionOrderWorkSchedule> timeTable);
+        Task Simulate();
+    }
+
+    public class Simulator : ISimulator
     {
         private readonly ProductionDomainContext _context;
         public Simulator(ProductionDomainContext context)
@@ -79,7 +85,7 @@ namespace Master40.BusinessLogic.Simulation
             timeTable.Finished.Add(pows);
         }
 
-        internal async Task Simulate()
+        public async Task Simulate()
         {
             await Task.Run(() =>
             {
