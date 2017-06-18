@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Master40.BusinessLogic.Simulation
@@ -10,6 +11,7 @@ namespace Master40.BusinessLogic.Simulation
         public TimeTable()
         {
             this.Timer = 0;
+            this.RecalculateTimer = 24;
             this.Initial = new List<T>();
             this.AbleToStart = new List<T>();
             this.InProgress = new List<T>();
@@ -22,6 +24,7 @@ namespace Master40.BusinessLogic.Simulation
         public List<T> Finished { get; set; }
 
         public int Timer { get; set; }
+        public int RecalculateTimer { get; set; }
         
     }
 }

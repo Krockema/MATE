@@ -36,8 +36,6 @@ namespace Master40.DB.Data.Context
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
-        public DbSet<ProductionOrderWorkSchedulesByTimeStep> ProductionOrderWorkSchedulesByTimeSteps { get; set; }
-        public DbSet<MachineGroupProductionOrderWorkSchedule> MachineGroupProductionOrderWorkSchedules { get; set; }
         public DbSet<SimulationProductionOrderWorkSchedule> SimulationProductionOrderWorkSchedules { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

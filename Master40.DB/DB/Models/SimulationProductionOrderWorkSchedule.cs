@@ -5,6 +5,12 @@ namespace Master40.DB.DB.Models
 {
     public class SimulationProductionOrderWorkSchedule : BaseEntity, ISimulationProductionOrderWorkSchedule
     {
+        public SimulationProductionOrderWorkSchedule()
+        {
+            SimulatedStart = 0;
+            SimulatedEnd = 0;
+            SimulatedDuration = 0;
+        }
         public int HierarchyNumber { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
