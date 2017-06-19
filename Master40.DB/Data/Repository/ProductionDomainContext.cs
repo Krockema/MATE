@@ -182,7 +182,9 @@ namespace Master40.DB.Data.Repository
                 (from hierarchyPows in powsList
                 where (hierarchyPows.HierarchyNumber > spows.HierarchyNumber)
                 select hierarchyPows).ToList();
-            var pows = hierarchyParents?.OrderBy(i => i.HierarchyNumber).First();
+            if (!hierarchyParents.Any())
+                return null;
+            var pows = hierarchyParents.OrderBy(i => i.HierarchyNumber).First();
             if (pows == null)
                 return null;
             var parentSpows = new SimulationProductionOrderWorkSchedule
@@ -198,7 +200,7 @@ namespace Master40.DB.Data.Repository
 
         public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetBomParent(SimulationProductionOrderWorkSchedule spows)
         {
-            var bom = ProductionOrderBoms.Where(a => a.ProductionOrderChildId == spows.ProductionOrderId);
+            var bom = ProductionOrderBoms.Include(a => a.ProductionOrderParent).ThenInclude(a => a.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderChildId == spows.ProductionOrderId);
             if (!bom.Any()) return null;
             var pows = bom.First().ProductionOrderParent.ProductionOrderWorkSchedule;
             return pows?.Select(singlePows => new SimulationProductionOrderWorkSchedule()
