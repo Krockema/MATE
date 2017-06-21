@@ -3,14 +3,19 @@
 $(function () {
     // Create overlay and append to body:
     $('<div id="ajax-busy" style="z-index: 99999">' +
-        '<div id="ContentBlock">' +
-            '<div style="width: 344px; display: inline-block;">' +
-                '<h4>&nbsp;Processing State: </h4>' +
-                    '<div class="MessageDisplayRunning" style="float: left; width: 200px; margin: 5px; overflow-y: auto; max-height: 130px;"></div>' +
-                    '<div class="loading" style="float: left; width: 120px; margin: 5px"></div>' +
+        '<div class="modal-dialog">' + 
+            '<div class="modal-content">' +
+                '<div class="modal-header">' +
+                    '<h4 class="modal-title">Processing</h4>' +
+                '</div>' +
+                '<div class="modal-body">' + 
+                    '<div class="row">'+ 
+                    '<div class="MessageDisplayRunning" style="width: 100%;padding-left: 140px; float: right""></div>' +
+                    '<div class="loading" style="width: 120px;margin 5px"></div>' +
+                    '</div>' +
                 '</div>'+
             '</div>' +
-        '</div>').css({
+        '</div></div>').css({
         position: 'fixed',
         top: 0,
         left: 0,

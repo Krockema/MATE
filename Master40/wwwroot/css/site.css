@@ -48,6 +48,7 @@ textarea {
     height: 30px;
     line-height:30px;
     padding:0px 15px;
+    width: 100%;
 }
 
 #ContentBlock {
@@ -67,7 +68,7 @@ textarea {
 
 .loading {
     background: white url(/images/loading.svg) no-repeat center;
-    min-height: 120px;
+    min-height: 120px; 
 }
 
 .panel-collapse-clickable {

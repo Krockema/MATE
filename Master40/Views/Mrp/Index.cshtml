@@ -16,78 +16,76 @@
         loadCharts(value2)
         //$('form').submit();
     }
+
 </script>
 <hr/>
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-md-3 col-sm-4">
-            <div class="col-md-12">
-                <h2>MRP </h2>
-                <p>
-                    Container to Process the MRP Run and Show the Results.
-                </p>
-                <div class="panel-group" id="accordion">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Processing Options</a>
-                            </h4>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse in">
-                            <div class="panel-body">
-                                <p><a class="btn btn-default btn-block" href="#" onclick="startFullPlanning()">Run All</a></p>
-                                <P>Step by Step</P>
-                                <p><a class="btn btn-default btn-block" href="#" onclick="startBackward()">Schedule backward</a></p>
-                                <p><a class="btn btn-default btn-block" href="#" onclick="startForward()">Schedule forward</a></p>
-                                <p><a class="btn btn-default btn-block" href="#" onclick="startCapacity()">Plan capacities</a></p>
-                                <p><a class="btn btn-default btn-block" href="#" onclick="startGifflerThompson()">Giffler-Thompson</a></p>
-                                <p><a class="btn btn-default btn-block" href="#" onclick="startSimulation()">Simulate</a></p>
+            <div class="container-fluid">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <h2>MRP </h2>
+                        <p>
+                            Container to Process the MRP Run and Show the Results.
+                        </p>
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Processing Options</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startFullPlanning()">Run All</a></p>
+                                        <P>Step by Step</P>
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startBackward()">Schedule backward</a></p>
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startForward()">Schedule forward</a></p>
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startCapacity()">Plan capacities</a></p>
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startGifflerThompson()">Giffler-Thompson</a></p>
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startSimulation()">Simulate</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">For Debugging Only</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p><a class="btn btn-default btn-block" href="~/Mrp/MrpProcessing">Run All</a></p>
+                                        <P>Step by Step</P>
+                                        <p><a class="btn btn-default btn-block" href="~/Mrp/MrpBackward">Schedule backward</a></p>
+                                        <p><a class="btn btn-default btn-block" href="~/Mrp/MrpForward">Schedule forward</a></p>
+                                        <p><a class="btn btn-default btn-block" href="~/Mrp/CapacityPlanning">Plan capacities</a></p>
+                                        <p><a class="btn btn-default btn-block" href="~/Mrp/MrpGifflerThompson">Giffler-Thompson</a></p>
+                                        <p><a class="btn btn-default btn-block" href="~/MRP/Simulate">Simulate</a></p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="panel panel-danger">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">For Debugging Only</a>
-                            </h4>
-                        </div>
-                        <div id="collapseTwo" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <p><a class="btn btn-default btn-block" href="~/Mrp/MrpProcessing">Run All</a></p>
-                                <P>Step by Step</P>
-                                <p><a class="btn btn-default btn-block" href="~/Mrp/MrpBackward">Schedule backward</a></p>
-                                <p><a class="btn btn-default btn-block" href="~/Mrp/MrpForward">Schedule forward</a></p>
-                                <p><a class="btn btn-default btn-block" href="~/Mrp/CapacityPlanning">Plan capacities</a></p>
-                                <p><a class="btn btn-default btn-block" href="~/Mrp/MrpGifflerThompson">Giffler-Thompson</a></p>
-                                <p><a class="btn btn-default btn-block" href="~/MRP/Simulate">Simulate</a></p>
-                            </div>
-                        </div>
+
+                        <h4>Processing State:</h4>
+                        <div id="" class="MessageDisplay"></div>
                     </div>
                 </div>
-
-                <h4>Processing State:</h4>
-                <div id="" class="MessageDisplay"></div>
             </div>
         </div>
-        <div class="col-sm-8 col-md-9">
-            <div class="ProductionGantt" id="ProductionGantt" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-9 col-sm-8 pull-right" id="ProductionChart" style="max-height: 200px">
-        </div>
-        <div class="col-md-3 col-sm-4 pull-left">
-            &nbsp;
-            <!--
-            <h2>Result</h2>
-            @foreach (var item in Model)
-            {
-                <div class="alert alert-@item.MessageType.ToString()">
-                    @{ LineNumber = LineNumber + 1; }
-                    <strong> @LineNumber.ToString() :</strong> @Html.DisplayFor(modelItem => item.Message)
+        <div class="col-md-9 col-sm-8">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ProductionGantt" id="ProductionGantt" />
+                    </div>
+                    <div class="col-md-12" id="ProductionChart" style="max-height: 200px">
+
+                    </div>
                 </div>
-            }
-            -->
+            </div>
         </div>
     </div>
 </div>
@@ -109,13 +107,10 @@
         // Processing Hub is loaded
         $.connection.hub.start().done(function () {
             processingProxy.invoke('SystemReady');
-            $(".MessageDisplayRunning").html("");
-            $('#ajax-busy').hide();
+            loadGantt(-1,1);
+            loadCharts(1);
         })
-
-
-
-
+        
         // Start Backward Scheduler
         function startBackward() {
             $(".MessageDisplayRunning").html("");
