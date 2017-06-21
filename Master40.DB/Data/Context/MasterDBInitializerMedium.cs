@@ -46,7 +46,7 @@ namespace Master40.DB.Data.Context
                 new Machine{Capacity=1, Name="Säge", Count = 1, MachineGroup = new MachineGroup{ Name = "Zuschnitt" } },
                 new Machine{Capacity=1, Name="Bohrer", Count = 1, MachineGroup = new MachineGroup{ Name = "Bohrwerk" } },
                 new Machine{Capacity=1, Name="MontagePlatform", Count=1, MachineGroup = new MachineGroup{ Name = "Montage" }},
-                new Machine{Capacity=1, Name="MontagePlatform2", Count=1, }
+                //new Machine{Capacity=1, Name="MontagePlatform2", Count=1, }
             };
             machines.Last().MachineGroup = machines.Single(n => n.Name == "MontagePlatform").MachineGroup;
             foreach (var m in machines)
@@ -212,8 +212,8 @@ namespace Master40.DB.Data.Context
             //create order
             var orders = new List<Order>() { 
                 new Order {BusinessPartnerId = businessPartner.Id, DueTime = 40, Name = "Erste Kipperbestellung"},
-                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 100, Name = "Zweite Kipperbestellung" },
-                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 150, Name = "Dritte Kipperbestellung" }
+                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 70, Name = "Zweite Kipperbestellung" },
+                new Order { BusinessPartnerId = businessPartner.Id, DueTime = 100, Name = "Dritte Kipperbestellung" }
             };
             foreach (var order in orders)
             {

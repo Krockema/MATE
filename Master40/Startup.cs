@@ -50,6 +50,9 @@ namespace Master40
             string sConnectionString = Configuration.GetConnectionString("Hangfire");;
             services.AddHangfire(x => x.UseSqlServerStorage(sConnectionString));
 
+            
+            services.AddSingleton<IScheduling, Scheduling>();
+            services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<HubCallback>();

@@ -7,6 +7,7 @@ using Master40.DB.Models;
 using Master40.DB.Data.Context;
 using Master40.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
+using System;
 
 namespace Master40.BusinessLogic.MRP
 {
@@ -14,7 +15,7 @@ namespace Master40.BusinessLogic.MRP
     {
         List<LogMessage> Logger { get; set; }
         Task CreateAndProcessOrderDemand(MrpTask task);
-        void RunMrp(IDemandToProvider demand, MrpTask task);
+        void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
         void PlanCapacities(MrpTask task, int timer);
     }
 
@@ -22,39 +23,43 @@ namespace Master40.BusinessLogic.MRP
     {
         private readonly IConnectionManager _connectionManager;
         private readonly MasterDBContext _context;
+        private readonly IScheduling _scheduling;
+        private readonly IDemandForecast _demandForecast;
+        private readonly ICapacityScheduling _capacityScheduling;
         public List<LogMessage> Logger { get; set; }
-        public ProcessMrp(MasterDBContext context, IConnectionManager connectionManager)
+        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IConnectionManager connectionManager)
         {
             _context = context;
+            _scheduling = scheduling;
+            _capacityScheduling = capacityScheduling;
+            _demandForecast = new DemandForecast(context,this);
             _connectionManager = connectionManager;
         }
 
+        /// <summary>
+        /// Plans all unplanned Orders with MRP I + II
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
         async Task IProcessMrp.CreateAndProcessOrderDemand(MrpTask task)
         {
             await Task.Run(() =>
             {
+                //get all unplanned orderparts and iterate through them for MRP
                 var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article).ToList();
                 foreach (var orderPart in orderParts.ToList())
                 {
-                    var demandOrderParts =
-                        _context.Demands.OfType<DemandOrderPart>().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
-                    IDemandToProvider demand;
-                    if (demandOrderParts.Any())
-                    {
-                        demand = demandOrderParts.First();
-                    }
-                    else
-                    {
-                        demand = CreateDemandOrderPart(orderPart);
-                        _context.SaveChanges();
-                    }
-                    RunMrp(demand, task);
+                    var demand = GetDemand(orderPart);
+                    //run the requirements planning and backward/forward termination algorithm
+                    RunRequirementsAndTermination(demand, task);
                 }
                 
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
+                    //run the capacity algorithm
                     PlanCapacities(task, 0);
                 }
+                //set all orderparts to be planned
                 foreach (var orderPart in orderParts)
                 {
                     if (task == MrpTask.All || task == MrpTask.GifflerThompson)
@@ -64,31 +69,52 @@ namespace Master40.BusinessLogic.MRP
             });
         }
 
+        /// <summary>
+        /// Check if a demand exists for the orderpart, else a new one is created.
+        /// </summary>
+        /// <param name="orderPart"></param>
+        /// <returns></returns>
+        private IDemandToProvider GetDemand(OrderPart orderPart)
+        {
+            var demandOrderParts =
+                        _context.Demands.OfType<DemandOrderPart>().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
+            IDemandToProvider demand;
+            if (demandOrderParts.Any())
+                demand = demandOrderParts.First();
+            else
+            {
+                demand = CreateDemandOrderPart(orderPart);
+                _context.SaveChanges();
+            }
+            return demand;
+        }
+
+        /// <summary>
+        /// Plans capacities for all demands which are either already planned or just finished with MRP. Timer != 0 is used in a Simulation.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="timer"></param>
         public void PlanCapacities(MrpTask task, int timer)
         {
             var demands = _context.Demands.Where(a =>
-                               a.State == State.BackwardScheduleExists || a.State == State.ForwardScheduleExists ||
+                               a.State == State.BackwardScheduleExists || 
+                               a.State == State.ForwardScheduleExists ||
                                a.State == State.ExistsInCapacityPlan).ToList();
            
-            var capacity = new CapacityScheduling(_context);
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
             if (task == MrpTask.All || task == MrpTask.Capacity)
-            {
-                machineList = capacity.CapacityRequirementsPlanning(timer);
-            }
-
-            if (task == MrpTask.GifflerThompson || (capacity.CapacityLevelingCheck(machineList) && task == MrpTask.All))
-            {
-                capacity.GifflerThompsonScheduling(timer);
-            }
+                //creates a list with the needed capacities to follow the terminated schedules
+                machineList = _capacityScheduling.CapacityRequirementsPlanning(timer);
+            
+            if (task == MrpTask.GifflerThompson || (_capacityScheduling.CapacityLevelingCheck(machineList) && task == MrpTask.All))
+                _capacityScheduling.GifflerThompsonScheduling(timer);
             else
             {
                 foreach (var demand in demands)
-                {
                     SetStartEndFromTermination(demand);
-                }
-                capacity.SetMachines(timer);
+                
+                _capacityScheduling.SetMachines(timer);
             }
             foreach (var demand in demands)
             {
@@ -97,7 +123,7 @@ namespace Master40.BusinessLogic.MRP
             _context.Demands.UpdateRange(demands);
             _context.SaveChanges();
         }
-
+        
         private void SetStartEndFromTermination(IDemandToProvider demand)
         {
             var schedules = _context.ProductionOrderWorkSchedule
@@ -108,6 +134,7 @@ namespace Master40.BusinessLogic.MRP
                 .ToList();
             foreach (var schedule in schedules)
             {
+                //if forward was calculated take forward, else take from backward termination
                 if (schedule.EndForward - schedule.StartForward > 0)
                 {
                     schedule.End = schedule.EndForward;
@@ -123,28 +150,33 @@ namespace Master40.BusinessLogic.MRP
             }
         }
 
-        public void RunMrp(IDemandToProvider demand, MrpTask task)
+        /// <summary>
+        /// Run requirements planning and backward/forward termination.
+        /// </summary>
+        /// <param name="demand"></param>
+        /// <param name="task"></param>
+        public void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task)
         {
             if (demand.State == State.Created)
             {
                 ExecutePlanning(demand, null, task);
                 demand.State = State.ProviderExist;
             }
-
-            var schedule = new Scheduling(_context);
+            
             if (task == MrpTask.All || task == MrpTask.Backward)
             {
-                schedule.BackwardScheduling(demand);
+                _scheduling.BackwardScheduling(demand);
                 demand.State = State.BackwardScheduleExists;
             }
 
             if ((task == MrpTask.All && CheckNeedForward(demand)) || task == MrpTask.Forward)
             {
-                schedule.ForwardScheduling(demand);
+                //schedules forward and then backward again with the finish of the forward algorithm
+                _scheduling.ForwardScheduling(demand);
                 demand.State = State.ForwardScheduleExists;
                 _context.Update(demand);
                 _context.SaveChanges();
-                schedule.BackwardScheduling(demand);
+                _scheduling.BackwardScheduling(demand);
             }
             _context.SaveChanges();
         }
@@ -155,49 +187,36 @@ namespace Master40.BusinessLogic.MRP
                 .Where(a => a.DemandRequesterId == demand.DemandRequesterId).ToList();
             if (demand.GetType() == typeof(DemandStock))
                 return true;
-            foreach (var demandProviderProductionOrder in demandProviderProductionOrders)
-            {
-                var schedules = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
-                    .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId).ToList();
-                foreach (var schedule in schedules)
-                {
-                    if (schedule.StartBackward < 0) return true;
-                }
-            }
-            return false;
+            return demandProviderProductionOrders
+                        .Select(demandProviderProductionOrder => _context.ProductionOrderWorkSchedule
+                        .Include(a => a.ProductionOrder)
+                        .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId)
+                        .ToList())
+                    .Any(schedules => schedules.Any(schedule => schedule.StartBackward < 0));
         }
 
-        private void ExecutePlanning(IDemandToProvider demand, 
-                                     IDemandToProvider parent, MrpTask task)
+        private void ExecutePlanning(IDemandToProvider demand, IDemandToProvider parent, MrpTask task)
         {
-            IDemandForecast demandForecast = new DemandForecast(_context, this);
-            IScheduling schedule = new Scheduling(_context);
-
-            var productionOrder = demandForecast.NetRequirement(demand, parent, task);
+            //creates Provider for the needs
+            var productionOrder = _demandForecast.NetRequirement(demand, parent, task);
             demand.State = State.ProviderExist;
+            
+            //If there was enough in stock this does not have to be produced
+            if (productionOrder == null) return;
 
-            foreach (var log in demandForecast.Logger)
-            {
-                Logger.Add(log);
-            }
+            //create concrete WorkSchedules for the ProductionOrders
+            _scheduling.CreateSchedule(demand, productionOrder);
 
-            if (productionOrder == null)
-            {
-                //there was enough in stock, so this does not have to be produced
-                return;
-            }
-            schedule.CreateSchedule(demand, productionOrder);
             var children = _context.ArticleBoms
                                 .Include(a => a.ArticleChild)
                                 .ThenInclude(a => a.ArticleBoms)
                                 .Where(a => a.ArticleParentId == demand.ArticleId)
                                 .ToList();
-            if (!children.Any())
-            {
-                return;
-            }
+
+            if (!children.Any()) return;
             foreach (var child in children)
             {
+                //call this method recursively for a depth-first search
                 ExecutePlanning(new DemandProductionOrderBom()
                 {
                     ArticleId = child.ArticleChildId,

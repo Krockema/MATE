@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Clauses;
 
 namespace Master40.BusinessLogic.MRP
-{
-    internal interface ICapacityScheduling
+{//Todo: multi-machines fix
+    public interface ICapacityScheduling
     {
         void GifflerThompsonScheduling(int timer);
         List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int timer);
@@ -19,7 +19,7 @@ namespace Master40.BusinessLogic.MRP
         void SetMachines(int timer);
     }
 
-    internal class CapacityScheduling : ICapacityScheduling
+    public class CapacityScheduling : ICapacityScheduling
     {
         private readonly MasterDBContext _context;
         public List<LogMessage> Logger { get; set; }
@@ -372,14 +372,14 @@ namespace Master40.BusinessLogic.MRP
                                 .Order
                                 .DueTime;
                 }
-                
 
                 //get remaining time
+                var slack = plannableSchedule.ActivitySlack;
                 plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - GetChildEndTime(plannableSchedule);
+                if (slack == plannableSchedule.ActivitySlack) continue;
                 _context.ProductionOrderWorkSchedule.Update(plannableSchedule);
-                
+                _context.SaveChanges();
             }
-            _context.SaveChanges();
         }
 
         private decimal GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
@@ -426,14 +426,13 @@ namespace Master40.BusinessLogic.MRP
                     .ThenInclude(c => c.ProductionOrderWorkSchedule)
                     .Include(b => b.ProductionOrder)
                     .ThenInclude(d => d.ProductionOrderBoms)
-                    .Where(a => a.DemandRequester.DemandRequesterId == requester.Id)
-                    .ToList();
+                    .Where(a => a.DemandRequester.DemandRequesterId == requester.Id);
             var schedules = new List<ProductionOrderWorkSchedule>();
             foreach (var prov in provider)
             {
                 foreach (var schedule in prov.ProductionOrder.ProductionOrderWorkSchedule)
                 {
-                    if (schedule.Start > timer)
+                    if (schedule.Start >= timer)
                         schedules.Add(schedule);
                 }
             }

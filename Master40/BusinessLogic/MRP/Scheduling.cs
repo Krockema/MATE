@@ -10,14 +10,14 @@ using Master40.DB.Data.Context;
 namespace Master40.BusinessLogic.MRP
 {
 
-    interface IScheduling
+    public interface IScheduling
     {
         void CreateSchedule(IDemandToProvider demand, ProductionOrder productionOrder);
         void BackwardScheduling(IDemandToProvider demand);
         void ForwardScheduling(IDemandToProvider demand); 
     }
 
-    class Scheduling : IScheduling
+    public class Scheduling : IScheduling
     {
         private readonly MasterDBContext _context;
         public List<LogMessage> Logger { get; set; }

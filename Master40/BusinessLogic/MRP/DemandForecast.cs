@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Master40.Models;
 using Master40.DB.Models;
 using Master40.DB.Data.Context;
 
@@ -11,31 +10,34 @@ namespace Master40.BusinessLogic.MRP
     public interface IDemandForecast
     {
         ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, MrpTask task);
-        List<LogMessage> Logger { get; set; }
     }
 
 
     public class DemandForecast : IDemandForecast
     {
         private readonly MasterDBContext _context;
-        private readonly ProcessMrp _processMrp;
-        //public DemandForecast(MasterDBContext context)
-        public List<LogMessage> Logger { get; set; }
+        private readonly IProcessMrp _processMrp;
 
-        public DemandForecast(MasterDBContext context, ProcessMrp processMrp)
+        public DemandForecast(MasterDBContext context, IProcessMrp processMrp)
         {
-            Logger = new List<LogMessage>();
             _context = context;
             _processMrp = processMrp;
         }
         
-        ProductionOrder IDemandForecast.NetRequirement(IDemandToProvider demand, IDemandToProvider parent, MrpTask task)
-        {
+        /// <summary>
+        /// Creates providers for the demands through stock, productionOrders or purchases
+        /// </summary>
+        /// <param name="demand"></param>
+        /// <param name="parent"></param>
+        /// <param name="task"></param>
+        /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
+        public ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, MrpTask task)
+        {//Todo resolve complexity
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = GetPlannedStock(stock,demand);
             ProductionOrder productionOrder = null;
-            CreateStockReservation(stock, demand);
+            TryCreateStockReservation(stock, demand);
             //if the plannedStock is below zero, articles have to be produced for its negative amount 
             if (plannedStock < 0)
             {
@@ -61,21 +63,18 @@ namespace Master40.BusinessLogic.MRP
                 }
             }
             //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
-             if (stock.Min > 0 && plannedStock < stock.Min && demand.GetType() != typeof(DemandStock))
-            {
+            if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
+                return productionOrder;
+            
+            if (_context.Demands.OfType<DemandStock>()
+                .Any(a => a.ArticleId == demand.ArticleId
+                            && a.State != State.Produced
+                            && a.State != State.Purchased))
+                return productionOrder;
+            if (plannedStock < 0)
+                CreateStockDemand(demand, stock, stock.Min, task);
+            else CreateStockDemand(demand, stock, stock.Min - plannedStock, task);
 
-                if (!_context.Demands.OfType<DemandStock>()
-                        .Any(a => a.ArticleId == demand.ArticleId 
-                            && (a.State != State.Produced 
-                                && a.State != State.Purchased)))
-                {
-                    if (plannedStock < 0)
-                        CreateStockDemand(demand, stock, stock.Min, task);
-                    else CreateStockDemand(demand, stock, stock.Min - plannedStock, task);
-                }
-                
-            }
-                
             return productionOrder;
         }
 
@@ -93,11 +92,13 @@ namespace Master40.BusinessLogic.MRP
             _context.Demands.Add(demandStock);
             _context.SaveChanges();
             demandStock.DemandRequesterId = demandStock.Id;
+
             _context.Update(demandStock);
             _context.SaveChanges();
-
-            //var processMrp = new ProcessMrp(_context);
-            _processMrp.RunMrp(demandStock, task);
+            
+            //call processMrp to plan and schedule the stockDemand
+            _processMrp.RunRequirementsAndTermination(demandStock, task);
+            _processMrp.PlanCapacities(MrpTask.All, 0);
         }
 
         private ProductionOrder CreateProductionOrder(IDemandToProvider demand, decimal amount)
@@ -108,19 +109,15 @@ namespace Master40.BusinessLogic.MRP
                 ArticleId = demand.Article.Id,
                 Quantity = amount,
             };
-            var msg = "Articles ordered to produce: " + demand.Article.Name + " " + (amount);
-            Logger.Add(new LogMessage() { MessageType = MessageType.info, Message = msg });
 
             _context.ProductionOrders.Add(productionOrder);
             _context.SaveChanges();
-
             return productionOrder;
         }
 
         private decimal GetPlannedStock(Stock stock,IDemandToProvider demand)
         {
             var amountReserved = GetReserved(demand.ArticleId);
-
             var amountBought=0;
             var articlesBought = _context.PurchaseParts.Where(a => a.ArticleId == demand.ArticleId);
             foreach (var articleBought in articlesBought)
@@ -129,35 +126,29 @@ namespace Master40.BusinessLogic.MRP
             }
             //plannedStock is the amount of this article in stock after taking out the amount needed
             var plannedStock = stock.Current + amountBought - demand.Quantity - amountReserved;
-
-            if (stock.Current > 0)
-            {
-                var msg = "Articles in stock: " + demand.Article.Name + " " + stock.Current;
-                Logger.Add(new LogMessage() { MessageType = MessageType.success, Message = msg });
-            }
+            
             return plannedStock;
         }
 
+        /// <summary>
+        /// Check in stock for reservations for the article
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <returns></returns>
         private decimal GetReserved(int articleId)
         {
             decimal amountReserved = 0;
-            //check for reservations for the article
-            IQueryable<IDemandToProvider> reservations = _context.Demands.OfType<DemandProviderStock>()
-                .Where(a => a.ArticleId == articleId);
+            IQueryable<IDemandToProvider> reservations = _context.Demands.OfType<DemandProviderStock>().Where(a => a.ArticleId == articleId);
             foreach (var reservation in reservations)
-            {
                 amountReserved += reservation.Quantity;
-            }
-            reservations =
-                _context.Demands.OfType<DemandProviderPurchasePart>().Where(a => a.ArticleId == articleId);
+            //Todo check logic
+            reservations = _context.Demands.OfType<DemandProviderPurchasePart>().Where(a => a.ArticleId == articleId);
             foreach (var reservation in reservations)
-            {
                 amountReserved += reservation.Quantity;
-            }
             return amountReserved;
         }
 
-        private DemandProviderProductionOrder CreateDemandProviderProductionOrder(IDemandToProvider demand,ProductionOrder productionOrder,decimal amount)
+        private DemandProviderProductionOrder CreateDemandProviderProductionOrder(IDemandToProvider demand, ProductionOrder productionOrder,decimal amount)
         {
             var demandProviderProductionOrder = new DemandProviderProductionOrder()
             {
@@ -174,9 +165,8 @@ namespace Master40.BusinessLogic.MRP
 
         private void CreateProductionOrderBom(IDemandToProvider demand, IDemandToProvider parent, ProductionOrder productionOrder)
         {
-            var bom =
-                _context.ArticleBoms.AsNoTracking().Single(
-                    a => (a.ArticleChildId == demand.ArticleId) && (a.ArticleParentId == parent.ArticleId));
+            var bom = _context.ArticleBoms.AsNoTracking()
+                        .Single(a => a.ArticleChildId == demand.ArticleId && a.ArticleParentId == parent.ArticleId);
 
             //find parent
             ProductionOrder productionOrderParent = null;
@@ -192,19 +182,21 @@ namespace Master40.BusinessLogic.MRP
                 ProductionOrderChildId = productionOrder.Id,
                 ProductionOrderParent = productionOrderParent,
             };
-            
+            //Todo: check logic
             _context.ProductionOrderBoms.Add(productionOrderBom);
+            /*
             if (demand.GetType() == typeof(DemandProductionOrderBom))
             {
                 ((DemandProductionOrderBom) demand).ProductionOrderBomId = productionOrderBom.Id;
                 _context.Add(demand);
-            }
+            }*/
             _context.SaveChanges();
         }
 
+        //Todo: check logic
         private void CreatePurchaseDemand(IDemandToProvider demand, decimal amount)
         {
-            if (NeedToPurchase(demand, amount))
+            if (NeedToRefill(demand, amount))
             {
                 var providerPurchasePart = new DemandProviderPurchasePart()
                 {
@@ -217,8 +209,6 @@ namespace Master40.BusinessLogic.MRP
 
                 CreatePurchase(demand, amount, providerPurchasePart);
                 _context.Demands.Update(providerPurchasePart);
-                var msg = "Articles ordered to purchase: " + demand.Article.Name + " " + (amount);
-                Logger.Add(new LogMessage() {MessageType = MessageType.info, Message = msg});
             }
             else
             {
@@ -243,6 +233,7 @@ namespace Master40.BusinessLogic.MRP
                 BusinessPartnerId = articleToPurchase.BusinessPartnerId,
                 DueTime = articleToPurchase.DueTime
             };
+            //amount to be purchased has to be raised to fit the packsize
             amount = Math.Ceiling(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
             var purchasePart = new PurchasePart()
             {
@@ -261,21 +252,22 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        private bool NeedToPurchase(IDemandToProvider demand, decimal amount)
+        private bool NeedToRefill(IDemandToProvider demand, decimal amount)
         {
-            var purchasedAmount = GetBought(demand.ArticleId);
+            var purchasedAmount = GetAmountBought(demand.ArticleId);
             var neededAmount = GetReserved(demand.ArticleId);
             var stockMin = _context.Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId).Min;
             return (purchasedAmount - neededAmount - amount < stockMin);
         }
 
-        private void CreateStockReservation(Stock stock, IDemandToProvider demand)
+        private void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
         {
-            //get all reservations for this article
             var stockReservations = GetReserved(demand.ArticleId);
-            var bought = GetBought(demand.ArticleId);
+            var bought = GetAmountBought(demand.ArticleId);
+            //get the current amount of free available articles
             var current = stock.Current + bought - stockReservations;
             decimal quantity;
+            //either reserve all that are in stock or the amount needed
             quantity = demand.Quantity > current ? current : demand.Quantity;
             if (quantity == 0) return;
             var demandProviderStock = new DemandProviderStock()
@@ -289,14 +281,12 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
         }
 
-        private decimal GetBought(int articleId)
+        private decimal GetAmountBought(int articleId)
         {
             var purchaseParts = _context.PurchaseParts.Where(a => a.ArticleId == articleId);
             var purchasedAmount = 0;
             foreach (var purchasePart in purchaseParts)
-            {
                 purchasedAmount += purchasePart.Quantity;
-            }
             return purchasedAmount;
         }
     }
