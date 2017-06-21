@@ -11,6 +11,12 @@ namespace Master40.SignalR
             _connectionManager = connectionManager;
         }
 
+        public void SendToAllClients(string msg)
+        {
+            _connectionManager.GetHubContext<ProcessingHub>()
+                .Clients.All.clientListener(ReturnMsgBox(msg, MessageType.info));
+        }
+
         public string ReturnMsgBox(string msg, MessageType type)
         {
             return "<div class=\"alert alert-" + type + "\">" + msg + "</div>";

@@ -37,6 +37,7 @@ namespace Master40.DB.Data.Context
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public DbSet<SimulationProductionOrderWorkSchedule> SimulationProductionOrderWorkSchedules { get; set; }
+        public DbSet<Kpi> Kpi { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()

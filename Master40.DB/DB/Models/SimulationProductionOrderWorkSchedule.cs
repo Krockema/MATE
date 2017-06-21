@@ -19,5 +19,6 @@ namespace Master40.DB.DB.Models
         public int SimulatedStart { get; set; }
         public int SimulatedEnd { get; set; }
         public int SimulatedDuration { get; set; }
+        public int SimulationId { get; set; }
     }
 }

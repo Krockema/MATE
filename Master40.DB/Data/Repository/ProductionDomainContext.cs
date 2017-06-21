@@ -158,7 +158,7 @@ namespace Master40.DB.Data.Repository
         {
             var powsList = (from all in ProductionOrderWorkSchedule
                          where (all.ProductionOrderId == spows.ProductionOrderId)
-                         select all);
+                         select all).AsNoTracking().ToList();
             return powsList.All(t => t.HierarchyNumber >= spows.HierarchyNumber);
         }
 
@@ -167,52 +167,57 @@ namespace Master40.DB.Data.Repository
             return ProductionOrderBoms.Any(a => a.ProductionOrderParentId == spows.ProductionOrderId);
         }
     
-        public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetParent(SimulationProductionOrderWorkSchedule spows)
+        public SimulationProductionOrderWorkSchedule SimulationProductionOrderWorkScheduleGetParent(SimulationProductionOrderWorkSchedule spows, int simulationId)
         {
-            return ProductionOrderWorkScheduleGetHierarchyParent(spows) ?? ProductionOrderWorkScheduleGetBomParent(spows);
+            return SimulationProductionOrderWorkScheduleGetHierarchyParent(spows, simulationId) ?? SimulationProductionOrderWorkScheduleGetBomParent(spows,simulationId);
         }
 
-        public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetHierarchyParent(
-            SimulationProductionOrderWorkSchedule spows)
+        public SimulationProductionOrderWorkSchedule SimulationProductionOrderWorkScheduleGetHierarchyParent(
+            SimulationProductionOrderWorkSchedule spows, int simulationId)
         {
             var powsList = (from all in ProductionOrderWorkSchedule
-                            where (all.ProductionOrderId == spows.ProductionOrderId)
-                            select all);
+                            where all.ProductionOrderId == spows.ProductionOrderId
+                            select all).AsNoTracking().ToList();
             var hierarchyParents =
                 (from hierarchyPows in powsList
                 where (hierarchyPows.HierarchyNumber > spows.HierarchyNumber)
                 select hierarchyPows).ToList();
-            var pows = hierarchyParents?.OrderBy(i => i.HierarchyNumber).First();
+            if (!hierarchyParents.Any())
+                return null;
+            var pows = hierarchyParents.OrderBy(i => i.HierarchyNumber).First();
             if (pows == null)
                 return null;
-            var parentSpows = new SimulationProductionOrderWorkSchedule
-            {
-                ProductionOrderId = pows.ProductionOrderId,
-                HierarchyNumber = pows.HierarchyNumber,
-                End = pows.End,
-                Start = pows.Start
-            };
-
-            return parentSpows;
+            var parentSpows = SimulationProductionOrderWorkSchedules.Where(
+                a => a.ProductionOrderId == pows.ProductionOrderId && a.HierarchyNumber == pows.HierarchyNumber && a.SimulationId == simulationId).ToList();
+            return parentSpows.Any() ? parentSpows.First() : null;
         }
 
-        public SimulationProductionOrderWorkSchedule ProductionOrderWorkScheduleGetBomParent(SimulationProductionOrderWorkSchedule spows)
+        public SimulationProductionOrderWorkSchedule SimulationProductionOrderWorkScheduleGetBomParent(SimulationProductionOrderWorkSchedule spows, int simulationId)
         {
-            var bom = ProductionOrderBoms.Where(a => a.ProductionOrderChildId == spows.ProductionOrderId);
+            var bom = ProductionOrderBoms.AsNoTracking().Include(a => a.ProductionOrderParent).ThenInclude(a => a.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderChildId == spows.ProductionOrderId);
             if (!bom.Any()) return null;
-            var pows = bom.First().ProductionOrderParent.ProductionOrderWorkSchedule;
-            return pows?.Select(singlePows => new SimulationProductionOrderWorkSchedule()
-            {
-                End = singlePows.End,
-                HierarchyNumber = singlePows.HierarchyNumber,
-                ProductionOrderId = singlePows.ProductionOrderId,
-                Start = singlePows.Start
-            }).FirstOrDefault(ProductionOrderWorkScheduleIsLowestHierarchy);
+            var pows = bom.First().ProductionOrderParent.ProductionOrderWorkSchedule.ToList();
+            if (!pows.Any()) return null;
+            var singlePows = pows.Find(a => a.HierarchyNumber == pows.Min(b => b.HierarchyNumber));
+            return SimulationProductionOrderWorkSchedules.Single(a => a.ProductionOrderId == singlePows.ProductionOrderId && a.HierarchyNumber == singlePows.HierarchyNumber && a.SimulationId == simulationId) ?? null;
         }
         
-        public IDemandToProvider GetDemand(SimulationProductionOrderWorkSchedule pows)
+        public IDemandToProvider GetDemand(SimulationProductionOrderWorkSchedule sPows)
         {
-            return pows.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
+            var po = ProductionOrders.Include(a => a.DemandProviderProductionOrders).ThenInclude(a => a.DemandRequester).ThenInclude(a => a.DemandRequester).Single(a => a.Id == sPows.ProductionOrderId);
+            return po.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
+        }
+
+        public int GetLatestEndFromChild(SimulationProductionOrderWorkSchedule spows)
+        {
+            var bom = ProductionOrderBoms.AsNoTracking().Include(a => a.ProductionOrderChild).ThenInclude(a => a.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderParentId == spows.ProductionOrderId);
+            if (!bom.Any()) return 0;
+            var pows = new List<ProductionOrderWorkSchedule>();
+            foreach (var singleBom in bom)
+            {
+                pows.AddRange(singleBom.ProductionOrderChild.ProductionOrderWorkSchedule.ToList());
+            }
+            return pows.Any() ? (from child in pows select child.End).Concat(new[] { 0 }).Max() : 0;
         }
     }
 }

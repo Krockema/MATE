@@ -13,13 +13,11 @@ namespace Master40.BusinessLogic.Simulation
             this.Timer = 0;
             this.RecalculateTimer = 24;
             this.Initial = new List<T>();
-            this.AbleToStart = new List<T>();
             this.InProgress = new List<T>();
             this.Finished = new List<T>();
         }
 
         public List<T> Initial { get; set; }
-        public List<T> AbleToStart { get; set; }
         public List<T> InProgress { get; set; }
         public List<T> Finished { get; set; }
 
