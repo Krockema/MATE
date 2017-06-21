@@ -38,7 +38,7 @@ namespace Master40.ViewComponents
                 Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "bar";
+                chart.Type = "line";
 
                 // use available hight in Chart
                 chart.Options = new Options {MaintainAspectRatio = false};

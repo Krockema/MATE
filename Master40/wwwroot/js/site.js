@@ -4,9 +4,9 @@ $(function () {
     // Create overlay and append to body:
     $('<div id="ajax-busy" style="z-index: 99999">' +
         '<div id="ContentBlock">' +
-        '<div style="width: 344px; display: inline-block;">' +
-            '<h4>&nbsp;Processing State: </h4>' +
-                '<div class="MessageDisplayRunning" style="float: left; width: 200px; margin: 5px; overflow-y: auto; max-height: 130px;"></div>' +
+            '<div style="width: 344px; display: inline-block;">' +
+                '<h4>&nbsp;Processing State: </h4>' +
+                    '<div class="MessageDisplayRunning" style="float: left; width: 200px; margin: 5px; overflow-y: auto; max-height: 130px;"></div>' +
                     '<div class="loading" style="float: left; width: 120px; margin: 5px"></div>' +
                 '</div>'+
             '</div>' +
@@ -15,7 +15,7 @@ $(function () {
         top: 0,
         left: 0,
         width: '100%',
-        height: $(window).height() + 'px',
+        height: ($(window).height() + 20) + 'px',
         background: 'rgba(255,255,255,0.8)'
     }).hide().appendTo('body');
 });
