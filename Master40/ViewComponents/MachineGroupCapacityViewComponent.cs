@@ -41,7 +41,7 @@ namespace Master40.ViewComponents
                 chart.Type = "bar";
 
                 // use available hight in Chart
-                chart.Options = new Options {MaintainAspectRatio = false};
+                chart.Options = new Options {MaintainAspectRatio = true};
                 var data = new Data { Labels = GetRangeForSchedulingType(schedulingState) };
                 var machineGroups = _context.MachineGroups.Select(x => x.Id);
 

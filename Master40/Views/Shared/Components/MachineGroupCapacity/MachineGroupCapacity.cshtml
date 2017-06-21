@@ -1,10 +1,8 @@
 @{
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
 }
-<div style="max-height: 200px;"><canvas id="MaschineChart" style="max-height: 200px;"></canvas></div>
+<div><canvas id="MaschineChart" style="max-height: 350px;"></canvas></div>
 
 <script>
     @Html.Raw(chart.CreateChartCode("MaschineChart"));
-    var ctx = $('#MaschineChart')[0];
-    ctx.height = 200;
 </script>

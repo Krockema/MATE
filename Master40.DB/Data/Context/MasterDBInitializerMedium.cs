@@ -224,9 +224,9 @@ namespace Master40.DB.Data.Context
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Quantity = 2, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 7, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 1, IsPlanned = false},
                 new OrderPart(){Quantity = 4, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 2, IsPlanned = false},
-                new OrderPart(){Quantity = 7, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 3, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 3, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)
             {
