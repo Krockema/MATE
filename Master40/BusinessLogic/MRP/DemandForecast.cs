@@ -98,7 +98,6 @@ namespace Master40.BusinessLogic.MRP
             
             //call processMrp to plan and schedule the stockDemand
             _processMrp.RunRequirementsAndTermination(demandStock, task);
-            _processMrp.PlanCapacities(MrpTask.All, 0);
         }
 
         private ProductionOrder CreateProductionOrder(IDemandToProvider demand, decimal amount)
