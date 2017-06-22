@@ -15,7 +15,8 @@ namespace Master40.Extensions
 
             foreach (PropertyInfo prop in plist)
             {
-                prop.SetValue(dest, prop.GetValue(source, null), null);
+                if (prop.Name != "Id")
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
             }
         }
         public static IEnumerable<Color> GetGradients(Color start, Color end, int steps)

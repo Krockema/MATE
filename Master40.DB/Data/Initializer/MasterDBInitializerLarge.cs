@@ -1,11 +1,12 @@
-﻿using Master40.DB.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.Context;
+using Master40.DB.Models;
 
-namespace Master40.DB.Data.Context
+namespace Master40.DB.Data.Initializer
 {
-    public static class MasterDBInitializerSmall
+    public static class MasterDBInitializerLarge
     {
         public static void DbInitialize(MasterDBContext context)
         {
@@ -220,7 +221,7 @@ namespace Master40.DB.Data.Context
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Quantity = 2, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Kipper").Id, OrderId = 1, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)
             {

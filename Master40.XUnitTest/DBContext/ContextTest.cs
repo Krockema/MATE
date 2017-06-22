@@ -2,12 +2,14 @@ using Master40.DB.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using Master40.DB.Data.Context;
 using Xunit;
 
 namespace Master40.XUnitTest
 {
     public class ContextTest
     {
+
         [Fact]
         public void OrderContextTest()
         {

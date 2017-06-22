@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer;
 
 namespace Master40.Controllers
 {

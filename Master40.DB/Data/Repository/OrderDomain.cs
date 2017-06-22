@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Master40.DB.Data.Context;
 
 namespace Master40.DB.Data.Repository
 {
-    public class OrderDomainContext : DbContext
+    public class OrderDomain : DbContext
     { 
-        public OrderDomainContext(DbContextOptions<OrderDomainContext> options) : base(options) 
+        public OrderDomain(DbContextOptions<OrderDomainContext> options) : base(options) 
         {
             Orders = base.Set<Order>();
             OrderParts = base.Set<OrderPart>();
@@ -45,48 +46,6 @@ namespace Master40.DB.Data.Repository
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<ArticleType> ArticleTypes { get; set; }
-
-        //complex Querys
-        public IQueryable<Order> GetAllOrders
-        {
-            get
-            {
-                return Orders.Include(x => x.OrderParts)
-                                .Include(x => x.BusinessPartner)
-                                .Where(x => x.BusinessPartner.Debitor)
-                                .AsNoTracking();
-            }
-        }
-
-        public IQueryable<Order> ById(int id)
-        {
-            return Orders.Include(x => x.OrderParts)
-                            .Include(x => x.BusinessPartner)
-                            .Where(x => x.BusinessPartner.Debitor)
-                            .Where(x => x.Id == id);
-        }
-
-        public IQueryable<Article> GetSellableArticles
-        {
-            get
-            { 
-                return Articles.Include(x => x.ArticleType)
-                            .Where(t => t.ArticleType.Name == "Assembly")
-                            .AsNoTracking();
-            }
-        }
-
-        public IQueryable<Article> GetPuchaseableArticles
-        {
-            get
-            {
-                return Articles.Include(x => x.ArticleType)
-                    .Where(t => t.ArticleType.Name == "Material")
-                    .AsNoTracking();
-            }
-        }
-
-
-
+        
     }
 }

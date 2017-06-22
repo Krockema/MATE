@@ -104,6 +104,10 @@ namespace Master40.BusinessLogic.MRP
 
         private ProductionOrderWorkSchedule CreateNewPows(ProductionOrderWorkSchedule currentPows)
         {
+            ProductionOrderWorkSchedule item = new ProductionOrderWorkSchedule();
+            currentPows.CopyPropertiesTo(item);
+            return item;
+            /*
             return new ProductionOrderWorkSchedule()
             {
                 Duration = currentPows.Duration,
@@ -122,6 +126,7 @@ namespace Master40.BusinessLogic.MRP
                 Name = currentPows.Name,
                 ActivitySlack = currentPows.ActivitySlack
             };
+            */
         }
 
         private ProductionOrderWorkSchedule AddMachine(List<ProductionOrderWorkSchedule> plannedSchedules,List<ProductionOrderWorkSchedule> pows, ProductionOrderWorkSchedule shortest)

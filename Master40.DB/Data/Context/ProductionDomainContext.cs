@@ -1,14 +1,11 @@
-﻿using Master40.DB.Data.Context;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using Master40.DB.Models;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System;
-using Master40.DB.DB.Interfaces;
+using System.Threading.Tasks;
 using Master40.DB.DB.Models;
+using Master40.DB.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Master40.DB.Data.Repository
+namespace Master40.DB.Data.Context
 {
     public class ProductionDomainContext : MasterDBContext
     {
@@ -37,14 +34,9 @@ namespace Master40.DB.Data.Repository
                                                 .Where(x => x.ProductionOrderChildId == productionOrderWorkSchedule.ProductionOrderId).ToList();
 
                     // out of each Part get Highest Workschedule
-                    foreach (var item in priorBom)
-                    {
-                        var prior = item.ProductionOrderParent.ProductionOrderWorkSchedule.OrderBy(x => x.HierarchyNumber).FirstOrDefault();
-                        if (prior != null)
-                        {
-                            priorItems.Add(prior);
-                        }
-                    }
+                    priorItems.AddRange(priorBom.Select(item => item.ProductionOrderParent.ProductionOrderWorkSchedule
+                                                .OrderBy(x => x.HierarchyNumber).FirstOrDefault())
+                                                .Where(prior => prior != null));
                 }
                 else
                 {
@@ -62,11 +54,11 @@ namespace Master40.DB.Data.Repository
             return rs;
         }
         
-        public async Task<Article> GetArticleBomRecursive(Article article, int ArticleId)
+        public async Task<Article> GetArticleBomRecursive(Article article, int articleId)
         {
             article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
                                                         .ThenInclude(w => w.WorkSchedules)
-                                                        .Where(a => a.ArticleParentId == ArticleId).ToList();
+                                                        .Where(a => a.ArticleParentId == articleId).ToList();
 
             foreach (var item in article.ArticleChilds)
             {

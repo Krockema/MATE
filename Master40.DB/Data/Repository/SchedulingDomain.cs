@@ -8,9 +8,9 @@ using Master40.DB.Data.Context;
 
 namespace Master40.DB.Data.Repository
 {
-    public class SchedulingDomainContext : MasterDBContext
+    public class SchedulingDomain : MasterDBContext
     { 
-        public SchedulingDomainContext(DbContextOptions<MasterDBContext> options) : base(options)
+        public SchedulingDomain(DbContextOptions<MasterDBContext> options) : base(options)
         {
             /*
             Machine = base.Set<Machine>();

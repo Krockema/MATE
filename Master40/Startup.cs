@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
 using Hangfire;
+using Master40.DB.Data.Initializer;
 using Master40.SignalR;
 
 namespace Master40
