@@ -60,7 +60,10 @@ namespace Master40.BusinessLogic.MRP
                     plannableSchedules.Add(parent);
                 _context.SaveChanges();
             }
-            SetMachines(timer);
+
+            //_context.ProductionOrderWorkSchedule.UpdateRange(plannedSchedules);
+            //_context.SaveChanges();
+            //SetMachines(timer);
         }
 
         private List<ProductionOrderWorkSchedule> AddMachineToPows(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest)
@@ -74,6 +77,11 @@ namespace Master40.BusinessLogic.MRP
                 {
                     lastPows = currentPows;
                     pows.Add(currentPows);
+                    shortest.MachineId = currentPows.MachineId;
+                    shortest.Start = currentPows.Start;
+                    shortest.End = currentPows.End;
+                    _context.ProductionOrderWorkSchedule.Update(shortest);
+                    _context.SaveChanges();
                     continue;
                 }
                 ProductionOrderWorkSchedule foundSchedule = null;
@@ -81,7 +89,11 @@ namespace Master40.BusinessLogic.MRP
                 foreach (var schedule in pows)
                 {
                     if (currentPows.MachineId == schedule.MachineId && currentPows.Start == schedule.End)
+                    {
                         foundSchedule = schedule;
+                        break;
+                    }
+                        
                 }
                 if (foundSchedule != null)
                 {
@@ -96,9 +108,15 @@ namespace Master40.BusinessLogic.MRP
                 
                 lastPows = currentPows;
             }
-            _context.Remove(shortest);
-            _context.AddRange(pows);
-            _context.SaveChanges();
+            if (pows.Any())
+            {
+                shortest.End = pows.First().End;
+                shortest.Duration = pows.First().Duration;
+                _context.Update(shortest);
+                _context.AddRange(pows.GetRange(pows.IndexOf(pows.First()) + 1, pows.Count - 1));
+                _context.SaveChanges();
+            }
+           
             return pows;
         }
 
@@ -315,7 +333,7 @@ namespace Master40.BusinessLogic.MRP
        
 
         private bool IsTechnologicallyAllowed(ProductionOrderWorkSchedule schedule, List<ProductionOrderWorkSchedule> plannedSchedules)
-        {
+        {//Todo check effectiveness
             var isAllowed = true;
             //check for every child if its planned
             foreach (var bom in schedule.ProductionOrder.ProductionOrderBoms)
@@ -324,7 +342,7 @@ namespace Master40.BusinessLogic.MRP
                 {
                     foreach (var childSchedule in bom.ProductionOrderChild.ProductionOrderWorkSchedule)
                     {
-                        if (!plannedSchedules.Contains(childSchedule)) isAllowed = false;
+                        if (!plannedSchedules.Any(a => a.ProductionOrderId == childSchedule.ProductionOrderId && a.HierarchyNumber == childSchedule.HierarchyNumber)) isAllowed = false;
                     }
                 }
             }
@@ -543,18 +561,14 @@ namespace Master40.BusinessLogic.MRP
 
         private bool detectCrossing(ProductionOrderWorkSchedule schedule, ProductionOrderWorkSchedule scheduleMg)
         {
-            if ((scheduleMg.Start <= schedule.Start &&
-                         scheduleMg.End > schedule.Start)
-                        ||
-                        (scheduleMg.Start < schedule.End &&
-                        scheduleMg.End >= schedule.End)
-                        ||
-                        (scheduleMg.Start > schedule.Start &&
-                         scheduleMg.End < schedule.End))
-            {
-                return true;
-            }
-            return false;
+            return (scheduleMg.Start <= schedule.Start &&
+                    scheduleMg.End > schedule.Start)
+                   ||
+                   (scheduleMg.Start < schedule.End &&
+                    scheduleMg.End >= schedule.End)
+                   ||
+                   (scheduleMg.Start > schedule.Start &&
+                    scheduleMg.End < schedule.End);
         }
     }
 }
