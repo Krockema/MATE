@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+    <ProjectReference Include="..\Master40\Master40.csproj" />
   </ItemGroup>
   <ItemGroup>
    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />

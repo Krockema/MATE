@@ -21,19 +21,17 @@ namespace Master40.BusinessLogic.MRP
 
     public class ProcessMrp : IProcessMrp
     {
-        private readonly IConnectionManager _connectionManager;
         private readonly MasterDBContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
         public List<LogMessage> Logger { get; set; }
-        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IConnectionManager connectionManager)
+        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling)
         {
             _context = context;
             _scheduling = scheduling;
             _capacityScheduling = capacityScheduling;
             _demandForecast = new DemandForecast(context,this);
-            _connectionManager = connectionManager;
         }
 
         /// <summary>
@@ -41,7 +39,7 @@ namespace Master40.BusinessLogic.MRP
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        async Task IProcessMrp.CreateAndProcessOrderDemand(MrpTask task)
+        public async Task CreateAndProcessOrderDemand(MrpTask task)
         {
             await Task.Run(() =>
             {
@@ -248,8 +246,6 @@ namespace Master40.BusinessLogic.MRP
             _context.SaveChanges();
             return demand;
         }
-
-
     }
 
     public enum MrpTask

@@ -33,7 +33,7 @@ namespace Master40.SignalR
                 _processMrp.CreateAndProcessOrderDemand(MrpTask.All)
             );
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Full Cycle...", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start full cycle...", MessageType.info));
         }
 
         public void StartBackwardScheduler()
@@ -42,7 +42,7 @@ namespace Master40.SignalR
                 _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward)
             );
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Backward...", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start backward...", MessageType.info));
         }
 
         public void StartForwardScheduler()
@@ -51,7 +51,7 @@ namespace Master40.SignalR
                 _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward)
             );
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Forwart...", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start forward...", MessageType.info));
         }
         public void StartCapacityPlanning()
         {
@@ -59,7 +59,7 @@ namespace Master40.SignalR
                 _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity)
             );
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Capacity Planning...", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start capacity planning...", MessageType.info));
         }
         
         public void StartGifflerThompsonPlanning()
@@ -68,13 +68,13 @@ namespace Master40.SignalR
                 _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson)
             );
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start GT Planning...", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start GT planning...", MessageType.info));
         }
         public void StartSimulate()
         {
             var jobId = BackgroundJob.Enqueue<ISimulator>(x => _simulator.Simulate());
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start Simmulation...", MessageType.info));
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start simmulation...", MessageType.info));
         }
     }
 

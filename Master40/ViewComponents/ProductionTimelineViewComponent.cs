@@ -135,6 +135,11 @@ namespace Master40.ViewComponents
                     .Include(x => x.OrderPart)
                     .Where(o => o.OrderPart.OrderId == orderId)
                     .ToList();
+
+            // ReSharper Linq
+            var demandboms = demands.SelectMany(demand => _context.Demands.OfType<DemandProductionOrderBom>()
+                                    .Where(a => a.DemandRequesterId == demand.Id)).ToList();
+            /* Old  
             var demandboms = new List<DemandProductionOrderBom>();
             foreach (var demand in demands)
             {
@@ -145,21 +150,21 @@ namespace Master40.ViewComponents
                    demandboms.Add(bom); 
                 }
             }
-            
+            */
 
             // get Demand Providers for this Order
-            var demandProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
-                                   join d in demands on c.DemandRequesterId equals ((IDemandToProvider)d).Id
-                                   select c).ToList();
-            var demandBomProviders = (from c in _context.Demands.OfType<DemandProviderProductionOrder>()
-                join d in demandboms on c.DemandRequesterId equals d.Id
-                select c).ToList();
+            var demandProviders = new List<DemandProviderProductionOrder>();
+            foreach (var order in (_context.Demands.OfType<DemandProviderProductionOrder>().Join(demands, c => c.DemandRequesterId, d => ((IDemandToProvider) d).Id, (c, d) => c)))
+            {
+                demandProviders.Add(order);
+            }
+
+            var demandBomProviders = (_context.Demands.OfType<DemandProviderProductionOrder>()
+                .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
            
 
             // get ProductionOrderWorkSchedule for 
-            var powDetails = (from p in pows
-                              join dp in demandProviders on p.ProductionOrderId equals dp.ProductionOrderId
-                              select p).ToList();
+            var powDetails = (pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId, (p, dp) => p)).ToList();
             var powBoms = (from p in pows join dbp in demandBomProviders on p.ProductionOrderId equals dbp.ProductionOrderId select p).ToList();
             
             powDetails.AddRange(powBoms);
@@ -317,16 +322,16 @@ namespace Master40.ViewComponents
             switch (schedulingState)
             {
                 case 1:
-                    start = (_today + item.StartBackward * 3600000).ToString();
-                    end = (_today + item.EndBackward * 3600000).ToString();
+                    start = (_today + item.StartBackward * 60000).ToString();
+                    end = (_today + item.EndBackward * 60000).ToString();
                     break;
                 case 2:
-                    start = (_today + item.StartForward * 3600000).ToString();
-                    end = (_today + item.EndForward * 3600000).ToString();
+                    start = (_today + item.StartForward * 60000).ToString();
+                    end = (_today + item.EndForward * 60000).ToString();
                     break;
                 default:
-                    start = (_today + item.Start * 3600000).ToString();
-                    end = (_today + item.End * 3600000).ToString();
+                    start = (_today + item.Start * 60000).ToString();
+                    end = (_today + item.End * 60000).ToString();
                     break;
             }
         }
