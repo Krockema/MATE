@@ -600,6 +600,7 @@ namespace Master40.BusinessLogic.MRP
 
         private void SatisfyRequest(IDemandToProvider parent, IDemandToProvider requester)
         {//Todo: search for purchases
+            /*
             IDemandToProvider provider = null;
             var newRequester = requester;
             var articleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == parent.Id);
@@ -643,7 +644,7 @@ namespace Master40.BusinessLogic.MRP
                 }
 
                 if (provider != null) SatisfyRequest(provider, newRequester);
-            }
+            }*/
         }
 
         private IDemandToProvider AssignProductionOrderToDemandProvider(ProductionOrder earliestProductionOrder, DemandProviderProductionOrder provider, decimal amount)

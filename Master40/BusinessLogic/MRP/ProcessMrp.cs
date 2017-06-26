@@ -102,7 +102,7 @@ namespace Master40.BusinessLogic.MRP
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
             if (timer > 0)
-                _capacityScheduling.RebuildNets();
+                _capacityScheduling.RebuildNets(timer);
 
             if (task == MrpTask.All || task == MrpTask.Capacity)
                 //creates a list with the needed capacities to follow the terminated schedules
@@ -218,15 +218,17 @@ namespace Master40.BusinessLogic.MRP
             foreach (var child in children)
             {
                 //call this method recursively for a depth-first search
-                ExecutePlanning(new DemandProductionOrderBom()
+                var dpob = new DemandProductionOrderBom()
                 {
                     ArticleId = child.ArticleChildId,
                     Article = child.ArticleChild,
-                    Quantity = productionOrder.Quantity * (int)child.Quantity,
+                    Quantity = productionOrder.Quantity * (int) child.Quantity,
                     DemandRequesterId = demand.DemandRequesterId,
                     DemandProvider = new List<DemandToProvider>(),
-                    State = State.Created
-                }, demand, task);
+                    State = State.Created,
+                    
+                };
+                ExecutePlanning(dpob, demand, task);
             }
         }
 

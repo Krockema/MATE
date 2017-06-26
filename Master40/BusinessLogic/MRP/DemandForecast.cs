@@ -183,6 +183,11 @@ namespace Master40.BusinessLogic.MRP
             };
             _context.ProductionOrderBoms.Add(productionOrderBom);
             _context.SaveChanges();
+            
+            if (demand.GetType() == typeof(DemandProductionOrderBom))
+                ((DemandProductionOrderBom)demand).ProductionOrderBomId = productionOrderBom.Id;
+            _context.Add(demand);
+            _context.SaveChanges();
         }
 
         //Todo: check logic

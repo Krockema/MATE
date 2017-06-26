@@ -260,7 +260,7 @@ namespace Master40.BusinessLogic.MRP
         private int SetForwardTimeFromChild(ProductionOrderWorkSchedule workSchedule)
         {
             var children = new List<ProductionOrderBom>();
-            foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == workSchedule.ProductionOrderId))
+            foreach (var pob in _context.ProductionOrderBoms.Include(a => a.ProductionOrderChild).ThenInclude(a => a.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderParentId == workSchedule.ProductionOrderId))
             {
                 if (pob.ProductionOrderChildId != workSchedule.ProductionOrder.Id)
                     children.Add(pob);
