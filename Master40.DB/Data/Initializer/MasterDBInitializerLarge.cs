@@ -217,7 +217,7 @@ namespace Master40.DB.Data.Initializer
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 3, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)
             {
