@@ -181,14 +181,7 @@ namespace Master40.BusinessLogic.MRP
                 ProductionOrderChildId = productionOrder.Id,
                 ProductionOrderParent = productionOrderParent,
             };
-            //Todo: check logic
             _context.ProductionOrderBoms.Add(productionOrderBom);
-            /*
-            if (demand.GetType() == typeof(DemandProductionOrderBom))
-            {
-                ((DemandProductionOrderBom) demand).ProductionOrderBomId = productionOrderBom.Id;
-                _context.Add(demand);
-            }*/
             _context.SaveChanges();
         }
 
@@ -259,7 +252,12 @@ namespace Master40.BusinessLogic.MRP
             return (purchasedAmount - neededAmount - amount < stockMin);
         }
 
-        private void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
+        /// <summary>
+        /// Creates stock reservation if possible
+        /// </summary>
+        /// <param name="stock"></param>
+        /// <param name="demand"></param>
+        public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
         {
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);

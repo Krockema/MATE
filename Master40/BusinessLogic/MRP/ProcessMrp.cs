@@ -101,6 +101,9 @@ namespace Master40.BusinessLogic.MRP
            
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
+            if (timer > 0)
+                _capacityScheduling.RebuildNets();
+
             if (task == MrpTask.All || task == MrpTask.Capacity)
                 //creates a list with the needed capacities to follow the terminated schedules
                 machineList = _capacityScheduling.CapacityRequirementsPlanning(timer);
@@ -123,7 +126,7 @@ namespace Master40.BusinessLogic.MRP
         }
         
         private void SetStartEndFromTermination(IDemandToProvider demand)
-        {
+        { //Todo: replace provider.first()
             var schedules = _context.ProductionOrderWorkSchedule
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.DemandProviderProductionOrders)

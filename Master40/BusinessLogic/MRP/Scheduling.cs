@@ -221,7 +221,7 @@ namespace Master40.BusinessLogic.MRP
 
         //find starttime from parent and set the endtime of the workschedule to it
         private int SetBackwardTimeFromParent(ProductionOrderWorkSchedule workSchedule, State state)
-        {
+        { //Todo: replace provider.first 
             ProductionOrderBom parent = null;
             
             //search for parents

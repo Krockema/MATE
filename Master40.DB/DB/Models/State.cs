@@ -8,7 +8,7 @@
         ForwardScheduleExists,
         ExistsInCapacityPlan,
         Produced,
-        Deliverd,
+        Delivered,
         Purchased,
     }
 }

@@ -17,6 +17,7 @@ namespace Master40.BusinessLogic.MRP
         List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int timer);
         bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList);
         void SetMachines(int timer);
+        void RebuildNets(int time);
     }
 
     public class CapacityScheduling : ICapacityScheduling
@@ -28,6 +29,8 @@ namespace Master40.BusinessLogic.MRP
             Logger = new List<LogMessage>();
             _context = context;
         }
+
+
 
         /// <summary>
         /// An algorithm for capacity-leveling. Writes Start/End in ProductionOrderWorkSchedule.
@@ -297,7 +300,7 @@ namespace Master40.BusinessLogic.MRP
         }
 
         private List<ProductionOrderWorkSchedulesByTimeStep> AddToMachineGroup(MachineGroupProductionOrderWorkSchedule machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
-        {
+        { //Todo: replace provider.first()
             var start = productionOrderWorkSchedule.StartBackward;
             var end = productionOrderWorkSchedule.EndBackward;
             if (productionOrderWorkSchedule.ProductionOrder.DemandProviderProductionOrders.First().State == State.ForwardScheduleExists)
@@ -380,21 +383,27 @@ namespace Master40.BusinessLogic.MRP
             return schedules;
         }
 
-        private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
+        private int GetDueTime(IDemandToProvider demand)
         {
+            var dueTime = 9999;
+            if (demand.GetType() == typeof(DemandOrderPart))
+            {
+                dueTime = _context.OrderParts
+                            .Include(a => a.Order)
+                            .Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId)
+                            .Order
+                            .DueTime;
+            }
+            return dueTime;
+        }
+
+        private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
+        { //replace provider.first()
             foreach (var plannableSchedule in plannableSchedules)
             {
                 //get duetime
                 var demand = _context.Demands.AsNoTracking().Single(a => a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId);
-                var dueTime = 9999;
-                if (demand.GetType() == typeof(DemandOrderPart))
-                {
-                    dueTime = _context.OrderParts
-                                .Include(a => a.Order)
-                                .Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId)
-                                .Order
-                                .DueTime;
-                }
+                var dueTime = GetDueTime(demand);
 
                 //get remaining time
                 var slack = plannableSchedule.ActivitySlack;
@@ -574,6 +583,132 @@ namespace Master40.BusinessLogic.MRP
                    ||
                    (scheduleMg.Start > schedule.Start &&
                     scheduleMg.End < schedule.End);
+        }
+
+        public void RebuildNets(int time)
+        {
+            //delete all demandprovider-demandrequester connections
+            var demandRequester = _context.Demands.Where(a => a.DemandRequesterId == a.Id && a.State != State.Delivered);
+            _context.Demands.RemoveRange(_context.Demands.Where(a => a.DemandRequesterId != a.Id));
+            foreach (var singleRequester in demandRequester)
+                singleRequester.DemandProvider = new List<DemandToProvider>();
+
+            //rebuild by using activity-slack
+            var nextRequester = GetNextByActivitySlack(demandRequester, time);
+            SatisfyRequest(nextRequester, nextRequester);
+        }
+
+        private void SatisfyRequest(IDemandToProvider parent, IDemandToProvider requester)
+        {//Todo: search for purchases
+            IDemandToProvider provider = null;
+            var newRequester = requester;
+            var articleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == parent.Id);
+            foreach (var articleBom in articleBoms)
+            {
+
+                var amount = parent.Quantity;
+                var articleStock = _context.Stocks.Single(a => a.ArticleForeignKey==articleBom.ArticleChildId).Current;
+                if (articleStock > 0)
+                {
+                    provider = CreateProviderStock(parent.DemandRequester, amount);
+                    CreateStockReservation(provider, amount);
+                }
+                var possibleMatchingProductionOrders = _context.ProductionOrders.Where(a => a.ArticleId == articleBom.ArticleChild.Id);
+
+                if (parent!=requester) newRequester = CreateProductionOrderBom();
+
+               
+                while (amount > 0 && possibleMatchingProductionOrders.Any())
+                {
+                    ProductionOrder earliestProductionOrder = GetEarliestProductionOrder(possibleMatchingProductionOrders);
+                    amount -= earliestProductionOrder.Quantity;
+                    provider = CreateProviderProductionOrder(parent.DemandRequester, earliestProductionOrder, amount >= earliestProductionOrder.Quantity ? earliestProductionOrder.Quantity : amount);
+                    provider = AssignProductionOrderToDemandProvider(earliestProductionOrder, (DemandProviderProductionOrder)provider, amount >= earliestProductionOrder.Quantity ? earliestProductionOrder.Quantity : amount);
+                    possibleMatchingProductionOrders.ToList().Remove(earliestProductionOrder);
+                }
+                bool hasChildren;
+                hasChildren = HasChildren(provider);
+                if (amount > 0)
+                {
+                    if (hasChildren)
+                    {
+                        var productionOrder = CreateProductionOrder(provider, amount);
+                        provider = CreateProviderProductionOrder(requester, productionOrder, amount);
+                    }
+                    else
+                    {
+                        var purchase = CreatePurchase(provider, amount);
+                        provider = CreateProviderPurchase(requester, purchase, amount);
+                    }
+                }
+
+                if (provider != null) SatisfyRequest(provider, newRequester);
+            }
+        }
+
+        private IDemandToProvider AssignProductionOrderToDemandProvider(ProductionOrder earliestProductionOrder, DemandProviderProductionOrder provider, decimal amount)
+        {
+            provider.ProductionOrderId = earliestProductionOrder.Id;
+            provider.Quantity = amount;
+            return provider;
+        }
+
+        private bool HasChildren(IDemandToProvider demand)
+        {
+            return _context.ArticleBoms.Any(a => a.ArticleParentId == demand.ArticleId);
+        }
+
+        private IDemandToProvider CreateProviderStock(IDemandToProvider demand, decimal amount)
+        {
+           return new DemandProviderStock()
+            {
+                ArticleId = demand.ArticleId,
+                Quantity = amount,
+                StockId = _context.Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId).Id,
+                DemandRequesterId = demand.DemandRequesterId,
+            };
+        }
+        private IDemandToProvider CreateProviderProductionOrder(IDemandToProvider demand, ProductionOrder productionOrder, decimal amount)
+        {
+            return new DemandProviderProductionOrder()
+            {
+                ArticleId = demand.ArticleId,
+                Quantity = amount,
+                ProductionOrderId = productionOrder.Id,
+                DemandRequesterId = demand.DemandRequesterId,
+            };
+        }
+
+        private IDemandToProvider CreateProviderPurchase(IDemandToProvider demand, PurchasePart purchase, decimal amount)
+        {
+            return new DemandProviderPurchasePart()
+            {
+                ArticleId = demand.ArticleId,
+                Quantity = amount,
+                PurchasePartId = purchase.Id,
+                DemandRequesterId = demand.DemandRequesterId,
+            };
+        }
+
+        private IDemandToProvider GetNextByActivitySlack(IQueryable<DemandToProvider> demandRequester, int time)
+        {
+            if (!demandRequester.Any()) return null;
+            var mostUrgentRequester = demandRequester.First();
+            var lowestActivitySlack = GetDueTime(mostUrgentRequester);
+            foreach (var singleRequester in demandRequester)
+            {
+                var activitySlack = GetActivitySlack(singleRequester, time);
+                if (activitySlack >= lowestActivitySlack) continue;
+                lowestActivitySlack = activitySlack;
+                mostUrgentRequester = singleRequester;
+            }
+            return mostUrgentRequester;
+        }
+
+        private int GetActivitySlack(IDemandToProvider demandRequester, int time)
+        {
+            var dueTime = GetDueTime(demandRequester);
+            return dueTime - time;
         }
     }
 }
