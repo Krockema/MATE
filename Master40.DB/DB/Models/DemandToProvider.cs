@@ -48,7 +48,7 @@ namespace Master40.DB.Models
     }
     public class DemandProductionOrderBom : DemandToProvider
     {
-        public int ProductionOrderBomId { get; set; }
+        public int? ProductionOrderBomId { get; set; }
         public ProductionOrderBom ProductionOrderBom { get; set; }
     }
     public class DemandStock : DemandToProvider

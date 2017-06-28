@@ -228,6 +228,8 @@ namespace Master40.BusinessLogic.MRP
                     State = State.Created,
                     
                 };
+                _context.Add(dpob);
+                _context.SaveChanges();
                 ExecutePlanning(dpob, demand, task);
             }
         }
