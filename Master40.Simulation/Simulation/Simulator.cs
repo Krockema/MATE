@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.DB.Interfaces;
 using Master40.DB.DB.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +13,9 @@ namespace Master40.Simulation.Simulation
     public interface ISimulator
     {
         Task Simulate();
-        TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, int id);
+        //TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<SimulationProductionOrderWorkSchedule> waitingItems, int id);
     }
-    /*
+    
     public class Simulator : ISimulator
     {
         private readonly ProductionDomainContext _context;
@@ -26,9 +27,10 @@ namespace Master40.Simulation.Simulation
             _processMrp = processMrp;
             //_hubCallback = hubCallback;
         }
-        /*
-        private void CreateInitialTable(TimeTable<SimulationProductionOrderWorkSchedule> timeTable, int id)
+        
+        private List<SimulationProductionOrderWorkSchedule> CreateInitialTable(int id)
         {
+            var waitingItems = new List<SimulationProductionOrderWorkSchedule>();
             var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
             var provider = new List<DemandProviderProductionOrder>();
             foreach (var demand in demands)
@@ -56,33 +58,24 @@ namespace Master40.Simulation.Simulation
                 singleSpows.SimulatedDuration = singleSpows.SimulatedDuration;
                 singleSpows.SimulationId = id;
             }
-            timeTable.Initial.AddRange(spows);
+            
+            waitingItems.AddRange(spows);
             _context.SimulationProductionOrderWorkSchedules.AddRange(spows);
             _context.SaveChanges();
-        }
-
-        private void AddToInProgress(SimulationProductionOrderWorkSchedule pows, TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
-        {
-            timeTable.Initial.Remove(pows);
-            timeTable.InProgress.Add(pows);
-        }
-
-        private void AddToFinished(SimulationProductionOrderWorkSchedule pows, TimeTable<SimulationProductionOrderWorkSchedule> timeTable)
-        {
-            timeTable.InProgress.Remove(pows);
-            timeTable.Finished.Add(pows);
+            return waitingItems;
         }
 
         public async Task Simulate()
         {
             await Task.Run(() =>
             {
-                var timeTable = new TimeTable<SimulationProductionOrderWorkSchedule>();
+                var timeTable = new TimeTable<ISimulationItem>(24);
                 var id = CreateSimulationId();
+                var waitingItems = CreateInitialTable(id);
                 if (!_context.ProductionOrderWorkSchedule.Any()) return;
-                while (timeTable.Initial.Any() && timeTable.InProgress.Any() || !timeTable.Finished.Any())
+                while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
-                    timeTable = ProcessTimeline(timeTable, id);
+                    timeTable = ProcessTimeline(timeTable, waitingItems, id);
                 }
             });
 
@@ -93,19 +86,15 @@ namespace Master40.Simulation.Simulation
             return _context.SimulationProductionOrderWorkSchedules.Any() ? _context.SimulationProductionOrderWorkSchedules.Max(a => a.SimulationId)+1 : 1;
         }
 
-        public TimeTable<SimulationProductionOrderWorkSchedule> ProcessTimeline(TimeTable<SimulationProductionOrderWorkSchedule> timeTable, int simulationId)
+        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<SimulationProductionOrderWorkSchedule> waitingItems, int simulationId)
         {
             //Todo: implement statistics
-
-            if (!timeTable.Initial.Any() && !timeTable.Finished.Any() && !timeTable.InProgress.Any())
-                CreateInitialTable(timeTable,simulationId);
             
-
             // Timewarp - set Start Time
-            if (timeTable.Initial.Any())
+            if (waitingItems.Any())
             {
-                timeTable.Timer = timeTable.Initial.Min(a => a.SimulatedStart);
-                foreach (var item in(from tT in timeTable.Initial where tT.SimulatedStart == timeTable.Initial.Min(a => a.SimulatedStart) select tT).ToList())
+                timeTable.Timer = waitingItems.Min(a => a.SimulatedStart);
+                foreach (var item in (from tT in waitingItems where tT.SimulatedStart == waitingItems.Min(a => a.SimulatedStart) select tT).ToList())
                 {
                     //Todo: bomparents don´t change time
                     // Roll new Duration
@@ -119,7 +108,8 @@ namespace Master40.Simulation.Simulation
                     if (newDuration != item.End - item.Start)
                     {
                         //nachfolger auf maschine prüfen
-                        var parent = _context.SimulationProductionOrderWorkScheduleGetParent(item,simulationId);
+
+                        var parent = _context.SimulationProductionOrderWorkScheduleGetParent(item, simulationId);
                         if (parent != null)
                         {
                             var parentStart = item.SimulatedStart + newDuration;
@@ -128,13 +118,13 @@ namespace Master40.Simulation.Simulation
                                 var earliestStart = _context.GetLatestEndFromChild(parent);
                                 if (earliestStart <= parentStart)
                                 {
-                                    parent = timeTable.Initial.Single(a => a.Id == parent.Id && a.SimulationId == simulationId);
+                                    parent = waitingItems.Single(a => a.Id == parent.Id && a.SimulationId == simulationId);
                                     parent.SimulatedEnd -= parent.SimulatedStart - parentStart;
                                     parent.SimulatedStart = parentStart;
                                 }
                                 else
                                 {
-                                    parent = timeTable.Initial.Single(a => a.Id == parent.Id && a.SimulationId == simulationId);
+                                    parent = waitingItems.Single(a => a.Id == parent.Id && a.SimulationId == simulationId);
                                     parent.SimulatedEnd -= parent.SimulatedStart - earliestStart;
                                     parent.SimulatedStart = earliestStart;
                                 }
@@ -150,7 +140,8 @@ namespace Master40.Simulation.Simulation
                     _context.Update(item);
                     _context.SaveChanges();
                     // Move Elements To progress List
-                    AddToInProgress(item, timeTable);
+
+                    //AddToInProgress(item, timeTable);
                 }
             }
 
@@ -160,20 +151,6 @@ namespace Master40.Simulation.Simulation
                 timeTable.RecalculateTimer += 24;
             }
 
-            // Check for finished Items.
-            var finished = timeTable.InProgress.Where(x => x.End <= timeTable.Timer).ToList();
-            var max = finished.Count();
-            for (var i = 0; i < max; i++)
-            {
-                AddToFinished(finished.First(), timeTable);
-                if (_context.SimulationProductionOrderWorkScheduleGetParent(finished.First(),simulationId) != null ||
-                    timeTable.InProgress.Any(a => a.ProductionOrderId == finished.First().ProductionOrderId))
-                    continue;
-                //var demand = _context.GetDemand(finished.First());
-                //demand.State = State.Produced;
-            }
-
-
             // if Progress is empty Stop.
             return timeTable;
         }
@@ -181,8 +158,8 @@ namespace Master40.Simulation.Simulation
         private void Recalculate(int timer)
         {
             //Todo: change capacityScheduling to Spows
-           // _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
-        }*/
-    //}
+            // _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
+        }
+    }
     
 }

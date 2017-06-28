@@ -13,7 +13,7 @@ using Master40.DB.Data.Repository;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Initializer;
-using Master40.SignalR;
+using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 
 namespace Master40
@@ -55,7 +55,7 @@ namespace Master40
             services.AddSingleton<IScheduling, Scheduling>();
             services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();
-            //services.AddSingleton<ISimulator, Simulator>();
+            services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<HubCallback>();
             
             services.Configure<RequestLocalizationOptions>(

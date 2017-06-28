@@ -1,16 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="BusinessLogic\**" />
     <Content Remove="BusinessLogic\**" />
     <EmbeddedResource Remove="BusinessLogic\**" />
     <None Remove="BusinessLogic\**" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="wwwroot\css\jQuerryGantt.css" />
     <Content Include="wwwroot\css\menu.css" />
@@ -65,6 +69,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj" />
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+    <ProjectReference Include="..\Master40.MessageSystem\Master40.MessageSystem.csproj" />
     <ProjectReference Include="..\Master40.Simulation\Master40.Simulation.csproj" />
   </ItemGroup>
 </Project>

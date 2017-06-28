@@ -1,0 +1,11 @@
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.MessageSystem.deps.json
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.MessageSystem.dll
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Gray.Microsoft.AspNetCore.SignalR.Server.dll
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.BusinessLogicCentral.dll
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.DB.dll
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.Simulation.dll
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.BusinessLogicCentral.pdb
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.DB.pdb
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.Simulation.pdb
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\obj\Debug\netcoreapp1.1\Master40.MessageSystem.csprojResolveAssemblyReference.cache
+C:\Users\Seifert\Documents\GitHub\Master-4.0\Master40.MessageSystem\obj\Debug\netcoreapp1.1\Master40.MessageSystem.AssemblyInfo.cs
