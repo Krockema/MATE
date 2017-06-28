@@ -28,12 +28,7 @@ namespace Master40.Extensions
             }
             return colorList;
         }
-    
-        public static long GetEpochMilliseconds(this DateTime date)
-        {
-            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            return (long)t.TotalMilliseconds;
-        }
+
     }
     public class Color
     {

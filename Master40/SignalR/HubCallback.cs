@@ -1,4 +1,5 @@
 ﻿using Master40.Models;
+using Master40.DB.Data.Helper;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.SignalR

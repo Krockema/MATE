@@ -8,6 +8,13 @@ namespace Master40.DB.Data.Helper
 {
     public static class LinqExtensions
     {
+            
+        public static long GetEpochMilliseconds(this DateTime date)
+        {
+            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+            return (long)t.TotalMilliseconds;
+        }
+        
         public static void CopyPropertiesTo<T>(this T source, T dest)
         {
             var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;

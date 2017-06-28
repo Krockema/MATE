@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Hangfire;
-using Hangfire.Common;
 using Master40.BusinessLogicCentral.MRP;
-using Master40.Models;
+using Master40.DB.Data.Helper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 using Master40.Simulation.Simulation;
