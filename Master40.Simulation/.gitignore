@@ -290,15 +290,6 @@ typings/
 .paket/paket.exe
 paket-files/
 
-
-
-
-
-
-
-
-
-
 # Telerik's JustMock configuration file
 *.jmconfig
 

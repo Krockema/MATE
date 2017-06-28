@@ -308,6 +308,10 @@ paket-files/
 *.cache
 
 Master40/obj/*
+Master40/bin/*
 Master40.DB/obj/*
-Master40.Master40.XUnitTest/obj/*
-Master40.Master40.XUnitTest/bin/*
+Master40.DB/bin/*
+Master40.XUnitTest/obj/*
+Master40.XUnitTest/bin/*
+Master40.Simulation/obj/*
+Master40.Simulation/bin/*
