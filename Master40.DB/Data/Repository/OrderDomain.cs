@@ -1,10 +1,10 @@
-﻿using Master40.DB.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Master40.DB.Data.Context;
+using Master40.DB.DB.Models;
 
 namespace Master40.DB.Data.Repository
 {

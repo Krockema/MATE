@@ -1,11 +1,11 @@
 ﻿using Master40.DB.Data;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.DB.Models;
 
 namespace Master40.ViewComponents
 {

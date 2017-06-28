@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Master40.DB.Models
+namespace Master40.DB.DB.Models
 {
     public interface IDemandToProvider
     {

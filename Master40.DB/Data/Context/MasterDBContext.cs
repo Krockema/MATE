@@ -1,5 +1,4 @@
 ﻿using Master40.DB.Data.Repository;
-using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Master40.DB.DB.Models;

@@ -1,37 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.BusinessLogic.MRP;
+using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Repository;
 using Master40.DB.DB.Interfaces;
 using Master40.DB.DB.Models;
-using Master40.DB.Models;
-using Master40.Extensions;
-using Master40.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Master40.BusinessLogic.Simulation
+namespace Master40.Simulation.Simulation
 {
     public interface ISimulator
     {
         Task Simulate();
-        TimeTable<SimulationProductionOrderWorkSchedule> ProcessTimeline(TimeTable<SimulationProductionOrderWorkSchedule> timeTable, int id);
+        TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, int id);
     }
-
+    /*
     public class Simulator : ISimulator
     {
         private readonly ProductionDomainContext _context;
         private readonly IProcessMrp _processMrp;
-        private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, HubCallback hubCallback)
+        //private readonly HubCallback _hubCallback;
+        public Simulator(ProductionDomainContext context, IProcessMrp processMrp)//, HubCallback hubCallback)
         {
             _context = context;
             _processMrp = processMrp;
-            _hubCallback = hubCallback;
+            //_hubCallback = hubCallback;
         }
-        
+        /*
         private void CreateInitialTable(TimeTable<SimulationProductionOrderWorkSchedule> timeTable, int id)
         {
             var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
@@ -187,7 +182,7 @@ namespace Master40.BusinessLogic.Simulation
         {
             //Todo: change capacityScheduling to Spows
            // _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
-        }
-    }
+        }*/
+    //}
     
 }

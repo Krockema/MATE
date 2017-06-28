@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Master40.DB
+namespace Master40.DB.DB
 {
     public class BaseEntity
     {

@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Master40.Models;
-using Microsoft.EntityFrameworkCore;
+using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
-using System;
-using Master40.Extensions;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Remotion.Linq.Clauses;
+using Master40.DB.DB.Models;
+using Microsoft.EntityFrameworkCore;
+using Master40.DB.Data.Helper;
 
-namespace Master40.BusinessLogic.MRP
+namespace Master40.BusinessLogicCentral.MRP
 {//Todo: multi-machines fix
     public interface ICapacityScheduling
     {
@@ -23,10 +20,8 @@ namespace Master40.BusinessLogic.MRP
     public class CapacityScheduling : ICapacityScheduling
     {
         private readonly MasterDBContext _context;
-        public List<LogMessage> Logger { get; set; }
         public CapacityScheduling(MasterDBContext context)
         {
-            Logger = new List<LogMessage>();
             _context = context;
         }
 
@@ -217,10 +212,10 @@ namespace Master40.BusinessLogic.MRP
             }
             //iterate to find the latest end
             if (poChildren.Any())
-                    return (from child in poChildren
-                            from pows in child.ProductionOrderWorkSchedule
-                                select pows.End).Concat(new[] {0}).Max();
-            return powsChildren.Any() ? (from powsChild in powsChildren select powsChild.End).Concat(new[] {0}).Max() : 0;
+                    return Enumerable.Concat((from child in poChildren
+                        from pows in child.ProductionOrderWorkSchedule
+                        select pows.End), new[] {0}).Max();
+            return powsChildren.Any() ? Enumerable.Concat((from powsChild in powsChildren select powsChild.End), new[] {0}).Max() : 0;
         }
 
         private int FindStartOnMachine(List<ProductionOrderWorkSchedule> plannedSchedules, int machineId, ProductionOrderWorkSchedule shortest)

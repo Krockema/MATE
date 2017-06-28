@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Master40.Extensions;
-using Master40.Models;
-using Microsoft.EntityFrameworkCore;
-using Master40.DB.Models;
-using Master40.DB.Models.Interfaces;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
+using Master40.DB.DB.Interfaces;
+using Master40.DB.DB.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Master40.BusinessLogic.MRP
+namespace Master40.BusinessLogicCentral.MRP
 {
 
     public interface IScheduling
@@ -20,10 +19,8 @@ namespace Master40.BusinessLogic.MRP
     public class Scheduling : IScheduling
     {
         private readonly MasterDBContext _context;
-        public List<LogMessage> Logger { get; set; }
         public Scheduling(MasterDBContext context)
         {
-            Logger = new List<LogMessage>();
             _context = context;
         }
 
@@ -145,9 +142,9 @@ namespace Master40.BusinessLogic.MRP
 
                     }
                 }*/
-                latestEnd =  (from provider in demand.DemandProvider where provider.GetType() == typeof(DemandProviderProductionOrder)
-                              from schedule in ((DemandProviderProductionOrder) provider).ProductionOrder.ProductionOrderWorkSchedule
-                              select schedule.EndForward).Concat(new[] {latestEnd}).Max();
+                latestEnd =  Enumerable.Concat((from provider in demand.DemandProvider where provider.GetType() == typeof(DemandProviderProductionOrder)
+                    from schedule in ((DemandProviderProductionOrder) provider).ProductionOrder.ProductionOrderWorkSchedule
+                    select schedule.EndForward), new[] {latestEnd}).Max();
                 return latestEnd;
             }
             demand = _context.Demands.Include(a => a.DemandRequester).Single(a => a.Id == demand.Id);
@@ -159,14 +156,12 @@ namespace Master40.BusinessLogic.MRP
 
         internal int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            return productionOrderWorkSchedules.Select(productionOrderWorkSchedule => productionOrderWorkSchedule.StartForward)
-                                                .Concat(new[] {-100000}).Min();
+            return Enumerable.Concat(productionOrderWorkSchedules.Select(productionOrderWorkSchedule => productionOrderWorkSchedule.StartForward), new[] {-100000}).Min();
         }
 
         internal int GetMinBackward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            return productionOrderWorkSchedules.Select(productionOrderWorkSchedule => productionOrderWorkSchedule.StartBackward)
-                                                .Concat(new[] {-100000}).Min();
+            return Enumerable.Concat(productionOrderWorkSchedules.Select(productionOrderWorkSchedule => productionOrderWorkSchedule.StartBackward), new[] {-100000}).Min();
         }
 
         //returns a list of all workSchedules for the given orderPart and planningType
@@ -249,9 +244,9 @@ namespace Master40.BusinessLogic.MRP
             
             if (children.Any())
             {
-                var childEnd = (from child in children
-                                from childSchedule in child.ProductionOrderChild.ProductionOrderWorkSchedule
-                                select childSchedule.EndForward).Concat(new[] {0}).Max();
+                var childEnd = Enumerable.Concat((from child in children
+                    from childSchedule in child.ProductionOrderChild.ProductionOrderWorkSchedule
+                    select childSchedule.EndForward), new[] {0}).Max();
                 workSchedule.StartForward = childEnd;
             }
             else

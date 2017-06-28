@@ -1,15 +1,13 @@
-using Master40.DB.Data.Repository;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
-using Xunit;
-using Master40.BusinessLogic.MRP;
 using Master40.DB.Data.Initializer;
-using Master40.XUnitTest.DBContext;
+using Master40.DB.DB.Models;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace Master40.XUnitTest
+namespace Master40.XUnitTest.DBContext
 {
     public class ContextTest
     {
@@ -36,7 +34,7 @@ namespace Master40.XUnitTest
         [Fact]
         public void OrderContextTest()
         {
-            _ctx.Orders.Add(new DB.Models.Order { Name = "Order1" });
+            _ctx.Orders.Add(new Order { Name = "Order1" });
             _ctx.SaveChanges();
 
             Assert.Equal(2, _ctx.Orders.Count());

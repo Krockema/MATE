@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Master40.BusinessLogic.MRP;
+using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Master40.DB.Models;
+using Master40.DB.DB.Models;
 
 namespace Master40.DB.DB.Interfaces
 {

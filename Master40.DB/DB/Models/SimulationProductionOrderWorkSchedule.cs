@@ -1,6 +1,4 @@
 ﻿using Master40.DB.DB.Interfaces;
-using Master40.DB.Models;
-using Master40.Simulation.Simulation;
 
 namespace Master40.DB.DB.Models
 {

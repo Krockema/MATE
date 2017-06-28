@@ -3,22 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Master40.DB.Models;
 
 namespace Master40.Extensions
 {
     public static class ExtensionMethods
     {
-        public static void CopyPropertiesTo<T>(this T source, T dest)
-        {
-            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
-
-            foreach (PropertyInfo prop in plist)
-            {
-                if (prop.Name != "Id")
-                    prop.SetValue(dest, prop.GetValue(source, null), null);
-            }
-        }
         public static IEnumerable<Color> GetGradients(Color start, Color end, int steps)
         {
             int stepA = ((end.A - start.A) / (steps - 1));

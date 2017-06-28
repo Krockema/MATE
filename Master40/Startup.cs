@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Master40.BusinessLogic.MRP;
-using Master40.BusinessLogic.Simulation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -13,8 +11,10 @@ using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
 using Hangfire;
+using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Initializer;
 using Master40.SignalR;
+using Master40.Simulation.Simulation;
 
 namespace Master40
 {
@@ -55,7 +55,7 @@ namespace Master40
             services.AddSingleton<IScheduling, Scheduling>();
             services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();
-            services.AddSingleton<ISimulator, Simulator>();
+            //services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<HubCallback>();
             
             services.Configure<RequestLocalizationOptions>(

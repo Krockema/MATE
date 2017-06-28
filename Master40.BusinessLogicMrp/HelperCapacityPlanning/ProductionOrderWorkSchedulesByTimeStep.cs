@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.DB.Models;
 
-namespace Master40.DB.Models
+namespace Master40.BusinessLogicCentral.HelperCapacityPlanning
 {
     public class ProductionOrderWorkSchedulesByTimeStep
     {

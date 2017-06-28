@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Common;
-using Master40.BusinessLogic.MRP;
+using Master40.BusinessLogicCentral.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
-using Master40.BusinessLogic.Simulation;
+using Master40.Simulation.Simulation;
 
 namespace Master40.SignalR
 {

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Master40.DBMigrations
+namespace Master40.DB.Migrations
 {
     public partial class ArticleBomChildHiracie : Migration
     {

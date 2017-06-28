@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj" />
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
   </ItemGroup>
 

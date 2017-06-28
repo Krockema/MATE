@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.Models;
-using Microsoft.EntityFrameworkCore;
-using Master40.DB.Models;
 using Master40.DB.Data.Context;
-using Master40.SignalR;
-using Microsoft.AspNetCore.SignalR.Infrastructure;
-using System;
+using Master40.DB.DB.Models;
+using Microsoft.EntityFrameworkCore;
+using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 
-namespace Master40.BusinessLogic.MRP
+namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IProcessMrp
     {
-        List<LogMessage> Logger { get; set; }
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
         void PlanCapacities(MrpTask task, int timer);
@@ -25,7 +21,6 @@ namespace Master40.BusinessLogic.MRP
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        public List<LogMessage> Logger { get; set; }
         public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling)
         {
             _context = context;

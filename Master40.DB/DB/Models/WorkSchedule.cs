@@ -1,6 +1,6 @@
-﻿using Master40.DB.Models.Interfaces;
+﻿using Master40.DB.DB.Interfaces;
 
-namespace Master40.DB.Models
+namespace Master40.DB.DB.Models
 {
     public class WorkSchedule : BaseEntity, IWorkSchedule
     {

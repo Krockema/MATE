@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Master40.DB.Models;
 using Master40.DB.Data.Context;
+using Master40.DB.DB.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Master40.BusinessLogic.MRP
+namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IDemandForecast
     {

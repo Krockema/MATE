@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
-namespace Master40.DB.Models
+namespace Master40.DB.DB.Models
 {
     public class Order : BaseEntity
     {

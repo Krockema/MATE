@@ -1,35 +1,26 @@
 ﻿using System.Collections.Generic;
-using Master40.BusinessLogic.MRP;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Master40.BusinessLogic.Simulation;
+using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.Simulation.Simulation;
 
 namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
         private readonly IProcessMrp _processMrp;
-        private readonly ISimulator _simulator;        
-        public MrpController(IProcessMrp processMrp, ISimulator simulator)
+       // private readonly ISimulator _simulator;        
+        public MrpController(IProcessMrp processMrp)//, ISimulator simulator)
         {
             _processMrp = processMrp;
-            _simulator = simulator;
+         //   _simulator = simulator;
         }
         public IActionResult Index()
         {
-            if (_processMrp.Logger == null)
-            {
-                _processMrp.Logger = new List<LogMessage>() {
-                    new LogMessage() { MessageType = MessageType.success, Message = "Nothing logged yet.", MessageNumber = 1 }
-                };
-            }
-
-
-            return View(_processMrp.Logger);
+            return View();
         }
 
         [HttpGet("[Controller]/MrpProcessing")]
@@ -40,7 +31,7 @@ namespace Master40.Controllers
 
             await Task.Yield();
 
-            return View("Index", _processMrp.Logger);
+            return View("Index");
         }
 
         [HttpGet("[Controller]/MrpBackward")]
@@ -51,7 +42,7 @@ namespace Master40.Controllers
 
             await Task.Yield();
 
-            return View("Index", _processMrp.Logger);
+            return View("Index");
         }
 
         [HttpGet("[Controller]/MrpForward")]
@@ -61,7 +52,7 @@ namespace Master40.Controllers
 
             await Task.Yield();
 
-            return View("Index", _processMrp.Logger);
+            return View("Index");
         }
 
         [HttpGet("[Controller]/MrpGifflerThompson")]
@@ -71,7 +62,7 @@ namespace Master40.Controllers
 
             await Task.Yield();
 
-            return View("Index", _processMrp.Logger);
+            return View("Index");
         }
 
         [HttpGet("[Controller]/CapacityPlanning")]
@@ -81,17 +72,17 @@ namespace Master40.Controllers
 
             await Task.Yield();
 
-            return View("Index", _processMrp.Logger);
+            return View("Index");
         }
 
         [HttpGet("[Controller]/Simulate")]
         public async Task<IActionResult> Simulate()
         {
-            await _simulator.Simulate();
+           // await _simulator.Simulate();
 
             await Task.Yield();
 
-            return View("Index", _processMrp.Logger);
+            return View("Index");
         }
 
         public IActionResult Error()

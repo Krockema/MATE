@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Master40.DB.Models
+namespace Master40.DB.DB.Models
 {
     public class BusinessPartner : BaseEntity
     {

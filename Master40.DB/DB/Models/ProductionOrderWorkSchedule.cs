@@ -1,7 +1,6 @@
-﻿using Master40.DB.Models.Interfaces;
-using Master40.DB.DB.Interfaces;
+﻿using Master40.DB.DB.Interfaces;
 
-namespace Master40.DB.Models
+namespace Master40.DB.DB.Models
 {
     public class ProductionOrderWorkSchedule : BaseEntity, IWorkSchedule, ISimulationProductionOrderWorkSchedule
     {

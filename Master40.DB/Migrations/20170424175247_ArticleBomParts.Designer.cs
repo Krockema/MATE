@@ -1,11 +1,11 @@
 ﻿using System;
+using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Master40.DB.Data.Context;
 
-namespace Master40.DBMigrations
+namespace Master40.DB.Migrations
 {
     [DbContext(typeof(MasterDBContext))]
     [Migration("20170424175247_ArticleBomParts")]

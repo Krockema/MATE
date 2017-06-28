@@ -64,9 +64,11 @@
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="BusinessLogic\" />
     <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj" />
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
     <ProjectReference Include="..\Master40.Simulation\Master40.Simulation.csproj" />
   </ItemGroup>

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Master40.Simulation.Simulation;
+﻿using System.Collections.Generic;
 
-namespace Master40.BusinessLogic.Simulation
+namespace Master40.Simulation.Simulation
 {
     public class TimeTable<T> where T : ISimulationItem
     {

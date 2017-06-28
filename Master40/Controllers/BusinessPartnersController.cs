@@ -2,8 +2,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Master40.DB.Models;
 using Master40.DB.Data.Context;
+using Master40.DB.DB.Models;
 
 namespace Master40.Controllers
 {

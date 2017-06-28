@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Master40.BusinessLogic.Simulation
+namespace Master40.Simulation.Simulation
 {
     public class RandomNumbers { 
             public int RandomInt()
