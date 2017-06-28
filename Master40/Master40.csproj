@@ -9,10 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="BusinessLogic\Helper\**" />
-    <Content Remove="BusinessLogic\Helper\**" />
-    <EmbeddedResource Remove="BusinessLogic\Helper\**" />
-    <None Remove="BusinessLogic\Helper\**" />
+    <Compile Remove="BusinessLogic\**" />
+    <Content Remove="BusinessLogic\**" />
+    <EmbeddedResource Remove="BusinessLogic\**" />
+    <None Remove="BusinessLogic\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,7 +64,6 @@
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="BusinessLogic\" />
     <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
   <ItemGroup>
