@@ -146,8 +146,8 @@ namespace Master40.BusinessLogic.MRP
                     }
                 }*/
                 latestEnd =  (from provider in demand.DemandProvider where provider.GetType() == typeof(DemandProviderProductionOrder)
-                        from schedule in ((DemandProviderProductionOrder) provider).ProductionOrder.ProductionOrderWorkSchedule
-                            select schedule.EndForward).Concat(new[] {latestEnd}).Max();
+                              from schedule in ((DemandProviderProductionOrder) provider).ProductionOrder.ProductionOrderWorkSchedule
+                              select schedule.EndForward).Concat(new[] {latestEnd}).Max();
                 return latestEnd;
             }
             demand = _context.Demands.Include(a => a.DemandRequester).Single(a => a.Id == demand.Id);
@@ -159,24 +159,14 @@ namespace Master40.BusinessLogic.MRP
 
         internal int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            var minForward = -100000;
-            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
-            {
-                if (productionOrderWorkSchedule.StartForward < minForward)
-                    minForward = productionOrderWorkSchedule.StartForward;
-            }
-            return minForward;
+            return productionOrderWorkSchedules.Select(productionOrderWorkSchedule => productionOrderWorkSchedule.StartForward)
+                                                .Concat(new[] {-100000}).Min();
         }
 
         internal int GetMinBackward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            var minBackward = -100000;
-            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
-            {
-                if (productionOrderWorkSchedule.StartBackward < minBackward)
-                    minBackward = productionOrderWorkSchedule.StartBackward;
-            }
-            return minBackward;
+            return productionOrderWorkSchedules.Select(productionOrderWorkSchedule => productionOrderWorkSchedule.StartBackward)
+                                                .Concat(new[] {-100000}).Min();
         }
 
         //returns a list of all workSchedules for the given orderPart and planningType
@@ -189,33 +179,24 @@ namespace Master40.BusinessLogic.MRP
                 .Where(a => a.DemandRequesterId == demand.Id).ToList();
             
             //get initial pows
-            var productionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>();
-            foreach (var demandProvider in demand.DemandProvider)
-            {
-                if (demandProvider.GetType() == typeof(DemandProviderProductionOrder))
-                    foreach (var schedule in _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
-                                                    .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
-                                                    .OrderBy(a => a.ProductionOrder).ThenByDescending(a => a.HierarchyNumber).ToList())
-                    {
-                        productionOrderWorkSchedules.Add(schedule);
-                    }
-            }
+            var productionOrderWorkSchedules = demand.DemandProvider.Where(demandProvider => demandProvider.GetType() == typeof(DemandProviderProductionOrder))
+                .SelectMany(demandProvider => _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                    .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder) demandProvider).ProductionOrderId)
+                    .OrderBy(a => a.ProductionOrder)
+                    .ThenByDescending(a => a.HierarchyNumber)
+                    .ToList())
+                .ToList();
 
             //get pows for bomDemands
-            foreach (var bomDemand in bomDemands)
-            {
-                foreach (var demandProvider in bomDemand.DemandProvider)
-                {
-                    if (demandProvider.GetType() == typeof(DemandProviderProductionOrder))
-                        foreach (var schedule in _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
-                                                        .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder)demandProvider).ProductionOrderId)
-                                                        .OrderBy(a => a.ProductionOrder).ThenByDescending(a => a.HierarchyNumber).ToList())
-                        {
-                            productionOrderWorkSchedules.Add(schedule);
-                        }
-                }
-                
-            }
+            productionOrderWorkSchedules.AddRange(from bomDemand in bomDemands
+                from demandProvider in bomDemand.DemandProvider
+                where demandProvider.GetType() == typeof(DemandProviderProductionOrder)
+                from schedule in _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                    .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder) demandProvider).ProductionOrderId)
+                    .OrderBy(a => a.ProductionOrder)
+                    .ThenByDescending(a => a.HierarchyNumber)
+                    .ToList()
+                select schedule);
             return productionOrderWorkSchedules;
         }
 
@@ -268,14 +249,9 @@ namespace Master40.BusinessLogic.MRP
             
             if (children.Any())
             {
-                var childEnd = 0;
-                foreach (var child in children)
-                {
-                    foreach (var childSchedule in child.ProductionOrderChild.ProductionOrderWorkSchedule)
-                    {
-                        if (childSchedule.EndForward > childEnd) childEnd = childSchedule.EndForward;
-                    }
-                }
+                var childEnd = (from child in children
+                                from childSchedule in child.ProductionOrderChild.ProductionOrderWorkSchedule
+                                select childSchedule.EndForward).Concat(new[] {0}).Max();
                 workSchedule.StartForward = childEnd;
             }
             else
