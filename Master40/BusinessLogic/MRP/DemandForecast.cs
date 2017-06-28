@@ -32,7 +32,7 @@ namespace Master40.BusinessLogic.MRP
         /// <param name="task"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
         public ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, MrpTask task)
-        {//Todo resolve complexity
+        {
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = GetPlannedStock(stock,demand);
@@ -44,23 +44,9 @@ namespace Master40.BusinessLogic.MRP
                 //if the article has no children it has to be purchased
                 var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
                 if (children.Any())
-                {
-                    productionOrder = CreateProductionOrder(demand, -plannedStock);
-                    var demandProviderProductionOrder = CreateDemandProviderProductionOrder(demand, productionOrder, -plannedStock);
-                    demand.DemandProvider.Add(demandProviderProductionOrder);
-                    //if the article has a parent create a relationship
-                    if (parent != null)
-                    {
-                        demandProviderProductionOrder.DemandRequesterId = parent.DemandRequesterId;
-                        _context.Demands.Update(demandProviderProductionOrder);
-                        CreateProductionOrderBom(demand, parent, productionOrder);
-                    }
-                    _context.SaveChanges();
-                }
+                    productionOrder = CreateChildProductionOrder(demand, parent, -plannedStock);
                 else
-                {
                     CreatePurchaseDemand(demand, -plannedStock);
-                }
             }
             //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
@@ -75,6 +61,23 @@ namespace Master40.BusinessLogic.MRP
                 CreateStockDemand(demand, stock, stock.Min, task);
             else CreateStockDemand(demand, stock, stock.Min - plannedStock, task);
 
+            return productionOrder;
+        }
+
+        private ProductionOrder CreateChildProductionOrder(IDemandToProvider demand, IDemandToProvider parent, decimal amount)
+        {
+
+            var productionOrder = CreateProductionOrder(demand, amount);
+            var demandProviderProductionOrder = CreateDemandProviderProductionOrder(demand, productionOrder, amount);
+            demand.DemandProvider.Add(demandProviderProductionOrder);
+            //if the article has a parent create a relationship
+            if (parent != null)
+            {
+                demandProviderProductionOrder.DemandRequesterId = parent.DemandRequesterId;
+                _context.Demands.Update(demandProviderProductionOrder);
+                CreateProductionOrderBom(demand, parent, productionOrder);
+            }
+            _context.SaveChanges();
             return productionOrder;
         }
 
@@ -162,7 +165,7 @@ namespace Master40.BusinessLogic.MRP
             return demandProviderProductionOrder;
         }
 
-        private void CreateProductionOrderBom(IDemandToProvider demand, IDemandToProvider parent, ProductionOrder productionOrder)
+        public void CreateProductionOrderBom(IDemandToProvider demand, IDemandToProvider parent, ProductionOrder productionOrder)
         {
             var bom = _context.ArticleBoms.AsNoTracking()
                         .Single(a => a.ArticleChildId == demand.ArticleId && a.ArticleParentId == parent.ArticleId);
@@ -186,7 +189,7 @@ namespace Master40.BusinessLogic.MRP
             
             if (demand.GetType() == typeof(DemandProductionOrderBom))
                 ((DemandProductionOrderBom)demand).ProductionOrderBomId = productionOrderBom.Id;
-            _context.Add(demand);
+            _context.Update(demand);
             _context.SaveChanges();
         }
 
