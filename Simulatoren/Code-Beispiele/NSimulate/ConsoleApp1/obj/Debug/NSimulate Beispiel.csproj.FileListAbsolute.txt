@@ -1,0 +1,7 @@
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\bin\Debug\ConsoleApp1.exe.config
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\bin\Debug\ConsoleApp1.exe
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\bin\Debug\ConsoleApp1.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\bin\Debug\NSimulate.dll
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\obj\Debug\NSimulate Beispiel.csprojResolveAssemblyReference.cache
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\obj\Debug\ConsoleApp1.exe
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\NSimulate\ConsoleApp1\obj\Debug\ConsoleApp1.pdb

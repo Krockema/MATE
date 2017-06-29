@@ -5,6 +5,8 @@ using Master40.DB.Data.Context;
 using Master40.DB.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
+using Master40.DB.Data.Helper;
+using Master40.MessageSystem.SignalR;
 
 namespace Master40.BusinessLogicCentral.MRP
 {
@@ -17,12 +19,14 @@ namespace Master40.BusinessLogicCentral.MRP
 
     public class ProcessMrp : IProcessMrp
     {
+        private readonly MessageHub _messageHub;
         private readonly MasterDBContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling)
+        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, MessageHub messageHub)
         {
+            _messageHub = messageHub;
             _context = context;
             _scheduling = scheduling;
             _capacityScheduling = capacityScheduling;
@@ -36,8 +40,10 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <returns></returns>
         public async Task CreateAndProcessOrderDemand(MrpTask task)
         {
+            
             await Task.Run(() =>
             {
+                _messageHub.SendToAllClients("Start full cycle...", MessageType.info);
                 //get all unplanned orderparts and iterate through them for MRP
                 var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false).Include(a => a.Article).ToList();
                 foreach (var orderPart in orderParts.ToList())
@@ -59,7 +65,9 @@ namespace Master40.BusinessLogicCentral.MRP
                         orderPart.IsPlanned = true;
                 }
                 _context.SaveChanges();
+                _messageHub.EndScheduler();
             });
+            
         }
 
         /// <summary>

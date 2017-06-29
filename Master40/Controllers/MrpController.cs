@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.Simulation.Simulation;
 
@@ -30,6 +32,16 @@ namespace Master40.Controllers
 
             return View("Index");
         }
+
+        [HttpGet("[Controller]/MrpProcessingAjax")]
+        public void MrpProcessingAjax()
+        {
+            // var jobId = 
+            BackgroundJob.Enqueue<IProcessMrp>(x =>
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All)
+            );
+        }
+
 
         [HttpGet("[Controller]/MrpBackward")]
         public async Task<IActionResult> MrpBackward()
@@ -99,6 +111,12 @@ namespace Master40.Controllers
         {
             //call to ReloadChart Diagramm
             return ViewComponent("MachineGroupCapacity", stateId);
+        }
+        [HttpGet("[Controller]/ReloadGantt/Data")]
+        public IActionResult ReloadGanttData(int stateId)
+        {
+            //call to ReloadChart Diagramm
+            return ViewComponent("ProductionSchedule");
         }
     }
 }

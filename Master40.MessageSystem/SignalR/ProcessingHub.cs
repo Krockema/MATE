@@ -1,30 +1,30 @@
 ﻿using System;
-using Master40.BusinessLogicCentral.MRP;
-using Master40.Simulation.Simulation;
 using Microsoft.AspNetCore.SignalR;
 using Master40.DB.Data.Helper;
 using Hangfire;
+using Master40.MessageSystem.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.MessageSystem.SignalR
 {
     public class ProcessingHub : Hub
     {
+        /*
         private readonly IProcessMrp _processMrp;
-        private readonly ISimulator _simulator;
-        private readonly HubCallback _hubCallback;
+        */
+        private readonly MessageHub _hubCallback;
 
-        public ProcessingHub(IProcessMrp processMrp, ISimulator simulator, HubCallback hubCallback)
+        public ProcessingHub(MessageHub hubCallback) //, IProcessMrp processMrp)
         {
-            _processMrp = processMrp;
-            _simulator = simulator;
+            //_processMrp = processMrp;
             _hubCallback = hubCallback;
         }
+        
         public void SystemReady()
         {
             Clients.All.clientListener(_hubCallback.ReturnMsgBox("SignalR Hub active.", MessageType.info));
         }
-        
+        /*
         public void StartFullPlanning()
         {
             var jobId = BackgroundJob.Enqueue<IProcessMrp>(x =>
@@ -70,9 +70,11 @@ namespace Master40.MessageSystem.SignalR
         }
         public void StartSimulate()
         {
+            /*
             var jobId = BackgroundJob.Enqueue<ISimulator>(x => _simulator.Simulate());
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
             Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start simmulation...", MessageType.info));
+            */
         }
     }
 
@@ -92,4 +94,3 @@ namespace Master40.MessageSystem.SignalR
                 .Clients.All.clientListener("Forward has Finished.");
         }
     }
-}

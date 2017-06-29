@@ -16,7 +16,7 @@ namespace SharpSimExamples
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //Edit this part to run different examples
-            Application.Run(new Example2());
+            Application.Run(new Example5());
         }
     }
 }

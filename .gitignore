@@ -317,3 +317,5 @@ Master40.Simulation/obj/*
 Master40.Simulation/bin/*
 Master40.BusinessLogicCentral/obj/*
 Master40.BusinessLogicCentral/bin/*
+Master40.MessageSystem/obj/*
+Master40.MessageSystem/bin/*
