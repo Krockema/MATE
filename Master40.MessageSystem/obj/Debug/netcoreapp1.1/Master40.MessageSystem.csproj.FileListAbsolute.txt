@@ -1,9 +1,0 @@
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.MessageSystem.deps.json
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.MessageSystem.dll
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.DB.dll
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.DB.pdb
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\obj\Debug\netcoreapp1.1\Master40.MessageSystem.csprojResolveAssemblyReference.cache
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\obj\Debug\netcoreapp1.1\Master40.MessageSystem.AssemblyInfo.cs
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\bin\Debug\netcoreapp1.1\Master40.MessageSystem.pdb
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\obj\Debug\netcoreapp1.1\Master40.MessageSystem.dll
-C:\Users\marti\Source\Repos\Master-4.0\Master40.MessageSystem\obj\Debug\netcoreapp1.1\Master40.MessageSystem.pdb
