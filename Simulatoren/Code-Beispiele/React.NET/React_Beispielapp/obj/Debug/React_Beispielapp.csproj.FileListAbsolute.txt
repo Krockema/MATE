@@ -7,3 +7,11 @@ c:\users\seifert\documents\visual studio 2017\Projects\React_Beispielapp\React_B
 c:\users\seifert\documents\visual studio 2017\Projects\React_Beispielapp\React_Beispielapp\bin\Debug\React.NET.xml
 c:\users\seifert\documents\visual studio 2017\Projects\React_Beispielapp\React_Beispielapp\obj\Debug\React_Beispielapp.exe
 c:\users\seifert\documents\visual studio 2017\Projects\React_Beispielapp\React_Beispielapp\obj\Debug\React_Beispielapp.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\bin\Debug\React_Beispielapp.exe.config
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\bin\Debug\React_Beispielapp.exe
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\bin\Debug\React_Beispielapp.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\bin\Debug\React.NET.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\bin\Debug\React.NET.xml
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\obj\Debug\React_Beispielapp.csprojResolveAssemblyReference.cache
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\obj\Debug\React_Beispielapp.exe
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\Code-Beispiele\React.NET\React_Beispielapp\obj\Debug\React_Beispielapp.pdb
