@@ -1,4 +1,5 @@
-﻿using Master40.DB.DB.Interfaces;
+﻿using System.Collections.Generic;
+using Master40.DB.DB.Interfaces;
 
 namespace Master40.DB.DB.Models
 {
@@ -23,7 +24,7 @@ namespace Master40.DB.DB.Models
         public int EndForward { get; set; }
         public decimal ActivitySlack { get; set; }
         public decimal WorkTimeWithParents { get; set; }
-
+        public ICollection<SimulationProductionOrderWorkSchedule> SimulationProductionOrderWorkSchedules { get; set; }
         
     }
 }

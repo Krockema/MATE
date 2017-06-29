@@ -1,19 +1,78 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v1.1",
-    "signature": "517b64032c148a5474be67a381c9c11aff9d985c"
+    "signature": "2017b7ed85bc4f288e9e83fee42539fbfde277b3"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v1.1": {
       "master40.messagesystem/1.0.0": {
         "dependencies": {
+          "Hangfire": "1.6.14",
           "Master40.BusinessLogicCentral": "1.0.0",
           "Master40.DB": "1.0.0",
           "Master40.Simulation": "1.0.0"
         },
         "runtime": {
           "Master40.MessageSystem.dll": {}
+        }
+      },
+      "dapper/1.50.1": {
+        "dependencies": {
+          "System.Collections.NonGeneric": "4.3.0",
+          "System.Data.SqlClient": "4.3.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/Dapper.dll": {}
+        }
+      },
+      "hangfire/1.6.14": {
+        "dependencies": {
+          "Hangfire.AspNetCore": "1.6.14",
+          "Hangfire.Core": "1.6.14",
+          "Hangfire.SqlServer": "1.6.14"
+        }
+      },
+      "hangfire.aspnetcore/1.6.14": {
+        "dependencies": {
+          "Hangfire.Core": "1.6.14",
+          "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.1",
+          "Microsoft.AspNetCore.Http.Abstractions": "1.1.1",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0",
+          "Microsoft.Extensions.Logging.Abstractions": "1.1.1",
+          "Microsoft.NETCore.Portable.Compatibility": "1.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/Hangfire.AspNetCore.dll": {}
+        }
+      },
+      "hangfire.core/1.6.14": {
+        "dependencies": {
+          "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/Hangfire.Core.dll": {}
+        },
+        "resources": {
+          "lib/netstandard1.3/es/Hangfire.Core.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.3/zh/Hangfire.Core.resources.dll": {
+            "locale": "zh"
+          }
+        }
+      },
+      "hangfire.sqlserver/1.6.14": {
+        "dependencies": {
+          "Dapper": "1.50.1",
+          "Hangfire.Core": "1.6.14",
+          "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
+          "System.Data.Common": "4.3.0",
+          "System.Data.SqlClient": "4.3.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/Hangfire.SqlServer.dll": {}
         }
       },
       "microsoft.aspnetcore.hosting.abstractions/1.1.1": {
@@ -197,6 +256,30 @@
           "lib/netstandard1.0/Microsoft.Extensions.Primitives.dll": {}
         }
       },
+      "microsoft.netcore.portable.compatibility/1.0.1": {
+        "runtime": {
+          "lib/netstandard1.0/System.ComponentModel.DataAnnotations.dll": {},
+          "lib/netstandard1.0/System.Core.dll": {},
+          "lib/netstandard1.0/System.Net.dll": {},
+          "lib/netstandard1.0/System.Numerics.dll": {},
+          "lib/netstandard1.0/System.Runtime.Serialization.dll": {},
+          "lib/netstandard1.0/System.ServiceModel.Web.dll": {},
+          "lib/netstandard1.0/System.ServiceModel.dll": {},
+          "lib/netstandard1.0/System.Windows.dll": {},
+          "lib/netstandard1.0/System.Xml.Linq.dll": {},
+          "lib/netstandard1.0/System.Xml.Serialization.dll": {},
+          "lib/netstandard1.0/System.Xml.dll": {},
+          "lib/netstandard1.0/System.dll": {}
+        }
+      },
+      "newtonsoft.json/9.0.1": {
+        "dependencies": {
+          "System.Runtime.Serialization.Primitives": "4.1.1"
+        },
+        "runtime": {
+          "lib/netstandard1.0/Newtonsoft.Json.dll": {}
+        }
+      },
       "remotion.linq/2.1.1": {
         "runtime": {
           "lib/netstandard1.0/Remotion.Linq.dll": {}
@@ -324,6 +407,11 @@
           "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.dll": {}
         }
       },
+      "system.runtime.serialization.primitives/4.1.1": {
+        "runtime": {
+          "lib/netstandard1.3/System.Runtime.Serialization.Primitives.dll": {}
+        }
+      },
       "system.text.encoding.codepages/4.3.0": {
         "runtimeTargets": {
           "runtimes/unix/lib/netstandard1.3/System.Text.Encoding.CodePages.dll": {
@@ -379,6 +467,41 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "dapper/1.50.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UnvcSLoFOriBz9uMTwWmhhpvkPke91OfouxkWK+88zrFXbm38DP0MmQNjFYIsnPUnvPd/pC+nhgm+nM+mkdtTg==",
+      "path": "dapper/1.50.1",
+      "hashPath": "dapper.1.50.1.nupkg.sha512"
+    },
+    "hangfire/1.6.14": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-BFvPDBvm77tfs6uiP3hE23LpwRwhsSdySAH6B020Crc8wLclfhKjnrsRTSQHsqWCsSJZ6U77CkJzwEj0zhWVlw==",
+      "path": "hangfire/1.6.14",
+      "hashPath": "hangfire.1.6.14.nupkg.sha512"
+    },
+    "hangfire.aspnetcore/1.6.14": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hzQlYDBo2YIntYB5xL6FcGct6fvj0p/m7UZdN9kqpuyN+bxqnRyB9sdLUGg+8hly7jmenzAYCV3EkDN6GC/SUQ==",
+      "path": "hangfire.aspnetcore/1.6.14",
+      "hashPath": "hangfire.aspnetcore.1.6.14.nupkg.sha512"
+    },
+    "hangfire.core/1.6.14": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GZn0o9z6ni9BfqADGsXFYR2WoMH+xeis1DVn1cxGAh2UdhHRLHMQQW45ZmraRWekweZRjegZ6+tOBKMSZyq4ZQ==",
+      "path": "hangfire.core/1.6.14",
+      "hashPath": "hangfire.core.1.6.14.nupkg.sha512"
+    },
+    "hangfire.sqlserver/1.6.14": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5+2fMBl3fCytUgSCJICdg+9JqZ4iJ85eZ88eIOFXIiDwJ6+vIk1bPksEIeZn3m39R12kQ3Kws7KnXx1iEcyG8g==",
+      "path": "hangfire.sqlserver/1.6.14",
+      "hashPath": "hangfire.sqlserver.1.6.14.nupkg.sha512"
     },
     "microsoft.aspnetcore.hosting.abstractions/1.1.1": {
       "type": "package",
@@ -527,6 +650,20 @@
       "path": "microsoft.extensions.primitives/1.1.0",
       "hashPath": "microsoft.extensions.primitives.1.1.0.nupkg.sha512"
     },
+    "microsoft.netcore.portable.compatibility/1.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Vd+lvLcGwvkedxtKn0U8s9uR4p0Lm+0U2QvDsLaw7g4S1W4KfPDbaW+ROhhLCSOx/gMYC72/b+z+o4fqS/oxVg==",
+      "path": "microsoft.netcore.portable.compatibility/1.0.1",
+      "hashPath": "microsoft.netcore.portable.compatibility.1.0.1.nupkg.sha512"
+    },
+    "newtonsoft.json/9.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U82mHQSKaIk+lpSVCbWYKNavmNH1i5xrExDEquU1i6I5pV6UMOqRnJRSlKO3cMPfcpp0RgDY+8jUXHdQ4IfXvw==",
+      "path": "newtonsoft.json/9.0.1",
+      "hashPath": "newtonsoft.json.9.0.1.nupkg.sha512"
+    },
     "remotion.linq/2.1.1": {
       "type": "package",
       "serviceable": true,
@@ -645,6 +782,13 @@
       "sha512": "sha512-rcnXA1U9W3QUtMSGoyoNHH6w4V5Rxa/EKXmzpORUYlDAlDB34hIQoU57ATXl8xHa83VvzRm6PcElEizgUd7U5w==",
       "path": "system.runtime.compilerservices.unsafe/4.3.0",
       "hashPath": "system.runtime.compilerservices.unsafe.4.3.0.nupkg.sha512"
+    },
+    "system.runtime.serialization.primitives/4.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-HZ6Du5QrTG8MNJbf4e4qMO3JRAkIboGT5Fk804uZtg3Gq516S7hAqTm2UZKUHa7/6HUGdVy3AqMQKbns06G/cg==",
+      "path": "system.runtime.serialization.primitives/4.1.1",
+      "hashPath": "system.runtime.serialization.primitives.4.1.1.nupkg.sha512"
     },
     "system.text.encoding.codepages/4.3.0": {
       "type": "package",

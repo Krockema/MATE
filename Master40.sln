@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.Simulation", "Mast
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.BusinessLogicCentral", "Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj", "{EEF6B026-4B7A-44DF-B6E7-42FAC25D3C08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.MessageSystem", "Master40.MessageSystem\Master40.MessageSystem.csproj", "{B8140DE2-F5CA-461B-B867-09718A83289B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{EEF6B026-4B7A-44DF-B6E7-42FAC25D3C08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEF6B026-4B7A-44DF-B6E7-42FAC25D3C08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEF6B026-4B7A-44DF-B6E7-42FAC25D3C08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8140DE2-F5CA-461B-B867-09718A83289B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8140DE2-F5CA-461B-B867-09718A83289B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8140DE2-F5CA-461B-B867-09718A83289B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8140DE2-F5CA-461B-B867-09718A83289B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
