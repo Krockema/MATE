@@ -18,7 +18,7 @@ namespace Master40.Simulation.Simulation
         public int Timer { get; set; }
         public int RecalculateTimer { get; set; }
 
-        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, int simulationId)
+        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable)
         {
             if (!timeTable.Items.Any()) return timeTable;
             var start = timeTable.Items.Min(a => a.Start);

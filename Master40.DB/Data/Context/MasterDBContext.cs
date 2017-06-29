@@ -113,6 +113,12 @@ namespace Master40.DB.Data.Context
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+            modelBuilder.Entity<SimulationProductionOrderWorkSchedule>()
+                .HasOne(p => p.ProductionOrderWorkSchedule)
+                .WithMany(s => s.SimulationProductionOrderWorkSchedules)
+                .HasForeignKey(fk => fk.ProductionOrderWorkScheduleId)
+                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+
         }
     }
 }

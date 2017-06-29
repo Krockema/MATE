@@ -11,9 +11,11 @@ namespace Master40.Simulation.Simulation
 {
     public class PowsSimulationItem : ISimulationItem
     {
-        public PowsSimulationItem(int start, int end, MasterDBContext context)
+        public PowsSimulationItem(int productionOrderWorkScheduleId,int productionOrderId, int start, int end, MasterDBContext context)
         {
             SimulationState = SimulationState.Waiting;
+            ProductionOrderWorkScheduleId = productionOrderWorkScheduleId;
+            ProductionOrderId = productionOrderId;
             Start = start;
             End = end;
             NeedToAddNext = false;
@@ -30,8 +32,12 @@ namespace Master40.Simulation.Simulation
         
         public Task<bool> DoAtStart()
         {
-
-            //_context.Stocks.Single(a => a.ArticleForeignKey == ArticleId).Current++;
+            var pobs = _context.ProductionOrderBoms.Include(a => a.ProductionOrderChild).Where(a => a.ProductionOrderParentId == ProductionOrderId);
+            foreach (var pob in pobs)
+            {
+                if (!_context.ProductionOrderBoms.Any(a => a.ProductionOrderParentId == pob.ProductionOrderChildId))
+                    _context.Stocks.Single(a => a.ArticleForeignKey == pob.ProductionOrderChild.ArticleId).Current-= pob.Quantity;
+            }
             return null;
         }
 
