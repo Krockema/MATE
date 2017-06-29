@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 
 namespace Master40.ViewComponents
 {
@@ -20,13 +22,18 @@ namespace Master40.ViewComponents
             _today = DateTime.Now.GetEpochMilliseconds();
         }
 
+        public async Task<IViewComponentResult> InvokeAsync(List<int> paramsList)
+        {
+            return null;
+        }
+
 
         /// <summary>
-        /// Select List for Diagrammsettings (Forward / Backward / GT)
-        /// </summary>
-        /// <param name="selectedItem"></param>
-        /// <returns></returns>
-        private SelectList SchedulingState(int selectedItem)
+            /// Select List for Diagrammsettings (Forward / Backward / GT)
+            /// </summary>
+            /// <param name="selectedItem"></param>
+            /// <returns></returns>
+            private SelectList SchedulingState(int selectedItem)
         {
             var itemList = new List<SelectListItem> { new SelectListItem() { Text = "Backward", Value = "1" } };
 

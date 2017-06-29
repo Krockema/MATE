@@ -149,7 +149,7 @@
         function startSimulation() {
             $(".MessageDisplayRunning").html("");
             $('#ajax-busy').show();
-            processingProxy.invoke('StartSimulate');
+            $.get("Mrp/SimulateAjax")
         }
 
         $(document).ready(function () {

@@ -94,6 +94,13 @@ namespace Master40.Controllers
             return View("Index");
         }
 
+        [HttpGet("[Controller]/SimulateAjax")]
+        public void SimulateAjax()
+        {
+            BackgroundJob.Enqueue<ISimulator>(x =>
+                _simulator.Simulate());
+        }
+
         public IActionResult Error()
         {
             return View();

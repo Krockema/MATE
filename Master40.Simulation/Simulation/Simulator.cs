@@ -8,6 +8,7 @@ using Master40.DB.Data.Helper;
 using Master40.DB.DB.Interfaces;
 using Master40.DB.DB.Models;
 using Master40.DB.Migrations;
+using Master40.MessageSystem.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.Simulation.Simulation
@@ -22,12 +23,13 @@ namespace Master40.Simulation.Simulation
     {
         private readonly ProductionDomainContext _context;
         private readonly IProcessMrp _processMrp;
+        private readonly MessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IProcessMrp processMrp)//, HubCallback hubCallback)
+        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, MessageHub messageHub)
         {
             _context = context;
+            _messageHub = messageHub;
             _processMrp = processMrp;
-            //_hubCallback = hubCallback;
         }
         
         private List<SimulationProductionOrderWorkSchedule> CreateInitialTable(int id)
@@ -72,6 +74,8 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(() =>
             {
+                // send Message to Client that Simulation has been Startet.
+                _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 var timeTable = new TimeTable<ISimulationItem>(24);
                 var id = CreateSimulationId();
                 var waitingItems = CreateInitialTable(id);
@@ -81,6 +85,8 @@ namespace Master40.Simulation.Simulation
                 {
                     timeTable = ProcessTimeline(timeTable, waitingItems, id);
                 }
+                // end simulation and Unlock Screen
+                _messageHub.EndScheduler();
             });
 
         }
