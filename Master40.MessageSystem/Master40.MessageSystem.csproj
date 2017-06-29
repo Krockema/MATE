@@ -5,17 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire" Version="1.6.14" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Gray.Microsoft.AspNetCore.SignalR.Server">
-      <HintPath>..\..\..\..\.nuget\packages\gray.microsoft.aspnetcore.signalr.server\0.2.0-alpha1\lib\netstandard1.6\Gray.Microsoft.AspNetCore.SignalR.Server.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Gray.Microsoft.AspNetCore.SignalR.Server" Version="0.2.0-alpha1" />
   </ItemGroup>
 
 </Project>

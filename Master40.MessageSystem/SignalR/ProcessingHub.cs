@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.SignalR;
 using Master40.DB.Data.Helper;
-using Hangfire;
 using Master40.MessageSystem.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 
