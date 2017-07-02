@@ -14,7 +14,14 @@ namespace Master40.DB.Data.Helper
             TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
             return (long)t.TotalMilliseconds;
         }
-        
+
+        public static DateTime GetDateFromMilliseconds(this long x)
+        {
+            // return new DateTime(1970, 1, 1).Add(TimeSpan.FromMilliseconds(x));
+            return (new DateTime(1970, 1, 1)).AddMilliseconds(x);
+        }
+
+
         public static void CopyPropertiesTo<T>(this T source, T dest)
         {
             var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;

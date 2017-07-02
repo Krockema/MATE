@@ -10,6 +10,11 @@ namespace Master40.DB.Data.Context
     {
         public ProductionDomainContext(DbContextOptions<MasterDBContext> options) : base(options) { }
 
+
+        public Order OrderById(int id)
+        {
+            return Orders.Where(x => x.Id == id).FirstOrDefault();
+        }
         /// <summary>
         /// Recives the prior items to a given ProductionOrderWorkSchedule
         /// </summary>
@@ -209,6 +214,61 @@ namespace Master40.DB.Data.Context
                 pows.AddRange(singleBom.ProductionOrderChild.ProductionOrderWorkSchedule.ToList());
             }
             return pows.Any() ? (from child in pows select child.End).Concat(new[] { 0 }).Max() : 0;
+        }
+        /// <summary>
+        /// returns the Production Order Work Schedules for a given Order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        public Task<List<ProductionOrderWorkSchedule>> GetProductionOrderWorkScheduleByOrderId(int orderId)
+        {
+            return Task.Run(() =>
+            {
+                // get the corresponding Order Parts to Order
+                var demands = Demands.OfType<DemandOrderPart>()
+                    .Include(x => x.OrderPart)
+                    .Where(o => o.OrderPart.OrderId == orderId)
+                    .ToList();
+
+                // ReSharper Linq
+                var demandboms = demands.SelectMany(demand => Demands.OfType<DemandProductionOrderBom>()
+                    .Where(a => a.DemandRequesterId == demand.Id)).ToList();
+
+                // get Demand Providers for this Order
+                var demandProviders = new List<DemandProviderProductionOrder>();
+                foreach (var order in (Demands.OfType<DemandProviderProductionOrder>()
+                    .Join(demands, c => c.DemandRequesterId, d => ((IDemandToProvider)d).Id, (c, d) => c)))
+                {
+                    demandProviders.Add(order);
+                }
+
+                var demandBomProviders = (Demands.OfType<DemandProviderProductionOrder>()
+                    .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
+
+                // get ProductionOrderWorkSchedule for 
+                var pows = ProductionOrderWorkSchedule.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
+                var powDetails = (pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
+                    (p, dp) => p)).ToList();
+
+                var powBoms = (from p in pows
+                    join dbp in demandBomProviders on p.ProductionOrderId equals dbp.ProductionOrderId
+                    select p).ToList();
+
+                powDetails.AddRange(powBoms);
+                return powDetails;
+            });
+        }
+
+        /// <summary>
+        /// returns the OrderId for the ProductionOrderWorkSchedule
+        /// </summary>
+        /// <param name="pow"></param>
+        /// <returns></returns>
+        private int GetOrderIdFromProductionOrderWorkSchedule(ProductionOrderWorkSchedule pow)
+        {
+            //call requester.requester to make sure that also the DemandProductionOrderBoms find the DemandOrderPart
+            var requester = (DemandOrderPart)pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
+            return OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
         }
     }
 }

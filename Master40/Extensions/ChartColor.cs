@@ -20,11 +20,14 @@ namespace Master40.Extensions
     /// </summary>
     public enum GanttColors
     {
-        ganttRed,
-        ganttGreen,
-        ganttBlue,
-        ganttOrange,
-        ganttGray
+        CRIMSON,
+        MEDIUMAQUAMARINE,
+        CADETBLUE,
+        ORANGE,
+        DARKSLATEGREY,
+        KHAKI,
+        DARKGOLDENROD,
+        STEELBLUE
     }
     
 }

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Mrp Basic";
     Layout = "_Layout";
     int LineNumber = 0;
 }
@@ -17,7 +17,7 @@
 
 </script>
 <hr/>
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col-md-3 col-sm-4">
             <div class="container-fluid">
@@ -164,6 +164,7 @@
         function loadGantt(orderId, stateId) {
             $.ajax({
                 url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
+                async: true,
                 context: document.body,
                 beforeSend: function () {
                     $('#ajax-busy').show();
@@ -190,6 +191,7 @@
         function loadCharts(stateId) {
             $.ajax({
                 url: "Mrp/ReloadChart/" + stateId,
+                async: true,
                 context: document.body,
                 beforeSend: function () {
                     $('#ajax-busy').show();

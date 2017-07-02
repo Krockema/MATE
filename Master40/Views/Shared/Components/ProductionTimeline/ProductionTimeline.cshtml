@@ -1,17 +1,75 @@
-﻿@model string
+﻿@model Master40.Models.GanttContext
+@using Master40.Models
+@using Newtonsoft.Json;
+@using System.Linq;
+@using Master40.DB.Data.Helper;
+@{
+    string tasks = JsonConvert.SerializeObject(Model.Tasks, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+    string links = JsonConvert.SerializeObject(Model.Links, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+    //string min = Model.Tasks.Where(x => x.IntFrom > 0).Min(x => x.IntFrom).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
+    //string max = Model.Tasks.Max(x => x.IntTo).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
+    string dump = "stop";
+}
+<link rel="stylesheet" href="~/lib/dxhtml-gantt/dhtmlxgantt.css" />
+<script src="~/lib/dxhtml-gantt/dhtmlxgantt.js"></script>
+<script src="~/lib/dxhtml-gantt/ext/dhtmlxgantt_tooltip.js"></script>
+<script src="~/lib/dxhtml-gantt/ext/dhtmlxgantt_smart_rendering.js"></script>
+<style>
+    .child_preview{
+        box-sizing: border-box;
+        margin-top: 2px;
+        position: absolute;
+        z-index: 1;
+        color: white;
+        text-align: center;
+        font-size: 12px;
+    }
+    .gantt_task_line.task-collapsed{
+         height: 4px;
+         opacity: 0.25;
+     }
+    .gantt_task_line.gantt_project.task-collapsed .gantt_task_content{
+        display: none;
+    }
+    .gantt_row.task-parent{
+        font-weight: bold;
+    }
+</style>        
 
+<div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-4"><h4 class="text-left" style="padding-left: 15px">Filter and Scaling</h4></div>
+    <div class="col-md-8">
+        <div class='controls_bar'>
+            <label style="width: 20%">
+                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='day'>
+                <span>Min</span>
+            </label>
+            <label style="width: 20%">
+                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='week' checked='checked'>
+                <span>Hours</span>
+            </label>
+            <label style="width: 20%">
+                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='trplweek'>
+                <span>Days</span>
+            </label>
+            <label style="width: 20%">
+                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='year'>
+                <span>Months</span>
+            </label>
+
+        </div>
+    </div>
+</div>
 <form method="post" asp-action="Index" onchange="submitform()">
     <div class="form-inline">
-        <h5>Filter Options</h5>
-        <hr />
         <div class="col-md-5">
             <div class="form-group">
                 <label class="control-label col-md-4">Order</label>
                 <div class="col-md-8">
-                    <select class="form-control" asp-items="ViewBag.OrderId" id="fcOrder" name="Order" ></select>
+                    <select class="form-control" asp-items="ViewBag.OrderId" id="fcOrder" name="Order"></select>
                 </div>
             </div>
-        </div>        
+        </div>
         <div class="col-md-7">
             <div class="form-group">
                 <label class="control-label col-md-4">State of Planning</label>
@@ -21,10 +79,11 @@
             </div>
         </div>
     </div>
-    <div class="row">
+</form>
+<div class="row">
         <div class="col-md-12">
-            <div class="gantt"></div>
-        </div>
+                <div id="gantt_here" style="width: 100%; height: 500px; margin: 10px 0px"></div>
+            </div>
     </div>
     <!--
     <div class="form-group">
@@ -33,18 +92,159 @@
         </div>
     </div>
     -->
-</form>
 
 
-<script>
 
-    $(document).ready(
-        jQuery(function () {
-            var data = @Html.Raw(Model)
-                $(".gantt").gantt({ source: data, navigate: 'scroll', scale: 'hours', maxScale: 'months', minScale: 'hours', itemsPerPage: '25' });
-        })
-    );
 
+<script type="text/javascript">
+    gantt.config.row_height = 24;
+    gantt.config.scale_height = 50;
+    gantt.config.readonly = true;
+    //gantt.config.date_grid = "%H:%i";
+    gantt.config.scale_unit = "hour";
+    gantt.config.duration_unit = "minute";
+    gantt.config.date_scale = "%H:%i";
+    //gantt.config.autofit = false;
+    //gantt.config.start_date = "2017-06-15 00:00";
+    //gantt.config.end_date = "2017-07-15 00:00";
+    gantt.config.fit_tasks = true; 
+    gantt.config.columns = [
+        {name:"text", label:" Name",  width:"250px", tree:true },
+        //{name:"start_date", label:"Start time", align: "center" },
+        //{name:"duration",   label:"Duration",   align: "center" }
+    ];
+
+    gantt.config.subscales = [
+        {unit:"day", step:1, date:"%j, %D" }
+    ];
+
+    gantt.templates.rightside_text = function(start, end, task){
+        if(task.type == gantt.config.types.milestone){
+            return task.text;
+        }
+        return "";
+    };
+    gantt.config.lightbox.sections = [
+        {name: "description", height: 70, map_to: "text", type: "textarea", focus: true},
+        {name: "type", type: "typeselect", map_to: "type"},
+        {name: "time", type: "duration", map_to: "auto"}
+    ];
+    gantt.init("gantt_here");
+
+    function createBox(sizes, class_name, color){
+        var box = document.createElement('div');
+        box.style.cssText = [
+            "height:" + sizes.height + "px",
+            "line-height:" + sizes.height + "px",
+            "width:" + sizes.width + "px",
+            "top:" + sizes.top + 'px',
+            "left:" + sizes.left + "px",
+            "position:absolute",
+            "background-color: " + color
+        ].join(";");
+        box.className = class_name;
+			
+        return box;
+    }
+
+    gantt.templates.grid_row_class = gantt.templates.task_class=function(start, end, task){
+        var css = [];
+        if(gantt.hasChild(task.id)){
+            css.push("task-parent");
+        }
+        if (!task.$open && gantt.hasChild(task.id)) {
+            css.push("task-collapsed");
+        }
+        return css.join(" ");
+    };
+
+    gantt.addTaskLayer(function show_hidden(task) {
+        if (!task.$open && gantt.hasChild(task.id)) {
+            var sub_height = gantt.config.row_height - 5,
+                el = document.createElement('div'),
+                sizes = gantt.getTaskPosition(task);
+
+            var sub_tasks = gantt.getChildren(task.id);
+
+            var child_el;
+
+            for (var i = 0; i < sub_tasks.length; i++){
+                var child = gantt.getTask(sub_tasks[i]);
+                var child_sizes = gantt.getTaskPosition(child);
+
+                child_el = createBox({
+                    height: sub_height,
+                    top:sizes.top,
+                    left:child_sizes.left,
+                    width: child_sizes.width
+                }, "child_preview gantt_task_line"
+                , child.color);
+                child_el.innerHTML =  child.text;
+                el.appendChild(child_el);
+            }
+            return el;
+        }
+        return false;
+    });
+
+    var demo_tasks = {
+        "data": @Html.Raw(tasks),
+        "links": @Html.Raw(links)
+    };
+    gantt.parse(demo_tasks);
+    //gantt.refreshData();
+
+    gantt.templates.tooltip_text = function(start,end,task){
+        return "<b>Task:</b> "+task.desc+"<br/><b>Duration:</b> " + task.duration;
+    };
+
+    function zoom_tasks(node){
+        switch (node.value) {
+        case "day":
+            gantt.config.scale_unit = "hour"; 
+            gantt.config.date_scale = "%H:%i"; 
+            gantt.config.subscales = [
+                { unit: "minute", step: 1, date: "%i" }
+            ];
+            gantt.config.scale_height = 50;
+            gantt.config.min_column_width = 30;
+            break;
+        case "week":
+            gantt.config.scale_unit = "day"; 
+            gantt.config.date_scale = "%d %M"; 
+            gantt.config.scale_height = 50;
+            gantt.config.min_column_width = 30;
+            gantt.config.subscales = [
+                {unit:"hour", step:1, date:"%H"}
+            ];
+            break;
+        case "trplweek":
+            gantt.config.min_column_width = 70;
+            gantt.config.scale_unit = "day"; 
+            gantt.config.date_scale = "%d %M"; 
+            gantt.config.subscales = [ ];
+            gantt.config.scale_height = 50;
+            break;
+        case "month":
+            gantt.config.min_column_width = 70;
+            gantt.config.scale_unit = "week"; 
+            gantt.config.date_scale = "Week #%W"; 
+            gantt.config.subscales = [
+                {unit:"day", step:1, date:"%D"}
+            ];
+            gantt.config.scale_height = 50;
+            break;
+        case "year":
+            gantt.config.min_column_width = 70;
+            gantt.config.scale_unit = "month"; 
+            gantt.config.date_scale = "%M"; 
+            gantt.config.scale_height = 50;
+            gantt.config.subscales = [
+                {unit:"week", step:1, date:"#%W"}
+            ];
+            break;
+        }
+        gantt.ignore_time = null;
+        gantt.render();
+    }
 </script>
-
-
