@@ -22,9 +22,9 @@ namespace Master40.Simulation.Simulation
             return null;
         }
 
-        public Task<bool> DoAtEnd()
+        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
         {
-            return null;
+            throw new NotImplementedException();
         }
     }
 }

@@ -57,6 +57,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 {
                     //run the capacity algorithm
                     PlanCapacities(task, 0);
+                    _messageHub.SendToAllClients("Capacities are planned");
                 }
                 //set all orderparts to be planned
                 foreach (var orderPart in orderParts)
@@ -165,12 +166,15 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 ExecutePlanning(demand, null, task);
                 demand.State = State.ProviderExist;
+                _messageHub.SendToAllClients("Requirements planning and stock orders completed.");
             }
             
             if (task == MrpTask.All || task == MrpTask.Backward)
             {
                 _scheduling.BackwardScheduling(demand);
                 demand.State = State.BackwardScheduleExists;
+                _messageHub.SendToAllClients("Backward schedule exists.");
+
             }
 
             if ((task == MrpTask.All && CheckNeedForward(demand)) || task == MrpTask.Forward)
@@ -181,6 +185,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 _context.Update(demand);
                 _context.SaveChanges();
                 _scheduling.BackwardScheduling(demand);
+                _messageHub.SendToAllClients("Forward schedule exists.");
             }
             _context.SaveChanges();
         }

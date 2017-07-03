@@ -40,18 +40,17 @@ namespace Master40.Simulation.Simulation
             }
             return null;
         }
-
-        public Task<bool> DoAtEnd()
+        
+        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
         {
-            NeedToAddNext = true;
+            listMachineStatus.Single(b => b.MachineId == _context.ProductionOrderWorkSchedule.Single(a => a.Id == ProductionOrderWorkScheduleId).MachineId).Free = true;
             var pows = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder).Where(a => a.ProductionOrderId == ProductionOrderId);
             if (pows.Single(a => a.Id == ProductionOrderWorkScheduleId).HierarchyNumber !=
                 pows.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
             _context.Stocks.Single(a => a.ArticleForeignKey == articleId).Current++;
-            
+
             return null;
         }
-
     }
 }
