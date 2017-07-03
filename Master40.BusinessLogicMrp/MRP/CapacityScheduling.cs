@@ -689,6 +689,7 @@ namespace Master40.BusinessLogicCentral.MRP
         private IDemandToProvider GetNextByActivitySlack(IQueryable<DemandToProvider> demandRequester, int time)
         {
             if (!demandRequester.Any()) return null;
+            //Todo: first durch Rechnung oder so ersetzen
             var mostUrgentRequester = demandRequester.First();
             var lowestActivitySlack = GetDueTime(mostUrgentRequester);
             foreach (var singleRequester in demandRequester)

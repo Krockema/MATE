@@ -16,7 +16,6 @@ namespace Master40.Simulation.Simulation
     public interface ISimulator
     {
         Task Simulate();
-        //TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<SimulationProductionOrderWorkSchedule> waitingItems, int id);
     }
     
     public class Simulator : ISimulator
@@ -80,11 +79,12 @@ namespace Master40.Simulation.Simulation
                 var timeTable = new TimeTable<ISimulationItem>(24*60);
                 var id = CreateSimulationId();
                 var waitingItems = CreateInitialTable(id);
-                timeTable = CreateInitialSimulationTable(timeTable,waitingItems);
+                CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedule.Any()) return;
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
                     timeTable = ProcessTimeline(timeTable, waitingItems, id);
+                    _messageHub.SendToAllClients(timeTable.Items.Count + "/" + timeTable.Items.Count + waitingItems.Count + " items processed.");
                 }
                 // end simulation and Unlock Screen
                 _messageHub.EndScheduler();
@@ -92,33 +92,18 @@ namespace Master40.Simulation.Simulation
 
         }
 
-        private TimeTable<ISimulationItem> CreateInitialSimulationTable(TimeTable<ISimulationItem> timeTable, List<SimulationProductionOrderWorkSchedule> waitingItems)
+        private void CreateMachinesReady(TimeTable<ISimulationItem> timeTable)
         {
-            var items = new List<SimulationProductionOrderWorkSchedule>();
             foreach (var machine in _context.Machines)
             {
-                if (waitingItems.Any(a => a.MachineId == machine.Id))
+                timeTable.ListMachineStatus.Add(new TimeTable<ISimulationItem>.MachineStatus()
                 {
-                    items.AddRange(waitingItems.Where(a => a.MachineId == machine.Id).ToList()
-                        .FindAll(b => b.Start ==
-                            waitingItems.Where(a => a.MachineId == machine.Id).Min(a => a.Start)));
-                }
+                    MachineId = machine.Id,
+                    Free = true
+                });
             }
-           
-            foreach (var item in items)
-            {
-                item.SimulatedEnd = item.SimulatedStart + GetRandomDelay();
-                timeTable.Items.Add(new PowsSimulationItem(item.ProductionOrderWorkScheduleId,item.ProductionOrderId,item.Start,item.End,_context));
-                waitingItems.Remove(item);
-            }
-            
-            
-            //Add new Orders here
-
-
-            return timeTable;
         }
-
+        
         private int GetRandomDelay()
         {
             //later use this:
@@ -135,53 +120,52 @@ namespace Master40.Simulation.Simulation
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            var needNextItems = NeedToAddNextItems(timeTable);
-            if (waitingItems.Any() && needNextItems.Any())
+            var freeMachineIds = GetFreeMachines(timeTable);
+            if (waitingItems.Any() && freeMachineIds.Any())
             {
-                foreach (var needNextItem in needNextItems)
+                foreach (var freeMachineId in freeMachineIds)
                 {
-                    var machineId =
-                        _context.ProductionOrderWorkSchedule.Single(
-                            a => a.Id == needNextItem.ProductionOrderWorkScheduleId).MachineId;
-                    var relevantItems = from wI in waitingItems where wI.MachineId == machineId select wI;
-                    foreach (
-                        var item in
-                        (from tT in relevantItems
-                            where tT.SimulatedStart == waitingItems.Min(a => a.SimulatedStart)
-                            select tT).ToList())
+                    
+                    var relevantItems = (from wI in waitingItems where wI.MachineId == freeMachineId select wI).ToList();
+                    if (!relevantItems.Any()) continue;
+                    var items = (from tT in relevantItems
+                                 where tT.SimulatedStart == relevantItems.Min(a => a.SimulatedStart)
+                                 select tT).ToList();
+                    var item = items.Single(a => a.Start == items.Min(b => b.Start));
+                    
+                    //check children if they are finished
+                    if (!AllSimulationChildrenFinished(item, timeTable.Items)) continue;
+
+                    // Roll new Duration
+                    var rnd = GetRandomDelay();
+
+                    // set 0 to 0 if below 0 to prevent negativ starts
+                    if (item.SimulatedEnd - item.SimulatedStart - rnd <= 0)
+                        rnd = 0;
+
+                    var newDuration = item.SimulatedEnd - item.SimulatedStart + rnd;
+                    if (newDuration != item.SimulatedEnd - item.SimulatedStart)
                     {
-                        // Roll new Duration
-                        var rnd = GetRandomDelay();
 
-                        // set 0 to 0 if below 0 to prevent negativ starts
-                        if (item.SimulatedEnd - item.SimulatedStart - rnd <= 0)
-                            rnd = 0;
-
-                        var newDuration = item.End - item.Start + rnd;
-                        if (newDuration != item.End - item.Start)
-                        {
-
-                            // set Time
-                            //if (item.SimulatedStart == 0) item.SimulatedStart = item.Start;
-                            item.SimulatedEnd = item.SimulatedStart + newDuration;
-                            item.SimulatedDuration = newDuration;
-                        }
-                        //check children if they are finished
-                        if (!AllSimulationChildrenFinished(item, timeTable.Items)) break;
-
-                        //add next in line for this machine
-                        if (timeTable.Timer > item.Start)
-                        {
-                            item.SimulatedStart = timeTable.Timer;
-                            item.SimulatedEnd = item.SimulatedStart + item.SimulatedDuration;
-                        }
-                        _context.Update(item);
-                        _context.SaveChanges();
-
-                        timeTable.Items.Add(new PowsSimulationItem(item.ProductionOrderWorkScheduleId,
-                            item.ProductionOrderId, item.Start, item.End, _context));
-                        waitingItems.Remove(item);
+                        // set Time
+                        //if (item.SimulatedStart == 0) item.SimulatedStart = item.Start;
+                        item.SimulatedEnd = item.SimulatedStart + newDuration;
+                        item.SimulatedDuration = newDuration;
                     }
+
+                    //add next in line for this machine
+                    if (timeTable.Timer != item.SimulatedStart)
+                    {
+                        item.SimulatedStart = timeTable.Timer;
+                        item.SimulatedEnd = item.SimulatedStart + item.SimulatedDuration;
+                    }
+                    _context.Update(item);
+                    _context.SaveChanges();
+
+                    timeTable.Items.Add(new PowsSimulationItem(item.ProductionOrderWorkScheduleId,
+                        item.ProductionOrderId, item.SimulatedStart, item.SimulatedEnd, _context));
+                    waitingItems.Remove(item);
+                    timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
                 }
             }
 
@@ -220,7 +204,7 @@ namespace Master40.Simulation.Simulation
             {
                 var psi = (PowsSimulationItem)
                     timeTableItems.Find(
-                        a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id && a.SimulationState != SimulationState.Finished);
+                        a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id && a.SimulationState == SimulationState.Finished);
                 if (psi == null) return false;
             }
             return true;
@@ -236,33 +220,26 @@ namespace Master40.Simulation.Simulation
             if (!hierarchyChildren.Any()) return null;
             
             var pows = (from hC in hierarchyChildren where hC.HierarchyNumber == hierarchyChildren.Max(a => a.HierarchyNumber) select hC).Single();
-            return timeTableItems.Find(a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id)
-                       .SimulationState == SimulationState.Finished;
-            
+            if (timeTableItems.Exists(a => ((PowsSimulationItem) a).ProductionOrderWorkScheduleId == pows.Id))
+                return timeTableItems.Find(a => ((PowsSimulationItem) a).ProductionOrderWorkScheduleId == pows.Id)
+                           .SimulationState == SimulationState.Finished;
+            else return false;
+
         }
 
-        private List<PowsSimulationItem> NeedToAddNextItems(TimeTable<ISimulationItem> timeTable)
+        private List<int> GetFreeMachines(TimeTable<ISimulationItem> timeTable)
         {
-            var list = new List<PowsSimulationItem>();
-            var finished = timeTable.Items.Where(a => a.SimulationState == SimulationState.Finished).ToList();
-            if (!finished.Any()) return list;
-
-            /* longer version of the below return statement
-            foreach (var singleFinished in finished)
-            {
-                if (singleFinished.GetType() != typeof(PowsSimulationItem)) continue;
-                if (((PowsSimulationItem)singleFinished).NeedToAddNext)
-                    list.Add((PowsSimulationItem)singleFinished);
-            }*/
-            list.AddRange(finished.Where(singleFinished => singleFinished.GetType() == typeof(PowsSimulationItem)).Where(singleFinished => ((PowsSimulationItem) singleFinished).NeedToAddNext).Cast<PowsSimulationItem>());
-            return list;
+            var freeMachines = timeTable.ListMachineStatus.Where(a => a.Free).Select(a => a.MachineId).ToList();
+            return freeMachines;
         }
 
         private void Recalculate(int timer)
         {
             //Todo: change capacityScheduling to Spows
-            // _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
+            //_processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
+            //
         }
     }
     
 }
+

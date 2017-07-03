@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Master40.DB.DB.Models;
 
 namespace Master40.Simulation.Simulation
@@ -9,6 +10,7 @@ namespace Master40.Simulation.Simulation
         int End { get; set; }
         SimulationState SimulationState { get; set; }
         Task<bool> DoAtStart();
-        Task<bool> DoAtEnd();
+        //Task<bool> DoAtEnd(List<ISimulationItem>. );
+        Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem;
     }
 }
