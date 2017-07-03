@@ -19,12 +19,12 @@ namespace Master40.BusinessLogicCentral.MRP
 
     public class ProcessMrp : IProcessMrp
     {
-        private readonly MessageHub _messageHub;
+        private readonly IMessageHub _messageHub;
         private readonly MasterDBContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, MessageHub messageHub)
+        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub)
         {
             _messageHub = messageHub;
             _context = context;

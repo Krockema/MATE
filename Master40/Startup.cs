@@ -48,10 +48,9 @@ namespace Master40
             services.AddDbContext<HangfireDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("Hangfire")));
 
-            string sConnectionString = Configuration.GetConnectionString("Hangfire");;
-            services.AddHangfire(x => x.UseSqlServerStorage(sConnectionString));
+            services.AddHangfire(options => options.UseSqlServerStorage(Configuration.GetConnectionString("Hangfire")));
 
-            services.AddSingleton<MessageHub>();
+            services.AddSingleton<IMessageHub, MessageHub>();
             services.AddSingleton<IScheduling, Scheduling>();
             services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();

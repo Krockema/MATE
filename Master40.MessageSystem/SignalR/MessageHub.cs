@@ -3,7 +3,15 @@ using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.MessageSystem.SignalR
 {
-    public class MessageHub
+    public interface IMessageHub
+    {
+        void SendToAllClients(string msg);
+        void SendToAllClients(string msg, MessageType msgType);
+        string ReturnMsgBox(string msg, MessageType type);
+        void EndScheduler();
+    }
+
+    public class MessageHub : IMessageHub
     {
         private readonly IConnectionManager _connectionManager;
         public MessageHub(IConnectionManager connectionManager)

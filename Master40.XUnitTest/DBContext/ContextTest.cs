@@ -4,7 +4,9 @@ using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.DB.Models;
+using Master40.MessageSystem.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Master40.XUnitTest.Moc;
 using Xunit;
 
 namespace Master40.XUnitTest.DBContext
@@ -34,7 +36,7 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public void OrderContextTest()
         {
-            _ctx.Orders.Add(new Order { Name = "Order1" });
+            _ctx.Orders.Add(new Order {Name = "Order1"});
             _ctx.SaveChanges();
 
             Assert.Equal(2, _ctx.Orders.Count());
@@ -45,7 +47,8 @@ namespace Master40.XUnitTest.DBContext
         {
             var scheduling = new Scheduling(_ctx);
             var capacityScheduling = new CapacityScheduling(_ctx);
-            var mrpContext = new ProcessMrp(_ctx, scheduling, capacityScheduling);
+            var msgHub = new Moc.MessageHub();
+            var mrpContext = new ProcessMrp(_ctx, scheduling, capacityScheduling, msgHub);
 
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
@@ -53,7 +56,6 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(true, (_ctx.ProductionOrderWorkSchedule.Any()));
 
         }
-
-
     }
 }
+
