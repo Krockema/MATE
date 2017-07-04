@@ -31,9 +31,9 @@ namespace Master40.Simulation.Simulation
             _processMrp = processMrp;
         }
         
-        private List<SimulationProductionOrderWorkSchedule> CreateInitialTable(int id)
+        private List<ProductionOrderWorkSchedule> CreateInitialTable(int id)
         {
-            var waitingItems = new List<SimulationProductionOrderWorkSchedule>();
+            var waitingItems = new List<ProductionOrderWorkSchedule>();
             var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
             var provider = new List<DemandProviderProductionOrder>();
             foreach (var demand in demands)
@@ -48,24 +48,15 @@ namespace Master40.Simulation.Simulation
                     _context.ProductionOrderWorkSchedule.AsNoTracking().Where(
                         a => a.ProductionOrderId == singleProvider.ProductionOrderId).ToList());
             }
-            var spows = new List<SimulationProductionOrderWorkSchedule>();
             foreach (var singlePows in pows)
             {
-                spows.Add(new SimulationProductionOrderWorkSchedule());
-                singlePows.CopyPropertiesTo<ISimulationProductionOrderWorkSchedule>(spows.Last());
-                if (singlePows.MachineId != null) spows.Last().MachineId = (int)singlePows.MachineId;
-                spows.Last().ProductionOrderWorkScheduleId = singlePows.Id;
+                singlePows.StartSimulation = singlePows.Start;
+                singlePows.EndSimulation = singlePows.End;
+                singlePows.DurationSimulation = singlePows.Duration;
             }
-            foreach (var singleSpows in spows)
-            {
-                singleSpows.SimulatedStart = singleSpows.Start;
-                singleSpows.SimulatedEnd = singleSpows.End;
-                singleSpows.SimulatedDuration = singleSpows.SimulatedDuration;
-                singleSpows.SimulationId = id;
-            }
-            
-            waitingItems.AddRange(spows);
-            _context.SimulationProductionOrderWorkSchedules.AddRange(spows);
+
+            waitingItems.AddRange(pows);
+            _context.ProductionOrderWorkSchedule.UpdateRange(pows);
             _context.SaveChanges();
             return waitingItems;
         }
@@ -116,7 +107,7 @@ namespace Master40.Simulation.Simulation
             return _context.SimulationProductionOrderWorkSchedules.Any() ? _context.SimulationProductionOrderWorkSchedules.Max(a => a.SimulationId)+1 : 1;
         }
 
-        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<SimulationProductionOrderWorkSchedule> waitingItems, int simulationId)
+        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId)
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
@@ -129,7 +120,7 @@ namespace Master40.Simulation.Simulation
                     var relevantItems = (from wI in waitingItems where wI.MachineId == freeMachineId select wI).ToList();
                     if (!relevantItems.Any()) continue;
                     var items = (from tT in relevantItems
-                                 where tT.SimulatedStart == relevantItems.Min(a => a.SimulatedStart)
+                                 where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
                     var item = items.Single(a => a.Start == items.Min(b => b.Start));
                     
@@ -140,30 +131,30 @@ namespace Master40.Simulation.Simulation
                     var rnd = GetRandomDelay();
 
                     // set 0 to 0 if below 0 to prevent negativ starts
-                    if (item.SimulatedEnd - item.SimulatedStart - rnd <= 0)
+                    if (item.EndSimulation - item.EndSimulation - rnd <= 0)
                         rnd = 0;
 
-                    var newDuration = item.SimulatedEnd - item.SimulatedStart + rnd;
-                    if (newDuration != item.SimulatedEnd - item.SimulatedStart)
+                    var newDuration = item.EndSimulation - item.StartSimulation + rnd;
+                    if (newDuration != item.EndSimulation - item.StartSimulation)
                     {
 
                         // set Time
                         //if (item.SimulatedStart == 0) item.SimulatedStart = item.Start;
-                        item.SimulatedEnd = item.SimulatedStart + newDuration;
-                        item.SimulatedDuration = newDuration;
+                        item.EndSimulation = item.StartSimulation + newDuration;
+                        item.DurationSimulation = newDuration;
                     }
 
                     //add next in line for this machine
-                    if (timeTable.Timer != item.SimulatedStart)
+                    if (timeTable.Timer != item.StartSimulation)
                     {
-                        item.SimulatedStart = timeTable.Timer;
-                        item.SimulatedEnd = item.SimulatedStart + item.SimulatedDuration;
+                        item.StartSimulation = timeTable.Timer;
+                        item.EndSimulation = item.StartSimulation + item.DurationSimulation;
                     }
                     _context.Update(item);
                     _context.SaveChanges();
 
-                    timeTable.Items.Add(new PowsSimulationItem(item.ProductionOrderWorkScheduleId,
-                        item.ProductionOrderId, item.SimulatedStart, item.SimulatedEnd, _context));
+                    timeTable.Items.Add(new PowsSimulationItem(item.Id,
+                        item.ProductionOrderId, item.StartSimulation, item.EndSimulation, _context));
                     waitingItems.Remove(item);
                     timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
                 }
@@ -178,7 +169,7 @@ namespace Master40.Simulation.Simulation
             return timeTable;
         }
 
-        private bool AllSimulationChildrenFinished(SimulationProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
+        private bool AllSimulationChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
             var hierarchyFinished = SimulationHierarchyChildrenFinished(item, timeTableItems);
             if (hierarchyFinished != null) return (bool)hierarchyFinished;
@@ -188,7 +179,7 @@ namespace Master40.Simulation.Simulation
         }
         
 
-        private bool? SimulationBomChildrenFinished(SimulationProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
+        private bool? SimulationBomChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
             var childrenPos =
             _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == item.ProductionOrderId)
@@ -211,7 +202,7 @@ namespace Master40.Simulation.Simulation
 
         }
 
-        private bool? SimulationHierarchyChildrenFinished(SimulationProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems )
+        private bool? SimulationHierarchyChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems )
         {
             var hierarchyChildren =
                        _context.ProductionOrderWorkSchedule.Where(a =>
