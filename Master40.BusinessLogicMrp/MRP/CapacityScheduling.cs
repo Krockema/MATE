@@ -5,6 +5,8 @@ using Master40.DB.Data.Context;
 using Master40.DB.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Helper;
+using System;
+using Master40.DB.DB.Interfaces;
 
 namespace Master40.BusinessLogicCentral.MRP
 {//Todo: multi-machines fix
@@ -284,7 +286,7 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 foreach (var hour in machine.ProductionOrderWorkSchedulesByTimeSteps)
                 {
-                    var machines = _context.Machines.Where(a => a.MachineGroupId == machine.MachineGroupId);
+                    var machines = _context.Machines.Where(a => a.MachineGroupId == machine.MachineGroupId).ToList();
                     if (!machines.Any()) continue;
                     if (machines.Count() < hour.ProductionOrderWorkSchedules.Count)
                         return true;
@@ -397,7 +399,9 @@ namespace Master40.BusinessLogicCentral.MRP
             foreach (var plannableSchedule in plannableSchedules)
             {
                 //get duetime
-                var demand = _context.Demands.AsNoTracking().Single(a => a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId);
+                var demands = _context.Demands.AsNoTracking().Where(a => a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId
+                || a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId).ToList();
+                var demand = (from d in demands where d.DemandRequesterId == null select d).Single();
                 var dueTime = GetDueTime(demand);
 
                 //get remaining time
@@ -453,7 +457,9 @@ namespace Master40.BusinessLogicCentral.MRP
                     .ThenInclude(c => c.ProductionOrderWorkSchedule)
                     .Include(b => b.ProductionOrder)
                     .ThenInclude(d => d.ProductionOrderBoms)
-                    .Where(a => a.DemandRequester.DemandRequesterId == requester.Id);
+                    .Where(a => a.DemandRequester.DemandRequesterId == requester.Id
+                        || a.DemandRequesterId == requester.Id)
+                    .ToList();
             var schedules = new List<ProductionOrderWorkSchedule>();
             foreach (var prov in provider)
             {
@@ -521,7 +527,7 @@ namespace Master40.BusinessLogicCentral.MRP
         private ProductionOrderWorkSchedule FindBomParent(ProductionOrderWorkSchedule plannedSchedule)
         {
             ProductionOrderWorkSchedule lowestHierarchyMember = null;
-            foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId))
+            foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId).ToList())
             {
                 //check if its the head element which points to itself
                 if (pob.ProductionOrderParentId != plannedSchedule.ProductionOrder.Id)
@@ -582,71 +588,288 @@ namespace Master40.BusinessLogicCentral.MRP
 
         public void RebuildNets(int time)
         {
-            //delete all demandprovider-demandrequester connections
-            var demandRequester = _context.Demands.Where(a => a.DemandRequesterId == a.Id && a.State != State.Delivered);
-            _context.Demands.RemoveRange(_context.Demands.Where(a => a.DemandRequesterId != a.Id));
-            foreach (var singleRequester in demandRequester)
-                singleRequester.DemandProvider = new List<DemandToProvider>();
+            //delete all demands but the head-demands
+            _context.Demands.RemoveRange(_context.Demands.Where(a => a.DemandRequesterId != null && a.State != State.Delivered).ToList());
+            _context.SaveChanges();
+            var requester = _context.Demands.Where(a => null == a.DemandRequesterId && a.State != State.Delivered).ToList();
 
             //rebuild by using activity-slack
-            var nextRequester = GetNextByActivitySlack(demandRequester, time);
-            SatisfyRequest(nextRequester, nextRequester);
-        }
-
-        private void SatisfyRequest(IDemandToProvider parent, IDemandToProvider requester)
-        {//Todo: search for purchases
-            /*
-            IDemandToProvider provider = null;
-            var newRequester = requester;
-            var articleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == parent.Id);
-            foreach (var articleBom in articleBoms)
+            while (requester.Any())
             {
-
-                var amount = parent.Quantity;
-                var articleStock = _context.Stocks.Single(a => a.ArticleForeignKey==articleBom.ArticleChildId).Current;
-                if (articleStock > 0)
-                {
-                    provider = CreateProviderStock(parent.DemandRequester, amount);
-                    CreateStockReservation(provider, amount);
-                }
-                var possibleMatchingProductionOrders = _context.ProductionOrders.Where(a => a.ArticleId == articleBom.ArticleChild.Id);
-
-                if (parent!=requester) newRequester = CreateProductionOrderBom();
-
-               
-                while (amount > 0 && possibleMatchingProductionOrders.Any())
-                {
-                    ProductionOrder earliestProductionOrder = GetEarliestProductionOrder(possibleMatchingProductionOrders);
-                    amount -= earliestProductionOrder.Quantity;
-                    provider = CreateProviderProductionOrder(parent.DemandRequester, earliestProductionOrder, amount >= earliestProductionOrder.Quantity ? earliestProductionOrder.Quantity : amount);
-                    provider = AssignProductionOrderToDemandProvider(earliestProductionOrder, (DemandProviderProductionOrder)provider, amount >= earliestProductionOrder.Quantity ? earliestProductionOrder.Quantity : amount);
-                    possibleMatchingProductionOrders.ToList().Remove(earliestProductionOrder);
-                }
-                bool hasChildren;
-                hasChildren = HasChildren(provider);
-                if (amount > 0)
-                {
-                    if (hasChildren)
-                    {
-                        var productionOrder = CreateProductionOrder(provider, amount);
-                        provider = CreateProviderProductionOrder(requester, productionOrder, amount);
-                    }
-                    else
-                    {
-                        var purchase = CreatePurchase(provider, amount);
-                        provider = CreateProviderPurchase(requester, purchase, amount);
-                    }
-                }
-
-                if (provider != null) SatisfyRequest(provider, newRequester);
-            }*/
+                var nextRequester = GetNextByActivitySlack(requester, time);
+                SatisfyRequest(nextRequester, nextRequester);
+                requester.Remove(requester.Find(a => a.Id == nextRequester.Id));
+            }
+           
         }
 
-        private IDemandToProvider AssignProductionOrderToDemandProvider(ProductionOrder earliestProductionOrder, DemandProviderProductionOrder provider, decimal amount)
+        private void SatisfyRequest(IDemandToProvider demand, IDemandToProvider requester)
+        {//Todo: search for purchases
+            
+            var amount = demand.Quantity;
+            
+            //if anything is in stock, create demand
+            var articleStock = _context.Stocks.Single(a => a.ArticleForeignKey==demand.ArticleId).Current;
+            if (articleStock > 0)
+            {
+                var provider = TryCreateStockReservation(demand);
+                if (provider != null)
+                {
+                    amount -= provider.Quantity;
+                }
+            }
+            if (amount == 0)
+            {
+                CallChildrenSatisfyRequest(demand, requester);
+                return;
+            }
+            
+
+            var possibleMatchingProductionOrders = _context.ProductionOrders.Where(a => a.ArticleId == demand.ArticleId).ToList();
+            
+            while (amount > 0 && possibleMatchingProductionOrders.Any())
+            {
+                var earliestProductionOrder = GetEarliestProductionOrder(possibleMatchingProductionOrders);
+                var availableAmountFromProductionOrder = GetAvailableAmountFromProductionOrder(earliestProductionOrder);
+                if (availableAmountFromProductionOrder == 0)
+                {
+                    possibleMatchingProductionOrders.Remove(possibleMatchingProductionOrders.Find(a => a.Id == earliestProductionOrder.Id));
+                    continue;
+                }
+                var provider = CreateProviderProductionOrder(requester, earliestProductionOrder, amount >= availableAmountFromProductionOrder ? availableAmountFromProductionOrder : amount);
+                AssignProviderToDemand(demand, provider);
+                AssignProductionOrderToDemandProvider(earliestProductionOrder, provider, amount >= availableAmountFromProductionOrder ? availableAmountFromProductionOrder : amount);
+                if (amount > availableAmountFromProductionOrder)
+                {
+                    amount -= availableAmountFromProductionOrder;
+                }
+                else
+                {
+                    amount = 0;
+                }
+                possibleMatchingProductionOrders.ToList().Remove(earliestProductionOrder);
+            }
+
+            if (amount == 0)
+            {
+                CallChildrenSatisfyRequest(demand, requester);
+                return;
+            }
+           
+            if (HasChildren(demand))
+            {
+                var productionOrder = CreateProductionOrder(demand.ArticleId, amount);
+                TryCreateProductionOrderBom(demand, productionOrder);
+                CreateProductionOrderWorkSchedules(productionOrder);
+                AssignProductionOrderWorkSchedulesToProductionOrder(productionOrder);
+                var provider = CreateProviderProductionOrder(requester, productionOrder, amount);
+                AssignProviderToDemand(demand, provider);
+                AssignProductionOrderToDemandProvider(productionOrder,provider,productionOrder.Quantity);
+            }
+            else
+            {
+                var purchasePart = CreatePurchase(demand, amount);
+                var provider = CreateProviderPurchase(demand, purchasePart, amount);
+                AssignProviderToDemand(demand, provider);
+                AssignPurchaseToDemandProvider(purchasePart, provider, purchasePart.Quantity);
+            }
+            
+            CallChildrenSatisfyRequest(demand, requester);
+        }
+
+        private void AssignProviderToDemand(IDemandToProvider demand, DemandToProvider provider)
+        {
+            demand.DemandProvider.Add(provider);
+            _context.Update(demand);
+            _context.SaveChanges();
+        }
+
+        private void TryCreateProductionOrderBom(IDemandToProvider demand, ProductionOrder productionOrder)
+        {//Todo: pob n:m parents and children
+            var bom = _context.ArticleBoms.Where(a => a.ArticleChildId == demand.ArticleId);
+            if (!bom.Any()) return;
+            var id = demand.DemandRequesterId ?? demand.Id;
+            var demands = _context.Demands.Where(a => a.DemandRequesterId == id || a.Id == id).ToList();
+            var parentDemand = (from d in demands
+                                where d.ArticleId == demand.ArticleId 
+                                && (d.GetType() == typeof(DemandOrderPart) 
+                                    || d.GetType() == typeof(DemandStock) 
+                                    || d.GetType() == typeof(DemandProductionOrderBom))
+                                select d)
+                                .Single();
+            var pob = new ProductionOrderBom()
+            {
+                ProductionOrderChildId = productionOrder.Id,
+                Quantity = parentDemand.Quantity,
+                
+            };
+            foreach (var provider in parentDemand.DemandProvider)
+            {
+                if (typeof(DemandProviderProductionOrder) == provider.GetType())
+                pob.ProductionOrderParentId =
+                    ((DemandProviderProductionOrder) provider).ProductionOrderId;
+            }
+            _context.Add(pob);
+            _context.SaveChanges();
+        }
+
+        private void AssignProductionOrderWorkSchedulesToProductionOrder(ProductionOrder productionOrder)
+        {
+            foreach (var pows in _context.ProductionOrderWorkSchedule.Where(a => a.ProductionOrderId == productionOrder.Id))
+            {
+                productionOrder.ProductionOrderWorkSchedule.Add(pows);
+            }
+            _context.Update(productionOrder);
+            _context.SaveChanges();
+        }
+
+        private void CreateProductionOrderWorkSchedules(ProductionOrder productionOrder)
+        {
+            var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
+            foreach (var abstractWorkSchedule in abstractWorkSchedules)
+            {
+                //add specific workSchedule
+                var workSchedule = new ProductionOrderWorkSchedule();
+                abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
+                workSchedule.ProductionOrderId = productionOrder.Id;
+                workSchedule.MachineId = null;
+                _context.ProductionOrderWorkSchedule.Add(workSchedule);
+                _context.SaveChanges();
+            }
+        }
+
+        private void AssignPurchaseToDemandProvider(PurchasePart purchasePart, DemandProviderPurchasePart provider, int quantity)
+        {
+            provider.PurchasePartId = purchasePart.Id;
+            provider.Quantity = quantity;
+            _context.Update(provider);
+            _context.SaveChanges();
+        }
+
+        private ProductionOrder CreateProductionOrder(int demandArticleId, decimal amount)
+        {
+            var po = new ProductionOrder()
+            {
+                ArticleId = demandArticleId,
+                Quantity = amount
+            };
+            _context.Add(po);
+            _context.SaveChanges();
+            return po;
+        }
+        private PurchasePart CreatePurchase(IDemandToProvider demand, decimal amount)
+        {
+            var articleToPurchase = _context.ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
+            var purchase = new Purchase()
+            {
+                BusinessPartnerId = articleToPurchase.BusinessPartnerId,
+                DueTime = articleToPurchase.DueTime
+            };
+            //amount to be purchased has to be raised to fit the packsize
+            amount = Math.Ceiling(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
+            var purchasePart = new PurchasePart()
+            {
+                ArticleId = demand.ArticleId,
+                Quantity = (int)amount,
+                DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>(),
+                PurchaseId = purchase.Id
+            };
+            purchase.PurchaseParts = new List<PurchasePart>()
+            {
+                purchasePart
+            };
+            _context.Purchases.Add(purchase);
+            _context.PurchaseParts.Add(purchasePart);
+            _context.SaveChanges();
+            return purchasePart;
+        }
+
+        private int GetAvailableAmountFromProductionOrder(ProductionOrder productionOrder)
+        {
+            return (int)productionOrder.Quantity - productionOrder.DemandProviderProductionOrders.Sum(provider => (int) provider.Quantity);
+        }
+
+        private ProductionOrder GetEarliestProductionOrder(List<ProductionOrder> productionOrders)
+        {
+            ProductionOrder earliestProductionOrder = null;
+            foreach (var productionOrder in productionOrders)
+            {
+                if (earliestProductionOrder == null ||
+                    productionOrder.ProductionOrderWorkSchedule.Min(a => a.Start) <
+                    earliestProductionOrder.ProductionOrderWorkSchedule.Min(a => a.Start))
+                    earliestProductionOrder = productionOrder;
+            }
+            return earliestProductionOrder;
+        }
+
+        private DemandProviderStock TryCreateStockReservation(IDemandToProvider demand)
+        {
+            var stock = _context.Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId);
+            var stockReservations = GetReserved(demand.ArticleId);
+            var bought = GetAmountBought(demand.ArticleId);
+            //get the current amount of free available articles
+            var current = stock.Current + bought - stockReservations;
+            decimal quantity;
+            //either reserve all that are in stock or the amount needed
+            quantity = demand.Quantity > current ? current : demand.Quantity;
+            return quantity == 0 ? null : CreateDemandProviderStock(demand, quantity);
+        }
+
+        private decimal GetAmountBought(int articleId)
+        {
+            var purchaseParts = _context.PurchaseParts.Where(a => a.ArticleId == articleId);
+            var purchasedAmount = 0;
+            foreach (var purchasePart in purchaseParts)
+                purchasedAmount += purchasePart.Quantity;
+            return purchasedAmount;
+        }
+        private decimal GetReserved(int articleId)
+        {
+            decimal amountReserved = 0;
+            IQueryable<IDemandToProvider> reservations = _context.Demands.OfType<DemandProviderStock>().Where(a => a.ArticleId == articleId);
+            foreach (var reservation in reservations)
+                amountReserved += reservation.Quantity;
+            //Todo check logic
+            reservations = _context.Demands.OfType<DemandProviderPurchasePart>().Where(a => a.ArticleId == articleId);
+            foreach (var reservation in reservations)
+                amountReserved += reservation.Quantity;
+            return amountReserved;
+        }
+
+        private void CallChildrenSatisfyRequest(IDemandToProvider demand, IDemandToProvider requester)
+        {
+            //call method for each child
+            var demands = _context.Demands;
+            var childrenArticleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == demand.Id).ToList();
+            foreach (var childBom in childrenArticleBoms)
+            {
+                SatisfyRequest(CreateDemandProductionOrderBom(childBom, childBom.Quantity, demand), requester);
+            }
+        }
+
+        private DemandProductionOrderBom CreateDemandProductionOrderBom(ArticleBom articleBom, decimal quantity, IDemandToProvider requester)
+        {
+            var dpob = new DemandProductionOrderBom()
+            {
+                Quantity = quantity,
+                ArticleId = articleBom.ArticleChildId,
+                State = State.Created,
+                ProductionOrderBomId = articleBom.Id,
+                DemandRequesterId = requester.Id,
+                DemandProvider = new List<DemandToProvider>()
+            };
+            _context.Add(dpob);
+            _context.SaveChanges();
+            return dpob;
+        }
+        
+
+        private void AssignProductionOrderToDemandProvider(ProductionOrder earliestProductionOrder, DemandProviderProductionOrder provider, decimal amount)
         {
             provider.ProductionOrderId = earliestProductionOrder.Id;
             provider.Quantity = amount;
-            return provider;
+            _context.Update(provider);
+            _context.SaveChanges();
         }
 
         private bool HasChildren(IDemandToProvider demand)
@@ -654,43 +877,63 @@ namespace Master40.BusinessLogicCentral.MRP
             return _context.ArticleBoms.Any(a => a.ArticleParentId == demand.ArticleId);
         }
 
-        private IDemandToProvider CreateProviderStock(IDemandToProvider demand, decimal amount)
+        private DemandProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
         {
-           return new DemandProviderStock()
+           var dps = new DemandProviderStock()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
                 StockId = _context.Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId).Id,
-                DemandRequesterId = demand.DemandRequesterId,
+                DemandRequesterId = demand.Id,
             };
+            _context.Add(dps);
+            _context.SaveChanges();
+            return dps;
         }
-        private IDemandToProvider CreateProviderProductionOrder(IDemandToProvider demand, ProductionOrder productionOrder, decimal amount)
+        private DemandProviderProductionOrder CreateProviderProductionOrder(IDemandToProvider demand, ProductionOrder productionOrder, decimal amount)
         {
-            return new DemandProviderProductionOrder()
+            var dppo = new DemandProviderProductionOrder()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
                 ProductionOrderId = productionOrder.Id,
                 DemandRequesterId = demand.DemandRequesterId,
             };
+            _context.Add(dppo);
+            _context.SaveChanges();
+            return dppo;
         }
 
-        private IDemandToProvider CreateProviderPurchase(IDemandToProvider demand, PurchasePart purchase, decimal amount)
+        private DemandProviderPurchasePart CreateProviderPurchase(IDemandToProvider demand, PurchasePart purchase, decimal amount)
         {
-            return new DemandProviderPurchasePart()
+            var dppp = new DemandProviderPurchasePart()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
                 PurchasePartId = purchase.Id,
                 DemandRequesterId = demand.DemandRequesterId,
             };
+            _context.Add(dppp);
+            _context.SaveChanges();
+            return dppp;
         }
 
-        private IDemandToProvider GetNextByActivitySlack(IQueryable<DemandToProvider> demandRequester, int time)
+        private IDemandToProvider GetNextByActivitySlack(List<DemandToProvider> demandRequester, int time)
         {
             if (!demandRequester.Any()) return null;
             //Todo: first durch Rechnung oder so ersetzen
-            var mostUrgentRequester = demandRequester.First();
+            IDemandToProvider mostUrgentRequester = null;
+            foreach (var demand in demandRequester)
+            {
+                var dueTime = GetDueTime(demand);
+                if (mostUrgentRequester == null || GetDueTime(mostUrgentRequester) > dueTime)
+                    mostUrgentRequester = demand;
+            }
+            
+            //var mostUrgentRequester = demandRequester.FirstOrDefault(a => a.GetType() == typeof(DemandOrderPart) && ((DemandOrderPart)a.DemandRequester).OrderPart.Order.DueTime == demandRequester.Where(b => b.GetType() == typeof(DemandOrderPart)).Min(b =>((DemandOrderPart)b).OrderPart.Order.DueTime));
+            //if (mostUrgentRequester == null)
+            //    demandRequester.FirstOrDefault(a => a.GetType() == typeof(DemandStock));
+
             var lowestActivitySlack = GetDueTime(mostUrgentRequester);
             foreach (var singleRequester in demandRequester)
             {

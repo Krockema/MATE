@@ -24,6 +24,9 @@ namespace Master40.DB.DB.Models
         public int EndForward { get; set; }
         public decimal ActivitySlack { get; set; }
         public decimal WorkTimeWithParents { get; set; }
+        public int StartSimulation { get; set; }
+        public int EndSimulation { get; set; }
+        public int DurationSimulation { get; set; }
         public ICollection<SimulationProductionOrderWorkSchedule> SimulationProductionOrderWorkSchedules { get; set; }
         
     }
