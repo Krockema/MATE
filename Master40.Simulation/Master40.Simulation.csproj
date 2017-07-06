@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj" />
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+    <ProjectReference Include="..\Master40.MessageSystem\Master40.MessageSystem.csproj" />
   </ItemGroup>
 
 </Project>

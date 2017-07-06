@@ -135,8 +135,11 @@ namespace Master40.BusinessLogicCentral.MRP
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.DemandProviderProductionOrders)
                 .ThenInclude(a => a.DemandRequester)
-                .Where(a => a.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId == demand.Id)
+                .Where(a => a.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId == demand.Id 
+                    || a.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId == demand.Id)
                 .ToList();
+            
+                
             foreach (var schedule in schedules)
             {
                 //if forward was calculated take forward, else take from backward termination
@@ -166,7 +169,7 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 ExecutePlanning(demand, null, task);
                 demand.State = State.ProviderExist;
-                _messageHub.SendToAllClients("Requirements planning and stock orders completed.");
+                _messageHub.SendToAllClients("Requirements planning completed.");
             }
             
             if (task == MrpTask.All || task == MrpTask.Backward)
@@ -226,15 +229,14 @@ namespace Master40.BusinessLogicCentral.MRP
             foreach (var child in children)
             {
                 //call this method recursively for a depth-first search
-                var dpob = new DemandProductionOrderBom()
+                var dpob = new DemandProductionOrderBom
                 {
                     ArticleId = child.ArticleChildId,
                     Article = child.ArticleChild,
                     Quantity = productionOrder.Quantity * (int) child.Quantity,
-                    DemandRequesterId = demand.DemandRequesterId,
                     DemandProvider = new List<DemandToProvider>(),
                     State = State.Created,
-                    
+                    DemandRequesterId = demand.DemandRequesterId ?? demand.Id,
                 };
                 _context.Add(dpob);
                 _context.SaveChanges();
@@ -255,9 +257,6 @@ namespace Master40.BusinessLogicCentral.MRP
                 State = State.Created
             };
             _context.Demands.Add(demand);
-            _context.SaveChanges();
-            demand.DemandRequesterId = demand.Id;
-            _context.Update(demand);
             _context.SaveChanges();
             return demand;
         }

@@ -94,10 +94,6 @@ namespace Master40.BusinessLogicCentral.MRP
             };
             _context.Demands.Add(demandStock);
             _context.SaveChanges();
-            demandStock.DemandRequesterId = demandStock.Id;
-
-            _context.Update(demandStock);
-            _context.SaveChanges();
             
             //call processMrp to plan and schedule the stockDemand
             _processMrp.RunRequirementsAndTermination(demandStock, task);
@@ -107,7 +103,6 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var productionOrder = new ProductionOrder()
             {
-                Article = demand.Article,
                 ArticleId = demand.Article.Id,
                 Quantity = amount,
             };
@@ -279,7 +274,7 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 ArticleId = stock.ArticleForeignKey,
                 Quantity = quantity,
-                DemandRequesterId = demand.DemandRequesterId,
+                DemandRequesterId = demand.DemandRequesterId ?? demand.Id,
                 StockId = stock.Id
             };
             _context.Demands.Add(demandProviderStock);

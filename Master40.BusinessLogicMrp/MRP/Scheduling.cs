@@ -147,9 +147,9 @@ namespace Master40.BusinessLogicCentral.MRP
                     select schedule.EndForward), new[] {latestEnd}).Max();
                 return latestEnd;
             }
-            demand = _context.Demands.Include(a => a.DemandRequester).Single(a => a.Id == demand.Id);
+            demand = _context.Demands.AsNoTracking().Include(a => a.DemandRequester).Single(a => a.Id == demand.Id);
             var dueTime = 9999;
-            if (demand.DemandRequester.GetType() == typeof(DemandOrderPart))
+            if (demand.DemandRequesterId != null && demand.DemandRequester.GetType() == typeof(DemandOrderPart))
                 dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand.DemandRequester).OrderPartId).Order.DueTime;
             return dueTime;
         }
@@ -209,7 +209,13 @@ namespace Master40.BusinessLogicCentral.MRP
             int end;
             if (parent != null)
             {
-                var parentStart = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester);
+                int parentStart;
+                if (
+                    workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester != null)
+                    parentStart = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First()
+                                .DemandRequester.DemandRequester);
+                else
+                    parentStart = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester);
                 foreach (var parentSchedule in parent.ProductionOrderParent.ProductionOrderWorkSchedule)
                 {
                     if (state == State.ForwardScheduleExists)
@@ -227,7 +233,8 @@ namespace Master40.BusinessLogicCentral.MRP
             }
             else
             {
-                end = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester);
+                end = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester 
+                    ?? workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester);
             }
             return end;
         }

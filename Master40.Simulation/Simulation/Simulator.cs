@@ -10,6 +10,7 @@ using Master40.DB.DB.Models;
 using Master40.DB.Migrations;
 using Master40.MessageSystem.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Master40.Simulation.Simulation
 {
@@ -22,31 +23,31 @@ namespace Master40.Simulation.Simulation
     {
         private readonly ProductionDomainContext _context;
         private readonly IProcessMrp _processMrp;
-        private readonly MessageHub _messageHub;
+        private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, MessageHub messageHub)
+        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, IMessageHub messageHub)
         {
             _context = context;
             _messageHub = messageHub;
             _processMrp = processMrp;
         }
         
-        private List<ProductionOrderWorkSchedule> CreateInitialTable(int id)
+        private List<ProductionOrderWorkSchedule> CreateInitialTable()
         {
-            var waitingItems = new List<ProductionOrderWorkSchedule>();
             var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
             var provider = new List<DemandProviderProductionOrder>();
             foreach (var demand in demands)
             {
                 provider.AddRange(_context.Demands.OfType<DemandProviderProductionOrder>()
-                    .Where(a => a.DemandRequester.DemandRequester.DemandRequesterId == demand.DemandRequesterId));
+                    .Where(a => a.DemandRequester.DemandRequesterId == demand.Id 
+                    || a.DemandRequester.DemandRequester.DemandRequesterId == demand.Id).ToList());
             }
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleProvider in provider)
             {
                 pows.AddRange(
-                    _context.ProductionOrderWorkSchedule.AsNoTracking().Where(
-                        a => a.ProductionOrderId == singleProvider.ProductionOrderId).ToList());
+                    _context.ProductionOrderWorkSchedule.Where(
+                        a => a.ProductionOrderId == singleProvider.ProductionOrderId));
             }
             foreach (var singlePows in pows)
             {
@@ -54,11 +55,8 @@ namespace Master40.Simulation.Simulation
                 singlePows.EndSimulation = singlePows.End;
                 singlePows.DurationSimulation = singlePows.Duration;
             }
-
-            waitingItems.AddRange(pows);
-            _context.ProductionOrderWorkSchedule.UpdateRange(pows);
             _context.SaveChanges();
-            return waitingItems;
+            return pows;
         }
 
         public async Task Simulate()
@@ -68,14 +66,14 @@ namespace Master40.Simulation.Simulation
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 var timeTable = new TimeTable<ISimulationItem>(24*60);
-                var id = CreateSimulationId();
-                var waitingItems = CreateInitialTable(id);
+                var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedule.Any()) return;
+                
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
-                    timeTable = ProcessTimeline(timeTable, waitingItems, id);
-                    _messageHub.SendToAllClients(timeTable.Items.Count + "/" + timeTable.Items.Count + waitingItems.Count + " items processed.");
+                    timeTable = ProcessTimeline(timeTable, waitingItems);
+                    _messageHub.SendToAllClients(timeTable.Items.Count + "/" + (int)(timeTable.Items.Count + (int)waitingItems.Count) + " items processed.");
                 }
                 // end simulation and Unlock Screen
                 _messageHub.EndScheduler();
@@ -102,15 +100,15 @@ namespace Master40.Simulation.Simulation
             return -1;
         }
 
-        private int CreateSimulationId()
-        {
-            return _context.SimulationProductionOrderWorkSchedules.Any() ? _context.SimulationProductionOrderWorkSchedules.Max(a => a.SimulationId)+1 : 1;
-        }
-
-        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId)
+        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems)
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
+            if (timeTable.Timer == 1)
+            {
+                //CreateNewOrder(1, 1);
+                Recalculate(timeTable.Timer);
+            }
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {
@@ -167,6 +165,27 @@ namespace Master40.Simulation.Simulation
 
             // if Progress is empty Stop.
             return timeTable;
+        }
+
+        private void CreateNewOrder(int articleId, int amount)
+        {
+            var orderPart = new OrderPart()
+            {
+                ArticleId = articleId,
+                IsPlanned = false,
+                Quantity = amount,
+            };
+            _context.Orders.Add(new Order()
+            {
+                BusinessPartnerId = _context.BusinessPartners.First().Id,
+                DueTime = 100,
+                Name = "injected Order",
+                OrderParts = new List<OrderPart>() { orderPart }
+            });
+            _context.SaveChanges();
+            orderPart.OrderId = _context.Orders.Last().Id;
+            _context.OrderParts.Add(orderPart);
+            _context.SaveChanges();
         }
 
         private bool AllSimulationChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
@@ -226,11 +245,12 @@ namespace Master40.Simulation.Simulation
 
         private void Recalculate(int timer)
         {
-            //Todo: change capacityScheduling to Spows
-            //_processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
+            _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
             //
         }
     }
     
 }
+
+
 
