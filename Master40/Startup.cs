@@ -55,6 +55,8 @@ namespace Master40
             services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             services.AddSingleton<ISimulator, Simulator>();
+            services.AddSingleton<IProcessMrp, ProcessMrpSim>();
+
             
             
             services.Configure<RequestLocalizationOptions>(

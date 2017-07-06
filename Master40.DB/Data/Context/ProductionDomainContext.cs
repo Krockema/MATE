@@ -13,7 +13,7 @@ namespace Master40.DB.Data.Context
 
         public Order OrderById(int id)
         {
-            return Orders.Where(x => x.Id == id).FirstOrDefault();
+            return Orders.FirstOrDefault(x => x.Id == id);
         }
         /// <summary>
         /// Recives the prior items to a given ProductionOrderWorkSchedule

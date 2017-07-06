@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
+using Master40.DB.DB;
 using Master40.DB.DB.Interfaces;
 using Master40.DB.DB.Models;
 using Master40.DB.Migrations;
 using Master40.MessageSystem.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Master40.Simulation.Simulation
 {
@@ -20,15 +22,20 @@ namespace Master40.Simulation.Simulation
     
     public class Simulator : ISimulator
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ProductionDomainContext _context = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryDB")
+            .Options);
+
         private readonly IProcessMrp _processMrp;
-        private readonly MessageHub _messageHub;
+        private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, MessageHub messageHub)
+        public Simulator(IMessageHub messageHub, ProductionDomainContext originalContext )
         {
-            _context = context;
             _messageHub = messageHub;
-            _processMrp = processMrp;
+            //originalContext.CopyAllTables(_context);
+            originalContext.SaveSimulationState(_context, "First", SimulationType.Central);
+            _processMrp = new ProcessMrpSim(_context, messageHub);
+            
         }
         
         private List<SimulationProductionOrderWorkSchedule> CreateInitialTable(int id)
