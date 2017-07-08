@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Master40.DB.Enums;
+using Newtonsoft.Json;
 
-namespace Master40.DB.DB.Models
+namespace Master40.DB.Models
 {
     public interface IDemandToProvider
     {
@@ -26,12 +28,15 @@ namespace Master40.DB.DB.Models
     public class DemandToProvider : BaseEntity, IDemandToProvider
     {
         public int ArticleId { get; set; }
+        [JsonIgnore]
         public Article Article { get; set; }
         [Required]
         public decimal Quantity { get; set; }
         public int? DemandRequesterId { get; set; }
 
+        [JsonIgnore]
         public DemandToProvider DemandRequester { get; set; }
+        [JsonIgnore]
         public virtual List<DemandToProvider> DemandProvider { get; set; }
 
         [Required]
@@ -44,31 +49,37 @@ namespace Master40.DB.DB.Models
     public class DemandOrderPart : DemandToProvider
     {
         public int OrderPartId { get; set; }
+        [JsonIgnore]
         public OrderPart OrderPart { get; set; }
     }
     public class DemandProductionOrderBom : DemandToProvider
     {
         public int? ProductionOrderBomId { get; set; }
+        [JsonIgnore]
         public ProductionOrderBom ProductionOrderBom { get; set; }
     }
     public class DemandStock : DemandToProvider
     {
         public int StockId { get; set; }
+        [JsonIgnore]
         public Stock Stock { get; set; }
     }
     public class DemandProviderStock : DemandToProvider
     {
         public int StockId { get; set; }
+        [JsonIgnore]
         public Stock Stock { get; set; }
     }
     public class DemandProviderPurchasePart : DemandToProvider
     {
         public int PurchasePartId { get; set; }
+        [JsonIgnore]
         public PurchasePart PurchasePart { get; set; }
     }
     public class DemandProviderProductionOrder : DemandToProvider
     {
         public int ProductionOrderId { get; set; }
+        [JsonIgnore]
         public ProductionOrder ProductionOrder { get; set; }
     }
 }

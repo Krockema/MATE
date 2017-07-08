@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Master40.DB.DB.Models
+namespace Master40.DB.Models
 {
     public class Kpi : BaseEntity
     {

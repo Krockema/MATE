@@ -1,30 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Master40.DB.DB
+namespace Master40.DB
 {
     public class BaseEntity : IBaseEntity
     {
-        public BaseEntity()
-        {
-            SimulationIdent = "0";
-            SimulationType = SimulationType.None;
-        }
-
         [Key]
         public int Id { get; set; }
-
-        public SimulationType SimulationType { get; set; }
-        public string SimulationIdent{ get; set; }
-    }
-
-
-    public enum SimulationType
-    {
-        None,
-        Central,
-        Decentral
     }
 
     public interface IAggregateRoot {

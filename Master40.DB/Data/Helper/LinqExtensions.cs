@@ -34,6 +34,19 @@ namespace Master40.DB.Data.Helper
             }
         }
 
+        public static T CopyProperties<T>(this T source)
+        {
+            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
+            var dest = Activator.CreateInstance<T>();
+            foreach (PropertyInfo prop in plist)
+            {   
+                if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
+            }
+            return dest;
+        }
+
+
         public static List<PropertyInfo> GetDbSetProperties(this DbContext context)
         {
             var properties = context.GetType().GetProperties();

@@ -1,6 +1,7 @@
-﻿using Master40.DB.DB.Interfaces;
+﻿using Master40.DB.Interfaces;
+using Newtonsoft.Json;
 
-namespace Master40.DB.DB.Models
+namespace Master40.DB.Models
 {
     public class WorkSchedule : BaseEntity, IWorkSchedule
     {
@@ -8,8 +9,10 @@ namespace Master40.DB.DB.Models
         public string Name { get; set; }
         public int Duration { get; set; }
         public int MachineGroupId { get; set; }
+        [JsonIgnore]
         public MachineGroup MachineGroup { get; set; }
         public int ArticleId { get; set; }
+        [JsonIgnore]
         public Article Article { get; set; }
     }
 }

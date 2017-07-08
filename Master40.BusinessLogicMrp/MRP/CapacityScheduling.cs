@@ -2,11 +2,12 @@
 using System.Linq;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Data.Context;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Helper;
 using System;
-using Master40.DB.DB.Interfaces;
+using Master40.DB.Enums;
+using Master40.DB.Interfaces;
 
 namespace Master40.BusinessLogicCentral.MRP
 {//Todo: multi-machines fix

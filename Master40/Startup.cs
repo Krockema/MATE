@@ -45,6 +45,9 @@ namespace Master40
             services.AddDbContext<ProductionDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<CopyContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddDbContext<HangfireDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("Hangfire")));
 

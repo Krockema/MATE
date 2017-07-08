@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Master40.DB.Data.Repository;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Composition.Hosting.Core;
-using System.Data.SqlClient;
+﻿using System.Collections;
 using System.Linq;
 using System.Reflection;
 using Master40.DB.Data.Context;
+using Master40.DB.Models;
+using Master40.DB;
 using Master40.DB.Data.Helper;
-using Master40.DB.DB;
-using Master40.DB.DB.Models;
+using Master40.DB.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq.Clauses;
 
 namespace Master40.Simulation.Simulation
 {
@@ -44,114 +40,424 @@ namespace Master40.Simulation.Simulation
             cnn.Close();
         }
         */
-        public static void CopyAllTables(this ProductionDomainContext _sourceContext,
-            ProductionDomainContext _targetContext)
+        public static void CopyAllTables(this ProductionDomainContext sourceContext,
+            ProductionDomainContext targetContext)
         {
 
             // basic Set
-            _targetContext.ArticleTypes.AddRange(_sourceContext.ArticleTypes);
+            targetContext.ArticleTypes.AddRange(sourceContext.ArticleTypes);
 
-            _targetContext.Units.AddRange(_sourceContext.Units);
-            _targetContext.Machines.AddRange(_sourceContext.Machines);
-            _targetContext.MachineTools.AddRange(_sourceContext.MachineTools);
-            _targetContext.Articles.AddRange(_sourceContext.Articles);
-            _targetContext.Stocks.AddRange(_sourceContext.Stocks);
-            _targetContext.WorkSchedules.AddRange(_sourceContext.WorkSchedules);
-            _targetContext.ArticleBoms.AddRange(_sourceContext.ArticleBoms);
-            _targetContext.BusinessPartners.AddRange(_sourceContext.BusinessPartners);
-            _targetContext.Orders.AddRange(_sourceContext.Orders);
-            _targetContext.OrderParts.AddRange(_sourceContext.OrderParts);
+            targetContext.Units.AddRange(sourceContext.Units);
+            targetContext.Machines.AddRange(sourceContext.Machines);
+            targetContext.MachineGroups.AddRange(sourceContext.MachineGroups);
+            targetContext.MachineTools.AddRange(sourceContext.MachineTools);
+            targetContext.Articles.AddRange(sourceContext.Articles);
+            targetContext.Stocks.AddRange(sourceContext.Stocks);
+            targetContext.StockExchanges.AddRange(sourceContext.StockExchanges);
+            targetContext.WorkSchedules.AddRange(sourceContext.WorkSchedules);
+            targetContext.ArticleBoms.AddRange(sourceContext.ArticleBoms);
+            targetContext.BusinessPartners.AddRange(sourceContext.BusinessPartners);
+            targetContext.ArticleToBusinessPartners.AddRange(sourceContext.ArticleToBusinessPartners);
+            targetContext.Orders.AddRange(sourceContext.Orders);
+            targetContext.OrderParts.AddRange(sourceContext.OrderParts);
+            targetContext.OperationCharts.AddRange(sourceContext.OperationCharts);
+            
 
+            targetContext.ProductionOrders.AddRange(sourceContext.ProductionOrders);
+            targetContext.ProductionOrderBoms.AddRange(sourceContext.ProductionOrderBoms);
+            targetContext.ProductionOrderWorkSchedule.AddRange(sourceContext.ProductionOrderWorkSchedule);
+            targetContext.Purchases.AddRange(sourceContext.Purchases);
+            targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
+            targetContext.Demands.AddRange(sourceContext.Demands);
 
-            _targetContext.ProductionOrders.AddRange(_sourceContext.ProductionOrders);
-            _targetContext.ProductionOrderBoms.AddRange(_sourceContext.ProductionOrderBoms);
-            _targetContext.ProductionOrderWorkSchedule.AddRange(_sourceContext.ProductionOrderWorkSchedule);
-            _targetContext.Purchases.AddRange(_sourceContext.Purchases);
-            _targetContext.PurchaseParts.AddRange(_sourceContext.PurchaseParts);
-            _targetContext.Demands.AddRange(_sourceContext.Demands);
-
-            _targetContext.SaveChanges();
+            targetContext.SaveChanges();
         }
-
-        public static void SetSimulationProperties(this DbSet<BaseEntity> table, string simId, SimulationType simType)
+        public static void LoadInMemoryDB(this ProductionDomainContext targetContext,
+            SimulationDbState sourceContext)
         {
-            foreach (var item in table)
+
+            // basic Set
+            foreach (var item in sourceContext.ArticleTypes)
             {
-                item.SetSimulationItemProperties(simType, simId);
-            }
-        }
+                targetContext.ArticleTypes.Add(item);
 
-        public static void SetSimulationItemProperties(this BaseEntity item, SimulationType simType, string simId)
-        {
-            item.SimulationType = simType;
-            item.SimulationIdent = simId;
-        }
-
-        public static T SaveDbPropertiesTo<T>(this T source, string simId, SimulationType simType)
-        {
-            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
-            var item = Activator.CreateInstance<T>();
-            foreach (PropertyInfo prop in plist)
-            {
-                if (prop.Name == "SimulationIdent")
-                    prop.SetValue(item, simId, null);
-                else if (prop.Name == "SimulationType")
-                    prop.SetValue(item, simType, null);
-                else if (prop.Name != "Id")
-                    prop.SetValue(item, prop.GetValue(source, null), null);
-            }
-            return item;
-        }
-
-        public static void SaveSimulationState(this ProductionDomainContext _sourceContext
-            , ProductionDomainContext _targetContext
-            , string simId
-            , SimulationType simType)
-        {
-            // ArticlesTypes
-            foreach (var item in _sourceContext.ArticleTypes)
-            {
-                _targetContext.Add(item.SaveDbPropertiesTo(simId, simType));
+                targetContext.SaveChanges();
             }
 
+
+
+            targetContext.Units.AddRange(sourceContext.Units);
+            targetContext.Machines.AddRange(sourceContext.Machines);
+            targetContext.MachineGroups.AddRange(sourceContext.MachineGroups);
+            targetContext.MachineTools.AddRange(sourceContext.MachineTools);
+            targetContext.Articles.AddRange(sourceContext.Articles);
+            targetContext.Stocks.AddRange(sourceContext.Stocks);
+            targetContext.StockExchanges.AddRange(sourceContext.StockExchanges);
+            targetContext.WorkSchedules.AddRange(sourceContext.WorkSchedules);
+            targetContext.ArticleBoms.AddRange(sourceContext.ArticleBoms);
+            targetContext.BusinessPartners.AddRange(sourceContext.BusinessPartners);
+            targetContext.ArticleToBusinessPartners.AddRange(sourceContext.ArticleToBusinessPartners);
+            targetContext.Orders.AddRange(sourceContext.Orders);
+            targetContext.OrderParts.AddRange(sourceContext.OrderParts);
+            
+
+            targetContext.ProductionOrders.AddRange(sourceContext.ProductionOrders);
+            targetContext.ProductionOrderBoms.AddRange(sourceContext.ProductionOrderBoms);
+            targetContext.ProductionOrderWorkSchedule.AddRange(sourceContext.ProductionOrderWorkSchedule);
+            targetContext.Purchases.AddRange(sourceContext.Purchases);
+            targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
+            targetContext.Demands.AddRange(sourceContext.Demands);
+
+            targetContext.SaveChanges();
+        }
+
+
+
+        public static SimulationDbState SaveSimulationState(this ProductionDomainContext sourceContext)
+        {
+            var targetContext =
+                new SimulationDbState
+                {
+                    ArticleTypes = sourceContext.ArticleTypes.ToList(),
+                    Units = sourceContext.Units.ToList(),
+                    Machines = sourceContext.Machines.ToList(),
+                    MachineTools = sourceContext.MachineTools.ToList(),
+                    MachineGroups = sourceContext.MachineGroups.ToList(),
+                    Articles = sourceContext.Articles.ToList(),
+                    Stocks = sourceContext.Stocks.ToList(),
+                    WorkSchedules = sourceContext.WorkSchedules.ToList(),
+                    ArticleBoms = sourceContext.ArticleBoms.ToList(),
+                    BusinessPartners = sourceContext.BusinessPartners.ToList(),
+                    Orders = sourceContext.Orders.ToList(),
+                    OrderParts = sourceContext.OrderParts.ToList(),
+                    Kpi = sourceContext.Kpi.ToList(),
+                    ArticleToBusinessPartners = sourceContext.ArticleToBusinessPartners.ToList(),
+                    ProductionOrders = sourceContext.ProductionOrders.ToList(),
+                    ProductionOrderBoms = sourceContext.ProductionOrderBoms.ToList(),
+                    ProductionOrderWorkSchedule = sourceContext.ProductionOrderWorkSchedule.ToList(),
+                    Purchases = sourceContext.Purchases.ToList(),
+                    PurchaseParts = sourceContext.PurchaseParts.ToList(),
+                    Demands = sourceContext.Demands.ToList()
+                };
+            return targetContext;
+            /*
+var dbsets = _sourceContext.GetType().GetProperties().Where(x => x.DeclaringType == typeof(MasterDBContext)).ToList();
+foreach (var dbset in dbsets)
+{
+    dynamic propValue = dbset.GetValue(_sourceContext);
+    Type type =  Type.GetType("Master40.DB.DB.Models.Article");
+
+    var listType = typeof(List<>);
+    var constructedListType = listType.MakeGenericType(Type.GetType(dbset.Name));
+    var instance = Activator.CreateInstance(constructedListType);
+
+    var tolist = typeof(Enumerable).GetMethod("ToList");
+
+
+    tolist = tolist.MakeGenericMethod(type);
+    var ret = tolist.Invoke(type, propValue);
+
+}
+*/
             // Units
-            foreach (var item in _sourceContext.Units)
+
+            //_targetContext.SaveChanges();
+        }
+
+
+        /// <summary>
+        /// Sadly doesnt work yet
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="anyTable"></param>
+        /// <param name="targetContext"></param>
+        private static void LoadTable<T>(this T anyTable, CopyContext targetContext)
+        {
+            using (var transaction = targetContext.Database.BeginTransaction())
             {
-                _targetContext.Add(item.SaveDbPropertiesTo(simId, simType));
+                var name = anyTable.GetType().GenericTypeArguments[0].Name + "s";
+
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT " + name + " ON;");
+                // targetContext.Stocks.AddRange(anyTable);
+                foreach (var item in (IEnumerable)anyTable)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT " + name + " OFF");
+                transaction.Commit();
+            }
+        }
+
+
+        public static void LoadContextFromSimulation(this CopyContext targetContext, SimulationDbState sourceContext)
+        {
+
+            //sourceContext.ArticleTypes.LoadTable(targetContext);
+            // SimulationDbState simulationDbState = Newtonsoft.Json.JsonConvert.DeserializeObject<SimulationDbState>(simulationContext);
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleTypes ON;");
+                targetContext.ArticleTypes.AddRange(sourceContext.ArticleTypes);
+                //foreach (var item in sourceContext.ArticleTypes)
+                // {
+                //    targetContext.Add(item);
+                //}
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleTypes OFF");
+                transaction.Commit();
+            }
+            // units
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Units ON;");
+                foreach (var item in sourceContext.Units)
+                {
+                    targetContext.Add(item);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Units OFF");
+                transaction.Commit();
+            }
+
+            // MachineGroups
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT MachineGroups ON;");
+                foreach (var item in sourceContext.MachineGroups)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT MachineGroups OFF");
+                transaction.Commit();
             }
 
             // Machines
-            foreach (var item in _sourceContext.Machines)
+            using (var transaction = targetContext.Database.BeginTransaction())
             {
-                _targetContext.Add(item.SaveDbPropertiesTo(simId, simType));
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Machines ON;");
+                foreach (var item in sourceContext.Machines)
+                {
+                    targetContext.Add(item);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Machines OFF");
+                transaction.Commit();
             }
+
+
             // MachineTools
-            foreach (var item in _sourceContext.Machines)
+            using (var transaction = targetContext.Database.BeginTransaction())
             {
-                _targetContext.Add(item.SaveDbPropertiesTo(simId, simType));
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT MachineTools ON;");
+                foreach (var item in sourceContext.MachineTools)
+                {
+                    targetContext.Add(item);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT MachineTools OFF");
+                transaction.Commit();
             }
 
-            _targetContext.MachineTools.AddRange(_sourceContext.MachineTools);
-            _targetContext.Articles.AddRange(_sourceContext.Articles);
-            _targetContext.Stocks.AddRange(_sourceContext.Stocks);
-            _targetContext.WorkSchedules.AddRange(_sourceContext.WorkSchedules);
-            _targetContext.ArticleBoms.AddRange(_sourceContext.ArticleBoms);
-            _targetContext.BusinessPartners.AddRange(_sourceContext.BusinessPartners);
-            _targetContext.Orders.AddRange(_sourceContext.Orders);
-            _targetContext.OrderParts.AddRange(_sourceContext.OrderParts);
+            // Articles
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Articles ON;");
+                foreach (var item in sourceContext.Articles)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Articles OFF");
+                transaction.Commit();
+            }
 
+            // Stocks
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Stocks ON;");
+                targetContext.Stocks.AddRange(sourceContext.Stocks);
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Stocks OFF");
+                transaction.Commit();
+            }
 
-            _targetContext.ProductionOrders.AddRange(_sourceContext.ProductionOrders);
-            _targetContext.ProductionOrderBoms.AddRange(_sourceContext.ProductionOrderBoms);
-            _targetContext.ProductionOrderWorkSchedule.AddRange(_sourceContext.ProductionOrderWorkSchedule);
-            _targetContext.Purchases.AddRange(_sourceContext.Purchases);
-            _targetContext.PurchaseParts.AddRange(_sourceContext.PurchaseParts);
-            _targetContext.Demands.AddRange(_sourceContext.Demands);
+            // StockExchanges
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT StockExchanges ON;");
+                targetContext.StockExchanges.AddRange(sourceContext.StockExchanges);
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT StockExchanges OFF");
+                transaction.Commit();
+            }
+            // WorkSchedules
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT WorkSchedule ON;");
+                foreach (var item in sourceContext.WorkSchedules)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT WorkSchedule OFF");
+                transaction.Commit();
+            }
+            // ArticleBoms
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleBoms ON;");
+                foreach (var item in sourceContext.ArticleBoms)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleBoms OFF");
+                transaction.Commit();
+            }
 
+            // BusinessPartners
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT BusinessPartners ON;");
+                foreach (var item in sourceContext.BusinessPartners)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT BusinessPartners OFF");
+                transaction.Commit();
+            }
 
+            // ArticleToBusinessPartners
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleToBusinessPartners ON;");
+                foreach (var item in sourceContext.ArticleToBusinessPartners)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleToBusinessPartners OFF");
+                transaction.Commit();
+            }
 
+            // Orders
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Orders ON;");
+                foreach (var item in sourceContext.Orders)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Orders OFF");
+                transaction.Commit();
+            }
 
-            _targetContext.SaveChanges();
+            // ArticleBoms
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT OrderParts ON;");
+                foreach (var item in sourceContext.OrderParts)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT OrderParts OFF");
+                transaction.Commit();
+            }
+            // ProductionOrders
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ProductionOrders ON;");
+                foreach (var item in sourceContext.ProductionOrders)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ProductionOrders OFF");
+                transaction.Commit();
+            }
+
+            // ProductionOrderBoms
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ProductionOrderBoms ON;");
+                foreach (var item in sourceContext.ProductionOrderBoms)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ProductionOrderBoms OFF");
+                transaction.Commit();
+            }
+
+            // ProductionOrderWorkSchedule
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ProductionOrderWorkSchedule ON;");
+                foreach (var item in sourceContext.ProductionOrderWorkSchedule)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ProductionOrderWorkSchedule OFF");
+                transaction.Commit();
+            }
+
+            // Purchases
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Purchases ON;");
+                foreach (var item in sourceContext.Purchases)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Purchases OFF");
+                transaction.Commit();
+            }
+
+            // PurchaseParts
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT PurchaseParts ON;");
+                targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT PurchaseParts OFF");
+                transaction.Commit();
+            }
+            // Demands
+            using (var transaction = targetContext.Database.BeginTransaction())
+            {
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Demands ON;");
+                foreach (var item in sourceContext.Demands)
+                {
+                    var chunk = item.CopyProperties();
+                    targetContext.Add(chunk);
+                }
+                targetContext.SaveChanges();
+                targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT Demands OFF");
+                transaction.Commit();
+            }
         }
+        
+
     }
 }

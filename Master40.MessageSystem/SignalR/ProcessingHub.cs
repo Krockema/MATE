@@ -1,6 +1,6 @@
 ﻿using System;
+using Master40.MessageSystem.Messages;
 using Microsoft.AspNetCore.SignalR;
-using Master40.DB.Data.Helper;
 using Master40.MessageSystem.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 

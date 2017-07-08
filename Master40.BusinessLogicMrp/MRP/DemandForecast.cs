@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
-using Master40.DB.DB.Models;
+using Master40.DB.Enums;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.BusinessLogicCentral.MRP

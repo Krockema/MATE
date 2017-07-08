@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 
 namespace Master40.BusinessLogicCentral.HelperCapacityPlanning
 {

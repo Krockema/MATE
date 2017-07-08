@@ -1,7 +1,9 @@
-﻿using Master40.DB.Data.Repository;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Master40.DB.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
+using System;
 
 namespace Master40.DB.Data.Context
 {
@@ -32,10 +34,11 @@ namespace Master40.DB.Data.Context
         public DbSet<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
         public DbSet<PurchasePart> PurchaseParts { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<StockExchange> StockExchanges { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
+
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
-        public DbSet<SimulationProductionOrderWorkSchedule> SimulationProductionOrderWorkSchedules { get; set; }
         public DbSet<Kpi> Kpi { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -112,11 +115,6 @@ namespace Master40.DB.Data.Context
                 .HasOne(d => d.OrderPart)
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
-            modelBuilder.Entity<SimulationProductionOrderWorkSchedule>()
-                .HasOne(p => p.ProductionOrderWorkSchedule)
-                .WithMany(s => s.SimulationProductionOrderWorkSchedules)
-                .HasForeignKey(fk => fk.ProductionOrderWorkScheduleId)
                 .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
 
         }

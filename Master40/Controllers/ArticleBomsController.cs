@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 
 namespace Master40.Controllers
 {

@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
-using Master40.DB.DB.Interfaces;
-using Master40.DB.DB.Models;
-using Master40.DB.Migrations;
+using Master40.DB.Enums;
+using Master40.DB.Models;
+using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
+using Master40.Simulation.Simulation.SimulationData;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Master40.Simulation.Simulation
 {
@@ -21,15 +20,29 @@ namespace Master40.Simulation.Simulation
     
     public class Simulator : ISimulator
     {
+
+        private readonly ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryDB")
+            .Options);
+
         private readonly ProductionDomainContext _context;
+        private readonly CopyContext _copyContext;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, IMessageHub messageHub)
+        public Simulator(ProductionDomainContext context, IMessageHub messageHub, CopyContext copyContext)
         {
             _context = context;
+            _copyContext = copyContext;
             _messageHub = messageHub;
-            _processMrp = processMrp;
+
+            // Create Context Copy to Simulation Context
+            _context.CopyAllTables(_ctx);
+            // do it on HardDisk Databse
+            _processMrp = new ProcessMrpSim(_context, messageHub);
+            //// Dp it inmemory
+            // _processMrp = new ProcessMrpSim(_context, messageHub);
+            // _context.CopyAllTables(ctx);
         }
         
         private List<ProductionOrderWorkSchedule> CreateInitialTable()
@@ -76,9 +89,23 @@ namespace Master40.Simulation.Simulation
                     _messageHub.SendToAllClients(timeTable.Items.Count + "/" + (int)(timeTable.Items.Count + (int)waitingItems.Count) + " items processed.");
                 }
                 // end simulation and Unlock Screen
+
+                // Save Current Context to Database as Complext Json
+                // SaveContext();
                 _messageHub.EndScheduler();
             });
 
+        }
+
+        private void SaveContext(ProductionDomainContext _contextToSave)
+        {
+            //load Simulation Results to Main data Context.
+            var simState = new DB.Models.Simulation
+            {
+                CreationDate = DateTime.Now,
+                SimulationDbState = Newtonsoft.Json.JsonConvert.SerializeObject(_contextToSave.SaveSimulationState()),
+                SimulationType = SimulationType.Central,
+            };
         }
 
         private void CreateMachinesReady(TimeTable<ISimulationItem> timeTable)
