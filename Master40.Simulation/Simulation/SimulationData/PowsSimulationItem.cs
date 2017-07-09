@@ -44,8 +44,8 @@ namespace Master40.Simulation.Simulation
         
         public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
         {
-            listMachineStatus.Single(b => b.MachineId == _context.ProductionOrderWorkSchedule.Single(a => a.Id == ProductionOrderWorkScheduleId).MachineId).Free = true;
-            var pows = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder).Where(a => a.ProductionOrderId == ProductionOrderId);
+            listMachineStatus.Single(b => b.MachineId == _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId).MachineId).Free = true;
+            var pows = _context.ProductionOrderWorkSchedules.Include(a => a.ProductionOrder).Where(a => a.ProductionOrderId == ProductionOrderId);
             if (pows.Single(a => a.Id == ProductionOrderWorkScheduleId).HierarchyNumber !=
                 pows.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;

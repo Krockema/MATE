@@ -4,5 +4,7 @@
 <div><canvas id="MaschineChart" style="max-height: 350px;"></canvas></div>
 
 <script>
-    @Html.Raw(chart.CreateChartCode("MaschineChart"));
+    @if(null != chart) { 
+        Html.Raw(chart.CreateChartCode("MaschineChart"));
+    }
 </script>

@@ -26,7 +26,7 @@ namespace Master40.DB.Data.Context
             {
                 var priorItems = new List<ProductionOrderWorkSchedule>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
-                var maxHierarchy = ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
+                var maxHierarchy = ProductionOrderWorkSchedules.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
                                                     .Max(x => x.HierarchyNumber);
 
                 if (maxHierarchy == productionOrderWorkSchedule.HierarchyNumber)
@@ -46,7 +46,7 @@ namespace Master40.DB.Data.Context
                 {
                     // get Previous Workschedule
                     var previousPows =
-                        ProductionOrderWorkSchedule.Where(
+                        ProductionOrderWorkSchedules.Where(
                                 x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId
                                      && x.HierarchyNumber > productionOrderWorkSchedule.HierarchyNumber)
                             .OrderBy(x => x.HierarchyNumber).FirstOrDefault();
@@ -181,7 +181,7 @@ namespace Master40.DB.Data.Context
                     .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
 
                 // get ProductionOrderWorkSchedule for 
-                var pows = ProductionOrderWorkSchedule.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
+                var pows = ProductionOrderWorkSchedules.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
                 var powDetails = pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
                     (p, dp) => p).ToList();
 

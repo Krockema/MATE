@@ -23,7 +23,7 @@ namespace Master40.BusinessLogicCentral.MRP
     public class CapacityScheduling : ICapacityScheduling
     {
         private readonly MasterDBContext _context;
-        public CapacityScheduling(MasterDBContext context)
+        public CapacityScheduling(ProductionDomainContext context)
         {
             _context = context;
         }
@@ -81,7 +81,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     shortest.MachineId = currentPows.MachineId;
                     shortest.Start = currentPows.Start;
                     shortest.End = currentPows.End;
-                    _context.ProductionOrderWorkSchedule.Update(shortest);
+                    _context.ProductionOrderWorkSchedules.Update(shortest);
                     _context.SaveChanges();
                     continue;
                 }
@@ -198,7 +198,7 @@ namespace Master40.BusinessLogicCentral.MRP
             List<ProductionOrderWorkSchedule> powsChildren = new List<ProductionOrderWorkSchedule>();
             if (shortest.HierarchyNumber > 10)
             {
-                var children = _context.ProductionOrderWorkSchedule.Where(a =>
+                var children = _context.ProductionOrderWorkSchedules.Where(a =>
                     a.ProductionOrderId == shortest.ProductionOrderId &&
                     a.HierarchyNumber < shortest.HierarchyNumber).ToList();
                 if (children.Any())
@@ -409,7 +409,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 var slack = plannableSchedule.ActivitySlack;
                 plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - GetChildEndTime(plannableSchedule);
                 if (slack == plannableSchedule.ActivitySlack) continue;
-                _context.ProductionOrderWorkSchedule.Update(plannableSchedule);
+                _context.ProductionOrderWorkSchedules.Update(plannableSchedule);
                 _context.SaveChanges();
             }
         }
@@ -716,7 +716,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private void AssignProductionOrderWorkSchedulesToProductionOrder(ProductionOrder productionOrder)
         {
-            foreach (var pows in _context.ProductionOrderWorkSchedule.Where(a => a.ProductionOrderId == productionOrder.Id))
+            foreach (var pows in _context.ProductionOrderWorkSchedules.Where(a => a.ProductionOrderId == productionOrder.Id))
             {
                 productionOrder.ProductionOrderWorkSchedule.Add(pows);
             }
@@ -734,7 +734,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.MachineId = null;
-                _context.ProductionOrderWorkSchedule.Add(workSchedule);
+                _context.ProductionOrderWorkSchedules.Add(workSchedule);
                 _context.SaveChanges();
             }
         }

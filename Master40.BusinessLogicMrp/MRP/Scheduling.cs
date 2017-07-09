@@ -19,8 +19,8 @@ namespace Master40.BusinessLogicCentral.MRP
 
     public class Scheduling : IScheduling
     {
-        private readonly MasterDBContext _context;
-        public Scheduling(MasterDBContext context)
+        private readonly ProductionDomainContext _context;
+        public Scheduling(ProductionDomainContext context)
         {
             _context = context;
         }
@@ -40,7 +40,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.MachineId = null;
-                _context.ProductionOrderWorkSchedule.Add(workSchedule);
+                _context.ProductionOrderWorkSchedules.Add(workSchedule);
                 _context.SaveChanges();
             }
         }
@@ -72,11 +72,11 @@ namespace Master40.BusinessLogicCentral.MRP
                 else
                 {
                     if (demand.State == State.ForwardScheduleExists)
-                        workSchedule.EndForward = _context.ProductionOrderWorkSchedule.Single(a =>
+                        workSchedule.EndForward = _context.ProductionOrderWorkSchedules.Single(a =>
                                 (a.HierarchyNumber == hierarchy) &&
                                 (a.ProductionOrderId == workSchedule.ProductionOrderId)).StartForward;
                     else
-                        workSchedule.EndBackward = _context.ProductionOrderWorkSchedule.Single(a =>
+                        workSchedule.EndBackward = _context.ProductionOrderWorkSchedules.Single(a =>
                                 (a.HierarchyNumber == hierarchy) &&
                                 (a.ProductionOrderId == workSchedule.ProductionOrderId)).StartBackward;
                 }
@@ -86,7 +86,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     workSchedule.StartBackward = workSchedule.EndBackward - workSchedule.Duration;
                
             }
-            _context.ProductionOrderWorkSchedule.UpdateRange(productionOrderWorkSchedules);
+            _context.ProductionOrderWorkSchedules.UpdateRange(productionOrderWorkSchedules);
 
             _context.SaveChanges();
         }
@@ -115,12 +115,12 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
                 else
                 {
-                    workSchedule.StartForward = _context.ProductionOrderWorkSchedule.AsNoTracking().Single(a =>
+                    workSchedule.StartForward = _context.ProductionOrderWorkSchedules.AsNoTracking().Single(a =>
                                 (a.HierarchyNumber == hierarchy) &&
                                 (a.ProductionOrderId == workSchedule.ProductionOrderId)).EndForward;
                 }
                 workSchedule.EndForward = workSchedule.StartForward + workSchedule.Duration;
-                _context.ProductionOrderWorkSchedule.Update(workSchedule);
+                _context.ProductionOrderWorkSchedules.Update(workSchedule);
                 _context.SaveChanges();
             }
         }
@@ -176,7 +176,7 @@ namespace Master40.BusinessLogicCentral.MRP
             
             //get initial pows
             var productionOrderWorkSchedules = demand.DemandProvider.Where(demandProvider => demandProvider.GetType() == typeof(DemandProviderProductionOrder))
-                .SelectMany(demandProvider => _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                .SelectMany(demandProvider => _context.ProductionOrderWorkSchedules.Include(a => a.ProductionOrder)
                     .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder) demandProvider).ProductionOrderId)
                     .OrderBy(a => a.ProductionOrder)
                     .ThenByDescending(a => a.HierarchyNumber)
@@ -187,7 +187,7 @@ namespace Master40.BusinessLogicCentral.MRP
             productionOrderWorkSchedules.AddRange(from bomDemand in bomDemands
                 from demandProvider in bomDemand.DemandProvider
                 where demandProvider.GetType() == typeof(DemandProviderProductionOrder)
-                from schedule in _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder)
+                from schedule in _context.ProductionOrderWorkSchedules.Include(a => a.ProductionOrder)
                     .Where(a => a.ProductionOrderId == ((DemandProviderProductionOrder) demandProvider).ProductionOrderId)
                     .OrderBy(a => a.ProductionOrder)
                     .ThenByDescending(a => a.HierarchyNumber)

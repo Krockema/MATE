@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using Master40.DB.Data.Context;
@@ -65,7 +66,7 @@ namespace Master40.Simulation.Simulation
 
             targetContext.ProductionOrders.AddRange(sourceContext.ProductionOrders);
             targetContext.ProductionOrderBoms.AddRange(sourceContext.ProductionOrderBoms);
-            targetContext.ProductionOrderWorkSchedule.AddRange(sourceContext.ProductionOrderWorkSchedule);
+            targetContext.ProductionOrderWorkSchedules.AddRange(sourceContext.ProductionOrderWorkSchedules);
             targetContext.Purchases.AddRange(sourceContext.Purchases);
             targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
             targetContext.Demands.AddRange(sourceContext.Demands);
@@ -75,17 +76,8 @@ namespace Master40.Simulation.Simulation
         public static void LoadInMemoryDB(this ProductionDomainContext targetContext,
             SimulationDbState sourceContext)
         {
-
-            // basic Set
-            foreach (var item in sourceContext.ArticleTypes)
-            {
-                targetContext.ArticleTypes.Add(item);
-
-                targetContext.SaveChanges();
-            }
-
-
-
+            targetContext.ArticleTypes.AddRange(sourceContext.ArticleTypes);
+            targetContext.SaveChanges();
             targetContext.Units.AddRange(sourceContext.Units);
             targetContext.Machines.AddRange(sourceContext.Machines);
             targetContext.MachineGroups.AddRange(sourceContext.MachineGroups);
@@ -103,7 +95,7 @@ namespace Master40.Simulation.Simulation
 
             targetContext.ProductionOrders.AddRange(sourceContext.ProductionOrders);
             targetContext.ProductionOrderBoms.AddRange(sourceContext.ProductionOrderBoms);
-            targetContext.ProductionOrderWorkSchedule.AddRange(sourceContext.ProductionOrderWorkSchedule);
+            targetContext.ProductionOrderWorkSchedules.AddRange(sourceContext.ProductionOrderWorkSchedule);
             targetContext.Purchases.AddRange(sourceContext.Purchases);
             targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
             targetContext.Demands.AddRange(sourceContext.Demands);
@@ -125,16 +117,17 @@ namespace Master40.Simulation.Simulation
                     MachineGroups = sourceContext.MachineGroups.ToList(),
                     Articles = sourceContext.Articles.ToList(),
                     Stocks = sourceContext.Stocks.ToList(),
+                    StockExchanges = sourceContext.StockExchanges.ToList(),
                     WorkSchedules = sourceContext.WorkSchedules.ToList(),
                     ArticleBoms = sourceContext.ArticleBoms.ToList(),
                     BusinessPartners = sourceContext.BusinessPartners.ToList(),
                     Orders = sourceContext.Orders.ToList(),
                     OrderParts = sourceContext.OrderParts.ToList(),
-                    Kpi = sourceContext.Kpi.ToList(),
+                    Kpi = sourceContext.Kpis.ToList(),
                     ArticleToBusinessPartners = sourceContext.ArticleToBusinessPartners.ToList(),
                     ProductionOrders = sourceContext.ProductionOrders.ToList(),
                     ProductionOrderBoms = sourceContext.ProductionOrderBoms.ToList(),
-                    ProductionOrderWorkSchedule = sourceContext.ProductionOrderWorkSchedule.ToList(),
+                    ProductionOrderWorkSchedule = sourceContext.ProductionOrderWorkSchedules.ToList(),
                     Purchases = sourceContext.Purchases.ToList(),
                     PurchaseParts = sourceContext.PurchaseParts.ToList(),
                     Demands = sourceContext.Demands.ToList()
@@ -173,17 +166,22 @@ foreach (var dbset in dbsets)
         /// <param name="targetContext"></param>
         private static void LoadTable<T>(this T anyTable, CopyContext targetContext)
         {
+            // Start Transaction because Identity insert "ON" is only for ONE transaction valid
             using (var transaction = targetContext.Database.BeginTransaction())
             {
+                // get get Tablename
                 var name = anyTable.GetType().GenericTypeArguments[0].Name + "s";
-
+                // set Table Identity Insert ON
                 targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT " + name + " ON;");
-                // targetContext.Stocks.AddRange(anyTable);
+                // for each item in Table
                 foreach (var item in (IEnumerable)anyTable)
                 {
+                    // Copy Propertys to new item -> Has to be outside of the add Command otherwhise it fails
                     var chunk = item.CopyProperties();
+                    // add New Item
                     targetContext.Add(chunk);
                 }
+                // Save Changes, Revert Identity Insert, and commit Transaction
                 targetContext.SaveChanges();
                 targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT " + name + " OFF");
                 transaction.Commit();
@@ -194,16 +192,14 @@ foreach (var dbset in dbsets)
         public static void LoadContextFromSimulation(this CopyContext targetContext, SimulationDbState sourceContext)
         {
 
+
+            sourceContext.ArticleTypes.LoadTable(targetContext);
             //sourceContext.ArticleTypes.LoadTable(targetContext);
             // SimulationDbState simulationDbState = Newtonsoft.Json.JsonConvert.DeserializeObject<SimulationDbState>(simulationContext);
             using (var transaction = targetContext.Database.BeginTransaction())
             {
                 targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleTypes ON;");
                 targetContext.ArticleTypes.AddRange(sourceContext.ArticleTypes);
-                //foreach (var item in sourceContext.ArticleTypes)
-                // {
-                //    targetContext.Add(item);
-                //}
                 targetContext.SaveChanges();
                 targetContext.Database.ExecuteSqlCommand("SET IDENTITY_INSERT ArticleTypes OFF");
                 transaction.Commit();

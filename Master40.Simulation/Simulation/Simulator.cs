@@ -59,7 +59,7 @@ namespace Master40.Simulation.Simulation
             foreach (var singleProvider in provider)
             {
                 pows.AddRange(
-                    _context.ProductionOrderWorkSchedule.Where(
+                    _context.ProductionOrderWorkSchedules.Where(
                         a => a.ProductionOrderId == singleProvider.ProductionOrderId));
             }
             foreach (var singlePows in pows)
@@ -81,7 +81,7 @@ namespace Master40.Simulation.Simulation
                 var timeTable = new TimeTable<ISimulationItem>(24*60);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
-                if (!_context.ProductionOrderWorkSchedule.Any()) return;
+                if (!_context.ProductionOrderWorkSchedules.Any()) return;
                 
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
@@ -251,7 +251,7 @@ namespace Master40.Simulation.Simulation
         private bool? SimulationHierarchyChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems )
         {
             var hierarchyChildren =
-                       _context.ProductionOrderWorkSchedule.Where(a =>
+                       _context.ProductionOrderWorkSchedules.Where(a =>
                                a.ProductionOrderId == item.ProductionOrderId &&
                                a.HierarchyNumber < item.HierarchyNumber);
             if (!hierarchyChildren.Any()) return null;

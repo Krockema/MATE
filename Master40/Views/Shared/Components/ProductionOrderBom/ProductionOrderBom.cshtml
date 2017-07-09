@@ -1,5 +1,5 @@
-@using Master40.DB.DB.Models
-@model IEnumerable<Master40.DB.DB.Models.DemandProductionOrderBom>
+@using Master40.DB.Models
+@model IEnumerable<Master40.DB.Models.ProductionOrderBom>
 
 @{
     string level = ViewData["level"]?.ToString() ?? "";
@@ -20,16 +20,16 @@
                 @Html.DisplayFor(modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Article.Name)
+                @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ProductionOrderBomChild.ProductionOrderId)
+                @Html.DisplayFor(modelItem => item.ProductionOrderChild.Article.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ProductionOrderBomParent.ProductionOrderId)
+                @Html.DisplayFor(modelItem => item.ProductionOrderParent.Article.Name)
             </td>
             <td>
-                @foreach (var ag in item.ProductionOrderBomChild.WorkSchedules)
+                @foreach (var ag in item.ProductionOrderChild.ProductionOrderWorkSchedule)
                 {
                     @Html.DisplayFor(modelItem => ag.Name)
                 }

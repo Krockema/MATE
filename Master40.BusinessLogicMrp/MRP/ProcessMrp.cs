@@ -21,11 +21,11 @@ namespace Master40.BusinessLogicCentral.MRP
     public class ProcessMrp : IProcessMrp
     {
         private readonly IMessageHub _messageHub;
-        private readonly MasterDBContext _context;
+        private readonly ProductionDomainContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub)
+        public ProcessMrp(ProductionDomainContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub)
         {
             _messageHub = messageHub;
             _context = context;
@@ -132,7 +132,7 @@ namespace Master40.BusinessLogicCentral.MRP
         
         private void SetStartEndFromTermination(IDemandToProvider demand)
         { //Todo: replace provider.first()
-            var schedules = _context.ProductionOrderWorkSchedule
+            var schedules = _context.ProductionOrderWorkSchedules
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.DemandProviderProductionOrders)
                 .ThenInclude(a => a.DemandRequester)
@@ -154,7 +154,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     schedule.End = schedule.EndBackward;
                     schedule.Start = schedule.StartBackward;
                 }
-                _context.ProductionOrderWorkSchedule.Update(schedule);
+                _context.ProductionOrderWorkSchedules.Update(schedule);
                 _context.SaveChanges();
             }
         }
@@ -201,7 +201,7 @@ namespace Master40.BusinessLogicCentral.MRP
             if (demand.GetType() == typeof(DemandStock))
                 return true;
             return demandProviderProductionOrders
-                        .Select(demandProviderProductionOrder => _context.ProductionOrderWorkSchedule
+                        .Select(demandProviderProductionOrder => _context.ProductionOrderWorkSchedules
                         .Include(a => a.ProductionOrder)
                         .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId)
                         .ToList())

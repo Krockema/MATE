@@ -19,7 +19,7 @@ namespace Master40.BusinessLogicCentral.MRP
         private readonly MasterDBContext _context;
         private readonly IProcessMrp _processMrp;
 
-        public DemandForecast(MasterDBContext context, IProcessMrp processMrp)
+        public DemandForecast(ProductionDomainContext context, IProcessMrp processMrp)
         {
             _context = context;
             _processMrp = processMrp;

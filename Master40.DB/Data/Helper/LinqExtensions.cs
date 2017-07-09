@@ -34,16 +34,30 @@ namespace Master40.DB.Data.Helper
             }
         }
 
-        public static T CopyProperties<T>(this T source)
+        public static dynamic CopyProperties<T>(this T source)
         {
-            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
-            var dest = Activator.CreateInstance<T>();
+            // create A specific instance of the sourcetype
+            var dest = Activator.CreateInstance(source.GetType());
+            // get property list from Sourcetype
+            var plist = from prop in dest.GetType().GetProperties() where prop.CanRead && prop.CanWrite select prop;
+            // copy item without navigation properties
             foreach (PropertyInfo prop in plist)
             {   
                 if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
                     prop.SetValue(dest, prop.GetValue(source, null), null);
             }
             return dest;
+        }
+
+        public static void CopyDbPropertiesTo<T>(this T source, T dest)
+        {
+            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
+
+            foreach (PropertyInfo prop in plist)
+            {
+                if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
+            }
         }
 
 

@@ -31,7 +31,7 @@ namespace Master40.DB.Data.Context
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<ProductionOrder> ProductionOrders { get; set; }
         public DbSet<ProductionOrderBom> ProductionOrderBoms { get; set; }
-        public DbSet<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
+        public DbSet<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
         public DbSet<PurchasePart> PurchaseParts { get; set; }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<StockExchange> StockExchanges { get; set; }
@@ -39,7 +39,7 @@ namespace Master40.DB.Data.Context
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
 
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
-        public DbSet<Kpi> Kpi { get; set; }
+        public DbSet<Kpi> Kpis { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()

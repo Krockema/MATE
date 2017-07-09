@@ -16,7 +16,6 @@ namespace Master40.Simulation.Simulation
         public List<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public List<BusinessPartner> BusinessPartners { get; set; }
         public List<DemandToProvider> Demands { get; set; }
-
         //public IQueryable<DemandToProvider> DemandToProvider { get; set; }
         public List<Machine> Machines { get; set; }
         public List<MachineGroup> MachineGroups { get; set; }
@@ -32,7 +31,6 @@ namespace Master40.Simulation.Simulation
         public List<Stock> Stocks { get; set; }
         public List<StockExchange> StockExchanges { get; set; }
         public List<Unit> Units { get; set; }
-        public List<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public List<Kpi> Kpi { get; set; }
     }
 }

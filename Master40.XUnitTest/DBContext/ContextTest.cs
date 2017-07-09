@@ -66,7 +66,7 @@ namespace Master40.XUnitTest.DBContext
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
 
-            Assert.Equal(true, (_ctx.ProductionOrderWorkSchedule.Any()));
+            Assert.Equal(true, (_ctx.ProductionOrderWorkSchedules.Any()));
 
         }
 
@@ -110,6 +110,23 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(true, (_ctx.Articles.Any()));
 
         }
+
+        // Json to InMemory
+        [Fact]
+        public async Task CopyJsonToInMemmory()
+        {
+
+            var json = _ctx.SaveSimulationState();
+
+            _ctx.Database.EnsureDeleted();
+            _ctx.Database.EnsureCreated();
+
+            _ctx.LoadInMemoryDB(json);
+
+            Assert.Equal(true, (_ctx.Articles.Any()));
+
+        }
+
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +21,8 @@ namespace Master40
 {
     public class Startup
     {
+        private IServiceProvider _serviceProvider;
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -36,14 +39,33 @@ namespace Master40
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Database Context
-            services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            //services.AddDbContext<MasterDBContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            //services.AddDbContext<MasterDBContext>(options => options.UseInMemoryDatabase("InMemeoryMaster"));
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
 
-            services.AddDbContext<OrderDomainContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            var dboptions = new DbContextOptionsBuilder<DbContext>();
+            dboptions.UseInMemoryDatabase("one");
+                //.UseInternalServiceProvider(_serviceProvider);
 
-            services.AddDbContext<ProductionDomainContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<MasterDBContext>(op => op.UseInMemoryDatabase("one"));
+
+            //services.AddDbContext<OrderDomainContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<OrderDomainContext>(op => op.UseInMemoryDatabase("one"));
+
+            //services.AddDbContext<ProductionDomainContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ProductionDomainContext>(op => op.UseInMemoryDatabase("one"));
+            //
+            //services
+            //    .AddEntityFrameworkInMemoryDatabase()
+            //    .AddDbContext<ProductionDomainContext>((p, b) => b
+            //        .UseInMemoryDatabase("one")
+            //        .UseInternalServiceProvider(p));
 
             services.AddDbContext<CopyContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -85,10 +107,11 @@ namespace Master40
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, MasterDBContext context, HangfireDBContext hangfireContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, MasterDBContext context, HangfireDBContext hangfireContext, ProductionDomainContext productionDomainContext)
         {
 
-            MasterDBInitializerSmall.DbInitialize(context);
+            MasterDBInitializerLarge.DbInitialize(context);
+            MasterDBInitializerLarge.DbInitialize(productionDomainContext);
             HangfireDBInitializer.DbInitialize(hangfireContext);
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(options.Value);
