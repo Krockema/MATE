@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
-using Master40.DB.Data.Helper;
+using Master40.DB.Enums;
+using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 
 namespace Master40.BusinessLogicCentral.MRP
@@ -132,7 +133,7 @@ namespace Master40.BusinessLogicCentral.MRP
         
         private void SetStartEndFromTermination(IDemandToProvider demand)
         { //Todo: replace provider.first()
-            var schedules = _context.ProductionOrderWorkSchedule
+            var schedules = _context.ProductionOrderWorkSchedules
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.DemandProviderProductionOrders)
                 .ThenInclude(a => a.DemandRequester)
@@ -154,7 +155,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     schedule.End = schedule.EndBackward;
                     schedule.Start = schedule.StartBackward;
                 }
-                _context.ProductionOrderWorkSchedule.Update(schedule);
+                _context.ProductionOrderWorkSchedules.Update(schedule);
                 _context.SaveChanges();
             }
         }
@@ -205,7 +206,7 @@ namespace Master40.BusinessLogicCentral.MRP
             if (demand.GetType() == typeof(DemandStock))
                 return true;
             return demandProviderProductionOrders
-                        .Select(demandProviderProductionOrder => _context.ProductionOrderWorkSchedule
+                        .Select(demandProviderProductionOrder => _context.ProductionOrderWorkSchedules
                         .Include(a => a.ProductionOrder)
                         .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId)
                         .ToList())

@@ -4,11 +4,16 @@
 @using System.Linq;
 @using Master40.DB.Data.Helper;
 @{
-    string tasks = JsonConvert.SerializeObject(Model.Tasks, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-    string links = JsonConvert.SerializeObject(Model.Links, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-    //string min = Model.Tasks.Where(x => x.IntFrom > 0).Min(x => x.IntFrom).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
-    //string max = Model.Tasks.Max(x => x.IntTo).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
-    string dump = "stop";
+    string tasks = "[]", links = "[]";
+    if (null != Model)
+    {
+        tasks = JsonConvert.SerializeObject(Model.Tasks, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        links = JsonConvert.SerializeObject(Model.Links, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        //string min = Model.Tasks.Where(x => x.IntFrom > 0).Min(x => x.IntFrom).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
+        //string max = Model.Tasks.Max(x => x.IntTo).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
+        string dump = "stop";
+    }
+
 }
 <link rel="stylesheet" href="~/lib/dxhtml-gantt/dhtmlxgantt.css" />
 <script src="~/lib/dxhtml-gantt/dhtmlxgantt.js"></script>
@@ -82,7 +87,7 @@
 </form>
 <div class="row">
         <div class="col-md-12">
-                <div id="gantt_here" style="width: 100%; height: 500px; margin: 10px 0px"></div>
+                <div id="gantt_here" style="width: 100%; height: 650px; margin: 10px 0px"></div>
             </div>
     </div>
     <!--

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
-namespace Master40.DB.DB.Models
+using Newtonsoft.Json;
+namespace Master40.DB.Models
 {
     public class Article : BaseEntity
     {
@@ -13,6 +13,7 @@ namespace Master40.DB.DB.Models
         public virtual Unit Unit { get; set; }
         [Display(Name = "Article Type")]
         public int ArticleTypeId { get; set; }
+        [JsonIgnore]
         public virtual ArticleType ArticleType { get; set; }
         //[DisplayFormat(DataFormatString = "{0:0,0}")]
         // 
@@ -23,12 +24,18 @@ namespace Master40.DB.DB.Models
         //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         public DateTime CreationDate { get; set; }
         public Stock Stock { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ArticleBom> ArticleBoms { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ArticleBom> ArticleChilds { get; set; }
+        [JsonIgnore]
         // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 
         public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ProductionOrder> ProductionOrders { get; set; }
+        [JsonIgnore]
         public virtual ICollection<DemandToProvider> DemandToProviders { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set;}
 
     }

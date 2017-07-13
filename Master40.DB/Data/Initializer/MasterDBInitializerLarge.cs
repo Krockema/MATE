@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 
 namespace Master40.DB.Data.Initializer
 {
@@ -68,31 +68,39 @@ namespace Master40.DB.Data.Initializer
             // Articles
             var articles = new Article[]
             {
-            new Article{Name="Dump-Truck",  ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00},
-            new Article{Name="Skeleton",ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00},
-            new Article{Name="Truck-Bed", ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00},
-            new Article{Name="Chassis", ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00},
+                // Final Product
+                new Article{Name="Dump-Truck",  ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00},
+                new Article{Name="Skeleton",ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id,  CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00},
+                new Article{Name="Truck-Bed", ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00},
+                new Article{Name="Chassis", ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00},
+                
+                // Chassies
+                new Article{Name="Cabin", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1.75},
+                new Article{Name="Engine-Block", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 3.00},
+                
+                // Truck Bed
+                new Article{Name="Side wall long", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.35},
+                new Article{Name="Side wall short", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.25},
+                new Article{Name="Base plate Truck-Bed", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.40},
+                new Article{Name="Dump Joint" /*Kippgelenk*/, ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.90},
 
-            new Article{Name="Wheel", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1.00},
-            new Article{Name="Rim", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 2, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1.00},
-            new Article{Name="Base plate", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 4.00},
-            new Article{Name="Semitrailer" /*Aufleger*/, ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 3.00},
-            
-            new Article{Name="Side wall long", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1.50},
-            new Article{Name="Side wall short", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 2.00},
-            new Article{Name="Base plate Truck-Bed", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 4.00},
-            new Article{Name="Cabin", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 5.00},
-            new Article{Name="Engine block", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 3.00},
-            new Article{Name="Axis", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.50},
-            new Article{Name="Button", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.05},
-            new Article{Name="Dump Joint" /*Kippgelenk*/, ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1},
-            new Article{Name="Timber 1,5m x 3,0m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 5},
+                // Skeleton
 
-            new Article{Name="Washer", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10,UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.05},
-            new Article{Name="Glue", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 5.00},
-            new Article{Name="Pegs", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod = 3, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 3.00},
-            new Article{Name="Packing", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 7.00},
-            new Article{Name="User Manual", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.50},
+                new Article{Name="Wheel", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1.00},
+                new Article{Name="Base plate", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.80},
+                new Article{Name="Semitrailer" /*Aufleger*/, ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.10},
+                new Article{Name="Washer", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10,UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.02},
+
+                // base Materials
+                new Article{Name="Timber Plate 1,5m x 3,0m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.20},
+                new Article{Name="Timber Block 0,20m x 0,20m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.70},
+                new Article{Name="Glue", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Litre").Id, Price = 0.01},
+                new Article{Name="Pegs", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod = 3, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.01},
+                new Article{Name="Pole", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.25},
+                new Article{Name="Button", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.05},
+                new Article{Name="Packing", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 2.15},
+                new Article{Name="User Manual", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.50},
+
 
             };
             foreach (Article a in articles)
@@ -119,7 +127,7 @@ namespace Master40.DB.Data.Initializer
                         Min = (article.Key == "Dump-Truck") ? 1 : 0,
                         Max = 50,
                         Current = (article.Key == "Dump-Truck") ? 1 : 0
-            }
+                    }
                 };
                 foreach (Stock s in Stocks)
                 {
@@ -129,14 +137,41 @@ namespace Master40.DB.Data.Initializer
             }
             var workSchedule = new WorkSchedule[]
             {
+                // assemble Truck
                 new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 10 },
                 new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Glue Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 20 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Skeleton").Id,  Name = "Cut Skeleton", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "drill holes for axis mount", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Cut Truck-Bed", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Screw axis with skeleton", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 30 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Wheel").Id, Name = "Mount rim onto wheel", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 10 },
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Wheel").Id, Name = "Screw wheel with axis", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 20 },
+
+                // assemble chassie
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Chassis").Id, Name = "Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Chassis").Id, Name = "Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 20 },
+                
+                // assemble Skeleton
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "mount poles with wheels to Skeleton", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Screw wheels onto poles", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 20 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Glue Semitrailer", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 30 },
+               
+                // assemble Truck Bed
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Glue side walls and base plate together", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Mount hatchback", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit").MachineGroupId, HierarchyNumber = 20 },
+
+                // side Walls for Truck-bed
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Cut long side", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
+
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Cut short side", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
+
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Cut Base plate Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
+                // engin Block
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Cut Engine-Block", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
+                // cabin 
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cut Cabin", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
+                // Base Plate
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Base plate").Id,  Name = "Cut Base plate", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw").MachineGroupId, HierarchyNumber = 10 },
+                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "drill holes for axis mount", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill").MachineGroupId, HierarchyNumber = 20 },
 
             };
             foreach (var ws in workSchedule)
@@ -149,29 +184,51 @@ namespace Master40.DB.Data.Initializer
 
             var articleBom = new List<ArticleBom>
             {
+                // Final Products 
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck" },
+                // Bom For DumpTruck
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Chassis").Id, Name = "Chassis", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Truck-Bed", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Packing").Id, Name = "Packing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
 
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1,
-                                ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Chassis").Id, Name = "Chassis", Quantity=1,
-                                ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Truck-Bed", Quantity=1,
-                                ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                // Bom for Skeleton
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Wheel").Id, Name = "Wheel", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Semitrailer").Id, Name = "Semitrailer", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Washer").Id, Name = "Washer", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                
+                // Bom For Chassis
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Cabin").Id, Name = "Cabin", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine-Block").Id, Name = "Engine-Block", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Chassis").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Chassis").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Chassis").Id },
 
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate", Quantity=1,
-                                ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Axis").Id, Name = "Axis", Quantity=2,
-                                ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Wheel").Id, Name = "Wheel", Quantity=4,
-                                ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                // Bom for Truck-Bed
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall long").Id, Name = "Side wall long", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall short").Id, Name = "Side wall short", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id, Name = "Base plate Truck-Bed", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump Joint").Id, Name = "Dump Joint", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=10, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
 
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Rim").Id, Name = "Rim", Quantity=1,
-                                ArticleParentId = articles.Single(a => a.Name == "Wheel").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2,
-                                ArticleParentId = articles.Single(a => a.Name == "Wheel").Id },
+                // Bom for some Assemblies
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Side wall long").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Side wall short").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Base plate").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Cabin").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Engine-Block").Id },
 
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber 1,5m x 3,0m").Id, Name = "Timber 1,5m x 3,0m", Quantity=4,
-                                ArticleParentId = articles.Single(a => a.Name == "Base plate").Id },
             };
             
         
@@ -191,12 +248,28 @@ namespace Master40.DB.Data.Initializer
 
             var artToBusinessPartner = new ArticleToBusinessPartner[]
             {
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Pegs").Id , PackSize = 100, Price = 0.10, DueTime = 10},
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Chassis").Id,PackSize = 1, Price = 2, DueTime = 30},
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Truck-Bed").Id,PackSize = 1, Price = 3, DueTime = 10},
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Axis").Id,PackSize = 10, Price = 0.50, DueTime = 10},
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Timber 1,5m x 3,0m").Id,PackSize = 1, Price = 1, DueTime = 10},
-                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Rim").Id, PackSize = 10,Price = 0.20, DueTime = 10},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Skeleton").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Truck-Bed").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Chassis").Id, PackSize = 10,Price = 20.00, DueTime = 2880},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Cabin").Id,PackSize = 10,Price = 1.75, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Engine-Block").Id, PackSize = 10,Price = 0.40, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Side wall long").Id,PackSize = 10,Price = 0.55, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Side wall short").Id,PackSize = 10,Price = 0.45, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Base plate Truck-Bed").Id, PackSize = 10,Price = 0.40, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Dump Joint").Id /*Kippgelenk*/,PackSize = 50,Price = 0.90, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Wheel").Id, PackSize = 150,Price = 0.35, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Base plate").Id, PackSize = 10,Price = 0.80, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Semitrailer" /*Aufleger*/).Id, PackSize = 25,Price = 0.10, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Washer").Id,PackSize = 150,Price = 0.02, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Timber Plate 1,5m x 3,0m").Id, PackSize = 100,Price = 0.20, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Timber Block 0,20m x 0,20m").Id, PackSize = 100,Price = 0.20, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Glue").Id, PackSize = 1000,Price = 0.01, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Pegs").Id, PackSize = 200,Price = 0.01, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Pole").Id, PackSize = 200,Price = 0.25, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Button").Id, PackSize = 500,Price = 0.05, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Packing").Id, PackSize = 50,Price = 2.50, DueTime = 1440},
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="User Manual").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
+
             };
             foreach (var art in artToBusinessPartner)
             {

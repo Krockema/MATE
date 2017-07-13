@@ -1,4 +1,4 @@
-﻿namespace Master40.DB.Data.Helper
+﻿namespace Master40.MessageSystem.Messages
 {
     public enum MessageType
     {

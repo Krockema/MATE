@@ -1,5 +1,6 @@
-@using Master40.DB.DB.Models
-@model IEnumerable<Master40.DB.DB.Models.Article>
+@using Master40.DB.Models
+@using Microsoft.EntityFrameworkCore.Internal
+@model IEnumerable<Master40.DB.Models.Article>
 
 @{
     ViewData["Title"] = "Index";
@@ -62,7 +63,7 @@
                     @Html.DisplayFor(modelItem => item.Unit.Name)
                 </td>
                 <td>
-                    @foreach (var ag in item.WorkSchedules)
+                    @foreach (var ag in item.WorkSchedules.OrderBy(x => x.HierarchyNumber))
                     {
                         <table>
                             <tr>
@@ -101,6 +102,7 @@
                                 <th>
                                     ArticleParent
                                 </th>
+                                <th>Work Schedules</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

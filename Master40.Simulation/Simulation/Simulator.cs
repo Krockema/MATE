@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
-using Master40.DB.DB.Interfaces;
-using Master40.DB.DB.Models;
-using Master40.DB.Migrations;
+using Master40.DB.Enums;
+using Master40.DB.Models;
+using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
+using Master40.Simulation.Simulation.SimulationData;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Master40.Simulation.Simulation
 {
@@ -18,21 +17,35 @@ namespace Master40.Simulation.Simulation
     {
         Task Simulate();
     }
-    
+
     public class Simulator : ISimulator
     {
+
+        private readonly ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryDB")
+            .Options);
+
         private readonly ProductionDomainContext _context;
+        private readonly CopyContext _copyContext;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         private bool orderInjected = false;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IProcessMrp processMrp, IMessageHub messageHub)
+        public Simulator(ProductionDomainContext context, IMessageHub messageHub, CopyContext copyContext)
         {
             _context = context;
+            _copyContext = copyContext;
             _messageHub = messageHub;
-            _processMrp = processMrp;
+
+            // Create Context Copy to Simulation Context
+            _context.CopyAllTables(_ctx);
+            // do it on HardDisk Databse
+            _processMrp = new ProcessMrpSim(_context, messageHub);
+            //// Dp it inmemory
+            // _processMrp = new ProcessMrpSim(_context, messageHub);
+            // _context.CopyAllTables(ctx);
         }
-        
+
         private List<ProductionOrderWorkSchedule> CreateInitialTable()
         {
             var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
@@ -40,7 +53,7 @@ namespace Master40.Simulation.Simulation
             foreach (var demand in demands)
             {
                 provider.AddRange(_context.Demands.OfType<DemandProviderProductionOrder>()
-                    .Where(a => a.DemandRequester.DemandRequesterId == demand.Id 
+                    .Where(a => a.DemandRequester.DemandRequesterId == demand.Id
                     || a.DemandRequester.DemandRequester.DemandRequesterId == demand.Id
                     || a.DemandRequesterId == demand.Id).ToList());
             }
@@ -48,7 +61,7 @@ namespace Master40.Simulation.Simulation
             foreach (var singleProvider in provider)
             {
                 pows.AddRange(
-                    _context.ProductionOrderWorkSchedule.Where(
+                    _context.ProductionOrderWorkSchedules.Where(
                         a => a.ProductionOrderId == singleProvider.ProductionOrderId).ToList());
             }
             foreach (var singlePows in pows)
@@ -68,20 +81,34 @@ namespace Master40.Simulation.Simulation
             {
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
-                var timeTable = new TimeTable<ISimulationItem>(24*60);
+                var timeTable = new TimeTable<ISimulationItem>(24 * 60);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
-                if (!_context.ProductionOrderWorkSchedule.Any()) return;
-                
+                if (!_context.ProductionOrderWorkSchedules.Any()) return;
+
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
                     timeTable = ProcessTimeline(timeTable, waitingItems);
                     _messageHub.SendToAllClients(timeTable.Items.Count + "/" + (int)(timeTable.Items.Count + (int)waitingItems.Count) + " items processed.");
                 }
                 // end simulation and Unlock Screen
+
+                // Save Current Context to Database as Complext Json
+                // SaveContext();
                 _messageHub.EndScheduler();
             });
 
+        }
+
+        private void SaveContext(ProductionDomainContext _contextToSave)
+        {
+            //load Simulation Results to Main data Context.
+            var simState = new DB.Models.Simulation
+            {
+                CreationDate = DateTime.Now,
+                SimulationDbState = Newtonsoft.Json.JsonConvert.SerializeObject(_contextToSave.SaveSimulationState()),
+                SimulationType = SimulationType.Central,
+            };
         }
 
         private void CreateMachinesReady(TimeTable<ISimulationItem> timeTable)
@@ -95,7 +122,7 @@ namespace Master40.Simulation.Simulation
                 });
             }
         }
-        
+
         private int GetRandomDelay()
         {
             //later use this:
@@ -119,14 +146,14 @@ namespace Master40.Simulation.Simulation
             {
                 foreach (var freeMachineId in freeMachineIds)
                 {
-                    
+
                     var relevantItems = (from wI in waitingItems where wI.MachineId == freeMachineId select wI).ToList();
                     if (!relevantItems.Any()) continue;
                     var items = (from tT in relevantItems
                                  where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
                     var item = items.Single(a => a.Start == items.Min(b => b.Start));
-                    
+
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items)) continue;
 
@@ -166,8 +193,8 @@ namespace Master40.Simulation.Simulation
             //Todo: add Recalculate Event to timetable
             if (timeTable.Timer != timeTable.RecalculateTimer) return timeTable;
             Recalculate(timeTable.Timer);
-            UpdateWaitingItems(timeTable,waitingItems);
-            timeTable.RecalculateTimer += 24*60;
+            UpdateWaitingItems(timeTable, waitingItems);
+            timeTable.RecalculateTimer += 24 * 60;
 
             // if Progress is empty Stop.
             return timeTable;
@@ -197,7 +224,7 @@ namespace Master40.Simulation.Simulation
                 BusinessPartnerId = _context.BusinessPartners.First().Id,
                 DueTime = 100,
                 Name = "injected Order",
-                OrderParts = new List<OrderPart>() {}
+                OrderParts = new List<OrderPart>() { }
             });
             _context.SaveChanges();
             orderPart.OrderId = _context.Orders.Last().Id;
@@ -208,7 +235,7 @@ namespace Master40.Simulation.Simulation
             {
                 ArticleId = orderPart.ArticleId,
                 Quantity = orderPart.Quantity,
-                DemandProvider = new List<DemandToProvider>(){},
+                DemandProvider = new List<DemandToProvider>() { },
                 DemandRequesterId = null,
                 State = State.Injected,
                 OrderPartId = orderPart.Id
@@ -228,7 +255,7 @@ namespace Master40.Simulation.Simulation
             if (bomFinished != null) return (bool)bomFinished;
             return true;
         }
-        
+
 
         private bool? SimulationBomChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
@@ -237,9 +264,9 @@ namespace Master40.Simulation.Simulation
                 .Select(a => a.ProductionOrderChild);
             if (!childrenPos.Any()) return null;
             var childrenPows = from pos in childrenPos
-                                from pows in pos.ProductionOrderWorkSchedule
-                                where pows.HierarchyNumber == pos.ProductionOrderWorkSchedule.Max(a => a.HierarchyNumber)
-                                select pows;
+                               from pows in pos.ProductionOrderWorkSchedule
+                               where pows.HierarchyNumber == pos.ProductionOrderWorkSchedule.Max(a => a.HierarchyNumber)
+                               select pows;
 
             var latestPows = from cP in childrenPows where cP.End == childrenPows.Max(a => a.End) select cP;
             foreach (var pows in latestPows)
@@ -253,17 +280,17 @@ namespace Master40.Simulation.Simulation
 
         }
 
-        private bool? SimulationHierarchyChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems )
+        private bool? SimulationHierarchyChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
             var hierarchyChildren =
-                       _context.ProductionOrderWorkSchedule.Where(a =>
+                       _context.ProductionOrderWorkSchedules.Where(a =>
                                a.ProductionOrderId == item.ProductionOrderId &&
                                a.HierarchyNumber < item.HierarchyNumber);
             if (!hierarchyChildren.Any()) return null;
-            
+
             var pows = (from hC in hierarchyChildren where hC.HierarchyNumber == hierarchyChildren.Max(a => a.HierarchyNumber) select hC).Single();
-            if (timeTableItems.Exists(a => ((PowsSimulationItem) a).ProductionOrderWorkScheduleId == pows.Id))
-                return timeTableItems.Find(a => ((PowsSimulationItem) a).ProductionOrderWorkScheduleId == pows.Id)
+            if (timeTableItems.Exists(a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id))
+                return timeTableItems.Find(a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id)
                            .SimulationState == SimulationState.Finished;
             else return false;
 
@@ -281,7 +308,7 @@ namespace Master40.Simulation.Simulation
             //
         }
     }
-    
+
 }
 
 

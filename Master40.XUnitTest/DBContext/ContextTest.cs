@@ -3,18 +3,31 @@ using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.DB.Models;
-using Master40.MessageSystem.SignalR;
+using Master40.DB.Enums;
+using Master40.Simulation.Simulation;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
-using Master40.XUnitTest.Moc;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Master40.XUnitTest.DBContext
 {
     public class ContextTest
     {
-        readonly MasterDBContext _ctx = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+        ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseInMemoryDatabase(databaseName: "InMemoryDB")
+            .Options);
+
+        CopyContext _copyContext = new CopyContext(new DbContextOptionsBuilder<MasterDBContext>()
+        .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+            .Options);
+
+        MasterDBContext _masterDBContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+            .Options);
+
+        ProductionDomainContext _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
 
         public ContextTest()
@@ -53,9 +66,67 @@ namespace Master40.XUnitTest.DBContext
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
 
-            Assert.Equal(true, (_ctx.ProductionOrderWorkSchedule.Any()));
+            Assert.Equal(true, (_ctx.ProductionOrderWorkSchedules.Any()));
 
         }
+
+
+        // Load Database from SimulationJason
+        [Fact]
+        public async Task LoadContextAsync()
+        {
+            var simState = _ctx.SaveSimulationState();
+
+
+            var stringSimState =
+                JsonConvert.SerializeObject(simState, Formatting.Indented,
+                    new JsonSerializerSettings()
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    }
+                );
+
+            var deserialized = JsonConvert.DeserializeObject<SimulationDbState>(stringSimState);
+
+            _masterDBContext.Database.EnsureDeleted();
+            _masterDBContext.Database.EnsureCreated();
+            _copyContext.LoadContextFromSimulation(deserialized);
+
+
+            Assert.Equal(true, (_ctx.Articles.Any()));
+
+        }
+
+
+        // HardDatabase To InMemory
+        [Fact]
+        public async Task CopyContext()
+        {
+            _productionDomainContext.Database.EnsureCreated();
+            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+            _ctx.Database.EnsureCreated();
+            _productionDomainContext.CopyAllTables(_ctx);
+            
+            Assert.Equal(true, (_ctx.Articles.Any()));
+
+        }
+
+        // Json to InMemory
+        [Fact]
+        public async Task CopyJsonToInMemmory()
+        {
+
+            var json = _ctx.SaveSimulationState();
+
+            _ctx.Database.EnsureDeleted();
+            _ctx.Database.EnsureCreated();
+
+            _ctx.LoadInMemoryDB(json);
+
+            Assert.Equal(true, (_ctx.Articles.Any()));
+
+        }
+
     }
 }
 

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Helper;
-using Master40.DB.DB.Interfaces;
-using Master40.DB.DB.Models;
+using Master40.DB.Enums;
+using Master40.DB.Interfaces;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
@@ -16,7 +17,7 @@ namespace Master40.DB.Data.Context
 
         public Order OrderById(int id)
         {
-            return Orders.Where(x => x.Id == id).FirstOrDefault();
+            return Orders.FirstOrDefault(x => x.Id == id);
         }
         /// <summary>
         /// Recives the prior items to a given ProductionOrderWorkSchedule
@@ -29,7 +30,7 @@ namespace Master40.DB.Data.Context
             {
                 var priorItems = new List<ProductionOrderWorkSchedule>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
-                var maxHierarchy = ProductionOrderWorkSchedule.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
+                var maxHierarchy = ProductionOrderWorkSchedules.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
                                                     .Max(x => x.HierarchyNumber);
 
                 if (maxHierarchy == productionOrderWorkSchedule.HierarchyNumber)
@@ -49,7 +50,7 @@ namespace Master40.DB.Data.Context
                 {
                     // get Previous Workschedule
                     var previousPows =
-                        ProductionOrderWorkSchedule.Where(
+                        ProductionOrderWorkSchedules.Where(
                                 x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId
                                      && x.HierarchyNumber > productionOrderWorkSchedule.HierarchyNumber)
                             .OrderBy(x => x.HierarchyNumber).FirstOrDefault();
@@ -152,7 +153,7 @@ namespace Master40.DB.Data.Context
 
             return mainProductionOrder;
         }
-        
+
         /// <summary>
         /// returns the Production Order Work Schedules for a given Order
         /// </summary>
@@ -184,9 +185,9 @@ namespace Master40.DB.Data.Context
                     .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
 
                 // get ProductionOrderWorkSchedule for 
-                var pows = ProductionOrderWorkSchedule.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
-                var powDetails = (pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
-                    (p, dp) => p)).ToList();
+                var pows = ProductionOrderWorkSchedules.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
+                var powDetails = pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
+                    (p, dp) => p).ToList();
 
                 var powBoms = (from p in pows
                     join dbp in demandBomProviders on p.ProductionOrderId equals dbp.ProductionOrderId
@@ -468,7 +469,7 @@ namespace Master40.DB.Data.Context
 
         public void AssignProductionOrderWorkSchedulesToProductionOrder(ProductionOrder productionOrder)
         {
-            foreach (var pows in ProductionOrderWorkSchedule.Where(a => a.ProductionOrderId == productionOrder.Id))
+            foreach (var pows in ProductionOrderWorkSchedules.Where(a => a.ProductionOrderId == productionOrder.Id))
             {
                 productionOrder.ProductionOrderWorkSchedule.Add(pows);
             }
@@ -487,7 +488,7 @@ namespace Master40.DB.Data.Context
                 workSchedule.Duration *= (int)productionOrder.Quantity;
                 workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.MachineId = null;
-                ProductionOrderWorkSchedule.Add(workSchedule);
+                ProductionOrderWorkSchedules.Add(workSchedule);
                 SaveChanges();
             }
         }

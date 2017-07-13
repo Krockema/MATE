@@ -1,4 +1,5 @@
 ﻿using Master40.DB.Data.Helper;
+using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 
 namespace Master40.XUnitTest.Moc

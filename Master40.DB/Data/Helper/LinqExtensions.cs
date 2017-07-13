@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Master40.DB.Data.Helper
 {
     public static class LinqExtensions
     {
-            
         public static long GetEpochMilliseconds(this DateTime date)
         {
             TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
@@ -31,6 +32,41 @@ namespace Master40.DB.Data.Helper
                 if (prop.Name != "Id")
                     prop.SetValue(dest, prop.GetValue(source, null), null);
             }
+        }
+
+        public static dynamic CopyProperties<T>(this T source)
+        {
+            // create A specific instance of the sourcetype
+            var dest = Activator.CreateInstance(source.GetType());
+            // get property list from Sourcetype
+            var plist = from prop in dest.GetType().GetProperties() where prop.CanRead && prop.CanWrite select prop;
+            // copy item without navigation properties
+            foreach (PropertyInfo prop in plist)
+            {   
+                if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
+            }
+            return dest;
+        }
+
+        public static void CopyDbPropertiesTo<T>(this T source, T dest)
+        {
+            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
+
+            foreach (PropertyInfo prop in plist)
+            {
+                if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
+            }
+        }
+
+
+        public static List<PropertyInfo> GetDbSetProperties(this DbContext context)
+        {
+            var properties = context.GetType().GetProperties();
+            return (from property in properties let setType = property.PropertyType let isDbSet = (typeof(DbSet<>)
+                    .IsAssignableFrom(setType.GetGenericTypeDefinition())) where isDbSet select property).ToList();
+
         }
 
         /// <summary>

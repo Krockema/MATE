@@ -2,11 +2,12 @@
 using System.Linq;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Data.Context;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Helper;
 using System;
-using Master40.DB.DB.Interfaces;
+using Master40.DB.Enums;
+using Master40.DB.Interfaces;
 
 namespace Master40.BusinessLogicCentral.MRP
 {//Todo: multi-machines fix
@@ -62,7 +63,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private List<ProductionOrderWorkSchedule> GetInitialPlannedSchedules(int timer)
         {
-            return timer == 0 ? null : _context.ProductionOrderWorkSchedule.Where(a => a.Start <= timer && a.End - a.Start == a.Duration).ToList();
+            return timer == 0 ? null : _context.ProductionOrderWorkSchedules.Where(a => a.Start <= timer && a.End - a.Start == a.Duration).ToList();
         }
 
         private List<ProductionOrderWorkSchedule> AddMachineToPows(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest)
@@ -81,7 +82,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     shortest.MachineId = currentPows.MachineId;
                     shortest.Start = currentPows.Start;
                     shortest.End = currentPows.End;
-                    _context.ProductionOrderWorkSchedule.Update(shortest);
+                    _context.ProductionOrderWorkSchedules.Update(shortest);
                     _context.SaveChanges();
                     continue;
                 }
@@ -173,7 +174,7 @@ namespace Master40.BusinessLogicCentral.MRP
             List<ProductionOrderWorkSchedule> powsChildren = new List<ProductionOrderWorkSchedule>();
             if (shortest.HierarchyNumber > 10)
             {
-                var children = _context.ProductionOrderWorkSchedule.Where(a =>
+                var children = _context.ProductionOrderWorkSchedules.Where(a =>
                     a.ProductionOrderId == shortest.ProductionOrderId &&
                     a.HierarchyNumber < shortest.HierarchyNumber).ToList();
                 if (children.Any())
@@ -390,7 +391,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 var slack = plannableSchedule.ActivitySlack;
                 plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - GetChildEndTime(plannableSchedule);
                 if (slack == plannableSchedule.ActivitySlack) continue;
-                _context.ProductionOrderWorkSchedule.Update(plannableSchedule);
+                _context.ProductionOrderWorkSchedules.Update(plannableSchedule);
                 _context.SaveChanges();
             }
         }
@@ -502,7 +503,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private ProductionOrderWorkSchedule GetHierarchyChild(ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
-            var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedule.AsNoTracking().Where(a => a.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId);
+            var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.AsNoTracking().Where(a => a.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId);
             productionOrderWorkSchedules = productionOrderWorkSchedules.Where(mainSchedule => mainSchedule.HierarchyNumber < productionOrderWorkSchedule.HierarchyNumber);
             if (!productionOrderWorkSchedules.Any()) return null;
             return productionOrderWorkSchedules.Single(a => a.HierarchyNumber == productionOrderWorkSchedules.Max(b => b.HierarchyNumber));
@@ -669,7 +670,7 @@ namespace Master40.BusinessLogicCentral.MRP
             CallChildrenSatisfyRequest(demand);
         }
 
-
+        
         private void CallChildrenSatisfyRequest(IDemandToProvider demand)
         {
             //call method for each child

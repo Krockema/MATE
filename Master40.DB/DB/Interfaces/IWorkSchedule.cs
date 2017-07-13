@@ -1,5 +1,5 @@
 ﻿
-namespace Master40.DB.DB.Interfaces
+namespace Master40.DB.Interfaces
 {
     public interface IWorkSchedule
     {

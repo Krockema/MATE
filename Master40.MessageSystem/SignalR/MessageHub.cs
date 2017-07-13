@@ -1,4 +1,4 @@
-﻿using Master40.DB.Data.Helper;
+﻿using Master40.MessageSystem.Messages;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.MessageSystem.SignalR

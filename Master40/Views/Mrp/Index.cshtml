@@ -9,7 +9,7 @@
     function submitform() {
         var value1 = $('#fcOrder').val();
         var value2 = $('#fcState').val();
-        $(".MessageDisplayRunning").append('<div class="alert alert-success">Preparing View</div>');
+        $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
         loadGantt(value1, value2);
         loadCharts(value2)
         //$('form').submit();
@@ -94,12 +94,12 @@
             if (msg == "MrpProcessingComplete") {
                 loadCharts(1);
                 loadGantt(-1, 1);
-                $(".MessageDisplay").append('<div class="alert alert-info">Completed Processing</div>');
-                $(".MessageDisplayRunning").append('<div class="alert alert-success">Completed Processing</div>');
-                $(".MessageDisplayRunning").append('<div class="alert alert-info">Loading Results...</div>');
+                $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
+                $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+                $(".MessageDisplayRunning").prepend('<div class="alert alert-info">Loading Results...</div>');
             } else {
-                $(".MessageDisplay").append(msg);
-                $(".MessageDisplayRunning").append(msg);
+                $(".MessageDisplay").prepend(msg);
+                $(".MessageDisplayRunning").prepend(msg);
             }
         });
 
@@ -154,7 +154,7 @@
 
         $(document).ready(function () {
             // Block Interactions
-            $(".MessageDisplayRunning").append('<div class="alert alert-success">Preparing System</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing System</div>');
             $('#ajax-busy').show();
             // make make use of full size and hide overflow
             $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");

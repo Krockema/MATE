@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 
 namespace Master40.ViewComponents
 {

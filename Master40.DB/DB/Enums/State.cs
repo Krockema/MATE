@@ -1,4 +1,4 @@
-﻿namespace Master40.DB.DB.Models
+﻿namespace Master40.DB.Enums
 {
     public enum State
     {

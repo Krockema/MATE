@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
 
-namespace Master40.DB.DB.Interfaces
+namespace Master40.DB.Interfaces
 {
     public interface ISimulationProductionOrderWorkSchedule
     {

@@ -10,7 +10,7 @@ $(function () {
                 '</div>' +
                 '<div class="modal-body">' + 
                     '<div class="row">'+ 
-                    '<div class="MessageDisplayRunning" style="width: 100%;padding-left: 140px; float: right""></div>' +
+                    '<div class="MessageDisplayRunning" style="width: 100%;padding-left: 140px; float: right; overflow-y: auto; max-height: 400px"></div>' +
                     '<div class="loading" style="width: 120px;margin 5px"></div>' +
                     '</div>' +
                 '</div>'+

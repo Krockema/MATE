@@ -36,7 +36,12 @@ namespace Master40.ViewComponents
                 }
                 */
                 // Create Chart Object
-                Chart chart = new Chart();
+                if (!_context.ProductionOrderWorkSchedules.Any())
+                {
+                    return null;
+                }
+
+               Chart chart = new Chart();
 
                 // charttype
                 chart.Type = "bar";
@@ -96,17 +101,31 @@ namespace Master40.ViewComponents
             switch (schedulingState)
             {
                 case 1:
-                    min = _context.ProductionOrderWorkSchedule.Where(x => x.StartBackward < 9000).Min(x => x.StartBackward);
-                    max = _context.ProductionOrderWorkSchedule.Where(x => x.EndBackward < 9000).Max(x => x.EndBackward);
+                    min = _context.ProductionOrderWorkSchedules.Min(x => x.StartBackward);
+                    max = _context.ProductionOrderWorkSchedules.Max(x => x.EndBackward);
                     break;
                 case 2:
-                    min = _context.ProductionOrderWorkSchedule.Where(x => x.StartForward < 9000).Min(x => x.StartForward);
-                    max = _context.ProductionOrderWorkSchedule.Where(x => x.EndForward < 9000).Max(x => x.EndForward);
+                    min = _context.ProductionOrderWorkSchedules.Min(x => x.StartForward);
+                    max = _context.ProductionOrderWorkSchedules.Max(x => x.EndForward);
                     break;
                 default:
-                    min = _context.ProductionOrderWorkSchedule.Where(x => x.Start < 9000).Min(x => x.Start);
-                    max = _context.ProductionOrderWorkSchedule.Where(x => x.End < 9000).Max(x => x.End);
+                    min = _context.ProductionOrderWorkSchedules.Min(x => x.Start);
+                    max = _context.ProductionOrderWorkSchedules.Max(x => x.End);
                     break;
+/*
+                case 1:
+                    min = _context.ProductionOrderWorkSchedules.Where(x => x.StartBackward < 9000).Min(x => x.StartBackward);
+                    max = _context.ProductionOrderWorkSchedules.Where(x => x.EndBackward < 9000).Max(x => x.EndBackward);
+                    break;
+                case 2:
+                    min = _context.ProductionOrderWorkSchedules.Where(x => x.StartForward < 9000).Min(x => x.StartForward);
+                    max = _context.ProductionOrderWorkSchedules.Where(x => x.EndForward < 9000).Max(x => x.EndForward);
+                    break;
+                default:
+                    min = _context.ProductionOrderWorkSchedules.Where(x => x.Start < 9000).Min(x => x.Start);
+                    max = _context.ProductionOrderWorkSchedules.Where(x => x.End < 9000).Max(x => x.End);
+                    break;
+                    */
             }
 
             for (int i = min; i < max; i++)
@@ -139,7 +158,7 @@ namespace Master40.ViewComponents
                                                         }).ToList();
             */
 
-            var productionOrderWorkSchedulesBy = _context.ProductionOrderWorkSchedule.Where(x => x.MachineGroupId == machineGroupId).AsNoTracking();
+            var productionOrderWorkSchedulesBy = _context.ProductionOrderWorkSchedules.Where(x => x.MachineGroupId == machineGroupId).AsNoTracking();
             
             var data = new List<double>();
             for (var i = minRange; i < maxRange; i++)

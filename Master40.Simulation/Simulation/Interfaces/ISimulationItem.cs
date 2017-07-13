@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Master40.DB.DB.Models;
+using Master40.DB.Models;
+using Master40.Simulation.Simulation.SimulationData;
 
 namespace Master40.Simulation.Simulation
 {
