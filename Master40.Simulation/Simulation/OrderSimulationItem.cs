@@ -14,6 +14,7 @@ namespace Master40.Simulation.Simulation
             Start = start;
             End = end;
         }
+        public int ProductionOrderWorkScheduleId { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
         public SimulationState SimulationState { get; set; }

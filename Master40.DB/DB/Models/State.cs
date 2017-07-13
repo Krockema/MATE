@@ -3,6 +3,7 @@
     public enum State
     {
         Created,
+        Injected,
         ProviderExist,
         BackwardScheduleExists,
         ForwardScheduleExists,

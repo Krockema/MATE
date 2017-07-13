@@ -18,8 +18,8 @@ namespace Master40.BusinessLogicCentral.MRP
 
     public class Scheduling : IScheduling
     {
-        private readonly MasterDBContext _context;
-        public Scheduling(MasterDBContext context)
+        private readonly ProductionDomainContext _context;
+        public Scheduling(ProductionDomainContext context)
         {
             _context = context;
         }
@@ -127,6 +127,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private int GetDueTime(IDemandToProvider demand)
         {
+            demand = _context.Demands.Single(a => a.Id == demand.Id);
             var latestEnd = 0;
             if (demand.State == State.ForwardScheduleExists)
             {
@@ -148,10 +149,11 @@ namespace Master40.BusinessLogicCentral.MRP
                 return latestEnd;
             }
             demand = _context.Demands.AsNoTracking().Include(a => a.DemandRequester).Single(a => a.Id == demand.Id);
-            var dueTime = 9999;
             if (demand.DemandRequesterId != null && demand.DemandRequester.GetType() == typeof(DemandOrderPart))
-                dueTime = _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand.DemandRequester).OrderPartId).Order.DueTime;
-            return dueTime;
+                return _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand.DemandRequester).OrderPartId).Order.DueTime;
+            if (demand.DemandRequesterId == null && demand.GetType() == typeof(DemandOrderPart))
+                return _context.OrderParts.Include(a => a.Order).Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId).Order.DueTime;
+            return 999999;
         }
 
         internal int GetMinForward(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
@@ -225,14 +227,15 @@ namespace Master40.BusinessLogicCentral.MRP
                     else
                     {
                         if (parentSchedule.StartBackward < parentStart) parentStart = parentSchedule.StartBackward;
-                    }
-                       
+                    }                       
                 }
 
                end = parentStart;
             }
             else
             {
+                workSchedule = _context.ProductionOrderWorkSchedule.Include(a => a.ProductionOrder).ThenInclude(b => b.DemandProviderProductionOrders).ThenInclude(c => c.DemandRequester).Single(a => a.Id == workSchedule.Id);
+                //Todo: rework first when los isze is implemented
                 end = GetDueTime(workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester 
                     ?? workSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester);
             }

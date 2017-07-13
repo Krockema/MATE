@@ -20,11 +20,11 @@ namespace Master40.BusinessLogicCentral.MRP
     public class ProcessMrp : IProcessMrp
     {
         private readonly IMessageHub _messageHub;
-        private readonly MasterDBContext _context;
+        private readonly ProductionDomainContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        public ProcessMrp(MasterDBContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub)
+        public ProcessMrp(ProductionDomainContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub)
         {
             _messageHub = messageHub;
             _context = context;
@@ -101,18 +101,19 @@ namespace Master40.BusinessLogicCentral.MRP
             var demands = _context.Demands.Where(a =>
                                a.State == State.BackwardScheduleExists || 
                                a.State == State.ForwardScheduleExists ||
-                               a.State == State.ExistsInCapacityPlan).ToList();
+                               a.State == State.ExistsInCapacityPlan ||
+                               (timer > 0 && a.State == State.Injected)).ToList();
            
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
             if (timer > 0)
                 _capacityScheduling.RebuildNets(timer);
 
-            if (task == MrpTask.All || task == MrpTask.Capacity)
+            if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
                 //creates a list with the needed capacities to follow the terminated schedules
                 machineList = _capacityScheduling.CapacityRequirementsPlanning(timer);
             
-            if (task == MrpTask.GifflerThompson || (_capacityScheduling.CapacityLevelingCheck(machineList) && task == MrpTask.All))
+            if (timer != 0 || (task == MrpTask.GifflerThompson || (_capacityScheduling.CapacityLevelingCheck(machineList) && task == MrpTask.All)))
                 _capacityScheduling.GifflerThompsonScheduling(timer);
             else
             {
@@ -169,6 +170,8 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 ExecutePlanning(demand, null, task);
                 demand.State = State.ProviderExist;
+                _context.Update(demand);
+                _context.SaveChanges();
                 _messageHub.SendToAllClients("Requirements planning completed.");
             }
             
@@ -176,6 +179,8 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 _scheduling.BackwardScheduling(demand);
                 demand.State = State.BackwardScheduleExists;
+                _context.Update(demand);
+                _context.SaveChanges();
                 _messageHub.SendToAllClients("Backward schedule exists.");
 
             }

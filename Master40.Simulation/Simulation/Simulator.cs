@@ -24,6 +24,7 @@ namespace Master40.Simulation.Simulation
         private readonly ProductionDomainContext _context;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
+        private bool orderInjected = false;
         //private readonly HubCallback _hubCallback;
         public Simulator(ProductionDomainContext context, IProcessMrp processMrp, IMessageHub messageHub)
         {
@@ -40,17 +41,19 @@ namespace Master40.Simulation.Simulation
             {
                 provider.AddRange(_context.Demands.OfType<DemandProviderProductionOrder>()
                     .Where(a => a.DemandRequester.DemandRequesterId == demand.Id 
-                    || a.DemandRequester.DemandRequester.DemandRequesterId == demand.Id).ToList());
+                    || a.DemandRequester.DemandRequester.DemandRequesterId == demand.Id
+                    || a.DemandRequesterId == demand.Id).ToList());
             }
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleProvider in provider)
             {
                 pows.AddRange(
                     _context.ProductionOrderWorkSchedule.Where(
-                        a => a.ProductionOrderId == singleProvider.ProductionOrderId));
+                        a => a.ProductionOrderId == singleProvider.ProductionOrderId).ToList());
             }
             foreach (var singlePows in pows)
             {
+                if (singlePows.DurationSimulation != 0) continue;
                 singlePows.StartSimulation = singlePows.Start;
                 singlePows.EndSimulation = singlePows.End;
                 singlePows.DurationSimulation = singlePows.Duration;
@@ -104,10 +107,12 @@ namespace Master40.Simulation.Simulation
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            if (timeTable.Timer == 1)
+            if (!orderInjected && timeTable.Timer == 1)
             {
-                //CreateNewOrder(1, 1);
+                CreateNewOrder(1, 1);
                 Recalculate(timeTable.Timer);
+                orderInjected = true;
+                UpdateWaitingItems(timeTable, waitingItems);
             }
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
@@ -161,10 +166,22 @@ namespace Master40.Simulation.Simulation
             //Todo: add Recalculate Event to timetable
             if (timeTable.Timer != timeTable.RecalculateTimer) return timeTable;
             Recalculate(timeTable.Timer);
+            UpdateWaitingItems(timeTable,waitingItems);
             timeTable.RecalculateTimer += 24*60;
 
             // if Progress is empty Stop.
             return timeTable;
+        }
+
+        private void UpdateWaitingItems(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems)
+        {
+            var completeList = CreateInitialTable();
+            foreach (var item in completeList)
+            {
+                if (timeTable.Items.Any(a => a.ProductionOrderWorkScheduleId == item.Id)) continue;
+                if (waitingItems.Any(a => a.Id == item.Id)) continue;
+                waitingItems.Add(item);
+            }
         }
 
         private void CreateNewOrder(int articleId, int amount)
@@ -180,11 +197,26 @@ namespace Master40.Simulation.Simulation
                 BusinessPartnerId = _context.BusinessPartners.First().Id,
                 DueTime = 100,
                 Name = "injected Order",
-                OrderParts = new List<OrderPart>() { orderPart }
+                OrderParts = new List<OrderPart>() {}
             });
             _context.SaveChanges();
             orderPart.OrderId = _context.Orders.Last().Id;
             _context.OrderParts.Add(orderPart);
+            _context.SaveChanges();
+            _context.Orders.Last().OrderParts.Add(orderPart);
+            var dop = new DemandOrderPart()
+            {
+                ArticleId = orderPart.ArticleId,
+                Quantity = orderPart.Quantity,
+                DemandProvider = new List<DemandToProvider>(){},
+                DemandRequesterId = null,
+                State = State.Injected,
+                OrderPartId = orderPart.Id
+            };
+            _context.Demands.Add(dop);
+            _context.SaveChanges();
+            orderPart.DemandOrderParts.Add(dop);
+            _context.OrderParts.Update(orderPart);
             _context.SaveChanges();
         }
 
