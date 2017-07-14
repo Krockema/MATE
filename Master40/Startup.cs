@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -74,7 +75,8 @@ namespace Master40
             services.AddDbContext<HangfireDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("Hangfire")));
 
-            services.AddHangfire(options => options.UseSqlServerStorage(Configuration.GetConnectionString("Hangfire")));
+            services.AddHangfire(options => 
+                options.UseSqlServerStorage(Configuration.GetConnectionString("Hangfire")));
 
             services.AddSingleton<IMessageHub, MessageHub>();
             services.AddSingleton<IScheduling, Scheduling>();
@@ -109,11 +111,18 @@ namespace Master40
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, MasterDBContext context, HangfireDBContext hangfireContext, ProductionDomainContext productionDomainContext)
+        public void Configure(IApplicationBuilder app
+                            , IHostingEnvironment env
+                            , ILoggerFactory loggerFactory
+                            , HangfireDBContext hangfireContext
+                            , MasterDBContext context
+                            , ProductionDomainContext productionDomainContext)
         {
-
-            MasterDBInitializerLarge.DbInitialize(context);
-            MasterDBInitializerLarge.DbInitialize(productionDomainContext);
+            Task.Run((() => { 
+                MasterDBInitializerLarge.DbInitialize(context);
+                MasterDBInitializerLarge.DbInitialize(productionDomainContext);
+                }
+            ));
             HangfireDBInitializer.DbInitialize(hangfireContext);
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(options.Value);
