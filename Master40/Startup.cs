@@ -15,6 +15,7 @@ using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Initializer;
 using Master40.MessageSystem.SignalR;
+using Master40.MessageSystem.MessageReciever;
 using Master40.Simulation.Simulation;
 
 namespace Master40
@@ -81,9 +82,10 @@ namespace Master40
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<IProcessMrp, ProcessMrpSim>();
+            services.AddSingleton<Client>();
 
-            
-            
+
+
             services.Configure<RequestLocalizationOptions>(
                 opts =>
                 {

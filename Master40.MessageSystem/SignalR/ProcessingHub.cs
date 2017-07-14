@@ -11,9 +11,9 @@ namespace Master40.MessageSystem.SignalR
         /*
         private readonly IProcessMrp _processMrp;
         */
-        private readonly MessageHub _hubCallback;
+        private readonly IMessageHub _hubCallback;
 
-        public ProcessingHub(MessageHub hubCallback) //, IProcessMrp processMrp)
+        public ProcessingHub(IMessageHub hubCallback) //, IProcessMrp processMrp)
         {
             //_processMrp = processMrp;
             _hubCallback = hubCallback;
@@ -22,6 +22,11 @@ namespace Master40.MessageSystem.SignalR
         public void SystemReady()
         {
             Clients.All.clientListener(_hubCallback.ReturnMsgBox("SignalR Hub active.", MessageType.info));
+        }
+
+        public void SystemReady2()
+        {
+            Clients.All.clientListener(_hubCallback.ReturnMsgBox("SignalR Hub active Call Internal.", MessageType.info));
         }
         /*
         public void StartFullPlanning()
@@ -74,7 +79,7 @@ namespace Master40.MessageSystem.SignalR
             BackgroundJob.ContinueWith<HubCallback>(jobId, (x => _hubCallback.EndScheduler()));
             Clients.All.clientListener(_hubCallback.ReturnMsgBox("Start simmulation...", MessageType.info));
             */
-        }
+    }
     }
 
     //Works

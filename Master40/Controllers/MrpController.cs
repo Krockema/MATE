@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
+using Master40.MessageSystem.MessageReciever;
 using Master40.Simulation.Simulation;
 
 namespace Master40.Controllers
@@ -11,11 +12,13 @@ namespace Master40.Controllers
     public class MrpController : Controller
     {
         private readonly IProcessMrp _processMrp;
-        private readonly ISimulator _simulator;        
-        public MrpController(IProcessMrp processMrp, ISimulator simulator)
+        private readonly ISimulator _simulator;
+        private readonly Client _client;
+        public MrpController(IProcessMrp processMrp, ISimulator simulator, Client client)
         {
             _processMrp = processMrp;
             _simulator = simulator;
+            _client = client;
         }
         public IActionResult Index()
         {

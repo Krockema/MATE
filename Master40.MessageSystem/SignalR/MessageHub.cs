@@ -1,4 +1,5 @@
 ﻿using Master40.MessageSystem.Messages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.MessageSystem.SignalR
@@ -11,7 +12,7 @@ namespace Master40.MessageSystem.SignalR
         void EndScheduler();
     }
 
-    public class MessageHub : IMessageHub
+    public class MessageHub : Hub, IMessageHub
     {
         private readonly IConnectionManager _connectionManager;
         public MessageHub(IConnectionManager connectionManager)
