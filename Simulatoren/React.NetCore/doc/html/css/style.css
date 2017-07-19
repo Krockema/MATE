@@ -1,0 +1,326 @@
+/*
+ * $Id: style.css 110 2005-11-20 20:40:31Z Eric Roe $
+ */
+
+html, body {
+	font-size: 10pt;
+	font-weight: normal;
+	font-family: Verdana, Arial, helvetica, sans-serif;
+}
+
+body {
+	margin: 0px;
+}
+
+a:link, a:visited {
+	text-decoration: none;
+	color: blue;
+}
+a:hover {
+	text-decoration: underline;
+/*	background-color: #b9d1e4; */
+}
+
+a img {
+	border: none;
+}
+
+p.preliminary {
+	color: red;
+	text-align: center;
+	font-style: italic;
+}
+
+.important {
+	background-color: #ffd8d8;
+	padding: 8px;
+}
+
+img.totop {
+	float: right;
+	position: relative;
+	top: 3px;
+	border:none;
+	margin: 0px;
+}
+
+/*===========================================================================*/
+#banner {
+	padding-top: 0px;
+	padding-left: 10px;
+	background-color: black;
+	color: white;
+	border: 1px solid black;
+}
+
+#title {
+	margin: 8px 0px 0px 0px;
+	font-size: 22pt;
+	border: none;
+	letter-spacing: 8px;
+}
+
+#slogan {
+	color: #4d8cba;
+	font-family: "Times New Roman", Times, serif;
+	font-style: italic;
+	font-weight: bold;
+	font-size: 16pt;
+	margin-top: 0px;
+	padding-bottom: 10px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	border: none;
+	letter-spacing: 1px;
+}
+
+/*===========================================================================*/
+#menubar {
+	text-align: center;
+	background-color: #cccccc;
+	padding: 2px;
+	margin: 0px;
+	border-bottom: 1px solid #c0c0c0;
+}
+
+div#menubar p {
+	margin: 0px;
+	padding: 0px;
+}
+
+div#menubar a:hover {
+	background-color: #e8e8e8;
+}
+
+div#menubar a {
+	text-decoration: none;
+	font-size: 80%;
+	color: black;
+}
+
+/*===========================================================================*/
+#toc {
+	border: 1px solid black;
+	padding: 0px;
+	margin-left: 5px;
+	background-color: #ccccee;
+}
+
+#toc p {
+	background-color: black;
+	color: #4d8cba;
+	font-family: "Times New Roman", Times, serif;
+	font-style: italic;
+	font-weight: bold;
+	font-size: 120%;
+	margin: 0px;
+	padding: 0px;
+	text-align: center;
+}
+
+#toc ul {
+	font-size: 80%;
+	padding-right: 12px;
+}
+
+#toc li {
+	margin-bottom: 6px;
+}
+
+
+/*===========================================================================*/
+#content {
+	background-color: white;
+	color: black;
+	border: none;
+	padding: 10px 10px 0px 10px;
+	margin-left: 35px;
+}
+
+h1 {
+	margin-left: -35px;
+	border-bottom: 1px solid #cccccc;
+	margin-right: 50px;
+	font-size: 14pt;
+	margin-top: 2em;
+	letter-spacing: 3px;
+}
+
+h2 {
+	margin-left: -30px;
+	font-style: italic;
+	font-size: 12pt;
+	margin-bottom: -10px;
+}
+
+h3 {
+	font-size: 10pt;
+	margin-bottom: -0.5em;
+	margin-left: -10px;
+}
+
+p {
+}
+
+/*===========================================================================*/
+#footer {
+	margin-top: 2em;
+	padding-bottom: 1.5em;
+	width: 100%;
+	clear: both;
+}
+
+
+address {
+	text-align: right;
+	margin-right: 0.5em;
+	color: #909090;
+}
+
+#valid {
+	float: left;
+	margin-left: 8px;
+}
+
+/*===========================================================================*/
+div.callout {
+	width: 65%;
+	border: 1px solid red;
+	margin: 1.5em auto;
+	background-color: #FFC0CB;
+}
+
+h2.callouthdr {
+	font-size: 9pt;
+	border: none;
+	margin-top: 5px;
+	margin-left: 0px;
+	margin-bottom: 5px;
+}
+
+.annotation {
+	text-align: left;
+	background-color: red;
+	padding: 4px;
+	color: white;
+	font-weight: bold;
+}
+
+.message {
+	padding: 4px;
+	margin: 0px;
+	color: black;
+	text-align: left;
+}
+
+div.message p {
+	margin-top: 0px;
+	margin-bottom: 1px;
+}
+
+#download {
+	margin-right: 3em;
+	position: relative;
+	text-align: center;
+}
+
+div#download p {
+	margin-left: 1.5em;
+}
+
+/*===========================================================================*/
+table {
+	font-size: 100%;
+	border: 1px solid #4A86B8;
+	padding: 0px;
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+th, td {
+	text-align: left;
+	margin: 0px;
+	padding: 3px 9px 3px 3px;
+}
+
+th {
+	vertical-align: middle;
+	background-color: #4A86B8;
+}
+
+td {
+	vertical-align: top;
+}
+
+/*===========================================================================*/
+dl {
+	margin-left: 2em;
+}
+
+dt {
+	font-weight: bold;
+}
+
+dd {
+	margin-left: 0px;
+	margin-bottom: 1em;
+}
+
+/*===========================================================================*/
+div.example {
+	border: 1px dotted #C0C0C0;
+	color: blue;
+	background-color: #E8E8F0;
+	padding: 10px;
+}
+
+span.classname {
+	font-family: "Courier New", courier, monospace;
+	font-size: 10pt;
+	color: black;
+	font-weight: bold;
+}
+
+
+/*===========================================================================*/
+dl.toclist {
+	margin-left: 0px;
+	width: 90%;
+}
+
+dl.toclist dt {
+	font-weight: normal;
+}
+
+dl.toclist dd {
+	margin-left: 2em;
+}
+
+dl.toclist ul {
+	margin-top: 6px;
+}
+
+dl.toclist li {
+	margin: 6px;
+}
+
+dl.toclist p {
+	margin-top: 1px;
+	margin-bottom: 3px;
+}
+/*===========================================================================*/
+dl.paramlist {
+}
+
+dl.paramlist dt {
+	font-family: "Courier New", Courier, monospace;
+}
+
+/* Above not used right now. */
+
+/*===========================================================================*/
+ul.howto {
+	margin-left: 0px;
+}
+
+/* -----------------------------  END OF FILE  ----------------------------- */

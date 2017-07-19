@@ -1,0 +1,166 @@
+<!--
+
+    $Id: greetings1.xml 110 2005-11-20 20:40:31Z Eric Roe $
+
+   	React.NET Web Site Page.
+    Copyright © 2005 Eric K. Roe.  All rights reserved.
+ 
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+ 
+        <html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>React.NET - Greetings (Delegate version)</title>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="copyright" content="Copyright © 2006 Eric K. Roe, All rights reserved.">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="banner"><a name="top"></a><h1 id="title">React.NET</h1>
+<h2 id="slogan">Discrete Event Simulation Framework</h2>
+</div>
+<div id="menubar">
+<p>
+				|<a href="index.html"> Home </a>
+				|<a href="quick_start.html">Quick Start</a>
+				|<a href="examples.html"> Examples </a>
+				|<a href="howtos.html"> How-tos </a>
+				|<a href="documentation.html"> Documentation </a>
+				|
+			</p>
+</div>
+<p class="preliminary">
+				[This is preliminary documentation and is subject to change.]
+			</p>
+<div id="content">
+<div><!--===================================================-->
+<!-- ======================================================================= -->
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="overview"></a>Greetings (Delegate version)</h1>
+
+<p>
+	This is the first "Hello, world" example program.  This class runs
+	a simple simulation that prints a greeting message to standard output
+	(e.g. the console).  In this example, none of the React.NET classes are
+	subclassed to implement the simulation.  The process steps are provided
+	via a delegate, <b>SayHello</b>.
+</p>
+<p>
+	This example program demonstrates how a simple simulation can be created
+	without extending any of the React.NET classes.  Most simulations will
+	probably contain subclasses of the <code>Process</code> class and
+	possibly of the <code>Simulation</code> class.
+</p>
+
+<p>
+	The complete code for this example is shown below and is also available
+	as <b>greetings1.cs</b> in the <b>examples\greetings</b> directory.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using React;
+
+public class Greetings
+{
+    private Greetings() { }
+
+    private IEnumerator&lt;Task&gt; SayHello(Process process, object data)
+    {
+        Console.WriteLine("Greetings1 says, Hello there ...");
+        yield break;
+    }
+
+    public static void Main(string [] args)
+    {
+        Simulation sim = new Simulation();
+        Greetings greetings = new Greetings();
+        Process process = new Process(sim, greetings.SayHello);
+        sim.Run(process);
+    }
+}</pre>
+</div>
+
+<h1>The Explanation</h1>
+
+<p>
+	Start by including references to some of the required namespaces.  The
+	<code>System.Collections.Generic</code> namespace is required for the
+	<code>IEnumerator&lt;Task&gt;</code> class.  The <code>React</code>
+	namespace is required for the <code>Simulation</code>, <code>Task</code>,
+	and <code>Process</code> classes.
+</p>
+	
+<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using React;</pre>
+</div>
+	
+<p>
+	The <b>Greetings</b> class is derived from <code>System.Object</code> and
+	contains a private constructor to prevent other classes from instantiating
+	it.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+public class Greetings
+{
+    private Greetings() { }
+
+          .
+          .
+          .
+}</pre>
+</div>
+
+<p>
+	The private <b>SayHello</b> method defines the functionality of the
+	Process that will be created in the <b>Main</b> method.  <b>SayHello</b>
+	is the delegate used by the Process to yield its Tasks.  Of course, in
+	this case, all the Process will do is print a message and exit -- no
+	Tasks are returned by <b>SayHello</b>.
+</p>
+<p>
+	The <code>yield break;</code> statement must be included or <b>SayHello</b>
+	will not be a valid .NET <em>iterator</em>.
+</p>
+<div class="example"><pre style="margin: 0px;">
+private IEnumerator&lt;Task&gt; SayHello(Process process, object data)
+{
+    Console.WriteLine("Greetings1 says, Hello there ...");
+    yield break;
+}</pre>
+</div>
+	
+<p>
+	Finally, the <b>Main</b> method instantiates a Simulation object and
+	a Greetings object.  A new Process is created passing the constructor
+	the <b>SayHello</b> delegate.  The new process is passed to the
+	<b>Run</b> method of the Simulation class to serve as the <em>generator</em>
+	task which is executed by the Simulation, <code>sim</code>.  When the
+	generator task is executed, the <b>SayHello</b> method will get called and
+	the greetings message printed to the console.
+</p>
+<div class="example"><pre style="margin: 0px;">
+Simulation sim = new Simulation();
+Greetings greetings = new Greetings();
+Process process = new Process(sim, greetings.SayHello);
+sim.Run(process);</pre>
+</div>
+
+<!-- ======================================================================= -->
+<!--===================================================--></div>
+</div>
+<div id="footer">
+<hr><img id="valid" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"><a href="http://sourceforge.net/"></a><address>&copy;
+				2006 Eric K. Roe.  All rights reserved.
+			</address>
+</div>
+</body>
+</html>

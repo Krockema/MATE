@@ -1,0 +1,61 @@
+===============================================================================
+====  R E A C T . N E T :  Release Notes                                   ====
+===============================================================================
+
+Version 0.6.0 - 23 October 2006
+--------------------------------
+
+  * Renamed RandomVariateBase class to NonUniform.
+  * Simplified the task activation system.  The IEvent interface and
+    EventBase class have been removed.
+  * ActivationEvent and Task classes no longer implement IComparable.
+  * The Uniform.Create static methods now return a Uniform rather than an
+    IUniform; this allows the returned value to be used as an IUniformSource
+    without a cast.
+  * The TimeWeightedStatistic class is now complete.  Also added classes to
+    compute time-weighted mean, variance, and standard deviation.
+  * Transfering resources is now working.
+  * Build script now generates XML documentation (e.g. the /doc switch).
+  * Move IQueue<T> interface from the React to the React.Queue namespace.
+  * Delay time for a Delay task cannot be changed once it's activated.
+  * Attempting to activate or interrupt a Task that is already in the
+    interrupted state will throw an InvalidOperationException.  This helps
+    ensure that interrupts aren't silently lost.
+  * Recorder no longer implements ICollection<TimeValue>.
+  * Removed the BlockingSupport class.
+  * Removed the TaskState enumeration.  It was not used.
+  * The Simulation now immediately quits when all pending events are
+    disposable.
+  * The Simulation.ScheduleEvent method no longer adds events to the event
+    queue once the Simulation has been put into the Stopping state.
+  * The ActivationEvent.Fire method is now internal (was public).
+  * Switched to Microsoft Sandcastle documentation generator.  This is still
+    not integrated into the build system.
+  * Numerous documentation tweaks and updates.
+
+
+Version 0.5.1 - 22 January 2006
+--------------------------------
+
+  * Now builds with .NET Framework 2.0 RTM.
+  * MSTest unit tests have all been replaced with NUnit tests.  NUnit 2.2.5
+    is used.
+  * The build scripts now use a common configuration file to specify paths
+    to helper programs such as MSXSL and nunit-console.
+  * The solution and C# project files (.csproj) created using Visual Studio
+    .NET 2005 Beta2 have been removed.
+  * Some old NAnt build scripts have been removed.
+
+
+Version 0.5.0 - 04 December 2005
+--------------------------------
+
+  * Initial release of React.NET on SourceForge.
+  * Current development uses .NET Framework 2.0 beta2.  Need to switch to the
+    RTM version of .NET 2.0.
+  * Test cases written to use MSTest.  Want to convert back to using NUnit.
+  * Time weighted statistics not yet implemented.
+  * Would like to have a broader spectrum of example simulations.
+
+
+                              -= END OF FILE =-

@@ -1,0 +1,152 @@
+<!--
+
+    $Id: greetings2.xml 110 2005-11-20 20:40:31Z Eric Roe $
+
+   	React.NET Web Site Page.
+    Copyright © 2005 Eric K. Roe.  All rights reserved.
+ 
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+ 
+        <html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>React.NET - Greetings (Derived version)</title>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="copyright" content="Copyright © 2006 Eric K. Roe, All rights reserved.">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="banner"><a name="top"></a><h1 id="title">React.NET</h1>
+<h2 id="slogan">Discrete Event Simulation Framework</h2>
+</div>
+<div id="menubar">
+<p>
+				|<a href="index.html"> Home </a>
+				|<a href="quick_start.html">Quick Start</a>
+				|<a href="examples.html"> Examples </a>
+				|<a href="howtos.html"> How-tos </a>
+				|<a href="documentation.html"> Documentation </a>
+				|
+			</p>
+</div>
+<p class="preliminary">
+				[This is preliminary documentation and is subject to change.]
+			</p>
+<div id="content">
+<div><!--===================================================-->
+<!-- ======================================================================= -->
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="overview"></a>Greetings (Derivation version)</h1>
+
+	<p>
+	The second "Hello, world" example program.  This class runs a simple
+	simulation that prints a greeting message to standard output (e.g. the
+	console).  In this example, the main class is derived from the
+	<code>Process</code> class.  The <code>GetProcessSteps</code>
+	method is overridden to provide the code which prints the greeting message.
+	</p>
+	
+<p>
+	The complete code for this example is shown below and is also available
+	as <b>greetings2.cs</b> in the <b>examples\greetings</b> directory.
+</p>
+	
+<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using React;
+
+public class Greetings : React.Process
+{
+    private Greetings(Simulation sim) : base(sim) { }
+
+    protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+    {
+        Console.WriteLine("Greetings2 says, Hello there ...");
+        yield return Delay(1000);
+        yield break;
+    }
+
+    public static void Main(string [] args)
+    {
+        Simulation sim = new Simulation();
+        sim.Run(new Greetings(sim));
+    }
+}</pre>
+</div>
+
+	<h1>The Explanation</h1>
+	
+	<p>
+		Start by including references to some of the required namespaces.  The
+		<code>System.Collections.Generic</code> namespace is required for the
+		<code>IEnumerator&lt;Task&gt;</code> class.  The <code>React</code>
+		namespace is required for the <code>Simulation</code>, <code>Task</code>,
+		and <code>Process</code> classes.
+	</p>
+	
+	<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using React;</pre>
+</div>
+	
+	<p>
+		The <b>Greetings</b> class is derived from <code>React.Process</code> and
+		contains a private constructor to prevent other classes from instantiating
+		it.
+	</p>
+	
+	<div class="example"><pre style="margin: 0px;">
+public class Greetings : React.Process
+{
+    private Greetings(Simulation sim) : base(sim) { }
+          .
+          .
+          .
+}</pre>
+</div>
+
+	<p>
+		The overridden <b>GetProcessSteps</b> method defines the functionality of the
+		Greetings object that will be created in the <b>Main</b> method.  <b>GetProcessSteps</b>
+		is the <em>iterator</em> method used by the Greetings object to yield its Tasks.  As
+		a change from version #1, <b>GetProcessSteps</b> yields a <code>Task</code>, specifically
+		a <em>Delay</em> task, via the <code>yield return Delay(1000);</code> statement.
+		The delay causes 1000 time units to pass.  Including the <code>yield break;</code>
+		statement allows us to delete the delay while maintaining <b>GetProcessSteps</b>
+		as a .NET iterator.
+	</p>
+	<div class="example"><pre style="margin: 0px;">
+protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+{
+    Console.WriteLine("Greetings2 says, Hello there ...");
+    yield return Delay(1000);
+    yield break;
+}</pre>
+</div>
+	
+	<p>
+		Finally, the <b>Main</b> method instantiates a Simulation object and
+		calls the <code>Run</code> method passing it a new Greetings object.
+		Since Greetings is a Process, it serves as the Simulation's
+		<em>generator</em> task.
+	</p>
+	<div class="example"><pre style="margin: 0px;">
+        Simulation sim = new Simulation();
+        sim.Run(new Greetings(sim));</pre>
+</div>
+
+<!--===================================================--></div>
+</div>
+<div id="footer">
+<hr><img id="valid" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"><a href="http://sourceforge.net/"></a><address>&copy;
+				2006 Eric K. Roe.  All rights reserved.
+			</address>
+</div>
+</body>
+</html>

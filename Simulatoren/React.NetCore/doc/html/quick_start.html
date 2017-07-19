@@ -1,0 +1,783 @@
+<!--
+
+    $Id: quick_start.xml 110 2005-11-20 20:40:31Z Eric Roe $
+
+   	React.NET Web Site Page.
+    Copyright © 2005 Eric K. Roe.  All rights reserved.
+ 
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+ 
+        <html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>React.NET - Quick Start</title>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="copyright" content="Copyright © 2006 Eric K. Roe, All rights reserved.">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="banner"><a name="top"></a><h1 id="title">React.NET</h1>
+<h2 id="slogan">Discrete Event Simulation Framework</h2>
+</div>
+<div id="menubar">
+<p>
+				|<a href="index.html"> Home </a>
+				|<a href="quick_start.html">Quick Start</a>
+				|<a href="examples.html"> Examples </a>
+				|<a href="howtos.html"> How-tos </a>
+				|<a href="documentation.html"> Documentation </a>
+				|
+			</p>
+</div>
+<p class="preliminary">
+				[This is preliminary documentation and is subject to change.]
+			</p>
+<div id="content">
+<div style="float: right; background-color: white; padding: 15px; border: none;">
+<div id="toc">
+<p>Contents</p>
+<ul>
+<li><div><a href="#overview">Overview</a></div></li>
+<li><div><a href="#sim">Discrete Event Simulation</a></div></li>
+<li><div><a href="#concepts">Basic Concepts</a></div></li>
+<li><div><a href="#shop">Barber Shop Example</a></div></li>
+</ul>
+<div style="text-align: center; margin: 0px auto;"><a href="http://sourceforge.net" title="SourceForge.net Home"></a></div>
+</div>
+</div>
+<div><!--===================================================-->
+<!-- ======================================================================= -->
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="overview"></a>Overview</h1>
+<p>
+	This page provides a brief introduction to discrete-event simulation,
+	an overview of the simulation constructs as implemented in React.NET,
+	and then proceeds to an example simulation program.  The example
+	program simulates a barber shop and demonstrates some, but definitely
+	not all, of the capabilities of React.NET
+</p>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="sim"></a>Discrete Event Simulation</h1>
+<p>
+	If you're reading this, you've probably got a good idea of what
+	<em>discrete-event simulation</em> is all about.  However, just in
+	case you don't, here is a very brief description.  See
+	<a href="index.html#links">Links</a> for a list of other resources
+	that provide more information.
+</p>
+
+<p>
+	Simulation, in general, is an attempt to model some aspect of the real
+	world and gather data about the modeled system.  It's often used when
+	directly observing the real-world system is not possible because: (1) it
+	doesn't exist yet; or (2) it would be too costly or dangerous to test in
+	multiple configurations/scenarios.
+</p>
+<p>
+	There are several common simulation methodologies for example
+	<em>continuous</em>, <em>linear-programming</em>, and
+	<em>discrete-event</em>.  Each has strengths that make it most useful
+	for a particular problem domain.
+</p>
+<p>
+	Continuous simulation describe systems using one or more mathematical
+	equations or <em>models</em>.  These models might be used to help
+	understand a system based on rules of physics or economics.
+</p>
+<p>
+	Linear programming (and non-linear programming) are often used to
+	solve optimization problems that involve several variables.  An
+	example might be maximizing profit on several products based on
+	user demand, production output, production cost, and sales price.
+</p>
+<p>
+	Finally, discrete-event simulations are used to model systems
+	composed of activities that take place at distinct moments in time.
+	Often these activities include random elements and potentially complex
+	interactions with other activities.  Discrete-event simulations
+	are often applicable to modeling business and manufacturing
+	processes.
+</p>
+<p>
+	Discrete-event simulation is especially useful in understanding
+	systems that have <em>demand vs. capacity</em> and <em>queuing</em>
+	aspects.  For example, a bank experiences demand (customers
+	need to see tellers), has a capacity (there are only so many tellers
+	available to service customers), and uses queuing (customers wait in
+	line until they can see a teller).
+</p>
+
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="concepts"></a>Basic Concepts</h1>
+
+<p>
+	The following subsections introduce some of the most fundamental classes and
+	concepts used to build React.NET simulations.
+</p>
+
+<h2>The Simulation</h2>
+<p>
+	The <span class="classname">Simulation</span> serves as the container for 
+	<span class="classname">Task</span> instances. It also contains the clock used to
+	control the time.  Each <span class="classname">Task</span> maintains a reference
+	to the <span class="classname">Simulation</span> under which it runs.  This link
+	is called the <em>simulation context</em> and is available as the
+	<code>Context</code> property.
+</p>
+
+<p>
+	For simple models, a single <span class="classname">Simulation</span> is used.  For
+	more complex models that might be executed many times (e.g. monte-carlo
+	simulations), multiple <span class="classname">Simulation</span> instances can be
+	run either sequentially or in parallel using multiple threads.
+</p>
+
+<h3>The Clock</h3>
+<p>
+	Each <span class="classname">Simulation</span> maintains a <em>clock</em>.  The clock is
+	responsible for keeping the current simulation time.  The clock
+	maintains the time as a <span class="classname">System.Int64</span> (a C#
+	<span class="classname">long</span>). The unit of time represented by the clock is up to
+	the programmer.  Because the clock maintains time in integer units, choosing a
+	time unit is important because the clock cannot represent fractional units.  For
+	example, in a simulation that requires sub-second accuracy, one time unit might
+	represent a millisecond; therefore to schedule a <span class="classname">Task</span> to
+	run two seconds in the future, the program would schedule it to run in 2,000 time
+	units.
+</p>
+
+<h2>Tasks</h2>
+<p>
+	A <span class="classname">Task</span> is executed by a <span class="classname">Simulation</span>
+	to carry out some action.  Often one or more <span class="classname">Task</span>s are used
+	as part of a <span class="classname">Process</span> (see below). <span class="classname">Task</span>s
+	can be scheduled to run at a particular simulation time or they can be passed to a
+	<em>blocking object</em> such as a <span class="classname">Resource</span> or
+	<span class="classname">BoundedBuffer</span> to be resumed when a particular condition is
+	met during the course of a simulation run.
+</p>
+<p>
+	The work to be carried out by a <span class="classname">Task</span> is defined by implementing
+	the	<code>ExecuteTask</code> method.
+</p>
+
+<h2>Processes</h2>
+<p>
+	A <span class="classname">Process</span> consists of a series of <span class="classname">Task</span>s
+	carried out over time.  A <span class="classname">Process</span> is, in fact, a type of
+	<span class="classname">Task</span> that yields (or returns) other <span class="classname">Task</span>s
+	to carry out certain functions.  Each <span class="classname">Task</span> that
+	a <span class="classname">Process</span> returns acts somewhat like a subroutine of the
+	<span class="classname">Process</span>.  The <span class="classname">Task</span> runs and eventually
+	when the <span class="classname">Task</span> completes, the <span class="classname">Process</span> is
+	resumed (or re-activated).
+</p>
+<p>
+	<span class="classname">Process</span> classes use the .NET 2.0 feature called an
+	<em>iterator</em> to yield <span class="classname">Task</span>s.  The iterator, an
+	<span class="classname">IEnumerator&lt;Task&gt;</span> instance, is
+	returned by the <code>GetProcessSteps()</code> method of the
+	<span class="classname">Process</span> class.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+protected virtual IEnumerator&lt;Task&gt; GetProcessSteps();
+</pre>
+</div>
+
+<p>
+<code>GetProcessSteps()</code> may be overridden by a derived class to implement
+process-specific behavior, or a <code>ProcessSteps</code> delegate may be passed
+to the <span class="classname">Process</span> constructor to provide process-specific
+behavior without deriving a new class.
+</p>
+
+<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4A86B8;
+					background-color: #B9D1E4;
+				">
+<div class="annotation" style="
+						background-color: #4A86B8">Note</div>
+<div class="message">
+	<p>
+		For most simulations, it is preferable to implement
+		Processes rather than Tasks.
+		One should of course remember that the <span class="classname">Process</span> class is
+		derived from the <span class="classname">Task</span> class.
+	</p>
+</div>
+</div>
+</div>
+
+<h2>Blocking Objects</h2>
+<p>
+	A <em>blocking object</em> is an object that causes a <span class="classname">Task</span>
+	or <span class="classname">Process</span> to suspend it execution until such time as a
+	particular condition has been met.  React.NET includes the following blocking objects.
+</p>
+
+<dl>
+	<dt>Resource</dt>
+	<dd>
+		Represents a collection or <em>pool</em> of items, people, etc. each of which can be
+		used by one <span class="classname">Task</span> at a time.  To obtain exclusive use of a
+		<em>resource item</em>, a <span class="classname">Task</span> must <em>acquire</em> the item.
+		When finished using	the resource item, the owning <span class="classname">Task</span> must
+		<em>release</em> the item back into the pool. If a resource item is not immediately
+		available, the requesting <span class="classname">Task</span> is blocked until such time as
+		an item becomes available.
+	</dd>
+	
+	<dt>Consumable</dt>
+	<dd>
+		Similar to a <span class="classname">Resource</span>, a <span class="classname">Consumable</span>
+		contains consumable items that, once acquired by a <span class="classname">Task</span>,
+		are never released back into the pool.  Consumables are essentially resources that
+		are "used up" by the acquiring <span class="classname">Task</span>.  An example of a
+		consumable is fuel.  The <span class="classname">Consumable</span> class is <b>not</b>
+		derived from <span class="classname">Resource</span>.
+	</dd>
+	
+	<dt>Condition</dt>
+	<dd>
+		A <span class="classname">Condition</span> acts as a true/false switch during the
+		simulation run. If the <span class="classname">Condition</span> is false or <em>reset</em>,
+		any <span class="classname">Task</span>s can block on the <span class="classname">Condition</span>.
+		Once the <span class="classname">Condition</span> becomes true or <em>signalled</em>,
+		blocked <span class="classname">Task</span>s are re-activated.  The programmer may chose
+		to re-activate all blocked <span class="classname">Task</span>s or just a single
+		<span class="classname">Task</span> when the <span class="classname">Condition</span> becomes
+		signalled.
+	</dd>
+	
+	<dt>BoundedBuffer</dt>
+	<dd>
+		A <span class="classname">BoundedBuffer</span> is a queue of finite size.  <em>Producer</em>
+		tasks put items into the buffer and <em>consumer</em> tasks take items out of the
+		buffer.  When the buffer is full, any producer tasks attempting to put an item into
+		the buffer will be blocked.  When the buffer is empty, any consumer tasks attempting
+		to get an item from the buffer will be blocked.
+	</dd>
+</dl>
+
+<p>
+	It is also possible to add other blocking objects to the system.
+</p>
+
+<p>
+	Blocking behavior is implemented by methods marked with the <code>BlockingMethod</code>
+	attribute.  All blocking methods return a <span class="classname">Task</span> instance which
+	contains the functionality to property interact with the blocking object.  The
+	<span class="classname">Task</span> which called the blocking method blocks on the returned
+	<span class="classname">Task</span> not on the blocking object itself.  A typical blocking
+	method looks something like what's shown below.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+[BlockingMethod]
+public Task Acquire(Task requestor)
+{
+	.
+	.
+	.
+}
+</pre>
+</div>
+
+<h2>Monitors</h2>
+<p>
+	Monitors serve as <em>observers</em> to the running simulation.  Each time a
+	monitorable property changes, a <span class="classname">Monitor</span> class will record
+	the new value and the time of the change.  Monitors can aggregate observations
+	into summary statistics (like the Mean) or they can simply record each observation
+	for use at a later time.
+</p>
+<p>
+	Monitors that compute statistics are divided into two types: simple statisics
+	and time-weighted statistics.  Simple statistics are not affected by the time
+	between observations (e.g. the Maximum or Minimum), while time-weighted statistics
+	use the time between observations to weight the observation (e.g. WeightedMean).
+</p>
+
+
+<h1><a name="shop"></a>Barber Shop Example</h1>
+
+<p>
+	This example simulates a small barber shop.  It uses three classes:
+	one represents the shop; one a barber; and one a client or customer.
+	It's operation is quite straightforeward:
+</p>
+<ol>
+	<li>
+		A single generator process creates a new customer (someone who
+		wants a	haircut) about once every five minutes.
+	</li>
+	<li>
+		Each customer enters the shop and attempts to acquire a barber
+		resource.  If no barbers are available, the customer queues to
+		wait for one.
+	</li>
+	<li>
+		When a customer successfully acquires a barber, they activate
+		the associated barber process to do the haircut.
+	</li>
+	<li>
+		When the barber process finishes, the customer process is
+		re-activated.  At this point, the customer pays for the haircut,
+		releases the barber resource, and leaves the shop.
+	</li>
+</ol>
+<p>
+	This code demonstrates using a <span class="classname">TrackedResource</span>
+	that contains four <span class="classname">Process</span> instances.  Here, the
+	tracked resource contains four <span class="classname">Barber</span> processes
+	which are acquired by and service <span class="classname">Customer</span> processes.
+</p>
+<p>
+	The source files for this example can be found in the
+	<b>examples\BarberShop</b> directory.
+</p>
+
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h2>The Shop</h2>
+
+<p>
+	Below is the complete code for the <span class="classname">Shop</span> class
+	found in <tt>Shop.cs</tt>.
+</p>
+<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using System.Text;
+using React;
+using React.Distribution;
+
+namespace BarberShop
+{
+    public class Shop : Simulation
+    {
+        private const long ClosingTime = 8 * 60;
+
+        private Shop() {}
+
+        private IEnumerator&lt;Task&gt; Generator(Process p, object data)
+        {
+            Console.WriteLine("The barber shop is opening for business...");
+            Resource barbers = CreateBarbers();
+
+            Normal n = new Normal(5.0, 1.0);
+
+            do
+            {
+                long d;
+                do
+                {
+                    d = (long)n.NextDouble();
+                } while (d &lt;= 0L);
+
+                yield return p.Delay(d);
+
+                Customer c = new Customer(this);
+                c.Activate(null, 0L, barbers);
+
+            } while (Now &lt; ClosingTime);
+
+            Console.WriteLine("The barber shop is closed for the day.");
+
+            if (barbers.BlockCount &gt; 0)
+            {
+                Console.WriteLine("The barbers have to work late today.");
+            }
+
+            yield break;
+        }
+
+        private Resource CreateBarbers()
+        {
+            Barber[] barbers = new Barber[4];
+            barbers[0] = new Barber(this, "Frank");
+            barbers[1] = new Barber(this, "Tom");
+            barbers[2] = new Barber(this, "Bill");
+            barbers[3] = new Barber(this, "Joe");
+
+            return Resource.Create(barbers);
+        }
+
+        static void Main(string[] args)
+        {
+            Shop shop = new Shop();
+            Task generator = new Process(shop, shop.Generator);
+            shop.Run(generator);
+        }
+    }
+}</pre>
+</div>
+
+<p>
+	The <span class="classname">Shop</span> class is derived from the
+	<span class="classname">Simulation</span> class and contains the <code>Main</code>
+	method.  <code>Main</code> creates the <span class="classname">Shop</span>
+	simulation instance and a single <em>generator</em> task.  In this case,
+	the generator task &#8212; conveniently named <code>generator</code> &#8212;
+	is a <span class="classname">Process</span> instance whose actual functionality is
+	provided by a delegate &#8212; the method <code>Shop.Generator</code>.
+	Finally, <code>Main</code> starts the simulation running with the call to
+	<code>shop.Run(generator)</code>.
+</p>
+	
+<div class="example"><pre style="margin: 0px;">
+static void Main(string[] args)
+{
+    Shop shop = new Shop();
+    Task generator = new Process(shop, shop.Generator);
+    shop.Run(generator);
+}</pre>
+</div>
+
+<p>
+	The <code>Generator</code> method is used to initialize the shop's
+	resources (e.g. the barbers) and to generate customers.  A
+	<span class="classname">Normal</span> distribution is used to create a new customer
+	about once every five minutes (it's a very busy barber shop).
+</p>
+	
+<div class="example"><pre style="margin: 0px;">
+Console.WriteLine("The barber shop is opening for business...");
+Resource barbers = CreateBarbers();
+Normal n = new Normal(5.0, 1.0);</pre>
+</div>
+
+<p>
+	The private method <code>CreateBarbers</code> is used to
+	create and array of <span class="classname">Barber</span> processes named <em>Frank</em>,
+	<em>Tom</em>, <em>Bill</em>, and <em>Joe</em>.  After creating and filling the
+	<code>barbers</code> array, a <span class="classname">TrackedResource</span> is
+	obtained by calling <code>Resource.Create(barbers)</code>.  The resource is
+	returned to the caller (the <code>Generator</code> method).
+</p>
+<div class="example"><pre style="margin: 0px;">
+private Resource CreateBarbers()
+{
+    Barber[] barbers = new Barber[4];
+    barbers[0] = new Barber(this, "Frank");
+    barbers[1] = new Barber(this, "Tom");
+    barbers[2] = new Barber(this, "Bill");
+    barbers[3] = new Barber(this, "Joe");
+    return Resource.Create(barbers);
+}</pre>
+</div>
+
+<p>
+	This is a good time to briefly explain the two types of resources provided
+	by React.NET: <em>anonymous</em> and <em>tracked</em>.  Anonymous resources,
+	provided by the <span class="classname">AnonymousResource</span> class, represent
+	pools of items using only counts (e.g. there are five "things" in the pool).
+	Tracked resources, on the other hand, "track" actual .NET objects.  When
+	a resource item is acquired from a tracked resource, the task that acquired
+	the resource item gains access to the associated object.
+</p>
+
+<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4A86B8;
+					background-color: #B9D1E4;
+				">
+<div class="annotation" style="
+						background-color: #4A86B8">Note</div>
+<div class="message">
+	<p>
+		The <a href="howtos.html">How-tos</a> page (<em>Resources &amp;
+		Consumables</em>) provides additional information on creating and
+		using the <span class="classname">AnonymousResource</span> and
+		<span class="classname">TrackedResource</span> classes.
+	</p>
+</div>
+</div>
+</div>
+
+<p>
+	Returning to the <code>Generate</code> method, it is now
+	possible to begin creating <span class="classname">Customer</span> instances.
+	Customers are continually created and activated until
+	closing time, which is defined as eight hours after the
+	start of the simulation.
+</p>
+<div class="example"><pre style="margin: 0px;">
+do
+{
+    long d;
+    do
+    {
+        d = (long)n.NextDouble();
+    } while (d &lt;= 0L);
+
+    yield return p.Delay(d);
+
+    Customer c = new Customer(this);
+    c.Activate(null, 0L, barbers);
+
+} while (Now &lt; ClosingTime);</pre>
+</div>
+
+<p>
+	Two things to note about the above code: (1) because
+	a <span class="classname">Normal</span> distribution can have long tails,
+	we loop until we get an acceptable value; (2) the
+	resource containing the four <span class="classname">Barber</span> processes is
+	passed to each customer as <em>activation data</em> &#8212; the third
+	parameter in the call to <code>c.Activate(..., <em>barbers</em>)</code>.
+</p>
+
+<p>
+	Finally, once closing time is reached, a message is printed
+	indicating that the shop has closed for the day.  In addition,
+	we check if the barbers have to work late because there are
+	still customers waiting (who arrived before closing time).
+	The <code>yield break;</code> statement signifies the end of
+	the generation process.  Once the generation process terminates,
+	no more customers will be created.
+</p>
+<div class="example"><pre style="margin: 0px;">
+Console.WriteLine("The barber shop is closed for the day.");
+
+if (barbers.BlockCount &gt; 0)
+{
+    Console.WriteLine("The barbers have to work late today.");
+}
+
+yield break;</pre>
+</div>
+
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h2>The Customer</h2>
+
+<p>
+	Below is the complete code for the <span class="classname">Customer</span> class
+	found in <tt>Customer.cs</tt>.
+</p>
+<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using System.Text;
+using React;
+
+namespace BarberShop
+{
+    internal class Customer : Process
+    {
+        internal Customer(Simulation sim) : base(sim) {}
+
+        protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+        {
+            Resource barbers = (Resource)ActivationData;
+            yield return barbers.Acquire(this);
+
+            System.Diagnostics.Debug.Assert(barbers == Activator);
+            System.Diagnostics.Debug.Assert(ActivationData != null);
+            Barber barber = (Barber)ActivationData;
+
+            WaitOnTask(barber);
+            yield return Suspend();
+            // HINT: The above two lines of code can be shortened to
+            //          yield return barber;
+
+            Console.WriteLine("Customer pays {0} for the haircut.", barber.Name);
+
+            yield return barbers.Release(this);
+        }
+    }
+}</pre>
+</div>
+
+<p>
+	The <span class="classname">Customer</span> class is derived from the
+	<span class="classname">Process</span> class.  The actions of the
+	<span class="classname">Customer</span> are defined by overloading the
+	<code>GetProcessSteps</code> method.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+{
+    Resource barbers = (Resource)ActivationData;
+    yield return barbers.Acquire(this);
+
+    System.Diagnostics.Debug.Assert(barbers == Activator);
+    System.Diagnostics.Debug.Assert(ActivationData != null);
+    Barber barber = (Barber)ActivationData;
+
+    WaitOnTask(barber);
+    yield return Suspend();
+    // HINT: The above two lines of code can be shortened to
+    //          yield return barber;
+
+    Console.WriteLine("Customer pays {0} for the haircut.", barber.Name);
+
+    yield return barbers.Release(this);
+}</pre>
+</div>
+
+<p>
+	The <span class="classname">Customer</span> process begins by retrieving the
+	<span class="classname">Resource</span>	containing the four
+	<span class="classname">Barber</span> objects from the
+	activation data.  It then attempts to acquire a
+	<span class="classname">Barber</span> from the resource.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+Resource barbers = (Resource)ActivationData;
+yield return barbers.Acquire(this);</pre>
+</div>
+
+<p>
+	Upon re-activation, the <span class="classname">Customer</span> should now have acquired
+	a <span class="classname">Barber</span>.  A few assertions double check to
+	make sure.  Because we don't have to deal with interrupts,
+	we know that <code>barbers</code> (i.e. the resource) should
+	have been the object that re-activated the client.
+</p>
+<div class="example"><pre style="margin: 0px;">
+System.Diagnostics.Debug.Assert(barbers == Activator);
+System.Diagnostics.Debug.Assert(ActivationData != null);
+Barber barber = (Barber)ActivationData;</pre>
+</div>
+	
+<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4A86B8;
+					background-color: #B9D1E4;
+				">
+<div class="annotation" style="
+						background-color: #4A86B8">Note</div>
+<div class="message">
+	<p>
+		The <code>ActivationData</code> property will often change with each activation
+		of a <span class="classname">Process</span>.  The first time the
+		<span class="classname">Customer</span> was activated, the <code>ActivationData</code>
+		contained a reference to a <span class="classname">Resource</span>; on the second
+		activation, <code>ActivationData</code> contained a reference to the
+		<span class="classname">Barber</span> acquired from <code>barbers</code>.
+	</p>
+</div>
+</div>
+</div>
+
+<p>
+	The <span class="classname">Customer</span> can now activate the acquired
+	<span class="classname">Barber</span> to have his or her hair cut.  Note how one
+	process gets served	by another process.  This is typical of a <em>multi-agent</em>
+	simulation.  As the comment below indicates, the code can be shortened to a single
+	line (<code>yield return barber;</code>).  The more verbose method is shown
+	because it better illustrates exactly what the <span class="classname">Customer</span>
+	is doing.
+</p>
+
+<div class="example"><pre style="margin: 0px;">
+WaitOnTask(barber);
+yield return Suspend();
+
+// HINT: The above two lines of code can be shortened to
+//          yield return barber;</pre>
+</div>
+
+<p>
+	Lastly, the <span class="classname">Client</span> must release the resource.
+</p>
+<div class="example"><pre style="margin: 0px;">
+yield return barbers.Release(this);</pre>
+</div>
+
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h2>The Barber</h2>
+
+	<p>
+		Below is the complete code for the <span class="classname">Barber</span> class
+		found in <tt>Barber.cs</tt>.
+	</p>
+	<div class="example"><pre style="margin: 0px;">
+using System;
+using System.Collections.Generic;
+using System.Text;
+using React;
+
+namespace BarberShop
+{
+    internal class Barber : Process
+    {
+        internal Barber(Simulation sim, string name) : base(sim)
+        {
+            this.Name = name;
+        }
+
+        protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+        {
+            Console.WriteLine(Name + " begins cutting customer's hair ...");
+            yield return Delay(22);
+            Console.WriteLine(Name + " finishes cutting customer's hair.");
+            yield break;
+        }
+    }
+}</pre>
+</div>
+	
+	<p>
+		The <span class="classname">Barber</span> class, like the
+		<span class="classname">Customer</span> class, is also a
+		<span class="classname">Process</span>.  It's implementation of
+		<code>GetProcessSteps</code> simply delays for twenty-two minutes
+		to simulate the time it takes to cut the customers's hair.
+	</p>
+	<div class="example"><pre style="margin: 0px;">
+protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+{
+    Console.WriteLine(Name + " begins cutting client's hair ...");
+    yield return Delay(22);
+    Console.WriteLine(Name + " finishes cutting client's hair.");
+    yield break;
+}</pre>
+</div>
+
+	<p>
+		Once the <span class="classname">Barber</span> process completes the
+		<span class="classname">Customer</span> that is blocking on the
+		<span class="classname">Barber</span> is automatically re-activated.
+	</p>
+
+	<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4050ff;
+					background-color: #ccccff;
+				">
+<div class="annotation" style="
+						background-color: #4050ff">Try This!</div>
+<div class="message">
+		<p>
+			Try reducing the time it takes for a <span class="classname">Barber</span>
+			to complete a haircut until they no longer have to work late.
+		</p>
+	</div>
+</div>
+</div>
+
+
+<!-- ======================================================================= -->
+<!--===================================================--></div>
+</div>
+<div id="footer">
+<hr><img id="valid" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"><address>&copy;
+				2006 Eric K. Roe.  All rights reserved.
+			</address>
+</div>
+</body>
+</html>

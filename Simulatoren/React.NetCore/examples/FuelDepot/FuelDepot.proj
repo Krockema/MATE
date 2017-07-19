@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ *
+ * $Id: FuelDepot.proj 114 2005-11-20 22:16:26Z Eric Roe $
+ *
+ * MSBuild project file to build the React.NET FuelDepot example.  This file
+ * is not intended to be used directly; rather it should be invoked from the
+ * top-level build file, React.proj.
+ *
+ * Copyright © 2005 Eric K. Roe.  All rights reserved.
+ *
+-->
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<AssemblyName>FuelDepot.exe</AssemblyName>
+		<OutputAssembly>$(OutputPath)$(AssemblyName)</OutputAssembly>
+	</PropertyGroup>
+	<ItemGroup>
+		<Sources Include="*.cs" />
+	</ItemGroup>
+
+	<!-- ::::::::::::::::::::::::  TARGET: Build  :::::::::::::::::::::::: -->
+	<Target Name="Build"
+			Inputs="@(Sources)"
+			Outputs="$(OutputAssembly)">
+		<Csc Sources="@(Sources)"
+			 OutputAssembly="$(OutputAssembly)"
+			 DocumentationFile=""
+			 EmitDebugInformation="true"
+			 NoLogo="true"
+			 Platform="anycpu"
+			 References="$(EngineAssembly)"
+			 TargetType="exe"
+			 WarningLevel="4"
+		/>
+	</Target>
+
+</Project>

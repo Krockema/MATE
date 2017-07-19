@@ -15,3 +15,6 @@ use XUnit and Watcher for Continious Testing
 ```
 .\Master-4.0\Master40.XUnitTest> dotnet watch test 
 ```
+
+Excelent Observeable Tutorial.
+https://rehansaeed.com/reactive-extensions-part1-replacing-events/

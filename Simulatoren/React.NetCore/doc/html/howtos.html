@@ -1,0 +1,859 @@
+<!--
+
+    $Id: howtos.xml 146 2006-06-06 22:44:31Z eroe $
+
+   	React.NET Web Site Page.
+    Copyright © 2005 Eric K. Roe.  All rights reserved.
+ 
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+ 
+        <html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>React.NET - How-tos</title>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="copyright" content="Copyright © 2006 Eric K. Roe, All rights reserved.">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="banner"><a name="top"></a><h1 id="title">React.NET</h1>
+<h2 id="slogan">Discrete Event Simulation Framework</h2>
+</div>
+<div id="menubar">
+<p>
+				|<a href="index.html"> Home </a>
+				|<a href="quick_start.html">Quick Start</a>
+				|<a href="examples.html"> Examples </a>
+				|<a href="howtos.html"> How-tos </a>
+				|<a href="documentation.html"> Documentation </a>
+				|
+			</p>
+</div>
+<p class="preliminary">
+				[This is preliminary documentation and is subject to change.]
+			</p>
+<div id="content">
+<div style="float: right; background-color: white; padding: 15px; border: none;">
+<div id="toc">
+<p>Contents</p>
+<ul>
+<li><div><a href="#overview">How-tos Overview</a></div></li>
+<li><a href="#sim">Simulation</a></li>
+<li><a href="#task">Tasks &amp; Processes</a></li>
+<li><a href="#res">Resources &amp; Consumables</a></li>
+<li><a href="#rng">Random Numbers</a></li>
+<li><a href="#dev">Developer</a></li>
+</ul>
+<div style="text-align: center; margin: 0px auto;"><a href="http://sourceforge.net" title="SourceForge.net Home"></a></div>
+</div>
+</div>
+<div><!--===================================================-->
+<!-- ======================================================================= -->
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="overview"></a>How-tos Overview</h1>
+<p>
+	Here are some how-tos that, due to the current lack of a more complete manual,
+	will hopefully provide help building React.NET simulations.
+</p>
+
+<h2>Simulation</h2>
+<ul class="howto">
+<li><a href="#sim1">Create a Simulation</a></li>
+<li><a href="#sim2">Stop a Simulation</a></li>
+</ul>
+<h2>Tasks &amp; Processes</h2>
+<ul class="howto">
+<li><a href="#task1">Start a task running</a></li>
+<li><a href="#task2">Immediately cancel a running task</a></li>
+<li><a href="#task3">Schedule a task cancellation at some future time</a></li>
+<li><a href="#task4">Have one task block (wait) on another task</a></li>
+<li><a href="#task5">Re-activate one blocked task</a></li>
+<li><a href="#task6">Re-activate all blocked tasks</a></li>
+<li><a href="#task7">Create a process using delegation</a></li>
+<li><a href="#task8">Create a process using derivation</a></li>
+</ul>
+<h2>Resources &amp; Consumables</h2>
+<ul class="howto">
+<li><a href="#res1">Create an anonymous resource</a></li>
+<li><a href="#res2">Create a tracked resource</a></li>
+<li><a href="#res3">Obtain the number of free and in-use items</a></li>
+<li><a href="#res4">Change the capacity of a resource</a></li>
+<li><a href="#res5">Acquire a resource item from a resource pool</a></li>
+<li><a href="#res6">Release a resource item back into its resource pool</a></li>
+<li><a href="#res7">Obtain the tracked resource item acquired (allocated)</a></li>
+<li><a href="#res8">Create a consumable</a></li>
+<li><a href="#res9">Add items/units to a consumable</a></li>
+</ul>
+<h2>Random Numbers</h2>
+<ul class="howto">
+<li><a href="#rng1">Create a uniformly distributed random number generator</a></li>
+<li><a href="#rng2">Configure a non-uniform variate to use a user-supplied uniform generator</a></li>
+</ul>
+<h2>Developer</h2>
+<ul class="howto">
+<li><a href="#dev1">Check out the latest sources</a></li>
+<li><a href="#dev2">Build from the sources</a></li>
+</ul>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="sim">Simulation</a></h1>
+<div>
+<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="sim1">1. Create a Simulation</a></h2>
+		<p>
+			Creating a simulation involves two steps: (1) first you must instantiate
+			a <span class="classname">Simulation</span> instance; and (2) you must supply the
+			newly created <span class="classname">Simulation</span> with one or more
+			<em>generator</em> tasks.  Instantiating the simulation is simple...
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+Simulation sim = new Simulation();</pre>
+</div>
+
+		<p>
+			Creating the generator tasks may be somewhat more involved as you need
+			to write some code to get the generators tasks to actually do something
+			when they're executed by the simulation.  Once you have such a task,
+			it may be activated prior to calling the <code>Simulation.Run</code>
+			method or it may be passed to the <code>Run</code> method.
+		</p>
+		
+		<h3>Method 1</h3>
+		<p>
+			Activate a single generator task of type <span class="classname">MyTask</span>
+			prior to calling the <code>Simulation.Run()</code> method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+Task task = new MyTask(sim);
+task.Activate();
+sim.Run();</pre>
+</div>
+
+		<h3>Method 2</h3>
+		<p>
+			Pass a single generator task of type <span class="classname">MyTask</span>
+			to the <code>Simulation.Run(Task)</code> method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+Task task = new MyTask(sim);
+sim.Run(task);</pre>
+</div>
+
+		<h3>Method 3</h3>
+		<p>
+			Pass a multiple generator tasks of type <span class="classname">MyTaskA</span>
+			and <span class="classname">MyTaskB</span> to the <code>Simulation.Run(Task[])</code>
+			method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+Task [] tasks = new Task [2];
+tasks[0] = MyTaskA(sim);
+tasks[1] = MyTaskB(sim);
+sim.Run(tasks);</pre>
+</div>
+
+		<p>
+			Note that Method 1 may be used in conjunction with Method 2 or Method 3.
+			Method 2 and Method 3 cannot be used to run the same simulation.
+		</p>
+
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="sim2">2. Stop a Simulation</a></h2>
+		<p>
+			There are a few different ways to stop a running simulation.  It mainly
+			depends upon whether: you want to stop the simulation immediately; or
+			want to have to option to cancel the stoppage if it's scheduled to
+			occur at some time in the future.
+		</p>
+		<p>
+			If you don't need to be able to cancel the stoppage, the easiest way
+			to stop the simulation is to use one of the <code>Stop</code> methods
+			of the <span class="classname">Simulation</span> class.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+public void Stop();
+public virtual void Stop(long absTime);</pre>
+</div>
+		<p>
+			The first version, <code>Stop()</code> simply stops the simulation
+			immediately.  The second version stops the simulation at some
+			<em>absolute</em> simulation time.  The first version simply calls
+			the second version with an argument of <code>Now</code> (the current
+			simulation time).
+		</p>
+		<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4A86B8;
+					background-color: #B9D1E4;
+				">
+<div class="annotation" style="
+						background-color: #4A86B8">Note</div>
+<div class="message">
+			<p>
+				The <code>Stop(long)</code> method is one of the few methods that
+				takes an absolute time rather than a relative time.
+			</p>
+		</div>
+</div>
+</div>
+		<p>
+			Once a stop time is set by calling <code>Stop</code> is possible to
+			issue a different stop time, but not to recind the stoppage alltogether.
+			If you need to be able to cancel a stoppage, you can use a
+			<span class="classname">StopSimulation</span> task.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+Simulation sim = /* get the running Simulation instance. */
+long stopTime = sim.Now + 1000L;
+Task stopTask = new React.Tasking.StopSimulation(sim);
+stopTask.Activate(stopTime);</pre>
+</div>
+		<p>
+			To cancel <code>stopTask</code> simply invoke its <code>Cancel()</code>
+			method prior to its execution.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+stopTask.Cancel();</pre>
+</div>
+	</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="task">Tasks &amp; Processes</a></h1>
+		<p class="important">
+			<b>IMPORTANT:</b> Always bear in mind that a <span class="classname">Process</span>
+			is a <span class="classname">Task</span>.  Most of the tips below that apply
+			to <span class="classname">Task</span> instances apply equally to
+			<span class="classname">Process</span> instances.
+		</p>
+	<div>
+<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task1">1. Start a task running</a></h2>
+	
+		<p>
+			To start a task running, it must be <em>activated</em>.  The
+			<span class="classname">Task</span> class contains a number of methods
+			to activate an instance.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+public void Activate(object activator);
+public void Activate(object activator, long relTime);
+public void Activate(object activator, long relTime, int priority);
+public void Activate(object activator, long relTime, object data);
+public virtual void Activate(object activator, long relTime, object data, int priority);</pre>
+</div>
+		<p>
+			The meaning of the parameters are identical for each version of
+			the <code>Activate</code> method.  All versions delegate to the
+			final version (the one marked <code>virtual</code>).
+		</p>
+		<dl>
+			<dt>activator</dt>
+			<dd>
+				The object that is activating the <span class="classname">Task</span>.  This
+				may be <code>null</code> in which case the activation is said to be
+				<em>anonymous</em>.
+			</dd>
+			<dt>relTime</dt>
+			<dd>
+				The time, relative to the current simulation time, when the
+				<span class="classname">Task</span> should be activated.
+			</dd>
+			<dt>data</dt>
+			<dd>
+				Client data to pass to the <span class="classname">Task</span> when it is
+				activated.  This object is available to <span class="classname">Process</span>
+				instances as the <code>ActivationData</code> property.  It is available
+				to <span class="classname">Task</span> instances by querying the triggering
+				<span class="classname">ActivationEvent</span>.
+			</dd>
+			<dt>priority</dt>
+			<dd>
+				The priority of the <span class="classname">Task</span>.  This value is used
+				to order task execution when two or more tasks occur at the exact same
+				time.  Higher values indicate higher priority.  The default task
+				priority is zero (0).
+			</dd>
+		</dl>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task2">2. Immediately cancel a running task</a></h2>
+		<p>
+			If a <span class="classname">Task</span> is scheduled, that is, it has been
+			activated using one of the methods described previously, it may
+			be cancelled by invoking its <code>Cancel()</code> method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">task.Cancel();</pre>
+</div>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task3">3. Schedule a task cancellation at some future time</a></h2>
+		<p>
+			A <span class="classname">Task</span> can be cancelled at some future
+			time in the running <span class="classname">Simulation</span> by using a
+			<span class="classname">CancellationTask</span>.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+Task target = /* get the Task to cancel */
+Task cancelTask = new React.Tasking.CancellationTask(sim, target);
+cancelTask.Activate(null, 5000L);</pre>
+</div>
+		<p>
+			The above would cancel <code>target</code> in 5000 time units from the
+			current simulation time.
+		</p>
+		<p>
+			Cancellation in this manner is one way to implement reneging; however
+			using an <em>interrupt</em> is probably a better approach.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task4">4. Have one task block (wait) on another task</a></h2>
+		<p>
+			One <span class="classname">Task</span> can be made to block on another
+			using one of two techniques (<span class="classname">Process</span> instance
+			offer one addition method).  The technique to choose depends
+			upon whether or not you want to immediately activate the
+			blocking task.
+		</p>
+		<p>
+			In the following examples, let <em>blocker</em> be the blocking
+			<span class="classname">Task</span> and <em>waiting</em> be the 
+			<span class="classname">Task</span> being blocked (i.e. that task that's
+			waiting on <em>blocker</em>).
+		</p>
+		<h3>Block with immediate activation of blocker</h3>
+		<p>
+			If you want to activate <em>blocker</em> immediately, call
+			<em>waiting</em>'s <code>WaitOnTask</code> method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+waiting.WaitOnTask(blocker);</pre>
+</div>
+		<p>
+			The task, <em>waiting</em> will block on <em>blocker</em> and
+			<em>blocker</em> will be activated.
+		</p>
+		<h3>Block with deferred activation of blocker</h3>
+		<p>
+			If you want to defer activation of <em>blocker</em> use the
+			<code>Block(Task)</code> method of <em>blocker</em>.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+blocker.Activate(null, 500);
+blocker.Block(waiting);
+</pre>
+</div>
+		<p>
+			In the above example, <em>blocker</em> will activate 500 time units
+			from the current time.  It also is blocking the task, <em>waiting</em>.
+		</p>
+		
+		<h3>Have a process block on a task</h3>
+		<p>
+			<span class="classname">Process</span> instances provide another means of blocking
+			on other <span class="classname">Task</span>s.  They simply need to return the
+			blocking <span class="classname">Task</span> from the <code>GetProcessSteps</code>
+			method.  Remember, <code>GetProcessSteps</code> is an iterator method so
+			you must to a <code>yield return</code>.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Block on the task 'blocker'
+yield return blocker;</pre>
+</div>
+		<p>
+			Note that <em>blocker</em> is activated immediately.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task5">5. Re-activate one blocked task</a></h2>
+		<p>
+			A <span class="classname">Task</span> that is blocking one or more
+			<span class="classname">Task</span>s can re-activate one of the
+			blocked <span class="classname">Task</span>s by invoking the
+			<code>ResumeNext</code> method.  There are three versions
+			of <code>ResumeNext</code> available.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+	// Resume the next blocked task.  The blocked task is re-activated with the
+	// blocking task as its activator.
+	ResumeNext();
+	
+	// Resume the next blocked task specifying some activation data.  The blocked
+	// task is re-activated with the blocking task as its activator.
+	ResumeNext(thing);
+	
+	// Resume the next blocked task specifiying both the activator and activation
+	// data.
+	ResumeNext(activator, thing);</pre>
+</div>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task6">6. Re-activate all blocked tasks</a></h2>
+		<p>
+			A <span class="classname">Task</span> that is blocking one or more
+			<span class="classname">Task</span>s can re-activate all of the
+			blocked <span class="classname">Task</span>s by invoking the
+			<code>ResumeAll</code> method.  There are three versions
+			of <code>ResumeAll</code> available.  The arguments to
+			<code>ResumeAll</code> are used identically to those of
+			<code>ResumeNext</code> (see previous how-to).
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task7">7. Create a process using delegation</a></h2>
+		<p>
+			A <span class="classname">Process</span> can be created using a
+			<code>ProcessSteps</code> delegate defined as follows
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+	public delegate IEnumerator&lt;Task&gt; ProcessSteps(Process process, object data);</pre>
+</div>
+		<p>
+			To create a <span class="classname">Process</span> in this manner, you must
+			first write the method to be used by the <code>ProcessSteps</code>
+			delegate.  Then pass the delegate to the appropriate constructor.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// The method usable as a ProcessSteps delegate.
+private IEnumerator&lt;Task&gt; DoProcess(Process process, object data)
+{
+    // ... do your processing ...
+
+    // Doesn't hurt to always include this at the end.
+    yield break;
+}
+
+public static void Main(string [] args)
+{
+	Thing thing = new Thing();
+    Simulation sim = new Simulation();
+    
+    // Create a new Process using the delegate method.
+    Process p1 = new Process(sim, DoProcess);
+    
+    // Create a new Process using the delegate method and passing it
+    // some initial data.
+    Process p2 = new Process(sim, DoProcess, thing);
+    
+    // Run the simulation. p1 and p2 are the generator tasks.
+    sim.Run(new Task[] {p1, p2});
+}</pre>
+</div>
+		
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="task8">8. Create a process using derivation</a></h2>
+		<p>
+			To create a <span class="classname">Process</span> using derivation,
+			you must override the <code>GetProcessSteps</code> method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+public class MyProcess : Process
+{
+    public MyProcess(Simulation sim) : base(sim) {}
+
+    protected override IEnumerator&lt;Task&gt;GetProcessSteps()
+    {
+        .
+        .
+        .
+
+        yield break;
+    }
+}</pre>
+</div>
+	<p>
+		When creating a new class this way, you <b>do not</b> need to invoke
+		the base class version of <code>GetProcessSteps</code>.
+	</p>
+	</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="res">Resources &amp; Consumables</a></h1>
+<div>
+<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res1">1. Create an anonymous resource</a></h2>
+		<p>
+			An <em>anonymous resource</em>, implemented by the
+			<span class="classname">AnonymousResource</span> class, can be created by
+			directly instantiating an <span class="classname">AnonymousResource</span>
+			instance or by using a <span class="classname">Resource</span> factory method.
+			Using direct instantiation allows you to supply a name for the
+			resource at the time of its creation.
+		</p>
+		<h3>Direct Instantiation</h3>
+		<p>
+			Create a new <span class="classname">AnonymousResource</span> instance by
+			using one of the three available constructors.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Create with an capacity of one (1).
+IResource r1 = new AnonymousResource();
+
+// Create with the specified capacity (e.g. 5).
+IResource r2 = new AnonymousResource(5);
+
+// Create with specified name and capacity.
+IResource r3 = new AnonymousResource("Printers", 4);</pre>
+</div>
+
+		<h3>Factory Method</h3>
+		<p>
+			Create a new <span class="classname">AnonymousResource</span> instance by
+			using the <code>Resource.Create(int)</code> or
+			<code>Resource.Create(int,int)</code> factory methods.
+		</p>
+
+		<div class="example"><pre style="margin: 0px;">
+// Create an AnonymousResource with a capacity of 10.
+IResource r4 = Resource.Create(10);
+
+// Create an AnonymousResource with a capacity of 10, 4 of which are
+// out of service.
+IResource r5 = Resource.Create(6, 4);</pre>
+</div>
+		<p>
+			In the first <code>Create</code> call, all ten resource items
+			are <em>in-service</em>.  In the second <code>Create</code>
+			call, six items are in-service and four items are <em>out-of-service</em>.
+			Both result in an <span class="classname">AnonymousResource</span> with
+			a capacity of ten (e.g. the resource's <code>Count</code> property
+			equals 10).
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res2">2. Create a tracked resource</a></h2>
+		<p>
+			A <em>tracked resource</em>, implemented by the
+			<span class="classname">TrackedResource</span> class, can be created by
+			directly instantiating an <span class="classname">TrackedResource</span>
+			instance or by using a <span class="classname">Resource</span> factory method.
+			Using direct instantiation allows you to supply a name for the
+			resource at the time of its creation.
+		</p>
+		<h3>Direct Instantiation</h3>
+		<p>
+			Create a new <span class="classname">TrackedResource</span> instance by
+			using one of the two available constructors.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Load an IEnumerable with the objects the TrackedResource will contain.
+// In this example a simple array is used.
+object [] things = new object [5];
+things[0] = new Thing();
+things[1] = new Thing();
+    .
+    .
+    .
+    
+// Create an unnamed TrackedResource.
+IResource r1 = new TrackedResource(things);
+
+// Create an named TrackedResource.
+IResource r2 = new TrackedResource("Stuff", things);</pre>
+</div>
+
+		<p>
+			Note that while the above example shows the objects in the <code>things</code>
+			array being placed into two different <span class="classname">TrackedResource</span>
+			instance, this is not a good idea and should be avoided. <em><b>An object
+			should never be contained by more than one TrackedResource.</b></em>
+		</p>
+
+		<h3>Factory Method</h3>
+		<p>
+			Create a new <span class="classname">TrackedResource</span> instance by
+			using the <code>Resource.Create(IEnumerable)</code> factory method.
+		</p>
+
+		<div class="example"><pre style="margin: 0px;">
+// Create and load an IEnumerable...
+IList list = new ArrayList();
+list.add(new Thing());
+list.add(new Thing());
+
+// Create an TrackedResource containing the elements of 'list'.
+IResource r3 = Resource.Create(list);</pre>
+</div>
+		<p>
+			All the resource items in a newly created
+			<span class="classname">TrackedResource</span> are in-service.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res3">3. Obtain the number of free and in-use items</a></h2>
+		<p>
+			To query an <span class="classname">IResource</span> for the number
+			of items that are free and the number of items that are
+			in-use, query the <code>Free</code> and <code>InUse</code>
+			properties.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Get the number of free (available) items in resource 'res'.
+int nFree = res.Free;
+
+// Get the number of in-use items in resource 'res'.
+int nUsed = res.InUse;</pre>
+</div>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res4">4. Change the capacity of a resource</a></h2>
+		<p>
+			Once created, it's actually not possible to change the capacity
+			of a resource.  That is, the <code>Count</code> property
+			remains fixed.  It is, however, possible to alter the number of
+			resource items are are <em>out-of-service</em>.  An item that is
+			out-of-service is considered unusable and therefore cannot be made
+			available by the <span class="classname">IResource</span>.
+		</p>
+		<p>
+			To change the number of out-of-service items simply change the
+			<code>OutOfService</code> property.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Decrease the number of in-service items in the resource 'res' by two.
+res.OutOfService += 2;</pre>
+</div>
+		<p>
+			One major implication of the above is that you must remember
+			to create your resources with a capacity that will accomodate
+			the maximum desired in-service count.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res5">5. Acquire a resource item from a resource pool</a></h2>
+		<p>
+			A <span class="classname">Process</span> can acquire a resource item
+			from a <span class="classname">IResource</span> using the <code>Acquire</code>
+			method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+IResource res = /* get the resource you want to acquire from */
+yield return res.Acquire(this);
+// When the process resumes, we have the resource item.</pre>
+</div>
+		<p>
+			Note that this example applies only to <span class="classname">Process</span>
+			instances.  The above code is only valid in an overridden
+			<code>GetProcessSteps</code> method or a <code>ProcessSteps</code>
+			delegate method.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res6">6. Release a resource item back into its resource pool</a></h2>
+		<p>
+			A <span class="classname">Process</span> can release a previously acquired resource
+			item to a <span class="classname">IResource</span> using the <code>Release</code>
+			method.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+IResource res = /* get the resource you want to release to */
+yield return res.Release(this);
+// When the process resumes, we will have released the resource item.</pre>
+</div>
+		<p>
+			Note that this example applies only to <span class="classname">Process</span>
+			instances.  The above code is only valid in an overridden
+			<code>GetProcessSteps</code> method or a <code>ProcessSteps</code>
+			delegate method.
+		</p>
+		<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4A86B8;
+					background-color: #B9D1E4;
+				">
+<div class="annotation" style="
+						background-color: #4A86B8">Note</div>
+<div class="message">
+			<p>
+				If you own multiple resource items from a
+				<span class="classname">TrackedResource</span> you can use the
+				<code>Release(Task, object)</code> method (defined on
+				<span class="classname">TrackedResource</span>) to specify which
+				resource item to release.  If the <code>IResource.Release(Task)</code>
+				method is used, the longest owned item is released.
+			</p>
+		</div>
+</div>
+</div>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res7">7. Obtain the tracked resource item acquired (allocated)</a></h2>
+		<p>
+			When using a <span class="classname">TrackedResource</span> the
+			acquiring <span class="classname">Task</span> is passed the allocated
+			resource item as the <code>data</code> parameter of the
+			<code>ExecuteTask</code> method.
+		</p>
+		<p>
+			For <span class="classname">Process</span> instances, obtaining the
+			allocated resource item is a bit different because normally,
+			you are not overriding <code>ExecuteTask</code>.  In this case,
+			the resource item is available in the <code>ActivationData</code>
+			property.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res8">8. Create a consumable</a></h2>
+		<p>
+			Create a new <span class="classname">Consumable</span> instance using one
+			of four constructors.  Two of the constructor create an empty
+			consumable, while the other two create a consumable with a
+			specified initial quantity of consumable items (units).
+		</p>
+		<h3>Create an empty consumable</h3>
+		<p>
+			The following two constructors create empty
+			<span class="classname">Consumable</span> instances.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Create an unnamed, empty consumable.
+IConsumable c1 = new Consumable();
+
+// Create a named, empty consumable.
+IConsumable c2 = new Consumable("Fuel Tank");</pre>
+</div>
+
+		<h3>Create a consumable with an initial quantity</h3>
+		<p>
+			The following two constructors create <span class="classname">Consumable</span>
+			instances having the specified initial quantity of consumable items
+			or units.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+// Create an unnamed consumable with initial quantity of 2500 items/units.
+IConsumable c3 = new Consumable(2500);
+
+// Create an named consumable with initial quantity of 500 items/units.
+IConsumable c4 = new Consumable("Water Tank", 500);</pre>
+</div>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="res9">9. Add items/units to a consumable</a></h2>
+		<p>
+			Adding items or units to a <span class="classname">IConsumable</span>
+			is called <em>re-supplying</em>.  After it's initial creation
+			a consumable can only be re-supplied during the simulation run.
+			Re-supplying is accomplished by the <span class="classname">Task</span>
+			returned by the <code>Resupply(Task task, int quantity)</code>
+			blocking method of <span class="classname">IConsumable</span>.
+		</p>
+		<p>
+			The example code shown below illustrates performing a re-supply
+			from a <span class="classname">Process</span>.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+protected override IEnumerator&lt;Task&gt; GetProcessSteps()
+{
+	// ... perform some processing ...
+	
+	// Get ahold of an IConsumable instance
+	IConsumable c = GetWaterTank();
+	
+	// Now resupply it with 1000 items/units.
+	yield return c.Resupply(this, 1000);
+	
+	// ... perform some more processing ...
+}</pre>
+</div>
+	</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="rng">Random Numbers</a></h1>
+<div>
+<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="rng1">1. Create a uniformly distributed random number generator</a></h2>
+		<p>
+			The <span class="classname">React.Distribution.Uniform</span> class includes two
+			static methods that return a new <span class="classname">Uniform</span> instance.
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+public static Uniform Create();
+public static Uniform Create(long seed);</pre>
+</div>
+		<p>
+			In the first case, the resulting <span class="classname">Uniform</span> is
+			seeded using the current system time.  In the second case, the seed
+			must be specified.
+		</p>
+		<p>
+			Both of the above <code>Create</code> methods, return a
+			<span class="classname">Uniform</span> derivitive that uses
+			<span class="classname">System.Random</span> to do the actual random number
+			generation.
+		</p>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="rng2">2. Configure a non-uniform variate to use a user-supplied uniform generator</a></h2>
+		<p>
+			Non-uniform random number generators or <em>non-uniform variates</em> can be
+			created to use a uniform generator from the system-wide set of uniform random
+			number streams or they can use a user-supplied random number generator.
+		</p>
+		<p>
+			All the React.NET non-uniform variates have constructors that take a
+			<span class="classname">IUniformSource</span> interface.  To specify the
+			<span class="classname">IUniformSource</span> for non-uniform variate use one of
+			the constructors that accept a <span class="classname">IUniformSource</span>
+			parameter.  For example, to create a <span class="classname">Weibull</span> instance
+			that uses its own uniform generator, you can do the following.
+		</p>
+		
+		<div class="example"><pre style="margin: 0px;">
+// Create a new IUniformSource instance seeded from the system time.
+IUniformSource rngSource = Uniform.Create();
+
+// Create a new Weibull instance that obtains a uniform generator from rngSource.
+Weibull weibull = new Weibull(rngSource);</pre>
+</div>
+
+		<p>
+			Note that in the example above, <code>weibull</code> will use the
+			<span class="classname">Weibull</span> class's default shape and scale.
+		</p>
+	</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="dev">Developer</a></h1>
+<div>
+<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="dev1">1. Check out the latest sources</a></h2>
+		<p>
+			React.NET is currently developed using the
+			<a href="http://subversion.tigris.org">Subversion</a> version control
+			system.  SourceForge began supporting Subversion in February 2006.  It
+			is possible to check out the React.NET source code as follows (if you're
+			using the Subversion command-line client).
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+svn co https://svn.sourceforge.net/svnroot/reactnet/trunk reactnet</pre>
+</div>
+		<p>
+			The above will check out the main development line (the trunk) into
+			a directory named <b>reactnet</b>.
+		</p>
+		<p>
+			For more infomation on using Subversion with SourceForge, see the documents
+		</p>
+		<ul>
+			<li><a href="http://sourceforge.net/docman/display_doc.php?docid=31070&amp;group_id=1">
+			E09. Subversion (Version Control for Source Code)</a></li>
+			<li><a href="http://sourceforge.net/docman/display_doc.php?docid=31178&amp;group_id=1">
+			F06. SVN Client: Command-line SVN client</a></li>
+			<li><a href="http://sourceforge.net/docman/display_doc.php?docid=31165&amp;group_id=1">
+			F07. SVN Client: TortoiseSVN</a></li>
+		</ul>
+	<h2><a href="#top" title="Back to top"><img class="totop" src="images/to_top.gif" alt="Back to top"></a><a name="dev2">2. Build from the sources</a></h2>
+		<p>
+			Building from the React.NET sources requires the use of <b>MSBuild</b>,
+			which is included with the Microsoft .NET 2.0 SDK.  To build the
+			React.NET library, <tt>React.NET.dll</tt>, run
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+msbuild React.proj /target:Build</pre>
+</div>
+		<p>
+			Note that since <em>Build</em> is the default target, you don't
+			actually need the <code>/target:Build</code>.
+		</p>
+		<p>
+			The above command only builds the DLL, to build the example
+			programs, run
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+msbuild React.proj /target:BuildExamples</pre>
+</div>
+		<p>
+			Finally, to build everything, including the web site you're viewing
+			now, run
+		</p>
+		<div class="example"><pre style="margin: 0px;">
+msbuild React.proj /target:BuildAll</pre>
+</div>
+	</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<!--
+<how-to-section id="misc" name="Miscellaneous">
+	<how-to title="Seed">
+		<p>[Put description here.]</p>
+	</how-to>
+</how-to-section>
+-->
+
+<!-- ======================================================================= -->
+<!--===================================================--></div>
+</div>
+<div id="footer">
+<hr><img id="valid" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"><address>&copy;
+				2006 Eric K. Roe.  All rights reserved.
+			</address>
+</div>
+</body>
+</html>

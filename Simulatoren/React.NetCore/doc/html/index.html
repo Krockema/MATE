@@ -1,0 +1,308 @@
+<!--
+
+    $Id: index.xml 189 2006-10-23 23:53:23Z eroe $
+
+   	React.NET Web Site Page.
+    Copyright © 2005 Eric K. Roe.  All rights reserved.
+ 
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+ 
+        <html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>React.NET - Home</title>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="copyright" content="Copyright © 2006 Eric K. Roe, All rights reserved.">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="banner"><a name="top"></a><h1 id="title">React.NET</h1>
+<h2 id="slogan">Discrete Event Simulation Framework</h2>
+</div>
+<div id="menubar">
+<p>
+				|<a href="index.html"> Home </a>
+				|<a href="quick_start.html">Quick Start</a>
+				|<a href="examples.html"> Examples </a>
+				|<a href="howtos.html"> How-tos </a>
+				|<a href="documentation.html"> Documentation </a>
+				|
+			</p>
+</div>
+<div id="content">
+<div style="float: right; background-color: white; padding: 15px; border: none;">
+<div id="toc">
+<p>Contents</p>
+<ul>
+<li><div><a href="#welcome">Welcome</a></div></li>
+<li><div><a href="#whatsit">What Is It?</a></div></li>
+<li><div><a href="#features">Features</a></div></li>
+<li><div><a href="#requirements">Requirements</a></div></li>
+<li><div><a href="#license">License</a></div></li>
+<li><div><a href="#links">Links</a></div></li>
+</ul>
+<div style="text-align: center; margin: 0px auto;"><a href="http://sourceforge.net" title="SourceForge.net Home"></a></div>
+</div>
+</div>
+<div><!--===================================================-->
+<!-- ======================================================================= -->
+
+<h1><a name="welcome"></a>Welcome</h1>
+<p>
+	Welcome to the React.NET Discrete Event Simulation Framework.  React.NET
+	is a open source library for programmatically developing discrete event
+	simulations implemented on top of the Microsoft®
+	<a href="http://msdn.microsoft.com/netframework/">.NET Framework</a>.
+</p>
+
+<h2>Site Map</h2>
+<dl class="toclist">
+	<dt><a href="quick_start.html">Quick Start</a></dt>
+	<dd>
+		Provides an overview of the discrete event simulation concepts and classes
+		as they are implemented by React.NET.  It also includes a step-by-step
+		tutorial on building a simple simulation.
+	</dd>
+	<dt><a href="examples.html">Examples</a></dt>
+	<dd>
+		Provides a number of example simulations with detailed descriptions.
+	</dd>
+	<dt><a href="howtos.html">How-Tos</a></dt>
+	<dd>
+		Provides code samples for accomplishing a variety of simulation tasks
+		using React.NET.
+	</dd>
+	<dt><a href="documentation.html">Documentation</a></dt>
+	<dd>
+		Provides access to the React.NET programming guide and API reference.
+	</dd>
+	<!--<dt><a href="development.html">Development</a></dt>
+	<dd>
+		Provides information on the current <react/> development status as well
+		as links to the SourceForge project page.
+	</dd>-->
+</dl>
+
+<div id="download">
+	<div class="callout" style="border-color: #9a9a9a; background-color: #e0e0e0;">
+		<div class="annotation" style="background-color: #9a9a9a">Download &amp; Documentation</div>
+		<div class="message">
+			<h2 class="callouthdr">Developer</h2>
+			<p>
+				The current development version of React.NET is v0.6.0, released on
+				23 OCT 2006. It can be downloaded using the link below.
+			</p>
+			<p style="font-size: 90%; margin-top: 0.5em; text-align: center;">
+				» <a href="http://prdownloads.sourceforge.net/reactnet/React.NET-0.6.0.zip?download">React.NET-0.6.0.zip</a> «
+			</p>
+			<p style="margin-top: 0.6em;">
+				Alternatively, the latest React.NET sources can be obtained using
+				Subversion at <tt>https://svn.sourceforge.net/svnroot/reactnet/trunk</tt>.
+			</p>
+			<h2 class="callouthdr">Stable</h2>
+			<p>
+				There is no stable release available at this time.
+			</p>
+			<hr style="width: 85%; text-align: center;">
+			<h2 class="callouthdr">API Documentation</h2>
+			<p>
+				The React.NET reference library is now viewable online.  This
+				documentation reflects the v0.6.0 release of the software.
+			</p>
+			<p style="font-size: 90%; margin-top: 0.5em; text-align: center;">
+				» <a href="api/index.html">View the React.NET API Documentation</a> «
+			</p>
+		</div>
+	</div>
+</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="whatsit"></a>What Is It?</h1>
+<p>
+	React.NET is a library for programmatically constructing discrete event
+	simulations.  The library contains classes for many of the most common
+	simulation objects, including:
+</p>
+<ul>
+	<li>Processes.</li>
+	<li>Various non-uniform random number generators.</li>
+	<li>Blocking objects such as:
+		<ul>
+			<li>Resources</li>
+			<li>Conditions</li>
+			<li>Bounded buffers</li>
+			<li>Consumables</li>
+		</ul>
+	</li>
+	<li>Classes for gathering run-time simulation data.
+		<ul>
+			<li>Monitors</li>
+			<li>Recorders</li>
+		</ul>
+	</li>
+	<li>Classes for collecting/computing statistics.</li>
+</ul>
+<p>
+	To create a React.NET simulation, you create a runnable .NET program.
+	This means that React.NET is <b>not</b> a graphically-based system for
+	building simulations.
+</p>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="features"></a>Features</h1>
+<p>
+	The following are some of the attributes and features of the
+	React.NET Discrete Event Simulation Framework.
+</p>
+<ul>
+	<li>Written entirely in the C# programming language.</li>
+	<li>Makes entensive use of features in .NET v2.0 including:
+		<ul>
+			<li>Generics</li>
+			<li>Iterators</li>
+		</ul>
+</li>
+	<li>
+		Avoids Microsoft-specific (e.g. Win32 classes) in hopes to eventually
+		run on the <a href="http://www.mono-project.com/Main_Page">Mono</a>
+		framework.
+	</li>
+	<li>Powerful and flexible simulation API.</li>
+	<li>
+		Simple simulations can be created using only a few of the React.NET classes.
+		There's	no need to learn a large API just as you're getting started.
+	</li>
+	<li>Intuitive, <em>process-based</em> simulation methodology.</li>
+	<li>
+		Includes nine (9) common non-uniform random number generators
+		(distributions).  This list will continue to grow.
+	</li>
+	<li>
+		A Simulation class provides all context for a single simulation
+		run.  Multiple simulations can be executed in parallel in separate
+		threads.
+	</li>
+	<li>
+		Provides an easy-to-use means for monitoring property changes during
+		a simulation run and aggregating this data into meaningful statistics.
+	</li>
+</ul>
+
+<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: #4A86B8;
+					background-color: #B9D1E4;
+				">
+<div class="annotation" style="
+						background-color: #4A86B8">Note</div>
+<div class="message">
+	<p>
+		At the current time, React.NET has not been tested with Visual Basic.
+		The recommended language for creating React.NET simulations is C#.
+	</p>
+</div>
+</div>
+</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="requirements"></a>Requirements</h1>
+<p>
+	To build the React.NET library or a simulation that uses React.NET requires:
+</p>
+<ul>
+	<li>The Microsoft® .NET Framework SDK v2.0 or higher.</li>
+	<li>A means to edit textual source files.</li>
+	<li>Familiarity with discrete event simulation concepts.</li>
+	<li>Familiarity with programming in C# and the .NET Framework.</li>
+</ul>
+<p>
+	To run a simulation built with the React.NET library requires only the
+	Microsoft .NET 2.0 runtime.
+</p>
+<div style="margin: 0px auto; text-align: center;">
+<div class="callout" style="
+					border-color: red;
+					background-color: pink;
+				">
+<div class="annotation" style="
+						background-color: red">Important</div>
+<div class="message">
+	<p>
+		You must use .NET 2.0 or higher.  React.NET will not run under
+		earlier versions of the .NET Framework.  Download the latest
+		version of the .NET SDK or runtime
+		<a href="http://msdn.microsoft.com/netframework/downloads/updates/default.aspx">here</a>.
+	</p>
+</div>
+</div>
+</div>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="license"></a>License</h1>
+<p>
+	React.NET is licensed under the GNU General Public License (GPL), a copy
+	of which is available at
+	<a href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</a>.
+</p>
+
+<!-- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . -->
+<h1><a name="links"></a>Links</h1>
+<p>
+	The following sites provide some good, introductory material on
+	discrete event simulation.
+</p>
+
+<ul style="margin-left: 3em;">
+	<li>
+		<a href="http://siesta.cs.wustl.edu/~kjg/cs333/devs.html">
+			CS333 Lab A-3: Distributed Discrete Event Simulation
+		</a>
+	</li>
+	<li>
+		<a href="http://www.dmem.strath.ac.uk/~pball/simulation/simulate.html">
+			Introduction to Discrete Event Simulation
+		</a>
+	</li>
+	<li>
+		<a href="http://www.informs-sim.org/wsc97papers/0014.PDF">
+			Inside Discrete Event Simulation Software
+		</a>
+	</li>
+	<li>
+		<a href="http://www.ibrightsolutions.com/support/simulation/simulation.htm">
+			What is Simulation? - Discrete Event Simulation
+		</a>
+	</li>
+	<li>
+		<a href="http://www.uni-koblenz.de/~kgt/SICSS/SSS/Chapter5/Slides.pdf">
+			Queuing Models and Discrete Event Simulation
+		</a>
+	</li>
+</ul>
+
+<p>
+	The paper, <a href="http://tamcam.tamu.edu/papers/multirev/multireva.htm">Deadlock Detection and
+	Resolution for Discrete Event Simulation: Multiple-Unit Seizes</a> provides some good information
+	about simulations that have tasks that perform multiple resource acquisitions (seizes).
+</p>
+
+<p>
+	If you're looking for a <a href="http://www.python.org" title="Python Home Page">Python</a>-based
+	discrete simulation framework, you may want to check out the
+	<a href="http://simpy.sourceforge.net" title="SimPy Home Page">SimPy</a> project.
+</p>
+
+
+<!-- ======================================================================= -->
+<!--===================================================--></div>
+</div>
+<div id="footer">
+<hr><img id="valid" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"><address>&copy;
+				2006 Eric K. Roe.  All rights reserved.
+			</address>
+</div>
+</body>
+</html>
