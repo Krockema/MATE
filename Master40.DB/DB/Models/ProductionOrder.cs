@@ -15,6 +15,7 @@ namespace Master40.DB.Models
         public virtual ICollection<ProductionOrderBom> ProdProductionOrderBomChilds { get; set; }
         public decimal Quantity { get; set; }
         public string Name { get; set; }
+        public int Duetime { get; set; }
         [JsonIgnore]
         public virtual ICollection<DemandProviderProductionOrder> DemandProviderProductionOrders { get; set; }
         [JsonIgnore]

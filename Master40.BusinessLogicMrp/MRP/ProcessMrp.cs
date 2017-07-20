@@ -14,7 +14,7 @@ namespace Master40.BusinessLogicCentral.MRP
     public interface IProcessMrp
     {
         Task CreateAndProcessOrderDemand(MrpTask task);
-        void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
+        void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int timer);
         void PlanCapacities(MrpTask task, int timer);
     }
 
@@ -41,7 +41,8 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <returns></returns>
         public async Task CreateAndProcessOrderDemand(MrpTask task)
         {
-            
+            //TOdo: request timer from context
+            var timer = 0;
             await Task.Run(() =>
             {
                 _messageHub.SendToAllClients("Start full cycle...", MessageType.info);
@@ -51,7 +52,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 {
                     var demand = GetDemand(orderPart);
                     //run the requirements planning and backward/forward termination algorithm
-                    RunRequirementsAndTermination(demand, task);
+                    RunRequirementsAndTermination(demand, task,timer);
                 }
                 
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
@@ -165,11 +166,12 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="demand"></param>
         /// <param name="task"></param>
-        public void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task)
+        /// <param name="timer"></param>
+        public void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int timer)
         {
             if (demand.State == State.Created)
             {
-                ExecutePlanning(demand, null, task);
+                ExecutePlanning(demand, null, task, timer);
                 demand.State = State.ProviderExist;
                 _context.Update(demand);
                 _context.SaveChanges();
@@ -201,52 +203,46 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private bool CheckNeedForward(IDemandToProvider demand)
         {
-            var demandProviderProductionOrders = _context.Demands.OfType<DemandProviderProductionOrder>()
-                .Where(a => a.DemandRequesterId == demand.DemandRequesterId).ToList();
-            if (demand.GetType() == typeof(DemandStock))
-                return true;
-            return demandProviderProductionOrders
-                        .Select(demandProviderProductionOrder => _context.ProductionOrderWorkSchedules
-                        .Include(a => a.ProductionOrder)
-                        .Where(a => a.ProductionOrderId == demandProviderProductionOrder.ProductionOrderId)
-                        .ToList())
-                    .Any(schedules => schedules.Any(schedule => schedule.StartBackward < 0));
+            return demand.GetType() == typeof(DemandStock) || _context.GetProductionOrderWorkSchedules(demand).Any(a => a.StartBackward < 0);
         }
 
-        private void ExecutePlanning(IDemandToProvider demand, IDemandToProvider parent, MrpTask task)
+        private void ExecutePlanning(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task, int timer)
         {
             //creates Provider for the needs
-            var productionOrder = _demandForecast.NetRequirement(demand, parent, task);
+            var productionOrders = _demandForecast.NetRequirement(demand, parentProductionOrder, task, timer);
             demand.State = State.ProviderExist;
             
             //If there was enough in stock this does not have to be produced
-            if (productionOrder == null) return;
-
-            //create concrete WorkSchedules for the ProductionOrders
-            _scheduling.CreateSchedule(demand, productionOrder);
-
-            var children = _context.ArticleBoms
-                                .Include(a => a.ArticleChild)
-                                .ThenInclude(a => a.ArticleBoms)
-                                .Where(a => a.ArticleParentId == demand.ArticleId)
-                                .ToList();
-
-            if (!children.Any()) return;
-            foreach (var child in children)
+            if (!productionOrders.Any()) return;
+            foreach (var productionOrder in productionOrders)
             {
-                //call this method recursively for a depth-first search
-                var dpob = new DemandProductionOrderBom
+                //if the ProductionOrder was just created, initialize concrete WorkSchedules for the ProductionOrders
+                if (productionOrder.ProductionOrderWorkSchedule == null || !productionOrder.ProductionOrderWorkSchedule.Any())
+                    _scheduling.CreateSchedule(demand, productionOrder);
+                
+                var children = _context.ArticleBoms
+                                    .Include(a => a.ArticleChild)
+                                    .ThenInclude(a => a.ArticleBoms)
+                                    .Where(a => a.ArticleParentId == productionOrder.ArticleId)
+                                    .ToList();
+
+                if (!children.Any()) return;
+                foreach (var child in children)
                 {
-                    ArticleId = child.ArticleChildId,
-                    Article = child.ArticleChild,
-                    Quantity = productionOrder.Quantity * (int) child.Quantity,
-                    DemandProvider = new List<DemandToProvider>(),
-                    State = State.Created,
-                    DemandRequesterId = demand.DemandRequesterId ?? demand.Id,
-                };
-                _context.Add(dpob);
-                _context.SaveChanges();
-                ExecutePlanning(dpob, demand, task);
+                    //call this method recursively for a depth-first search
+                    var dpob = new DemandProductionOrderBom
+                    {
+                        ArticleId = child.ArticleChildId,
+                        Article = child.ArticleChild,
+                        Quantity = productionOrder.Quantity * (int)child.Quantity,
+                        DemandProvider = new List<DemandToProvider>(),
+                        State = State.Created,
+                        DemandRequesterId = null,
+                    };
+                    _context.Add(dpob);
+                    _context.SaveChanges();
+                    ExecutePlanning(dpob, productionOrder, task, timer);
+                }
             }
         }
 

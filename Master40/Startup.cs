@@ -41,8 +41,8 @@ namespace Master40
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Database Context
-            //services.AddDbContext<MasterDBContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<MasterDBContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             //services.AddDbContext<MasterDBContext>(options => options.UseInMemoryDatabase("InMemeoryMaster"));
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
@@ -52,16 +52,16 @@ namespace Master40
             dboptions.UseInMemoryDatabase("one");
                 //.UseInternalServiceProvider(_serviceProvider);
 
-            services.AddDbContext<MasterDBContext>(op => op.UseInMemoryDatabase("one"));
+            //services.AddDbContext<MasterDBContext>(op => op.UseInMemoryDatabase("one"));
 
-            //services.AddDbContext<OrderDomainContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<OrderDomainContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDbContext<OrderDomainContext>(op => op.UseInMemoryDatabase("one"));
+            //services.AddDbContext<OrderDomainContext>(op => op.UseInMemoryDatabase("one"));
 
-            //services.AddDbContext<ProductionDomainContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDbContext<ProductionDomainContext>(op => op.UseInMemoryDatabase("one"));
+            services.AddDbContext<ProductionDomainContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            //services.AddDbContext<ProductionDomainContext>(op => op.UseInMemoryDatabase("one"));
             //
             //services
             //    .AddEntityFrameworkInMemoryDatabase()
@@ -119,8 +119,8 @@ namespace Master40
                             , ProductionDomainContext productionDomainContext)
         {
             Task.Run((() => { 
-                MasterDBInitializerLarge.DbInitialize(context);
-                MasterDBInitializerLarge.DbInitialize(productionDomainContext);
+                MasterDBInitializerSmall.DbInitialize(context);
+                MasterDBInitializerSmall.DbInitialize(productionDomainContext);
                 }
             ));
             HangfireDBInitializer.DbInitialize(hangfireContext);

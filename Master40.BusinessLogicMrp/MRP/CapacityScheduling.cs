@@ -2,16 +2,13 @@
 using System.Linq;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
-using Master40.DB.Data.Helper;
-using System;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 
 namespace Master40.BusinessLogicCentral.MRP
-{//Todo: multi-machines fix
-    public interface ICapacityScheduling
+{
+   public interface ICapacityScheduling
     {
         void GifflerThompsonScheduling(int timer);
         List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int timer);
@@ -50,8 +47,8 @@ namespace Master40.BusinessLogicCentral.MRP
 
                 plannableSchedules.Remove(shortest);
                 //Add a fix spot on a machine with start/end
-                var shortestList = AddMachineToPows(plannedSchedules, shortest);
-                plannedSchedules.AddRange(shortestList);
+                AddMachine(plannedSchedules, shortest);
+                plannedSchedules.Add(shortest);
 
                 //search for parent and if available and allowed add it to the schedule
                 var parent = GetParent(shortest, productionOrderWorkSchedules);
@@ -65,66 +62,8 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             return timer == 0 ? null : _context.ProductionOrderWorkSchedules.Where(a => a.Start <= timer && a.End - a.Start == a.Duration).ToList();
         }
-
-        private List<ProductionOrderWorkSchedule> AddMachineToPows(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest)
-        {
-            var pows = new List<ProductionOrderWorkSchedule>();
-            ProductionOrderWorkSchedule lastPows=null;
-            shortest.Duration = _context.WorkSchedules.Single(a => a.ArticleId == shortest.ProductionOrder.ArticleId && a.HierarchyNumber == shortest.HierarchyNumber).Duration;
-            //Todo: delete? all other pos for other machines to create new
-            for (var i = 0;i < shortest.ProductionOrder.Quantity;i++)
-            {
-                var currentPows = AddMachine(plannedSchedules, pows, CreateNewPows(shortest));
-                if (lastPows == null)
-                {
-                    lastPows = currentPows;
-                    pows.Add(currentPows);
-                    shortest.MachineId = currentPows.MachineId;
-                    shortest.Start = currentPows.Start;
-                    shortest.End = currentPows.End;
-                    _context.ProductionOrderWorkSchedules.Update(shortest);
-                    _context.SaveChanges();
-                    continue;
-                }
-                var foundSchedule = pows.FirstOrDefault(schedule => currentPows.MachineId == schedule.MachineId && currentPows.Start == schedule.End);
-                //check if before pows belongs to this process
-                if (foundSchedule != null)
-                {
-
-                    pows[pows.IndexOf(foundSchedule)].End += currentPows.Duration;
-                    pows[pows.IndexOf(foundSchedule)].Duration += currentPows.Duration;
-                }
-                else
-                {
-                    //Todo: create new PO and assign Pows to it
-                    //Todo: create new DPPO and assign PO and Demand to it
-                    
-                    var pow = CreateNewPows(currentPows);
-                    pows.Add(pow);
-                }
-                
-                lastPows = currentPows;
-            }
-            if (pows.Any())
-            {
-                shortest.End = pows.First().End;
-                shortest.Duration = pows.First().Duration;
-                _context.Update(shortest);
-                _context.AddRange(pows.GetRange(pows.IndexOf(pows.First()) + 1, pows.Count - 1));
-                _context.SaveChanges();
-            }
-           
-            return pows;
-        }
-
-        private ProductionOrderWorkSchedule CreateNewPows(ProductionOrderWorkSchedule currentPows)
-        {
-            ProductionOrderWorkSchedule item = new ProductionOrderWorkSchedule();
-            currentPows.CopyPropertiesTo(item);
-            return item;
-        }
-
-        private ProductionOrderWorkSchedule AddMachine(List<ProductionOrderWorkSchedule> plannedSchedules,List<ProductionOrderWorkSchedule> pows, ProductionOrderWorkSchedule shortest)
+        
+        private void AddMachine(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest)
         {
             var machines = _context.Machines.Where(a => a.MachineGroupId == shortest.MachineGroupId).ToList();
             if (machines.Count == 1)
@@ -132,7 +71,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 shortest.Start = GetChildEndTime(shortest);
                 shortest.End = shortest.Start + shortest.Duration;
                 var earliestPlanned = FindStartOnMachine(plannedSchedules, machines.First().Id, shortest);
-                var earliestPows = FindStartOnMachine(pows, machines.First().Id, shortest);
+                var earliestPows = FindStartOnMachine(plannedSchedules, machines.First().Id, shortest);
                 var earliest = (earliestPlanned > earliestPows) ? earliestPlanned : earliestPows;
                 if (shortest.Start < earliest)
                     shortest.Start = earliest;
@@ -145,14 +84,11 @@ namespace Master40.BusinessLogicCentral.MRP
                 shortest.Start = GetChildEndTime(shortest);
                 shortest.End = shortest.Start + shortest.Duration;
                 var earliestPlanned = FindStartOnMachine(plannedSchedules, machines.First().Id, shortest);
-                var earliestPows = FindStartOnMachine(pows, machines.First().Id, shortest);
-                var earliest = (earliestPlanned > earliestPows) ? earliestPlanned : earliestPows;
+                var earliest = earliestPlanned;
                 var earliestMachine = machines.First();
                 foreach (var machine in machines)
                 {
-                    earliestPlanned = FindStartOnMachine(plannedSchedules, machine.Id, shortest);
-                    earliestPows = FindStartOnMachine(pows, machine.Id, shortest);
-                    var earliestThisMachine = (earliestPlanned > earliestPows) ? earliestPlanned : earliestPows;
+                    var earliestThisMachine = FindStartOnMachine(plannedSchedules, machine.Id, shortest);
                     if (earliest <= earliestThisMachine) continue;
                     earliest = earliestThisMachine;
                     earliestMachine = machine;
@@ -164,7 +100,8 @@ namespace Master40.BusinessLogicCentral.MRP
                 shortest.MachineId = earliestMachine.Id;
                 shortest.End = shortest.Start + shortest.Duration;
             }
-            return shortest;
+            _context.Update(shortest);
+            _context.SaveChanges();
         }
 
         private int GetChildEndTime(ProductionOrderWorkSchedule shortest)
@@ -191,10 +128,10 @@ namespace Master40.BusinessLogicCentral.MRP
             }
             //iterate to find the latest end
             if (poChildren.Any())
-                    return Enumerable.Concat((from child in poChildren
+                    return (from child in poChildren
                         from pows in child.ProductionOrderWorkSchedule
-                        select pows.End), new[] {0}).Max();
-            return powsChildren.Any() ? Enumerable.Concat((from powsChild in powsChildren select powsChild.End), new[] {0}).Max() : 0;
+                        select pows.End).Concat(new[] {0}).Max();
+            return powsChildren.Any() ? (from powsChild in powsChildren select powsChild.End).Concat(new[] {0}).Max() : 0;
         }
 
         private int FindStartOnMachine(List<ProductionOrderWorkSchedule> plannedSchedules, int machineId, ProductionOrderWorkSchedule shortest)
@@ -239,7 +176,7 @@ namespace Master40.BusinessLogicCentral.MRP
                         machineList[machineList.IndexOf(machine)].ProductionOrderWorkSchedulesByTimeSteps=AddToMachineGroup(machine, productionOrderWorkSchedule);
                     else
                     {
-                        var schedule = new MachineGroupProductionOrderWorkSchedule()
+                        var schedule = new MachineGroupProductionOrderWorkSchedule
                         {
                             MachineGroupId = productionOrderWorkSchedule.MachineGroupId,
                             ProductionOrderWorkSchedulesByTimeSteps = new List<ProductionOrderWorkSchedulesByTimeStep>()
@@ -297,10 +234,10 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
                 if (!found)
                 {
-                    var timestep = new ProductionOrderWorkSchedulesByTimeStep()
-                        {
+                    var timestep = new ProductionOrderWorkSchedulesByTimeStep
+                    {
                             Time = i,
-                            ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>()
+                            ProductionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>
                             {
                                 productionOrderWorkSchedule
                             }
@@ -363,29 +300,12 @@ namespace Master40.BusinessLogicCentral.MRP
             return schedules;
         }
 
-        private int GetDueTime(IDemandToProvider demand)
-        {
-            var dueTime = 9999;
-            if (demand.GetType() == typeof(DemandOrderPart))
-            {
-                dueTime = _context.OrderParts
-                            .Include(a => a.Order)
-                            .Single(a => a.Id == ((DemandOrderPart)demand).OrderPartId)
-                            .Order
-                            .DueTime;
-            }
-            return dueTime;
-        }
-
         private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
         { //replace provider.first()
             foreach (var plannableSchedule in plannableSchedules)
             {
                 //get duetime
-                var demands = _context.Demands.AsNoTracking().Where(a => a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequesterId
-                || a.Id == plannableSchedule.ProductionOrder.DemandProviderProductionOrders.First().DemandRequesterId).ToList();
-                var demand = (from d in demands where d.DemandRequesterId == null select d).Single();
-                var dueTime = GetDueTime(demand);
+                var dueTime = plannableSchedule.ProductionOrder.Duetime;
 
                 //get remaining time
                 var slack = plannableSchedule.ActivitySlack;
@@ -420,8 +340,12 @@ namespace Master40.BusinessLogicCentral.MRP
                                                             || b.State == State.ForwardScheduleExists
                                                             || b.State == State.Injected)
                                                             .ToList();
-
-            return demandRequester.SelectMany(demandReq => GetProductionSchedules(demandReq, timer)).ToList();
+            var pows = new List<ProductionOrderWorkSchedule>();
+            foreach (var singleDemandRequester in demandRequester)
+            {
+                pows.AddRange(_context.GetProductionOrderWorkSchedules(singleDemandRequester));
+            }
+            return pows.AsEnumerable().Distinct().ToList();
         }
 
         private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester, int timer)
@@ -478,7 +402,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private List<ProductionOrderWorkSchedule> GetLatestChildren(ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
-            var children = new List<ProductionOrderWorkSchedule>(){};
+            var children = new List<ProductionOrderWorkSchedule>();
             var child = GetHierarchyChild(productionOrderWorkSchedule);
             if (child == null) return GetLatestBomChilds(productionOrderWorkSchedule);
             children.Add(child);
@@ -530,7 +454,10 @@ namespace Master40.BusinessLogicCentral.MRP
         private ProductionOrderWorkSchedule FindBomParent(ProductionOrderWorkSchedule plannedSchedule)
         {
             ProductionOrderWorkSchedule lowestHierarchyMember = null;
-            foreach (var pob in _context.ProductionOrderBoms.Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId).ToList())
+            foreach (var pob in _context.ProductionOrderBoms
+                                        .Include(a => a.ProductionOrderParent)
+                                        .ThenInclude(b => b.ProductionOrderWorkSchedule)
+                                        .Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId).ToList())
             {
                 if (pob.ProductionOrderParentId == plannedSchedule.ProductionOrder.Id) continue;
                 var parents = pob.ProductionOrderParent.ProductionOrderWorkSchedule;
@@ -580,9 +507,9 @@ namespace Master40.BusinessLogicCentral.MRP
                    (scheduleMg.Start > schedule.Start &&
                     scheduleMg.End < schedule.End);
         }
-
+        
         public void RebuildNets(int time)
-        {
+        {/*
             //delete all demands but the head-demands
             _context.Demands.RemoveRange(_context.Demands.Where(a => a.DemandRequesterId != null && a.State != State.Delivered).ToList());
             _context.SaveChanges();
@@ -594,10 +521,10 @@ namespace Master40.BusinessLogicCentral.MRP
                 var nextRequester = GetNextByActivitySlack(requester, time);
                 SatisfyRequest(nextRequester, nextRequester);
                 requester.Remove(requester.Find(a => a.Id == nextRequester.Id));
-            }
+            }*/
            
         }
-
+        /*
         private void SatisfyRequest(IDemandToProvider demand, IDemandToProvider parent)
         {//Todo: search for purchases
             
@@ -650,7 +577,7 @@ namespace Master40.BusinessLogicCentral.MRP
            
             if (_context.HasChildren(demand))
             {
-                var productionOrder = _context.CreateProductionOrder(demand.ArticleId, amount);
+                var productionOrder = _context.CreateProductionOrder(demand, _context.GetDueTime(parent));
                 _context.TryCreateProductionOrderBoms(demand, productionOrder, parent);
                 _context.CreateProductionOrderWorkSchedules(productionOrder);
                 _context.AssignProductionOrderWorkSchedulesToProductionOrder(productionOrder);
@@ -717,9 +644,10 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private int GetActivitySlack(IDemandToProvider demandRequester, int time)
         {
-            var dueTime = GetDueTime(demandRequester);
+            var dueTime = 999999;
+            if (demandRequester.DemandProvider != null) dueTime = demandRequester.DemandProvider.First().
             return dueTime - time;
-        }
+        }*/
     }
 }
 
