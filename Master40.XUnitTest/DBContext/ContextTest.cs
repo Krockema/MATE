@@ -33,7 +33,7 @@ namespace Master40.XUnitTest.DBContext
         public ContextTest()
         {
             _ctx.Database.EnsureDeleted();
-            MasterDBInitializerLarge.DbInitialize(_ctx);
+            MasterDBInitializerMedium.DbInitialize(_ctx);
         }
 
         /// <summary>
@@ -70,6 +70,20 @@ namespace Master40.XUnitTest.DBContext
 
         }
 
+
+        [Fact]
+        public async Task MrpTestForwardAsync()
+        {
+            var scheduling = new Scheduling(_productionDomainContext);
+            var capacityScheduling = new CapacityScheduling(_productionDomainContext);
+            var msgHub = new Moc.MessageHub();
+            var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub);
+
+            var mrpTest = new MrpTest();
+            await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
+
+            Assert.Equal(true, (_productionDomainContext.ProductionOrderWorkSchedules.Any()));
+        }
 
         // Load Database from SimulationJason
         [Fact]
@@ -125,6 +139,12 @@ namespace Master40.XUnitTest.DBContext
 
             Assert.Equal(true, (_ctx.Articles.Any()));
 
+        }
+
+        [Fact]
+        public async Task AgentRunnerTask()
+        {
+            //MasterAgentTest.Starter.StartFactory();
         }
 
     }

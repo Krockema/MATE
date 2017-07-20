@@ -1,0 +1,11 @@
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimJobTest.deps.json
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimJobTest.runtimeconfig.json
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimJobTest.runtimeconfig.dev.json
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimJobTest.dll
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimJobTest.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimulate.dll
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\bin\Debug\netcoreapp1.1\NSimulate.pdb
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\obj\Debug\netcoreapp1.1\NSimJobTest.csprojResolveAssemblyReference.cache
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\obj\Debug\netcoreapp1.1\NSimJobTest.AssemblyInfo.cs
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\obj\Debug\netcoreapp1.1\NSimJobTest.dll
+C:\Users\marti\Source\Repos\Master-4.0\Simulatoren\NSimulateCore\NSimulateTest\obj\Debug\netcoreapp1.1\NSimJobTest.pdb

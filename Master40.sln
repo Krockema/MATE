@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40", "Master40\Master40.csproj", "{F2017DAA-0844-4782-9AC1-0AB19362C0C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40", "Master40\Master40.csproj", "{F2017DAA-0844-4782-9AC1-0AB19362C0C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.DB", "Master40.DB\Master40.DB.csproj", "{5D68118C-63A6-4598-BDFB-BA10B210F166}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.XUnitTest", "Master40.XUnitTest\Master40.XUnitTest.csproj", "{F72DDFFA-76B9-4187-B5CF-135D5F0D2D0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.XUnitTest", "Master40.XUnitTest\Master40.XUnitTest.csproj", "{F72DDFFA-76B9-4187-B5CF-135D5F0D2D0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.Simulation", "Master40.Simulation\Master40.Simulation.csproj", "{2A774D29-6D02-4F5A-88E3-69E5C8469837}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.Simulation", "Master40.Simulation\Master40.Simulation.csproj", "{2A774D29-6D02-4F5A-88E3-69E5C8469837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.BusinessLogicCentral", "Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj", "{EEF6B026-4B7A-44DF-B6E7-42FAC25D3C08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.BusinessLogicCentral", "Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj", "{EEF6B026-4B7A-44DF-B6E7-42FAC25D3C08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.MessageSystem", "Master40.MessageSystem\Master40.MessageSystem.csproj", "{B8140DE2-F5CA-461B-B867-09718A83289B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.MessageSystem", "Master40.MessageSystem\Master40.MessageSystem.csproj", "{B8140DE2-F5CA-461B-B867-09718A83289B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

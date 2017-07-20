@@ -7,13 +7,14 @@ namespace Master40.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly MasterDBContext _context;
-        public HomeController(MasterDBContext context)
+        private readonly ProductionDomainContext _context;
+        public HomeController(ProductionDomainContext context)
         {
             _context = context;
         }
         public IActionResult Index()
         {
+
             return View();
         }
 

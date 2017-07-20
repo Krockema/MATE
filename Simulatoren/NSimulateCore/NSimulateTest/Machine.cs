@@ -122,6 +122,7 @@ namespace NSimJobTest
                     // take a job from the queue
                     var jobToProcess = JobQueue.Dequeue();
 
+
                     // simulate processing the job
                     // which takes time
                     yield return new WaitInstruction(jobToProcess.ProcessingTimeRequiredByJobQueue[JobQueue]);
@@ -155,7 +156,8 @@ namespace NSimJobTest
                         if (jobToProcess.RequiresMoreWork)
                         {
                             // add it to the next queue
-                            jobToProcess.ProcessingTimeRequiredByJobQueue.Keys.First().Enqueue(jobToProcess);
+                            var something = jobToProcess.ProcessingTimeRequiredByJobQueue.Keys.First();
+                            something.Enqueue(jobToProcess);
                         }
                         else
                         {

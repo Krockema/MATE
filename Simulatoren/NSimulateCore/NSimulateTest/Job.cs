@@ -15,6 +15,9 @@ namespace NSimJobTest
             ProcessingTimeRequiredByJobQueue = new Dictionary<Queue<Job>, int>();
         }
 
+
+
+
         /// <summary>
         /// Gets the processing time required to process this job by each job queue.
         /// </summary>

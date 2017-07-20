@@ -73,12 +73,9 @@ namespace NSimulate
 		public SimulationElement (SimulationContext context, object key)
 		{
 			Key = key;
-			if (context != null)
-			{
-				context.Register(this.GetType(), this);
-			}
+		    context?.Register(this.GetType(), this);
 
-			Context = context;
+		    Context = context;
 		}
 
 		/// <summary>
