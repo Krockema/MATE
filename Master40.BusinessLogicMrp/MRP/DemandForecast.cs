@@ -10,7 +10,7 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IDemandForecast
     {
-        ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, MrpTask task);
+        List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task, int timer);
     }
 
 
@@ -29,15 +29,16 @@ namespace Master40.BusinessLogicCentral.MRP
         /// Creates providers for the demands through stock, productionOrders or purchases
         /// </summary>
         /// <param name="demand"></param>
-        /// <param name="parent"></param>
+        /// <param name="parentProductionOrder"></param>
         /// <param name="task"></param>
+        /// <param name="timer"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
-        public ProductionOrder NetRequirement(IDemandToProvider demand, IDemandToProvider parent, MrpTask task)
+        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task, int timer)
         {
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = _context.GetPlannedStock(stock,demand);
-            ProductionOrder productionOrder = null;
+            var productionOrders = new List<ProductionOrder>();
             _context.TryCreateStockReservation(stock, demand);
             //if the plannedStock is below zero, articles have to be produced for its negative amount 
             if (plannedStock < 0)
@@ -46,26 +47,45 @@ namespace Master40.BusinessLogicCentral.MRP
                 var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
                 if (children.Any())
                 {
-                    productionOrder = _context.CreateChildProductionOrder(demand, parent, -plannedStock);
-                    
+                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, timer);
+                    var amount = -plannedStock;
+                    if (fittingProductionOrders != null)
+                    {
+                        foreach (var fittingProductionOrder in fittingProductionOrders)
+                        {
+                            var availableAmount = _context.GetAvailableAmountFromProductionOrder(fittingProductionOrder);
+                            var provider = _context.CreateDemandProviderProductionOrder(demand, fittingProductionOrder,
+                                availableAmount < -plannedStock ? availableAmount : -plannedStock);
+                            //productionOrders.Add(fittingProductionOrder);
+                            _context.AssignProductionOrderToDemandProvider(fittingProductionOrder, provider,
+                                availableAmount < -plannedStock ? availableAmount : -plannedStock);
+                            amount -= availableAmount < -plannedStock ? availableAmount : -plannedStock;
+                            if (amount == 0) return productionOrders;
+                        }
+                    }
+                    if (amount > 0)
+                    {
+                        productionOrders.AddRange(_context.CreateChildProductionOrders(demand, parentProductionOrder, amount));
+                    }
+
                 }
                 else
                     _context.CreatePurchaseDemand(demand, -plannedStock);
             }
             //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
-                return productionOrder;
+                return productionOrders;
             
             if (_context.Demands.OfType<DemandStock>()
                 .Any(a => a.ArticleId == demand.ArticleId
                             && a.State != State.Produced
                             && a.State != State.Purchased))
-                return productionOrder;
+                return productionOrders;
 
             var demandStock = plannedStock < 0 ? _context.CreateStockDemand(demand, stock, stock.Min) : _context.CreateStockDemand(demand, stock, stock.Min - plannedStock);
             //call processMrp to plan and schedule the stockDemand
-            _processMrp.RunRequirementsAndTermination(demandStock, task);
-            return productionOrder;
+            _processMrp.RunRequirementsAndTermination(demandStock, task, timer);
+            return productionOrders;
         }
 
         

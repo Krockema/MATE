@@ -29,7 +29,7 @@ namespace Master40.Simulation.Simulation
         private readonly CopyContext _copyContext;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
-        private bool orderInjected = false;
+        private bool _orderInjected = false;
         //private readonly HubCallback _hubCallback;
         public Simulator(ProductionDomainContext context, IMessageHub messageHub, CopyContext copyContext)
         {
@@ -134,11 +134,11 @@ namespace Master40.Simulation.Simulation
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            if (!orderInjected && timeTable.Timer == 1)
+            if (!_orderInjected && timeTable.Timer == 1)
             {
                 CreateNewOrder(1, 1);
                 Recalculate(timeTable.Timer);
-                orderInjected = true;
+                _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
             }
             var freeMachineIds = GetFreeMachines(timeTable);
@@ -224,7 +224,7 @@ namespace Master40.Simulation.Simulation
                 BusinessPartnerId = _context.BusinessPartners.First().Id,
                 DueTime = 100,
                 Name = "injected Order",
-                OrderParts = new List<OrderPart>() { }
+                OrderParts = new List<OrderPart>()
             });
             _context.SaveChanges();
             orderPart.OrderId = _context.Orders.Last().Id;
@@ -235,7 +235,7 @@ namespace Master40.Simulation.Simulation
             {
                 ArticleId = orderPart.ArticleId,
                 Quantity = orderPart.Quantity,
-                DemandProvider = new List<DemandToProvider>() { },
+                DemandProvider = new List<DemandToProvider>(),
                 DemandRequesterId = null,
                 State = State.Injected,
                 OrderPartId = orderPart.Id
