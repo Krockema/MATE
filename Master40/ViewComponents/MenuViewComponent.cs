@@ -32,7 +32,7 @@ namespace Master40.ViewComponents
             _menu.MenuItems.Add(new MenuItem { MenuItemId = 3, MenuId = 1, MenuText = "Purchase", LinkUrl = "Purchases", MenuOrder = 3, Action = "Index", Symbol = "fa-shopping-cart" });
             _menu.MenuItems.Add(new MenuItem { MenuItemId = 4, MenuId = 1, MenuText = "Business Partner", LinkUrl = "BusinessPartners", MenuOrder = 4, Action = "Index", Symbol = "fa-group" });
 
-            _menu.MenuItems.Add(new MenuItem { MenuItemId = 12, MenuId = 1, MenuText = "Planung Simulations", LinkUrl = "#", MenuOrder = 4, Action = "Index", Symbol = "fa-spinner", Children =
+            _menu.MenuItems.Add(new MenuItem { MenuItemId = 12, MenuId = 1, MenuText = "Planning & Simulations", LinkUrl = "#", MenuOrder = 4, Action = "Index", Symbol = "fa-spinner", Children =
                 new List<MenuItem>
                 {
                     new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "MRP", LinkUrl = "Mrp",  MenuOrder = 5, ParentMenuItemId = 12, Action="Index", Symbol="fa-magic"}

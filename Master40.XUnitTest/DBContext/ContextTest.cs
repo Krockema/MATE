@@ -32,7 +32,7 @@ namespace Master40.XUnitTest.DBContext
 
         public ContextTest()
         {
-            _ctx.Database.EnsureDeleted();
+            _productionDomainContext.Database.EnsureDeleted();
             MasterDBInitializerMedium.DbInitialize(_productionDomainContext);
         }
 

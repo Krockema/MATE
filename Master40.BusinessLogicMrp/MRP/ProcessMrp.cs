@@ -217,7 +217,8 @@ namespace Master40.BusinessLogicCentral.MRP
             foreach (var productionOrder in productionOrders)
             {
                 //if the ProductionOrder was just created, initialize concrete WorkSchedules for the ProductionOrders
-                if (productionOrder.ProductionOrderWorkSchedule == null || !productionOrder.ProductionOrderWorkSchedule.Any())
+                if (productionOrder.ProductionOrderWorkSchedule == null ||
+                    !productionOrder.ProductionOrderWorkSchedule.Any())
                     _scheduling.CreateSchedule(demand, productionOrder);
                 
                 var children = _context.ArticleBoms
@@ -262,7 +263,10 @@ namespace Master40.BusinessLogicCentral.MRP
             _context.SaveChanges();
             return demand;
         }
+        
     }
+
+    
 
     public enum MrpTask
     {

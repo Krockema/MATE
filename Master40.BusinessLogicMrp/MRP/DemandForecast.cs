@@ -65,7 +65,8 @@ namespace Master40.BusinessLogicCentral.MRP
                     }
                     if (amount > 0)
                     {
-                        productionOrders.AddRange(_context.CreateChildProductionOrders(demand, parentProductionOrder, amount));
+                        var pos = _context.CreateChildProductionOrders(demand, parentProductionOrder, amount);
+                        productionOrders.AddRange(pos);
                     }
 
                 }

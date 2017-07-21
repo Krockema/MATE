@@ -319,9 +319,9 @@ namespace Master40.BusinessLogicCentral.MRP
         private decimal GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             var parent = GetParent(schedule,productionOrderWorkSchedules);
-            if (parent == null) return (schedule.ProductionOrder.Quantity * schedule.Duration)/GetAmountOfMachines(schedule);
+            if (parent == null) return schedule.Duration;
             
-            return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration * schedule.ProductionOrder.Quantity;
+            return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
         }
 
         private decimal GetAmountOfMachines(ProductionOrderWorkSchedule schedule)

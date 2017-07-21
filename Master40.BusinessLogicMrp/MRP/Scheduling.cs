@@ -53,7 +53,7 @@ namespace Master40.BusinessLogicCentral.MRP
         public void BackwardScheduling(IDemandToProvider demand)
         {
             var productionOrderWorkSchedules = _context.GetProductionOrderWorkSchedules(demand);
-            productionOrderWorkSchedules.Sort(SortPows);
+            productionOrderWorkSchedules = productionOrderWorkSchedules.OrderBy(a => a.ProductionOrderId).ThenByDescending(b => b.HierarchyNumber).ToList();
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 //Set hierarchy to something high that every workSchedule found will overwrite this value
@@ -95,13 +95,6 @@ namespace Master40.BusinessLogicCentral.MRP
             _context.SaveChanges();
         }
         
-        private static int SortPows(ProductionOrderWorkSchedule x, ProductionOrderWorkSchedule y)
-        {
-            if (x.ProductionOrderId != y.ProductionOrderId) return 0;
-            if (x.HierarchyNumber > y.HierarchyNumber) return -1;
-            return 1;
-        }
-        
         /// <summary>
         /// Set Start- and Endtime for ProductionOrderWorkSchedules for the given OrderPart excluding capacities in a forward schedule
         /// </summary>
@@ -109,8 +102,9 @@ namespace Master40.BusinessLogicCentral.MRP
         public void ForwardScheduling(IDemandToProvider demand)
         {
             var productionOrderWorkSchedules = _context.GetProductionOrderWorkSchedules(demand);
-            productionOrderWorkSchedules.Sort(SortPows);
-            productionOrderWorkSchedules.Reverse();
+            productionOrderWorkSchedules =
+                productionOrderWorkSchedules.OrderByDescending(a => a.ProductionOrderId).ThenBy(b => b.HierarchyNumber).ToList();
+            //productionOrderWorkSchedules.Reverse();
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 var hierarchy = -1;
@@ -184,7 +178,10 @@ namespace Master40.BusinessLogicCentral.MRP
             ProductionOrderBom parent = null;
             
             //search for parents
-            foreach (var pob in _context.ProductionOrderBoms.Include(a => a.ProductionOrderParent).ThenInclude(b => b.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderChildId == productionOrderWorkSchedule.ProductionOrderId))
+            foreach (var pob in _context.ProductionOrderBoms
+                                    .Include(a => a.ProductionOrderParent)
+                                    .ThenInclude(b => b.ProductionOrderWorkSchedule)
+                                    .Where(a => a.ProductionOrderChildId == productionOrderWorkSchedule.ProductionOrderId))
             {
                 if (pob.ProductionOrderParentId != productionOrderWorkSchedule.ProductionOrder.Id)
                     parent = pob;
