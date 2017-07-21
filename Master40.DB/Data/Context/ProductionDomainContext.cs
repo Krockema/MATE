@@ -470,13 +470,16 @@ namespace Master40.DB.Data.Context
 
         public void TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder productionOrder, ProductionOrder parentProductionOrder)
         {
+            //Todo: implement lotsize
+            var lotsize = 5;
             var bom = ArticleBoms.Where(a => a.ArticleChildId == demand.ArticleId);
             if (!bom.Any()) return;
+            var absoluteQuantity = bom.ToList().Find(a => a.ArticleParentId == parentProductionOrder.ArticleId).Quantity * parentProductionOrder.Quantity;
             var pob = new ProductionOrderBom()
             {
                 //Todo: check logic
                 ProductionOrderChildId = productionOrder.Id,
-                Quantity = bom.ToList().Find(a => a.ArticleParentId == parentProductionOrder.ArticleId).Quantity * parentProductionOrder.Quantity,
+                Quantity = absoluteQuantity > lotsize ? lotsize : absoluteQuantity,
                 ProductionOrderParentId = parentProductionOrder.Id
             };
             Add(pob);
