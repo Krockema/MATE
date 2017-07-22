@@ -1,10 +1,11 @@
 @{
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    string raw = "Chart Rendering Failed";
+    if (chart != null) { 
+        raw = chart.CreateChartCode("MaschineChart");
+    }
 }
 <div><canvas id="MaschineChart" style="max-height: 350px;"></canvas></div>
-
 <script>
-    @if(null != chart) { 
-        Html.Raw(chart.CreateChartCode("MaschineChart"));
-    }
+    @Html.Raw(raw);
 </script>

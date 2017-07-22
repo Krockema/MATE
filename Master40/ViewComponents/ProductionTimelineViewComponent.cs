@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Master40.ViewComponents
 {
@@ -44,11 +45,11 @@ namespace Master40.ViewComponents
                 // If Order is not selected.
                 if (_orderId == -1)
                 {   // for all Orders
-                    orders = _context.Orders.Select(x => x.Id).ToList();
+                    orders = _context?.OrderParts.Select(x => x.Id).ToList();
                 }
                 else
                 {  // for the specified Order
-                   orders.Add(_orderId);
+                    orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
                 }
 
             await GetSchedulesForOrderListAsync(orders);
@@ -64,15 +65,30 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Get All Relevant Production Work Schedules an dpass them for each Order To 
         /// </summary>
-        private async Task GetSchedulesForOrderListAsync(IEnumerable<int> orders)
+        private async Task GetSchedulesForOrderListAsync(IEnumerable<int> ordersParts)
         {
-            foreach (var order in orders)
+            foreach (var orderPart in ordersParts)
             {
-                var pows = await _context.GetProductionOrderWorkScheduleByOrderId(order);
+
+                //var pows = await _context.GetProductionOrderBomRecursive(_context.ProductionOrders.FirstOrDefault(x => x.ArticleId == 1), 1);
+                // get the corresponding Order Parts to Order
+                var demands = _context.Demands.OfType<DemandOrderPart>()
+                    .Include(x => x.OrderPart)
+                    .Include(x => x.DemandProvider)
+                    .Where(o => o.OrderPart.OrderId == 1)
+                    .ToList();
+
+                var pows = new List<ProductionOrderWorkSchedule>();
+                foreach (var demand in demands)
+                {
+                    var data = _context.GetWorkSchedulesFromDemand(demand, ref pows);
+                }
+                
+               
                 foreach (var pow in pows)
                 {
                     // check if head element is Created,
-                    GanttTask timeline = GetOrCreateTimeline(pow, order);
+                    GanttTask timeline = GetOrCreateTimeline(pow, orderPart);
                     long start = 0, end = 0;
                     DefineStartEnd(ref start, ref end, pow);
                     // Add Item To Timeline
@@ -189,7 +205,7 @@ namespace Master40.ViewComponents
         /// </summary>
         public GanttTask CreateGanttTask(ProductionOrderWorkSchedule item, long start, long end, GanttColors gc, string parent)
         {
-            return new GanttTask()
+            var gantTask = new GanttTask()
             {
                 id = item.Id.ToString(),
                 type = GanttType.task,
@@ -200,8 +216,9 @@ namespace Master40.ViewComponents
                 IntFrom = start,
                 IntTo = end,
                 parent = parent,
-                color =  gc,
+                color = gc,
             };
+            return gantTask;
         }
 
         private static GanttTask CreateProjectTask(string id, string name, string desc, int group, GanttColors gc)

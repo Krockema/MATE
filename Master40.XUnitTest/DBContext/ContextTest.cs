@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
+using Master40.DB.Migrations;
 using Master40.Simulation.Simulation;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
@@ -32,8 +35,8 @@ namespace Master40.XUnitTest.DBContext
 
         public ContextTest()
         {
-            _productionDomainContext.Database.EnsureDeleted();
-            MasterDBInitializerMedium.DbInitialize(_productionDomainContext);
+            _ctx.Database.EnsureDeleted();
+            MasterDBInitializerMedium.DbInitialize(_ctx);
         }
 
         /// <summary>
@@ -45,6 +48,8 @@ namespace Master40.XUnitTest.DBContext
             _ctx.Dispose();
         }
         */
+
+
 
         [Fact]
         public void OrderContextTest()
@@ -65,10 +70,12 @@ namespace Master40.XUnitTest.DBContext
 
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
-
             Assert.Equal(true, (_ctx.ProductionOrderWorkSchedules.Any()));
 
         }
+
+        //public DemandToProvider getRequester
+
 
 
         [Fact]

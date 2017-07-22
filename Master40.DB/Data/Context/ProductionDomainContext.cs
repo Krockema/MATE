@@ -80,6 +80,7 @@ namespace Master40.DB.Data.Context
 
         public async Task<ProductionOrder> GetProductionOrderBomRecursive(ProductionOrder prodOrder, int productionOrderId)
         {
+
             prodOrder.ProdProductionOrderBomChilds = ProductionOrderBoms
                                                             .Include(a => a.ProductionOrderChild)
                                                             .ThenInclude(w => w.ProductionOrderWorkSchedule)
@@ -209,6 +210,40 @@ namespace Master40.DB.Data.Context
             var requester = (DemandOrderPart)pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
             return OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
         }
+
+        /// <summary>
+        /// Deepseach thorugh tree to Return all Workschedules Related to one Order.
+        /// </summary>
+        /// <param name="demandRequester"></param>
+        /// <param name="productionOrderWorkSchedule"></param>
+        /// <returns>List of ProductionOrderWorkSchedules - Attention May Include Dupes Through Complex Backlinks !</returns>
+        public List<ProductionOrderWorkSchedule> GetWorkSchedulesFromDemand(IDemandToProvider demandRequester, ref List<ProductionOrderWorkSchedule> productionOrderWorkSchedule)
+        {
+            foreach (var item in demandRequester.DemandProvider.OfType<DemandProviderProductionOrder>())
+            {
+                var productionOrders = ProductionOrders
+                    .Include(x => x.ProductionOrderWorkSchedule)
+                    .ThenInclude(x => x.MachineGroup)
+                    .Include(x => x.ProductionOrderWorkSchedule)
+                    .ThenInclude(x => x.Machine)
+                    .Include(x => x.ProductionOrderBoms)
+                    .ThenInclude(x => x.DemandProductionOrderBoms)
+                    .ThenInclude(x => x.DemandProvider)
+                    .FirstOrDefault(x => x.Id == item.ProductionOrderId);
+
+                productionOrderWorkSchedule.AddRange(productionOrders.ProductionOrderWorkSchedule);
+                foreach (var po in productionOrders.ProductionOrderBoms)
+                {
+                    foreach (var dpob in po.DemandProductionOrderBoms)
+                    {
+                        GetWorkSchedulesFromDemand(dpob, ref productionOrderWorkSchedule);
+                    }
+                }
+            }
+            return productionOrderWorkSchedule;
+        }
+
+
 
         /***
          * Requirements
@@ -488,6 +523,10 @@ namespace Master40.DB.Data.Context
                 AssignDemandProviderToProductionOrderBom((DemandProductionOrderBom)demand, pob);
         }
 
+
+        // Was das ? 
+        // ////////////////////////////////////////////////////////
+
         public void AssignProductionOrderWorkSchedulesToProductionOrder(ProductionOrder productionOrder)
         {
             foreach (var pows in ProductionOrderWorkSchedules.Where(a => a.ProductionOrderId == productionOrder.Id))
@@ -675,7 +714,6 @@ namespace Master40.DB.Data.Context
 
         private int? GetLatestEndFromProductionOrder(ProductionOrder po)
         {
-            if (!po.ProductionOrderWorkSchedule.Any()) return null;
             var maxEnd = po.ProductionOrderWorkSchedule?.Max(a => a.End);
             return maxEnd;
         }
@@ -694,9 +732,15 @@ namespace Master40.DB.Data.Context
             return dueTime;
         }
 
+        /// <summary>
+        ///  USE IS DEPRICATED Better user GetProductionOrderWorkSchedules(demand, )
+        /// </summary>
+        /// <param name="demand"></param>
+        /// <returns></returns>
         //returns a list of all workSchedules for the given orderPart and planningType
         public List<ProductionOrderWorkSchedule> GetProductionOrderWorkSchedules(IDemandToProvider demand)
         {
+            
             var pows = new List<ProductionOrderWorkSchedule>();
             var pos = from prov in demand.DemandProvider
                       where prov.GetType() == typeof(DemandProviderProductionOrder)
