@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NSimAgentTest.Agents.Internal;
 using NSimAgentTest.Enums;
 using NSimulate;
 using NSimulate.Instruction;
@@ -8,14 +9,6 @@ namespace NSimAgentTest.Agents
 {
     public class ProductionAgent : Agent
     {
-        public override IEnumerator<InstructionBase> Simulate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Destroy()
-        {
-            throw new NotImplementedException();
-        }
+        public ProductionAgent(Agent creator, string name, bool debug) : base(creator, name , debug) { }
     }
 }
