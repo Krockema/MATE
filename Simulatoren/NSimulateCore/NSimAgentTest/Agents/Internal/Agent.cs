@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using NSimAgentTest.Enums;
 using NSimulate;
 using NSimulate.Instruction;
 
@@ -25,22 +25,17 @@ namespace NSimAgentTest.Agents.Internal
         {
             AgentId = Guid.NewGuid();
             this.Name = name;
-            this.DebugThis = true;
+            this.DebugThis = debug;
             this.InstructionQueue = new Queue<InstructionSet>();
             this.ChildAgents = new List<Agent>();
             this.Status = Status.Created;
             
             // Cheack for Creator Agent
-            var creatorsName = "System";
+            var creatorsName = "Simulation Context";
             if (creator == null) { Creator = this; }
             else {  this.Creator = creator; creatorsName = Creator.Name; }
 
-
-            if (DebugThis)
-            {
-                Console.WriteLine("Agent " + name + " created by " + creatorsName + ", GUID: " + AgentId.ToString());
-            }
-
+            DebugMessage(" created by " + creatorsName + ", GUID: " + AgentId);
         }
 
         public override IEnumerator<InstructionBase> Simulate()
@@ -68,19 +63,76 @@ namespace NSimAgentTest.Agents.Internal
             }
         }
 
-
-        public void Finish()
+        /// <summary>
+        /// Finalize the current Agent and Call the Parrent.
+        /// </summary>
+        internal void Finish()
         {
             // Set State Finish
             this.Status = Status.Finished;
             // Tell Parent
-            Creator.InstructionQueue.Enqueue(new InstructionSet
-            {
-                MethodName = "Finished",
-                ObjectToProcess = this,
-                ObjectType = this.GetType(),
-                SourceAgent = this,
-            });
+            CreateAndEnqueueInstuction(
+                methodName: "Finished",
+                objectToProcess: this,
+                targetAgent: this.Creator,
+                sourceAgent: this
+            );
         }
+
+
+        /// <summary>
+        /// check Childs and Call Finish if all in State Finished.
+        /// </summary>
+        internal void Finished()
+        {
+            // any Not Finished do noting
+            if (ChildAgents.Any(x => x.Status != Status.Finished))
+                return;
+
+            // if All finished Clear Resource
+            ChildAgents.Clear();
+
+            // if this agent is also Finished tell the Parrent.
+            if (Status == Status.Finished)
+                Finish();
+        }
+
+        /// <summary>
+        /// Creates a Instuction Set and Enqueue it to the TargetAgent,
+        /// It pushes the Agent to Context.Queue
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <param name="objectToProcess"></param>
+        /// <param name="targetAgent"></param>
+        /// <param name="sourceAgent"></param>
+        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, Agent sourceAgent)
+        {
+            // Create And Enqueue
+            targetAgent.InstructionQueue.Enqueue(new InstructionSet
+            {
+                MethodName = methodName,
+                ObjectToProcess = objectToProcess,
+                ObjectType = objectToProcess.GetType(),
+                SourceAgent = sourceAgent,
+            });
+
+            // Re-Activate Process in Context Queue if nesessary
+            if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
+                Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
+        }
+
+        /// <summary>
+        /// Impementation of debug msg broker.
+        /// </summary>
+        /// <param name="msg"></param>
+        internal void DebugMessage(string msg)
+        {
+            if (DebugThis)
+            {
+                Console.WriteLine("Time(" + Context.TimePeriod + ").Agent(" + Name + ") : " + msg);
+            }
+        }
+
+
     }
 }

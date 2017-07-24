@@ -9,5 +9,9 @@ namespace NSimAgentTest.Agents
         {
 
         }
+
+        //TODO: System Talk.
+
+
     }
 }

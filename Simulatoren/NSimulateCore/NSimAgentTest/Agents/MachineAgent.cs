@@ -45,21 +45,16 @@ namespace NSimAgentTest.Agents
         private void SetComunicationAgent(InstructionSet objects)
         {
             // Debug Message
-            if (DebugThis)
-            {
-                Console.WriteLine(this.Name + " got Called by :" + objects.SourceAgent.Name);
-            }
+            DebugMessage(" got Called by :" + objects.SourceAgent.Name);
 
             // save Cast to expected object
             _comunicationAgent  = objects.ObjectToProcess as ComunicationAgent;
 
             // throw if cast failed.
             if (_comunicationAgent == null)
-            {
                 throw new ArgumentException("Could not Cast Communication Agent from InstructionSet.ObjectToProcess");
-            }
-            Console.WriteLine("Successfull Registred Service at :" + _comunicationAgent.Name);
 
+            DebugMessage("Successfull Registred Service at : " + _comunicationAgent.Name);
         }
     }
 }

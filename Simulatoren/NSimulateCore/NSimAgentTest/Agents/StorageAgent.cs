@@ -19,37 +19,42 @@ namespace NSimAgentTest.Agents
             RequestArticle,
         }
 
+        /// <summary>
+        /// Returns the Reservation for Request
+        /// ATTENTION: CAN BE - 0 -!
+        /// </summary>
+        /// <param name="instructionSet"></param>
         private void RequestArticle(InstructionSet instructionSet)
         {
-            if (DebugThis)
-            {
-                Console.WriteLine(this.Name +  ": Request Article " + StockElement.Name + " from " + instructionSet.SourceAgent.Name + "");
-            }
+            // debug
+            DebugMessage(" requests Article " + StockElement.Name + " from Stock Agent ->" + instructionSet.SourceAgent.Name);
 
-            var numberOfReservedItems =  TryToMakeReservationFor(article: instructionSet.ObjectToProcess as RequestItem);
+            // cast Request
+            var request = instructionSet.ObjectToProcess as RequestItem;
+            if (request == null)
+                throw new InvalidCastException("Cast to Request Item Failed");
 
-            instructionSet.SourceAgent.InstructionQueue.Enqueue(
-                new InstructionSet
-                {
-                    MethodName = DispoAgent.InstuctionsMethods.ResponseFromStock.ToString(),
-                    ObjectToProcess = numberOfReservedItems, // may needs later a more complex answer for now just remove item from stock
-                    ObjectType = typeof(int),
-                    SourceAgent = this,
-                });
-            Context.ProcessesRemainingThisTimePeriod.Enqueue(instructionSet.SourceAgent);
+            // try to make Reservation
+            var numberOfReservedItems =  TryToMakeReservationFor(request: request);
+            
+            // Create Callback
+            CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromStock.ToString(),
+                                  objectToProcess: numberOfReservedItems, // may needs later a more complex answer for now just remove item from stock
+                                      targetAgent: instructionSet.SourceAgent, // its Source Agent becaus this message is the Answer to the Instruction set.
+                                      sourceAgent: this);
         }
 
         /// <summary>
         /// Returns the Reservation Amont
         /// TODO: User more Complex Logic
         /// </summary>
-        /// <param name="article"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
-        private int TryToMakeReservationFor(RequestItem article)
+        private int TryToMakeReservationFor(RequestItem request)
         {
-            if ((StockElement.Quantity - article.Quantity) <= 0) return 0;
-            StockElement.Quantity = StockElement.Quantity - article.Quantity;
-            return article.Quantity;
+            if ((StockElement.Quantity - request.Quantity) < 0) return 0;
+            StockElement.Quantity = StockElement.Quantity - request.Quantity;
+            return request.Quantity;
         }
 
     }

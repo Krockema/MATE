@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using NSimAgentTest.Enums;
+using NSimAgentTest.Agents.Internal;
 using NSimulate;
 
 namespace NSimAgentTest

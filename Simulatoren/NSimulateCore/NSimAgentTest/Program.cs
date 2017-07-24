@@ -41,34 +41,43 @@ namespace NSimAgentTest
             // Create Machine Agents
             foreach (var machine in ctx.Machines)
             {
-                system.ChildAgents.Add(new MachineAgent(creator: system, name: "Machine: " + machine, debug: true, directoryAgent: directoryAgent,machineType: machine)); 
+                system.ChildAgents.Add(new MachineAgent(creator: system, 
+                                                           name: "Machine: " + machine, 
+                                                          debug: true, 
+                                                 directoryAgent: directoryAgent,
+                                                    machineType: machine)); 
             }
 
             // Create Stock Agents
             foreach (var stock in ctx.StockElements)
             {
-                system.ChildAgents.Add(new StorageAgent(creator: system, name: stock.Name, debug: true, stockElement: stock ));
+                system.ChildAgents.Add(new StorageAgent(creator: system, 
+                                                           name: stock.Name, 
+                                                          debug: true, 
+                                                   stockElement: stock ));
             }
 
             // Create Contract agents, has to be done by system, during the simulation
             foreach (var contract in ctx.OrderList)
             {
-                var c = new ContractAgent(creator: system, name: contract.Name, debug: true);
-                c.InstructionQueue.Enqueue(new InstructionSet
+                var ca = new ContractAgent(creator: system, 
+                                             name: contract.Name, 
+                                            debug: true);
+
+                // enqueue Order
+                ca.InstructionQueue.Enqueue(new InstructionSet
                 {
                    MethodName = ContractAgent.InstuctionsMethods.StartOrder.ToString(),
                    ObjectToProcess = contract,
                    ObjectType = typeof(RequestItem),
                    SourceAgent = system // maybe Later System
                 });
-                system.ChildAgents.Add(c);
+
+                // add To System
+                system.ChildAgents.Add(ca);
             }
-
-
-
-
-
-
+            
+            // Return System Agent to Context
             return system;
         }
     }

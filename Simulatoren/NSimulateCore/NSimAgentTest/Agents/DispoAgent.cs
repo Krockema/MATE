@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using NSimAgentTest.Agents.Internal;
-using NSimAgentTest.Enums;
 using NSimulate;
 using NSimulate.Instruction;
 
@@ -11,11 +10,13 @@ namespace NSimAgentTest.Agents
 {
     public class DispoAgent : Agent
     {
+        private Agent _system;
         public RequestItem RequestItem { get; set; }
         public int Quantity { get; set; }
 
-        public DispoAgent(Agent creator, string name, bool debug, RequestItem requestItem) : base(creator, name, debug)
+        public DispoAgent(Agent creator, Agent system, string name, bool debug, RequestItem requestItem) : base(creator, name, debug)
         {
+            _system = system;
             RequestItem = requestItem;
             RequestFromStock();
         }
@@ -32,36 +33,29 @@ namespace NSimAgentTest.Agents
         private void RequestFromStock()
         {
             // get Related Storage Agent
-            // first Creator:Contract -> secont Creator:System
-            var storeAgent = this.Creator.Creator.ChildAgents.OfType<StorageAgent>().FirstOrDefault(x => x.StockElement.Name == RequestItem.Article);
+            // first catch the correct Storage Agent
+            // TODO Could be managent by Dictonary like Machine <-> Dictionary <-> Comunication
+            var storeAgent = _system.ChildAgents.OfType<StorageAgent>().FirstOrDefault(x => x.StockElement.Name == RequestItem.Article);
             if (storeAgent == null)
             {
                 throw new ArgumentNullException();
             }
             
             // debug
-            if (DebugThis)
-            {
-                Console.WriteLine(this.Name + " requests from " + storeAgent.Name + " Article: " + RequestItem.Name + ":" + RequestItem.Quantity);
-            }
-
+            DebugMessage(" requests from " + storeAgent.Name + " Article: " + RequestItem.Name + " (" + RequestItem.Quantity + ")");
+            
             // Create Request 
-            storeAgent.InstructionQueue.Enqueue(new InstructionSet
-            {
-                MethodName = StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
-                ObjectToProcess = RequestItem,
-                ObjectType = typeof(RequestItem),
-                SourceAgent = this
-            });
-            Context.ProcessesRemainingThisTimePeriod.Enqueue(storeAgent);
+            CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
+                                  objectToProcess: RequestItem,
+                                      targetAgent: storeAgent,
+                                      sourceAgent: this);
         }
+
 
         private void ResponseFromStock(InstructionSet instructionSet)
         {
-            if (DebugThis)
-            {
-                Console.WriteLine(Name  + " Returned with " + instructionSet.ObjectToProcess.ToString() + "Items Reserved!");
-            }
+            // TODO -> Logic
+            DebugMessage(" Returned with " + instructionSet.ObjectToProcess + " Items Reserved!");
         }
 
 
