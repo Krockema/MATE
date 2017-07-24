@@ -714,6 +714,7 @@ namespace Master40.DB.Data.Context
 
         private int? GetLatestEndFromProductionOrder(ProductionOrder po)
         {
+            if (!po.ProductionOrderWorkSchedule.Any()) return null;
             var maxEnd = po.ProductionOrderWorkSchedule?.Max(a => a.End);
             return maxEnd;
         }
