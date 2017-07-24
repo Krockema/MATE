@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
@@ -26,15 +27,15 @@ namespace Master40.Simulation.Simulation
             .Options);
 
         private readonly ProductionDomainContext _context;
-        private readonly CopyContext _copyContext;
+        //private readonly CopyContext _copyContext;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         private bool _orderInjected = false;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IMessageHub messageHub, CopyContext copyContext)
+        public Simulator(ProductionDomainContext context, IMessageHub messageHub)//, CopyContext copyContext)
         {
             _context = context;
-            _copyContext = copyContext;
+            //_copyContext = copyContext;
             _messageHub = messageHub;
 
             // Create Context Copy to Simulation Context
@@ -48,22 +49,13 @@ namespace Master40.Simulation.Simulation
 
         private List<ProductionOrderWorkSchedule> CreateInitialTable()
         {
-            var demands = _context.Demands.Where(a => a.State == State.ExistsInCapacityPlan).ToList();
-            var provider = new List<DemandProviderProductionOrder>();
+            var demands = _context.Demands.Include(a => a.DemandProvider).Where(a => a.State == State.ExistsInCapacityPlan).ToList();
+            var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var demand in demands)
             {
-                provider.AddRange(_context.Demands.OfType<DemandProviderProductionOrder>()
-                    .Where(a => a.DemandRequester.DemandRequesterId == demand.Id
-                    || a.DemandRequester.DemandRequester.DemandRequesterId == demand.Id
-                    || a.DemandRequesterId == demand.Id).ToList());
+                pows.AddRange(_context.GetProductionOrderWorkSchedules(demand));
             }
-            var pows = new List<ProductionOrderWorkSchedule>();
-            foreach (var singleProvider in provider)
-            {
-                pows.AddRange(
-                    _context.ProductionOrderWorkSchedules.Where(
-                        a => a.ProductionOrderId == singleProvider.ProductionOrderId).ToList());
-            }
+            pows = pows.Distinct().ToList();
             foreach (var singlePows in pows)
             {
                 if (singlePows.DurationSimulation != 0) continue;
@@ -134,13 +126,13 @@ namespace Master40.Simulation.Simulation
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            if (!_orderInjected && timeTable.Timer == 1)
+            /*if (!_orderInjected && timeTable.Timer == 1)
             {
                 CreateNewOrder(1, 1);
                 Recalculate(timeTable.Timer);
                 _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
-            }
+            }*/
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {

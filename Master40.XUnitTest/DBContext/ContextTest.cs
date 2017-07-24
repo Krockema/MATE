@@ -85,11 +85,12 @@ namespace Master40.XUnitTest.DBContext
             var capacityScheduling = new CapacityScheduling(_productionDomainContext);
             var msgHub = new Moc.MessageHub();
             var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub);
-
+            var simulation = new Simulator(_productionDomainContext,msgHub);
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
+            await simulation.Simulate();
 
-            Assert.Equal(true, (_productionDomainContext.ProductionOrderWorkSchedules.Any()));
+            Assert.Equal(true, _productionDomainContext.ProductionOrderWorkSchedules.Any());
         }
 
         // Load Database from SimulationJason
