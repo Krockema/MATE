@@ -26,15 +26,15 @@ namespace Master40.Simulation.Simulation
             .Options);
 
         private readonly ProductionDomainContext _context;
-        private readonly CopyContext _copyContext;
+        //private readonly CopyContext _copyContext;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         private bool _orderInjected = false;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IMessageHub messageHub, CopyContext copyContext)
+        public Simulator(ProductionDomainContext context, IMessageHub messageHub)//, CopyContext copyContext)
         {
             _context = context;
-            _copyContext = copyContext;
+            //_copyContext = copyContext;
             _messageHub = messageHub;
 
             // Create Context Copy to Simulation Context
@@ -134,13 +134,13 @@ namespace Master40.Simulation.Simulation
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            if (!_orderInjected && timeTable.Timer == 1)
+            /*if (!_orderInjected && timeTable.Timer == 1)
             {
                 CreateNewOrder(1, 1);
                 Recalculate(timeTable.Timer);
                 _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
-            }
+            }*/
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {

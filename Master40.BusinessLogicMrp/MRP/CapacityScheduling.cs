@@ -30,15 +30,17 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <summary>
         /// An algorithm for capacity-leveling. Writes Start/End in ProductionOrderWorkSchedule.
         /// </summary>
-        public void GifflerThompsonScheduling(int timer)
+        public void GifflerThompsonScheduling(int currentTimer)
         {
-            var productionOrderWorkSchedules = GetProductionSchedules(timer);
+            //Todo: implement maxTimer and get from context
+            var maxTimer = 90;
+            var productionOrderWorkSchedules = GetProductionSchedules(currentTimer, maxTimer);
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
-            var plannedSchedules = GetInitialPlannedSchedules(timer) ?? new List<ProductionOrderWorkSchedule>();
-            GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules,timer);
+            var plannedSchedules = GetInitialPlannedSchedules(currentTimer) ?? new List<ProductionOrderWorkSchedule>();
+            GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules,currentTimer);
             while (plannableSchedules.Any())
             {
                 //find next element by using the activity slack rule
@@ -52,7 +54,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
                 //search for parent and if available and allowed add it to the schedule
                 var parent = GetParent(shortest, productionOrderWorkSchedules);
-                if (parent != null && !plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent,plannedSchedules, timer))
+                if (parent != null && !plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent,plannedSchedules, currentTimer))
                     plannableSchedules.Add(parent);
                 _context.SaveChanges();
             }
@@ -161,9 +163,9 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <returns>capacity-plan</returns>
         public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int timer)
-        {
+        {   //Todo: replace 90 with context call to maxTimer
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetProductionSchedules(timer);
+            var productionOrderWorkSchedules = GetProductionSchedules(timer, 90);
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -329,7 +331,7 @@ namespace Master40.BusinessLogicCentral.MRP
             return _context.Machines.Count(a => a.MachineGroupId == schedule.MachineGroupId);
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules(int timer)
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules(int currentTimer, int maxTimer)
         {
             var demandRequester = _context.Demands
                                             .Include(a => a.DemandProvider)
@@ -340,10 +342,12 @@ namespace Master40.BusinessLogicCentral.MRP
                                                             || b.State == State.ForwardScheduleExists
                                                             || b.State == State.Injected)
                                                             .ToList();
+            
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleDemandRequester in demandRequester)
             {
-                pows.AddRange(_context.GetProductionOrderWorkSchedules(singleDemandRequester));
+                if (_context.GetDueTime(singleDemandRequester) <= currentTimer + maxTimer)
+                    pows.AddRange(_context.GetProductionOrderWorkSchedules(singleDemandRequester));
             }
             return pows.AsEnumerable().Distinct().ToList();
         }
@@ -474,9 +478,9 @@ namespace Master40.BusinessLogicCentral.MRP
         }
 
         public void SetMachines(int timer)
-        {
+        {   //Todo: replace 90 with context call to maxTimer
             //gets called when plan is fitting to capacities
-            var schedules = GetProductionSchedules(timer);
+            var schedules = GetProductionSchedules(timer,90);
             foreach (var schedule in schedules)
             {
                 var machines = _context.Machines.Where(a => a.MachineGroupId == schedule.MachineGroupId).ToList();
