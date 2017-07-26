@@ -10,17 +10,17 @@ namespace NSimAgentTest.Agents
 {
     public class DirectoryAgent : Agent
     {
-
-
-        public DirectoryAgent(Agent creator, string name, bool debug) : base(creator, name, debug) { }
+        public DirectoryAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
+        {
+            //Instructions.Add(new Instruction {Method = "GetOrCreateComunicationAgentForType", ExpectedObjecType = typeof(string) });       
+        }
         public enum InstuctionsMethods
         {
             GetOrCreateComunicationAgentForType,
-            GetCreateComunicationAgentForType
         }
         
 
-        private void GetCreateComunicationAgentForType(InstructionSet objects)
+        private void GetOrCreateComunicationAgentForType(InstructionSet objects)
         {
             // debug
             DebugMessage(" got Called by -> " + objects.SourceAgent.Name);
@@ -40,15 +40,12 @@ namespace NSimAgentTest.Agents
                 // add Agent Reference.
                 ChildAgents.Add(comunicationAgent);
             }
-            
+
             // Tell the Machine the corrosponding Comunication Agent.
-            objects.SourceAgent.InstructionQueue.Enqueue(new InstructionSet
-            {
-                MethodName = MachineAgent.InstuctionsMethods.SetComunicationAgent.ToString(),
-                ObjectToProcess = comunicationAgent,
-                ObjectType = typeof(ComunicationAgent),
-                SourceAgent = this
-            });
+            CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.SetComunicationAgent.ToString(),
+                                  objectToProcess: comunicationAgent,
+                                      targetAgent: objects.SourceAgent,
+                                      sourceAgent: this);
         }
     }
 }

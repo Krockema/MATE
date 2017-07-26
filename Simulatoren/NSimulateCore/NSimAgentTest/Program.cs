@@ -6,9 +6,9 @@ using NSimulate;
 
 namespace NSimAgentTest
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static void StartSim(string[] args)
         {
             Console.WriteLine("Simulation Startet");
             using (var context = new SimulationContext(isDefaultContextForProcess: true))
@@ -20,7 +20,7 @@ namespace NSimAgentTest
                 var simulator = new Simulator();
 
                 // run the simulation
-                simulator.Simulate();
+                simulator.SimulateAsync(0);
 
                 Console.WriteLine("Jobs processed in {0} minutes", context.TimePeriod);
             }
@@ -30,7 +30,7 @@ namespace NSimAgentTest
         private static object CreateModel(SimulationContext context, int numberOfJobs)
         {
             var ctx = new DBContext();
-            var system = new SystemAgent(null, "System", true);
+            var system = new SystemAgent(null, "System", true, ctx);
 
 
 

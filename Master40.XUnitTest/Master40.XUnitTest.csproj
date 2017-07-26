@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Master40.Agents\Master40.Agents.csproj" />
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
     <ProjectReference Include="..\Master40\Master40.csproj" />
   </ItemGroup>

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using NSimulate;
 using NSimulate.Instruction;
 
@@ -17,10 +14,9 @@ namespace NSimAgentTest.Agents.Internal
         internal List<Agent> ChildAgents { get; set; }
         public string Name { get; set; }
         public bool DebugThis { get; set; }
-        Status Status { get; set; }
+        internal Status Status { get; set; }
         public Queue<InstructionSet> InstructionQueue { get; set; }
-        
-        
+
         protected Agent(Agent creator, string name, bool debug)
         {
             AgentId = Guid.NewGuid();
@@ -29,7 +25,7 @@ namespace NSimAgentTest.Agents.Internal
             this.InstructionQueue = new Queue<InstructionSet>();
             this.ChildAgents = new List<Agent>();
             this.Status = Status.Created;
-            
+
             // Cheack for Creator Agent
             var creatorsName = "Simulation Context";
             if (creator == null) { Creator = this; }
@@ -68,14 +64,18 @@ namespace NSimAgentTest.Agents.Internal
         /// </summary>
         internal void Finish()
         {
+            if (DebugThis)
+            {
+                DebugMessage(" Finished Work.");
+            }
             // Set State Finish
             this.Status = Status.Finished;
             // Tell Parent
             CreateAndEnqueueInstuction(
-                methodName: "Finished",
+                     methodName: "Finished",
                 objectToProcess: this,
-                targetAgent: this.Creator,
-                sourceAgent: this
+                    targetAgent: this.Creator,
+                    sourceAgent: this
             );
         }
 
@@ -83,7 +83,7 @@ namespace NSimAgentTest.Agents.Internal
         /// <summary>
         /// check Childs and Call Finish if all in State Finished.
         /// </summary>
-        internal void Finished()
+        internal void Finished(InstructionSet objects)
         {
             // any Not Finished do noting
             if (ChildAgents.Any(x => x.Status != Status.Finished))
@@ -132,6 +132,7 @@ namespace NSimAgentTest.Agents.Internal
                 Console.WriteLine("Time(" + Context.TimePeriod + ").Agent(" + Name + ") : " + msg);
             }
         }
+
 
 
     }

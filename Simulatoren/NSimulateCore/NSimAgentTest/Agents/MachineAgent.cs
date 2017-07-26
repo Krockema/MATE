@@ -30,7 +30,7 @@ namespace NSimAgentTest.Agents
         {
             _directoryAgent.InstructionQueue.Enqueue(new InstructionSet
             {
-                MethodName = DirectoryAgent.InstuctionsMethods.GetCreateComunicationAgentForType.ToString(),
+                MethodName = DirectoryAgent.InstuctionsMethods.GetOrCreateComunicationAgentForType.ToString(),
                 ObjectToProcess = this._machineType,
                 ObjectType = typeof(string),
                 SourceAgent = this

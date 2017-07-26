@@ -11,6 +11,7 @@ namespace NSimAgentTest.Agents
         public StorageAgent(Agent creator, string name, bool debug, StockElement stockElement) : base(creator, name, debug)
         {
             StockElement = stockElement;
+            //Instructions = new List<Instruction>{ new Instruction{ Method = "RequestArticle", ExpectedObjecType = typeof(int) } };
         }
 
         public enum InstuctionsMethods
@@ -52,10 +53,11 @@ namespace NSimAgentTest.Agents
         /// <returns></returns>
         private int TryToMakeReservationFor(RequestItem request)
         {
-            if ((StockElement.Quantity - request.Quantity) < 0) return 0;
-            StockElement.Quantity = StockElement.Quantity - request.Quantity;
+            if ((StockElement.Quantity - StockElement.Reservations - request.Quantity) < 0) return 0;
+            StockElement.Reservations = StockElement.Reservations - request.Quantity;
             return request.Quantity;
         }
 
+        
     }
 }

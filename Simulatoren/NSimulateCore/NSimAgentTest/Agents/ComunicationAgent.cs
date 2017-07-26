@@ -14,5 +14,9 @@ namespace NSimAgentTest.Agents
             ContractType = contractType;
         }
         public string ContractType { get; set; }
+
+        public enum InstuctionsMethods
+        {
+        }
     }
 }

@@ -144,7 +144,7 @@ namespace Master40.ViewComponents
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }
-                    break;
+                    //break;
                 case 4: // Production Order Based
                     project = _ganttContext.Tasks
                         .Where(x => x.type == GanttType.project && x.id == "P" + pow.ProductionOrderId);
@@ -159,7 +159,7 @@ namespace Master40.ViewComponents
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }
-                    break;
+                    //break;
                 default: // back and forward
                     project = _ganttContext.Tasks
                         .Where(x => x.type == GanttType.project && x.id == "O" + orderId);
@@ -174,7 +174,7 @@ namespace Master40.ViewComponents
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }
-                    break;
+                   // break;
             }
         }
 

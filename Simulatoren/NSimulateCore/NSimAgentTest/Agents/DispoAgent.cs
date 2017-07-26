@@ -11,23 +11,31 @@ namespace NSimAgentTest.Agents
     public class DispoAgent : Agent
     {
         private Agent _system;
-        public RequestItem RequestItem { get; set; }
-        public int Quantity { get; set; }
+        private RequestItem RequestItem { get; set; }
 
+        /// <summary>
+        /// First  ask Store for Item and wait for Response
+        /// secont Create Production
+        /// Third  Call Contract and Store that order has been Reserved / Produced
+        /// </summary>
+        /// <param name="creator"></param>
+        /// <param name="system"></param>
+        /// <param name="name"></param>
+        /// <param name="debug"></param>
+        /// <param name="requestItem"></param>
         public DispoAgent(Agent creator, Agent system, string name, bool debug, RequestItem requestItem) : base(creator, name, debug)
         {
             _system = system;
             RequestItem = requestItem;
+            //Instructions.Add(new Instruction { Method = "ResponseFromStock", ExpectedObjecType = typeof(string) });
+            //Instructions.Add(new Instruction { Method = "CreateProductionAgent", ExpectedObjecType = typeof(string) });
+
             RequestFromStock();
         }
+
         public enum InstuctionsMethods
         {
-            // First ask Store for Item and wait for Response
             ResponseFromStock,
-            // secont Create Production
-            CreateProductionAgent,
-            // Call Contract and Store that order has been Reserved / Produced
-            Finish
         }
 
         private void RequestFromStock()
@@ -54,13 +62,42 @@ namespace NSimAgentTest.Agents
 
         private void ResponseFromStock(InstructionSet instructionSet)
         {
+            var quantityToProduce = 0;
+            if(instructionSet.ObjectToProcess != null)
+            {
+                quantityToProduce = RequestItem.Quantity - (int) instructionSet.ObjectToProcess;
+            }
             // TODO -> Logic
             DebugMessage(" Returned with " + instructionSet.ObjectToProcess + " Items Reserved!");
+
+            // check for zero
+            if (quantityToProduce == 0)
+            {
+                this.Finish();
+            }
+
+            // Create Request Productionorder
+            CreateAndEnqueueInstuction(methodName: SystemAgent.InstuctionsMethods.RequestProductionOrder.ToString(),
+                                  objectToProcess: RequestItem,
+                                      targetAgent: _system,
+                                      sourceAgent: this);
         }
 
+        private void ResponseForBOM(InstructionSet instructionSet)
+        {
+
+            ChildAgents.Add(new ProductionAgent(this, "Production(" + RequestItem.Name + ")", DebugThis));
 
 
+            CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
+                objectToProcess: RequestItem,
+                targetAgent: _system,
+                sourceAgent: this);
 
+        }
 
+   
+
+        
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.Agents;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
@@ -75,7 +76,14 @@ namespace Master40.XUnitTest.DBContext
         }
 
         //public DemandToProvider getRequester
+        [Fact]
+        public async Task AgentSimulationTestAsync()
+        {
+            var sim = new AgentSimulation(_ctx);
+            await sim.RunSim();
 
+            Assert.Equal(true, true);
+        }
 
 
         [Fact]
@@ -130,7 +138,6 @@ namespace Master40.XUnitTest.DBContext
             _productionDomainContext.CopyAllTables(_ctx);
             
             Assert.Equal(true, (_ctx.Articles.Any()));
-
         }
 
         // Json to InMemory
@@ -147,12 +154,6 @@ namespace Master40.XUnitTest.DBContext
 
             Assert.Equal(true, (_ctx.Articles.Any()));
 
-        }
-
-        [Fact]
-        public async Task AgentRunnerTask()
-        {
-            //MasterAgentTest.Starter.StartFactory();
         }
 
     }

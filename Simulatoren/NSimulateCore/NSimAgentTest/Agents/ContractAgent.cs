@@ -9,11 +9,15 @@ namespace NSimAgentTest.Agents
 {
     public class ContractAgent : Agent
     {
-        public ContractAgent(Agent creator, string name, bool debug) : base(creator, name , debug) { }
+        public ContractAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
+        {
+            //Instructions.Add(new Instruction{ Method = "StartOrder", ExpectedObjecType = typeof(RequestItem) });
+        }
 
         public enum InstuctionsMethods
         {
-            StartOrder
+            // Create and Return a Reservation for Article
+            StartOrder,
         }
 
         /// <summary>

@@ -96,66 +96,6 @@ namespace Master40.DB.Data.Context
         }
 
         /// <summary>
-        /// copies am Article and his Childs to ProductionOrder
-        /// Creates Demand Provider for Production oder and DemandRequests for childs
-        /// </summary>
-        /// <returns></returns>
-        public static ProductionOrder CopyArticleToProductionOrder(MasterDBContext context, int articleId, decimal quantity, int demandRequesterId)
-        {
-            var article = context.Articles.Include(a => a.ArticleBoms).ThenInclude(c => c.ArticleChild).Single(a => a.Id == articleId);
-            var mainProductionOrder = new ProductionOrder
-            {
-                ArticleId = article.Id,
-                Name = "Prod. Auftrag: " + article.Name,
-                Quantity = quantity,
-            };
-            context.ProductionOrders.Add(mainProductionOrder);
-
-            var demandProvider = new DemandProviderProductionOrder()
-            {
-                ProductionOrderId = mainProductionOrder.Id,
-                Quantity = quantity,
-                ArticleId = article.Id,
-                DemandRequesterId = demandRequesterId,
-            };
-            context.Demands.Add(demandProvider);
-
-            foreach (var item in article.ArticleBoms)
-            {
-                var prodOrder = new ProductionOrder
-                {
-                    ArticleId = item.ArticleChildId,
-                    Name = "Prod. Auftrag: " + article.Name,
-                    Quantity = quantity * item.Quantity,
-                };
-                context.ProductionOrders.Add(prodOrder);
-
-
-
-                var prodOrderBom = new ProductionOrderBom
-                {
-                    Quantity = quantity * item.Quantity,
-                    ProductionOrderParentId = mainProductionOrder.Id,
-                    ProductionOrderChildId = prodOrder.Id
-                };
-                context.ProductionOrderBoms.Add(prodOrderBom);
-
-                var demandRequester = new DemandProductionOrderBom
-                {
-                    ProductionOrderBomId = prodOrderBom.Id,
-                    Quantity = quantity,
-                    ArticleId = item.ArticleChildId,
-                    DemandRequesterId = demandProvider.Id, // nicht sicher
-                };
-                context.Demands.Add(demandRequester);
-
-            }
-            context.SaveChanges();
-
-            return mainProductionOrder;
-        }
-
-        /// <summary>
         /// returns the Production Order Work Schedules for a given Order
         /// </summary>
         /// <param name="orderId"></param>
@@ -223,12 +163,12 @@ namespace Master40.DB.Data.Context
             {
                 var productionOrders = ProductionOrders
                     .Include(x => x.ProductionOrderWorkSchedule)
-                    .ThenInclude(x => x.MachineGroup)
+                        .ThenInclude(x => x.MachineGroup)
                     .Include(x => x.ProductionOrderWorkSchedule)
-                    .ThenInclude(x => x.Machine)
+                        .ThenInclude(x => x.Machine)
                     .Include(x => x.ProductionOrderBoms)
-                    .ThenInclude(x => x.DemandProductionOrderBoms)
-                    .ThenInclude(x => x.DemandProvider)
+                        .ThenInclude(x => x.DemandProductionOrderBoms)
+                            .ThenInclude(x => x.DemandProvider)
                     .FirstOrDefault(x => x.Id == item.ProductionOrderId);
 
                 productionOrderWorkSchedule.AddRange(productionOrders.ProductionOrderWorkSchedule);
@@ -773,5 +713,46 @@ namespace Master40.DB.Data.Context
             }
             return pows;
         }
+
+        /// <summary>
+        /// copies am Article and his Childs to ProductionOrder
+        /// Creates Demand Provider for Production oder and DemandRequests for childs
+        /// </summary>
+        /// <returns></returns>
+        public ProductionOrder CopyArticleToProductionOrder(int articleId, decimal quantity)
+        {
+            var article = Articles.Include(a => a.ArticleBoms).ThenInclude(c => c.ArticleChild).Single(a => a.Id == articleId);
+            var mainProductionOrder = new ProductionOrder
+            {
+                ArticleId = article.Id,
+                Name = "Prod. Auftrag: " + article.Name,
+                Quantity = quantity,
+            };
+            ProductionOrders.Add(mainProductionOrder);
+
+            foreach (var item in article.ArticleBoms)
+            {
+                var prodOrder = new ProductionOrder
+                {
+                    ArticleId = item.ArticleChildId,
+                    Name = "Prod. Auftrag: " + article.Name,
+                    Quantity = quantity * item.Quantity,
+                };
+                ProductionOrders.Add(prodOrder);
+
+                var prodOrderBom = new ProductionOrderBom
+                {
+                    Quantity = quantity * item.Quantity,
+                    ProductionOrderParentId = mainProductionOrder.Id,
+                    ProductionOrderChildId = prodOrder.Id
+                };
+                ProductionOrderBoms.Add(prodOrderBom);
+            }
+            SaveChanges();
+
+            return mainProductionOrder;
+        }
+
+
     }
 }

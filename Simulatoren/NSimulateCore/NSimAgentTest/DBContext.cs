@@ -11,10 +11,10 @@ namespace NSimAgentTest
             Machines = new List<string> { "SAW", "DRILL", "ASSEMBLY" };
             StockElements = new List<StockElement>
             {
-                new StockElement { Name="Kipper", Quantity = 1},
-                new StockElement { Name="Chassi", Quantity = 0 },
-                new StockElement { Name="Bodenplatte", Quantity = 0 },
-                new StockElement { Name="Räder", Quantity = 4 }
+                new StockElement { Name="Kipper", Quantity = 1, Reservations = 0},
+                new StockElement { Name="Chassi", Quantity = 0, Reservations = 0 },
+                new StockElement { Name="Bodenplatte", Quantity = 0, Reservations = 0 },
+                new StockElement { Name="Räder", Quantity = 4, Reservations = 0 }
             };
 
             ProductionOrder = new List<ProductionOrder>
@@ -56,8 +56,8 @@ namespace NSimAgentTest
 
             OrderList = new List<RequestItem>()
             {
-                new RequestItem {Name = "First Order", Quantity = 2, Article = "Kipper" },
-                new RequestItem {Name = "Secont Order", Quantity = 1, Article = "Kipper"},
+                new RequestItem {Name = "First Order", Quantity = 2, Article = "Kipper", DueTime = 5 },
+                new RequestItem {Name = "Secont Order", Quantity = 1, Article = "Kipper", DueTime = 15 },
             };
 
 
@@ -76,15 +76,16 @@ namespace NSimAgentTest
     public class StockElement {
         public string Name { get; set; }
         public int Quantity { get; set; }
+        public int Reservations { get; set; }
     }
 
     public class RequestItem
     {
         public string Name { get; set; }
         public int Quantity { get; set; }
+        public int DueTime { get; set; }
         public string Article { get; set; }
     }
-
 
     public class ProductionOrder
     {
