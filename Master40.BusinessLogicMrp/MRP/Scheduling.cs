@@ -12,7 +12,6 @@ namespace Master40.BusinessLogicCentral.MRP
 
     public interface IScheduling
     {
-        void CreateSchedule(IDemandToProvider demand, ProductionOrder productionOrder);
         void BackwardScheduling(IDemandToProvider demand);
         void ForwardScheduling(IDemandToProvider demand); 
     }
@@ -24,27 +23,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             _context = context;
         }
-
-        /// <summary>
-        /// Creates a ProductionOrderWorkScheduleItem in the database
-        /// </summary>
-        /// <param name="demand"></param>
-        /// <param name="productionOrder"></param>
-        public void CreateSchedule(IDemandToProvider demand, ProductionOrder productionOrder)
-        {
-            var abstractWorkSchedules = _context.WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
-            foreach (var abstractWorkSchedule in abstractWorkSchedules)
-            {
-                //add specific workSchedule
-                var workSchedule = new ProductionOrderWorkSchedule();
-                abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
-                workSchedule.ProductionOrderId = productionOrder.Id;
-                workSchedule.MachineId = null;
-                workSchedule.Duration *= (int)productionOrder.Quantity;
-                _context.ProductionOrderWorkSchedules.Add(workSchedule);
-                _context.SaveChanges();
-            }
-        }
+        
 
         /// <summary>
         /// Set Start- and Endtime for ProductionOrderWorkSchedules for the given OrderPart excluding capacities in a backward schedule

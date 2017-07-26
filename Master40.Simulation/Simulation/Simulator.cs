@@ -17,6 +17,7 @@ namespace Master40.Simulation.Simulation
     public interface ISimulator
     {
         Task Simulate();
+        Task InitializeMrp(MrpTask task);
     }
 
     public class Simulator : ISimulator
@@ -58,7 +59,6 @@ namespace Master40.Simulation.Simulation
             pows = pows.Distinct().ToList();
             foreach (var singlePows in pows)
             {
-                if (singlePows.DurationSimulation != 0) continue;
                 singlePows.StartSimulation = singlePows.Start;
                 singlePows.EndSimulation = singlePows.End;
                 singlePows.DurationSimulation = singlePows.Duration;
@@ -67,20 +67,43 @@ namespace Master40.Simulation.Simulation
             return pows;
         }
 
+
+        public async Task InitializeMrp(MrpTask task)
+        {
+            await Task.Run(async () =>
+            {
+                //SimulationConfigurations
+                var simulationConfiguration = new SimulationConfiguration()
+                {
+                    SimulationId = 1,
+                    Lotsize = 5,
+                    Time = 0,
+                    MaxCalculationTime = 90
+                };
+                _context.Add(simulationConfiguration);
+                _context.SaveChanges();
+
+                //call initial central MRP-run
+                await _processMrp.CreateAndProcessOrderDemand(task);
+
+                _messageHub.EndScheduler();
+            });
+        }
+
         public async Task Simulate()
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
-                var timeTable = new TimeTable<ISimulationItem>(24 * 60);
+                var timeTable = new TimeTable<ISimulationItem>(60);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;
 
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
-                    timeTable = ProcessTimeline(timeTable, waitingItems);
+                    timeTable = await ProcessTimeline(timeTable, waitingItems);
                     _messageHub.SendToAllClients(timeTable.Items.Count + "/" + (int)(timeTable.Items.Count + (int)waitingItems.Count) + " items processed.");
                 }
                 // end simulation and Unlock Screen
@@ -122,17 +145,19 @@ namespace Master40.Simulation.Simulation
             return -1;
         }
 
-        public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems)
+        public async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems)
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            /*if (!_orderInjected && timeTable.Timer == 1)
+            _context.SimulationConfigurations.Last().Time = timeTable.Timer;
+            _context.SaveChanges();
+            if (!_orderInjected && timeTable.Timer == 9)
             {
-                CreateNewOrder(1, 1);
-                Recalculate(timeTable.Timer);
+                CreateNewOrder(1, 5);
+                //await Recalculate();
                 _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
-            }*/
+            }
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {
@@ -153,10 +178,10 @@ namespace Master40.Simulation.Simulation
                     var rnd = GetRandomDelay();
 
                     // set 0 to 0 if below 0 to prevent negativ starts
-                    if (item.EndSimulation - item.EndSimulation - rnd <= 0)
+                    if (item.DurationSimulation - rnd <= 0)
                         rnd = 0;
 
-                    var newDuration = item.EndSimulation - item.StartSimulation + rnd;
+                    var newDuration = item.DurationSimulation + rnd;
                     if (newDuration != item.EndSimulation - item.StartSimulation)
                     {
 
@@ -178,15 +203,17 @@ namespace Master40.Simulation.Simulation
                     timeTable.Items.Add(new PowsSimulationItem(item.Id,
                         item.ProductionOrderId, item.StartSimulation, item.EndSimulation, _context));
                     waitingItems.Remove(item);
+                    item.ProducingState = ProducingState.Waiting;
+                    _context.ProductionOrderWorkSchedules.Update(item);
+                    _context.SaveChanges();
                     timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
                 }
             }
-
-            //Todo: add Recalculate Event to timetable
-            if (timeTable.Timer != timeTable.RecalculateTimer) return timeTable;
-            Recalculate(timeTable.Timer);
+            
+            if (timeTable.Timer < (timeTable.RecalculateCounter+1) * timeTable.RecalculateTimer) return timeTable;
+            await Recalculate();
             UpdateWaitingItems(timeTable, waitingItems);
-            timeTable.RecalculateTimer += 24 * 60;
+            timeTable.RecalculateCounter++;
 
             // if Progress is empty Stop.
             return timeTable;
@@ -198,7 +225,13 @@ namespace Master40.Simulation.Simulation
             foreach (var item in completeList)
             {
                 if (timeTable.Items.Any(a => a.ProductionOrderWorkScheduleId == item.Id)) continue;
-                if (waitingItems.Any(a => a.Id == item.Id)) continue;
+                if (waitingItems.Any(a => a.Id == item.Id))
+                {
+                    waitingItems.Remove(waitingItems.Find(a => a.Id == item.Id));
+                    
+                    waitingItems.Add(item);
+                    continue;
+                }
                 waitingItems.Add(item);
             }
         }
@@ -223,18 +256,6 @@ namespace Master40.Simulation.Simulation
             _context.OrderParts.Add(orderPart);
             _context.SaveChanges();
             _context.Orders.Last().OrderParts.Add(orderPart);
-            var dop = new DemandOrderPart()
-            {
-                ArticleId = orderPart.ArticleId,
-                Quantity = orderPart.Quantity,
-                DemandProvider = new List<DemandToProvider>(),
-                DemandRequesterId = null,
-                State = State.Injected,
-                OrderPartId = orderPart.Id
-            };
-            _context.Demands.Add(dop);
-            _context.SaveChanges();
-            orderPart.DemandOrderParts.Add(dop);
             _context.OrderParts.Update(orderPart);
             _context.SaveChanges();
         }
@@ -294,13 +315,13 @@ namespace Master40.Simulation.Simulation
             return freeMachines;
         }
 
-        private void Recalculate(int timer)
+        private async Task Recalculate()
         {
-            _processMrp.PlanCapacities(MrpTask.GifflerThompson, timer);
-            //
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
+            
         }
     }
-
+    
 }
 
 

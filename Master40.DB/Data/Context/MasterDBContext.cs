@@ -37,6 +37,7 @@ namespace Master40.DB.Data.Context
         public DbSet<StockExchange> StockExchanges { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
+        public DbSet<SimulationConfiguration> SimulationConfigurations { get; set; }
 
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public DbSet<Kpi> Kpis { get; set; }

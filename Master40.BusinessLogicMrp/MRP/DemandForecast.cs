@@ -10,7 +10,7 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IDemandForecast
     {
-        List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task, int timer);
+        List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task);
     }
 
 
@@ -33,7 +33,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <param name="task"></param>
         /// <param name="timer"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
-        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task, int timer)
+        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task)
         {
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
@@ -47,7 +47,8 @@ namespace Master40.BusinessLogicCentral.MRP
                 var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
                 if (children.Any())
                 {
-                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, timer);
+
+                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, _context.SimulationConfigurations.Last().Time);
                     var amount = -plannedStock;
                     if (fittingProductionOrders != null)
                     {
@@ -57,8 +58,7 @@ namespace Master40.BusinessLogicCentral.MRP
                             var provider = _context.CreateDemandProviderProductionOrder(demand, fittingProductionOrder,
                                 availableAmount < -plannedStock ? availableAmount : -plannedStock);
                             //productionOrders.Add(fittingProductionOrder);
-                            _context.AssignProductionOrderToDemandProvider(fittingProductionOrder, provider,
-                                availableAmount < -plannedStock ? availableAmount : -plannedStock);
+                            _context.AssignProductionOrderToDemandProvider(fittingProductionOrder, provider);
                             amount -= availableAmount < -plannedStock ? availableAmount : -plannedStock;
                             if (amount == 0) return productionOrders;
                         }
@@ -85,7 +85,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             var demandStock = plannedStock < 0 ? _context.CreateStockDemand(demand, stock, stock.Min) : _context.CreateStockDemand(demand, stock, stock.Min - plannedStock);
             //call processMrp to plan and schedule the stockDemand
-            _processMrp.RunRequirementsAndTermination(demandStock, task, timer);
+            _processMrp.RunRequirementsAndTermination(demandStock, task);
             return productionOrders;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Newtonsoft.Json;
 
@@ -32,5 +33,6 @@ namespace Master40.DB.Models
         public int StartSimulation { get; set; }
         public int EndSimulation { get; set; }
         public int DurationSimulation { get; set; }
+        public ProducingState ProducingState { get; set; }
     }
 }

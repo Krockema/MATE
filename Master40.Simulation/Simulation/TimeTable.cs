@@ -20,20 +20,22 @@ namespace Master40.Simulation.Simulation
 
         public int Timer { get; set; }
         public int RecalculateTimer { get; set; }
+        public int RecalculateCounter { get; set; }
 
         public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable)
         {
+            var recalculate = timeTable.RecalculateTimer * (timeTable.RecalculateCounter+1);
             if (!timeTable.Items.Any()) return timeTable;
-            var start = RecalculateTimer + 1;
+            var start = recalculate + 1;
             var startItems = timeTable.Items.Where(a => a.SimulationState == SimulationState.Waiting).ToList();
             if (startItems.Any()) start = startItems.Min(a => a.Start);
-            var end = RecalculateTimer + 1;
+            var end = recalculate + 1;
             var endItems = timeTable.Items.Where(a => a.SimulationState == SimulationState.InProgress).ToList();
             if (endItems.Any()) end = endItems.Min(a => a.End);
             // Timewarp - set Start Time
-            if (timeTable.RecalculateTimer < start && timeTable.RecalculateTimer < end)
+            if (recalculate < start && recalculate < end)
             {
-                timeTable.Timer = timeTable.RecalculateTimer;
+                timeTable.Timer = recalculate;
                 return timeTable;
             }
             else
