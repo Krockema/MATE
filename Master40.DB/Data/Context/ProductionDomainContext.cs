@@ -96,6 +96,66 @@ namespace Master40.DB.Data.Context
         }
 
         /// <summary>
+        /// copies am Article and his Childs to ProductionOrder
+        /// Creates Demand Provider for Production oder and DemandRequests for childs
+        /// </summary>
+        /// <returns></returns>
+        public static ProductionOrder CopyArticleToProductionOrder(MasterDBContext context, int articleId, decimal quantity, int demandRequesterId)
+        {
+            var article = context.Articles.Include(a => a.ArticleBoms).ThenInclude(c => c.ArticleChild).Single(a => a.Id == articleId);
+            var mainProductionOrder = new ProductionOrder
+            {
+                ArticleId = article.Id,
+                Name = "Prod. Auftrag: " + article.Name,
+                Quantity = quantity,
+            };
+            context.ProductionOrders.Add(mainProductionOrder);
+
+            var demandProvider = new DemandProviderProductionOrder()
+            {
+                ProductionOrderId = mainProductionOrder.Id,
+                Quantity = quantity,
+                ArticleId = article.Id,
+                DemandRequesterId = demandRequesterId,
+            };
+            context.Demands.Add(demandProvider);
+
+            foreach (var item in article.ArticleBoms)
+            {
+                var prodOrder = new ProductionOrder
+                {
+                    ArticleId = item.ArticleChildId,
+                    Name = "Prod. Auftrag: " + article.Name,
+                    Quantity = quantity * item.Quantity,
+                };
+                context.ProductionOrders.Add(prodOrder);
+
+
+
+                var prodOrderBom = new ProductionOrderBom
+                {
+                    Quantity = quantity * item.Quantity,
+                    ProductionOrderParentId = mainProductionOrder.Id,
+                    ProductionOrderChildId = prodOrder.Id
+                };
+                context.ProductionOrderBoms.Add(prodOrderBom);
+
+                var demandRequester = new DemandProductionOrderBom
+                {
+                    ProductionOrderBomId = prodOrderBom.Id,
+                    Quantity = quantity,
+                    ArticleId = item.ArticleChildId,
+                    DemandRequesterId = demandProvider.Id, // nicht sicher
+                };
+                context.Demands.Add(demandRequester);
+
+            }
+            context.SaveChanges();
+
+            return mainProductionOrder;
+        }
+
+        /// <summary>
         /// returns the Production Order Work Schedules for a given Order
         /// </summary>
         /// <param name="orderId"></param>
@@ -163,12 +223,12 @@ namespace Master40.DB.Data.Context
             {
                 var productionOrders = ProductionOrders
                     .Include(x => x.ProductionOrderWorkSchedule)
-                        .ThenInclude(x => x.MachineGroup)
+                    .ThenInclude(x => x.MachineGroup)
                     .Include(x => x.ProductionOrderWorkSchedule)
-                        .ThenInclude(x => x.Machine)
+                    .ThenInclude(x => x.Machine)
                     .Include(x => x.ProductionOrderBoms)
-                        .ThenInclude(x => x.DemandProductionOrderBoms)
-                            .ThenInclude(x => x.DemandProvider)
+                    .ThenInclude(x => x.DemandProductionOrderBoms)
+                    .ThenInclude(x => x.DemandProvider)
                     .FirstOrDefault(x => x.Id == item.ProductionOrderId);
 
                 productionOrderWorkSchedule.AddRange(productionOrders.ProductionOrderWorkSchedule);
@@ -217,8 +277,7 @@ namespace Master40.DB.Data.Context
 
         public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, ProductionOrder parentProductionOrder, decimal amount)
         {
-            //Todo: lookup lotsize from context
-            const int lotsize = 5;
+            var lotsize = SimulationConfigurations.Last().Lotsize;
             var productionOrders = new List<ProductionOrder>();
             decimal bomQuantity;
             if (parentProductionOrder != null)
@@ -270,11 +329,10 @@ namespace Master40.DB.Data.Context
 
         public ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime)
         {
-            //Todo: fill in lotsize from context
             var productionOrder = new ProductionOrder()
             {
                 ArticleId = demand.Article.Id,
-                Quantity = 5,
+                Quantity = SimulationConfigurations.Last().Lotsize,
                 Duetime = duetime
             };
 
@@ -445,8 +503,8 @@ namespace Master40.DB.Data.Context
 
         public void TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder productionOrder, ProductionOrder parentProductionOrder)
         {
-            //Todo: implement lotsize
-            var lotsize = 5;
+            if (parentProductionOrder == null) return;
+            var lotsize = SimulationConfigurations.Last().Lotsize;
             var bom = ArticleBoms.Where(a => a.ArticleChildId == demand.ArticleId);
             if (!bom.Any()) return;
             var absoluteQuantity = bom.ToList().Find(a => a.ArticleParentId == parentProductionOrder.ArticleId).Quantity * parentProductionOrder.Quantity;
@@ -476,23 +534,7 @@ namespace Master40.DB.Data.Context
             Update(productionOrder);
             SaveChanges();
         }
-
-        public void CreateProductionOrderWorkSchedules(ProductionOrder productionOrder)
-        {
-            var abstractWorkSchedules = WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
-            foreach (var abstractWorkSchedule in abstractWorkSchedules)
-            {
-                //add specific workSchedule
-                var workSchedule = new ProductionOrderWorkSchedule();
-                abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
-                workSchedule.Duration *= (int)productionOrder.Quantity;
-                workSchedule.ProductionOrderId = productionOrder.Id;
-                workSchedule.MachineId = null;
-                ProductionOrderWorkSchedules.Add(workSchedule);
-                SaveChanges();
-            }
-        }
-
+        
         public void AssignPurchaseToDemandProvider(PurchasePart purchasePart, DemandProviderPurchasePart provider, int quantity)
         {
             provider.PurchasePartId = purchasePart.Id;
@@ -582,14 +624,14 @@ namespace Master40.DB.Data.Context
             return amountReserved;
         }
 
-        public DemandProductionOrderBom CreateDemandProductionOrderBom(ArticleBom articleBom, decimal quantity, IDemandToProvider requester)
+        public DemandProductionOrderBom CreateDemandProductionOrderBom(ArticleBom articleBom, decimal quantity)
         {
             var dpob = new DemandProductionOrderBom()
             {
                 Quantity = quantity,
                 ArticleId = articleBom.ArticleChildId,
                 State = State.Created,
-                DemandRequesterId = requester.Id,
+                DemandRequesterId = null,
                 DemandProvider = new List<DemandToProvider>()
             };
             Add(dpob);
@@ -597,13 +639,11 @@ namespace Master40.DB.Data.Context
             return dpob;
         }
 
-        public void AssignProductionOrderToDemandProvider(ProductionOrder productionOrder, DemandProviderProductionOrder provider, decimal amount)
+        public void AssignProductionOrderToDemandProvider(ProductionOrder productionOrder, DemandProviderProductionOrder provider)
         {
             if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<DemandProviderProductionOrder>();
             if (!productionOrder.DemandProviderProductionOrders.Contains(provider))
                 productionOrder.DemandProviderProductionOrders.Add(provider);
-            provider.ProductionOrderId = productionOrder.Id;
-            provider.Quantity = amount;
             Update(provider);
             SaveChanges();
         }
@@ -692,7 +732,7 @@ namespace Master40.DB.Data.Context
                                         .Include(a => a.ProductionOrderBoms)
                                         .Include(a => a.ProductionOrderWorkSchedule)
                                         .Single(a => a.Id == po.Id);
-                pows.AddRange(productionOrder.ProductionOrderWorkSchedule);
+                pows.AddRange(productionOrder.ProductionOrderWorkSchedule.Where(a => a.ProducingState == ProducingState.Created));
                 var childrenBoms = productionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == productionOrder.Id);
                 foreach (var childBom in childrenBoms)
                 {
@@ -705,7 +745,7 @@ namespace Master40.DB.Data.Context
         {
             var pows = new List<ProductionOrderWorkSchedule>();
             var productionOrder = ProductionOrders.Include(a => a.ProductionOrderBoms).Include(a => a.ProductionOrderWorkSchedule).Single(a => a.Id == po.Id);
-            pows.AddRange(productionOrder.ProductionOrderWorkSchedule);
+            pows.AddRange(productionOrder.ProductionOrderWorkSchedule.Where(a => a.ProducingState == ProducingState.Created));
             var childrenBoms = productionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == productionOrder.Id);
             foreach (var childBom in childrenBoms)
             {
@@ -714,45 +754,29 @@ namespace Master40.DB.Data.Context
             return pows;
         }
 
-        /// <summary>
-        /// copies am Article and his Childs to ProductionOrder
-        /// Creates Demand Provider for Production oder and DemandRequests for childs
-        /// </summary>
-        /// <returns></returns>
-        public ProductionOrder CopyArticleToProductionOrder(int articleId, decimal quantity)
+        public int GetDueTimeByOrder(DemandToProvider demand)
         {
-            var article = Articles.Include(a => a.ArticleBoms).ThenInclude(c => c.ArticleChild).Single(a => a.Id == articleId);
-            var mainProductionOrder = new ProductionOrder
-            {
-                ArticleId = article.Id,
-                Name = "Prod. Auftrag: " + article.Name,
-                Quantity = quantity,
-            };
-            ProductionOrders.Add(mainProductionOrder);
-
-            foreach (var item in article.ArticleBoms)
-            {
-                var prodOrder = new ProductionOrder
-                {
-                    ArticleId = item.ArticleChildId,
-                    Name = "Prod. Auftrag: " + article.Name,
-                    Quantity = quantity * item.Quantity,
-                };
-                ProductionOrders.Add(prodOrder);
-
-                var prodOrderBom = new ProductionOrderBom
-                {
-                    Quantity = quantity * item.Quantity,
-                    ProductionOrderParentId = mainProductionOrder.Id,
-                    ProductionOrderChildId = prodOrder.Id
-                };
-                ProductionOrderBoms.Add(prodOrderBom);
-            }
-            SaveChanges();
-
-            return mainProductionOrder;
+            if (demand.GetType() == typeof(DemandOrderPart)) return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
+            if (demand.GetType() == typeof(DemandStock)) return 999999;
+            return 99999999;
         }
 
+        public void CreateProductionOrderWorkSchedules(ProductionOrder productionOrder)
+        {
+            var abstractWorkSchedules = WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
+            foreach (var abstractWorkSchedule in abstractWorkSchedules)
+            {
+                //add specific workSchedule
+                var workSchedule = new ProductionOrderWorkSchedule();
+                abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
+                workSchedule.ProductionOrderId = productionOrder.Id;
+                workSchedule.MachineId = null;
+                workSchedule.ProducingState = ProducingState.Created;
+                workSchedule.Duration *= (int)productionOrder.Quantity;
+                ProductionOrderWorkSchedules.Add(workSchedule);
+                SaveChanges();
+            }
+        }
 
     }
 }

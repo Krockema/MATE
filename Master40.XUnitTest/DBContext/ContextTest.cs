@@ -96,7 +96,7 @@ namespace Master40.XUnitTest.DBContext
             var simulation = new Simulator(_productionDomainContext,msgHub);
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
-            await simulation.Simulate();
+            //await simulation.Simulate();
 
             Assert.Equal(true, _productionDomainContext.ProductionOrderWorkSchedules.Any());
         }

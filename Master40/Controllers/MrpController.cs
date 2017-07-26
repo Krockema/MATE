@@ -29,7 +29,8 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpProcessing()
         {
             //call to process MRP I and II
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
+            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
+            await _simulator.InitializeMrp(MrpTask.All);
 
             await Task.Yield();
 
@@ -40,8 +41,9 @@ namespace Master40.Controllers
         public void MrpProcessingAjax()
         {
             // var jobId = 
-            BackgroundJob.Enqueue<IProcessMrp>(x =>
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All)
+            BackgroundJob.Enqueue<ISimulator>(x =>
+                //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
+                _simulator.InitializeMrp(MrpTask.All)
             );
         }
 
@@ -50,7 +52,8 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpBackward()
         {
             //call to process MRP I and II
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
+            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
+            await _simulator.InitializeMrp(MrpTask.Backward);
 
             await Task.Yield();
 
@@ -60,7 +63,8 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MrpForward")]
         public async Task<IActionResult> MrpForward()
         {
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
+            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
+            await _simulator.InitializeMrp(MrpTask.Forward);
 
             await Task.Yield();
 
@@ -70,7 +74,8 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MrpGifflerThompson")]
         public async Task<IActionResult> MrpGifflerThompson()
         {
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
+            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
+            await _simulator.InitializeMrp(MrpTask.GifflerThompson);
 
             await Task.Yield();
 
@@ -80,7 +85,8 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/CapacityPlanning")]
         public async Task<IActionResult> CapacityPlanning()
         {
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
+            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
+            await _simulator.InitializeMrp(MrpTask.Capacity);
 
             await Task.Yield();
 

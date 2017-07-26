@@ -12,4 +12,12 @@
         Delivered,
         Purchased,
     }
+
+    public enum ProducingState
+    {
+        Created,
+        Waiting,
+        Producing,
+        Finished
+    }
 }

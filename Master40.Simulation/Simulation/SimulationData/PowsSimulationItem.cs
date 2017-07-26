@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.Simulation.Simulation.SimulationData;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,10 @@ namespace Master40.Simulation.Simulation
         
         public Task<bool> DoAtStart()
         {
+            var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId);
+            pows.ProducingState = ProducingState.Producing;
+            _context.ProductionOrderWorkSchedules.Update(pows);
+            _context.SaveChanges();
             var pobs = _context.ProductionOrderBoms.Include(a => a.ProductionOrderChild).Where(a => a.ProductionOrderParentId == ProductionOrderId);
             foreach (var pob in pobs)
             {
@@ -44,13 +49,16 @@ namespace Master40.Simulation.Simulation
         
         public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
         {
+            var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId);
+            pows.ProducingState = ProducingState.Finished;
+            _context.ProductionOrderWorkSchedules.Update(pows);
+            _context.SaveChanges();
             listMachineStatus.Single(b => b.MachineId == _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId).MachineId).Free = true;
-            var pows = _context.ProductionOrderWorkSchedules.Include(a => a.ProductionOrder).Where(a => a.ProductionOrderId == ProductionOrderId);
-            if (pows.Single(a => a.Id == ProductionOrderWorkScheduleId).HierarchyNumber !=
-                pows.Max(a => a.HierarchyNumber)) return null;
+            var powslist = _context.ProductionOrderWorkSchedules.Include(a => a.ProductionOrder).Where(a => a.ProductionOrderId == ProductionOrderId);
+            if (powslist.Single(a => a.Id == ProductionOrderWorkScheduleId).HierarchyNumber !=
+                powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
             _context.Stocks.Single(a => a.ArticleForeignKey == articleId).Current++;
-
             return null;
         }
     }
