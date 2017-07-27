@@ -11,6 +11,7 @@ namespace Master40.Agents.Agents
     {
         private Agent _system;
         private RequestItem RequestItem { get; set; }
+        private int quantityToProduce { get; set; }
 
         /// <summary>
         /// First  ask Store for Item and wait for Response
@@ -61,7 +62,6 @@ namespace Master40.Agents.Agents
 
         private void ResponseFromStock(InstructionSet instructionSet)
         {
-            var quantityToProduce = 0;
             if(instructionSet.ObjectToProcess != null)
             {
                 quantityToProduce = RequestItem.Quantity - (int) instructionSet.ObjectToProcess;
@@ -90,8 +90,14 @@ namespace Master40.Agents.Agents
                 throw new InvalidCastException(this.Name + " failed to Cast ProductionOrder on Instruction.ObjectToProcess");
             }
 
-            ChildAgents.Add(new ProductionAgent(creator: 
-                this, name: "Production(" + RequestItem.Article.Name + ")", debug: DebugThis, productionOrder: productionOrders));
+            for (int i = 0; i < quantityToProduce; i++)
+            {
+                ChildAgents.Add(new ProductionAgent(creator: this, 
+                                                       name: "Production(" + RequestItem.Article.Name + ")", 
+                                                      debug: DebugThis, 
+                                            productionOrder: productionOrders));
+            }
+
 
             //CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
             //                      objectToProcess: RequestItem,

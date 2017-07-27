@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Helper;
@@ -48,7 +50,8 @@ namespace Master40.Agents.Agents
             {
                 DueTime = orderPart.Order.DueTime,
                 Quantity = orderPart.Quantity,
-                Article = orderPart.Article
+                Article = orderPart.Article,
+                IDemandToProvider = orderPart.DemandOrderParts.FirstOrDefault()
             };
             return requestItem;
         }

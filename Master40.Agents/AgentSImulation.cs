@@ -43,6 +43,8 @@ namespace Master40.Agents
 
 
 
+
+
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", true);
             system.ChildAgents.Add(directoryAgent);
@@ -66,25 +68,8 @@ namespace Master40.Agents
                                                    stockElement: stock ));
             }
 
-            // Create Contract agents, has to be done by system, during the simulation
-            foreach (var contract in _productionDomainContext.OrderParts.Include(x => x.Order).Include(x => x.Article))
-            {
-                var ca = new ContractAgent(creator: system, 
-                                             name: contract.Order.Name + " - Part:" + contract.Article.Name, 
-                                            debug: true);
-
-                // enqueue Order
-                ca.InstructionQueue.Enqueue(new InstructionSet
-                {
-                   MethodName = ContractAgent.InstuctionsMethods.StartOrder.ToString(),
-                   ObjectToProcess = contract,
-                   ObjectType = typeof(RequestItem),
-                   SourceAgent = system // maybe Later System
-                });
-
-                // add To System
-                system.ChildAgents.Add(ca);
-            }
+            system.PrepareAgents();
+            
             
             // Return System Agent to Context
             return system;

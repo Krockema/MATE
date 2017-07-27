@@ -6,7 +6,11 @@ namespace Master40.Agents.Agents
 {
     public class ProductionAgent : Agent
     {
-        
-        public ProductionAgent(Agent creator, string name, bool debug, ProductionOrder productionOrder) : base(creator, name , debug) { }
+
+        public ProductionAgent(Agent creator, string name, bool debug, ProductionOrder productionOrder) 
+            : base(creator, name, debug)
+        {
+            
+        }
     }
 }

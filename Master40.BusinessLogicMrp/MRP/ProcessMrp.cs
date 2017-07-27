@@ -87,7 +87,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 demand = demandOrderParts.First();
             else
             {
-                demand = CreateDemandOrderPart(orderPart);
+                demand = _context.CreateDemandOrderPart(orderPart);
                 _context.SaveChanges();
             }
             return demand;
@@ -245,24 +245,6 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
             }
         }
-
-        private IDemandToProvider CreateDemandOrderPart(OrderPart orderPart)
-        {
-            var demand = new DemandOrderPart()
-            {
-                OrderPartId = orderPart.Id,
-                Quantity = orderPart.Quantity,
-                Article = orderPart.Article,
-                ArticleId = orderPart.ArticleId,
-                OrderPart = orderPart,
-                DemandProvider = new List<DemandToProvider>(),
-                State = State.Created
-            };
-            _context.Demands.Add(demand);
-            _context.SaveChanges();
-            return demand;
-        }
-        
     }
 
     public enum MrpTask

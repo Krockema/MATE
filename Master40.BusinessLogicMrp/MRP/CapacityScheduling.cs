@@ -632,7 +632,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     a.ProductionOrderChild.ArticleId == childBom.ArticleChildId &&
                     a.ProductionOrderParentId == po.Id).Sum(b => b.Quantity);
                 if (neededAmount == existingAmount) continue;
-                var demandBom = _context.CreateDemandProductionOrderBom(childBom, neededAmount - existingAmount);
+                var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount - existingAmount);
                 
                 SatisfyRequest(demandBom, po);
             }

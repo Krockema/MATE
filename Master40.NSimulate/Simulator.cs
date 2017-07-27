@@ -48,15 +48,14 @@ namespace NSimulate
                 {
                     var process = Context.ProcessesRemainingThisTimePeriod.Dequeue();
 
-                    if (process.SimulationState.IsActive)
-                    {
-                        if (process.SimulationState.InstructionEnumerator == null)
-                        {
-                            process.SimulationState.InstructionEnumerator = process.Simulate();
-                        }
+                    if (!process.SimulationState.IsActive) continue;
 
-                        SimulateProcessAtTimePeriod(process, ref nextTimePeriod);
+                    if (process.SimulationState.InstructionEnumerator == null)
+                    {
+                        process.SimulationState.InstructionEnumerator = process.Simulate();
                     }
+
+                    SimulateProcessAtTimePeriod(process, ref nextTimePeriod);
                 }
 
                 if (nextTimePeriod != null && !Context.IsSimulationTerminating)
