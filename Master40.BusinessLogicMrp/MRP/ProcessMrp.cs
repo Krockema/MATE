@@ -94,7 +94,7 @@ namespace Master40.BusinessLogicCentral.MRP
         }
 
         /// <summary>
-        /// Plans capacities for all demands which are either already planned or just finished with MRP. Timer != 0 is used in a Simulation.
+        /// Plans capacities for all demands which are either already planned or just finished with MRP.
         /// </summary>
         /// <param name="task"></param>
         public void PlanCapacities(MrpTask task)
@@ -170,7 +170,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             if (demand.State == State.Created)
             {
-                ExecutePlanning(demand, null, task);
+                ExecutePlanning(demand, task);
                 demand.State = State.ProviderExist;
                 _context.Update(demand);
                 _context.SaveChanges();
@@ -205,10 +205,10 @@ namespace Master40.BusinessLogicCentral.MRP
             return demand.GetType() == typeof(DemandStock) || _context.GetProductionOrderWorkSchedules(demand).Any(a => a.StartBackward < 0);
         }
 
-        private void ExecutePlanning(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task)
+        private void ExecutePlanning(IDemandToProvider demand, MrpTask task)
         {
             //creates Provider for the needs
-            var productionOrders = _demandForecast.NetRequirement(demand, parentProductionOrder, task);
+            var productionOrders = _demandForecast.NetRequirement(demand, task);
             demand.State = State.ProviderExist;
             
             //If there was enough in stock this does not have to be produced
@@ -225,11 +225,20 @@ namespace Master40.BusinessLogicCentral.MRP
                                     .ThenInclude(a => a.ArticleBoms)
                                     .Where(a => a.ArticleParentId == productionOrder.ArticleId)
                                     .ToList();
-
+                
                 if (!children.Any()) return;
                 foreach (var child in children)
                 {
-                    //call this method recursively for a depth-first search
+                    //create Production-BOM
+                    var pob = new ProductionOrderBom()
+                    {
+                        ProductionOrderParentId = productionOrder.Id,
+                        Quantity = child.Quantity * productionOrder.Quantity
+                    };
+                    _context.ProductionOrderBoms.Add(pob);
+                    _context.SaveChanges();
+
+                    //create Requester
                     var dpob = new DemandProductionOrderBom
                     {
                         ArticleId = child.ArticleChildId,
@@ -238,10 +247,12 @@ namespace Master40.BusinessLogicCentral.MRP
                         DemandProvider = new List<DemandToProvider>(),
                         State = State.Created,
                         DemandRequesterId = null,
+                        ProductionOrderBomId = pob.Id
                     };
                     _context.Add(dpob);
                     _context.SaveChanges();
-                    ExecutePlanning(dpob, productionOrder, task);
+                    //call this method recursively for a depth-first search
+                    ExecutePlanning(dpob, task);
                 }
             }
         }

@@ -78,9 +78,9 @@ namespace Master40.DB.Data.Context
         }
 
 
-        public async Task<ProductionOrder> GetProductionOrderBomRecursive(ProductionOrder prodOrder, int productionOrderId)
+        public async Task<ProductionOrder> GetProductionOrderBomRecursive(ProductionOrder prodOrder, int? productionOrderId)
         {
-
+            if (productionOrderId == null) return null;
             prodOrder.ProdProductionOrderBomChilds = ProductionOrderBoms
                                                             .Include(a => a.ProductionOrderChild)
                                                             .ThenInclude(w => w.ProductionOrderWorkSchedule)
@@ -194,7 +194,7 @@ namespace Master40.DB.Data.Context
         /// </summary>
         /// <param name="stock"></param>
         /// <param name="demand"></param>
-        public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
+        /*public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
         {
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);
@@ -213,33 +213,38 @@ namespace Master40.DB.Data.Context
             };
             Demands.Add(demandProviderStock);
             SaveChanges();
-        }
+        }*/
 
-        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, ProductionOrder parentProductionOrder, decimal amount)
+        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount)
         {
+            ProductionOrderBom bom = null;
+            if (demand.GetType() == typeof(DemandProductionOrderBom))
+            {
+                bom = ProductionOrderBoms.FirstOrDefault(a => a.Id == ((DemandProductionOrderBom) demand).ProductionOrderBomId);
+            }
+            
             var lotsize = SimulationConfigurations.Last().Lotsize;
             var productionOrders = new List<ProductionOrder>();
             decimal bomQuantity;
-            if (parentProductionOrder != null)
+            if (bom != null)
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a => a.ArticleChildId == demand.ArticleId &&
-                    a.ArticleParentId == parentProductionOrder.ArticleId).Quantity * lotsize;
+                    a.ArticleParentId == bom.ProductionOrderParent.ArticleId).Quantity * lotsize;
             else 
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a =>a.ArticleChildId == demand.ArticleId && 
                     a.ArticleParentId == null).Quantity * lotsize;
             while (amount > 0 || bomQuantity > 0)
             {
-                var productionOrder = CreateProductionOrder(demand,parentProductionOrder?.Duetime ?? GetDueTime(demand));
+                var productionOrder = CreateProductionOrder(demand,GetDueTime(demand));
                 if (amount > 0)
                 {
                     var demandProviderProductionOrder = CreateDemandProviderProductionOrder(demand, productionOrder,
                         amount > lotsize ? lotsize : amount);
 
                     //if the article has a parent create a relationship
-                    if (parentProductionOrder != null)
+                    if (bom != null)
                     {
                         demandProviderProductionOrder.DemandRequesterId = demand.Id;
                         Demands.Update(demandProviderProductionOrder);
-                        TryCreateProductionOrderBoms(demand, productionOrder, parentProductionOrder);
                     }
                 }
                 SaveChanges();
@@ -460,20 +465,6 @@ namespace Master40.DB.Data.Context
             if (demand.GetType() == typeof(DemandProductionOrderBom))
                 AssignDemandProviderToProductionOrderBom((DemandProductionOrderBom)demand, pob);
         }
-
-
-        // Was das ? 
-        // ////////////////////////////////////////////////////////
-
-        public void AssignProductionOrderWorkSchedulesToProductionOrder(ProductionOrder productionOrder)
-        {
-            foreach (var pows in ProductionOrderWorkSchedules.Where(a => a.ProductionOrderId == productionOrder.Id))
-            {
-                productionOrder.ProductionOrderWorkSchedule.Add(pows);
-            }
-            Update(productionOrder);
-            SaveChanges();
-        }
         
         public void AssignPurchaseToDemandProvider(PurchasePart purchasePart, DemandProviderPurchasePart provider, int quantity)
         {
@@ -513,6 +504,7 @@ namespace Master40.DB.Data.Context
 
         public int GetAvailableAmountFromProductionOrder(ProductionOrder productionOrder)
         {
+            if (productionOrder.DemandProviderProductionOrders == null) return (int) productionOrder.Quantity;
             return (int)productionOrder.Quantity - productionOrder.DemandProviderProductionOrders.Sum(provider => (int)provider.Quantity);
         }
 
@@ -674,6 +666,7 @@ namespace Master40.DB.Data.Context
                 var childrenBoms = productionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == productionOrder.Id);
                 foreach (var childBom in childrenBoms)
                 {
+                    if (childBom.ProductionOrderChildId == null) continue;
                     pows.AddRange(GetProductionOrderWorkSchedules(childBom.ProductionOrderChild));
                 }
             }
@@ -687,6 +680,7 @@ namespace Master40.DB.Data.Context
             var childrenBoms = productionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == productionOrder.Id);
             foreach (var childBom in childrenBoms)
             {
+                if (childBom.ProductionOrderChildId == null) continue;
                 pows.AddRange(GetProductionOrderWorkSchedules(childBom.ProductionOrderChild));
             }
             return pows;
@@ -796,6 +790,5 @@ namespace Master40.DB.Data.Context
             SaveChanges();
             return demand;
         }
-
     }
 }

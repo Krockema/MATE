@@ -10,7 +10,7 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IDemandForecast
     {
-        List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task);
+        List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task);
     }
 
 
@@ -29,17 +29,15 @@ namespace Master40.BusinessLogicCentral.MRP
         /// Creates providers for the demands through stock, productionOrders or purchases
         /// </summary>
         /// <param name="demand"></param>
-        /// <param name="parentProductionOrder"></param>
         /// <param name="task"></param>
-        /// <param name="timer"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
-        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, ProductionOrder parentProductionOrder, MrpTask task)
+        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task)
         {
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = _context.GetPlannedStock(stock,demand);
             var productionOrders = new List<ProductionOrder>();
-            _context.TryCreateStockReservation(stock, demand);
+            _context.TryCreateStockReservation(demand);
             //if the plannedStock is below zero, articles have to be produced for its negative amount 
             if (plannedStock < 0)
             {
@@ -65,7 +63,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     }
                     if (amount > 0)
                     {
-                        var pos = _context.CreateChildProductionOrders(demand, parentProductionOrder, amount);
+                        var pos = _context.CreateChildProductionOrders(demand, amount);
                         productionOrders.AddRange(pos);
                     }
 
