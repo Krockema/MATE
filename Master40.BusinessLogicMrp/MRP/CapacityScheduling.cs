@@ -552,7 +552,7 @@ namespace Master40.BusinessLogicCentral.MRP
             }
             if (amount == 0) return;
             //find matching productionOrders
-            var possibleMatchingProductionOrders = _context.ProductionOrders.Where(a => a.ArticleId == demand.ArticleId).ToList();
+            var possibleMatchingProductionOrders = _context.ProductionOrders.Where(a => a.ArticleId == demand.ArticleId && a.ProductionOrderWorkSchedule.Any(b => b.ProducingState!= ProducingState.Finished)).ToList();
             
             while (amount > 0 && possibleMatchingProductionOrders.Any())
             {
@@ -598,7 +598,6 @@ namespace Master40.BusinessLogicCentral.MRP
                     var productionOrder = _context.CreateProductionOrder(demand, parentProductionOrder?.Duetime ?? _context.GetDueTime(demand));
                     if (parentProductionOrder != null) _context.TryCreateProductionOrderBoms(demand, productionOrder, parentProductionOrder);
                     _context.CreateProductionOrderWorkSchedules(productionOrder);
-                    _context.AssignProductionOrderWorkSchedulesToProductionOrder(productionOrder);
                     var provider = _context.CreateProviderProductionOrder(demand, productionOrder, amount);
                     _context.AssignProviderToDemand(demand, provider);
                     _context.AssignProductionOrderToDemandProvider(productionOrder, provider);
@@ -627,13 +626,17 @@ namespace Master40.BusinessLogicCentral.MRP
             var childrenArticleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == po.ArticleId).ToList();
             foreach (var childBom in childrenArticleBoms)
             {
-                var neededAmount = childBom.Quantity * po.Quantity;
-                var existingAmount = _context.ProductionOrderBoms.Where(a =>
+                //check for the existence of a DemandProductionOrderBom
+                if (_context.ProductionOrderBoms.Where(a =>
                     a.ProductionOrderChild.ArticleId == childBom.ArticleChildId &&
-                    a.ProductionOrderParentId == po.Id).Sum(b => b.Quantity);
-                if (neededAmount == existingAmount) continue;
-                var demandBom = _context.CreateDemandProductionOrderBom(childBom, neededAmount - existingAmount);
-                
+                    a.ProductionOrderParentId == po.Id) != null) continue;
+
+                if (po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Producing)
+                    || po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Finished)) continue;
+
+                var neededAmount = childBom.Quantity * po.Quantity;
+                var demandBom = _context.CreateDemandProductionOrderBom(childBom, neededAmount);
+
                 SatisfyRequest(demandBom, po);
             }
         }

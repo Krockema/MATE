@@ -13,7 +13,7 @@ namespace Master40.Simulation.Simulation
 {
     public class PowsSimulationItem : ISimulationItem
     {
-        public PowsSimulationItem(int productionOrderWorkScheduleId,int productionOrderId, int start, int end, MasterDBContext context)
+        public PowsSimulationItem(int productionOrderWorkScheduleId,int productionOrderId, int start, int end, ProductionDomainContext context)
         {
             SimulationState = SimulationState.Waiting;
             ProductionOrderWorkScheduleId = productionOrderWorkScheduleId;
@@ -24,7 +24,7 @@ namespace Master40.Simulation.Simulation
             _context = context;
         }
 
-        private MasterDBContext _context;
+        private ProductionDomainContext _context;
         public int Start { get; set; }
         public int End { get; set; }
         public int ProductionOrderWorkScheduleId { get; set; }
@@ -41,8 +41,7 @@ namespace Master40.Simulation.Simulation
             var pobs = _context.ProductionOrderBoms.Include(a => a.ProductionOrderChild).Where(a => a.ProductionOrderParentId == ProductionOrderId);
             foreach (var pob in pobs)
             {
-                if (!_context.ProductionOrderBoms.Any(a => a.ProductionOrderParentId == pob.ProductionOrderChildId))
-                    _context.Stocks.Single(a => a.ArticleForeignKey == pob.ProductionOrderChild.ArticleId).Current-= pob.Quantity;
+                _context.Stocks.Single(a => a.ArticleForeignKey == pob.ProductionOrderChild.ArticleId).Current-= pob.Quantity;
             }
             return null;
         }
@@ -58,7 +57,8 @@ namespace Master40.Simulation.Simulation
             if (powslist.Single(a => a.Id == ProductionOrderWorkScheduleId).HierarchyNumber !=
                 powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
-            _context.Stocks.Single(a => a.ArticleForeignKey == articleId).Current++;
+            _context.Stocks.Single(a => a.ArticleForeignKey == articleId).Current+= _context.SimulationConfigurations.Last().Lotsize;
+            
             return null;
         }
     }

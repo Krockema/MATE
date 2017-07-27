@@ -5,10 +5,10 @@ namespace Master40.DB.Models
 {
     public class ProductionOrderBom : BaseEntity
     {
-        public int? ProductionOrderParentId { get; set; }
+        public int ProductionOrderParentId { get; set; }
         [JsonIgnore]
         public ProductionOrder ProductionOrderParent { get; set; }
-        public int ProductionOrderChildId { get; set; }
+        public int? ProductionOrderChildId { get; set; }
         [JsonIgnore]
         public ProductionOrder ProductionOrderChild { get; set; }
         [JsonIgnore]
