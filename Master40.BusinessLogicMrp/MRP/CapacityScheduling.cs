@@ -416,7 +416,7 @@ namespace Master40.BusinessLogicCentral.MRP
             ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
             var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParent.Id == productionOrderWorkSchedule.ProductionOrderId).ToList();
-            return !boms.Any() ? null : boms.Select(bom => bom.ProductionOrderChild.ProductionOrderWorkSchedule.Single(a => a.HierarchyNumber == bom.ProductionOrderChild.ProductionOrderWorkSchedule.Max(b => b.HierarchyNumber))).ToList();
+            return !boms.Any() ? null : boms.Where(bom => bom.ProductionOrderChildId != null).Select(bom => bom.ProductionOrderChild.ProductionOrderWorkSchedule.Single(a => a.HierarchyNumber == bom.ProductionOrderChild.ProductionOrderWorkSchedule.Max(b => b.HierarchyNumber))).ToList();
         }
 
         private List<ProductionOrderWorkSchedule> GetLatestBomChilds(ProductionOrderWorkSchedule productionOrderWorkSchedule)

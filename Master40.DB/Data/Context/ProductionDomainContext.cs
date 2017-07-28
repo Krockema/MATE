@@ -280,7 +280,7 @@ namespace Master40.DB.Data.Context
                 Quantity = SimulationConfigurations.Last().Lotsize,
                 Duetime = duetime
             };
-
+            
             ProductionOrders.Add(productionOrder);
             SaveChanges();
             return productionOrder;

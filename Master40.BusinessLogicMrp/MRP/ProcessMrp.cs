@@ -233,7 +233,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     var pob = new ProductionOrderBom()
                     {
                         ProductionOrderParentId = productionOrder.Id,
-                        Quantity = child.Quantity * productionOrder.Quantity
+                        Quantity = productionOrder.Quantity
                     };
                     _context.ProductionOrderBoms.Add(pob);
                     _context.SaveChanges();
