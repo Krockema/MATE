@@ -37,7 +37,7 @@ namespace Master40.XUnitTest.DBContext
         public ContextTest()
         {
             _ctx.Database.EnsureDeleted();
-            MasterDBInitializerMedium.DbInitialize(_ctx);
+            MasterDBInitializerLarge.DbInitialize(_ctx);
         }
 
         /// <summary>

@@ -38,11 +38,22 @@ namespace Master40.Agents.Agents
                 throw new InvalidCastException("Cast to Request Item Failed");
 
             // try to make Reservation
-            var numberOfReservedItems =  TryToMakeReservationFor(request: request);
+
+            var stockReservation = TryToMakeReservationFor(request);
+
+
+            // Buy if Purchase is True
+            if (request.Article.ToPurchase)
+            {
+                //TODO: Create Purchase maybe with activity 
+                // currently just say its in stock.
+                stockReservation.IsInStock = true;
+                stockReservation.Quantity = request.Quantity;
+            }
             
             // Create Callback
             CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromStock.ToString(),
-                                  objectToProcess: numberOfReservedItems, // may needs later a more complex answer for now just remove item from stock
+                                  objectToProcess: stockReservation, // may needs later a more complex answer for now just remove item from stock
                                       targetAgent: instructionSet.SourceAgent); // its Source Agent becaus this message is the Answer to the Instruction set.
                                      
         }
@@ -53,15 +64,22 @@ namespace Master40.Agents.Agents
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        private int TryToMakeReservationFor(RequestItem request)
+        private StockReservation TryToMakeReservationFor(RequestItem request)
         {
+
+            StockReservation stockReservation = new StockReservation { DueTime = request.DueTime, };
+
+            // Element is NOT in Stock
             if ((StockElement.Current - StockElement.StockExchanges
-                                                    .Where(x => x.RequiredOnTime <= Context.TimePeriod)
+                                                    .Where(x => x.RequiredOnTime <= request.DueTime)
                                                     .Sum(x => x.Quantity) - request.Quantity) < 0)
-            { 
-                return 0;
+            {
+                stockReservation.IsInStock = false;
+                stockReservation.Quantity = 0;
+                return stockReservation;
             }
 
+            // else Create Reservation
             StockElement.StockExchanges.Add(
             new StockExchange
                 {
@@ -71,8 +89,11 @@ namespace Master40.Agents.Agents
                     RequiredOnTime = request.DueTime,
                 }
             );
+            stockReservation.IsInStock = true;
+            stockReservation.Quantity = request.Quantity;
 
-            return request.Quantity;
+
+            return stockReservation;
         }
 
         

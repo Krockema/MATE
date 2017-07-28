@@ -10,17 +10,17 @@ namespace Master40.Agents.Agents
         // Agent to register your Services
         private readonly DirectoryAgent _directoryAgent;
         private ComunicationAgent _comunicationAgent;
-        private Machine _machineType { get; set; }
+        private Machine _machine { get; }
 
         public enum InstuctionsMethods
         {
             SetComunicationAgent
         }
 
-        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machineType) : base(creator, name, debug)
+        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine) : base(creator, name, debug)
         {
             _directoryAgent = directoryAgent;
-            _machineType = machineType;
+            _machine = machine;
             RegisterService();
         }
 
@@ -33,7 +33,7 @@ namespace Master40.Agents.Agents
             _directoryAgent.InstructionQueue.Enqueue(new InstructionSet
             {
                 MethodName = DirectoryAgent.InstuctionsMethods.GetOrCreateComunicationAgentForType.ToString(),
-                ObjectToProcess = this._machineType,
+                ObjectToProcess = this._machine.MachineGroup.Name,
                 ObjectType = typeof(string),
                 SourceAgent = this
             });

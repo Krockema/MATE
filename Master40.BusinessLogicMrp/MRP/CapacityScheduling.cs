@@ -635,7 +635,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     || po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Finished)) continue;
 
                 var neededAmount = childBom.Quantity * po.Quantity;
-                var demandBom = _context.CreateDemandProductionOrderBom(childBom, neededAmount);
+                var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount);
 
                 SatisfyRequest(demandBom, po);
             }

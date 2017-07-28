@@ -37,6 +37,9 @@ namespace Master40.DB.Models
         public virtual ICollection<DemandToProvider> DemandToProviders { get; set; }
         [JsonIgnore]
         public virtual ICollection<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set;}
+        public bool ToPurchase { get; set; }
+        public bool ToBuild { get; set; }
+
 
     }
 }

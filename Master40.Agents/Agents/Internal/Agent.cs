@@ -10,6 +10,13 @@ namespace Master40.Agents.Agents.Internal
 {
     public abstract class Agent : Process
     {
+        // Agent Statistics
+        public static List<String> AgentCounter = new List<string>();
+        public static int InstructionCounter = 0;
+        public static List<AgentStatistic> AgentStatistics = new List<AgentStatistic>();
+        private Stopwatch _stopwatch = new Stopwatch();
+
+        // Agent Properties.
         public Guid AgentId { get; }
         internal Agent Creator { get; set; }
         internal List<Agent> ChildAgents { get; set; }
@@ -21,6 +28,7 @@ namespace Master40.Agents.Agents.Internal
         protected Agent(Agent creator, string name, bool debug)
         {
             AgentId = Guid.NewGuid();
+            AgentCounter.Add(this.GetType().Name);
             this.Name = name;
             this.DebugThis = debug;
             this.InstructionQueue = new Queue<InstructionSet>();
@@ -43,21 +51,35 @@ namespace Master40.Agents.Agents.Internal
                 // Wait for Instructions
                 if (InstructionQueue.Count == 0)
                 {
+                    TimerStop();
                     yield return new WaitConditionInstruction(() => InstructionQueue.Count > 0);
                 }
-
+                // Statistic
+                InstructionCounter++;
+                TimerStart();
                 // If there are Instructions
                 var doTask = InstructionQueue.Dequeue();
                 // Proceed with each one by one - Methods to call MUST be implemented by the Derived Agent itself
                 var method = this.GetType().GetMethod(doTask.MethodName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (method == null)
                 {
-                    throw new NotImplementedException();
+                    throw new NotImplementedException(Name  + "| Source:" + doTask.SourceAgent + "| Method Name: " + doTask.MethodName);
                 }
 
                 // call Method.
                 var invokeReturn = method.Invoke(this, new object[] { doTask }) ;
             }
+        }
+
+        private void TimerStop()
+        {
+            _stopwatch.Stop();
+            AgentStatistics.Add(new AgentStatistic {Agent = this.GetType().Name, ProcessingTime = _stopwatch.ElapsedMilliseconds});
+        }
+
+        private void TimerStart()
+        {
+            _stopwatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -91,6 +113,7 @@ namespace Master40.Agents.Agents.Internal
 
             // if All finished Clear Resource
             ChildAgents.Clear();
+            Status = Status.Ready;
 
             // if this agent is also Finished tell the Parrent.
             if (Status == Status.Finished)

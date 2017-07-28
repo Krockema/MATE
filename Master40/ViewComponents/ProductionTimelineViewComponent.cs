@@ -75,7 +75,7 @@ namespace Master40.ViewComponents
                 var demands = _context.Demands.OfType<DemandOrderPart>()
                     .Include(x => x.OrderPart)
                     .Include(x => x.DemandProvider)
-                    .Where(o => o.OrderPart.OrderId == 1)
+                    .Where(o => o.OrderPart.OrderId == orderPart)
                     .ToList();
 
                 var pows = new List<ProductionOrderWorkSchedule>();

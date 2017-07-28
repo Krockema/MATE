@@ -32,14 +32,17 @@ namespace Master40.Agents.Agents
                                                              name: "Comunication ->" + objects.ObjectToProcess, 
                                                             debug: this.DebugThis, 
                                                      contractType: objects.ObjectToProcess.ToString());
+
                 // add Agent Reference.
                 ChildAgents.Add(comunicationAgent);
             }
 
             // Tell the Machine the corrosponding Comunication Agent.
-            CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.SetComunicationAgent.ToString(),
+            CreateAndEnqueueInstuction(methodName: "SetComunicationAgent",
                                   objectToProcess: comunicationAgent,
                                       targetAgent: objects.SourceAgent);
         }
+
+
     }
 }

@@ -6,6 +6,7 @@ using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 
 namespace Master40.Agents.Agents
 {
@@ -20,7 +21,7 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             CreateContractAgent,
-            RequestProductionOrder,
+            RequestArticleBom,
         }
         //TODO: System Talk.
 
@@ -41,7 +42,7 @@ namespace Master40.Agents.Agents
             CreateAgents(requestItem);
         }
 
-        private void RequestProductionOrder(InstructionSet instructionSet)
+        private void RequestArticleBom(InstructionSet instructionSet)
         {
             //  Check 0 ref
             var requestItem = instructionSet.ObjectToProcess as RequestItem;
@@ -51,17 +52,18 @@ namespace Master40.Agents.Agents
             }
 
             // debug
-            DebugMessage(" Request BOM for Production Order" + requestItem.Article.Name);
+            DebugMessage(" Request details for article: " + requestItem.Article.Name);
 
             // get BOM from Context
-            var productionOrder =
-                _productionDomainContext.CopyArticleToProductionOrder(requestItem.Article.Id
-                                                                    , requestItem.Quantity
-                                                                    , requestItem.IDemandToProvider.Id);
-
+            var article = _productionDomainContext.Articles
+                                                    .Include(x => x.WorkSchedules)
+                                                        .ThenInclude(x => x.MachineGroup)
+                                                    .Include(x => x.ArticleBoms)
+                                                        .ThenInclude(x => x.ArticleChild)
+                                                    .SingleOrDefault(x => x.Id == requestItem.Article.Id);
             // calback with po.bom
-            CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromSystemForBOM.ToString(),
-                                  objectToProcess: productionOrder,
+            CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromSystemForBom.ToString(),
+                                  objectToProcess: article,
                                       targetAgent: instructionSet.SourceAgent);
 
         }
