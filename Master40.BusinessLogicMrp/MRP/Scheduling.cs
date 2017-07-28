@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,19 +29,15 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <param name="demand"></param>
         public void BackwardScheduling(IDemandToProvider demand)
         {
-            var productionOrderWorkSchedules = _context.GetProductionOrderWorkSchedules(demand);
+            var productionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>();
+            _context.GetWorkSchedulesFromDemand(demand, ref productionOrderWorkSchedules);
             productionOrderWorkSchedules = productionOrderWorkSchedules.OrderBy(a => a.ProductionOrderId).ThenByDescending(b => b.HierarchyNumber).ToList();
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 //Set hierarchy to something high that every workSchedule found will overwrite this value
-                var hierarchy = 100000;
-                foreach (var schedule in workSchedule.ProductionOrder.ProductionOrderWorkSchedule)
-                {
-                    if (schedule.HierarchyNumber > workSchedule.HierarchyNumber && schedule.HierarchyNumber < hierarchy)
-                        hierarchy = schedule.HierarchyNumber;
-                }
+                var hierarchyParent = _context.GetHierarchyParent(workSchedule);
                 //if no hierarchy has been found
-                if (hierarchy == 100000)
+                if (hierarchyParent == null)
                 {
                     if (demand.State == State.ForwardScheduleExists) 
                         workSchedule.EndForward = SetBackwardTimeFromParent(workSchedule, demand.State);
@@ -54,12 +48,12 @@ namespace Master40.BusinessLogicCentral.MRP
                 {
                     if (demand.State == State.ForwardScheduleExists)
                         workSchedule.EndForward = _context.ProductionOrderWorkSchedules.Single(a =>
-                                (a.HierarchyNumber == hierarchy) &&
+                                (a.HierarchyNumber == hierarchyParent.HierarchyNumber) &&
                                 (a.ProductionOrderId == workSchedule.ProductionOrderId)).StartForward;
                     else
                     {
                         workSchedule.EndBackward = _context.ProductionOrderWorkSchedules.Single(a =>
-                                (a.HierarchyNumber == hierarchy) &&
+                                (a.HierarchyNumber == hierarchyParent.HierarchyNumber) &&
                                 (a.ProductionOrderId == workSchedule.ProductionOrderId)).StartBackward;
                     }
                 }
@@ -80,14 +74,14 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <param name="demand"></param>
         public void ForwardScheduling(IDemandToProvider demand)
         {
-            var productionOrderWorkSchedules = _context.GetProductionOrderWorkSchedules(demand);
+            var productionOrderWorkSchedules = new List<ProductionOrderWorkSchedule>();
+            _context.GetWorkSchedulesFromDemand(demand, ref productionOrderWorkSchedules);
             productionOrderWorkSchedules =
                 productionOrderWorkSchedules.OrderByDescending(a => a.ProductionOrderId).ThenBy(b => b.HierarchyNumber).ToList();
-            //productionOrderWorkSchedules.Reverse();
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
                 var hierarchy = -1;
-                foreach (var schedule in productionOrderWorkSchedules)
+                foreach (var schedule in workSchedule.ProductionOrder.ProductionOrderWorkSchedule)
                 {
                     if (schedule.HierarchyNumber < workSchedule.HierarchyNumber && schedule.HierarchyNumber > hierarchy)
                         hierarchy = schedule.HierarchyNumber;
@@ -154,35 +148,19 @@ namespace Master40.BusinessLogicCentral.MRP
        //find starttime from parent and set the endtime of the workschedule to it
         private int SetBackwardTimeFromParent(ProductionOrderWorkSchedule productionOrderWorkSchedule, State state)
         {
-            ProductionOrderBom parent = null;
-            
-            //search for parents
-            foreach (var pob in _context.ProductionOrderBoms
-                                    .Include(a => a.ProductionOrderParent)
-                                    .ThenInclude(b => b.ProductionOrderWorkSchedule)
-                                    .Where(a => a.ProductionOrderChildId == productionOrderWorkSchedule.ProductionOrderId))
-            {
-                if (pob.ProductionOrderParentId != productionOrderWorkSchedule.ProductionOrder.Id)
-                    parent = pob;
-            }
+            var parents = _context.GetBomParents(productionOrderWorkSchedule);
             int end;
-            end = state == State.ForwardScheduleExists ? productionOrderWorkSchedule.EndForward : productionOrderWorkSchedule.ProductionOrder.Duetime;
-            //GetEarliestDueTime(productionOrderWorkSchedule.ProductionOrder.DemandProviderProductionOrders);
-            if (parent == null) return end;
-            var parentStart = end;
-            foreach (var parentSchedule in parent.ProductionOrderParent.ProductionOrderWorkSchedule)
+            if (!parents.Any()) end = state == State.ForwardScheduleExists ? productionOrderWorkSchedule.EndForward : productionOrderWorkSchedule.ProductionOrder.Duetime;
+            else if (state != State.ForwardScheduleExists)
             {
-                if (state == State.ForwardScheduleExists)
-                {
-                    if (parentSchedule.StartForward < parentStart) parentStart = parentSchedule.StartForward;
-                }
-                else
-                {
-                    if (parentSchedule.StartBackward < parentStart) parentStart = parentSchedule.StartBackward;
-                }                       
+                end = parents.Min(a => a.StartBackward);
+                productionOrderWorkSchedule.EndBackward = end;
             }
-
-            end = parentStart;
+            else
+            {
+                end = parents.Min(a => a.StartForward);
+                productionOrderWorkSchedule.EndForward = end;
+            }
             return end;
         }
 
@@ -209,24 +187,14 @@ namespace Master40.BusinessLogicCentral.MRP
         //sets Starttime to the latest endtime of the children
         private int SetForwardTimeFromChild(ProductionOrderWorkSchedule workSchedule)
         {
-            var children = new List<ProductionOrderBom>();
-            foreach (var pob in _context.ProductionOrderBoms.Include(a => a.ProductionOrderChild).ThenInclude(a => a.ProductionOrderWorkSchedule).Where(a => a.ProductionOrderParentId == workSchedule.ProductionOrderId))
-            {
-                if (pob.ProductionOrderChildId != workSchedule.ProductionOrder.Id)
-                    children.Add(pob);
-            }
+            var pobs = workSchedule.ProductionOrder.ProductionOrderBoms;
+
+            var latestEnd = (from pob in pobs
+                             from provider in pob.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
+                             select provider.ProductionOrder.ProductionOrderWorkSchedule.Max(a => a.EndForward)
+                             ).Concat(new[] {0}).Max();
+            workSchedule.StartForward = latestEnd;
             
-            if (children.Any())
-            {
-                var childEnd = (from child in children
-                    from childSchedule in child.ProductionOrderChild.ProductionOrderWorkSchedule
-                    select childSchedule.EndForward).Concat(new[] {0}).Max();
-                workSchedule.StartForward = childEnd;
-            }
-            else
-            {
-                workSchedule.StartForward = 0;
-            }
             return workSchedule.StartForward;
         }
 

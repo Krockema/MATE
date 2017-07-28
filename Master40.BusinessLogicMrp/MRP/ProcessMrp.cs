@@ -202,7 +202,8 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private bool CheckNeedForward(IDemandToProvider demand)
         {
-            return demand.GetType() == typeof(DemandStock) || _context.GetProductionOrderWorkSchedules(demand).Any(a => a.StartBackward < 0);
+            var pows = new List<ProductionOrderWorkSchedule>();
+            return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < 0);
         }
 
         private void ExecutePlanning(IDemandToProvider demand, MrpTask task)

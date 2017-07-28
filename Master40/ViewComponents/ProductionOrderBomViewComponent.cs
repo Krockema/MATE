@@ -27,8 +27,8 @@ namespace Master40.ViewComponents
                 var articleList = new List<ProductionOrder>();
                 foreach (var item in masterDBContext)
                 {
-                    var article = await _context.GetProductionOrderBomRecursive(item, item.Id);
-                    articleList.Add(article);
+                    //var article = await _context.GetProductionOrderBomRecursive(item, item.Id);
+                    //articleList.Add(article);
                 }
                 return View(articleList);
             }

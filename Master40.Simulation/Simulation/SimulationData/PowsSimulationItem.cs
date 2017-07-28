@@ -38,10 +38,10 @@ namespace Master40.Simulation.Simulation
             pows.ProducingState = ProducingState.Producing;
             _context.ProductionOrderWorkSchedules.Update(pows);
             _context.SaveChanges();
-            var pobs = _context.ProductionOrderBoms.Include(a => a.ProductionOrderChild).Where(a => a.ProductionOrderParentId == ProductionOrderId);
+            var pobs = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == ProductionOrderId);
             foreach (var pob in pobs)
             {
-                _context.Stocks.Single(a => a.ArticleForeignKey == pob.ProductionOrderChild.ArticleId).Current-= pob.Quantity;
+                _context.Stocks.Single(a => a.ArticleForeignKey == pob.DemandProductionOrderBoms.First().ArticleId).Current-= pob.Quantity;
             }
             return null;
         }

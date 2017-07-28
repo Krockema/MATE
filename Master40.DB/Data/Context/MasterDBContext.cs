@@ -65,13 +65,7 @@ namespace Master40.DB.Data.Context
                 .HasOne(p => p.ProductionOrderParent)
                 .WithMany(b => b.ProductionOrderBoms)
                 .HasForeignKey(fk => fk.ProductionOrderParentId);
-
-            modelBuilder.Entity<ProductionOrderBom>()
-                .HasOne(p => p.ProductionOrderChild)
-                .WithMany(b => b.ProdProductionOrderBomChilds)
-                .HasForeignKey(fk => fk.ProductionOrderChildId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
-
+            
             modelBuilder.Entity<ProductionOrderWorkSchedule>()
                 .HasOne(m => m.MachineGroup)
                 .WithMany(m => m.ProductionOrderWorkSchedules)

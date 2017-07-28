@@ -51,11 +51,15 @@ namespace Master40.BusinessLogicCentral.MRP
                 AddMachine(plannedSchedules, shortest);
                 plannedSchedules.Add(shortest);
 
-                //search for parent and if available and allowed add it to the schedule
-                var parent = GetParent(shortest, productionOrderWorkSchedules);
-                if (parent != null && !plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent,plannedSchedules, currentTimer))
-                    plannableSchedules.Add(parent);
-                _context.SaveChanges();
+                //search for parents and if available and allowed add it to the schedule
+                var parents = _context.GetParents(shortest);
+                foreach (var parent in parents)
+                {
+                    if (!plannableSchedules.Contains(parent) && IsTechnologicallyAllowed(parent, plannedSchedules, currentTimer))
+                        plannableSchedules.Add(parent);
+                    _context.SaveChanges();
+                }
+                
             }
         }
 
@@ -107,32 +111,19 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private int GetChildEndTime(ProductionOrderWorkSchedule shortest)
         {
-            //Get Children
-            List<ProductionOrder> poChildren = new List<ProductionOrder>();
-            List<ProductionOrderWorkSchedule> powsChildren = new List<ProductionOrderWorkSchedule>();
-            if (shortest.HierarchyNumber > 10)
+            if (shortest.HierarchyNumber != shortest.ProductionOrder.ProductionOrderWorkSchedule.Min(a => a.HierarchyNumber))
             {
                 var children = _context.ProductionOrderWorkSchedules.Where(a =>
                     a.ProductionOrderId == shortest.ProductionOrderId &&
                     a.HierarchyNumber < shortest.HierarchyNumber).ToList();
-                if (children.Any())
-                {
-                    powsChildren = children.Where(a => a.HierarchyNumber == children.Max(b => b.HierarchyNumber)).ToList();
-                }
+                return children.Max(b => b.End);
             }
-            else
-            {
-                var childrenBoms = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == shortest.ProductionOrderId).ToList();
-                poChildren = (from boms in childrenBoms
-                            join po in _context.ProductionOrders on boms.ProductionOrderChildId equals po.Id
-                            select po).ToList();
-            }
-            //iterate to find the latest end
-            if (poChildren.Any())
-                    return (from child in poChildren
-                        from pows in child.ProductionOrderWorkSchedule
-                        select pows.End).Concat(new[] {0}).Max();
-            return powsChildren.Any() ? (from powsChild in powsChildren select powsChild.End).Concat(new[] {0}).Max() : 0;
+            var childrenBoms = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == shortest.ProductionOrderId).ToList();
+            var latestEnd = (from bom in childrenBoms
+                            from provider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
+                            select provider.ProductionOrder.ProductionOrderWorkSchedule.Max(a => a.End)
+                            ).Concat(new[] {0}).Max();
+            return latestEnd;
         }
 
         private int FindStartOnMachine(List<ProductionOrderWorkSchedule> plannedSchedules, int machineId, ProductionOrderWorkSchedule shortest)
@@ -284,12 +275,6 @@ namespace Master40.BusinessLogicCentral.MRP
             return shortest;
         }
 
-        private ProductionOrderWorkSchedule GetParent(ProductionOrderWorkSchedule schedule,List<ProductionOrderWorkSchedule> productionOrderWorkSchedules )
-        {
-            var parent = FindHierarchyParent(productionOrderWorkSchedules, schedule) ?? FindBomParent(schedule);
-            return parent;
-        }
-
         private List<ProductionOrderWorkSchedule> CalculateWorkTimeWithParents(List<ProductionOrderWorkSchedule> schedules)
         {
             foreach (var schedule in schedules)
@@ -319,10 +304,17 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private decimal GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
-            var parent = GetParent(schedule,productionOrderWorkSchedules);
-            if (parent == null) return schedule.Duration;
-            
-            return GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
+            if (schedule == null) return 0;
+            var parents = _context.GetParents(schedule);
+            if (!parents.Any()) return schedule.Duration;
+            var maxTime = 0;
+            foreach (var parent in parents)
+            {
+                var time = GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
+                if (time > maxTime) maxTime = (int)time;
+            }
+
+            return maxTime;
         }
 
         private decimal GetAmountOfMachines(ProductionOrderWorkSchedule schedule)
@@ -345,8 +337,8 @@ namespace Master40.BusinessLogicCentral.MRP
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleDemandRequester in demandRequester)
             {
-                if (_context.GetDueTime(singleDemandRequester) <= currentTimer + maxTimer || singleDemandRequester.GetType() == typeof(DemandStock))
-                    pows.AddRange(_context.GetProductionOrderWorkSchedules(singleDemandRequester));
+                if (_context.GetDueTimeByOrder(singleDemandRequester) <= currentTimer + maxTimer || singleDemandRequester.GetType() == typeof(DemandStock))
+                    _context.GetWorkSchedulesFromDemand(singleDemandRequester, ref pows);
             }
             return pows.AsEnumerable().Distinct().ToList();
         }
@@ -369,32 +361,8 @@ namespace Master40.BusinessLogicCentral.MRP
         private void GetInitialPlannables(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, 
             List<ProductionOrderWorkSchedule> plannedSchedules, List<ProductionOrderWorkSchedule> plannableSchedules, int timer)
         {
-            foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
-            {
-                //check if child is planned
-                if (IsTechnologicallyAllowed(productionOrderWorkSchedule, plannedSchedules, timer))
-                {
-                    plannableSchedules.Add(productionOrderWorkSchedule);
-                }
-                /*if (timer > 0 && ChildrenAreInProduction(productionOrderWorkSchedule, timer))
-                {
-                    plannableSchedules.Add(productionOrderWorkSchedule);
-                    continue;
-                }*/
-                /*
-                //var hasChildren = productionOrderWorkSchedule.ProductionOrder.ProdProductionOrderBomChilds.Any(bom => bom.ProductionOrderParent.Id == productionOrderWorkSchedule.ProductionOrderId);
-                var hasChildren = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms.Any(bom => bom.ProductionOrderParentId == productionOrderWorkSchedule.ProductionOrderId);
-                if (hasChildren)
-                {
-                    
-                    continue;
-                }
-                //find out if its the lowest element in hierarchy
-                var isLowestHierarchy = productionOrderWorkSchedules.All(mainSchedule => mainSchedule.HierarchyNumber >= productionOrderWorkSchedule.HierarchyNumber);
-                if (isLowestHierarchy && !plannedSchedules.Contains(productionOrderWorkSchedule) && !plannableSchedules.Contains(productionOrderWorkSchedule))
-                   plannableSchedules.Add(productionOrderWorkSchedule);
-                   */
-            }
+            plannableSchedules.AddRange(productionOrderWorkSchedules.Where(productionOrderWorkSchedule => 
+                                            IsTechnologicallyAllowed(productionOrderWorkSchedule, plannedSchedules, timer)));
         }
 
         private bool ChildrenAreInProduction(ProductionOrderWorkSchedule productionOrderWorkSchedule, int timer)
@@ -407,7 +375,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var children = new List<ProductionOrderWorkSchedule>();
             var child = GetHierarchyChild(productionOrderWorkSchedule);
-            if (child == null) return GetLatestBomChilds(productionOrderWorkSchedule);
+            if (child == null) return GetBomChilds(productionOrderWorkSchedule);
             children.Add(child);
             return children;
         }
@@ -415,18 +383,15 @@ namespace Master40.BusinessLogicCentral.MRP
         private List<ProductionOrderWorkSchedule> GetBomChilds(
             ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
-            var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParent.Id == productionOrderWorkSchedule.ProductionOrderId).ToList();
-            return !boms.Any() ? null : boms.Where(bom => bom.ProductionOrderChildId != null).Select(bom => bom.ProductionOrderChild.ProductionOrderWorkSchedule.Single(a => a.HierarchyNumber == bom.ProductionOrderChild.ProductionOrderWorkSchedule.Max(b => b.HierarchyNumber))).ToList();
+            var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms;
+            var bomChilds = (from bom in boms
+                             from provider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
+                             select provider.ProductionOrder.ProductionOrderWorkSchedule into schedules
+                             select schedules.Single(a => a.HierarchyNumber == schedules.Max(b => b.HierarchyNumber))
+                             ).ToList();
+            return !bomChilds.Any() ? null : bomChilds;
         }
-
-        private List<ProductionOrderWorkSchedule> GetLatestBomChilds(ProductionOrderWorkSchedule productionOrderWorkSchedule)
-        {
-            var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms.Where(a => a.ProductionOrderParent.Id == productionOrderWorkSchedule.ProductionOrderId).ToList();
-            if (!boms.Any()) return null;
-            var pows = boms.Select(bom => bom.ProductionOrderChild.ProductionOrderWorkSchedule.Single(a => a.HierarchyNumber == bom.ProductionOrderChild.ProductionOrderWorkSchedule.Max(b => b.HierarchyNumber))).ToList();
-            //find latest childs
-            return pows.Where(a => a.End == pows.Max(b => b.End)).ToList();
-        }
+        
 
         private ProductionOrderWorkSchedule GetHierarchyChild(ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
@@ -434,46 +399,6 @@ namespace Master40.BusinessLogicCentral.MRP
             productionOrderWorkSchedules = productionOrderWorkSchedules.Where(mainSchedule => mainSchedule.HierarchyNumber < productionOrderWorkSchedule.HierarchyNumber);
             if (!productionOrderWorkSchedules.Any()) return null;
             return productionOrderWorkSchedules.Single(a => a.HierarchyNumber == productionOrderWorkSchedules.Max(b => b.HierarchyNumber));
-        }
-
-        private ProductionOrderWorkSchedule FindHierarchyParent(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, ProductionOrderWorkSchedule plannedSchedule  )
-        {
-
-            ProductionOrderWorkSchedule hierarchyParent = null;
-            int hierarchyParentNumber = 100000;
-
-            //find next higher element
-            foreach (var mainSchedule in productionOrderWorkSchedules)
-            {
-                if (mainSchedule.ProductionOrderId != plannedSchedule.ProductionOrderId) continue;
-                if (mainSchedule.HierarchyNumber <= plannedSchedule.HierarchyNumber ||
-                    mainSchedule.HierarchyNumber >= hierarchyParentNumber) continue;
-                hierarchyParent = mainSchedule;
-                hierarchyParentNumber = mainSchedule.HierarchyNumber;
-            }
-            return hierarchyParent;
-        }
-
-        private ProductionOrderWorkSchedule FindBomParent(ProductionOrderWorkSchedule plannedSchedule)
-        {
-            ProductionOrderWorkSchedule lowestHierarchyMember = null;
-            foreach (var pob in _context.ProductionOrderBoms
-                                        .Include(a => a.ProductionOrderParent)
-                                        .ThenInclude(b => b.ProductionOrderWorkSchedule)
-                                        .Where(a => a.ProductionOrderChildId == plannedSchedule.ProductionOrderId).ToList())
-            {
-                if (pob.ProductionOrderParentId == plannedSchedule.ProductionOrder.Id) continue;
-                var parents = pob.ProductionOrderParent.ProductionOrderWorkSchedule;
-                lowestHierarchyMember = parents.First();
-                //find lowest hierarchy
-                foreach (var parent in parents)
-                {
-                    if (parent.HierarchyNumber < lowestHierarchyMember.HierarchyNumber)
-                        lowestHierarchyMember = parent;
-                }
-                break;
-            }
-            return lowestHierarchyMember;
         }
 
         public void SetMachines(int timer)
@@ -567,7 +492,6 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (parentProductionOrder != null) _context.TryCreateProductionOrderBoms(demand, earliestProductionOrder, parentProductionOrder);
                 _context.AssignProviderToDemand(demand, provider);
                 _context.AssignProductionOrderToDemandProvider(earliestProductionOrder, provider);
-                _context.TryAssignProductionOrderBomToDemandProvider(earliestProductionOrder,demand);
                 if (amount > availableAmountFromProductionOrder)
                 {
                     amount -= availableAmountFromProductionOrder;
@@ -595,13 +519,12 @@ namespace Master40.BusinessLogicCentral.MRP
                 while (amount > 0)
                 {
                     //create ProductionOrders
-                    var productionOrder = _context.CreateProductionOrder(demand, parentProductionOrder?.Duetime ?? _context.GetDueTime(demand));
+                    var productionOrder = _context.CreateProductionOrder(demand, parentProductionOrder?.Duetime ?? _context.GetDueTimeByOrder(demand));
                     if (parentProductionOrder != null) _context.TryCreateProductionOrderBoms(demand, productionOrder, parentProductionOrder);
                     _context.CreateProductionOrderWorkSchedules(productionOrder);
                     var provider = _context.CreateProviderProductionOrder(demand, productionOrder, amount);
                     _context.AssignProviderToDemand(demand, provider);
                     _context.AssignProductionOrderToDemandProvider(productionOrder, provider);
-                    _context.TryAssignProductionOrderBomToDemandProvider(productionOrder, demand);
                     CallChildrenSatisfyRequest(productionOrder); 
                     
                     amount -= productionOrder.Quantity;
@@ -627,15 +550,13 @@ namespace Master40.BusinessLogicCentral.MRP
             foreach (var childBom in childrenArticleBoms)
             {
                 //check for the existence of a DemandProductionOrderBom
-                if (_context.ProductionOrderBoms.Where(a =>
-                    a.ProductionOrderChild.ArticleId == childBom.ArticleChildId &&
-                    a.ProductionOrderParentId == po.Id) != null) continue;
+                if (po.ProductionOrderBoms.FirstOrDefault(a => a.DemandProductionOrderBoms.First().ArticleId == childBom.ArticleChildId) == null) continue;
 
                 if (po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Producing)
                     || po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Finished)) continue;
 
                 var neededAmount = childBom.Quantity * po.Quantity;
-                var demandBom = _context.CreateDemandProductionOrderBom(childBom, neededAmount);
+                var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount);
 
                 SatisfyRequest(demandBom, po);
             }

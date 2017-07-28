@@ -8,9 +8,9 @@ namespace Master40.DB.Models
         public int ProductionOrderParentId { get; set; }
         [JsonIgnore]
         public ProductionOrder ProductionOrderParent { get; set; }
-        public int? ProductionOrderChildId { get; set; }
+        /*public int? ProductionOrderChildId { get; set; }
         [JsonIgnore]
-        public ProductionOrder ProductionOrderChild { get; set; }
+        public ProductionOrder ProductionOrderChild { get; set; }*/
         [JsonIgnore]
         public virtual ICollection<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public decimal Quantity { get; set; }

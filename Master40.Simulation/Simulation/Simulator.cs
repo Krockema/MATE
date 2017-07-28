@@ -54,7 +54,7 @@ namespace Master40.Simulation.Simulation
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var demand in demands)
             {
-                pows.AddRange(_context.GetProductionOrderWorkSchedules(demand));
+                _context.GetWorkSchedulesFromDemand(demand, ref pows);
             }
             pows = pows.Distinct().ToList();
             foreach (var singlePows in pows)
@@ -272,9 +272,11 @@ namespace Master40.Simulation.Simulation
 
         private bool? SimulationBomChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
-            var childrenPos =
-            _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == item.ProductionOrderId)
-                .Select(a => a.ProductionOrderChild);
+            var childBoms = item.ProductionOrder.ProductionOrderBoms;
+            var childrenPos = (from bom in childBoms
+                               from singleProvider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
+                               select singleProvider.ProductionOrder
+                               ).ToList();
             if (!childrenPos.Any()) return null;
             var childrenPows = from pos in childrenPos
                                from pows in pos.ProductionOrderWorkSchedule
