@@ -48,6 +48,12 @@ namespace Master40.Agents
                 {
                     Debug.WriteLine(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) +"): " +item.Agent + " -> Runtime: " +item.ProcessingTime +" Milliseconds with " + item.Count + " Instructions Processed");
                 }
+                foreach (var machine in context.ActiveProcesses.Where(x => x.GetType() == typeof(MachineAgent)))
+                {
+                    var item = ((MachineAgent) machine);
+                    Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
+                }
+
 
                 Debug.WriteLine("Jobs processed in {0} minutes", context.TimePeriod);
             }

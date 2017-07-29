@@ -37,7 +37,7 @@ namespace Master40.Agents.Agents
             // Create Dispo Agent 
             var dispoAgent = new DispoAgent(creator: this, 
                                              system: Creator, 
-                                               name: requestItem.Article.Name + "OrderPartId(" + orderItem.Id + ")", 
+                                               name: requestItem.Article.Name + " OrderPartId(" + orderItem.Id + ")", 
                                               debug: DebugThis, 
                                         requestItem: requestItem);
 

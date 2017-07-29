@@ -16,6 +16,9 @@ namespace Master40.Agents.Agents.Internal
         public static List<AgentStatistic> AgentStatistics = new List<AgentStatistic>();
         private Stopwatch _stopwatch = new Stopwatch();
 
+        // process State
+        private bool Waiting = false;
+
         // Agent Properties.
         public Guid AgentId { get; }
         internal Agent Creator { get; set; }
@@ -48,23 +51,33 @@ namespace Master40.Agents.Agents.Internal
             // while Simulation is Running
             while (true)
             {
+                TimerStop();
                 // Wait for Instructions
                 if (InstructionQueue.Count == 0)
                 {
-                    TimerStop();
                     yield return new WaitConditionInstruction(() => InstructionQueue.Count > 0);
                 }
+                // If there are Instructions
+                var doTask = InstructionQueue.Dequeue();
+                if (doTask.MethodName == "Wait")
+                {
+                    // Creates an Agent Activity that reactivates the object at the Required time.
+                    var activity = new AgentActivity(instructionSet: doTask.ObjectToProcess as InstructionSet,
+                                                     targetAgent: doTask.SourceAgent, 
+                                                     waitFor: doTask.WaitFor);
+                    yield return new ActivateInstruction(activity);
+                    continue;
+                }
+
+
                 // Statistic
                 InstructionCounter++;
                 TimerStart();
-                // If there are Instructions
-                var doTask = InstructionQueue.Dequeue();
                 // Proceed with each one by one - Methods to call MUST be implemented by the Derived Agent itself
+
                 var method = this.GetType().GetMethod(doTask.MethodName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (method == null)
-                {
-                    throw new NotImplementedException(Name  + "| Source:" + doTask.SourceAgent + "| Method Name: " + doTask.MethodName);
-                }
+                    throw new NotImplementedException(Name  + " | Source: " + doTask.SourceAgent + " | Method Name: " + doTask.MethodName);
 
                 // call Method.
                 var invokeReturn = method.Invoke(this, new object[] { doTask }) ;
@@ -73,8 +86,11 @@ namespace Master40.Agents.Agents.Internal
 
         private void TimerStop()
         {
-            _stopwatch.Stop();
-            AgentStatistics.Add(new AgentStatistic {Agent = this.GetType().Name, ProcessingTime = _stopwatch.ElapsedMilliseconds});
+            if (_stopwatch.IsRunning)
+            {
+                _stopwatch.Stop();
+                AgentStatistics.Add(new AgentStatistic { Agent = this.GetType().Name, ProcessingTime = _stopwatch.ElapsedMilliseconds });
+            }   
         }
 
         private void TimerStart()
@@ -123,24 +139,33 @@ namespace Master40.Agents.Agents.Internal
         /// <summary>
         /// Creates a Instuction Set and Enqueue it to the TargetAgent,
         /// It pushes the Agent to Context.Queue
+        /// ATTENTION !! BE CAERFULL WITH WAITFOR !!
         /// </summary>
         /// <param name="methodName"></param>
         /// <param name="objectToProcess"></param>
         /// <param name="targetAgent"></param>
-        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent)
+        /// <param name="waitFor"> LET THE TARGET AGENT WAIT !</param>
+        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, long waitFor = 0)
         {
-            // Create And Enqueue
-            targetAgent.InstructionQueue.Enqueue(new InstructionSet
-            {
-                MethodName = methodName,
-                ObjectToProcess = objectToProcess,
-                ObjectType = objectToProcess.GetType(),
-                SourceAgent = this,
-            });
+            var instruction = new InstructionSet {  MethodName = methodName,
+                                                    ObjectToProcess = objectToProcess,
+                                                    ObjectType = objectToProcess.GetType(),
+                                                    SourceAgent = this };
 
-            // Re-Activate Process in Context Queue if nesessary
-            if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
-                Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
+            if (waitFor == 0)
+            {
+                // Create And Enqueue
+                targetAgent.InstructionQueue.Enqueue(instruction);
+                // Re-Activate Process in Context Queue if nesessary
+                if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
+                    Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
+            }
+            else
+            {
+                // Wrap Instruction with waiter
+                WaitFor(instruction,targetAgent, waitFor);
+            }
+
         }
 
         /// <summary>
@@ -155,7 +180,17 @@ namespace Master40.Agents.Agents.Internal
             }
         }
 
-
-
+        private void WaitFor(InstructionSet instruction , Agent targetAgent, long waitFor)
+        {
+            // Create And Enqueue
+            this.InstructionQueue.Enqueue(new InstructionSet
+            {
+                MethodName = "Wait",
+                ObjectToProcess = instruction,
+                ObjectType = instruction.GetType(),
+                SourceAgent = targetAgent,
+                WaitFor = waitFor
+            });
+        }
     }
 }

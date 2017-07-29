@@ -6,6 +6,7 @@ using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Migrations;
 using Master40.DB.Models;
+using NSimulate.Instruction;
 
 namespace Master40.Agents.Agents
 {
@@ -72,7 +73,7 @@ namespace Master40.Agents.Agents
             // any Not Finished do noting
             if (ChildAgents.Any(x => x.Status != Status.Finished))
                 return;
-            
+
             DebugMessage("Im Ready To get Enqued");
             Status = Status.Ready;
             SetFirstWorkItemReady();
@@ -132,6 +133,7 @@ namespace Master40.Agents.Agents
                     Status = firstItemToBuild ? Status.Ready:Status.Created,
                     DueTime = lastdue,
                     WorkSchedule = workSchedule,
+                    ProductionAgent = this,
                     Priority = PriorityRules.HatchingTime(currentTime: Context.TimePeriod, 
                                                       processDuration: workSchedule.Duration, 
                                                            processDue: lastdue)
@@ -144,21 +146,24 @@ namespace Master40.Agents.Agents
             }
         }
 
-        private void SetFirstWorkItemReady()
-        {
+        private void  SetFirstWorkItemReady()
+        {   
             // get next ready WorkItem
-            var nextItem = WorkItems.Where(x => x.Status == Status.Created)
+            // TODO Return Queing Status ? or Move method to Machine
+            var nextItem = WorkItems.Where(x => x.Status == Status.InQueue || x.Status == Status.Created)
                                     .OrderBy(x => x.WorkSchedule.HierarchyNumber)
                                     .FirstOrDefault();
             var comunicationAgent = ComunicationAgents.FirstOrDefault(x => x.ContractType 
                                                                         == nextItem.WorkSchedule.MachineGroup.Name);
 
+            DebugMessage(" SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
             nextItem.Status = Status.Ready;
 
             // tell Item in Queue to set it ready.
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.SetWorkItemStatus.ToString(),
                                   objectToProcess: nextItem,
-                                      targetAgent: comunicationAgent);
+                                      targetAgent: comunicationAgent,
+                                          waitFor: 1);
 
         }
     }

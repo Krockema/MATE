@@ -12,6 +12,7 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             GetOrCreateComunicationAgentForType,
+            GetComunicationAgentForType
         }
         
 
@@ -41,8 +42,14 @@ namespace Master40.Agents.Agents
             CreateAndEnqueueInstuction(methodName: "SetComunicationAgent",
                                   objectToProcess: comunicationAgent,
                                       targetAgent: objects.SourceAgent);
+
+            // Add the Machine to Comunication Agent if Requested by Machine Agent.
+            if (objects.SourceAgent.GetType() == typeof(MachineAgent))
+            {
+                CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.AddMachineToComunicationAgent.ToString(),
+                                      objectToProcess: objects.SourceAgent,
+                                          targetAgent: comunicationAgent);
+            }
         }
-
-
     }
 }
