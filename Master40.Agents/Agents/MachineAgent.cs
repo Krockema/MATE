@@ -5,6 +5,7 @@ using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Models;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Master40.Agents.Agents
 {
@@ -18,21 +19,28 @@ namespace Master40.Agents.Agents
         private int ProgressQueueSize { get; }
         public List<WorkItem> Queue { get; }
         //private Queue<WorkItem> SchduledQueue;
+        private List<WorkItem> ProcessingQueue { get; }
+        private bool ItemsInProgess { get; set; }
+
 
         public enum InstuctionsMethods
         {
             SetComunicationAgent,
             RequestProposal,
-            AcknowledgeProposal
+            AcknowledgeProposal,
+            StartWorkWith,
+            DoWork,
+            FinishWork
         }
 
         public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine) : base(creator, name, debug)
         {
             _directoryAgent = directoryAgent;
-            ProgressQueueSize = 1; // TODO COULD MOVE TO MODEL for CONFIGURATION
+            ProgressQueueSize = 1; // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
             Queue = new List<WorkItem>();  // ThenBy( x => x.Status)
             //SchduledQueue = new Queue<WorkItem>();
             Machine = machine;
+            ItemsInProgess = false;
             RegisterService();
         }
 
@@ -69,6 +77,10 @@ namespace Master40.Agents.Agents
             DebugMessage("Successfull Registred Service at : " + _comunicationAgent.Name);
         }
 
+        /// <summary>
+        /// Is Called from Comunication Agent to get an Proposal when the item with a given priority can be scheduled.
+        /// </summary>
+        /// <param name="instructionSet"></param>
         private void RequestProposal(InstructionSet instructionSet)
         {
             var workItem = instructionSet.ObjectToProcess as WorkItem;
@@ -81,16 +93,18 @@ namespace Master40.Agents.Agents
             // calculat Proposal.
             
             var proposal = new Proposal { AgentId = this.AgentId,
-                                          WorkItemId = workItem.Id,
-                                        PossibleSchedule = this.Queue.Sum(x => x.WorkSchedule.Duration) };
+                                       WorkItemId = workItem.Id,
+                                 PossibleSchedule = this.Queue.Sum(x => x.WorkSchedule.Duration) };
             // callback 
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.ProposalFromMachine.ToString(),
                                   objectToProcess: proposal,
                                       targetAgent: instructionSet.SourceAgent);
-
-
         }
 
+        /// <summary>
+        /// is Called if The Proposal is accepted by Comunication Agent
+        /// </summary>
+        /// <param name="instructionSet"></param>
         private void AcknowledgeProposal(InstructionSet instructionSet)
         {
             var workItem = instructionSet.ObjectToProcess as WorkItem;
@@ -130,8 +144,86 @@ namespace Master40.Agents.Agents
                     DebugMessage("--> Position" + Array.IndexOf(Queue.OrderBy(x => x.Priority).ToArray(), q) + " Priority " + q.Priority + " Id " + q.Id);
                 }
             }
-
-            
         }
+
+        private void StartWorkWith(InstructionSet instructionSet)
+        {
+            var workItemStatus = instructionSet.ObjectToProcess as WorkItemStatus;
+            if (workItemStatus == null)
+            {
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+            }
+            // update Status
+            var workItem = Queue.FirstOrDefault(x => x.Id == workItemStatus.WorkItemId);
+            
+            DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
+            // if 
+            if (workItem.Status == Status.Ready)
+            {
+                // there is at least Something Ready so Start Work
+                DoWork(new InstructionSet());
+                DebugMessage("Call for Work");
+            }
+        }
+
+
+        private void DoWork(InstructionSet instructionSet)
+        {
+            if (ItemsInProgess) { 
+                DebugMessage("Im still working....");
+                return; // still working
+            }
+            
+            // get next Ready Element from Queue
+            var item = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority).FirstOrDefault();
+
+            // Wait if nothing More todo.
+            if (item == null)
+            {
+                // No more work 
+                DebugMessage("Nothing more Ready in Queue!");
+                return;
+            }
+
+            ItemsInProgess = true;
+            item.Status = Status.Processed;
+            // get item = ready and lowest priority
+            CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.FinishWork.ToString(),
+                                  objectToProcess: item,
+                                      targetAgent: this,
+                                          waitFor: item.WorkSchedule.Duration);
+
+
+            //TODO Something in Queue but not ready --> pass Instruction
+
+        }
+
+        private void FinishWork(InstructionSet instructionSet)
+        {
+            var item = instructionSet.ObjectToProcess as WorkItem;
+            if (item == null)
+            {
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+            }
+
+            // Set Machine State to Ready for next
+            ItemsInProgess = false;
+            DebugMessage("Finished Work with "+ item.WorkSchedule.Name + " take next...");
+
+            // Set Finish and Remove from Queue
+            item.Status = Status.Finished;
+            Queue.Remove(item);
+            // Call Comunication Agent that item has ben processed.
+            CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.FinishWorkItem.ToString(),
+                                  objectToProcess: item,
+                                      targetAgent: item.ComunicationAgent);
+
+            // do More Work
+            DoWork(new InstructionSet());
+            
+
+
+        }
+
     }
 }

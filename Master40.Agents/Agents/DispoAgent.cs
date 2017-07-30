@@ -36,7 +36,8 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             ResponseFromStock,
-            ResponseFromSystemForBom
+            ResponseFromSystemForBom,
+            ResponseFromProduction
         }
 
         private void RequestFromStock()
@@ -107,6 +108,27 @@ namespace Master40.Agents.Agents
                                                        name: "Production(" + RequestItem.Article.Name + ", Nr. " + i + ")",
                                                       debug: DebugThis,
                                                 requestItem: item));
+            }
+        }
+
+        private void ResponseFromProduction(InstructionSet instructionSet)
+        {
+            var productionAgent = instructionSet.ObjectToProcess as ProductionAgent;
+            if (productionAgent == null)
+            {
+                throw new InvalidCastException(this.Name + " failed to Cast ProductionAgent on Instruction.ObjectToProcess");
+            }
+
+            DebugMessage("Production Agent Finished Work: " + productionAgent.Name);
+
+            foreach (var child in ChildAgents)
+            {
+                DebugMessage("ChildName:" + child.Name + " Status: " + child.Status);
+            }
+
+            if (ChildAgents.All(x => x.Status == Status.Finished))
+            {
+                this.Finish();
             }
         }
     }

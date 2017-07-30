@@ -123,17 +123,25 @@ namespace Master40.Agents.Agents.Internal
         /// </summary>
         internal void Finished(InstructionSet objects)
         {
+            if (ChildAgents.All(x => x.Status == Status.Finished) && this.Status == Status.Finished)
+            {
+                ChildAgents.Clear();
+                Finish();
+            }
+
+            /*
             // any Not Finished do noting
-            if (ChildAgents.Any(x => x.Status != Status.Finished))
+            if ()
                 return;
 
             // if All finished Clear Resource
-            ChildAgents.Clear();
-            Status = Status.Ready;
+
+            // Status = Status.Ready;
 
             // if this agent is also Finished tell the Parrent.
             if (Status == Status.Finished)
-                Finish();
+            */
+
         }
 
         /// <summary>

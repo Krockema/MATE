@@ -27,7 +27,8 @@ namespace Master40.Agents.Agents
             AddMachineToComunicationAgent,
             EnqueueWorkItem,
             ProposalFromMachine,
-            SetWorkItemStatus
+            SetWorkItemStatus,
+            FinishWorkItem,
         }
 
         private void EnqueueWorkItem(InstructionSet instructionSet)
@@ -69,24 +70,26 @@ namespace Master40.Agents.Agents
 
         private void SetWorkItemStatus(InstructionSet instructionSet)
         {
-            var workItem = instructionSet.ObjectToProcess as WorkItem;
-            if (workItem == null)
+            var workItemStatus = instructionSet.ObjectToProcess as WorkItemStatus;
+            if (workItemStatus == null)
             {
-                throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
             // update Status
-            WorkItemQueue.FirstOrDefault(x => x.Id == workItem.Id).Status = workItem.Status;
-            
+            var workItem = WorkItemQueue.FirstOrDefault(x => x.Id == workItemStatus.WorkItemId);
+            workItem.Status = workItemStatus.Status;
+
+            // get Related Machine Agent
+
             DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
             // if 
             if (workItem.Status == Status.Ready)
             {
                 // Call for Work 
-                /*
-                CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
-                                      objectToProcess: RequestItem,
-                                          targetAgent: storeAgent);
-                */
+                CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.StartWorkWith.ToString(),
+                                      objectToProcess: workItemStatus,
+                                          targetAgent: GetMachineAgentById(workItem.MachineAgentId));
+                DebugMessage("Call for Work");
             }
         }
 
@@ -123,18 +126,45 @@ namespace Master40.Agents.Agents
             {
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
                 var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Min(p => p.PossibleSchedule));
-                var machineAgent = MachineAgents.First(x => x.AgentId == acknowledgement.AgentId);
 
                 workItem.Status = Status.InQueue;
+                workItem.MachineAgentId = acknowledgement.AgentId;
                 workItem.EsitamtedEnd = proposal.PossibleSchedule + workItem.WorkSchedule.Duration;
 
                 CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.AcknowledgeProposal.ToString(),
                                       objectToProcess: workItem,
-                                          targetAgent: machineAgent);
+                                          targetAgent: GetMachineAgentById(acknowledgement.AgentId));
             }
+        }
+
+        /// <summary>
+        ///  Forward Finish message to Production Agent.
+        /// </summary>
+        /// <param name="instructionSet"></param>
+        private void FinishWorkItem(InstructionSet instructionSet)
+        {
+            var workItem = instructionSet.ObjectToProcess as WorkItem;
+            if (workItem == null)
+            {
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+            }
+
+            DebugMessage("Machine called " + workItem.WorkSchedule.Name + " finished.");
+            CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
+                                  objectToProcess: workItem,
+                                      targetAgent: workItem.ProductionAgent);
 
 
         }
+
+
+
+
+        private Agent GetMachineAgentById(Guid agentId)
+        {
+            return MachineAgents.First(x => x.AgentId == agentId);
+        }
+
 
 
     }

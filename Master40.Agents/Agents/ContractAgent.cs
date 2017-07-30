@@ -56,6 +56,14 @@ namespace Master40.Agents.Agents
             return requestItem;
         }
 
+        internal new void Finished(InstructionSet instructionSet)
+        {
+            if (ChildAgents.All(x => x.Status == Status.Finished))
+            {
+                DebugMessage("Order Finished at:" + Context.TimePeriod);
+            }
+            
+        }
 
     }
 }

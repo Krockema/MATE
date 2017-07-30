@@ -24,6 +24,12 @@ namespace Master40.Agents.Agents
             StartProductionAgent();
         }
 
+
+        public enum InstuctionsMethods
+        {
+            Finished
+        }
+
         private void StartProductionAgent()
         {
             var firstToEnqueue = false;
@@ -33,9 +39,7 @@ namespace Master40.Agents.Agents
                 DebugMessage("Last leave in Bom");
                 firstToEnqueue = true;
             }
-
-
-
+            
             // if item hase Workschedules Request ComClient for them
             if (RequestItem.Article.WorkSchedules != null) { 
                 // Ask the Directory Agent for Service
@@ -74,14 +78,24 @@ namespace Master40.Agents.Agents
             if (ChildAgents.Any(x => x.Status != Status.Finished))
                 return;
 
+            // TODO Anything ?
+            if (RequestItem.Article.WorkSchedules != null && WorkItems.All(x => x.Status == Status.Finished)) {
+                this.Status = Status.Finished;
+                CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromProduction.ToString(),
+                                      objectToProcess: this,
+                                          targetAgent: this.Creator);
+                
+
+                DebugMessage("All Workschedules have been Finished");
+                return;
+            }
+            
             DebugMessage("Im Ready To get Enqued");
             Status = Status.Ready;
-            SetFirstWorkItemReady();
+            SetWorkItemReady();
             
             
-            // TODO Anything ?
-            if (RequestItem.Article.WorkSchedules != null && WorkItems.All(x => x.Status == Status.Finished))
-                this.Finish();
+
         }
 
         private void RequestComunicationAgentFor(IEnumerable<WorkSchedule> workSchedules)
@@ -146,25 +160,56 @@ namespace Master40.Agents.Agents
             }
         }
 
-        private void  SetFirstWorkItemReady()
+        private void  SetWorkItemReady()
         {   
             // get next ready WorkItem
             // TODO Return Queing Status ? or Move method to Machine
             var nextItem = WorkItems.Where(x => x.Status == Status.InQueue || x.Status == Status.Created)
                                     .OrderBy(x => x.WorkSchedule.HierarchyNumber)
                                     .FirstOrDefault();
+            if (nextItem == null)
+            {
+                DebugMessage("Cannot start next.");
+                return;
+            }
+
             var comunicationAgent = ComunicationAgents.FirstOrDefault(x => x.ContractType 
                                                                         == nextItem.WorkSchedule.MachineGroup.Name);
 
             DebugMessage(" SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
-            nextItem.Status = Status.Ready;
+
+            // create StatusMsg
+            var message = new WorkItemStatus
+            {
+                WorkItemId = nextItem.Id,
+                CurrentPriority = nextItem.Priority,  // TODO MAY NEED TO RECALCULATE IN FUTURE
+                Status = Status.Ready,                // TODO: MAybe need to change to an Extra Field -> bool IsReady 
+            };
 
             // tell Item in Queue to set it ready.
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.SetWorkItemStatus.ToString(),
-                                  objectToProcess: nextItem,
+                                  objectToProcess: message,
                                       targetAgent: comunicationAgent,
-                                          waitFor: 1);
+                                          waitFor: 1); // STart Production during the next time period
 
         }
+
+
+        private void FinishWorkItem(InstructionSet instructionSet)
+        {
+            var workItem = instructionSet.ObjectToProcess as WorkItem;
+            if (workItem == null)
+            {
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+            }
+
+            DebugMessage("Machine called " + workItem.WorkSchedule.Name + " finished.");
+            CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
+                objectToProcess: workItem,
+                targetAgent: workItem.ProductionAgent);
+
+
+        }
+
     }
 }
