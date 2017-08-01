@@ -15,7 +15,7 @@ namespace Master40.BusinessLogicCentral.MRP
     {
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
-        void PlanCapacities(MrpTask task);
+        void PlanCapacities(MrpTask task, bool newOrdersAdded);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -43,12 +43,14 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             await Task.Run(() =>
             {
+                var newOrdersAdded = false;
                 _messageHub.SendToAllClients("Start full MRP cycle...", MessageType.info);
 
                 //get all unplanned orderparts and iterate through them for MRP
                 var maxAllowedTime = _context.SimulationConfigurations.Last().Time +
                                      _context.SimulationConfigurations.Last().MaxCalculationTime;
                 var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
+                if (orderParts.Any()) newOrdersAdded = true;
                 foreach (var orderPart in orderParts.ToList())
                 {
                     var demand = GetDemand(orderPart);
@@ -59,7 +61,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
                     //run the capacity algorithm
-                    PlanCapacities(task);
+                    PlanCapacities(task, newOrdersAdded);
                     _messageHub.SendToAllClients("Capacities are planned");
                 }
                 //set all orderparts to be planned
@@ -97,7 +99,8 @@ namespace Master40.BusinessLogicCentral.MRP
         /// Plans capacities for all demands which are either already planned or just finished with MRP.
         /// </summary>
         /// <param name="task"></param>
-        public void PlanCapacities(MrpTask task)
+        /// <param name="newOrdersAdded"></param>
+        public void PlanCapacities(MrpTask task, bool newOrdersAdded)
         {
             var timer = _context.SimulationConfigurations.Last().Time;
             var demands = _context.Demands.Where(a =>
@@ -108,7 +111,7 @@ namespace Master40.BusinessLogicCentral.MRP
            
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
-            if (timer > 0)
+            if (newOrdersAdded)
                 _capacityScheduling.RebuildNets(timer);
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
