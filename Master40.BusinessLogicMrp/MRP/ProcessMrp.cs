@@ -112,20 +112,20 @@ namespace Master40.BusinessLogicCentral.MRP
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
             if (newOrdersAdded)
-                _capacityScheduling.RebuildNets(timer);
+                _capacityScheduling.RebuildNets();
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
                 //creates a list with the needed capacities to follow the terminated schedules
-                machineList = _capacityScheduling.CapacityRequirementsPlanning(timer);
+                machineList = _capacityScheduling.CapacityRequirementsPlanning();
             
             if (timer != 0 || (task == MrpTask.GifflerThompson || (_capacityScheduling.CapacityLevelingCheck(machineList) && task == MrpTask.All)))
-                _capacityScheduling.GifflerThompsonScheduling(timer);
+                _capacityScheduling.GifflerThompsonScheduling();
             else
             {
                 foreach (var demand in demands)
                     SetStartEndFromTermination(demand);
                 
-                _capacityScheduling.SetMachines(timer);
+                _capacityScheduling.SetMachines();
             }
             foreach (var demand in demands)
             {
@@ -206,7 +206,7 @@ namespace Master40.BusinessLogicCentral.MRP
         private bool CheckNeedForward(IDemandToProvider demand)
         {
             var pows = new List<ProductionOrderWorkSchedule>();
-            return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < 0);
+            return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < _context.SimulationConfigurations.Last().Time);
         }
 
         private void ExecutePlanning(IDemandToProvider demand, MrpTask task)

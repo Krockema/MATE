@@ -76,9 +76,9 @@ namespace Master40.Simulation.Simulation
                 var simulationConfiguration = new SimulationConfiguration()
                 {
                     SimulationId = 1,
-                    Lotsize = 5,
+                    Lotsize = 1,
                     Time = 0,
-                    MaxCalculationTime = 90
+                    MaxCalculationTime = 3000
                 };
                 _context.Add(simulationConfiguration);
                 _context.SaveChanges();
@@ -151,13 +151,12 @@ namespace Master40.Simulation.Simulation
             timeTable = timeTable.ProcessTimeline(timeTable);
             _context.SimulationConfigurations.Last().Time = timeTable.Timer;
             _context.SaveChanges();
-            if (!_orderInjected && timeTable.Timer == 9)
+            /*if (!_orderInjected && timeTable.Timer > 0)
             {
                 CreateNewOrder(1, 5);
-                //await Recalculate();
                 _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
-            }
+            }*/
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {
