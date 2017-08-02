@@ -44,9 +44,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <h4>Processing State:</h4>
-                        <div id="" class="MessageDisplay"></div>
                     </div>
                 </div>
             </div>
@@ -55,10 +52,11 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        Display Results Here
+                        <h4>Processing State:</h4>
+                        <div id="" class="MessageDisplay"></div>
                     </div>
                     <div class="col-md-12">
-                        Or Here
+                       <!--Or Here--> 
                     </div>
                 </div>
             </div>
@@ -71,15 +69,16 @@
         if (msg == "MrpProcessingComplete") {
             $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
             $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
-            $(".MessageDisplayRunning").prepend('<div class="alert alert-info">Loading Results...</div>');
-        } else {
+            $('#ajax-busy').hide();
+        } else if (msg == "SignalReady") {
+            $('#ajax-busy').hide();
+        }
+        else {
             $(".MessageDisplay").prepend(msg);
             $(".MessageDisplayRunning").prepend(msg);
         }
 
-        if (msg == "SignalReady") {
-            $('#ajax-busy').hide();
-        }
+
     });
 
     // Processing Hub is loaded

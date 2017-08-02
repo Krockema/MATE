@@ -27,15 +27,15 @@ namespace Master40.Agents
         public async Task<List<AgentStatistic>> RunSim()
         {
             AgentStatistic.Log = new List<string>();
-            Debug.WriteLine("Simulation Startet");
-            _messageHub.SendToAllClients("Simulation Startet");
+            Debug.WriteLine("Simulation Starts");
+            _messageHub.SendToAllClients("Simulation starts...");
 
 
             using (var context = new SimulationContext(isDefaultContextForProcess: true))
             {
 
                 // initialise the model
-                var system = CreateModel(context: context, numberOfJobs: 500);
+                var system = CreateModel(context: context);
 
                 // instantate a new simulator
                 var simulator = new Simulator();
@@ -49,7 +49,7 @@ namespace Master40.Agents
             return Agent.AgentStatistics;
         }
 
-        private object CreateModel(SimulationContext context, int numberOfJobs)
+        private object CreateModel(SimulationContext context)
         {
             var system = new SystemAgent(null, "System", true, _productionDomainContext);
 
@@ -101,8 +101,11 @@ namespace Master40.Agents
                 Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
             }
 
-            var jobs =  AgentStatistic.Log.Count(x => x.Contains("Machine called finished with:"));
-            Debug.WriteLine(jobs + "Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
+            var jobs =  AgentStatistic.Log.Count(x => x.Contains("Finished Work with"));
+            Debug.WriteLine(jobs + " Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
+            var poWait = AgentStatistic.Log.Count(x => x.Equals("Wait1"));
+            Debug.WriteLine("Po Wait Counter:" + poWait);
+           
         }
     }
 }

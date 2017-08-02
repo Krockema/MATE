@@ -79,8 +79,6 @@ namespace Master40.Agents.Agents
             var workItem = WorkItemQueue.FirstOrDefault(x => x.Id == workItemStatus.WorkItemId);
             workItem.Status = workItemStatus.Status;
 
-            // get Related Machine Agent
-
             DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
             // if 
             if (workItem.Status == Status.Ready)

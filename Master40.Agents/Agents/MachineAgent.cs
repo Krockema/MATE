@@ -185,13 +185,15 @@ namespace Master40.Agents.Agents
                 return;
             }
 
+
+            DebugMessage("------>> Start With" +  item.WorkSchedule.Name);
             ItemsInProgess = true;
             item.Status = Status.Processed;
             // get item = ready and lowest priority
             CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.FinishWork.ToString(),
                                   objectToProcess: item,
                                       targetAgent: this,
-                                          waitFor: item.WorkSchedule.Duration);
+                                          waitFor: item.WorkSchedule.Duration - 1);
 
 
             //TODO Something in Queue but not ready --> pass Instruction
@@ -208,7 +210,7 @@ namespace Master40.Agents.Agents
 
             // Set Machine State to Ready for next
             ItemsInProgess = false;
-            DebugMessage("Finished Work with "+ item.WorkSchedule.Name + " take next...");
+            DebugMessage("------>>Finished Work with " + item.WorkSchedule.Name + " take next...");
 
             // Set Finish and Remove from Queue
             item.Status = Status.Finished;
@@ -218,11 +220,12 @@ namespace Master40.Agents.Agents
                                   objectToProcess: item,
                                       targetAgent: item.ComunicationAgent);
 
-            // do More Work
-            DoWork(new InstructionSet());
-            
-
-
+            // do Do Work in next Timestep.
+            CreateAndEnqueueInstuction(methodName: InstuctionsMethods.DoWork.ToString(),
+                                  objectToProcess: new InstructionSet(),
+                                      targetAgent: this,
+                                          waitFor: 1);
+            //DoWork(new InstructionSet());
         }
 
     }

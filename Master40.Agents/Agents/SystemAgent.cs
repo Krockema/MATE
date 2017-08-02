@@ -74,7 +74,7 @@ namespace Master40.Agents.Agents
             // Create Contract agents
             var ca = new ContractAgent(creator: this,
                 name: contract.Order.Name + " - Part:" + contract.Article.Name,
-                debug: true);
+                debug: this.DebugThis);
             // add To System
             this.ChildAgents.Add(ca);
 
@@ -92,6 +92,14 @@ namespace Master40.Agents.Agents
                                                                 .Include(x => x.Order)
                                                                 .AsNoTracking())
             {
+                /*
+                this.CreateAndEnqueueInstuction(
+                    methodName: SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
+                    objectToProcess: orderpart,
+                    targetAgent: this,
+                    waitFor: 0
+                );
+                */
                 this.InstructionQueue.Enqueue(new InstructionSet
                 {
                     MethodName = SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
@@ -99,6 +107,7 @@ namespace Master40.Agents.Agents
                     ObjectType = orderpart.GetType(),
                     SourceAgent = this,
                 });
+                
             }
         }
 

@@ -16,7 +16,7 @@ namespace Master40.Agents.Agents
         private List<ComunicationAgent> ComunicationAgents;
         private List<WorkItem> WorkItems { get; set; }
         public ProductionAgent(Agent creator, string name, bool debug, RequestItem requestItem) 
-            : base(creator, name, debug)
+            : base(creator, name, true)
         {
             RequestItem = requestItem;
             ComunicationAgents = new List<ComunicationAgent>();
@@ -187,6 +187,7 @@ namespace Master40.Agents.Agents
             };
 
             // tell Item in Queue to set it ready.
+            AgentStatistic.Log.Add("Wait1");
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.SetWorkItemStatus.ToString(),
                                   objectToProcess: message,
                                       targetAgent: comunicationAgent,

@@ -35,7 +35,8 @@ namespace Master40.ViewComponents
             _menu.MenuItems.Add(new MenuItem { MenuItemId = 12, MenuId = 1, MenuText = "Planning & Simulations", LinkUrl = "#", MenuOrder = 4, Action = "Index", Symbol = "fa-spinner", Children =
                 new List<MenuItem>
                 {
-                    new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "MRP", LinkUrl = "Mrp",  MenuOrder = 5, ParentMenuItemId = 12, Action="Index", Symbol="fa-magic"}
+                    new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "MRP", LinkUrl = "Mrp",  MenuOrder = 5, ParentMenuItemId = 12, Action="Index", Symbol="fa-magic"},
+                    new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "Agent Based", LinkUrl = "AgentSimulation",  MenuOrder = 6, ParentMenuItemId = 12, Action="Index", Symbol="fa-ravelry"}
                 }
             });
 

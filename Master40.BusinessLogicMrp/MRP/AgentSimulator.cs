@@ -6,6 +6,7 @@ using Master40.Agents.Agents;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
+using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 
 namespace Master40.BusinessLogicCentral.MRP
@@ -22,11 +23,11 @@ namespace Master40.BusinessLogicCentral.MRP
             _messageHub = messageHub;
         }
 
-        public Task RunSimulation()
+        public async Task RunSimulation()
         {
-
-            Debug.WriteLine("Number of involved Agents: " + Agent.AgentCounter.Count);
-            Debug.WriteLine("Number of instructions send: " + Agent.InstructionCounter);
+            await _agentSimulation.RunSim();
+            _messageHub.SendToAllClients("Number of involved Agents: " + Agent.AgentCounter.Count, MessageType.success);
+            _messageHub.SendToAllClients("Number of instructions send: " + Agent.InstructionCounter, MessageType.success);
 
 
             var itemlist = from val in Agent.AgentStatistics
@@ -35,22 +36,14 @@ namespace Master40.BusinessLogicCentral.MRP
 
             foreach (var item in itemlist)
             {
-                Debug.WriteLine(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) + "): " + item.Agent + " -> Runtime: " + item.ProcessingTime + " Milliseconds with " + item.Count + " Instructions Processed");
+                _messageHub.SendToAllClients(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) + "): " + item.Agent + " -> Runtime: " + item.ProcessingTime + " Milliseconds with " + item.Count + " Instructions Processed", MessageType.warning);
             }
-            /*
-            foreach (var machine in context.ActiveProcesses.Where(x => x.GetType() == typeof(MachineAgent)))
-            {
-                var item = ((MachineAgent)machine);
-                Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
-            }
-            */
-            //var jobs = itemlist.Count(x => x.)
-            var jobs = AgentStatistic.Log.Count(x => x.Contains("Machine called finished with:"));
-            _messageHub.SendToAllClients(jobs + "Jobs processed in " + Agent.AgentStatistics.Max(x => x.Time) + " minutes");
-            _messageHub.SendToAllClients("Simulation Finished");
-            _messageHub.SendToAllClients("MrpProcessingComplete");
 
-            return _agentSimulation.RunSim();
+            //var jobs = itemlist.Count(x => x.)
+            var jobs = AgentStatistic.Log.Count(x => x.Contains("Finished Work with"));
+            _messageHub.SendToAllClients(jobs + " Jobs processed in " + (Agent.AgentStatistics.Max(x => x.Time) - 1) + " minutes", MessageType.success);
+            _messageHub.SendToAllClients("Simulation Finished");
+            _messageHub.EndScheduler();
         }
 
 
