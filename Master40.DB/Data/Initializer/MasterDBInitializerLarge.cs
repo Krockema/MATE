@@ -42,12 +42,14 @@ namespace Master40.DB.Data.Initializer
                 context.Units.Add(u);
             }
             context.SaveChanges();
+            var assemblyUnit = new MachineGroup {Name = "AssemblyUnits"};
+
 
             var machines = new Machine[] {
                 new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = new MachineGroup{ Name = "Cutting" } },
                 new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = new MachineGroup{ Name = "Drills" } },
-                new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = new MachineGroup{ Name = "AssemblyUnits" }},
-                new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = new MachineGroup{ Name = "AssemblyUnits" }}
+                new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit}
             };
             foreach (var m in machines)
             {
