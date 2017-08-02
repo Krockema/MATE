@@ -12,7 +12,9 @@ namespace Master40.DB.Data.Helper
     {
         public static long GetEpochMilliseconds(this DateTime date)
         {
-            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+            double ticks = 47 * 60 * 60 * 1000;
+            var startdate = DateTime.Now.AddMilliseconds(-ticks);
+            TimeSpan t = startdate - new DateTime(1970, 1, 1);
             return (long)t.TotalMilliseconds;
         }
 
