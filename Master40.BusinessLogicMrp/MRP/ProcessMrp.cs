@@ -62,6 +62,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 {
                     //run the capacity algorithm
                     PlanCapacities(task, newOrdersAdded);
+                    
                     _messageHub.SendToAllClients("Capacities are planned");
                 }
                 //set all orderparts to be planned
@@ -112,7 +113,10 @@ namespace Master40.BusinessLogicCentral.MRP
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
             if (newOrdersAdded)
+            {
                 _capacityScheduling.RebuildNets();
+                _messageHub.SendToAllClients("RebuildNets completed");
+            }
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
                 //creates a list with the needed capacities to follow the terminated schedules
