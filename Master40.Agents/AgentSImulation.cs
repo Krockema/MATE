@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,22 +9,28 @@ using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using NSimulate;
+using Master40.MessageSystem.SignalR;
 
 namespace Master40.Agents
 {
     public class AgentSimulation 
     {
         private readonly ProductionDomainContext _productionDomainContext;
+        private IMessageHub _messageHub;
 
-        public AgentSimulation(ProductionDomainContext _productionDomainContext)
+        public AgentSimulation(ProductionDomainContext productionDomainContext, IMessageHub messageHub)
         {
-            this._productionDomainContext = _productionDomainContext;
+            _productionDomainContext = productionDomainContext;
+            _messageHub = messageHub;
         }
 
-        public async Task RunSim()
+        public async Task<List<AgentStatistic>> RunSim()
         {
-
+            AgentStatistic.Log = new List<string>();
             Debug.WriteLine("Simulation Startet");
+            _messageHub.SendToAllClients("Simulation Startet");
+
+
             using (var context = new SimulationContext(isDefaultContextForProcess: true))
             {
 
@@ -36,37 +43,17 @@ namespace Master40.Agents
                 // run the simulation
                 await simulator.SimulateAsync(0);
 
-                Debug.WriteLine("Number of involved Agents: " +  Agent.AgentCounter.Count);
-                Debug.WriteLine("Number of instructions send: " + Agent.InstructionCounter);
-
-
-                var itemlist = from val in Agent.AgentStatistics
-                    group val by new { val.Agent } into grouped
-                    select new { Agent = grouped.First().Agent, ProcessingTime = grouped.Sum(x => x.ProcessingTime), Count = grouped.Count().ToString()};
-
-                foreach (var item in itemlist)
-                {
-                    Debug.WriteLine(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) +"): " +item.Agent + " -> Runtime: " +item.ProcessingTime +" Milliseconds with " + item.Count + " Instructions Processed");
-                }
-                foreach (var machine in context.ActiveProcesses.Where(x => x.GetType() == typeof(MachineAgent)))
-                {
-                    var item = ((MachineAgent) machine);
-                    Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
-                }
-
-
-                Debug.WriteLine("Jobs processed in {0} minutes", context.TimePeriod);
+                // Debug
+                Debuglog(context);
             }
+            return Agent.AgentStatistics;
         }
 
         private object CreateModel(SimulationContext context, int numberOfJobs)
         {
             var system = new SystemAgent(null, "System", true, _productionDomainContext);
 
-
-
-
-
+            
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", true);
             system.ChildAgents.Add(directoryAgent);
@@ -96,6 +83,26 @@ namespace Master40.Agents
             
             // Return System Agent to Context
             return system;
+        }
+
+        private void Debuglog(SimulationContext context)
+        {
+            var itemlist = from val in Agent.AgentStatistics
+                group val by new { val.AgentType } into grouped
+                select new { Agent = grouped.First().AgentType, ProcessingTime = grouped.Sum(x => x.ProcessingTime), Count = grouped.Count().ToString() };
+
+            foreach (var item in itemlist)
+            {
+                Debug.WriteLine(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) + "): " + item.Agent + " -> Runtime: " + item.ProcessingTime + " Milliseconds with " + item.Count + " Instructions Processed");
+            }
+            foreach (var machine in context.ActiveProcesses.Where(x => x.GetType() == typeof(MachineAgent)))
+            {
+                var item = ((MachineAgent)machine);
+                Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
+            }
+
+            var jobs =  AgentStatistic.Log.Count(x => x.Contains("Machine called finished with:"));
+            Debug.WriteLine(jobs + "Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
         }
     }
 }

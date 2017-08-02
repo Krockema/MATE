@@ -84,7 +84,8 @@ namespace Master40
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<IProcessMrp, ProcessMrpSim>();
-            services.AddSingleton<Client>();
+            services.AddSingleton<AgentSimulator>();
+            // services.AddSingleton<Client>();
 
 
 
@@ -119,8 +120,8 @@ namespace Master40
                             , ProductionDomainContext productionDomainContext)
         {
             Task.Run((() => { 
-                MasterDBInitializerSmall.DbInitialize(context);
-                MasterDBInitializerSmall.DbInitialize(productionDomainContext);
+                //MasterDBInitializerLarge.DbInitialize(context);
+                MasterDBInitializerLarge.DbInitialize(productionDomainContext);
                 }
             ));
             HangfireDBInitializer.DbInitialize(hangfireContext);

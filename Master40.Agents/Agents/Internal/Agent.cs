@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Master40.Agents.Agents.Model;
 using NSimulate.Instruction;
 using Process = NSimulate.Process;
 
@@ -13,7 +14,9 @@ namespace Master40.Agents.Agents.Internal
         // Agent Statistics
         public static List<String> AgentCounter = new List<string>();
         public static int InstructionCounter = 0;
+        public static int ItemsProduced = 0; 
         public static List<AgentStatistic> AgentStatistics = new List<AgentStatistic>();
+        
         private Stopwatch _stopwatch = new Stopwatch();
 
         // process State
@@ -37,7 +40,7 @@ namespace Master40.Agents.Agents.Internal
             this.InstructionQueue = new Queue<InstructionSet>();
             this.ChildAgents = new List<Agent>();
             this.Status = Status.Created;
-
+            
             // Cheack for Creator Agent
             var creatorsName = "Simulation Context";
             if (creator == null) { Creator = this; }
@@ -89,7 +92,12 @@ namespace Master40.Agents.Agents.Internal
             if (_stopwatch.IsRunning)
             {
                 _stopwatch.Stop();
-                AgentStatistics.Add(new AgentStatistic { Agent = this.GetType().Name, ProcessingTime = _stopwatch.ElapsedMilliseconds });
+                AgentStatistics.Add(new AgentStatistic { AgentName = this.Name,
+                                                    ProcessingTime = _stopwatch.ElapsedMilliseconds,
+                                                           AgentId = this.AgentId.ToString(),
+                                                         AgentType = this.GetType().Name,
+                                                              Time = Context.TimePeriod 
+                });
             }   
         }
 
@@ -152,7 +160,7 @@ namespace Master40.Agents.Agents.Internal
         /// <param name="methodName"></param>
         /// <param name="objectToProcess"></param>
         /// <param name="targetAgent"></param>
-        /// <param name="waitFor"> LET THE TARGET AGENT WAIT !</param>
+        /// <param name="waitFor"> Creates a Agent activity which will reaactivaded the agent after the specified time Period!</param>
         public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, long waitFor = 0)
         {
             var instruction = new InstructionSet {  MethodName = methodName,
@@ -184,7 +192,9 @@ namespace Master40.Agents.Agents.Internal
         {
             if (DebugThis)
             {
-                Debug.WriteLine("Time(" + Context.TimePeriod + ").Agent(" + Name + ") : " + msg);
+                var logItem = "Time(" + Context.TimePeriod + ").Agent(" + Name + ") : " + msg;
+                Debug.WriteLine(logItem);
+                AgentStatistic.Log.Add(logItem);
             }
         }
 

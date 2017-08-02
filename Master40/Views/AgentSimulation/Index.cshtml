@@ -1,0 +1,159 @@
+@{
+    ViewBag.Title = "Agent Basic";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-4">
+            <div class="container-fluid">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <h2>MRP </h2>
+                        <p>
+                            Container to Release the Force
+                        </p>
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Processing Options</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startAgents()">Run All</a></p>
+                                        <!--
+                                        <P>Runthrough</P>
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startBackward()">Start Agents</a></p>
+                                        -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">For Debugging Only</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p><a class="btn btn-default btn-block" href="~/AgentSimulation/Run">Start Agents</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>Processing State:</h4>
+                        <div id="" class="MessageDisplay"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 col-sm-8">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        Display Results Here
+                    </div>
+                    <div class="col-md-12">
+                        Or Here
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var processingProxy = $.connection.hub.createHubProxy("ProcessingHub");
+    processingProxy.on("clientListener", function (msg) {
+        if (msg == "MrpProcessingComplete") {
+            $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-info">Loading Results...</div>');
+        } else {
+            $(".MessageDisplay").prepend(msg);
+            $(".MessageDisplayRunning").prepend(msg);
+        }
+
+        if (msg == "SignalReady") {
+            $('#ajax-busy').hide();
+        }
+    });
+
+    // Processing Hub is loaded
+    $.connection.hub.start().done(function () {
+        processingProxy.invoke('SignalReady');
+    })
+
+
+    // Start Agents
+    function startAgents() {
+        $(".MessageDisplayRunning").html("");
+        $('#ajax-busy').show();
+        $.get("AgentSimulation/RunAsync");
+    }
+    
+    $(document).ready(function () {
+        // Block Interactions
+        $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing System</div>');
+        $('#ajax-busy').show();
+        // make make use of full size and hide overflow
+        $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
+    });
+
+
+    function loadGantt(orderId, stateId) {
+        $.ajax({
+            url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
+            async: true,
+            context: document.body,
+            beforeSend: function () {
+                $('#ajax-busy').show();
+            },
+            success: function (msg) {
+                $(".MessageDisplayRunning").html("");
+                $('#ajax-busy').hide();
+
+            },
+            error: function () {
+                $(document).ajaxError(function (xhr, ajaxOptions, thrownError) {
+                    alert('status: ' +
+                        ajaxOptions.status +
+                        '-' +
+                        ajaxOptions.statusText +
+                        ' \n' +
+                        'error:\n' +
+                        ajaxOptions.responseText);
+                });
+            }
+        }).done(function (data) { $('#ProductionGantt').html(data); });
+    }
+
+    function loadCharts(stateId) {
+        $.ajax({
+            url: "Mrp/ReloadChart/" + stateId,
+            async: true,
+            context: document.body,
+            beforeSend: function () {
+                $('#ajax-busy').show();
+            },
+            success: function (msg) {
+                $(".MessageDisplayRunning").html("");
+                $('#ajax-busy').hide();
+            },
+            error: function () {
+                $(document).ajaxError(function (xhr, ajaxOptions, thrownError) {
+                    alert('status: ' +
+                        ajaxOptions.status +
+                        '-' +
+                        ajaxOptions.statusText +
+                        ' \n' +
+                        'error:\n' +
+                        ajaxOptions.responseText);
+                });
+            }
+        }).done(function (data) { $('#ProductionChart').html(data); });
+    }
+</script>
