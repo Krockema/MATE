@@ -460,22 +460,21 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }
 
-        public void TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder productionOrder, ProductionOrder parentProductionOrder)
+        public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder)
         {
-            if (parentProductionOrder == null) return;
-            var lotsize = SimulationConfigurations.Last().Lotsize;
-            var bom = ArticleBoms.Where(a => a.ArticleChildId == demand.ArticleId);
-            if (!bom.Any()) return;
-            var absoluteQuantity = bom.ToList().Find(a => a.ArticleParentId == parentProductionOrder.ArticleId).Quantity * parentProductionOrder.Quantity;
+            if (parentProductionOrder == null) return null;
+            var bom = ArticleBoms.Single(a => a.ArticleParentId == parentProductionOrder.ArticleId && a.ArticleChildId == demand.ArticleId);
+            var quantity = bom.Quantity * parentProductionOrder.Quantity;
             var pob = new ProductionOrderBom()
             {
-                Quantity = absoluteQuantity > lotsize ? lotsize : absoluteQuantity,
+                Quantity = quantity,
                 ProductionOrderParentId = parentProductionOrder.Id
             };
             Add(pob);
             SaveChanges();
             if (demand.GetType() == typeof(DemandProductionOrderBom))
                 AssignDemandProviderToProductionOrderBom((DemandProductionOrderBom)demand, pob);
+            return pob;
         }
         
         public void AssignPurchaseToDemandProvider(PurchasePart purchasePart, DemandProviderPurchasePart provider, int quantity)
@@ -633,11 +632,23 @@ namespace Master40.DB.Data.Context
 
         public int GetDueTimeByOrder(IDemandToProvider demand)
         {
-            if (demand.GetType() == typeof(DemandOrderPart)) return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
+            
+            if (demand.GetType() == typeof(DemandOrderPart))
+            {
+                
+                demand = Demands.AsNoTracking().OfType<DemandOrderPart>().Include(a => a.OrderPart).ThenInclude(b => b.Order).Single(a => a.Id == demand.Id);
+                return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
+            }
             if (demand.GetType() == typeof(DemandStock)) return 999999;
-            if (demand.GetType() == typeof(DemandProductionOrderBom))
+            if (demand.GetType() != typeof(DemandProductionOrderBom)) return 99999999;
+            {
+                demand =
+                    Demands.AsNoTracking().OfType<DemandProductionOrderBom>()
+                        .Include(a => a.ProductionOrderBom)
+                        .ThenInclude(b => b.ProductionOrderParent)
+                        .Single(c => c.Id == demand.Id);
                 return ((DemandProductionOrderBom) demand).ProductionOrderBom.ProductionOrderParent.Duetime;
-            return 99999999;
+            }
         }
 
         /// <summary>

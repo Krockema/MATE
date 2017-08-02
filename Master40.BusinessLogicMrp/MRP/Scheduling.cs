@@ -189,7 +189,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var pobs = workSchedule.ProductionOrder.ProductionOrderBoms;
 
-            var latestEnd = (from pob in pobs
+            var latestEnd = (from pob in pobs where pob.DemandProductionOrderBoms.Any()
                              from provider in pob.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
                              select provider.ProductionOrder.ProductionOrderWorkSchedule.Max(a => a.EndForward)
                              ).Concat(new[] {0}).Max();

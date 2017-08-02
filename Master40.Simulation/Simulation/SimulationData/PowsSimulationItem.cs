@@ -38,14 +38,14 @@ namespace Master40.Simulation.Simulation
             pows.ProducingState = ProducingState.Producing;
             _context.ProductionOrderWorkSchedules.Update(pows);
             _context.SaveChanges();
-            var pobs = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == ProductionOrderId);
+            var pobs = _context.ArticleBoms.Where(a => a.ArticleParentId == ProductionOrderId);
             foreach (var pob in pobs)
             {
-                _context.Stocks.Single(a => a.ArticleForeignKey == pob.DemandProductionOrderBoms.First().ArticleId).Current-= pob.Quantity;
+                _context.Stocks.Single(a => a.ArticleForeignKey == pob.ArticleChildId).Current-= pob.Quantity;
             }
             return null;
         }
-        
+
         public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
         {
             var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId);

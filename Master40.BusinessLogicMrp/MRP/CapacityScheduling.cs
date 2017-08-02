@@ -32,7 +32,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         public void GifflerThompsonScheduling(int currentTimer)
         {
-            var maxTimer = _context.SimulationConfigurations.Last().MaxCalculationTime;
+            var maxTimer = _context.SimulationConfigurations.AsNoTracking().Last().MaxCalculationTime;
             var productionOrderWorkSchedules = GetProductionSchedules(currentTimer, maxTimer);
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
@@ -119,7 +119,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 return children.Max(b => b.End);
             }
             var childrenBoms = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == shortest.ProductionOrderId).ToList();
-            var latestEnd = (from bom in childrenBoms
+            var latestEnd = (from bom in childrenBoms where bom.DemandProductionOrderBoms.Any()
                             from provider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
                             select provider.ProductionOrder.ProductionOrderWorkSchedule.Max(a => a.End)
                             ).Concat(new[] {0}).Max();
@@ -251,17 +251,14 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 return false;
             }
-            if (child == null)
+            if (child != null) return true;
             {
                 var childs = GetBomChilds(schedule);
                 if (childs == null) return true;
-                foreach (var childSchedule in childs)
-                {
-                    if (!plannedSchedules.Any(a => a.ProductionOrderId == childSchedule.ProductionOrderId && a.HierarchyNumber == childSchedule.HierarchyNumber)) return false;
-                }
+                return childs.All(childSchedule => plannedSchedules
+                    .Any(a => a.ProductionOrderId == childSchedule.ProductionOrderId 
+                              && a.HierarchyNumber == childSchedule.HierarchyNumber));
             }
-            
-            return true;
         }
 
         private ProductionOrderWorkSchedule GetShortest(List<ProductionOrderWorkSchedule> plannableSchedules)
@@ -324,7 +321,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private List<ProductionOrderWorkSchedule> GetProductionSchedules(int currentTimer, int maxTimer)
         {
-            var demandRequester = _context.Demands
+            var demandRequester = _context.Demands.AsNoTracking()
                                             .Include(a => a.DemandProvider)
                                             .Include(a => a.DemandRequester)
                                             .ThenInclude(a => a.DemandRequester)
@@ -384,7 +381,7 @@ namespace Master40.BusinessLogicCentral.MRP
             ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
             var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms;
-            var bomChilds = (from bom in boms
+            var bomChilds = (from bom in boms where bom.DemandProductionOrderBoms.Any()
                              from provider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
                              select provider.ProductionOrder.ProductionOrderWorkSchedule into schedules
                              select schedules.Single(a => a.HierarchyNumber == schedules.Max(b => b.HierarchyNumber))
@@ -440,20 +437,26 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             //delete all demands but the head-demands
             _context.Demands.RemoveRange(_context.Demands.Where(a => (a.DemandRequesterId != null || a.GetType() == typeof(DemandProductionOrderBom)) && a.State != State.Delivered).ToList());
-            _context.SaveChanges();
-            var requester = _context.Demands.Where(a => null == a.DemandRequesterId && 
-                                                   a.State != State.Delivered && 
-                                                   (a.GetType() == typeof(DemandStock)||
-                                                        _context.GetDueTimeByOrder(a) < _context.SimulationConfigurations.Last().Time
-                                                                                        +_context.SimulationConfigurations.Last().MaxCalculationTime))
-                                            .ToList();
-            //delete all boms
             _context.ProductionOrderBoms.RemoveRange(_context.ProductionOrderBoms);
             _context.SaveChanges();
+            //_context.SaveChanges();
+            var requester = _context.Demands.Where(a => null == a.DemandRequesterId &&
+                                                                       a.State != State.Delivered).ToList();
+
+            requester = (from req in requester
+                        where req.GetType() == typeof(DemandStock) ||
+                              _context.GetDueTimeByOrder(req) < _context.SimulationConfigurations.Last().Time
+                              + _context.SimulationConfigurations.Last().MaxCalculationTime
+                        select req).ToList();
+            //_context.SaveChanges();
+            //delete all boms
+            
+            //_context.SaveChanges();
             //rebuild by using activity-slack to order demands
             while (requester.Any())
             {
                 var nextRequester = GetNextByActivitySlack(requester, time);
+                
                 SatisfyRequest(nextRequester, null);
                 requester.Remove(requester.Find(a => a.Id == nextRequester.Id));
             }
@@ -466,7 +469,7 @@ namespace Master40.BusinessLogicCentral.MRP
             var amount = demand.Quantity;
             
             //if anything is in stock, create demand
-            var articleStock = _context.Stocks.Single(a => a.ArticleForeignKey==demand.ArticleId).Current;
+            var articleStock = _context.Stocks.AsNoTracking().Single(a => a.ArticleForeignKey==demand.ArticleId).Current;
             if (articleStock > 0)
             {
                 var provider = _context.TryCreateStockReservation(demand);
@@ -489,9 +492,12 @@ namespace Master40.BusinessLogicCentral.MRP
                     continue;
                 }
                 var provider = _context.CreateProviderProductionOrder(demand, earliestProductionOrder, amount >= availableAmountFromProductionOrder ? availableAmountFromProductionOrder : amount);
-                if (parentProductionOrder != null) _context.TryCreateProductionOrderBoms(demand, earliestProductionOrder, parentProductionOrder);
+                ProductionOrderBom pob = null;
+                if (parentProductionOrder != null)
+                    pob = _context.TryCreateProductionOrderBoms(demand, parentProductionOrder);
                 _context.AssignProviderToDemand(demand, provider);
                 _context.AssignProductionOrderToDemandProvider(earliestProductionOrder, provider);
+                if (pob != null && demand.GetType() == typeof(DemandProductionOrderBom)) _context.AssignDemandProviderToProductionOrderBom((DemandProductionOrderBom)demand, pob);
                 if (amount > availableAmountFromProductionOrder)
                 {
                     amount -= availableAmountFromProductionOrder;
@@ -520,7 +526,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 {
                     //create ProductionOrders
                     var productionOrder = _context.CreateProductionOrder(demand, parentProductionOrder?.Duetime ?? _context.GetDueTimeByOrder(demand));
-                    if (parentProductionOrder != null) _context.TryCreateProductionOrderBoms(demand, productionOrder, parentProductionOrder);
+                    if (parentProductionOrder != null) _context.TryCreateProductionOrderBoms(demand, parentProductionOrder);
                     _context.CreateProductionOrderWorkSchedules(productionOrder);
                     var provider = _context.CreateProviderProductionOrder(demand, productionOrder, amount);
                     _context.AssignProviderToDemand(demand, provider);
@@ -545,15 +551,16 @@ namespace Master40.BusinessLogicCentral.MRP
         
         private void CallChildrenSatisfyRequest(ProductionOrder po)
         {
+            if (po.ProductionOrderBoms != null && po.ProductionOrderBoms.Any()) return;
             //call method for each child
             var childrenArticleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == po.ArticleId).ToList();
             foreach (var childBom in childrenArticleBoms)
             {
                 //check for the existence of a DemandProductionOrderBom
-                if (po.ProductionOrderBoms.FirstOrDefault(a => a.DemandProductionOrderBoms.First().ArticleId == childBom.ArticleChildId) == null) continue;
+                //if (po.ProductionOrderBoms.FirstOrDefault(a => a.DemandProductionOrderBoms.First().ArticleId == childBom.ArticleChildId) == null) continue;
 
-                if (po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Producing)
-                    || po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Finished)) continue;
+                //if (po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Producing)
+                //    || po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Finished)) continue;
 
                 var neededAmount = childBom.Quantity * po.Quantity;
                 var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount);

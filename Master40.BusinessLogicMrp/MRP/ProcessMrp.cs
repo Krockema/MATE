@@ -15,7 +15,7 @@ namespace Master40.BusinessLogicCentral.MRP
     {
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
-        void PlanCapacities(MrpTask task);
+        void PlanCapacities(MrpTask task, bool newOrdersAdded);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -43,12 +43,14 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             await Task.Run(() =>
             {
+                var newOrdersAdded = false;
                 _messageHub.SendToAllClients("Start full MRP cycle...", MessageType.info);
 
                 //get all unplanned orderparts and iterate through them for MRP
                 var maxAllowedTime = _context.SimulationConfigurations.Last().Time +
                                      _context.SimulationConfigurations.Last().MaxCalculationTime;
                 var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
+                if (orderParts.Any()) newOrdersAdded = true;
                 foreach (var orderPart in orderParts.ToList())
                 {
                     var demand = GetDemand(orderPart);
@@ -59,7 +61,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
                     //run the capacity algorithm
-                    PlanCapacities(task);
+                    PlanCapacities(task, newOrdersAdded);
                     _messageHub.SendToAllClients("Capacities are planned");
                 }
                 //set all orderparts to be planned
@@ -97,7 +99,8 @@ namespace Master40.BusinessLogicCentral.MRP
         /// Plans capacities for all demands which are either already planned or just finished with MRP.
         /// </summary>
         /// <param name="task"></param>
-        public void PlanCapacities(MrpTask task)
+        /// <param name="newOrdersAdded"></param>
+        public void PlanCapacities(MrpTask task, bool newOrdersAdded)
         {
             var timer = _context.SimulationConfigurations.Last().Time;
             var demands = _context.Demands.Where(a =>
@@ -108,7 +111,7 @@ namespace Master40.BusinessLogicCentral.MRP
            
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
-            if (timer > 0)
+            if (newOrdersAdded)
                 _capacityScheduling.RebuildNets(timer);
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
@@ -230,28 +233,12 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (!children.Any()) return;
                 foreach (var child in children)
                 {
-                    //create Production-BOM
-                    var pob = new ProductionOrderBom()
-                    {
-                        ProductionOrderParentId = productionOrder.Id,
-                        Quantity = productionOrder.Quantity
-                    };
-                    _context.ProductionOrderBoms.Add(pob);
-                    _context.SaveChanges();
-
                     //create Requester
-                    var dpob = new DemandProductionOrderBom
-                    {
-                        ArticleId = child.ArticleChildId,
-                        Article = child.ArticleChild,
-                        Quantity = productionOrder.Quantity * (int)child.Quantity,
-                        DemandProvider = new List<DemandToProvider>(),
-                        State = State.Created,
-                        DemandRequesterId = null,
-                        ProductionOrderBomId = pob.Id
-                    };
-                    _context.Add(dpob);
-                    _context.SaveChanges();
+                    var dpob = _context.CreateDemandProductionOrderBom(child.ArticleChildId,productionOrder.Quantity * (int) child.Quantity);
+                    //create Production-BOM
+                    var pob = _context.TryCreateProductionOrderBoms(dpob, productionOrder);
+                    _context.AssignDemandProviderToProductionOrderBom(dpob, pob);
+                    
                     //call this method recursively for a depth-first search
                     ExecutePlanning(dpob, task);
                 }

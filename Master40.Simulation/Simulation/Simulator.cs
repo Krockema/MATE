@@ -169,7 +169,7 @@ namespace Master40.Simulation.Simulation
                     var items = (from tT in relevantItems
                                  where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
-                    var item = items.Single(a => a.Start == items.Min(b => b.Start));
+                    var item = items.First(a => a.Start == items.Min(b => b.Start));
 
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items)) continue;
@@ -273,7 +273,7 @@ namespace Master40.Simulation.Simulation
         private bool? SimulationBomChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
             var childBoms = item.ProductionOrder.ProductionOrderBoms;
-            var childrenPos = (from bom in childBoms
+            var childrenPos = (from bom in childBoms where bom.DemandProductionOrderBoms.Any()
                                from singleProvider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
                                select singleProvider.ProductionOrder
                                ).ToList();
