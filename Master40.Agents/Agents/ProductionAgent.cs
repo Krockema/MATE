@@ -61,7 +61,7 @@ namespace Master40.Agents.Agents
 
                 // create Dispo Agents for to Provide Required Articles
                 var dispoAgent = new DispoAgent(creator: this,
-                                                system: ((DispoAgent)Creator).SystemAgent,
+                                                system: ((StorageAgent)Creator).Creator,
                                                 name: RequestItem.Article.Name + " Child of(" + this.Name + ")",
                                                 debug: DebugThis,
                                                 requestItem: item);
@@ -81,7 +81,7 @@ namespace Master40.Agents.Agents
             // TODO Anything ?
             if (RequestItem.Article.WorkSchedules != null && WorkItems.All(x => x.Status == Status.Finished)) {
                 this.Status = Status.Finished;
-                CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromProduction.ToString(),
+                CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.ResponseFromProduction.ToString(),
                                       objectToProcess: this,
                                           targetAgent: this.Creator);
                 
@@ -93,14 +93,11 @@ namespace Master40.Agents.Agents
             DebugMessage("Im Ready To get Enqued");
             Status = Status.Ready;
             SetWorkItemReady();
-            
-            
-
         }
 
         private void RequestComunicationAgentFor(IEnumerable<WorkSchedule> workSchedules)
         {
-            var directoryAgent = ((DispoAgent) Creator).SystemAgent.ChildAgents.OfType<DirectoryAgent>().FirstOrDefault();
+            var directoryAgent = ((StorageAgent)Creator).Creator.ChildAgents.OfType<DirectoryAgent>().FirstOrDefault();
             if (directoryAgent == null)
             {
                 throw new DirectoryNotFoundException("Could not find Directory Agent.");
@@ -176,7 +173,7 @@ namespace Master40.Agents.Agents
             var comunicationAgent = ComunicationAgents.FirstOrDefault(x => x.ContractType 
                                                                         == nextItem.WorkSchedule.MachineGroup.Name);
 
-            DebugMessage(" SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
+            DebugMessage("SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
 
             // create StatusMsg
             var message = new WorkItemStatus
@@ -208,7 +205,7 @@ namespace Master40.Agents.Agents
             CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
                 objectToProcess: workItem,
                 targetAgent: workItem.ProductionAgent);
-
+           
 
         }
 

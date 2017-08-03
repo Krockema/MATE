@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Models;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace Master40.Agents.Agents
 {
@@ -185,7 +183,7 @@ namespace Master40.Agents.Agents
                 return;
             }
 
-
+            
             DebugMessage("------>> Start With" +  item.WorkSchedule.Name);
             ItemsInProgess = true;
             item.Status = Status.Processed;
@@ -210,7 +208,7 @@ namespace Master40.Agents.Agents
 
             // Set Machine State to Ready for next
             ItemsInProgess = false;
-            DebugMessage("------>>Finished Work with " + item.WorkSchedule.Name + " take next...");
+            DebugMessage("------>> Finished Work with " + item.WorkSchedule.Name + " take next...");
 
             // Set Finish and Remove from Queue
             item.Status = Status.Finished;

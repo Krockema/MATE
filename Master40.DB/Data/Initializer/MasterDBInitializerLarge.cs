@@ -282,7 +282,8 @@ namespace Master40.DB.Data.Initializer
 
             //create order
             var orders = new List<Order>() { 
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 2880, Name = "First Truck order"},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 200, Name = "First Truck order"},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 450, Name = "First Truck order"},
             };
             foreach (var order in orders)
             {
@@ -295,6 +296,7 @@ namespace Master40.DB.Data.Initializer
             {
                 new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
                 new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 2, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)
             {

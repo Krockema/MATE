@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Master40.Agents.Agents.Internal;
+using Master40.DB.Data.Helper;
+using Master40.DB.Interfaces;
 using Master40.DB.Models;
 
 namespace Master40.Agents.Agents.Model
@@ -23,6 +25,22 @@ namespace Master40.Agents.Agents.Model
             Proposals = new List<Proposal>();
 
         }
-        
+
+        public SimulationWorkschedule ProductionOrderWorkSchedule(int start, int end, string machine)
+        {
+            var pows = new SimulationWorkschedule();
+            
+            pows.Start = start;
+            pows.End = end;
+            pows.Machine = machine;
+            pows.Article = WorkSchedule.Article.Name;
+            pows.DueTime = DueTime;
+            pows.WorkScheduleId = WorkSchedule.Id;
+
+            return pows;
+        }
     }
+
+
+    
 }

@@ -13,7 +13,7 @@ namespace Master40.Agents.Agents
         public Agent SystemAgent { get; }
         private RequestItem RequestItem { get; set; }
         private int quantityToProduce { get; set; }
-
+        private Agent StockAgent { get; set; }
         /// <summary>
         /// First  ask Store for Item and wait for Response
         /// secont Create Production
@@ -28,6 +28,7 @@ namespace Master40.Agents.Agents
         {
             SystemAgent = system;
             RequestItem = requestItem;
+            RequestItem.Requester = this;
             //Instructions.Add(new Instruction { Method = "ResponseFromStock", ExpectedObjecType = typeof(string) });
             //Instructions.Add(new Instruction { Method = "CreateProductionAgent", ExpectedObjecType = typeof(string) });
             RequestFromStock();
@@ -36,8 +37,8 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             ResponseFromStock,
-            ResponseFromSystemForBom,
-            ResponseFromProduction
+            RequestProvided,
+            ResponseFromSystemForBom
         }
 
         private void RequestFromStock()
@@ -45,20 +46,19 @@ namespace Master40.Agents.Agents
             // get Related Storage Agent
             // first catch the correct Storage Agent
             // TODO Could be managent by Dictonary like Machine <-> Dictionary <-> Comunication
-            var storeAgent = SystemAgent.ChildAgents.OfType<StorageAgent>()
-                                                    .FirstOrDefault(x => x.StockElement.Article.Name == RequestItem.Article.Name);
-            if (storeAgent == null)
+            StockAgent = SystemAgent.ChildAgents.OfType<StorageAgent>()
+                                        .FirstOrDefault(x => x.StockFor == RequestItem.Article.Name);
+            if (StockAgent == null)
             {
                 throw new ArgumentNullException($"No storage agent found for {1}", RequestItem.Article.Name);
             }
-            
             // debug
-            DebugMessage("requests from " + storeAgent.Name + " Article: " + RequestItem.Article.Name + " (" + RequestItem.Quantity + ")");
+            DebugMessage("requests from " + StockAgent.Name + " Article: " + RequestItem.Article.Name + " (" + RequestItem.Quantity + ")");
             
             // Create Request 
             CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
                                   objectToProcess: RequestItem,
-                                      targetAgent: storeAgent);
+                                      targetAgent: StockAgent);
         }
 
 
@@ -69,7 +69,17 @@ namespace Master40.Agents.Agents
                 quantityToProduce = RequestItem.Quantity - ((StockReservation)instructionSet.ObjectToProcess).Quantity;
             }
             // TODO -> Logic
-            DebugMessage(" Returned with " + ((StockReservation)instructionSet.ObjectToProcess).Quantity + " " + RequestItem.Article.Name +" Reserved!");
+            DebugMessage("Returned with " + ((StockReservation)instructionSet.ObjectToProcess).Quantity + " " + RequestItem.Article.Name +" Reserved!");
+
+            
+            // Create Production Agents
+            if (RequestItem.Article.ToBuild)
+            {
+                CreateAndEnqueueInstuction(methodName: Agents.SystemAgent.InstuctionsMethods.RequestArticleBom.ToString(),
+                                        objectToProcess: RequestItem,
+                                        targetAgent: SystemAgent);
+            }
+            
 
             // check for zero
             if (quantityToProduce == 0)
@@ -77,11 +87,6 @@ namespace Master40.Agents.Agents
                 this.Finish();
                 return;
             }
-
-            // Create Request ArticleBom
-            CreateAndEnqueueInstuction(methodName: Agents.SystemAgent.InstuctionsMethods.RequestArticleBom.ToString(),
-                                  objectToProcess: RequestItem,
-                                      targetAgent: SystemAgent);
         }
 
         private void ResponseFromSystemForBom(InstructionSet instructionSet)
@@ -104,32 +109,16 @@ namespace Master40.Agents.Agents
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < quantityToProduce; i++)
             {
-                ChildAgents.Add(new ProductionAgent(creator: this,
+                ChildAgents.Add(new ProductionAgent(creator: StockAgent,
                                                        name: "Production(" + RequestItem.Article.Name + ", Nr. " + i + ")",
                                                       debug: DebugThis,
                                                 requestItem: item));
             }
         }
 
-        private void ResponseFromProduction(InstructionSet instructionSet)
+        private void RequestProvided(InstructionSet instructionSet)
         {
-            var productionAgent = instructionSet.ObjectToProcess as ProductionAgent;
-            if (productionAgent == null)
-            {
-                throw new InvalidCastException(this.Name + " failed to Cast ProductionAgent on Instruction.ObjectToProcess");
-            }
-
-            DebugMessage("Production Agent Finished Work: " + productionAgent.Name);
-
-            foreach (var child in ChildAgents)
-            {
-                DebugMessage("ChildName:" + child.Name + " Status: " + child.Status);
-            }
-
-            if (ChildAgents.All(x => x.Status == Status.Finished))
-            {
-                this.Finish();
-            }
+            this.Finish();
         }
     }
 }
