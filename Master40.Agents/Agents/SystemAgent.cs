@@ -35,8 +35,10 @@ namespace Master40.Agents.Agents
             }
 
             // Create DemandRequester
+            /*
             var demand = _productionDomainContext.CreateDemandOrderPart(requestItem);
             requestItem.DemandOrderParts = new List<DemandOrderPart>{ (DemandOrderPart)demand };
+            */
 
             // Create Agent
             CreateAgents(requestItem);

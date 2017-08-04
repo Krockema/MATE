@@ -40,56 +40,77 @@
         font-weight: bold;
     }
 </style>        
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Filter and scaling</h4>
+        </div>
+        <div class="panel-body">
+            <div class="row" style="margin-bottom: 10px;">
+                <div class="col-md-4"><h4 class="text-left" style="padding-left: 15px">Time scale</h4>
+                </div>
+                <div class="col-md-8">
+                    <div class='controls_bar'>
+                        <label style="width: 20%">
+                            <input name='scales' onclick='zoom_tasks(this)' type='radio' value='day'>
+                            <span>Min</span>
+                        </label>
+                        <label style="width: 20%">
+                            <input name='scales' onclick='zoom_tasks(this)' type='radio' value='week' checked='checked'>
+                            <span>Hours</span>
+                        </label>
+                        <label style="width: 20%">
+                            <input name='scales' onclick='zoom_tasks(this)' type='radio' value='trplweek'>
+                            <span>Days</span>
+                        </label>
+                        <label style="width: 20%">
+                            <input name='scales' onclick='zoom_tasks(this)' type='radio' value='year'>
+                            <span>Months</span>
+                        </label>
 
-<div class="row" style="margin-bottom: 10px;">
-    <div class="col-md-4"><h4 class="text-left" style="padding-left: 15px">Filter and Scaling</h4></div>
-    <div class="col-md-8">
-        <div class='controls_bar'>
-            <label style="width: 20%">
-                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='day'>
-                <span>Min</span>
-            </label>
-            <label style="width: 20%">
-                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='week' checked='checked'>
-                <span>Hours</span>
-            </label>
-            <label style="width: 20%">
-                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='trplweek'>
-                <span>Days</span>
-            </label>
-            <label style="width: 20%">
-                <input name='scales' onclick='zoom_tasks(this)' type='radio' value='year'>
-                <span>Months</span>
-            </label>
-
+                    </div>
+                </div>
+            </div>
+            <form method="post" asp-action="Index" onchange="submitform()">
+                <div class="form">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label class="control-label col-md-4">Order</label>
+                            <div class="col-md-8">
+                                <select class="form-control" asp-items="ViewBag.OrderId" id="fcOrder" name="Order"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="control-label col-md-4">State of Planning</label>
+                                <div class="col-md-8">
+                                    <select class="form-control" asp-items="ViewBag.SchedulingState" id="fcState" name="SchedulingState"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-<form method="post" asp-action="Index" onchange="submitform()">
-    <div class="form-inline">
-        <div class="col-md-5">
-            <div class="form-group">
-                <label class="control-label col-md-4">Order</label>
-                <div class="col-md-8">
-                    <select class="form-control" asp-items="ViewBag.OrderId" id="fcOrder" name="Order"></select>
-                </div>
-            </div>
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4>Production Gantt</h4>
         </div>
-        <div class="col-md-7">
-            <div class="form-group">
-                <label class="control-label col-md-4">State of Planning</label>
-                <div class="col-md-8">
-                    <select class="form-control" asp-items="ViewBag.SchedulingState" id="fcState" name="SchedulingState"></select>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="gantt_here" style="width: 100%; margin: 10px 0px"></div>
                 </div>
             </div>
         </div>
     </div>
-</form>
-<div class="row">
-        <div class="col-md-12">
-                <div id="gantt_here" style="width: 100%; height: 650px; margin: 10px 0px"></div>
-            </div>
-    </div>
+</div>
+
+
     <!--
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
@@ -109,6 +130,7 @@
     gantt.config.scale_unit = "hour";
     gantt.config.duration_unit = "minute";
     gantt.config.date_scale = "%H:%i";
+    gantt.config.autosize = "y";
     //gantt.config.autofit = false;
     //gantt.config.start_date = "2017-06-15 00:00";
     //gantt.config.end_date = "2017-07-15 00:00";

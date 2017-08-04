@@ -203,10 +203,8 @@ namespace Master40.Agents.Agents
 
             DebugMessage("Machine called finished with: " + workItem.WorkSchedule.Name + " !");
             CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
-                objectToProcess: workItem,
-                targetAgent: workItem.ProductionAgent);
-           
-
+                                  objectToProcess: workItem,
+                                      targetAgent: workItem.ProductionAgent);
         }
 
     }

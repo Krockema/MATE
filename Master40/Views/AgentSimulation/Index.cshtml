@@ -2,6 +2,16 @@
     ViewBag.Title = "Agent Basic";
     Layout = "_Layout";
 }
+<link href="~/css/mermaid.css" rel="stylesheet" />
+<script src="~/js/mermaid.js"></script>
+<script>mermaid.initialize({ startOnLoad: true });</script>
+
+
+
+
+
+
+
 
 <div class="container-fluid">
     <div class="row">
@@ -52,6 +62,44 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
+                        <h4>Agent Conections</h4>
+                        <div class="mermaid" >
+                            graph LR;
+                            System
+                            Contract
+                            Dispo
+                            Dir
+                            Stock
+                            Production
+                            Com
+                            Machine
+                            Dir-->Machine
+                            System-->Dispo
+                            System-->Contract
+                            Contract-->Dispo
+                            Dispo-->Stock
+                            Stock-->Dispo
+                            Dispo-->Production
+                            Production-->Stock
+                            Production-->Dispo
+                            Production-->Com
+                            Machine-->Dir
+                            Com-->Machine
+                            Dir-->Com
+                            Machine-->Com
+                            Com-->Production
+                            Dir-->Production
+                            Production-->Dir
+                            Dispo-->Contract
+                            Dispo-->System
+                            Contract-->System
+                            
+                        </div>
+                        <div class="mermaid" id="mermaidChart0">
+                            <svg>
+                                Chart ends up here
+                            </svg>
+                        </div>
                         <h4>Processing State:</h4>
                         <div id="" class="MessageDisplay"></div>
                     </div>

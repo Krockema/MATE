@@ -13,13 +13,13 @@
     <Compile Remove="BusinessLogic\**" />
     <Content Remove="BusinessLogic\**" />
     <EmbeddedResource Remove="BusinessLogic\**" />
-    <None Remove="BusinessLogic\**" />
-  </ItemGroup>
+    </ItemGroup>
 
   <ItemGroup>
     <Content Include="wwwroot\css\jQuerryGantt.css" />
     <Content Include="wwwroot\css\menu.css" />
     <Content Include="wwwroot\css\MenuV2.css" />
+    <Content Include="wwwroot\css\mermaid.css" />
     <Content Include="wwwroot\css\simpleTimeline.css" />
     <Content Include="wwwroot\images\connected-data-flow-chart.svg" />
     <Content Include="wwwroot\images\data-analytics-symbol.svg" />
@@ -28,8 +28,7 @@
     <Content Include="wwwroot\images\icon_sprite.png" />
     <Content Include="wwwroot\images\loading.svg" />
     <Content Include="wwwroot\images\slider_handle.png" />
-    <Content Include="wwwroot\js\moment.min.js" />
-    <Content Include="wwwroot\js\prettify.js" />
+    <Content Include="wwwroot\js\mermaid.js" />
     <Content Include="wwwroot\lib\dxhtml-gantt\connector\base_connector.php" />
     <Content Include="wwwroot\lib\dxhtml-gantt\connector\chart_connector.php" />
     <Content Include="wwwroot\lib\dxhtml-gantt\connector\combo_connector.php" />
@@ -225,12 +224,12 @@
     <Content Include="wwwroot\lib\timeline\simpleTimeline.js" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ChartJSCore" Version="1.0.3" />
+    <PackageReference Include="ChartJSCore" Version="1.0.4" />
     <PackageReference Include="cldrjs" Version="0.4.8" />
     <PackageReference Include="Gray.Microsoft.AspNetCore.Signalr.Server" Version="0.2.0-alpha1" />
     <PackageReference Include="Hangfire" Version="1.6.13" />
     <PackageReference Include="jquery-globalize" Version="1.2.3" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Localization" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.1" />

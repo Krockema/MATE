@@ -5,7 +5,49 @@
         raw = chart.CreateChartCode("MaschineChart");
     }
 }
-<div><canvas id="MaschineChart" style="max-height: 350px;"></canvas></div>
+
+<style>
+    .chartWrapper {
+        position: relative;
+            
+    }
+
+    .chartWrapper > canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        pointer-events:none;
+    }
+    .chartAreaWrapper {
+        overflow-x: scroll;
+        position: relative;
+        width: 100%;
+    }
+
+    .chartAreaWrapper2 {
+          
+        position: relative;
+        height: 300px;
+    }
+</style>
+<div class="chartWrapper">
+    <div class="chartAreaWrapper">
+        <div class="chartAreaWrapper2">
+                <!-->div id="js-legend" class="chart-legend"><div-->
+                <canvas id="MaschineChart" height="300" width="0"></canvas>
+            </div>
+    </div>
+</div>
+
 <script>
     @Html.Raw(raw);
+    $( document ).ready(function() {
+        var newwidth = 20 * MaschineChart.data.datasets[0].data.length;
+        $('.chartAreaWrapper2').width(newwidth);
+        $('.chartAreaWrapper').animate({scrollLeft:newwidth});
+
+        //document.getElementById('js-legend').innerHTML = MaschineChart.generateLegend();
+    });
+
+
 </script>

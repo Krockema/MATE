@@ -7,6 +7,7 @@ using Master40.Agents.Agents;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using NSimulate;
 using Master40.MessageSystem.SignalR;
@@ -16,12 +17,15 @@ namespace Master40.Agents
     public class AgentSimulation 
     {
         private readonly ProductionDomainContext _productionDomainContext;
+        public static List<SimulationWorkschedule> SimulationWorkschedules;
+
         private IMessageHub _messageHub;
 
         public AgentSimulation(ProductionDomainContext productionDomainContext, IMessageHub messageHub)
         {
             _productionDomainContext = productionDomainContext;
             _messageHub = messageHub;
+            SimulationWorkschedules = new List<SimulationWorkschedule>();
         }
 
         public async Task<List<AgentStatistic>> RunSim()

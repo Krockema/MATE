@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.Agents.Agents.Internal;
@@ -17,7 +18,8 @@ namespace Master40.Agents.Agents
         private int ProgressQueueSize { get; }
         public List<WorkItem> Queue { get; }
         //private Queue<WorkItem> SchduledQueue;
-        private List<WorkItem> ProcessingQueue { get; }
+        private LimitedQueue<WorkItem> ProcessingQueue { get; }
+        
         private bool ItemsInProgess { get; set; }
 
 
@@ -36,27 +38,26 @@ namespace Master40.Agents.Agents
             _directoryAgent = directoryAgent;
             ProgressQueueSize = 1; // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
             Queue = new List<WorkItem>();  // ThenBy( x => x.Status)
-            //SchduledQueue = new Queue<WorkItem>();
+            ProcessingQueue = new LimitedQueue<WorkItem>(1);
             Machine = machine;
             ItemsInProgess = false;
-            RegisterService();
+            RegisterService();            
         }
 
 
         /// <summary>
-        /// Register the Machine in the System.
+        /// Register the Machine in the System on Startup.
         /// </summary>
         public void RegisterService()
         {
             _directoryAgent.InstructionQueue.Enqueue(new InstructionSet
             {
                 MethodName = DirectoryAgent.InstuctionsMethods.GetOrCreateComunicationAgentForType.ToString(),
-                ObjectToProcess = this.Machine.MachineGroup.Name,
+                ObjectToProcess = Machine.MachineGroup.Name,
                 ObjectType = typeof(string),
                 SourceAgent = this
             });
         }
-
 
         /// <summary>
         /// Callback
@@ -155,15 +156,26 @@ namespace Master40.Agents.Agents
             var workItem = Queue.FirstOrDefault(x => x.Id == workItemStatus.WorkItemId);
             
             DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
-            // if 
+         
             if (workItem.Status == Status.Ready)
             {
+                // update Processing queue
+                UpdateProcessingQueue(workItem);
+                
                 // there is at least Something Ready so Start Work
                 DoWork(new InstructionSet());
                 DebugMessage("Call for Work");
             }
         }
 
+        private void UpdateProcessingQueue(WorkItem workItem)
+        {
+            if (ProcessingQueue.CapacitiesLeft && workItem != null)
+            {
+                ProcessingQueue.Enqueue(workItem);
+                Queue.Remove(workItem);
+            }
+        }
 
         private void DoWork(InstructionSet instructionSet)
         {
@@ -171,9 +183,10 @@ namespace Master40.Agents.Agents
                 DebugMessage("Im still working....");
                 return; // still working
             }
-            
-            // get next Ready Element from Queue
-            var item = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority).FirstOrDefault();
+
+            // Dequeue
+            var item = ProcessingQueue.Dequeue();
+
 
             // Wait if nothing More todo.
             if (item == null)
@@ -182,7 +195,6 @@ namespace Master40.Agents.Agents
                 DebugMessage("Nothing more Ready in Queue!");
                 return;
             }
-
             
             DebugMessage("------>> Start With" +  item.WorkSchedule.Name);
             ItemsInProgess = true;
@@ -192,10 +204,6 @@ namespace Master40.Agents.Agents
                                   objectToProcess: item,
                                       targetAgent: this,
                                           waitFor: item.WorkSchedule.Duration - 1);
-
-
-            //TODO Something in Queue but not ready --> pass Instruction
-
         }
 
         private void FinishWork(InstructionSet instructionSet)
@@ -206,13 +214,17 @@ namespace Master40.Agents.Agents
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
 
+            // Set next Ready Element from Queue
+            var itemFromQueue = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority).FirstOrDefault();
+            UpdateProcessingQueue(itemFromQueue);
+
             // Set Machine State to Ready for next
             ItemsInProgess = false;
             DebugMessage("------>> Finished Work with " + item.WorkSchedule.Name + " take next...");
 
             // Set Finish and Remove from Queue
             item.Status = Status.Finished;
-            Queue.Remove(item);
+
             // Call Comunication Agent that item has ben processed.
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.FinishWorkItem.ToString(),
                                   objectToProcess: item,

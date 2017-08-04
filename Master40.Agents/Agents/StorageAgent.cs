@@ -75,7 +75,10 @@ namespace Master40.Agents.Agents
 
             DebugMessage("Production Agent Finished Work: " + productionAgent.Name);
 
+            // Add the Produced item to Stock
             StockElement.Current++;
+
+            // Check if the most Important Request can be provided.
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
             if (requestProvidable.Quantity == StockElement.Current)
             {

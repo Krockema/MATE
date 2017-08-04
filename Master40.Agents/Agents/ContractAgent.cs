@@ -51,7 +51,7 @@ namespace Master40.Agents.Agents
                 DueTime = orderPart.Order.DueTime,
                 Quantity = orderPart.Quantity,
                 Article = orderPart.Article,
-                IDemandToProvider = orderPart.DemandOrderParts.FirstOrDefault()
+               // IDemandToProvider = orderPart.DemandOrderParts.FirstOrDefault()
             };
             return requestItem;
         }

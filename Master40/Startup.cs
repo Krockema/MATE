@@ -142,6 +142,7 @@ namespace Master40
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseFileServer();
             app.UseStaticFiles();
             app.UseSignalR();
 
