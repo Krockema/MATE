@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.Enums;
 using Newtonsoft.Json;
 
 namespace Master40.DB.Models
@@ -15,6 +16,7 @@ namespace Master40.DB.Models
         [JsonIgnore]
         public virtual ICollection<DemandOrderPart> DemandOrderParts { get; set; }
         public bool IsPlanned { get; set; }
+        public State State { get; set; }
         
         /*
         [NotMapped]

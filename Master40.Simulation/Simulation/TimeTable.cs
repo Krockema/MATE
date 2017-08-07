@@ -38,8 +38,7 @@ namespace Master40.Simulation.Simulation
                 timeTable.Timer = recalculate;
                 return timeTable;
             }
-            else
-                timeTable.Timer = start < end ? start : end;
+            timeTable.Timer = start < end ? start : end;
             
             foreach (var item in (from tT in timeTable.Items
                                   where (tT.Start == timeTable.Timer && tT.SimulationState == SimulationState.Waiting) || 

@@ -8,9 +8,7 @@
         BackwardScheduleExists,
         ForwardScheduleExists,
         ExistsInCapacityPlan,
-        Produced,
-        Delivered,
-        Purchased,
+        Finished
     }
 
     public enum ProducingState

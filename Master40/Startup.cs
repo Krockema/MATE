@@ -84,6 +84,7 @@ namespace Master40
             services.AddSingleton<IProcessMrp, ProcessMrp>();
             services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<IProcessMrp, ProcessMrpSim>();
+            services.AddSingleton<IRebuildNets, RebuildNets>();
             services.AddSingleton<AgentSimulator>();
             // services.AddSingleton<Client>();
 

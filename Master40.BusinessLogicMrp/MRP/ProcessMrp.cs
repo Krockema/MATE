@@ -8,6 +8,7 @@ using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Enums;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
+using System;
 
 namespace Master40.BusinessLogicCentral.MRP
 {
@@ -16,22 +17,25 @@ namespace Master40.BusinessLogicCentral.MRP
         Task CreateAndProcessOrderDemand(MrpTask task);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
         void PlanCapacities(MrpTask task, bool newOrdersAdded);
+        void UpdateDemandsAndOrders();
     }
 
     public class ProcessMrp : IProcessMrp
     {
+        private readonly IRebuildNets _rebuildNets;
         private readonly IMessageHub _messageHub;
         private readonly ProductionDomainContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        public ProcessMrp(ProductionDomainContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub)
+        public ProcessMrp(ProductionDomainContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub, IRebuildNets rebuildNets)
         {
             _messageHub = messageHub;
             _context = context;
             _scheduling = scheduling;
             _capacityScheduling = capacityScheduling;
             _demandForecast = new DemandForecast(context,this);
+            _rebuildNets = rebuildNets;
         }
 
         /// <summary>
@@ -72,6 +76,7 @@ namespace Master40.BusinessLogicCentral.MRP
                         orderPart.IsPlanned = true;
                 }
                 _context.SaveChanges();
+                _messageHub.SendToAllClients("End of the latest calculated order: "+ _context.ProductionOrderWorkSchedules.Max(a => a.End));
             });
             
         }
@@ -114,7 +119,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             if (newOrdersAdded)
             {
-                _capacityScheduling.RebuildNets();
+                //_rebuildNets.Rebuild();
                 _messageHub.SendToAllClients("RebuildNets completed");
             }
 
@@ -247,6 +252,61 @@ namespace Master40.BusinessLogicCentral.MRP
                     ExecutePlanning(dpob, task);
                 }
             }
+        }
+
+        public void UpdateDemandsAndOrders()
+        {
+            var requester = UpdateDemandStates();
+            if (requester == null) return;
+            var orderParts = new List<OrderPart>();
+            foreach (var singleRequester in requester)
+            {
+                if (singleRequester.GetType() != typeof(DemandOrderPart)) continue;
+                ((DemandOrderPart) singleRequester).OrderPart.State = State.Finished;
+                orderParts.Add(((DemandOrderPart)singleRequester).OrderPart);
+            }
+            foreach (var orderPart in orderParts)
+            {
+                var finishedOrderPart =
+                        _context.OrderParts.Include(a => a.Order)
+                            .ThenInclude(b => b.OrderParts)
+                            .Single(a => a.Id == orderPart.Id);
+                if (finishedOrderPart.Order.OrderParts.Any(a => a.State != State.Finished)) continue;
+                finishedOrderPart.Order.State = State.Finished;
+                _context.Update(finishedOrderPart.Order);
+                _messageHub.SendToAllClients("Order with Id "+ finishedOrderPart.OrderId+" finished!");
+                foreach (var singleOrderPart in finishedOrderPart.Order.OrderParts)
+                {
+                    var stock = _context.Stocks.Single(a => a.ArticleForeignKey == singleOrderPart.ArticleId);
+                    stock.Current -= singleOrderPart.Quantity;
+                    _context.Update(stock);
+                }
+                _context.SaveChanges();
+            }
+        }
+
+        private List<IDemandToProvider> UpdateDemandStates()
+        {
+            var changedDemands = new List<IDemandToProvider>();
+            changedDemands.AddRange(UpdateStateDemandProviderProductionOrders());
+            changedDemands.AddRange(_context.UpdateStateDemandProviderPurchaseParts());
+
+            return !changedDemands.Any() ? null : _context.UpdateStateDemandRequester(changedDemands);
+        }
+
+        private IEnumerable<IDemandToProvider> UpdateStateDemandProviderProductionOrders()
+        {
+            var changedDemands = new List<IDemandToProvider>();
+            var provider = _context.Demands.OfType<DemandProviderProductionOrder>().Include(a => a.ProductionOrder).ThenInclude(b => b.ProductionOrderWorkSchedule).Where(a => a.State != State.Finished).ToList();
+            foreach (var singleProvider in provider)
+            {
+                if (singleProvider.ProductionOrder.ProductionOrderWorkSchedule.Any(a => a.ProducingState != ProducingState.Finished)) continue;
+                singleProvider.State = State.Finished;
+                _context.Update(singleProvider);
+                _context.SaveChanges();
+                changedDemands.Add(singleProvider);
+            }
+            return changedDemands;
         }
     }
 

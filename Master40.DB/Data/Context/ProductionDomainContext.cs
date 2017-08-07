@@ -408,6 +408,7 @@ namespace Master40.DB.Data.Context
                 Quantity = amount,
                 StockId = Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId).Id,
                 DemandRequesterId = demand.Id,
+                State = State.Finished
             };
             Add(dps);
             SaveChanges();
@@ -747,6 +748,36 @@ namespace Master40.DB.Data.Context
             Demands.Add(demand);
             SaveChanges();
             return demand;
+        }
+
+        public List<IDemandToProvider> UpdateStateDemandProviderPurchaseParts()
+        {
+            var changedDemands = new List<IDemandToProvider>();
+            var provider = Demands.OfType<DemandProviderPurchasePart>().Include(a => a.PurchasePart).ThenInclude(b => b.Purchase).Where(a => a.State != State.Finished).ToList();
+            foreach (var singleProvider in provider)
+            {
+                if (singleProvider.PurchasePart.State != State.Finished) continue;
+                singleProvider.State = State.Finished;
+                changedDemands.Add(singleProvider);
+                Update(singleProvider);
+                SaveChanges();
+            }
+            return changedDemands;
+        }
+
+        public List<IDemandToProvider> UpdateStateDemandRequester(List<IDemandToProvider> provider)
+        {
+            var changedRequester = new List<IDemandToProvider>();
+            foreach (var singleProvider in provider)
+            {
+                var prov = Demands.Include(a => a.DemandRequester).ThenInclude(b => b.DemandProvider).Single(a => a.Id == singleProvider.Id);
+                if (prov.DemandRequester.DemandProvider.Any(a => a.State != State.Finished)) continue;
+                prov.DemandRequester.State = State.Finished;
+                Update(prov.DemandRequester);
+                SaveChanges();
+                changedRequester.Add(prov.DemandRequester);
+            }
+            return changedRequester;
         }
     }
 }
