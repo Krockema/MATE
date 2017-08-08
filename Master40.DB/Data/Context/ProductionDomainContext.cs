@@ -427,14 +427,14 @@ namespace Master40.DB.Data.Context
             SaveChanges();
             return dppo;
         }
-        public DemandProviderPurchasePart CreateProviderPurchase(IDemandToProvider demand, PurchasePart purchase, decimal amount)
+        public DemandProviderPurchasePart CreateDemandProviderPurchasePart(IDemandToProvider demand, PurchasePart purchase, decimal amount)
         {
             var dppp = new DemandProviderPurchasePart()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
                 PurchasePartId = purchase.Id,
-                DemandRequesterId = demand.DemandRequesterId,
+                DemandRequesterId = demand.Id,
             };
             Add(dppp);
             SaveChanges();
