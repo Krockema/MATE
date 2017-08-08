@@ -408,7 +408,7 @@ namespace Master40.DB.Data.Context
                 Quantity = amount,
                 StockId = Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId).Id,
                 DemandRequesterId = demand.Id,
-                State = State.Finished
+                State = State.Created
             };
             Add(dps);
             SaveChanges();
@@ -558,7 +558,7 @@ namespace Master40.DB.Data.Context
         public decimal GetReserved(int articleId)
         {
             decimal amountReserved = 0;
-            IQueryable<IDemandToProvider> reservations = Demands.OfType<DemandProviderStock>().Where(a => a.ArticleId == articleId);
+            IQueryable<IDemandToProvider> reservations = Demands.OfType<DemandProviderStock>().Where(a => a.State != State.Finished && a.ArticleId == articleId);
             foreach (var reservation in reservations)
                 amountReserved += reservation.Quantity;
             //Todo check logic
@@ -765,13 +765,31 @@ namespace Master40.DB.Data.Context
             return changedDemands;
         }
 
+        public bool TryUpdateStockProvider(DemandToProvider requester)
+        {
+            var unfinishedProvider = (from dp in requester.DemandProvider
+                                      where dp.State != State.Finished
+                                      select dp).ToList();
+            if (unfinishedProvider.Any(d => d.GetType() != typeof(DemandProviderStock)))
+                return false;
+            foreach (var provider in unfinishedProvider)
+            {
+                provider.State = State.Finished;
+            }
+            return true;
+        }
+
         public List<IDemandToProvider> UpdateStateDemandRequester(List<IDemandToProvider> provider)
         {
             var changedRequester = new List<IDemandToProvider>();
             foreach (var singleProvider in provider)
             {
                 var prov = Demands.Include(a => a.DemandRequester).ThenInclude(b => b.DemandProvider).Single(a => a.Id == singleProvider.Id);
-                if (prov.DemandRequester.DemandProvider.Any(a => a.State != State.Finished)) continue;
+                if (prov.DemandRequester.DemandProvider.Any(a => a.State != State.Finished))
+                {
+                    if (!TryUpdateStockProvider(prov.DemandRequester))
+                        continue;
+                }
                 prov.DemandRequester.State = State.Finished;
                 Update(prov.DemandRequester);
                 SaveChanges();

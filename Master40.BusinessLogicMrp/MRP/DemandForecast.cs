@@ -37,9 +37,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = _context.GetPlannedStock(stock,demand);
             var productionOrders = new List<ProductionOrder>();
-            var stockProvider = _context.TryCreateStockReservation(demand);
-            if (stockProvider != null)
-                _context.UpdateStateDemandRequester(new List<IDemandToProvider>{stockProvider});
+            _context.TryCreateStockReservation(demand);
             //if the plannedStock is below zero, articles have to be produced for its negative amount 
             if (plannedStock < 0)
             {

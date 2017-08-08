@@ -9,6 +9,7 @@ using Master40.DB.Enums;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 using System;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Master40.BusinessLogicCentral.MRP
 {
@@ -259,30 +260,73 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var requester = UpdateDemandStates();
             if (requester == null) return;
-            var orderParts = new List<OrderPart>();
-            foreach (var singleRequester in requester)
-            {
-                if (singleRequester.GetType() != typeof(DemandOrderPart)) continue;
-                ((DemandOrderPart) singleRequester).OrderPart.State = State.Finished;
-                orderParts.Add(((DemandOrderPart)singleRequester).OrderPart);
-            }
+            var orderParts = (from singleRequester in requester
+                              where singleRequester.GetType() == typeof(DemandOrderPart)
+                              select ((DemandOrderPart) singleRequester).OrderPart).ToList();
             foreach (var orderPart in orderParts)
             {
                 var finishedOrderPart =
                         _context.OrderParts.Include(a => a.Order)
                             .ThenInclude(b => b.OrderParts)
+                            .ThenInclude(c => c.DemandOrderParts)
+                            .ThenInclude(d => d.DemandProvider)
                             .Single(a => a.Id == orderPart.Id);
-                if (finishedOrderPart.Order.OrderParts.Any(a => a.State != State.Finished)) continue;
-                finishedOrderPart.Order.State = State.Finished;
-                _context.Update(finishedOrderPart.Order);
-                _messageHub.SendToAllClients("Order with Id "+ finishedOrderPart.OrderId+" finished!");
-                foreach (var singleOrderPart in finishedOrderPart.Order.OrderParts)
+                if (finishedOrderPart.Order.OrderParts.Any(a => a.State != State.Finished))
                 {
-                    var stock = _context.Stocks.Single(a => a.ArticleForeignKey == singleOrderPart.ArticleId);
-                    stock.Current -= singleOrderPart.Quantity;
-                    _context.Update(stock);
+                    if (!TryFinishDemandsAndOrderParts(finishedOrderPart.Order))
+                        continue;
                 }
+                
+                FinishOrder(finishedOrderPart.Order);
                 _context.SaveChanges();
+            }
+        }
+
+        private bool TryFinishDemandsAndOrderParts(Order order)
+        {
+            var unfinishedOrderParts = order.OrderParts.Where(a => a.State != State.Finished).ToList();
+            var unfinishedRequester = (from uop in unfinishedOrderParts
+                                      from dop in uop.DemandOrderParts
+                                      where dop.State != State.Finished
+                                      select dop).ToList();
+            /*if (unfinishedOrderParts.Any(a => a.DemandOrderParts.Any(b => b.State != State.Finished)))
+            {
+                if (unfinishedRequester.Any() && unfinishedRequester.Any(a => a.State != State.Finished))
+                    return false;
+            }*/
+            foreach (var uop in unfinishedOrderParts)
+            {
+                foreach (var dop in uop.DemandOrderParts.Where(a => a.State != State.Finished))
+                {
+                    if (_context.TryUpdateStockProvider(dop))
+                    {
+                        dop.State = State.Finished;
+                        _context.Update(dop);
+                    }
+                    else
+                    {
+                        _context.SaveChanges();
+                        return false;
+                    }
+                }
+                uop.State = State.Finished;
+                _context.Update(uop);
+            }
+            _context.SaveChanges();
+            return true;
+        }
+
+
+        private void FinishOrder(Order order)
+        {
+            order.State = State.Finished;
+            _context.Update(order);
+            _messageHub.SendToAllClients("Order with Id " + order.Id + " finished!");
+            foreach (var singleOrderPart in order.OrderParts)
+            {
+                var stock = _context.Stocks.Single(a => a.ArticleForeignKey == singleOrderPart.ArticleId);
+                stock.Current -= singleOrderPart.Quantity;
+                _context.Update(stock);
             }
         }
 

@@ -48,6 +48,18 @@ namespace Master40.Simulation.Simulation
             foreach (var bom in boms)
             {
                 bom.State = State.Finished;
+                var requester = bom.DemandProductionOrderBoms;
+                
+                foreach (var req in requester.Where(a => a.State != State.Finished))
+                {
+                    //find DemandProviderStock to set them ready
+                    foreach (var provider in req.DemandProvider.OfType<DemandProviderStock>())
+                    {
+                            provider.State = State.Finished;
+                    }
+                    req.State = State.Finished;
+                }
+                
             }
             _context.UpdateRange(boms);
             var pobs = _context.ArticleBoms.Where(a => a.ArticleParentId == ProductionOrderId);
@@ -56,6 +68,8 @@ namespace Master40.Simulation.Simulation
                 _context.Stocks.Single(a => a.ArticleForeignKey == pob.ArticleChildId).Current-= pob.Quantity;
             }
             _context.SaveChanges();
+
+
             return null;
         }
 
