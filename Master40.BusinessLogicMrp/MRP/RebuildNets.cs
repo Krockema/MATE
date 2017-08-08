@@ -26,9 +26,8 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             //delete all demands but the head-demands
             _context.Demands.RemoveRange(_context.Demands.Where(a => (a.DemandRequesterId != null || a.GetType() == typeof(DemandProductionOrderBom)) && a.State != State.Finished).ToList());
-            _context.ProductionOrderBoms.RemoveRange(_context.ProductionOrderBoms);
+            _context.ProductionOrderBoms.RemoveRange(_context.ProductionOrderBoms.Where(a => a.State != State.Finished));
             _context.SaveChanges();
-            //_context.SaveChanges();
             var requester = _context.Demands.Where(a => null == a.DemandRequesterId &&
                                                                        a.State != State.Finished).ToList();
 
@@ -37,10 +36,7 @@ namespace Master40.BusinessLogicCentral.MRP
                                _context.GetDueTimeByOrder(req) < _context.SimulationConfigurations.Last().Time
                                + _context.SimulationConfigurations.Last().MaxCalculationTime
                          select req).ToList();
-            //_context.SaveChanges();
-            //delete all boms
-
-            //_context.SaveChanges();
+            
             //rebuild by using activity-slack to order demands
             while (requester.Any())
             {

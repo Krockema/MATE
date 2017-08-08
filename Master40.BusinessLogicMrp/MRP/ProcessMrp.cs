@@ -119,7 +119,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             if (newOrdersAdded)
             {
-                //_rebuildNets.Rebuild();
+                _rebuildNets.Rebuild();
                 _messageHub.SendToAllClients("RebuildNets completed");
             }
 
@@ -183,7 +183,8 @@ namespace Master40.BusinessLogicCentral.MRP
             if (demand.State == State.Created)
             {
                 ExecutePlanning(demand, task);
-                demand.State = State.ProviderExist;
+                if (demand.State != State.Finished)
+                    demand.State = State.ProviderExist;
                 _context.Update(demand);
                 _context.SaveChanges();
                 _messageHub.SendToAllClients("Requirements planning completed.");
@@ -222,7 +223,8 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             //creates Provider for the needs
             var productionOrders = _demandForecast.NetRequirement(demand, task);
-            demand.State = State.ProviderExist;
+            if (demand.State != State.Finished)
+                demand.State = State.ProviderExist;
             
             //If there was enough in stock this does not have to be produced
             if (!productionOrders.Any()) return;
@@ -245,8 +247,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     //create Requester
                     var dpob = _context.CreateDemandProductionOrderBom(child.ArticleChildId,productionOrder.Quantity * (int) child.Quantity);
                     //create Production-BOM
-                    var pob = _context.TryCreateProductionOrderBoms(dpob, productionOrder);
-                    _context.AssignDemandProviderToProductionOrderBom(dpob, pob);
+                    _context.TryCreateProductionOrderBoms(dpob, productionOrder);
                     
                     //call this method recursively for a depth-first search
                     ExecutePlanning(dpob, task);
