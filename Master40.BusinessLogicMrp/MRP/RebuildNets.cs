@@ -77,12 +77,13 @@ namespace Master40.BusinessLogicCentral.MRP
                     continue;
                 }
                 var provider = _context.CreateProviderProductionOrder(demand, earliestProductionOrder, amount >= availableAmountFromProductionOrder ? availableAmountFromProductionOrder : amount);
-                ProductionOrderBom pob = null;
-                if (parentProductionOrder != null)
-                    pob = _context.TryCreateProductionOrderBoms(demand, parentProductionOrder);
+                var duetime = _context.GetDueTimeByOrder(demand);
+                if (provider.ProductionOrder.DemandProviderProductionOrders.Count == 1)
+                    provider.ProductionOrder.Duetime = duetime;
+                else if (provider.ProductionOrder.Duetime > duetime)
+                    provider.ProductionOrder.Duetime = duetime;
                 _context.AssignProviderToDemand(demand, provider);
                 _context.AssignProductionOrderToDemandProvider(earliestProductionOrder, provider);
-                if (pob != null && demand.GetType() == typeof(DemandProductionOrderBom)) _context.AssignDemandProviderToProductionOrderBom((DemandProductionOrderBom)demand, pob);
                 if (amount > availableAmountFromProductionOrder)
                 {
                     amount -= availableAmountFromProductionOrder;
@@ -141,15 +142,9 @@ namespace Master40.BusinessLogicCentral.MRP
             var childrenArticleBoms = _context.ArticleBoms.Include(a => a.ArticleChild).Where(a => a.ArticleParentId == po.ArticleId).ToList();
             foreach (var childBom in childrenArticleBoms)
             {
-                //check for the existence of a DemandProductionOrderBom
-                //if (po.ProductionOrderBoms.FirstOrDefault(a => a.DemandProductionOrderBoms.First().ArticleId == childBom.ArticleChildId) == null) continue;
-
-                //if (po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Producing)
-                //    || po.ProductionOrderWorkSchedule.Any(a => a.ProducingState == ProducingState.Finished)) continue;
-
                 var neededAmount = childBom.Quantity * po.Quantity;
                 var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount);
-
+                _context.TryCreateProductionOrderBoms(demandBom, po);
                 SatisfyRequest(demandBom, po);
             }
         }

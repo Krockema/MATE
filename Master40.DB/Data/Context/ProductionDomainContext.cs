@@ -464,8 +464,8 @@ namespace Master40.DB.Data.Context
         public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder)
         {
             if (parentProductionOrder == null) return null;
-            var bom = ArticleBoms.Single(a => a.ArticleParentId == parentProductionOrder.ArticleId && a.ArticleChildId == demand.ArticleId);
-            var quantity = bom.Quantity * parentProductionOrder.Quantity;
+            var lotsize = SimulationConfigurations.Last().Lotsize;
+            var quantity = demand.Quantity > lotsize ? lotsize : demand.Quantity;
             var pob = new ProductionOrderBom()
             {
                 Quantity = quantity,
