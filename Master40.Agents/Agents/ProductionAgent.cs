@@ -145,7 +145,7 @@ namespace Master40.Agents.Agents
                     DueTime = lastdue,
                     WorkSchedule = workSchedule,
                     ProductionAgent = this,
-                    Priority = PriorityRules.HatchingTime(currentTime: Context.TimePeriod, 
+                    Priority = PriorityRules.ActivitySlack(currentTime: Context.TimePeriod, 
                                                       processDuration: workSchedule.Duration, 
                                                            processDue: lastdue)
 

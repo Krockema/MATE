@@ -1,0 +1,45 @@
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    string raw = "Chart Rendering Failed";
+    string machine = ViewData["Machine"].ToString().Replace(" ", "");
+    if (chart != null) {
+        raw = chart.CreateChartCode(machine);
+    }
+}
+
+<style>
+    .chartWrapper {
+        position: relative;
+            
+    }
+
+    .chartWrapper > canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        pointer-events:none;
+    }
+    .chartAreaWrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .chartAreaWrapper2 {
+          
+        position: relative;
+        height: 100px;
+    }
+</style>
+<h4>@ViewData["Machine"] Workload</h4>
+<div class="chartWrapper">
+    <div class="chartAreaWrapper">
+        <div class="chartAreaWrapper2">
+                <!--div id="js-legend" class="chart-legend"><div-->
+            <canvas id="@machine" height="100" width="100"></canvas>
+            </div>
+    </div>
+</div>
+
+<script>
+    @Html.Raw(raw);
+</script>

@@ -26,7 +26,4 @@ namespace Master40.Agents.Agents.Model
 
         }
     }
-
-
-    
 }

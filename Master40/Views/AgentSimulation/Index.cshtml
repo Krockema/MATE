@@ -95,16 +95,20 @@
                             Contract-->System
                             
                         </div>
-                        <div class="mermaid" id="mermaidChart0">
-                            <svg>
-                                Chart ends up here
-                            </svg>
-                        </div>
                         <h4>Processing State:</h4>
                         <div id="" class="MessageDisplay"></div>
                     </div>
-                    <div class="col-md-12">
-                       <!--Or Here--> 
+                    <div class="col-md-3">
+                        @await Component.InvokeAsync("MachineWorkload", "Saw 1")
+                    </div>
+                    <div class="col-md-3">
+                        @await Component.InvokeAsync("MachineWorkload", "Drill 1")
+                    </div>
+                    <div class="col-md-3">
+                        @await Component.InvokeAsync("MachineWorkload", "AssemblyUnit 1")
+                    </div>
+                    <div class="col-md-3">
+                        @await Component.InvokeAsync("MachineWorkload", "AssemblyUnit 2")
                     </div>
                 </div>
             </div>
