@@ -136,20 +136,6 @@ namespace Master40.Agents.Agents.Internal
                 ChildAgents.Clear();
                 Finish();
             }
-
-            /*
-            // any Not Finished do noting
-            if ()
-                return;
-
-            // if All finished Clear Resource
-
-            // Status = Status.Ready;
-
-            // if this agent is also Finished tell the Parrent.
-            if (Status == Status.Finished)
-            */
-
         }
 
         /// <summary>

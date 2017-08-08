@@ -10,6 +10,10 @@ namespace Master40.Agents.Agents
 {
     public class StorageAgent : Agent
     {
+        // Statistic 
+        private List<Guid> ProviderList { get; set; }
+
+        // Properties
         private Stock StockElement { get; set; }
         public string StockFor { get; }
         private List<RequestItem> RequestedItems { get; set; }
@@ -19,6 +23,7 @@ namespace Master40.Agents.Agents
             StockElement = stockElement;
             StockFor = stockElement.Article.Name;
             RequestedItems = new List<RequestItem>();
+            ProviderList = new List<Guid>();
             //Instructions = new List<Instruction>{ new Instruction{ Method = "RequestArticle", ExpectedObjecType = typeof(int) } };
         }
 
@@ -74,10 +79,11 @@ namespace Master40.Agents.Agents
             }
 
             DebugMessage("Production Agent Finished Work: " + productionAgent.Name);
+            
 
             // Add the Produced item to Stock
             StockElement.Current++;
-
+            ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
             if (requestProvidable.Quantity == StockElement.Current)
@@ -90,9 +96,13 @@ namespace Master40.Agents.Agents
                 CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
                                         objectToProcess: requestProvidable, // may needs later a more complex answer for now just remove item from stock
                                         targetAgent: requestProvidable.Requester); // its Source Agent becaus this message is the Answer to the Instruction set.
-
+                
                 // Remove from Requester List.
                 this.RequestedItems.Remove(requestProvidable);
+
+                // Update Work Item with Provider For
+                Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester.Creator);
+                ProviderList.Clear();
             }
         }
 

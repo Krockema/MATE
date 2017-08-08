@@ -12,7 +12,7 @@ namespace Master40.Agents.Agents
     {
         public Agent SystemAgent { get; }
         private RequestItem RequestItem { get; set; }
-        private int quantityToProduce { get; set; }
+        private int QuantityToProduce { get; set; }
         private Agent StockAgent { get; set; }
         /// <summary>
         /// First  ask Store for Item and wait for Response
@@ -66,10 +66,10 @@ namespace Master40.Agents.Agents
         {
             if(instructionSet.ObjectToProcess != null)
             {
-                quantityToProduce = RequestItem.Quantity - ((StockReservation)instructionSet.ObjectToProcess).Quantity;
+                QuantityToProduce = RequestItem.Quantity - ((StockReservation)instructionSet.ObjectToProcess).Quantity;
             }
             // TODO -> Logic
-            DebugMessage("Returned with " + ((StockReservation)instructionSet.ObjectToProcess).Quantity + " " + RequestItem.Article.Name +" Reserved!");
+            DebugMessage("Returned with " + ((StockReservation)instructionSet.ObjectToProcess).Quantity + " " + RequestItem.Article.Name + " Reserved!");
 
             
             // Create Production Agents
@@ -79,14 +79,9 @@ namespace Master40.Agents.Agents
                                         objectToProcess: RequestItem,
                                         targetAgent: SystemAgent);
             }
-            
 
             // check for zero
-            if (quantityToProduce == 0)
-            {
-                this.Finish();
-                return;
-            }
+            if (QuantityToProduce == 0) this.Finish();
         }
 
         private void ResponseFromSystemForBom(InstructionSet instructionSet)
@@ -107,7 +102,7 @@ namespace Master40.Agents.Agents
                 item.DueTime = RequestItem.DueTime - RequestItem.Article.WorkSchedules.Sum(x => x.Duration);
 
             // Creates a Production Agent for each element that has to be produced
-            for (int i = 0; i < quantityToProduce; i++)
+            for (int i = 0; i < QuantityToProduce; i++)
             {
                 ChildAgents.Add(new ProductionAgent(creator: StockAgent,
                                                        name: "Production(" + RequestItem.Article.Name + ", Nr. " + i + ")",

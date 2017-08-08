@@ -20,6 +20,7 @@ namespace Master40.XUnitTest.Moc
         public string ReturnMsgBox(string msg, MessageType type)
         {
             Debug.WriteLine(msg);
+            return msg;
         }
 
         public void EndScheduler()

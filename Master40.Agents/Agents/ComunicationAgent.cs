@@ -151,8 +151,6 @@ namespace Master40.Agents.Agents
             CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
                                   objectToProcess: workItem,
                                       targetAgent: workItem.ProductionAgent);
-
-
         }
 
 

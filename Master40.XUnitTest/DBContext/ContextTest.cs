@@ -37,8 +37,10 @@ namespace Master40.XUnitTest.DBContext
         public ContextTest()
         {
             _ctx.Database.EnsureDeleted();
-            //MasterDBInitializerLarge.DbInitialize(_ctx);
-            MasterDBInitializerSmall.DbInitialize(_ctx);
+            MasterDBInitializerLarge.DbInitialize(_ctx);
+            //MasterDBInitializerSmall.DbInitialize(_ctx);
+            _productionDomainContext.Database.EnsureDeleted();
+            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
         }
 
         /// <summary>
@@ -81,7 +83,7 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task AgentSimulationTestAsync()
         {
-            var sim = new AgentSimulation(_ctx, new Moc.MessageHub());
+            var sim = new AgentSimulation(_productionDomainContext, new Moc.MessageHub());
             await sim.RunSim();
 
             Assert.Equal(true, true);

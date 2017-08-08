@@ -49,6 +49,9 @@ namespace Master40.Agents
 
                 // Debug
                 Debuglog(context);
+
+                _productionDomainContext.SimulationWorkschedules.AddRange(SimulationWorkschedules);
+                _productionDomainContext.SaveChanges();
             }
             return Agent.AgentStatistics;
         }

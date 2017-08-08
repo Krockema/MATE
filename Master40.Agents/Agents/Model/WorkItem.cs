@@ -25,20 +25,6 @@ namespace Master40.Agents.Agents.Model
             Proposals = new List<Proposal>();
 
         }
-
-        public SimulationWorkschedule ProductionOrderWorkSchedule(int start, int end, string machine)
-        {
-            var pows = new SimulationWorkschedule();
-            
-            pows.Start = start;
-            pows.End = end;
-            pows.Machine = machine;
-            pows.Article = WorkSchedule.Article.Name;
-            pows.DueTime = DueTime;
-            pows.WorkScheduleId = WorkSchedule.Id;
-
-            return pows;
-        }
     }
 
 

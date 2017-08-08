@@ -199,11 +199,18 @@ namespace Master40.Agents.Agents
             DebugMessage("------>> Start With" +  item.WorkSchedule.Name);
             ItemsInProgess = true;
             item.Status = Status.Processed;
+
+
+            // TODO: Roll delay here
+            var duration = item.WorkSchedule.Duration - 1;
+
+            Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration, this.Machine);
+            
             // get item = ready and lowest priority
             CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.FinishWork.ToString(),
                                   objectToProcess: item,
                                       targetAgent: this,
-                                          waitFor: item.WorkSchedule.Duration - 1);
+                                          waitFor: duration);
         }
 
         private void FinishWork(InstructionSet instructionSet)

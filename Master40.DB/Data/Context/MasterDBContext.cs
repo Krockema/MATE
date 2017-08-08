@@ -38,7 +38,7 @@ namespace Master40.DB.Data.Context
         public DbSet<Unit> Units { get; set; }
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
         public DbSet<SimulationConfiguration> SimulationConfigurations { get; set; }
-
+        public DbSet<SimulationWorkschedule> SimulationWorkschedules { get; set; }
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public DbSet<Kpi> Kpis { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

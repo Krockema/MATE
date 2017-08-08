@@ -150,10 +150,13 @@ namespace Master40.Agents.Agents
                                                            processDue: lastdue)
 
                 };
+               
+
                 DebugMessage("Created WorkItem: " + workSchedule.Name + " | Due:" + lastdue + " | Status: " + n.Status);
                 lastdue = lastdue - workSchedule.Duration;
                 firstItemToBuild = false;
                 WorkItems.Add(n);
+                Statistics.CreateSimulationWorkSchedule(n);
             }
         }
 
