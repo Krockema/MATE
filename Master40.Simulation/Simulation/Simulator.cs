@@ -94,13 +94,6 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
-                //short time fix 
-                var provider = new List<IDemandToProvider>();
-                var demands = _context.Demands.OfType<DemandProviderStock>().ToList();
-                provider.AddRange(demands);
-                _context.UpdateStateDemandRequester(provider);
-                //until here
-
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 var timeTable = new TimeTable<ISimulationItem>(1440);
