@@ -37,7 +37,8 @@ namespace Master40.XUnitTest.DBContext
         public ContextTest()
         {
             _ctx.Database.EnsureDeleted();
-            MasterDBInitializerLarge.DbInitialize(_ctx);
+            //MasterDBInitializerLarge.DbInitialize(_ctx);
+            MasterDBInitializerSmall.DbInitialize(_ctx);
         }
 
         /// <summary>
@@ -90,14 +91,19 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task MrpTestForwardAsync()
         {
-            var scheduling = new Scheduling(_productionDomainContext);
-            var capacityScheduling = new CapacityScheduling(_productionDomainContext);
+            _productionDomainContext.Database.EnsureDeleted();
+            _productionDomainContext.Database.EnsureCreated();
+            MasterDBInitializerSmall.DbInitialize(_productionDomainContext);
+
+            //var scheduling = new Scheduling(_productionDomainContext);
+            //var capacityScheduling = new CapacityScheduling(_productionDomainContext);
             var msgHub = new Moc.MessageHub();
             var rebuildNets = new RebuildNets(_productionDomainContext);
-            var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
+            //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
             var simulation = new Simulator(_productionDomainContext,msgHub);
-            var mrpTest = new MrpTest();
-            await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
+            await simulation.InitializeMrp(MrpTask.All);
+            //var mrpTest = new MrpTest();
+            // await mrpTest.CreateAndProcessOrderForward(mrpContext);
             //await simulation.Simulate();
 
             Assert.Equal(true, _productionDomainContext.ProductionOrderWorkSchedules.Any());

@@ -40,7 +40,7 @@ namespace Master40.Simulation.Simulation
             _messageHub = messageHub;
 
             // Create Context Copy to Simulation Context
-            _context.CopyAllTables(_ctx);
+            //_context.CopyAllTables(_ctx);
             // do it on HardDisk Databse
             _processMrp = new ProcessMrpSim(_context, messageHub);
             //// Dp it inmemory
