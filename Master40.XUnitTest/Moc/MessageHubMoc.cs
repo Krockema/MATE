@@ -1,4 +1,5 @@
-﻿using Master40.DB.Data.Helper;
+﻿using System.Diagnostics;
+using Master40.DB.Data.Helper;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 
@@ -8,21 +9,22 @@ namespace Master40.XUnitTest.Moc
     {
         public void SendToAllClients(string msg)
         {
+            Debug.WriteLine(msg);
         }
 
         public void SendToAllClients(string msg, MessageType msgType)
         {
-
+            Debug.WriteLine(msg);
         }
 
         public string ReturnMsgBox(string msg, MessageType type)
         {
-            return "";
+            Debug.WriteLine(msg);
         }
 
         public void EndScheduler()
         {
-
+            Debug.WriteLine("Finished Scheduler");
         }
     }
 
