@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.Enums;
 using Newtonsoft.Json;
 
 namespace Master40.DB.Models
@@ -12,5 +13,6 @@ namespace Master40.DB.Models
         public BusinessPartner BusinessPartner { get; set; }
         [JsonIgnore]
         public virtual ICollection<OrderPart> OrderParts { get; set; }
+        public State State { get; set; }
     }
 }

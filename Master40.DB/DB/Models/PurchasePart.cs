@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.Enums;
 using Newtonsoft.Json;
 
 namespace Master40.DB.Models
@@ -14,5 +15,6 @@ namespace Master40.DB.Models
         public int Quantity { get; set; }
         [JsonIgnore]
         public virtual ICollection<DemandProviderPurchasePart> DemandProviderPurchaseParts { get; set; }
+        public State State { get; set; }
     }
 }

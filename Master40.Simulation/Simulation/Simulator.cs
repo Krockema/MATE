@@ -94,25 +94,71 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
+                //short time fix 
+                var provider = new List<IDemandToProvider>();
+                var demands = _context.Demands.OfType<DemandProviderStock>().ToList();
+                provider.AddRange(demands);
+                _context.UpdateStateDemandRequester(provider);
+                //until here
+
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
-                var timeTable = new TimeTable<ISimulationItem>(60);
+                var timeTable = new TimeTable<ISimulationItem>(1440);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;
-
+                timeTable = UpdateGoodsDelivery(timeTable);
+                var itemCounter = 0;
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
                     timeTable = await ProcessTimeline(timeTable, waitingItems);
-                    _messageHub.SendToAllClients(timeTable.Items.Count + "/" + (int)(timeTable.Items.Count + (int)waitingItems.Count) + " items processed.");
+                    if (itemCounter == timeTable.Items.Count) continue;
+                    _processMrp.UpdateDemandsAndOrders();
+                    itemCounter = timeTable.Items.Count;
+                    _messageHub.SendToAllClients(itemCounter + "/" + (int)(timeTable.Items.Count + (int)waitingItems.Count) + " items processed.");
                 }
                 // end simulation and Unlock Screen
 
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
+                _processMrp.UpdateDemandsAndOrders();
+
                 _messageHub.EndScheduler();
             });
 
+        }
+
+        private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable)
+        {
+            var purchases = _context.Purchases.Include(a => a.PurchaseParts).Where(a => a.DueTime > timeTable.Timer);
+            if (purchases == null) return timeTable;
+            var purchaseDeliveries = timeTable.Items.OfType<PurchaseSimulationItem>().ToList();
+            foreach (var purchase in purchases)
+            {
+                foreach (var purchasePart in purchase.PurchaseParts)
+                {
+                    // check for existence in timeTable
+                    var purchaseEvent = from pd in purchaseDeliveries
+                               where purchasePart.PurchaseId == pd.PurchaseId && purchasePart.Id == pd.PurchasePartId
+                               select pd;
+                    if (purchaseEvent.Any()) continue;
+
+                    // insert into timetable with rnd-duetime
+                    timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart));
+                }
+            }
+            return timeTable;
+        }
+
+        private ISimulationItem CreateNewPurchaseSimulationItem(PurchasePart purchasePart)
+        {
+            return new PurchaseSimulationItem(_context)
+            {
+                Start = _context.SimulationConfigurations.Last().Time,
+                End = purchasePart.Purchase.DueTime,
+                PurchaseId = purchasePart.PurchaseId,
+                PurchasePartId = purchasePart.Id
+            };
         }
 
         private void SaveContext(ProductionDomainContext _contextToSave)
@@ -171,7 +217,7 @@ namespace Master40.Simulation.Simulation
                     var item = items.First(a => a.Start == items.Min(b => b.Start));
 
                     //check children if they are finished
-                    if (!AllSimulationChildrenFinished(item, timeTable.Items)) continue;
+                    if (!AllSimulationChildrenFinished(item, timeTable.Items) || (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item))) continue;
 
                     // Roll new Duration
                     var rnd = GetRandomDelay();
@@ -212,10 +258,26 @@ namespace Master40.Simulation.Simulation
             if (timeTable.Timer < (timeTable.RecalculateCounter+1) * timeTable.RecalculateTimer) return timeTable;
             await Recalculate();
             UpdateWaitingItems(timeTable, waitingItems);
+            UpdateGoodsDelivery(timeTable);
             timeTable.RecalculateCounter++;
 
             // if Progress is empty Stop.
             return timeTable;
+        }
+
+        private bool ItemsInStock(ProductionOrderWorkSchedule item)
+        {
+            var boms = _context.ArticleBoms.Where(a => a.ArticleParentId == item.ProductionOrder.ArticleId);
+            if (boms == null) return false;
+            foreach (var bom in boms)
+            {
+                if (_context.Stocks
+                        .Single(a => a.ArticleForeignKey == bom.ArticleChildId)
+                        .Current
+                    < item.ProductionOrder.Quantity * bom.Quantity)
+                    return false;
+            }
+            return true;
         }
 
         private void UpdateWaitingItems(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems)
@@ -223,7 +285,7 @@ namespace Master40.Simulation.Simulation
             var completeList = CreateInitialTable();
             foreach (var item in completeList)
             {
-                if (timeTable.Items.Any(a => a.ProductionOrderWorkScheduleId == item.Id)) continue;
+                if (timeTable.Items.OfType<PowsSimulationItem>().Any(a => a.ProductionOrderWorkScheduleId == item.Id)) continue;
                 if (waitingItems.Any(a => a.Id == item.Id))
                 {
                     waitingItems.Remove(waitingItems.Find(a => a.Id == item.Id));
@@ -277,21 +339,13 @@ namespace Master40.Simulation.Simulation
                                select singleProvider.ProductionOrder
                                ).ToList();
             if (!childrenPos.Any()) return null;
-            var childrenPows = from pos in childrenPos
+            var childrenPows = (from pos in childrenPos
                                from pows in pos.ProductionOrderWorkSchedule
                                where pows.HierarchyNumber == pos.ProductionOrderWorkSchedule.Max(a => a.HierarchyNumber)
-                               select pows;
+                               select pows).ToList();
 
             var latestPows = from cP in childrenPows where cP.End == childrenPows.Max(a => a.End) select cP;
-            foreach (var pows in latestPows)
-            {
-                var psi = (PowsSimulationItem)
-                    timeTableItems.Find(
-                        a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id && a.SimulationState == SimulationState.Finished);
-                if (psi == null) return false;
-            }
-            return true;
-
+            return latestPows.Select(pows => timeTableItems.OfType<PowsSimulationItem>().FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id && a.SimulationState == SimulationState.Finished)).All(psi => psi != null);
         }
 
         private bool? SimulationHierarchyChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
@@ -303,10 +357,10 @@ namespace Master40.Simulation.Simulation
             if (!hierarchyChildren.Any()) return null;
 
             var pows = (from hC in hierarchyChildren where hC.HierarchyNumber == hierarchyChildren.Max(a => a.HierarchyNumber) select hC).Single();
-            if (timeTableItems.Exists(a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id))
-                return timeTableItems.Find(a => ((PowsSimulationItem)a).ProductionOrderWorkScheduleId == pows.Id)
+            if (timeTableItems.OfType<PowsSimulationItem>().FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id) != null)
+                return timeTableItems.OfType<PowsSimulationItem>().FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id)
                            .SimulationState == SimulationState.Finished;
-            else return false;
+            return false;
 
         }
 
@@ -319,7 +373,6 @@ namespace Master40.Simulation.Simulation
         private async Task Recalculate()
         {
             await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
-            
         }
     }
     

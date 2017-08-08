@@ -67,7 +67,8 @@ namespace Master40.XUnitTest.DBContext
             var scheduling = new Scheduling(_ctx);
             var capacityScheduling = new CapacityScheduling(_ctx);
             var msgHub = new Moc.MessageHub();
-            var mrpContext = new ProcessMrp(_ctx, scheduling, capacityScheduling, msgHub);
+            var rebuildNets = new RebuildNets(_ctx);
+            var mrpContext = new ProcessMrp(_ctx, scheduling, capacityScheduling, msgHub, rebuildNets);
 
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
@@ -92,7 +93,8 @@ namespace Master40.XUnitTest.DBContext
             var scheduling = new Scheduling(_productionDomainContext);
             var capacityScheduling = new CapacityScheduling(_productionDomainContext);
             var msgHub = new Moc.MessageHub();
-            var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub);
+            var rebuildNets = new RebuildNets(_productionDomainContext);
+            var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
             var simulation = new Simulator(_productionDomainContext,msgHub);
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
