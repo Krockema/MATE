@@ -2,9 +2,9 @@
 {
     public class PriorityRules
     {
-        public static int ActivitySlack(long currentTime, int processDuration, int processDue)
+        public static int ActivitySlack(int currentTime, int processDuration, int processDue)
         {
-            return processDue - processDuration - (int)currentTime;
+            return processDue - processDuration - currentTime;
         }
     }
 }

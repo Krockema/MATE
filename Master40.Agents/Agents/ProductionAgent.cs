@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
-using Master40.DB.Migrations;
 using Master40.DB.Models;
-using NSimulate.Instruction;
 
 namespace Master40.Agents.Agents
 {
@@ -145,7 +143,7 @@ namespace Master40.Agents.Agents
                     DueTime = lastdue,
                     WorkSchedule = workSchedule,
                     ProductionAgent = this,
-                    Priority = PriorityRules.ActivitySlack(currentTime: Context.TimePeriod, 
+                    Priority = PriorityRules.ActivitySlack(currentTime: (int)Context.TimePeriod, 
                                                       processDuration: workSchedule.Duration, 
                                                            processDue: lastdue)
 
