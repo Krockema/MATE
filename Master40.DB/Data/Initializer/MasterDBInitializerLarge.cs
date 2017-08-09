@@ -43,10 +43,12 @@ namespace Master40.DB.Data.Initializer
             }
             context.SaveChanges();
             var assemblyUnit = new MachineGroup {Name = "AssemblyUnits"};
+            var cutting = new MachineGroup { Name = "Cutting" };
 
 
             var machines = new Machine[] {
-                new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = new MachineGroup{ Name = "Cutting" } },
+                new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
                 new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = new MachineGroup{ Name = "Drills" } },
                 new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
                 new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit}
@@ -282,8 +284,8 @@ namespace Master40.DB.Data.Initializer
 
             //create order
             var orders = new List<Order>() { 
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 200, Name = "First Truck order"},
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 450, Name = "Second Truck order"},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 100, Name = "First Truck order"},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 150, Name = "Second Truck order"},
             };
             foreach (var order in orders)
             {

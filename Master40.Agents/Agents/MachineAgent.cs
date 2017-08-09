@@ -88,16 +88,35 @@ namespace Master40.Agents.Agents
          
             // debug
             DebugMessage("Request for Proposal");
+            // Send
+            SendProposalTo(instructionSet.SourceAgent, workItem);
+        }
+
+
+        /// <summary>
+        /// Send Proposal to Comunication Client
+        /// </summary>
+        /// <param name="targetAgent"></param>
+        /// <param name="workItem"></param>
+        private void SendProposalTo(Agent targetAgent, WorkItem workItem)
+        {
+            var max = 0;
+            if(Queue.Any(e => e.Priority <= workItem.Priority))
+            {
+                max = Queue.Where(e => e.Priority <= workItem.Priority).Max(e => e.EstimatedEnd);
+            }
 
             // calculat Proposal.
-            
-            var proposal = new Proposal { AgentId = this.AgentId,
-                                       WorkItemId = workItem.Id,
-                                 PossibleSchedule = this.Queue.Sum(x => x.WorkSchedule.Duration) };
+            var proposal = new Proposal
+            {
+                AgentId = this.AgentId,
+                WorkItemId = workItem.Id,
+                PossibleSchedule = max
+            };
             // callback 
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.ProposalFromMachine.ToString(),
-                                  objectToProcess: proposal,
-                                      targetAgent: instructionSet.SourceAgent);
+                objectToProcess: proposal,
+                targetAgent: targetAgent);
         }
 
         /// <summary>
@@ -110,38 +129,58 @@ namespace Master40.Agents.Agents
             if (workItem == null)
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
 
-            DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.WorkSchedule.Name);
+            if (Queue.Any(e => e.Priority <= workItem.Priority))
+            {
+                // Get item Latest End.
+                var maxItem = Queue.Where(e => e.Priority <= workItem.Priority).Max(e => e.EstimatedEnd);
 
+                // check if Queuable
+                if (maxItem > workItem.EstimatedStart)
+                {
+                    // reset Agent Status
+                    workItem.Status = Status.Created;
+                    workItem.EstimatedStart = 0;
+                    SendProposalTo(instructionSet.SourceAgent, workItem);
+                    return;
+                }
+            }
+
+            DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.WorkSchedule.Name);
             Queue.Add(workItem);
-            // Enqued before another item?
             
+            // Enqued before another item?
             var position = Queue.OrderBy(x => x.Priority).ToList().IndexOf(workItem);
             DebugMessage("Position: " + position + " Priority:"+ workItem.Priority + " Queue length " + Queue.Count());
-
 
             // reorganize Queue if an Element has ben Queued which is More Important.
             if (position + 1 < Queue.Count())
             {
                 var toRequeue = Queue.OrderBy(x => x.Priority).ToList().GetRange(position + 1, Queue.Count() - position - 1);
-                foreach (var reqItem in toRequeue)
-                {
-                    DebugMessage("-> ToRequeue " + reqItem.Priority + " Current Possition: " + Queue.OrderBy(x => x.Priority).ToList().IndexOf(reqItem) + " Id " + reqItem.Id);
 
-                    // remove item from current Queue
-                    Queue.Remove(reqItem);
-                    // reset Agent Status
-                    reqItem.Status = Status.Created;
-                    // Call Comunication Agent to Requeue
-                    CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.EnqueueWorkItem.ToString(),
-                                          objectToProcess: reqItem,
-                                              targetAgent: reqItem.ComunicationAgent);
-                }
+                CallToReQueue(toRequeue);
 
                 DebugMessage("New Queue length = " + Queue.Count);
                 foreach (var q in Queue)
                 {
                     DebugMessage("--> Position" + Array.IndexOf(Queue.OrderBy(x => x.Priority).ToArray(), q) + " Priority " + q.Priority + " Id " + q.Id);
                 }
+            }
+        }
+
+        private void CallToReQueue(IEnumerable<WorkItem> toRequeue)
+        {
+            foreach (var reqItem in toRequeue)
+            {
+                DebugMessage("-> ToRequeue " + reqItem.Priority + " Current Possition: " + Queue.OrderBy(x => x.Priority).ToList().IndexOf(reqItem) + " Id " + reqItem.Id);
+
+                // remove item from current Queue
+                Queue.Remove(reqItem);
+                // reset Agent Status
+                reqItem.Status = Status.Created;
+                // Call Comunication Agent to Requeue
+                CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.EnqueueWorkItem.ToString(),
+                    objectToProcess: reqItem,
+                    targetAgent: reqItem.ComunicationAgent);
             }
         }
 
@@ -229,14 +268,15 @@ namespace Master40.Agents.Agents
             ItemsInProgess = false;
             DebugMessage("------>> Finished Work with " + item.WorkSchedule.Name + " take next...");
 
-            // Set Finish and Remove from Queue
-            item.Status = Status.Finished;
-
             // Call Comunication Agent that item has ben processed.
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.FinishWorkItem.ToString(),
-                                  objectToProcess: item,
+                                  objectToProcess: new WorkItemStatus { CurrentPriority = 0,
+                                                                        Status = Status.Finished,
+                                                                        WorkItemId = item.Id },
                                       targetAgent: item.ComunicationAgent);
 
+            // Reorganize List
+            CallToReQueue(Queue.Where(x => x.Status == Status.Created || x.Status == Status.InQueue).ToList());
             // do Do Work in next Timestep.
             CreateAndEnqueueInstuction(methodName: InstuctionsMethods.DoWork.ToString(),
                                   objectToProcess: new InstructionSet(),

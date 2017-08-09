@@ -58,11 +58,11 @@ namespace Master40.Agents
 
         private object CreateModel(SimulationContext context)
         {
-            var system = new SystemAgent(null, "System", true, _productionDomainContext);
+            var system = new SystemAgent(null, "System", false, _productionDomainContext);
 
             
             // Create Directory Agent,
-            var directoryAgent = new DirectoryAgent(system, "Directory", true);
+            var directoryAgent = new DirectoryAgent(system, "Directory", false);
             system.ChildAgents.Add(directoryAgent);
 
             // Create Machine Agents
@@ -81,7 +81,7 @@ namespace Master40.Agents
             {
                 system.ChildAgents.Add(new StorageAgent(creator: system, 
                                                            name: stock.Name, 
-                                                          debug: true, 
+                                                          debug: false, 
                                                    stockElement: stock ));
             }
 

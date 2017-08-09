@@ -57,7 +57,7 @@ namespace Master40.ViewComponents
             var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
             ViewData["SchedulingState"] = SchedulingState(_schedulingState);
-
+            _ganttContext.Tasks = _ganttContext.Tasks.OrderBy(x => x.type).ToList();
             // return schedule
             return View("SimulationTimeline", _ganttContext);
         }
@@ -69,7 +69,7 @@ namespace Master40.ViewComponents
         {
             foreach (var ordersPart in ordersParts)
             {
-                foreach (var pow in _context.SimulationWorkschedules.Where(x => x.OrderId == ordersPart))
+                foreach (var pow in _context.SimulationWorkschedules.Where(x => x.OrderId == ordersPart.ToString()))
                 {
                     // check if head element is Created,
                     GanttTask timeline = GetOrCreateTimeline(pow, ordersPart);

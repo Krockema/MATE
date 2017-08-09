@@ -67,7 +67,7 @@
                             Stock
                             Production
                             Com
-                            Machine(Machine<div>#mwl_Saw1</div>)
+                            Machine(Machine<div>so</div>)
                             Dir-->Machine
                             System-->Dispo
                             System-->Contract
@@ -202,7 +202,7 @@
                 });
             }
         }).done(function (data) {
-            $("div:contains('#mwl_" + machine.replace(" ", "") + "')").html(data);
+             $('#mwl_' + machine.replace(" ","")).html(data);
         });
     }
 </script>

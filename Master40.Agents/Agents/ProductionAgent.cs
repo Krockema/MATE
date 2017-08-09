@@ -70,11 +70,19 @@ namespace Master40.Agents.Agents
             }
         }
 
-        internal new void Finished(InstructionSet objects)
+        internal new void Finished(InstructionSet instructionSet)
         {
             // any Not Finished do noting
             if (ChildAgents.Any(x => x.Status != Status.Finished))
                 return;
+
+            // Return from Production as WorkItemStatus
+            var status = instructionSet.ObjectToProcess as WorkItemStatus;
+            if (status != null)
+            {
+                var workItem = WorkItems.First(x => x.Id == status.WorkItemId);
+                workItem.Status = status.Status;
+            }
 
             // TODO Anything ?
             if (RequestItem.Article.WorkSchedules != null && WorkItems.All(x => x.Status == Status.Finished)) {
@@ -87,7 +95,7 @@ namespace Master40.Agents.Agents
                 DebugMessage("All Workschedules have been Finished");
                 return;
             }
-            
+
             DebugMessage("Im Ready To get Enqued");
             Status = Status.Ready;
             SetWorkItemReady();
@@ -153,12 +161,16 @@ namespace Master40.Agents.Agents
                 lastdue = lastdue - workSchedule.Duration;
                 firstItemToBuild = false;
                 WorkItems.Add(n);
-                Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId);
+                Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId.ToString());
             }
         }
 
         private void  SetWorkItemReady()
-        {   
+        {
+            // check if there is something Ready or in Process Then just wait for their Ready Call
+            if (WorkItems.Any(x => x.Status == Status.Ready || x.Status == Status.Processed))
+                return;
+
             // get next ready WorkItem
             // TODO Return Queing Status ? or Move method to Machine
             var nextItem = WorkItems.Where(x => x.Status == Status.InQueue || x.Status == Status.Created)
@@ -175,6 +187,7 @@ namespace Master40.Agents.Agents
 
             DebugMessage("SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
 
+            nextItem.Status = Status.Ready;
             // create StatusMsg
             var message = new WorkItemStatus
             {

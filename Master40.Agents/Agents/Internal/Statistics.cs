@@ -8,7 +8,7 @@ namespace Master40.Agents.Agents.Internal
 {
     public static class Statistics
     {
-        public static void CreateSimulationWorkSchedule(WorkItem ws, int orderId)
+        public static void CreateSimulationWorkSchedule(WorkItem ws, string orderId)
         {
             var sws = new SimulationWorkschedule();
 
@@ -16,7 +16,7 @@ namespace Master40.Agents.Agents.Internal
             sws.Article = ws.WorkSchedule.Article.Name;
             sws.WorkScheduleName = ws.WorkSchedule.Name;
             sws.DueTime = ws.DueTime;
-            sws.EstimatedEnd = ws.EsitamtedEnd;
+            sws.EstimatedEnd = ws.EstimatedEnd;
             sws.SimulationId = 1;
             sws.OrderId = orderId;
             sws.HierarchyNumber = ws.WorkSchedule.HierarchyNumber;

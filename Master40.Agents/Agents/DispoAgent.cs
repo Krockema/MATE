@@ -24,7 +24,7 @@ namespace Master40.Agents.Agents
         /// <param name="name"></param>
         /// <param name="debug"></param>
         /// <param name="requestItem"></param>
-        public DispoAgent(Agent creator, Agent system, string name, bool debug, RequestItem requestItem) : base(creator, name, debug)
+        public DispoAgent(Agent creator, Agent system, string name, bool debug, RequestItem requestItem) : base(creator, name, true)//debug)
         {
             SystemAgent = system;
             RequestItem = requestItem;

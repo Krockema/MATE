@@ -14,7 +14,7 @@ namespace Master40.Agents.Agents
         private List<Agent> MachineAgents;
         
         public ComunicationAgent(Agent creator, string name, bool debug, string contractType) 
-            : base(creator, name, debug)
+            : base(creator, name, true)//debug)
         {
             ContractType = contractType;
             WorkItemQueue = new List<WorkItem>();
@@ -53,7 +53,7 @@ namespace Master40.Agents.Agents
             {
                 // reset Item.
                 DebugMessage("Got Item to Requeue: " + workItem.WorkSchedule.Name + "| with status:" + workItem.Status);
-                workItem.EsitamtedEnd = 0;
+                workItem.EstimatedEnd = 0;
                 workItem.Proposals.Clear();
             }
             
@@ -63,9 +63,6 @@ namespace Master40.Agents.Agents
                                       objectToProcess: workItem,
                                           targetAgent: agent);
             }
-
-
-
         }
 
         private void SetWorkItemStatus(InstructionSet instructionSet)
@@ -114,6 +111,12 @@ namespace Master40.Agents.Agents
             }
             // get releated workitem and add Proposal.
             var workItem = WorkItemQueue.First(x => x.Id == proposal.WorkItemId);
+            var proposalToRemove = workItem.Proposals.FirstOrDefault(x => x.AgentId == proposal.AgentId);
+            if (proposalToRemove != null)
+            {
+                workItem.Proposals.Remove(proposalToRemove);
+            }
+
             workItem.Proposals.Add(proposal);
 
             DebugMessage("Proposal for Schedule: " + proposal.PossibleSchedule + " from: " + proposal.AgentId + "!");
@@ -127,7 +130,10 @@ namespace Master40.Agents.Agents
 
                 workItem.Status = Status.InQueue;
                 workItem.MachineAgentId = acknowledgement.AgentId;
-                workItem.EsitamtedEnd = proposal.PossibleSchedule + workItem.WorkSchedule.Duration;
+                workItem.EstimatedEnd = acknowledgement.PossibleSchedule + workItem.WorkSchedule.Duration;
+                
+                // set Proposal Start for Machine to Reque if time slot is closed.
+                workItem.EstimatedStart = acknowledgement.PossibleSchedule;
 
                 CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.AcknowledgeProposal.ToString(),
                                       objectToProcess: workItem,
@@ -141,15 +147,17 @@ namespace Master40.Agents.Agents
         /// <param name="instructionSet"></param>
         private void FinishWorkItem(InstructionSet instructionSet)
         {
-            var workItem = instructionSet.ObjectToProcess as WorkItem;
-            if (workItem == null)
+            var status = instructionSet.ObjectToProcess as WorkItemStatus;
+            if (status == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
+            var workItem = WorkItemQueue.First(x => x.Id == status.WorkItemId);
+
 
             DebugMessage("Machine called " + workItem.WorkSchedule.Name + " finished.");
             CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
-                                  objectToProcess: workItem,
+                                  objectToProcess: status,
                                       targetAgent: workItem.ProductionAgent);
         }
 

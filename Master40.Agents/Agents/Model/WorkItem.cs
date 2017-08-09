@@ -11,7 +11,8 @@ namespace Master40.Agents.Agents.Model
     {
         public Guid Id { get; set; }
         public int DueTime { get; set; }
-        public int EsitamtedEnd { get; set; }
+        public int EstimatedStart { get; set; }
+        public int EstimatedEnd { get; set; }
         public double Priority { get; set; }
         public Status Status { get; set; }
         public Guid MachineAgentId { get; set; }
