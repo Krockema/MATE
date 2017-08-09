@@ -335,8 +335,42 @@ namespace Master40.BusinessLogicCentral.MRP
             var changedDemands = new List<IDemandToProvider>();
             changedDemands.AddRange(UpdateStateDemandProviderProductionOrders());
             changedDemands.AddRange(_context.UpdateStateDemandProviderPurchaseParts());
+            changedDemands.AddRange(UpdateDemandProviderStock());
 
             return !changedDemands.Any() ? null : _context.UpdateStateDemandRequester(changedDemands);
+        }
+
+        private IEnumerable<IDemandToProvider> UpdateDemandProviderStock()
+        {
+            var changedDemands = new List<IDemandToProvider>();
+            var provider = _context.Demands.OfType<DemandProviderStock>().Include(a => a.DemandRequester).ThenInclude(b => b.DemandProvider).Where(a => a.State != State.Finished).ToList();
+            foreach (var singleProvider in provider)
+            {
+                var unfinishedProvider = singleProvider.DemandRequester.DemandProvider.Where(a => a.State != State.Finished);
+                if (unfinishedProvider.Any(a => a.GetType() != typeof(DemandProviderStock))) continue;
+                if (singleProvider.DemandRequester.GetType() == typeof(DemandOrderPart))
+                {
+                    var singledop = _context.Demands.OfType<DemandOrderPart>()
+                        .Include(a => a.OrderPart)
+                        .ThenInclude(b => b.Order)
+                        .ThenInclude(c => c.OrderParts)
+                        .ThenInclude(d => d.DemandOrderParts)
+                        .ThenInclude(e => e.DemandProvider)
+                        .Single(a => a.Id == singleProvider.DemandRequester.Id);
+                    var orderParts = singledop.OrderPart.Order.OrderParts;
+                    var orderPartProvider = from op in orderParts
+                        from dop in op.DemandOrderParts
+                        where dop.State != State.Finished
+                        from dp in dop.DemandProvider
+                        select dp;
+                    if (orderPartProvider.Any(a => a.GetType() != typeof(DemandProviderStock))) continue;
+                }
+                singleProvider.State = State.Finished;
+                _context.Update(singleProvider);
+                _context.SaveChanges();
+                changedDemands.Add(singleProvider);
+            }
+            return changedDemands;
         }
 
         private IEnumerable<IDemandToProvider> UpdateStateDemandProviderProductionOrders()

@@ -11,6 +11,8 @@ using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation.SimulationData;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Master40.Simulation.Simulation
 {
@@ -114,11 +116,40 @@ namespace Master40.Simulation.Simulation
 
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
+
                 _processMrp.UpdateDemandsAndOrders();
+                FillSimulationWorkSchedules(timeTable);
 
                 _messageHub.EndScheduler();
             });
 
+        }
+
+        private void FillSimulationWorkSchedules(TimeTable<ISimulationItem> timeTable)
+        {
+            foreach (var item in timeTable.Items.OfType<PowsSimulationItem>())
+            {
+                var po = _context.ProductionOrders.Single(a => a.Id == item.ProductionOrderId);
+                var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
+                _context.Add(new SimulationWorkschedule()
+                {
+                    ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.Id),
+                    ProductionOrderId = po.Id.ToString(),
+                    Article = po.Name,
+                    DueTime = po.Duetime,
+                    End = pows.EndSimulation,
+                    EstimatedEnd = pows.End,
+                    EstimatedStart = pows.Start,
+                    HierarchyNumber = pows.HierarchyNumber,
+                    Machine = _context.Machines.Single(a => a.Id == pows.MachineId).Name,
+                    Start = pows.StartSimulation,
+                    OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
+                    SimulationId = _context.SimulationConfigurations.Last().SimulationId,
+                    WorkScheduleId = pows.Id.ToString(),
+                    WorkScheduleName = pows.Name
+                });
+            }
+            _context.SaveChanges();
         }
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable)
@@ -190,12 +221,12 @@ namespace Master40.Simulation.Simulation
             timeTable = timeTable.ProcessTimeline(timeTable);
             _context.SimulationConfigurations.Last().Time = timeTable.Timer;
             _context.SaveChanges();
-            /*if (!_orderInjected && timeTable.Timer > 0)
+            if (!_orderInjected && timeTable.Timer > 0)
             {
-                CreateNewOrder(1, 5);
+                CreateNewOrder(1, 1);
                 _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
-            }*/
+            }
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {

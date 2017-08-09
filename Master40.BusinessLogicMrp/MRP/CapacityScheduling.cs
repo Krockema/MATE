@@ -2,6 +2,7 @@
 using System.Linq;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
@@ -31,8 +32,6 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         public void GifflerThompsonScheduling()
         {
-            var maxTimer = _context.SimulationConfigurations.AsNoTracking().Last().MaxCalculationTime;
-            var currentTimer = _context.SimulationConfigurations.AsNoTracking().Last().Time;
             var productionOrderWorkSchedules = GetProductionSchedules();
             ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
@@ -42,8 +41,11 @@ namespace Master40.BusinessLogicCentral.MRP
             GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
             while (plannableSchedules.Any())
             {
+
                 //find next element by using the activity slack rule
                 CalculateActivitySlack(plannableSchedules);
+                
+                
                 var shortest = GetShortest(plannableSchedules);
 
                 plannableSchedules.Remove(shortest);
@@ -189,18 +191,12 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <returns>true if existing plan exceeds capacity limits</returns>
         public bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList )
         {
-            foreach (var machine in machineList)
-            {
-                foreach (var hour in machine.ProductionOrderWorkSchedulesByTimeSteps)
-                {
-                    var machines = _context.Machines.Where(a => a.MachineGroupId == machine.MachineGroupId).ToList();
-                    if (!machines.Any()) continue;
-                    if (machines.Count() < hour.ProductionOrderWorkSchedules.Count)
-                        return true;
-                }
-            }
-            
-            return false;
+            return (from machine in machineList
+                    from hour in machine.ProductionOrderWorkSchedulesByTimeSteps
+                    let machines = _context.Machines.Where(a => a.MachineGroupId == machine.MachineGroupId).ToList()
+                    where machines.Any()
+                    where machines.Count < hour.ProductionOrderWorkSchedules.Count
+                    select hour).Any();
         }
 
         private List<ProductionOrderWorkSchedulesByTimeStep> AddToMachineGroup(MachineGroupProductionOrderWorkSchedule machine, ProductionOrderWorkSchedule productionOrderWorkSchedule)
@@ -245,7 +241,7 @@ namespace Master40.BusinessLogicCentral.MRP
        
 
         private bool IsTechnologicallyAllowed(ProductionOrderWorkSchedule schedule, List<ProductionOrderWorkSchedule> plannedSchedules)
-        {//Todo check effectiveness
+        {
             //check for every child if its planned
             var child = GetHierarchyChild(schedule);
             if (child != null && !plannedSchedules.Any(a => a.ProductionOrderId == child.ProductionOrderId && a.HierarchyNumber == child.HierarchyNumber))
@@ -264,20 +260,14 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private ProductionOrderWorkSchedule GetShortest(List<ProductionOrderWorkSchedule> plannableSchedules)
         {
-            ProductionOrderWorkSchedule shortest = null;
-            foreach (var plannableSchedule in plannableSchedules)
-            {
-                if (shortest == null || shortest.ActivitySlack > plannableSchedule.ActivitySlack)
-                    shortest = plannableSchedule;
-            }
-            return shortest;
+            return plannableSchedules.First(a => a.ActivitySlack == plannableSchedules.Min(b => b.ActivitySlack));
         }
 
         private List<ProductionOrderWorkSchedule> CalculateWorkTimeWithParents(List<ProductionOrderWorkSchedule> schedules)
         {
             foreach (var schedule in schedules)
             {
-                schedule.WorkTimeWithParents = GetRemainTimeFromParents(schedule, schedules);
+                schedule.WorkTimeWithParents = GetRemainTimeFromParents(schedule);
             }
             _context.UpdateRange(schedules);
             _context.SaveChanges();
@@ -285,22 +275,19 @@ namespace Master40.BusinessLogicCentral.MRP
         }
 
         private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules)
-        { //replace provider.first()
+        {
             foreach (var plannableSchedule in plannableSchedules)
             {
-                //get duetime
-                var dueTime = plannableSchedule.ProductionOrder.Duetime;
-
-                //get remaining time
-                var slack = plannableSchedule.ActivitySlack;
-                plannableSchedule.ActivitySlack = dueTime - plannableSchedule.WorkTimeWithParents - GetChildEndTime(plannableSchedule);
-                if (slack == plannableSchedule.ActivitySlack) continue;
-                _context.ProductionOrderWorkSchedules.Update(plannableSchedule);
-                _context.SaveChanges();
+                var currentTime = _context.SimulationConfigurations.Last().Time;
+                var processDueTime = plannableSchedule.ProductionOrder.Duetime -
+                                     ((int) plannableSchedule.WorkTimeWithParents - plannableSchedule.Duration);
+                plannableSchedule.ActivitySlack = PriorityRules.ActivitySlack(currentTime, plannableSchedule.Duration,processDueTime );
+                _context.Update(plannableSchedule);
             }
+            _context.SaveChanges();
         }
 
-        private decimal GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule, List <ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        private decimal GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule)
         {
             if (schedule == null) return 0;
             var parents = _context.GetParents(schedule);
@@ -308,16 +295,10 @@ namespace Master40.BusinessLogicCentral.MRP
             var maxTime = 0;
             foreach (var parent in parents)
             {
-                var time = GetRemainTimeFromParents(parent, productionOrderWorkSchedules) + schedule.Duration;
+                var time = GetRemainTimeFromParents(parent) + schedule.Duration;
                 if (time > maxTime) maxTime = (int)time;
             }
-
             return maxTime;
-        }
-
-        private decimal GetAmountOfMachines(ProductionOrderWorkSchedule schedule)
-        {
-            return _context.Machines.Count(a => a.MachineGroupId == schedule.MachineGroupId);
         }
 
         private List<ProductionOrderWorkSchedule> GetProductionSchedules()
@@ -341,35 +322,11 @@ namespace Master40.BusinessLogicCentral.MRP
             return pows.AsEnumerable().Distinct().ToList();
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules(IDemandToProvider requester)
-        {
-            var provider =
-                _context.Demands.OfType<DemandProviderProductionOrder>()
-                    .Include(a => a.ProductionOrder)
-                    .ThenInclude(c => c.ProductionOrderWorkSchedule)
-                    .Include(b => b.ProductionOrder)
-                    .ThenInclude(d => d.ProductionOrderBoms)
-                    .Where(a => a.DemandRequester.DemandRequesterId == requester.Id
-                        || a.DemandRequesterId == requester.Id)
-                    .ToList();
-            return (from prov in provider from schedule in prov.ProductionOrder.ProductionOrderWorkSchedule
-                    where schedule.Start >= _context.SimulationConfigurations.Last().Time || schedule.End - schedule.Start != schedule.Duration select schedule).ToList();
-        }
-
         private void GetInitialPlannables(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, 
             List<ProductionOrderWorkSchedule> plannedSchedules, List<ProductionOrderWorkSchedule> plannableSchedules)
         {
             plannableSchedules.AddRange(productionOrderWorkSchedules.Where(productionOrderWorkSchedule => 
                                             IsTechnologicallyAllowed(productionOrderWorkSchedule, plannedSchedules)));
-        }
-        
-        private List<ProductionOrderWorkSchedule> GetLatestChildren(ProductionOrderWorkSchedule productionOrderWorkSchedule)
-        {
-            var children = new List<ProductionOrderWorkSchedule>();
-            var child = GetHierarchyChild(productionOrderWorkSchedule);
-            if (child == null) return GetBomChilds(productionOrderWorkSchedule);
-            children.Add(child);
-            return children;
         }
 
         private List<ProductionOrderWorkSchedule> GetBomChilds(

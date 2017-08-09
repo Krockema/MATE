@@ -39,8 +39,8 @@ namespace Master40.XUnitTest.DBContext
             //_ctx.Database.EnsureDeleted();
             //MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
-            _productionDomainContext.Database.EnsureDeleted();
-            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+            //_productionDomainContext.Database.EnsureDeleted();
+            //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Master40.XUnitTest.DBContext
         {
             _productionDomainContext.Database.EnsureDeleted();
             _productionDomainContext.Database.EnsureCreated();
-            MasterDBInitializerSmall.DbInitialize(_productionDomainContext);
+            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
             //var scheduling = new Scheduling(_productionDomainContext);
             //var capacityScheduling = new CapacityScheduling(_productionDomainContext);
