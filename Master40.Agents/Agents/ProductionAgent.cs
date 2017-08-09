@@ -53,8 +53,8 @@ namespace Master40.Agents.Agents
                 {
                     Article = articleBom.ArticleChild,
                     Quantity = Convert.ToInt32(articleBom.Quantity),
-                    DueTime = RequestItem.DueTime
-                    
+                    DueTime = RequestItem.DueTime,
+                    OrderId = RequestItem.OrderId
                 };
 
                 // create Dispo Agents for to Provide Required Articles
@@ -146,7 +146,6 @@ namespace Master40.Agents.Agents
                     Priority = PriorityRules.ActivitySlack(currentTime: (int)Context.TimePeriod, 
                                                       processDuration: workSchedule.Duration, 
                                                            processDue: lastdue)
-
                 };
                
 
@@ -154,7 +153,7 @@ namespace Master40.Agents.Agents
                 lastdue = lastdue - workSchedule.Duration;
                 firstItemToBuild = false;
                 WorkItems.Add(n);
-                Statistics.CreateSimulationWorkSchedule(n);
+                Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId);
             }
         }
 

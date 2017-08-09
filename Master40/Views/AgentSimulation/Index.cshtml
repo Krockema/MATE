@@ -1,17 +1,12 @@
 @{
     ViewBag.Title = "Agent Basic";
+    List<string> machines = (List<string>)ViewData["machines"];
     Layout = "_Layout";
+
 }
 <link href="~/css/mermaid.css" rel="stylesheet" />
 <script src="~/js/mermaid.js"></script>
 <script>mermaid.initialize({ startOnLoad: true });</script>
-
-
-
-
-
-
-
 
 <div class="container-fluid">
     <div class="row">
@@ -72,7 +67,7 @@
                             Stock
                             Production
                             Com
-                            Machine
+                            Machine(Machine<div>#mwl_Saw1</div>)
                             Dir-->Machine
                             System-->Dispo
                             System-->Contract
@@ -98,17 +93,13 @@
                         <h4>Processing State:</h4>
                         <div id="" class="MessageDisplay"></div>
                     </div>
-                    <div class="col-md-3">
-                        @await Component.InvokeAsync("MachineWorkload", "Saw 1")
-                    </div>
-                    <div class="col-md-3">
-                        @await Component.InvokeAsync("MachineWorkload", "Drill 1")
-                    </div>
-                    <div class="col-md-3">
-                        @await Component.InvokeAsync("MachineWorkload", "AssemblyUnit 1")
-                    </div>
-                    <div class="col-md-3">
-                        @await Component.InvokeAsync("MachineWorkload", "AssemblyUnit 2")
+                    <div class="row">
+                        @foreach(var m in machines)
+                            {
+                                <div class="col-md-3" id ="mwl_@m.Replace(" ", "")">
+                                    @await Component.InvokeAsync("MachineWorkload", m)
+                                </div>
+                            }
                     </div>
                 </div>
             </div>
@@ -121,6 +112,11 @@
         if (msg == "MrpProcessingComplete") {
             $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
             $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+            @foreach(var a in machines)
+            {
+                @Html.Raw("loadCharts('" + a + "');");
+            };
+
             $('#ajax-busy').hide();
         } else if (msg == "SignalReady") {
             $('#ajax-busy').hide();
@@ -157,7 +153,7 @@
 
     function loadGantt(orderId, stateId) {
         $.ajax({
-            url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
+            url: "AgentSimulation/ReloadGantt/" + orderId + "/" + stateId,
             async: true,
             context: document.body,
             beforeSend: function () {
@@ -182,9 +178,9 @@
         }).done(function (data) { $('#ProductionGantt').html(data); });
     }
 
-    function loadCharts(stateId) {
+    function loadCharts(machine) {
         $.ajax({
-            url: "Mrp/ReloadChart/" + stateId,
+            url: "AgentSimulation/MachineWorkload/" + machine,
             async: true,
             context: document.body,
             beforeSend: function () {
@@ -205,6 +201,8 @@
                         ajaxOptions.responseText);
                 });
             }
-        }).done(function (data) { $('#ProductionChart').html(data); });
+        }).done(function (data) {
+            $("div:contains('#mwl_" + machine.replace(" ", "") + "')").html(data);
+        });
     }
 </script>

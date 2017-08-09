@@ -8,7 +8,7 @@ namespace Master40.Agents.Agents.Internal
 {
     public static class Statistics
     {
-        public static void CreateSimulationWorkSchedule(WorkItem ws)
+        public static void CreateSimulationWorkSchedule(WorkItem ws, int orderId)
         {
             var sws = new SimulationWorkschedule();
 
@@ -18,6 +18,7 @@ namespace Master40.Agents.Agents.Internal
             sws.DueTime = ws.DueTime;
             sws.EstimatedEnd = ws.EsitamtedEnd;
             sws.SimulationId = 1;
+            sws.OrderId = orderId;
             sws.HierarchyNumber = ws.WorkSchedule.HierarchyNumber;
             sws.ProductionOrderId = ws.ProductionAgent.AgentId.ToString();
 
@@ -33,7 +34,7 @@ namespace Master40.Agents.Agents.Internal
             edit.Machine = machine.Name;
         }
 
-        internal static void UpdateSimulationWorkSchedule(List<Guid> ProductionAgents, Agent RequesterAgent)
+        internal static void UpdateSimulationWorkSchedule(List<Guid> ProductionAgents, Agent RequesterAgent, int orderId)
         {
             foreach (var AgentId in ProductionAgents)
             {
@@ -42,6 +43,7 @@ namespace Master40.Agents.Agents.Internal
                 {
                     item.Parent = RequesterAgent.Name;
                     item.ParentId = RequesterAgent.AgentId.ToString();
+                   // item.OrderId = orderId;
                 }
             }
 

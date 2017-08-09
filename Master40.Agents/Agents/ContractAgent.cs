@@ -51,6 +51,7 @@ namespace Master40.Agents.Agents
                 DueTime = orderPart.Order.DueTime,
                 Quantity = orderPart.Quantity,
                 Article = orderPart.Article,
+                OrderId = orderPart.Id
                // IDemandToProvider = orderPart.DemandOrderParts.FirstOrDefault()
             };
             return requestItem;
@@ -58,6 +59,7 @@ namespace Master40.Agents.Agents
 
         internal new void Finished(InstructionSet instructionSet)
         {
+
             if (ChildAgents.All(x => x.Status == Status.Finished))
             {
                 DebugMessage("Order Finished at:" + Context.TimePeriod);

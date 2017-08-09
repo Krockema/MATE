@@ -95,6 +95,7 @@ namespace Master40.Agents.Agents
             // create new Request Item
             RequestItem item = RequestItem.CopyProperties();
             item.Article = article;
+            item.OrderId = RequestItem.OrderId;
 
 
             // set new Due Time if there is Work to do.

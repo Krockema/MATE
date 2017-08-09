@@ -11,6 +11,7 @@ namespace Master40.Agents.Agents.Model
         public int Quantity { get; set; }
         public int DueTime { get; set; }
         public Agent Requester { get; set; }
+        public int OrderId { get; set; }
         public int Providable { get; set; }
     }
 }

@@ -283,7 +283,7 @@ namespace Master40.DB.Data.Initializer
             //create order
             var orders = new List<Order>() { 
                 new Order {BusinessPartnerId = businessPartner.Id, DueTime = 200, Name = "First Truck order"},
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 450, Name = "First Truck order"},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 450, Name = "Second Truck order"},
             };
             foreach (var order in orders)
             {

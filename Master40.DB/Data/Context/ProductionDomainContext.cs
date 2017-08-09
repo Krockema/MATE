@@ -55,6 +55,39 @@ namespace Master40.DB.Data.Context
             return rs;
         }
 
+        public Task<List<SimulationWorkschedule>> GetFollowerProductionOrderWorkSchedules(SimulationWorkschedule simulationWorkSchedule)
+        {
+            var rs = Task.Run(() =>
+            {
+                var priorItems = new List<SimulationWorkschedule>();
+                // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
+                var maxHierarchy = SimulationWorkschedules.Where(x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
+                    .Max(x => x.HierarchyNumber);
+
+                if (maxHierarchy == simulationWorkSchedule.HierarchyNumber)
+                {
+                    // get Previous Article
+                    priorItems.AddRange(SimulationWorkschedules
+                        .Where(x => x.ProductionOrderId == simulationWorkSchedule.ParentId
+                                && x.HierarchyNumber == SimulationWorkschedules
+                                    .Where(w => w.ProductionOrderId == simulationWorkSchedule.ParentId)
+                                    .Min(m => m.HierarchyNumber)));
+                }
+                else
+                {
+                    // get Previous Workschedule
+                    var previousPows =
+                        SimulationWorkschedules.Where(
+                                x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId
+                                     && x.HierarchyNumber > simulationWorkSchedule.HierarchyNumber)
+                            .OrderBy(x => x.HierarchyNumber).FirstOrDefault();
+                    priorItems.Add(previousPows);
+                }
+                return priorItems;
+            });
+            return rs;
+        }
+
         public List<ProductionOrderWorkSchedule> GetParents(ProductionOrderWorkSchedule schedule)
         {
             if (schedule == null) return null;

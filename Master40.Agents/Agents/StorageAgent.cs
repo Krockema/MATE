@@ -86,7 +86,7 @@ namespace Master40.Agents.Agents
             ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
-            if (requestProvidable.Quantity == StockElement.Current)
+            if (requestProvidable.Quantity <= StockElement.Current)
             {
                 // Reduce Stock 
                 StockElement.Current = StockElement.Current - requestProvidable.Quantity;
@@ -101,7 +101,7 @@ namespace Master40.Agents.Agents
                 this.RequestedItems.Remove(requestProvidable);
 
                 // Update Work Item with Provider For
-                Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester.Creator);
+                Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester.Creator, requestProvidable.OrderId);
                 ProviderList.Clear();
             }
         }

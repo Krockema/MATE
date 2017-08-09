@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
-using ChartJSCore.Models.Bar;
 using Master40.DB.Data.Context;
-using Microsoft.EntityFrameworkCore;
 using Master40.Extensions;
 
 namespace Master40.ViewComponents

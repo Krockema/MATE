@@ -13,13 +13,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Master40.ViewComponents
 {
-    public class ProductionTimelineViewComponent : ViewComponent
+    public class SimulationTimelineViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
         private readonly long _today;
         private int _orderId, _schedulingState;
         private GanttContext _ganttContext;
-        public ProductionTimelineViewComponent(ProductionDomainContext context)
+        public SimulationTimelineViewComponent(ProductionDomainContext context)
         {
             _context = context;
             _today = DateTime.Now.GetEpochMilliseconds();
@@ -32,9 +32,9 @@ namespace Master40.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(List<int> paramsList)
         {
 
-            if (!_context.ProductionOrderWorkSchedules.Any())
+            if (!_context.SimulationWorkschedules.Any())
             {
-                return View("ProductionTimeline", _ganttContext);
+                return View("SimulationTimeline", _ganttContext);
             }
 
             //.Definitions();
@@ -59,7 +59,7 @@ namespace Master40.ViewComponents
             ViewData["SchedulingState"] = SchedulingState(_schedulingState);
 
             // return schedule
-            return View("ProductionTimeline", _ganttContext);
+            return View("SimulationTimeline", _ganttContext);
         }
         
         /// <summary>
@@ -67,28 +67,12 @@ namespace Master40.ViewComponents
         /// </summary>
         private async Task GetSchedulesForOrderListAsync(IEnumerable<int> ordersParts)
         {
-            foreach (var orderPart in ordersParts)
+            foreach (var ordersPart in ordersParts)
             {
-
-                //var pows = await _context.GetProductionOrderBomRecursive(_context.ProductionOrders.FirstOrDefault(x => x.ArticleId == 1), 1);
-                // get the corresponding Order Parts to Order
-                var demands = _context.Demands.OfType<DemandOrderPart>()
-                    .Include(x => x.OrderPart)
-                    .Include(x => x.DemandProvider)
-                    .Where(o => o.OrderPart.OrderId == orderPart)
-                    .ToList();
-
-                var pows = new List<ProductionOrderWorkSchedule>();
-                foreach (var demand in demands)
-                {
-                    var data = _context.GetWorkSchedulesFromDemand(demand, ref pows);
-                }
-                
-               
-                foreach (var pow in pows)
+                foreach (var pow in _context.SimulationWorkschedules.Where(x => x.OrderId == ordersPart))
                 {
                     // check if head element is Created,
-                    GanttTask timeline = GetOrCreateTimeline(pow, orderPart);
+                    GanttTask timeline = GetOrCreateTimeline(pow, ordersPart);
                     long start = 0, end = 0;
                     DefineStartEnd(ref start, ref end, pow);
                     // Add Item To Timeline
@@ -99,32 +83,33 @@ namespace Master40.ViewComponents
                             end,
                             timeline.color,
                             timeline.id
-                            )
+                        )
                     );
                     var c = await _context.GetFollowerProductionOrderWorkSchedules(pow);
+
                     if (!c.Any()) continue;
                     // create Links for this pow
                     foreach (var link in c)
                     {
                         _ganttContext.Links.Add(
                             new GanttLink
-                            {   
+                            {
                                 id = Guid.NewGuid().ToString(),
                                 type = LinkType.finish_to_start,
                                 source = pow.Id.ToString(),
                                 target = link.Id.ToString()
                             }
                         );
-                    } // end foreach link
+                    } // end foreach link 
                 } // emd pows
-            } // end foreach Order
+            }
         }
 
         /// <summary>
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.
         /// -- Headline for one Project
         /// </summary>
-        private GanttTask GetOrCreateTimeline(ProductionOrderWorkSchedule pow,int orderId)
+        private GanttTask GetOrCreateTimeline(SimulationWorkschedule pow,int orderId = 0)
         {
             IEnumerable<GanttTask> project;
             // get Timeline
@@ -132,7 +117,7 @@ namespace Master40.ViewComponents
             {
                 case 3: // Machine Based
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "M" + (pow.MachineId ?? 0));
+                        .Where(x => x.type == GanttType.project && x.id == "M_" + pow.Machine);
                     if (project.Any())
                     {
                         return project.First();
@@ -140,7 +125,7 @@ namespace Master40.ViewComponents
                     else
                     {
                         var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("M" + pow.Machine.Id, pow.Machine.Name, "", 0, (GanttColors)gc);
+                        var pt = CreateProjectTask("M_" + pow.Machine, pow.Machine, "", 0, (GanttColors)gc);
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }
@@ -181,36 +166,23 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Defines start and end for the ganttchart based on the Scheduling State
         /// </summary>
-        private void DefineStartEnd(ref long start, ref long end, ProductionOrderWorkSchedule item)
+        private void DefineStartEnd(ref long start, ref long end, SimulationWorkschedule item)
         {
-            switch (_schedulingState)
-            {
-                case 1:
-                    start = (_today + item.StartBackward * 60000);
-                    end = (_today + item.EndBackward * 60000);
-                    break;
-                case 2:
-                    start = (_today + item.StartForward * 60000);
-                    end = (_today + item.EndForward * 60000);
-                    break;
-                default:
-                    start = (_today + item.Start * 60000);
-                    end = (_today + item.End * 60000);
-                    break;
-            }
+            start = (_today + item.Start * 60000);
+            end = (_today + item.End * 60000);
         }
 
         /// <summary>
         /// Creates new TimelineItem with a label depending on the schedulingState
         /// </summary>
-        public GanttTask CreateGanttTask(ProductionOrderWorkSchedule item, long start, long end, GanttColors gc, string parent)
+        public GanttTask CreateGanttTask(SimulationWorkschedule item, long start, long end, GanttColors gc, string parent)
         {
             var gantTask = new GanttTask()
             {
                 id = item.Id.ToString(),
                 type = GanttType.task,
-                desc = item.Name,
-                text = _schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId,
+                desc = item.WorkScheduleName,
+                text = _schedulingState == 4 ? item.Machine : "P.O.: " + item.ProductionOrderId,
                 start_date = start.GetDateFromMilliseconds().ToString("dd-MM-yyyy HH:mm"),
                 end_date = end.GetDateFromMilliseconds().ToString("dd-MM-yyyy HH:mm"),
                 IntFrom = start,
@@ -249,38 +221,6 @@ namespace Master40.ViewComponents
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
             return new SelectList( itemList, "Value", "Text", selectedItem);
         }
-
-        /* Temporary unused.
-        /// <summary>
-        /// Checks an Row for Stacking, but is not Required due to new Gantt Chart
-        /// Kept for later Use.
-        /// </summary>
-        /// <param name="ganttTaskItem"></param>
-        /// <param name="schedule"></param>
-        /// <param name="rowCount"></param>
-
-        private void CheckForStacking(GanttTask ganttTaskItem, GanttContext schedule, int rowCount)
-        {
-            var row = schedule.Tasks.FindAll(x => x.id == ganttTaskItem.parent && x.GroupId == rowCount);
-            var newRow = !row.Any();
-            var stacking = row.Any(item => (item.IntFrom <= ganttTaskItem.IntFrom && item.IntTo > ganttTaskItem.IntFrom)
-                                           || (item.IntFrom < ganttTaskItem.IntTo && item.IntTo >= ganttTaskItem.IntTo)
-                                           || (item.IntFrom > ganttTaskItem.IntFrom && item.IntTo < ganttTaskItem.IntTo)
-                                           || (item.IntFrom <= ganttTaskItem.IntFrom && item.IntTo >= ganttTaskItem.IntTo));
-
-            if (stacking)
-            {
-                CheckForStacking(ganttTaskItem, schedule, ++rowCount);
-            }
-            else
-            {
-                if (newRow)
-                {
-                    // add New Timeline
-                }
-                schedule.Tasks.Add(ganttTaskItem);
-            }
-        }*/
 
     }
 }
