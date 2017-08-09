@@ -154,15 +154,35 @@ namespace Master40.DB.Data.Context
         }
 
         /// <summary>
-        /// returns the OrderId for the ProductionOrderWorkSchedule
+        /// returns the OrderIds for the ProductionOrder
         /// </summary>
-        /// <param name="pow"></param>
+        /// <param name="po"></param>
         /// <returns></returns>
-        public int GetOrderIdFromProductionOrderWorkSchedule(ProductionOrderWorkSchedule pow)
+        public List<int> GetOrderIdsFromProductionOrder(ProductionOrder po)
         {
-            //call requester.requester to make sure that also the DemandProductionOrderBoms find the DemandOrderPart
-            var requester = (DemandOrderPart)pow.ProductionOrder.DemandProviderProductionOrders.First().DemandRequester.DemandRequester;
-            return OrderParts.Single(a => a.Id == requester.OrderPartId).OrderId;
+            po = ProductionOrders.Include(a => a.DemandProviderProductionOrders).ThenInclude(b => b.DemandRequester).Single(a => a.Id == po.Id);
+            var ids = new List<int>();
+            var requester = from provider in po.DemandProviderProductionOrders
+                select provider.DemandRequester;
+            foreach (var singleRequester in requester)
+            {
+                if (singleRequester.GetType() == typeof(DemandProductionOrderBom))
+                {
+                    
+                    ids.AddRange(GetOrderIdsFromProductionOrder(
+                        ((DemandProductionOrderBom) singleRequester).ProductionOrderBom.ProductionOrderParent));
+                }
+                else if (singleRequester.GetType() == typeof(DemandOrderPart))
+                {
+                    var dop = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
+                    return new List<int>()
+                        {
+                            dop.OrderPart.OrderId
+                        };
+                }
+                    
+            }
+            return ids;
         }
 
         /// <summary>

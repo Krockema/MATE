@@ -16,7 +16,7 @@ namespace Master40.DB.Models
         public string WorkScheduleId { get; set; }
         public string ProductionOrderId { get; set; }
         public int DueTime { get; set; }
-        public int OrderId { get; set; }
+        public string OrderId { get; set; }
         public int HierarchyNumber { get; set; }
         public string Parent { get; set; }
         public string ParentId { get; set; }
