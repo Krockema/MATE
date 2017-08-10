@@ -850,5 +850,46 @@ namespace Master40.DB.Data.Context
             }
             return changedRequester;
         }
+
+        private OrderPart CreateOrderPart(int articleId, int amount, int orderId)
+        {
+            var orderPart = new OrderPart()
+            {
+                ArticleId = articleId,
+                IsPlanned = false,
+                Quantity = amount,
+                OrderId = orderId
+            };
+            Add(orderPart);
+            SaveChanges();
+            return orderPart;
+        }
+
+        /// <summary>
+        /// Creates a new Order with OrderParts referring to the lists of articleId and amount per OrderPart.
+        /// </summary>
+        /// <param name="duetime"></param>
+        /// <param name="articleIds"></param>
+        /// <param name="amounts"></param>
+        /// <returns></returns>
+        public Order CreateOrder(List<int> articleIds, List<int> amounts, int duetime)
+        {
+            var order = new Order()
+            {
+                BusinessPartnerId = BusinessPartners.First().Id,
+                DueTime = duetime,
+                Name = "injected Order",
+                OrderParts = new List<OrderPart>()
+            };
+            Orders.Add(order);
+            SaveChanges();
+            
+            for (var i = 0; i < (articleIds.Count > amounts.Count ? amounts.Count : articleIds.Count); i++)
+            {
+                CreateOrderPart(articleIds.ElementAt(i), amounts.ElementAt(i), order.Id);
+            }
+            
+            return order;
+        }
     }
 }

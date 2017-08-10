@@ -10,5 +10,6 @@ namespace Master40.DB.Models
         public int Time { get; set; }
         public int MaxCalculationTime { get; set; }
         public int Lotsize { get; set; }
+        public int RecalculationTime { get; set; }
     }
 }
