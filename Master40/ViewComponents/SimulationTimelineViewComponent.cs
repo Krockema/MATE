@@ -155,7 +155,8 @@ namespace Master40.ViewComponents
                     else
                     {
                         var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("O" + orderId, _context.Orders.FirstOrDefault(x => x.Id == orderId).Name, "", 0, (GanttColors)gc);
+                        var pt = CreateProjectTask("O" + orderId, _context.OrderParts.
+                                                                    Include(x => x.Order).FirstOrDefault(x => x.Id == orderId).Order.Name, "", 0, (GanttColors)gc);
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }

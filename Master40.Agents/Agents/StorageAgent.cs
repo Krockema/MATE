@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Enums;
@@ -31,7 +32,8 @@ namespace Master40.Agents.Agents
         {
             // Create and Return a Reservation for Article
             RequestArticle,
-            ResponseFromProduction
+            ResponseFromProduction,
+            StockRefill
         }
 
         /// <summary>
@@ -49,24 +51,21 @@ namespace Master40.Agents.Agents
             if (request == null)
                 throw new InvalidCastException("Cast to Request Item Failed");
 
-            // try to make Reservation
-            
-            var stockReservation = TryToMakeReservationFor(request);
-            RequestedItems.Add(request);
 
-            // Buy if Purchase is True
-            if (request.Article.ToPurchase)
+            // try to make Reservation
+            var stockReservation = MakeReservationFor(request);
+            if (!stockReservation.IsInStock)
             {
-                //TODO: Create Purchase maybe with activity 
-                // currently just say its in stock.
-                stockReservation.IsInStock = true;
-                stockReservation.Quantity = request.Quantity;
+                // add to Request queue if not in Stock
+                RequestedItems.Add(request);
             }
+
 
             // Create Callback // Probably not required here
             CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromStock.ToString(),
                                   objectToProcess: stockReservation, // may needs later a more complex answer for now just remove item from stock
-                                      targetAgent: instructionSet.SourceAgent); // its Source Agent becaus this message is the Answer to the Instruction set.
+                                      targetAgent: instructionSet.SourceAgent /*,
+                                          waitFor: request.DueTime */ );  // its Source Agent becaus this message is the Answer to the Instruction set.
                                      
         }
 
@@ -104,9 +103,34 @@ namespace Master40.Agents.Agents
                 Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester.Creator, requestProvidable.OrderId);
                 ProviderList.Clear();
             }
+    }
+
+        private void StockRefill(InstructionSet instructionSet)
+        {
+            var quantity = instructionSet.ObjectToProcess is decimal;
+            if (!quantity)
+            {
+                throw new InvalidCastException(this.Name + " failed to Cast Integer on Instruction.ObjectToProcess");
+            }
+
+            // stock Income 
+            DebugMessage(" income " + StockElement.Article.Name + " quantity " + (decimal)instructionSet.ObjectToProcess + " added to Stock");
+            StockElement.Current += (decimal)instructionSet.ObjectToProcess;
+
+
+            // no Items to be served.
+            if (!RequestedItems.Any()) return;
+            
+            // Try server all Nonserved Items.
+            foreach (var request in RequestedItems.OrderBy(x => x.DueTime).ToList()) // .Where( x => x.DueTime <= Context.TimePeriod))
+            {
+                    CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
+                        objectToProcess: request,
+                        targetAgent: request.Requester /*, 
+                            waitFor: request.DueTime */ );
+                    RequestedItems.Remove(request);
+            }
         }
-
-
 
         /// <summary>
         /// Returns the Reservation Amont
@@ -114,24 +138,36 @@ namespace Master40.Agents.Agents
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        private StockReservation TryToMakeReservationFor(RequestItem request)
+        private StockReservation MakeReservationFor(RequestItem request)
         {
 
             StockReservation stockReservation = new StockReservation { DueTime = request.DueTime, };
 
             // Element is NOT in Stock
             if ((StockElement.Current - StockElement.StockExchanges
-                                                    .Where(x => x.RequiredOnTime <= request.DueTime)
-                                                    .Sum(x => x.Quantity) - request.Quantity) < 0)
+                     .Where(x => x.RequiredOnTime <= request.DueTime)
+                     .Sum(x => x.Quantity) - request.Quantity) < 0)
             {
                 stockReservation.IsInStock = false;
                 stockReservation.Quantity = 0;
-                return stockReservation;
+                // Create Order 
+                if (!stockReservation.IsInStock && StockElement.Article.ToPurchase)
+                {
+                    CreatePurchase();
+                    DebugMessage(" Created purchase for " + this.StockElement.Article.Name);
+                }
             }
-
-            // else Create Reservation
+            else
+            {
+                stockReservation.IsInStock = true;
+                stockReservation.Quantity = request.Quantity;
+                StockElement.Current -= request.Quantity;
+            }
+            
+            
+            //Create Reservation
             StockElement.StockExchanges.Add(
-            new StockExchange
+                new StockExchange
                 {
                     StockId = StockElement.Id,
                     EchangeType = EchangeType.Withdrawal,
@@ -139,13 +175,34 @@ namespace Master40.Agents.Agents
                     RequiredOnTime = request.DueTime,
                 }
             );
-            stockReservation.IsInStock = true;
-            stockReservation.Quantity = request.Quantity;
 
 
             return stockReservation;
         }
 
-        
+        private void CreatePurchase()
+        {
+            var time = StockElement.Article
+                                    .ArticleToBusinessPartners
+                                    .Single(x => x.BusinessPartner.Kreditor)
+                                    .DueTime;
+
+            CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.StockRefill.ToString(),
+                                    objectToProcess: StockElement.Article.Stock.Max,
+                                    targetAgent: this,
+                                    // TODO needs logic if more Kreditors are Added.
+                                    waitFor: time);
+
+            StockElement.StockExchanges.Add(
+                new StockExchange
+                {
+                    StockId = StockElement.Id,
+                    EchangeType = EchangeType.Insert,
+                    Quantity = StockElement.Article.Stock.Max,
+                    RequiredOnTime = time,
+                }
+            );
+        }
+
     }
 }

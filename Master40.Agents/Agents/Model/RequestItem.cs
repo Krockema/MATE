@@ -6,6 +6,10 @@ namespace Master40.Agents.Agents.Model
 {
     public class RequestItem
     {
+        public RequestItem()
+        {
+            Provided = false;
+        }
         public Article Article { get; set; }
         public IDemandToProvider IDemandToProvider { get; set; }
         public int Quantity { get; set; }
@@ -13,5 +17,6 @@ namespace Master40.Agents.Agents.Model
         public Agent Requester { get; set; }
         public int OrderId { get; set; }
         public int Providable { get; set; }
+        public bool Provided { get; set; }
     }
 }

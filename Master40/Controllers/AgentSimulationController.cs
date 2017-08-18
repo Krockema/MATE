@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
+using Master40.DB.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Master40.Controllers
@@ -25,7 +26,6 @@ namespace Master40.Controllers
             return View();
         }
 
-
         public async Task<IActionResult> Run()
         {
             
@@ -36,6 +36,16 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/RunAsync")]
         public void RunAsync()
         {
+            //SimulationConfigurations
+            var simulationConfiguration = new SimulationConfiguration()
+            {
+                Lotsize = 1,
+                Time = 0,
+                MaxCalculationTime = 3000
+            };
+            _context.Add(simulationConfiguration);
+            _context.SaveChanges();
+
             _agentSimulator.RunSimulation();
         }
 

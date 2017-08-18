@@ -10,7 +10,7 @@ namespace Master40.DB.Models
         public int StockId { get; set; }
         public Stock Stock { get; set; }
         public int RequiredOnTime { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public EchangeType EchangeType { get; set; }
 
     }

@@ -1,0 +1,79 @@
+@model Master40.DB.Models.SimulationConfiguration
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = null;
+}
+
+<h2>Simulation Configuration</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>Edit</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Time" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Time" class="form-control" />
+                <span asp-validation-for="Time" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="MaxCalculationTime" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="MaxCalculationTime" class="form-control" />
+                <span asp-validation-for="MaxCalculationTime" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Lotsize" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Lotsize" class="form-control" />
+                <span asp-validation-for="Lotsize" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="OrderQuantity" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="OrderQuantity" class="form-control" />
+                <span asp-validation-for="OrderQuantity" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="TimeSpanForOrders" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="TimeSpanForOrders" class="form-control" />
+                <span asp-validation-for="TimeSpanForOrders" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Seed" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Seed" class="form-control" />
+                <span asp-validation-for="Seed" class="text-danger"></span>
+            </div>
+        </div>
+    <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -47,7 +47,6 @@ namespace Master40.Simulation.Simulation
 
             // basic Set
             targetContext.ArticleTypes.AddRange(sourceContext.ArticleTypes);
-
             targetContext.Units.AddRange(sourceContext.Units);
             targetContext.Machines.AddRange(sourceContext.Machines);
             targetContext.MachineGroups.AddRange(sourceContext.MachineGroups);
@@ -61,19 +60,12 @@ namespace Master40.Simulation.Simulation
             targetContext.ArticleToBusinessPartners.AddRange(sourceContext.ArticleToBusinessPartners);
             targetContext.Orders.AddRange(sourceContext.Orders);
             targetContext.OrderParts.AddRange(sourceContext.OrderParts);
-            targetContext.OperationCharts.AddRange(sourceContext.OperationCharts);
-            
-
-            targetContext.ProductionOrders.AddRange(sourceContext.ProductionOrders);
-            targetContext.ProductionOrderBoms.AddRange(sourceContext.ProductionOrderBoms);
-            targetContext.ProductionOrderWorkSchedules.AddRange(sourceContext.ProductionOrderWorkSchedules);
-            targetContext.Purchases.AddRange(sourceContext.Purchases);
-            targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
-            targetContext.Demands.AddRange(sourceContext.Demands);
+            targetContext.SimulationConfigurations.AddRange(sourceContext.SimulationConfigurations);
+          
 
             targetContext.SaveChanges();
         }
-        public static void LoadInMemoryDB(this ProductionDomainContext targetContext,
+        public static void LoadInMemoryDb(this ProductionDomainContext targetContext,
             SimulationDbState sourceContext)
         {
             targetContext.ArticleTypes.AddRange(sourceContext.ArticleTypes);
@@ -91,15 +83,17 @@ namespace Master40.Simulation.Simulation
             targetContext.ArticleToBusinessPartners.AddRange(sourceContext.ArticleToBusinessPartners);
             targetContext.Orders.AddRange(sourceContext.Orders);
             targetContext.OrderParts.AddRange(sourceContext.OrderParts);
-            
 
+            // should be emty
+            /*
             targetContext.ProductionOrders.AddRange(sourceContext.ProductionOrders);
             targetContext.ProductionOrderBoms.AddRange(sourceContext.ProductionOrderBoms);
             targetContext.ProductionOrderWorkSchedules.AddRange(sourceContext.ProductionOrderWorkSchedule);
+            targetContext.Demands.AddRange(sourceContext.Demands);
             targetContext.Purchases.AddRange(sourceContext.Purchases);
             targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
-            targetContext.Demands.AddRange(sourceContext.Demands);
-
+            */
+            
             targetContext.SaveChanges();
         }
 

@@ -85,9 +85,7 @@ namespace Master40.Agents
                                                    stockElement: stock ));
             }
 
-            system.PrepareAgents();
-            
-            
+            system.PrepareAgents(_productionDomainContext.SimulationConfigurations.First());
             // Return System Agent to Context
             return system;
         }

@@ -10,13 +10,15 @@ namespace Master40.Agents.Agents
 {
     public class ProductionAgent : Agent
     {
-        private RequestItem RequestItem { get; }
+        private RequestItem RequestItem { get; } // the for this Work
+        private List<RequestItem> RequestMaterials { get; set; }
         private List<ComunicationAgent> ComunicationAgents;
         private List<WorkItem> WorkItems { get; set; }
         public ProductionAgent(Agent creator, string name, bool debug, RequestItem requestItem) 
             : base(creator, name, true)
         {
             RequestItem = requestItem;
+            RequestMaterials = new List<RequestItem>();
             ComunicationAgents = new List<ComunicationAgent>();
             DebugMessage("Woke up. My dueTime is :" + requestItem.DueTime);
             StartProductionAgent();
@@ -65,6 +67,7 @@ namespace Master40.Agents.Agents
                                                 requestItem: item);
                 // add to childs
                 ChildAgents.Add(dispoAgent);
+                //RequestMaterials.Add(item);
                 // add TO Context to process them this time Period.
                 Context.ProcessesRemainingThisTimePeriod.Enqueue(dispoAgent);
             }
@@ -89,13 +92,13 @@ namespace Master40.Agents.Agents
                 this.Status = Status.Finished;
                 CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.ResponseFromProduction.ToString(),
                                       objectToProcess: this,
-                                          targetAgent: this.Creator);
+                                          targetAgent: this.Creator); // Has been injected by Dispo and is Storage
                 
 
                 DebugMessage("All Workschedules have been Finished");
                 return;
             }
-
+            // else
             DebugMessage("Im Ready To get Enqued");
             Status = Status.Ready;
             SetWorkItemReady();
@@ -201,7 +204,7 @@ namespace Master40.Agents.Agents
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.SetWorkItemStatus.ToString(),
                                   objectToProcess: message,
                                       targetAgent: comunicationAgent,
-                                          waitFor: 1); // STart Production during the next time period
+                                          waitFor: 1); // Start Production during the next time period
 
         }
 

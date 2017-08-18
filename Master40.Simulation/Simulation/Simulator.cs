@@ -77,7 +77,6 @@ namespace Master40.Simulation.Simulation
                 //SimulationConfigurations
                 var simulationConfiguration = new SimulationConfiguration()
                 {
-                    SimulationId = 1,
                     Lotsize = 1,
                     Time = 0,
                     MaxCalculationTime = 3000
@@ -144,7 +143,8 @@ namespace Master40.Simulation.Simulation
                     Machine = _context.Machines.Single(a => a.Id == pows.MachineId).Name,
                     Start = pows.StartSimulation,
                     OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                    SimulationId = _context.SimulationConfigurations.Last().SimulationId,
+                    // TODO TO CHANGE
+                    SimulationId = _context.SimulationConfigurations.Last().Id,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name
                 });
@@ -223,7 +223,7 @@ namespace Master40.Simulation.Simulation
             _context.SaveChanges();
             if (!_orderInjected && timeTable.Timer > 0)
             {
-                CreateNewOrder(1, 1);
+                _context.CreateNewOrder(1, 1, 0, 100);
                 _orderInjected = true;
                 UpdateWaitingItems(timeTable, waitingItems);
             }
@@ -319,30 +319,6 @@ namespace Master40.Simulation.Simulation
                 }
                 waitingItems.Add(item);
             }
-        }
-
-        private void CreateNewOrder(int articleId, int amount)
-        {
-            var orderPart = new OrderPart()
-            {
-                ArticleId = articleId,
-                IsPlanned = false,
-                Quantity = amount,
-            };
-            _context.Orders.Add(new Order()
-            {
-                BusinessPartnerId = _context.BusinessPartners.First().Id,
-                DueTime = 100,
-                Name = "injected Order",
-                OrderParts = new List<OrderPart>()
-            });
-            _context.SaveChanges();
-            orderPart.OrderId = _context.Orders.Last().Id;
-            _context.OrderParts.Add(orderPart);
-            _context.SaveChanges();
-            _context.Orders.Last().OrderParts.Add(orderPart);
-            _context.OrderParts.Update(orderPart);
-            _context.SaveChanges();
         }
 
         private bool AllSimulationChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)

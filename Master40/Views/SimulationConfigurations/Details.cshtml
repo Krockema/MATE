@@ -1,0 +1,61 @@
+@model Master40.DB.Models.SimulationConfiguration
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = null;
+}
+
+<h2>Simulation Configuration</h2>
+
+<div>
+    <h4>Details</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Time)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Time)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MaxCalculationTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MaxCalculationTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Lotsize)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Lotsize)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderQuantity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OrderQuantity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TimeSpanForOrders)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TimeSpanForOrders)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Seed)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Seed)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

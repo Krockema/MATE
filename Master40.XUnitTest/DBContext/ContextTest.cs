@@ -160,7 +160,7 @@ namespace Master40.XUnitTest.DBContext
             _ctx.Database.EnsureDeleted();
             _ctx.Database.EnsureCreated();
 
-            _ctx.LoadInMemoryDB(json);
+            //_ctx.LoadInMemoryDB(json);
 
             Assert.Equal(true, (_ctx.Articles.Any()));
 

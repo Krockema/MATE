@@ -33,14 +33,6 @@ namespace Master40.Agents.Agents
             {
                 throw new InvalidCastException(this.Name + " Cast to OrderPart Failed");
             }
-
-            // Create DemandRequester
-            /*
-            var demand = _productionDomainContext.CreateDemandOrderPart(requestItem);
-            requestItem.DemandOrderParts = new List<DemandOrderPart>{ (DemandOrderPart)demand };
-            */
-
-            // Create Agent
             CreateAgents(requestItem);
         }
 
@@ -87,29 +79,28 @@ namespace Master40.Agents.Agents
 
         }
 
-        public void PrepareAgents()
+        public void PrepareAgents(SimulationConfiguration simConfig)
         {
+            for (int i = 1; i <= simConfig.OrderQuantity; i++)
+            {
+                // Ranodmization Required here.
+                _productionDomainContext.CreateNewOrder(1, 1, 2, 1640);
+            }
+
+
             foreach (var orderpart in _productionDomainContext.OrderParts
                                                                 .Include(x => x.Article)
                                                                 .Include(x => x.Order)
                                                                 .AsNoTracking())
             {
-                /*
-                this.CreateAndEnqueueInstuction(
-                    methodName: SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
-                    objectToProcess: orderpart,
-                    targetAgent: this,
-                    waitFor: 0
-                );
-                */
                 this.InstructionQueue.Enqueue(new InstructionSet
                 {
                     MethodName = SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
                     ObjectToProcess = orderpart,
                     ObjectType = orderpart.GetType(),
                     SourceAgent = this,
+                    WaitFor = orderpart.Order.CreationTime
                 });
-                
             }
         }
 

@@ -130,7 +130,7 @@ namespace Master40.DB.Data.Initializer
                         ArticleForeignKey = article.Value,
                         Name = "Stock: " + article.Key,
                         Min = (article.Key == "Dump-Truck") ? 0 : 0,
-                        Max = 50,
+                        Max = 100,
                         Current = (article.Key == "Dump-Truck") ? 1 : 0
                     }
                 };
@@ -284,8 +284,8 @@ namespace Master40.DB.Data.Initializer
 
             //create order
             var orders = new List<Order>() { 
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 100, Name = "First Truck order"},
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 150, Name = "Second Truck order"},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 1540, Name = "First Truck order", CreationTime = 0},
+                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 1690, Name = "Second Truck order", CreationTime = 0},
             };
             foreach (var order in orders)
             {
@@ -306,7 +306,18 @@ namespace Master40.DB.Data.Initializer
             }
             context.SaveChanges();
 
-
+            var simConfig = new SimulationConfiguration
+            {
+                Name = "Test config",
+                Lotsize = 1,
+                MaxCalculationTime = 3000, // test  // 10080, // 7 days
+                OrderQuantity = 1,
+                Seed = 1337,
+                TimeSpanForOrders = 1,
+                Time = 1
+            };
+            context.SimulationConfigurations.Add(simConfig);
+            context.SaveChanges();
         }
     }
 }

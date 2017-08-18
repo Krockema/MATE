@@ -5,6 +5,8 @@ using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Helper;
 using Master40.DB.Models;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Remotion.Linq.Parsing;
 
 namespace Master40.Agents.Agents
 {
@@ -64,24 +66,28 @@ namespace Master40.Agents.Agents
 
         private void ResponseFromStock(InstructionSet instructionSet)
         {
-            if(instructionSet.ObjectToProcess != null)
+            var stockReservation = instructionSet.ObjectToProcess as StockReservation;
+            if (stockReservation == null)
             {
-                QuantityToProduce = RequestItem.Quantity - ((StockReservation)instructionSet.ObjectToProcess).Quantity;
+                throw new InvalidCastException("Could not Cast Stockreservation on Item.");
             }
-            // TODO -> Logic
-            DebugMessage("Returned with " + ((StockReservation)instructionSet.ObjectToProcess).Quantity + " " + RequestItem.Article.Name + " Reserved!");
 
-            
-            // Create Production Agents
+            QuantityToProduce = RequestItem.Quantity - stockReservation.Quantity;
+            // TODO -> Logic
+            DebugMessage("Returned with " + QuantityToProduce + " " + RequestItem.Article.Name + " Reserved!");
+
+            // check If is In Stock
+            if (stockReservation.IsInStock == true) this.Finish();
+
+            // else Create Production Agents if ToBuild
             if (RequestItem.Article.ToBuild)
             {
                 CreateAndEnqueueInstuction(methodName: Agents.SystemAgent.InstuctionsMethods.RequestArticleBom.ToString(),
                                         objectToProcess: RequestItem,
                                         targetAgent: SystemAgent);
             }
+            // Not in Stock and Not ToBuild Agent has to Wait for Stock To Provide Materials
 
-            // check for zero
-            if (QuantityToProduce == 0) this.Finish();
         }
 
         private void ResponseFromSystemForBom(InstructionSet instructionSet)
@@ -97,7 +103,6 @@ namespace Master40.Agents.Agents
             item.Article = article;
             item.OrderId = RequestItem.OrderId;
 
-
             // set new Due Time if there is Work to do.
             if (RequestItem.Article.WorkSchedules != null)
                 item.DueTime = RequestItem.DueTime - RequestItem.Article.WorkSchedules.Sum(x => x.Duration);
@@ -105,10 +110,10 @@ namespace Master40.Agents.Agents
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < QuantityToProduce; i++)
             {
-                ChildAgents.Add(new ProductionAgent(creator: StockAgent,
-                                                       name: "Production(" + RequestItem.Article.Name + ", Nr. " + i + ")",
-                                                      debug: DebugThis,
-                                                requestItem: item));
+                new ProductionAgent(creator: StockAgent,
+                                       name: "Production(" + RequestItem.Article.Name + ", Nr. " + i + ")",
+                                      debug: DebugThis,
+                                requestItem: item);
             }
         }
 

@@ -248,6 +248,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\AgentSimulation\" />
+    <Folder Include="Views\SimulationConfig\" />
     <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
   <ItemGroup>
