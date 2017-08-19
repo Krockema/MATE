@@ -7,6 +7,7 @@ using Master40.Agents.Agents;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using NSimulate;
@@ -81,7 +82,7 @@ namespace Master40.Agents
             {
                 system.ChildAgents.Add(new StorageAgent(creator: system, 
                                                            name: stock.Name, 
-                                                          debug: false, 
+                                                          debug: true, 
                                                    stockElement: stock ));
             }
 
@@ -110,6 +111,15 @@ namespace Master40.Agents
             Debug.WriteLine(jobs + " Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
             var poWait = AgentStatistic.Log.Count(x => x.Equals("Wait1"));
             Debug.WriteLine("Po Wait Counter:" + poWait);
+
+            foreach (var stock in context.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
+            {
+                var item = ((StorageAgent)stock);
+                var count = (item.StockElement.StockExchanges.Where(x => x.EchangeType == EchangeType.Insert)
+                                 .Sum(x => x.Quantity) - item.StockElement.StockExchanges
+                                 .Where(x => x.EchangeType == EchangeType.Withdrawal).Sum(x => x.Quantity));
+                Debug.WriteLine("Storage (" + item.Name + "): In: " + count);
+            }
            
         }
     }

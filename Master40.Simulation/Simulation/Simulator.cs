@@ -76,7 +76,6 @@ namespace Master40.Simulation.Simulation
                 //SimulationConfigurations
                 var simulationConfiguration = new SimulationConfiguration()
                 {
-                    SimulationId = 1,
                     Lotsize = 1,
                     Time = 0,
                     MaxCalculationTime = 3000,
@@ -152,7 +151,7 @@ namespace Master40.Simulation.Simulation
                     Machine = _context.Machines.Single(a => a.Id == pows.MachineId).Name,
                     Start = pows.StartSimulation,
                     OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                    SimulationId = _context.SimulationConfigurations.Last().SimulationId,
+                    SimulationId = _context.SimulationConfigurations.Last().Id,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name
                 });

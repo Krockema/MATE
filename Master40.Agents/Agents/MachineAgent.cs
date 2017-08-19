@@ -153,7 +153,7 @@ namespace Master40.Agents.Agents
             DebugMessage("Position: " + position + " Priority:"+ workItem.Priority + " Queue length " + Queue.Count());
 
             // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < Queue.Count())
+            if (position + 1 < Queue.Count)
             {
                 var toRequeue = Queue.OrderBy(x => x.Priority).ToList().GetRange(position + 1, Queue.Count() - position - 1);
 
@@ -177,6 +177,7 @@ namespace Master40.Agents.Agents
                 Queue.Remove(reqItem);
                 // reset Agent Status
                 reqItem.Status = Status.Created;
+
                 // Call Comunication Agent to Requeue
                 CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.EnqueueWorkItem.ToString(),
                     objectToProcess: reqItem,
@@ -203,7 +204,6 @@ namespace Master40.Agents.Agents
                 
                 // there is at least Something Ready so Start Work
                 DoWork(new InstructionSet());
-                DebugMessage("Call for Work");
             }
         }
 

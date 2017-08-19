@@ -34,7 +34,11 @@ namespace Master40.Simulation.Simulation
 
         public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
         {
-            _context.CreateOrder(ArticleIds,Amounts, DueTime);
+            for (int i = 0; i < ArticleIds.Count; i++)
+            {
+                _context.CreateNewOrder(ArticleIds[i], Amounts[i], 2, DueTime);
+            }
+          
             return null;
         }
     }

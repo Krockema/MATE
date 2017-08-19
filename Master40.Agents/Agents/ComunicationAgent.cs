@@ -81,6 +81,8 @@ namespace Master40.Agents.Agents
             if (workItem.Status == Status.Ready)
             {
                 // Call for Work 
+                workItem.MaterialsProvided = true;
+                workItem.WasSetReady = true;
                 CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.StartWorkWith.ToString(),
                                       objectToProcess: workItemStatus,
                                           targetAgent: GetMachineAgentById(workItem.MachineAgentId));
@@ -128,7 +130,7 @@ namespace Master40.Agents.Agents
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
                 var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Min(p => p.PossibleSchedule));
 
-                workItem.Status = Status.InQueue;
+                workItem.Status = workItem.WasSetReady? Status.Ready : Status.InQueue;
                 workItem.MachineAgentId = acknowledgement.AgentId;
                 workItem.EstimatedEnd = acknowledgement.PossibleSchedule + workItem.WorkSchedule.Duration;
                 

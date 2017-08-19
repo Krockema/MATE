@@ -131,7 +131,7 @@ namespace Master40.DB.Data.Initializer
                         Name = "Stock: " + article.Key,
                         Min = (article.Key == "Dump-Truck") ? 0 : 0,
                         Max = 100,
-                        Current = (article.Key == "Dump-Truck") ? 1 : 0
+                        Current = (article.Key == "Dump-Truck") ? 0 : 0
                     }
                 };
                 foreach (Stock s in Stocks)
@@ -297,7 +297,7 @@ namespace Master40.DB.Data.Initializer
             var orderParts = new List<OrderPart>()
             {
                 new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 2, IsPlanned = false},
                 new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 2, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)

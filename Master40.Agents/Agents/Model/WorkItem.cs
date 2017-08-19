@@ -13,8 +13,10 @@ namespace Master40.Agents.Agents.Model
         public int DueTime { get; set; }
         public int EstimatedStart { get; set; }
         public int EstimatedEnd { get; set; }
+        public bool MaterialsProvided { get; set; }
         public double Priority { get; set; }
         public Status Status { get; set; }
+        public bool WasSetReady { get; set; }
         public Guid MachineAgentId { get; set; }
         public Agent ProductionAgent { get; set; }
         public Agent ComunicationAgent { get; set; }

@@ -5,6 +5,7 @@ using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Models;
+using Remotion.Linq.Utilities;
 
 namespace Master40.Agents.Agents
 {
@@ -101,6 +102,7 @@ namespace Master40.Agents.Agents
             // else
             DebugMessage("Im Ready To get Enqued");
             Status = Status.Ready;
+            WorkItems.ForEach(item => item.MaterialsProvided = true);
             SetWorkItemReady();
         }
 
@@ -191,6 +193,7 @@ namespace Master40.Agents.Agents
             DebugMessage("SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
 
             nextItem.Status = Status.Ready;
+            nextItem.WasSetReady = true;
             // create StatusMsg
             var message = new WorkItemStatus
             {

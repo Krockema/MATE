@@ -15,7 +15,7 @@ namespace Master40.Agents.Agents
         private List<Guid> ProviderList { get; set; }
 
         // Properties
-        private Stock StockElement { get; set; }
+        public Stock StockElement { get; set; }
         public string StockFor { get; }
         private List<RequestItem> RequestedItems { get; set; }
 
@@ -82,6 +82,15 @@ namespace Master40.Agents.Agents
 
             // Add the Produced item to Stock
             StockElement.Current++;
+            StockElement.StockExchanges.Add(
+                new StockExchange
+                {
+                    StockId = StockElement.Id,
+                    EchangeType = EchangeType.Insert,
+                    Quantity = 1,
+                    RequiredOnTime = (int)Context.TimePeriod
+                });
+
             ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
