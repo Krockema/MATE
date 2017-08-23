@@ -208,7 +208,6 @@ namespace Master40.Agents.Agents
                                   objectToProcess: message,
                                       targetAgent: comunicationAgent,
                                           waitFor: 1); // Start Production during the next time period
-
         }
 
 

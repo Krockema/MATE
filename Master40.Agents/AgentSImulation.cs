@@ -78,7 +78,8 @@ namespace Master40.Agents
 
             // Create Stock Agents
             foreach (var stock in _productionDomainContext.Stocks.Include(x => x.StockExchanges).Include(x => x.Article)
-                                                                                                .ThenInclude(x => x.ArticleToBusinessPartners))
+                                                                                                .ThenInclude(x => x.ArticleToBusinessPartners)
+                                                                                                .ThenInclude(x => x.BusinessPartner))
             {
                 system.ChildAgents.Add(new StorageAgent(creator: system, 
                                                            name: stock.Name, 

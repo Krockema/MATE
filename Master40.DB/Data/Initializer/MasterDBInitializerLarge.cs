@@ -245,7 +245,7 @@ namespace Master40.DB.Data.Initializer
 
 
             //create Businesspartner
-            var businessPartner = new BusinessPartner(){Debitor = true,Kreditor = false,Name = "Toys'R'us toy department"};
+            var businessPartner = new BusinessPartner(){ Debitor = true,Kreditor = false,Name = "Toys'R'us toy department" };
             var businessPartner2 = new BusinessPartner() { Debitor = false, Kreditor = true, Name = "Material wholesale" };
             context.BusinessPartners.Add(businessPartner);
             context.BusinessPartners.Add(businessPartner2);
