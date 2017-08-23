@@ -23,9 +23,9 @@ namespace Master40.BusinessLogicCentral.MRP
             _messageHub = messageHub;
         }
 
-        public async Task RunSimulation()
+        public async Task RunSimulation(int simulationId)
         {
-            await _agentSimulation.RunSim();
+            await _agentSimulation.RunSim(simulationId);
             _messageHub.SendToAllClients("Number of involved Agents: " + Agent.AgentCounter.Count, MessageType.success);
             _messageHub.SendToAllClients("Number of instructions send: " + Agent.InstructionCounter, MessageType.success);
 

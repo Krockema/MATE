@@ -29,7 +29,7 @@ namespace Master40.Agents
             SimulationWorkschedules = new List<SimulationWorkschedule>();
         }
 
-        public async Task<List<AgentStatistic>> RunSim()
+        public async Task<List<AgentStatistic>> RunSim(int simulationId)
         {
             AgentStatistic.Log = new List<string>();
             Debug.WriteLine("Simulation Starts");
@@ -40,7 +40,7 @@ namespace Master40.Agents
             {
 
                 // initialise the model
-                var system = CreateModel(context: context);
+                var system = CreateModel(context: context, simulationId: simulationId);
 
                 // instantate a new simulator
                 var simulator = new Simulator();
@@ -51,16 +51,16 @@ namespace Master40.Agents
                 // Debug
                 Debuglog(context);
 
+                Statistics.UpdateSimulationId(simulationId);
                 _productionDomainContext.SimulationWorkschedules.AddRange(SimulationWorkschedules);
                 _productionDomainContext.SaveChanges();
             }
             return Agent.AgentStatistics;
         }
 
-        private object CreateModel(SimulationContext context)
+        private object CreateModel(SimulationContext context,int simulationId)
         {
             var system = new SystemAgent(null, "System", false, _productionDomainContext);
-
             
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", false);
@@ -87,7 +87,7 @@ namespace Master40.Agents
                                                    stockElement: stock ));
             }
 
-            system.PrepareAgents(_productionDomainContext.SimulationConfigurations.First());
+            system.PrepareAgents(_productionDomainContext.SimulationConfigurations.First(x => x.Id == simulationId));
             // Return System Agent to Context
             return system;
         }

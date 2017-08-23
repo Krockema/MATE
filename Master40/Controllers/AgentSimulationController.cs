@@ -29,24 +29,15 @@ namespace Master40.Controllers
         public async Task<IActionResult> Run()
         {
             
-            await _agentSimulator.RunSimulation();
+            await _agentSimulator.RunSimulation(1);
             return View("Index");
         }
 
         [HttpGet("[Controller]/RunAsync")]
-        public void RunAsync()
+        public async void RunAsync()
         {
-            //SimulationConfigurations
-            var simulationConfiguration = new SimulationConfiguration()
-            {
-                Lotsize = 1,
-                Time = 0,
-                MaxCalculationTime = 3000
-            };
-            _context.Add(simulationConfiguration);
-            _context.SaveChanges();
-
-            _agentSimulator.RunSimulation();
+            // using Default Test Values.
+            await _agentSimulator.RunSimulation(1);
         }
 
         [HttpGet("[Controller]/ReloadGantt/{orderId}/{stateId}")]

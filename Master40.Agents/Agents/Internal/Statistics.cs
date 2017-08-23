@@ -10,18 +10,18 @@ namespace Master40.Agents.Agents.Internal
     {
         public static void CreateSimulationWorkSchedule(WorkItem ws, string orderId)
         {
-            var sws = new SimulationWorkschedule();
-
-            sws.WorkScheduleId = ws.Id.ToString();
-            sws.Article = ws.WorkSchedule.Article.Name;
-            sws.WorkScheduleName = ws.WorkSchedule.Name;
-            sws.DueTime = ws.DueTime;
-            sws.EstimatedEnd = ws.EstimatedEnd;
-            sws.SimulationId = 1;
-            sws.OrderId = orderId;
-            sws.HierarchyNumber = ws.WorkSchedule.HierarchyNumber;
-            sws.ProductionOrderId = ws.ProductionAgent.AgentId.ToString();
-
+            var sws = new SimulationWorkschedule
+            {
+                WorkScheduleId = ws.Id.ToString(),
+                Article = ws.WorkSchedule.Article.Name,
+                WorkScheduleName = ws.WorkSchedule.Name,
+                DueTime = ws.DueTime,
+                EstimatedEnd = ws.EstimatedEnd,
+                SimulationId = -1,
+                OrderId = orderId,
+                HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
+                ProductionOrderId = ws.ProductionAgent.AgentId.ToString()
+            };
             AgentSimulation.SimulationWorkschedules.Add(sws);
         }
 
@@ -32,6 +32,13 @@ namespace Master40.Agents.Agents.Internal
             edit.Start = start;
             edit.End = start + duration + 1; // to have Time Points instead of Time Periods
             edit.Machine = machine.Name;
+        }
+
+        public static void UpdateSimulationId(int simulationId)
+        {
+            AgentSimulation.SimulationWorkschedules
+                .Where(x => x.SimulationId == -1).ToList()
+                .ForEach(x => x.SimulationId = simulationId);
         }
 
         internal static void UpdateSimulationWorkSchedule(List<Guid> ProductionAgents, Agent RequesterAgent, int orderId)

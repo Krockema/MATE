@@ -84,7 +84,7 @@ namespace Master40.XUnitTest.DBContext
         public async Task AgentSimulationTestAsync()
         {
             var sim = new AgentSimulation(_productionDomainContext, new Moc.MessageHub());
-            await sim.RunSim();
+            await sim.RunSim(1);
 
             Assert.Equal(true, true);
         }
