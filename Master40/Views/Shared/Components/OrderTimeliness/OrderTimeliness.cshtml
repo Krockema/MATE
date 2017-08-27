@@ -1,0 +1,75 @@
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    string raw = "Chart Rendering Failed";
+    string type = ViewData["Type"].ToString();
+    if (chart != null) {
+        raw = chart.CreateChartCode("OrderTimeliness_"+type);
+    }
+}
+
+<style>
+    .chartContainer {
+        position: relative;
+        width: 400px;
+        height: 200px;
+    }
+    chartLayer > canvas {
+        width: 400px;
+        height: 200px;
+    }
+    .chartLayer, textLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    .textLayer {
+        z-index: -10;
+        color: #666;
+        font: bold 30px Helvetica;
+        display: flex;
+        padding-top: 80px;
+        justify-content: center; /* align horizontal */
+        align-items: center; /* align vertical */
+    }
+
+</style>
+<div class="row">
+    <div class="col-md-6">
+        <div class="chartContainer">
+            <div class="chartLayer">
+                <!--div id="js-legend" class="chart-legend"><div-->
+                <canvas id="OrderTimeliness_@type"></canvas>
+            </div>
+            <div class="textLayer">
+                @ViewData["percentage"]
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Orders</th>
+                    <th>Quantity</th>
+                    <th>Avg. Overtime</th>
+                </tr>
+                <tr>
+                    <td>On Schedule</td>
+                    <td>90</td>
+                    <td>-8%</td>
+                </tr>
+                <tr>
+                    <td>Overtime</td>
+                    <td>10</td>
+                    <td>15%</td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<script>
+    @Html.Raw(raw);
+</script>

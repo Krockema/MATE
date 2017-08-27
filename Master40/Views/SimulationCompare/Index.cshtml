@@ -1,0 +1,92 @@
+﻿@{
+    ViewBag.Title = "Simulation Compareing";
+    Layout = "_Layout";
+}
+
+
+<h2>Simulation Comparing</h2>
+
+<hr/>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Machine Workloads</h4>
+                    <div id="machineWorkload_Decentral" class="machineWorkload loading"></div>
+                    <!-- Machine Workloads -->
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Product Lead Times</h4>
+                    <div class="loading"></div>
+                    <!-- Lead Time -->
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Order Timeliness</h4>
+                    <div id="timeliness_Decentral"class="loading"></div>
+                    <!-- Order Timeliness -->
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Stock Evolution</h4>
+                    <div class="loading"></div>
+                    <!-- Stock Evolution -->
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Article Idle Time</h4>
+                    <div class="loading"></div>
+                    <!-- Idle Times -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6"> Sim 2</div>
+        
+        
+
+    </div>
+</div>
+    <script>
+  
+        $(document).ready(function () {
+            $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
+            MachineWorkLoads(1, "Decentral");
+            Timeliness(1, "Decentral");
+
+            // Load Parts
+        });
+
+
+        function MachineWorkLoads(simulationId, simType) {
+            $.ajax({
+                url: "SimulationCompare/MachinesWorkLoad/" + simulationId + "/" + simType,
+                async: true,
+                context: document.body
+            }).done(function (data) {
+                $('#machineWorkload_' + simType).removeClass('loading');
+                $('#machineWorkload_' + simType).html(data);
+            });
+        }
+
+
+        function Timeliness(simulationId, simType) {
+            $.ajax({
+                url: "SimulationCompare/Timeliness/" + simulationId + "/" + simType,
+                async: true,
+                context: document.body
+            }).done(function (data) {
+                $('#timeliness_' + simType).removeClass('loading');
+                $('#timeliness_' + simType).html(data);
+            });
+        }
+    </script>

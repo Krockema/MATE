@@ -16,7 +16,7 @@ namespace Master40.Agents.Agents
         private List<ComunicationAgent> ComunicationAgents;
         private List<WorkItem> WorkItems { get; set; }
         public ProductionAgent(Agent creator, string name, bool debug, RequestItem requestItem) 
-            : base(creator, name, true)
+            : base(creator, name, debug)
         {
             RequestItem = requestItem;
             RequestMaterials = new List<RequestItem>();

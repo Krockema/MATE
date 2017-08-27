@@ -5,6 +5,7 @@ namespace Master40.DB.Models
     public class SimulationWorkschedule : BaseEntity
     {
         public int SimulationId { get; set; }
+        public string SimulationType { get; set; }
         public int Time { get; set; }
         public string WorkScheduleName { get; set; }
         public string Article { get; set; }

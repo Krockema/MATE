@@ -39,7 +39,7 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Seed)
                 </th>
-            <!--th></th -->
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -66,11 +66,18 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Seed)
             </td>
-            <!-- td>
+            <td>
+                <a id="@item.Id" asp-action="Details" asp-controller="SimulationConfigurations" asp-route-id="@item.Id"
+                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </a> |
+                <a asp-action="Index" asp-area="SimulationCompare" asp-controller="SimulationCompare" class="btn btn-info">Compare</a> |
+                <!-- 
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            <td -->
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> -->
+            </td>
         </tr>
 }
     </tbody>

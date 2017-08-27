@@ -71,7 +71,7 @@ namespace Master40.Agents
             {
                 system.ChildAgents.Add(new MachineAgent(creator: system, 
                                                            name: "Machine: " + machine.Name, 
-                                                          debug: true, 
+                                                          debug: false, 
                                                  directoryAgent: directoryAgent,
                                                         machine: machine)); 
             }
@@ -83,7 +83,7 @@ namespace Master40.Agents
             {
                 system.ChildAgents.Add(new StorageAgent(creator: system, 
                                                            name: stock.Name, 
-                                                          debug: true, 
+                                                          debug: false, 
                                                    stockElement: stock ));
             }
 
