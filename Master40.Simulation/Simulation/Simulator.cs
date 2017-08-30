@@ -25,18 +25,18 @@ namespace Master40.Simulation.Simulation
     public class Simulator : ISimulator
     {
 
-        private readonly ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+        private readonly ProductionDomainContext _context = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseInMemoryDatabase(databaseName: "InMemoryDB")
             .Options);
 
-        private readonly ProductionDomainContext _context;
+        private readonly ProductionDomainContext _evaluationContext;
         //private readonly CopyContext _copyContext;
         private readonly IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
         public Simulator(ProductionDomainContext context, IMessageHub messageHub)//, CopyContext copyContext)
         {
-            _context = context;
+            _evaluationContext = context;
             //_copyContext = copyContext;
             _messageHub = messageHub;
 
@@ -47,6 +47,13 @@ namespace Master40.Simulation.Simulation
             //// Dp it inmemory
             // _processMrp = new ProcessMrpSim(_context, messageHub);
             // _context.CopyAllTables(ctx);
+        }
+
+        private void PrepareSimulationContext()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+            _evaluationContext.CopyAllTables(_context);
         }
 
         private List<ProductionOrderWorkSchedule> CreateInitialTable()
@@ -73,16 +80,7 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
-                //SimulationConfigurations
-                var simulationConfiguration = new SimulationConfiguration()
-                {
-                    Lotsize = 1,
-                    Time = 0,
-                    MaxCalculationTime = 3000,
-                    RecalculationTime = 1440
-                };
-                _context.Add(simulationConfiguration);
-                _context.SaveChanges();
+                PrepareSimulationContext();
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task);
@@ -97,6 +95,8 @@ namespace Master40.Simulation.Simulation
             {
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
+                PrepareSimulationContext();
+                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Last().RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);

@@ -14,10 +14,10 @@ namespace Master40.Controllers
         private readonly IProcessMrp _processMrp;
         private readonly ISimulator _simulator;
         //private readonly Client _client;
-        public MrpController(IProcessMrp processMrp, ISimulator simulator)
+        public MrpController(IProcessMrp processMrp)
         {
             _processMrp = processMrp;
-            _simulator = simulator;
+            _simulator = new Simulator();
             //_client = client;
         }
         public IActionResult Index()

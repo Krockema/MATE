@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
 {
-    public class CopyContext : MasterDBContext
+    public class EvaluationContext : ProductionDomainContext
     {
-        public CopyContext(DbContextOptions<MasterDBContext> options) : base(options) { }
-
+        public EvaluationContext(DbContextOptions<MasterDBContext> options) : base(options) { }
+        /*
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            /*
             modelBuilder.Entity<ArticleType>().Property(p => p.Id).ValueGeneratedNever();
             modelBuilder.Entity<Article>().Property(p => p.Id).ValueGeneratedNever();
             modelBuilder.Entity<ArticleBom>().Property(p => p.Id).ValueGeneratedNever();
@@ -34,5 +34,6 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<Unit>().Property(p => p.Id).ValueGeneratedNever();
             modelBuilder.Entity<WorkSchedule>().Property(p => p.Id).ValueGeneratedNever();
         }
+        */
     }
 }
