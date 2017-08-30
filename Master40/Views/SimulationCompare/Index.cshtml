@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h4>Product Lead Times</h4>
-                    <div class="loading"></div>
+                    <div id="leadtime_Decentral" class="loading"></div>
                     <!-- Lead Time -->
                 </div>
             </div>
@@ -37,7 +37,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h4>Stock Evolution</h4>
-                    <div class="loading"></div>
+                    <div id="stockevolution_Decentral" class="loading"></div>
                     <!-- Stock Evolution -->
                 </div>
             </div>
@@ -62,7 +62,8 @@
             $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
             MachineWorkLoads(1, "Decentral");
             Timeliness(1, "Decentral");
-
+            ProductLeadTime(1, "Decentral");
+            StockEvolution(1, "Decentral");
             // Load Parts
         });
 
@@ -89,4 +90,27 @@
                 $('#timeliness_' + simType).html(data);
             });
         }
+
+        function ProductLeadTime(simulationId, simType) {
+            $.ajax({
+                url: "SimulationCompare/ProductLeadTime/" + simulationId + "/" + simType,
+                async: true,
+                context: document.body
+            }).done(function (data) {
+                $('#leadtime_' + simType).removeClass('loading');
+                $('#leadtime_' + simType).html(data);
+            });
+        }
+
+        function StockEvolution(simulationId, simType) {
+            $.ajax({
+                url: "SimulationCompare/StockEvolution/" + simulationId + "/" + simType,
+                async: true,
+                context: document.body
+            }).done(function (data) {
+                $('#stockevolution_' + simType).removeClass('loading');
+                $('#stockevolution_' + simType).html(data);
+            });
+        }
+
     </script>

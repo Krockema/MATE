@@ -2,45 +2,65 @@
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
-    if (chart != null) {
+    if (chart != null)
+    {
         raw = chart.CreateChartCode("MaschineChart_" + type);
     }
 
 }
-
 <style>
     .chartWrapper {
         position: relative;
-            
     }
 
-    .chartWrapper > canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        pointer-events:none;
-    }
+        .chartWrapper > canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+        }
+
     .chartAreaWrapper {
-        overflow-x: scroll;
+        overflow-x: auto;
         position: relative;
         width: 100%;
     }
 
     .chartAreaWrapper2 {
-          
         position: relative;
-        height: 300px;
+        height: 200px;
     }
 </style>
-<div class="chartWrapper">
-    <div class="chartAreaWrapper">
-        <div class="chartAreaWrapper2">
-                <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="MaschineChart_@type" height="300" width="0"></canvas>
+<div class="row">
+    <div class="col-md-8">
+        <div class="chartWrapper">
+            <div class="chartAreaWrapper">
+                <div class="chartAreaWrapper2">
+                    <!--div id="js-legend" class="chart-legend"><div-->
+                    <canvas id="MaschineChart_@type" height="300" width="0"></canvas>
+                </div>
             </div>
+        </div>
     </div>
-</div>
-
-<script>
+    <div class="col-md-4">
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Machine</th>
+                    <th>Workload</th>
+                </tr>
+            </thead>
+            
+                @for (int i = 0; i < chart.Data.Datasets[0].Data.Count(); i++)
+                {
+                    <tr>
+                        <td>@chart.Data.Labels[i]</td>
+                        <td>@chart.Data.Datasets[0].Data[i] %</td>       
+                    </tr>
+                }
+        </table>
+        </div>
+    </div>
+        <script>
     @Html.Raw(raw);
-</script>
+        </script>

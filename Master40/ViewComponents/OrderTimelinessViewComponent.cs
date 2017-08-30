@@ -50,7 +50,7 @@ namespace Master40.ViewComponents
                         new PieDataset
                         {
                             BackgroundColor = new[] {"rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.2)" },
-                            BorderColor = new[] {"rgba(75, 192, 192, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 99, 132, 0.2)" },
+                            BorderColor = new[] {"rgba(75, 192, 192, 1)", "rgba(54, 162, 235, 1)", "rgba(255, 99, 132, 1)" },
                             BorderWidth = 1,
                        }
                     },

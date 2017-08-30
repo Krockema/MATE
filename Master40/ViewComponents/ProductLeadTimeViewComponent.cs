@@ -9,62 +9,68 @@ using Master40.Extensions;
 
 namespace Master40.ViewComponents
 {
-    public partial class ProductLeadTImeViewComponent : ViewComponent
+    public partial class ProductLeadTimeViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
 
-        public ProductLeadTImeViewComponent(ProductionDomainContext context)
+        public ProductLeadTimeViewComponent(ProductionDomainContext context)
         {
             _context = context;
         }
 
 
 
-        public async Task<IViewComponentResult> InvokeAsync(string machine)
+        public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             var generateChartTask = Task.Run(() =>
             {
-
                 if (!_context.SimulationWorkschedules.Any())
                 {
                     return null;
                 }
 
-               Chart chart = new Chart();
+                Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "pie";
+                chart.Type = "doughnut";
 
                 // use available hight in Chart
-                chart.Options = new Options { MaintainAspectRatio = true};
-                var data = new Data();
+                chart.Options = new PieOptions
+                {
+                    MaintainAspectRatio = false,
+                    Responsive = true,
+                    CutoutPercantage = 80,
+                    Rotation = 0.8 * Math.PI,
+                    Circumference = 1.4 * Math.PI,
+                    Legend = new Legend { Position = "bottom", Display = false },
+                    Title = new Title { Text = "Product Lead Time", Position = "top", FontSize = 24, FontStyle = "bold" }
+                };
+                var data = new Data
+                {
+                    Datasets = new List<Dataset>
+                        {
+                            new PieDataset
+                            {
+                                BackgroundColor = new[] {"rgba(75, 192, 192, 0.0)", "rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.0)" },
+                                BorderColor = new[] { "rgba(102, 102, 102, 1)", "rgba(54, 162, 235, 1)", "rgba(102, 102, 102, 1)" },
+                                BorderWidth = 1,
+                           }
+                        },
+                    Labels = new[] { " ", "avg", " " },
+                };
 
-                // create Dataset for each Lable
-                data.Datasets = new List<Dataset>();
-
-                var endSum = _context.SimulationWorkschedules.Where(x => x.Machine == machine).Sum(x => x.End);
-                var startSum = _context.SimulationWorkschedules.Where(x => x.Machine == machine).Sum(x => x.Start);
-                var max = _context.SimulationWorkschedules.Max(x => x.End);
-                var work = endSum - startSum;
-                var wait = max - work;
-                data.Datasets.Add( new PieDataset{ Data = new List<double>{ work, wait },
-                    BackgroundColor = new List<string> { new ChartColor().Color[2], new ChartColor().Color[0] } } );
-
-                data.Labels = new string[] {"Work " + Math.Round(Convert.ToDecimal(work) / max*100, 2) + " %",
-                                            "Wait " + Math.Round(Convert.ToDecimal(wait) / max*100, 2) + " %"};
+                // Dummy data 
+                data.Datasets[0].Data = new List<double> { 65, 10, 25 };
 
                 chart.Data = data;
-                chart.Options = new Options() { MaintainAspectRatio = false, Responsive = true };
-
                 return chart;
             });
            
             // create JS to Render Chart.
             ViewData["chart"] = await generateChartTask;
-            ViewData["machine"] = machine;
-
-            return View($"MachineWorkload");
-
+            ViewData["Type"] = paramsList[1];
+            ViewData["percentage"] = "76%";
+            return View($"ProductLeadTime");
         }
     }
 }

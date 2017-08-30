@@ -1,8 +1,9 @@
 @{
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
-    if (chart != null) { 
-        raw = chart.CreateChartCode("MaschineChart");
+    string type = ViewData["Type"].ToString();
+    if (chart != null) {
+        raw = chart.CreateChartCode("StockEvolution_" + type);
     }
 }
 
@@ -23,9 +24,7 @@
         position: relative;
         width: 100%;
     }
-
     .chartAreaWrapper2 {
-          
         position: relative;
         height: 300px;
     }
@@ -34,7 +33,7 @@
     <div class="chartAreaWrapper">
         <div class="chartAreaWrapper2">
                 <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="MaschineChart" height="300" width="0"></canvas>
+                <canvas id="StockEvolution_@type" height="300"></canvas>
             </div>
     </div>
 </div>
@@ -45,9 +44,6 @@
         var newwidth = 20 * MaschineChart.data.datasets[0].data.length;
         $('.chartAreaWrapper2').width(newwidth);
         $('.chartAreaWrapper').animate({scrollLeft:newwidth});
-
         //document.getElementById('js-legend').innerHTML = MaschineChart.generateLegend();
     });
-
-
 </script>

@@ -57,7 +57,7 @@ namespace Master40.ViewComponents
                 foreach (var machine in machines)
                 {
 
-                    barDataSet.Label = "Machines";
+                    //barDataSet.Label = "Machines";
                     var machineWork =
                         _context.SimulationWorkschedules.Where(
                             x => x.Machine == machine && x.SimulationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1]).ToList();
@@ -70,6 +70,7 @@ namespace Master40.ViewComponents
                     barDataSet.Data.Add(percent);
                     barDataSet.BackgroundColor.Add(new ChartColor().Color[i]);
                     i++;
+                    
                 }
 
                 data.Datasets.Add(barDataSet);
@@ -79,7 +80,7 @@ namespace Master40.ViewComponents
                 var xAxis = new List<Scale>() { new BarScale { Stacked = false } };
                 var yAxis = new List<Scale>() { new BarScale { Stacked = false, Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 } } };
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
-                chart.Options = new Options() { Scales = new Scales { XAxes = xAxis, YAxes = yAxis }, MaintainAspectRatio = false, Responsive = true };
+                chart.Options = new Options() { Scales = new Scales { XAxes = xAxis, YAxes = yAxis }, MaintainAspectRatio = false, Responsive = true, Legend = new Legend { Display = false } };
 
                 return chart;
             });

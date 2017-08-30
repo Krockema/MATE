@@ -1,53 +1,80 @@
 @{
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
-    if (chart != null) { 
-        raw = chart.CreateChartCode("MaschineChart");
+    string type = ViewData["Type"].ToString();
+    if (chart != null) {
+        raw = chart.CreateChartCode("ProductLeadTime_" + type);
     }
 }
 
 <style>
-    .chartWrapper {
+    .LeadChartContainer {
         position: relative;
-            
+        width: 250px;
+        margin-left: 75px;
+        height: 150px;
     }
 
-    .chartWrapper > canvas {
+    LeadChartLayer > canvas {
+        width: 250px;
+        height: 150px;
+    }
+
+    .LeadChartLayer, LeadTextLayer {
         position: absolute;
-        left: 0;
-        top: 0;
-        pointer-events:none;
-    }
-    .chartAreaWrapper {
-        overflow-x: scroll;
-        position: relative;
         width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
     }
 
-    .chartAreaWrapper2 {
-          
-        position: relative;
-        height: 300px;
+    .LeadTextLayer {
+        z-index: -10;
+        color: #666;
+        font: bold 30px Helvetica;
+        display: flex;
+        padding-top: 80px;
+        justify-content: center; /* align horizontal */
+        align-items: center; /* align vertical */
     }
 </style>
-<div class="chartWrapper">
-    <div class="chartAreaWrapper">
-        <div class="chartAreaWrapper2">
+<div class="row">
+    <div class="col-md-6">
+        <div class="LeadChartContainer">
+            <div class="LeadChartLayer">
                 <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="MaschineChart" height="300" width="0"></canvas>
+                <canvas id="ProductLeadTime_@type"></canvas>
             </div>
+            <div class="LeadTextLayer">
+                @ViewData["percentage"]
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Article</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Average</th>
+                </tr>
+                <tr>
+                    <td>Dump-Truck</td>
+                    <td>49</td>
+                    <td>54</td>
+                    <td>52</td>
+                </tr>
+                <tr>
+                    <td>Speed-Truck</td>
+                    <td>42</td>
+                    <td>38</td>
+                    <td>40</td>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
-
 <script>
     @Html.Raw(raw);
-    $( document ).ready(function() {
-        var newwidth = 20 * MaschineChart.data.datasets[0].data.length;
-        $('.chartAreaWrapper2').width(newwidth);
-        $('.chartAreaWrapper').animate({scrollLeft:newwidth});
-
-        //document.getElementById('js-legend').innerHTML = MaschineChart.generateLegend();
-    });
-
-
 </script>
