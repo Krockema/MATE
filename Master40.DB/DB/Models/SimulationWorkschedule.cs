@@ -6,6 +6,7 @@ namespace Master40.DB.Models
     {
         public int SimulationId { get; set; }
         public string SimulationType { get; set; }
+        public int SimulationNumber { get; set; }
         public int Time { get; set; }
         public string WorkScheduleName { get; set; }
         public string Article { get; set; }
