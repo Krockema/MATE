@@ -65,7 +65,17 @@ namespace Master40.Simulation.Simulation
             var pobs = _context.ArticleBoms.Where(a => a.ArticleParentId == ProductionOrderId);
             foreach (var pob in pobs)
             {
-                _context.Stocks.Single(a => a.ArticleForeignKey == pob.ArticleChildId).Current-= pob.Quantity;
+                var stock = _context.Stocks.Single(a => a.ArticleForeignKey == pob.ArticleChildId);
+                stock.Current-= pob.Quantity;
+                _context.StockExchanges.Add(new StockExchange()
+                {
+                    EchangeType = EchangeType.Withdrawal,
+                    Quantity = pob.Quantity,
+                    StockId = stock.Id,
+                    RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
+                });
+                _context.Stocks.Update(stock);
+                _context.SaveChanges();
             }
             _context.SaveChanges();
 
@@ -91,7 +101,15 @@ namespace Master40.Simulation.Simulation
                 powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
             var stock = _context.Stocks.Single(a => a.ArticleForeignKey == articleId);
-            stock.Current+= _context.SimulationConfigurations.Last().Lotsize;
+            var quantity = _context.SimulationConfigurations.Last().Lotsize;
+            stock.Current += quantity;
+            _context.StockExchanges.Add(new StockExchange()
+            {
+                EchangeType = EchangeType.Insert,
+                Quantity = quantity,
+                StockId = stock.Id,
+                RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
+            });
             _context.Update(stock);
             _context.SaveChanges();
             return null;

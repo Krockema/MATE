@@ -326,8 +326,16 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 var stock = _context.Stocks.Single(a => a.ArticleForeignKey == singleOrderPart.ArticleId);
                 stock.Current -= singleOrderPart.Quantity;
+                _context.StockExchanges.Add(new StockExchange()
+                {
+                    EchangeType = EchangeType.Withdrawal,
+                    Quantity = singleOrderPart.Quantity,
+                    StockId = stock.Id,
+                    RequiredOnTime = order.DueTime
+                });
                 _context.Update(stock);
             }
+            _context.SaveChanges();
         }
 
         private List<IDemandToProvider> UpdateDemandStates()

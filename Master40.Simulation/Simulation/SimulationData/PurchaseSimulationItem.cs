@@ -34,6 +34,13 @@ namespace Master40.Simulation.Simulation
             var purchasePart = _context.PurchaseParts.Single(a => a.Id == PurchasePartId);
             var stock = _context.Stocks.Single(a => a.ArticleForeignKey == purchasePart.ArticleId);
             stock.Current += purchasePart.Quantity;
+            _context.StockExchanges.Add(new StockExchange()
+            {
+                EchangeType = EchangeType.Insert,
+                Quantity = purchasePart.Quantity,
+                StockId = stock.Id,
+                RequiredOnTime = purchasePart.Purchase.DueTime
+            });
             purchasePart.State = State.Finished;
             _context.SaveChanges();
             var provider = _context.UpdateStateDemandProviderPurchaseParts();
