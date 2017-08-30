@@ -255,13 +255,13 @@ namespace Master40.DB.Data.Context
         /***
          * Requirements
          * */
-
+         /*
         /// <summary>
         /// Creates stock reservation if possible
         /// </summary>
         /// <param name="stock"></param>
         /// <param name="demand"></param>
-        /*public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
+        public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
         {
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);
@@ -282,7 +282,7 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }*/
 
-        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount)
+        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, int simulationConfigurationId)
         {
             ProductionOrderBom bom = null;
             if (demand.GetType() == typeof(DemandProductionOrderBom))
@@ -290,7 +290,7 @@ namespace Master40.DB.Data.Context
                 bom = ProductionOrderBoms.FirstOrDefault(a => a.Id == ((DemandProductionOrderBom) demand).ProductionOrderBomId);
             }
             
-            var lotsize = SimulationConfigurations.Last().Lotsize;
+            var lotsize = SimulationConfigurations.ElementAt(simulationConfigurationId).Lotsize;
             var productionOrders = new List<ProductionOrder>();
             decimal bomQuantity;
             if (bom != null)
@@ -301,7 +301,7 @@ namespace Master40.DB.Data.Context
                     a.ArticleParentId == null).Quantity * lotsize;
             while (amount > 0 || bomQuantity > 0)
             {
-                var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand));
+                var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand), simulationConfigurationId);
                 if (amount > 0)
                 {
                     var demandProviderProductionOrder = CreateDemandProviderProductionOrder(demand, productionOrder,
@@ -339,12 +339,12 @@ namespace Master40.DB.Data.Context
             return demandStock;
         }
 
-        public ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime)
+        public ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime, int simulationConfigurationId)
         {
             var productionOrder = new ProductionOrder()
             {
                 ArticleId = demand.Article.Id,
-                Quantity = SimulationConfigurations.Last().Lotsize,
+                Quantity = SimulationConfigurations.ElementAt(simulationConfigurationId).Lotsize,
                 Duetime = duetime
             };
             
@@ -514,10 +514,10 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }
 
-        public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder)
+        public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder, int simulationConfigurationId)
         {
             if (parentProductionOrder == null) return null;
-            var lotsize = SimulationConfigurations.Last().Lotsize;
+            var lotsize = SimulationConfigurations.ElementAt(simulationConfigurationId).Lotsize;
             var quantity = demand.Quantity > lotsize ? lotsize : demand.Quantity;
             var pob = new ProductionOrderBom()
             {
