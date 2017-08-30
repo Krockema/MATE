@@ -102,10 +102,10 @@ namespace Master40.Simulation.Simulation
             if (powslist.Single(a => a.Id == ProductionOrderWorkScheduleId).HierarchyNumber !=
                 powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
-            var stock = _context.Stocks.Single(a => a.ArticleForeignKey == articleId);
+            var stock = _context.Stocks.Include(x => x.StockExchanges).Single(a => a.ArticleForeignKey == articleId);
             var quantity = _context.SimulationConfigurations.Single(a => a.Id == SimulationConfigurationId).Lotsize;
             stock.Current += quantity;
-            _context.StockExchanges.Add(new StockExchange()
+            stock.StockExchanges.Add(new StockExchange()
             {
                 EchangeType = EchangeType.Insert,
                 Quantity = quantity,

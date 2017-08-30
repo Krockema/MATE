@@ -297,10 +297,11 @@ namespace Master40.Simulation.Simulation
         /// <param name="amounts"></param>
         /// <param name="end"></param>
         /// <param name="duetime"></param>
+        /// <param name="simulationConfigurationId"></param>
         private void CreateSimulationOrder(TimeTable<ISimulationItem> timeTable,List<int> articleIds, List<int> amounts, int end, int duetime, int simulationConfigurationId)
         {
             var config = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId);
-            timeTable.Items.Add(new OrderSimulationItem(config.Time, end, _context, articleIds, amounts, duetime));
+            timeTable.Items.Add(new OrderSimulationItem(config.Time, end, _context, articleIds, amounts, duetime, simulationConfigurationId));
         }
 
         private bool ItemsInStock(ProductionOrderWorkSchedule item)

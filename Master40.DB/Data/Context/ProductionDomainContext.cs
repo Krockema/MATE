@@ -861,22 +861,24 @@ namespace Master40.DB.Data.Context
 
         public void CreateNewOrder(int articleId, int amount,int creationTime, int dueTime)
         {
-            Orders.Add(new Order()
+            var order = new Order()
             {
                 BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
                 DueTime = dueTime,
                 CreationTime = creationTime,
                 Name = "injected Order",
-                OrderParts = new List<OrderPart>
-                {
-                    new OrderPart()
-                    {
-                        ArticleId = articleId,
-                        IsPlanned = false,
-                        Quantity = amount,
-                    }
-                }
-            });
+
+            };
+            Orders.Add(order);
+            SaveChanges();
+            var orderpart = new OrderPart()
+            {
+                ArticleId = articleId,
+                IsPlanned = false,
+                Quantity = amount,
+                OrderId = order.Id
+            };
+            order.OrderParts.Add(orderpart);
             SaveChanges();
         }
     }
