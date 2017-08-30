@@ -44,6 +44,7 @@ namespace Master40.Simulation.Simulation
         {
             return Task.Run(() =>
             {
+                _messageHub.SendToAllClients("Prepare InMemory-Tables");
                 _context.Database.EnsureDeleted();
                 _context.Database.EnsureCreated();
                 _evaluationContext.CopyAllTables(_context);
@@ -94,7 +95,7 @@ namespace Master40.Simulation.Simulation
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 await PrepareSimulationContext();
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, simulationConfigurationId);
-                var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.ElementAt(simulationConfigurationId).RecalculationTime);
+                var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;
@@ -148,7 +149,7 @@ namespace Master40.Simulation.Simulation
                     Machine = _context.Machines.Single(a => a.Id == pows.MachineId).Name,
                     Start = pows.StartSimulation,
                     OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                    SimulationId = _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Id,
+                    SimulationId = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Id,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name
                 });
@@ -182,7 +183,7 @@ namespace Master40.Simulation.Simulation
         {
             return new PurchaseSimulationItem(_context)
             {
-                Start = _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time,
+                Start = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time,
                 End = purchasePart.Purchase.DueTime,
                 PurchaseId = purchasePart.PurchaseId,
                 PurchasePartId = purchasePart.Id
@@ -223,7 +224,7 @@ namespace Master40.Simulation.Simulation
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
-            _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time = timeTable.Timer;
+            _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time = timeTable.Timer;
             _context.SaveChanges();
             
             var freeMachineIds = GetFreeMachines(timeTable);
@@ -298,7 +299,7 @@ namespace Master40.Simulation.Simulation
         /// <param name="duetime"></param>
         private void CreateSimulationOrder(TimeTable<ISimulationItem> timeTable,List<int> articleIds, List<int> amounts, int end, int duetime, int simulationConfigurationId)
         {
-            var config = _context.SimulationConfigurations.ElementAt(simulationConfigurationId);
+            var config = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId);
             timeTable.Items.Add(new OrderSimulationItem(config.Time, end, _context, articleIds, amounts, duetime));
         }
 

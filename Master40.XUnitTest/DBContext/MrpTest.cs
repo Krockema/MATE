@@ -11,13 +11,13 @@ namespace Master40.XUnitTest.DBContext
     {
         public async Task CreateAndProcessOrderDemandAll(ProcessMrp processMrp)
         {
-            await processMrp.CreateAndProcessOrderDemand(MrpTask.All);
+            await processMrp.CreateAndProcessOrderDemand(MrpTask.All,1);
         }
 
         public async Task CreateAndProcessOrderForward(ProcessMrp processMrp)
         {
-            await processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
-            await processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
+            await processMrp.CreateAndProcessOrderDemand(MrpTask.Backward,1);
+            await processMrp.CreateAndProcessOrderDemand(MrpTask.Forward,1);
         }
     }
 
