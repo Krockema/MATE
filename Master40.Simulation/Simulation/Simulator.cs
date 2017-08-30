@@ -85,7 +85,6 @@ namespace Master40.Simulation.Simulation
                 _messageHub.EndScheduler();
             });
         }
-
         public async Task Simulate()
         {
             await Task.Run(async () =>

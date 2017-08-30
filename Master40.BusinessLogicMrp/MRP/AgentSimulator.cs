@@ -6,6 +6,7 @@ using Master40.Agents.Agents;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 
@@ -25,6 +26,8 @@ namespace Master40.BusinessLogicCentral.MRP
 
         public async Task RunSimulation(int simulationId)
         {
+
+          
             await _agentSimulation.RunSim(simulationId);
             _messageHub.SendToAllClients("Number of involved Agents: " + Agent.AgentCounter.Count, MessageType.success);
             _messageHub.SendToAllClients("Number of instructions send: " + Agent.InstructionCounter, MessageType.success);

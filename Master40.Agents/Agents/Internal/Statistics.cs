@@ -35,26 +35,26 @@ namespace Master40.Agents.Agents.Internal
             edit.Machine = machine.Name;
         }
 
-        public static void UpdateSimulationId(int simulationId)
+        public static void UpdateSimulationId(int simulationId, SimulationType simluationType)
         {
             var simItems = AgentSimulation.SimulationWorkschedules
                 .Where(x => x.SimulationId == -1).ToList();
             foreach (var item in simItems)
             {
                 item.SimulationId = simulationId;
-                item.SimulationType = SimulationType.Decentral.ToString();
+                item.SimulationType = simluationType.ToString();
             }
         }
 
-        internal static void UpdateSimulationWorkSchedule(List<Guid> ProductionAgents, Agent RequesterAgent, int orderId)
+        internal static void UpdateSimulationWorkSchedule(List<Guid> productionAgents, Agent requesterAgent, int orderId)
         {
-            foreach (var AgentId in ProductionAgents)
+            foreach (var AgentId in productionAgents)
             {
                 var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId == AgentId.ToString());
                 foreach (var item in items)
                 {
-                    item.Parent = RequesterAgent.Name;
-                    item.ParentId = RequesterAgent.AgentId.ToString();
+                    item.Parent = requesterAgent.Name;
+                    item.ParentId = requesterAgent.AgentId.ToString();
                    // item.OrderId = orderId;
                 }
             }

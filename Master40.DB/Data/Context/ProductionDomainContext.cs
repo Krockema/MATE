@@ -851,6 +851,14 @@ namespace Master40.DB.Data.Context
             return changedRequester;
         }
 
+
+        public int GetSimulationNumber(int simulationId, SimulationType simType)
+        {
+            var any_sim = SimulationWorkschedules
+                .Where(x => x.SimulationType == simType.ToString());
+            return any_sim.Any() ? any_sim.Max(x => x.SimulationNumber) : 1;
+        }
+
         public void CreateNewOrder(int articleId, int amount,int creationTime, int dueTime)
         {
             Orders.Add(new Order()
