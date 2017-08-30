@@ -32,5 +32,6 @@ namespace Master40.Simulation.Simulation
         public List<StockExchange> StockExchanges { get; set; }
         public List<Unit> Units { get; set; }
         public List<Kpi> Kpi { get; set; }
+        public List<SimulationConfiguration> SimulationConfigurations { get; set; }
     }
 }

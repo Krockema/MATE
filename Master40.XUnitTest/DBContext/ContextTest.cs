@@ -22,8 +22,8 @@ namespace Master40.XUnitTest.DBContext
             .UseInMemoryDatabase(databaseName: "InMemoryDB")
             .Options);
 
-        CopyContext _copyContext = new CopyContext(new DbContextOptionsBuilder<MasterDBContext>()
-        .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+        InMemmoryContext _inMemmoryContext = new InMemmoryContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryDB")
             .Options);
 
         MasterDBContext _masterDBContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
@@ -102,7 +102,7 @@ namespace Master40.XUnitTest.DBContext
             var msgHub = new Moc.MessageHub();
             //var rebuildNets = new RebuildNets(_productionDomainContext);
             //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
-            var simulation = new Simulator(_productionDomainContext,msgHub);
+            var simulation = new Simulator(_productionDomainContext, _inMemmoryContext, msgHub);
             await simulation.InitializeMrp(MrpTask.All);
             //var mrpTest = new MrpTest();
             // await mrpTest.CreateAndProcessOrderForward(mrpContext);
@@ -130,7 +130,7 @@ namespace Master40.XUnitTest.DBContext
 
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            _copyContext.LoadContextFromSimulation(deserialized);
+            //_inMemmoryContext.LoadContextFromSimulation(deserialized);
 
 
             Assert.Equal(true, (_ctx.Articles.Any()));

@@ -65,6 +65,8 @@ namespace Master40.Simulation.Simulation
 
             targetContext.SaveChanges();
         }
+
+        /*
         public static void LoadInMemoryDb(this ProductionDomainContext targetContext,
             SimulationDbState sourceContext)
         {
@@ -83,6 +85,7 @@ namespace Master40.Simulation.Simulation
             targetContext.ArticleToBusinessPartners.AddRange(sourceContext.ArticleToBusinessPartners);
             targetContext.Orders.AddRange(sourceContext.Orders);
             targetContext.OrderParts.AddRange(sourceContext.OrderParts);
+            targetContext.SimulationConfigurations.AddRange(sourceContext.SimulationConfigurations);
 
             // should be emty
             /*
@@ -93,11 +96,10 @@ namespace Master40.Simulation.Simulation
             targetContext.Purchases.AddRange(sourceContext.Purchases);
             targetContext.PurchaseParts.AddRange(sourceContext.PurchaseParts);
             */
-            
+            /*
             targetContext.SaveChanges();
         }
-
-
+        */
 
         public static SimulationDbState SaveSimulationState(this ProductionDomainContext sourceContext)
         {
@@ -151,7 +153,7 @@ foreach (var dbset in dbsets)
             //_targetContext.SaveChanges();
         }
 
-
+        /*
         /// <summary>
         /// Sadly doesnt work yet
         /// </summary>
@@ -447,7 +449,7 @@ foreach (var dbset in dbsets)
                 transaction.Commit();
             }
         }
-        
+        */
 
     }
 }

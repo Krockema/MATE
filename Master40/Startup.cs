@@ -23,8 +23,6 @@ namespace Master40
 {
     public class Startup
     {
-        private IServiceProvider _serviceProvider;
-
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -41,24 +39,19 @@ namespace Master40
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Database Context
-            services.AddDbContext<EvaluationContext>(options =>
+            //services.AddDbContext<InMemmoryContext>(options =>
+            //    options.UseInMemoryDatabase("InMemmoryContext"));
+
+            services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //services.AddDbContext<MasterDBContext>(options => options.UseInMemoryDatabase("InMemeoryMaster"));
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
-
-            /*
-            var dboptions = new DbContextOptionsBuilder<DbContext>();
-            dboptions.UseInMemoryDatabase("one"); */
-                //.UseInternalServiceProvider(_serviceProvider);
-
-            services.AddDbContext<ProductionDomainContext>(op => 
-                                op.UseInMemoryDatabase("InMemeoryMaster"));
 
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            
+
+            services.AddDbContext<ProductionDomainContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Hangfire
             services.AddDbContext<HangfireDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("Hangfire")));
 
@@ -69,8 +62,8 @@ namespace Master40
             services.AddSingleton<IScheduling, Scheduling>();
             services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();
-            //services.AddSingleton<ISimulator, Simulator>();
-            services.AddSingleton<IProcessMrp, ProcessMrpSim>();
+            services.AddSingleton<ISimulator, Simulator>();
+            //services.AddSingleton<IProcessMrp, ProcessMrpSim>();
             services.AddSingleton<IRebuildNets, RebuildNets>();
             services.AddSingleton<AgentSimulator>();
             // services.AddSingleton<Client>();
@@ -109,7 +102,7 @@ namespace Master40
         {
             Task.Run((() => { 
                 //MasterDBInitializerLarge.DbInitialize(context);
-                MasterDBInitializerLarge.DbInitialize(productionDomainContext);
+                MasterDBInitializerLarge.DbInitialize(context);
                 }
             ));
             HangfireDBInitializer.DbInitialize(hangfireContext);
