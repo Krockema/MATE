@@ -12,11 +12,13 @@ namespace Master40.Controllers
     {
         private readonly IProcessMrp _processMrp;
         private readonly ISimulator _simulator;
+        private readonly IMessageHub _messageHub;
         //private readonly Client _client;
         public MrpController(ISimulator simulator, IProcessMrp processMrp, IMessageHub messageHub)
         {
             _processMrp = processMrp;
             _simulator = simulator;
+            _messageHub = messageHub;
             //_client = client;
         }
         public IActionResult Index()
@@ -29,7 +31,7 @@ namespace Master40.Controllers
         {
             //call to process MRP I and II
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
-            await _simulator.InitializeMrp(MrpTask.All);
+            await _simulator.InitializeMrp(MrpTask.All, 1);
 
             await Task.Yield();
 
@@ -39,11 +41,14 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MrpProcessingAjax")]
         public void MrpProcessingAjax()
         {
-            // var jobId = 
+            var jobId = 
             BackgroundJob.Enqueue<IProcessMrp>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All)
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All,1)
             );
+            BackgroundJob.ContinueWith(jobId, 
+                () => _messageHub.EndScheduler());
+
         }
 
 
@@ -52,7 +57,7 @@ namespace Master40.Controllers
         {
             //call to process MRP I and II
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
-            await _simulator.InitializeMrp(MrpTask.Backward);
+            await _simulator.InitializeMrp(MrpTask.Backward,1);
 
             await Task.Yield();
 
@@ -63,7 +68,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpForward()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
-            await _simulator.InitializeMrp(MrpTask.Forward);
+            await _simulator.InitializeMrp(MrpTask.Forward,1);
 
             await Task.Yield();
 
@@ -74,7 +79,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpGifflerThompson()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
-            await _simulator.InitializeMrp(MrpTask.GifflerThompson);
+            await _simulator.InitializeMrp(MrpTask.GifflerThompson,1);
 
             await Task.Yield();
 
@@ -85,7 +90,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> CapacityPlanning()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
-            await _simulator.InitializeMrp(MrpTask.Capacity);
+            await _simulator.InitializeMrp(MrpTask.Capacity,1);
 
             await Task.Yield();
 
@@ -95,7 +100,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/Simulate")]
         public async Task<IActionResult> Simulate()
         {
-            await _simulator.Simulate();
+            await _simulator.Simulate(1);
 
             await Task.Yield();
 
@@ -106,7 +111,7 @@ namespace Master40.Controllers
         public void SimulateAjax()
         {
             BackgroundJob.Enqueue<ISimulator>(x =>
-                _simulator.Simulate());
+                _simulator.Simulate(1));
         }
 
         public IActionResult Error()

@@ -32,8 +32,8 @@ namespace Master40.BusinessLogicCentral.MRP
 
             requester = (from req in requester
                          where req.GetType() == typeof(DemandStock) ||
-                               _context.GetDueTimeByOrder(req) < _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time
-                               + _context.SimulationConfigurations.ElementAt(simulationConfigurationId).MaxCalculationTime
+                               _context.GetDueTimeByOrder(req) < _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time
+                               + _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).MaxCalculationTime
                          select req).ToList();
             
             //rebuild by using activity-slack to order demands
@@ -177,7 +177,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var dueTime = 999999;
             if (demandRequester.DemandProvider != null) dueTime = _context.GetDueTimeByOrder((DemandToProvider)demandRequester);
-            return dueTime - _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time;
+            return dueTime - _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time;
         }
     }
 }

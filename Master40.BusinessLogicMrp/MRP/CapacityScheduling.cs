@@ -67,7 +67,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private List<ProductionOrderWorkSchedule> GetInitialPlannedSchedules(int simulationConfigurationId)
         {
-            var timer = _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time;
+            var timer = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time;
             return timer == 0 ? null : _context.ProductionOrderWorkSchedules.Where(a => a.Start <= timer && a.End - a.Start == a.Duration).ToList();
         }
         
@@ -278,7 +278,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             foreach (var plannableSchedule in plannableSchedules)
             {
-                var currentTime = _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time;
+                var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time;
                 var processDueTime = plannableSchedule.ProductionOrder.Duetime -
                                      ((int) plannableSchedule.WorkTimeWithParents - plannableSchedule.Duration);
                 plannableSchedule.ActivitySlack = PriorityRules.ActivitySlack(currentTime, plannableSchedule.Duration,processDueTime );
@@ -316,7 +316,7 @@ namespace Master40.BusinessLogicCentral.MRP
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleDemandRequester in demandRequester)
             {
-                if (_context.GetDueTimeByOrder(singleDemandRequester) <= _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time + _context.SimulationConfigurations.ElementAt(simulationConfigurationId).MaxCalculationTime || singleDemandRequester.GetType() == typeof(DemandStock))
+                if (_context.GetDueTimeByOrder(singleDemandRequester) <= _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time + _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).MaxCalculationTime || singleDemandRequester.GetType() == typeof(DemandStock))
                     _context.GetWorkSchedulesFromDemand(singleDemandRequester, ref pows);
             }
             return pows.AsEnumerable().Distinct().ToList();

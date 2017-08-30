@@ -290,7 +290,7 @@ namespace Master40.DB.Data.Context
                 bom = ProductionOrderBoms.FirstOrDefault(a => a.Id == ((DemandProductionOrderBom) demand).ProductionOrderBomId);
             }
             
-            var lotsize = SimulationConfigurations.ElementAt(simulationConfigurationId).Lotsize;
+            var lotsize = SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Lotsize;
             var productionOrders = new List<ProductionOrder>();
             decimal bomQuantity;
             if (bom != null)
@@ -344,7 +344,7 @@ namespace Master40.DB.Data.Context
             var productionOrder = new ProductionOrder()
             {
                 ArticleId = demand.Article.Id,
-                Quantity = SimulationConfigurations.ElementAt(simulationConfigurationId).Lotsize,
+                Quantity = SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Lotsize,
                 Duetime = duetime
             };
             
@@ -517,7 +517,7 @@ namespace Master40.DB.Data.Context
         public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder, int simulationConfigurationId)
         {
             if (parentProductionOrder == null) return null;
-            var lotsize = SimulationConfigurations.ElementAt(simulationConfigurationId).Lotsize;
+            var lotsize = SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Lotsize;
             var quantity = demand.Quantity > lotsize ? lotsize : demand.Quantity;
             var pob = new ProductionOrderBom()
             {

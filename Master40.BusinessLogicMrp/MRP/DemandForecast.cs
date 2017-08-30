@@ -47,7 +47,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (children.Any())
                 {
 
-                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, _context.SimulationConfigurations.ElementAt(simulationConfigurationId).Time);
+                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time);
                     var amount = -plannedStock;
                     if (fittingProductionOrders != null)
                     {

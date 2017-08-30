@@ -314,7 +314,8 @@ namespace Master40.DB.Data.Initializer
                 OrderQuantity = 1,
                 Seed = 1337,
                 TimeSpanForOrders = 1,
-                Time = 1
+                Time = 1,
+                RecalculationTime = 1440
             };
             context.SimulationConfigurations.Add(simConfig);
             context.SaveChanges();
