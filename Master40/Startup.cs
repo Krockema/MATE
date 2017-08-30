@@ -41,37 +41,24 @@ namespace Master40
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Database Context
-            services.AddDbContext<MasterDBContext>(options =>
+            services.AddDbContext<EvaluationContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             //services.AddDbContext<MasterDBContext>(options => options.UseInMemoryDatabase("InMemeoryMaster"));
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
+            /*
             var dboptions = new DbContextOptionsBuilder<DbContext>();
-            dboptions.UseInMemoryDatabase("one");
+            dboptions.UseInMemoryDatabase("one"); */
                 //.UseInternalServiceProvider(_serviceProvider);
 
-            //services.AddDbContext<MasterDBContext>(op => op.UseInMemoryDatabase("one"));
+            services.AddDbContext<ProductionDomainContext>(op => 
+                                op.UseInMemoryDatabase("InMemeoryMaster"));
 
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            //services.AddDbContext<OrderDomainContext>(op => op.UseInMemoryDatabase("one"));
-
-            services.AddDbContext<ProductionDomainContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //services.AddDbContext<ProductionDomainContext>(op => op.UseInMemoryDatabase("one"));
-            //
-            //services
-            //    .AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<ProductionDomainContext>((p, b) => b
-            //        .UseInMemoryDatabase("one")
-            //        .UseInternalServiceProvider(p));
-
-            services.AddDbContext<CopyContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
+            
             services.AddDbContext<HangfireDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("Hangfire")));
 
@@ -82,7 +69,7 @@ namespace Master40
             services.AddSingleton<IScheduling, Scheduling>();
             services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
             services.AddSingleton<IProcessMrp, ProcessMrp>();
-            services.AddSingleton<ISimulator, Simulator>();
+            //services.AddSingleton<ISimulator, Simulator>();
             services.AddSingleton<IProcessMrp, ProcessMrpSim>();
             services.AddSingleton<IRebuildNets, RebuildNets>();
             services.AddSingleton<AgentSimulator>();
