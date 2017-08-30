@@ -19,41 +19,37 @@ namespace Master40.Simulation.Simulation
     public interface ISimulator
     {
         Task Simulate();
+        Task PrepareSimulationContext();
         Task InitializeMrp(MrpTask task);
     }
 
     public class Simulator : ISimulator
     {
-
-        private readonly ProductionDomainContext _context = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-            .UseInMemoryDatabase(databaseName: "InMemoryDB")
-            .Options);
-
         private readonly ProductionDomainContext _evaluationContext;
+        private readonly InMemmoryContext _context;
         //private readonly CopyContext _copyContext;
-        private readonly IProcessMrp _processMrp;
+        private IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
-        public Simulator(ProductionDomainContext context, IMessageHub messageHub)//, CopyContext copyContext)
+        public Simulator(ProductionDomainContext context, /*InMemmoryContext inMemmoryContext, */ IMessageHub messageHub)//, CopyContext copyContext)
         {
             _evaluationContext = context;
-            //_copyContext = copyContext;
+            _context = new InMemmoryContext(new DbContextOptionsBuilder<MasterDBContext>()
+                                            .UseInMemoryDatabase(databaseName: "InMemoryDB")
+                                            .Options);
             _messageHub = messageHub;
-
-            // Create Context Copy to Simulation Context
-            //_context.CopyAllTables(_ctx);
-            // do it on HardDisk Databse
-            _processMrp = new ProcessMrpSim(_context, messageHub);
-            //// Dp it inmemory
-            // _processMrp = new ProcessMrpSim(_context, messageHub);
-            // _context.CopyAllTables(ctx);
         }
 
-        private void PrepareSimulationContext()
+        public Task PrepareSimulationContext()
         {
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
-            _evaluationContext.CopyAllTables(_context);
+            return Task.Run(() =>
+            {
+                _context.Database.EnsureDeleted();
+                _context.Database.EnsureCreated();
+                _evaluationContext.CopyAllTables(_context);
+                _processMrp = new ProcessMrpSim(_context, _messageHub);
+
+            });
         }
 
         private List<ProductionOrderWorkSchedule> CreateInitialTable()
@@ -80,7 +76,8 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
-                PrepareSimulationContext();
+                _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
+                await PrepareSimulationContext();
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task);
@@ -95,7 +92,7 @@ namespace Master40.Simulation.Simulation
             {
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
-                PrepareSimulationContext();
+                await PrepareSimulationContext();
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Last().RecalculationTime);
                 var waitingItems = CreateInitialTable();

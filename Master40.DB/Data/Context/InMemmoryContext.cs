@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
 {
-    public class EvaluationContext : ProductionDomainContext
+    public class InMemmoryContext : ProductionDomainContext
     {
-        public EvaluationContext(DbContextOptions<MasterDBContext> options) : base(options) { }
+        public InMemmoryContext(DbContextOptions<MasterDBContext> options) : base(options) { }
         /*
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
-using Master40.MessageSystem.MessageReciever;
+using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 
 namespace Master40.Controllers
@@ -14,10 +13,10 @@ namespace Master40.Controllers
         private readonly IProcessMrp _processMrp;
         private readonly ISimulator _simulator;
         //private readonly Client _client;
-        public MrpController(IProcessMrp processMrp)
+        public MrpController(ISimulator simulator, IProcessMrp processMrp, IMessageHub messageHub)
         {
             _processMrp = processMrp;
-            _simulator = new Simulator();
+            _simulator = simulator;
             //_client = client;
         }
         public IActionResult Index()
@@ -41,9 +40,9 @@ namespace Master40.Controllers
         public void MrpProcessingAjax()
         {
             // var jobId = 
-            BackgroundJob.Enqueue<ISimulator>(x =>
+            BackgroundJob.Enqueue<IProcessMrp>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _simulator.InitializeMrp(MrpTask.All)
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All)
             );
         }
 
