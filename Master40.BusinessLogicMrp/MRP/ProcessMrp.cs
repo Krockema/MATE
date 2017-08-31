@@ -15,7 +15,7 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IProcessMrp
     {
-        Task CreateAndProcessOrderDemand(MrpTask task, int simulationConfigurationId);
+        Task CreateAndProcessOrderDemand(MrpTask task, int simulationConfigurationId, ProductionDomainContext context);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int simulationConfigurationId);
         void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationConfigurationId);
         void UpdateDemandsAndOrders();
@@ -25,7 +25,7 @@ namespace Master40.BusinessLogicCentral.MRP
     {
         private readonly IRebuildNets _rebuildNets;
         private readonly IMessageHub _messageHub;
-        private readonly ProductionDomainContext _context;
+        private ProductionDomainContext _context;
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
@@ -45,17 +45,19 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <param name="task"></param>
         /// <param name="simulationConfigurationId"></param>
         /// <returns></returns>
-        public async Task CreateAndProcessOrderDemand(MrpTask task, int simulationConfigurationId)
+        public async Task CreateAndProcessOrderDemand(MrpTask task, int simulationConfigurationId, ProductionDomainContext context)
         {
             await Task.Run(() =>
             {
+                if (context != null) _context = context;
                 var newOrdersAdded = false;
                 _messageHub.SendToAllClients("Start full MRP cycle...", MessageType.info);
 
                 //get all unplanned orderparts and iterate through them for MRP
                 var maxAllowedTime = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time +
                                      _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).MaxCalculationTime;
-                var orderParts = _context.OrderParts.Where(a => a.IsPlanned == false && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
+                var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false).Include(a => a.Article).ToList();
+                orderParts = orderParts.Where(a => a.Order.DueTime < maxAllowedTime).ToList();
                 if (orderParts.Any()) newOrdersAdded = true;
                 foreach (var orderPart in orderParts.ToList())
                 {
@@ -78,7 +80,7 @@ namespace Master40.BusinessLogicCentral.MRP
                         orderPart.IsPlanned = true;
                 }
                 _context.SaveChanges();
-                _messageHub.SendToAllClients("End of the latest calculated order: "+ _context.ProductionOrderWorkSchedules.Max(a => a.End));
+                _messageHub.SendToAllClients("End of the latest calculated order: "+ _context.ProductionOrderWorkSchedules?.Max(a => a.End));
             });
             
         }
@@ -280,7 +282,7 @@ namespace Master40.BusinessLogicCentral.MRP
                         continue;
                 }
                 
-                FinishOrder(finishedOrderPart.Order);
+                FinishOrder(finishedOrderPart.OrderId);
                 _context.SaveChanges();
             }
         }
@@ -320,10 +322,12 @@ namespace Master40.BusinessLogicCentral.MRP
         }
 
 
-        private void FinishOrder(Order order)
+        private void FinishOrder(int orderId)
         {
+            var order = _context.Orders.Single(a => a.Id == orderId);
             order.State = State.Finished;
             _context.Update(order);
+            _context.SaveChanges();
             _messageHub.SendToAllClients("Order with Id " + order.Id + " finished!");
             foreach (var singleOrderPart in order.OrderParts)
             {

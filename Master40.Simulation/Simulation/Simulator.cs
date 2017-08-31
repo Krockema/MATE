@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.MessageSystem.Messages;
@@ -26,7 +27,7 @@ namespace Master40.Simulation.Simulation
     public class Simulator : ISimulator
     {
         private readonly ProductionDomainContext _evaluationContext;
-        private readonly InMemmoryContext _context;
+        private InMemmoryContext _context;
         //private readonly CopyContext _copyContext;
         private IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
@@ -42,14 +43,19 @@ namespace Master40.Simulation.Simulation
 
         public Task PrepareSimulationContext()
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 _messageHub.SendToAllClients("Prepare InMemory-Tables");
+                _context.Orders.Add(new Order() { Name = "1", BusinessPartnerId = 1, CreationTime = 0, DueTime = 1500 });
+                _context.SaveChanges();
+                _context.Orders.Add(new Order() { Name = "2", BusinessPartnerId = 1, CreationTime = 0, DueTime = 1500 });
+                _context.SaveChanges();
+                //_context.Database.EnsureDeleted();
+                //_context.Database.EnsureCreated();
                 _context.Database.EnsureDeleted();
-                _context.Database.EnsureCreated();
-                _evaluationContext.CopyAllTables(_context);
+                MasterDBInitializerLarge.DbInitialize(_context);
                 _processMrp = new ProcessMrpSim(_context, _messageHub);
-
+                _context.SaveChanges();
             });
         }
 
@@ -81,7 +87,7 @@ namespace Master40.Simulation.Simulation
                 await PrepareSimulationContext();
 
                 //call initial central MRP-run
-                await _processMrp.CreateAndProcessOrderDemand(task, simulationConfigurationId);
+                await _processMrp.CreateAndProcessOrderDemand(task, simulationConfigurationId, _context);
 
                 _messageHub.EndScheduler();
             });
@@ -94,7 +100,7 @@ namespace Master40.Simulation.Simulation
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 await PrepareSimulationContext();
-                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, simulationConfigurationId);
+                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, simulationConfigurationId, _context);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
@@ -125,8 +131,8 @@ namespace Master40.Simulation.Simulation
 
         private TimeTable<ISimulationItem> CreateInjectionOrders(TimeTable<ISimulationItem> timeTable, int simulationConfigurationId)
         {
-            CreateSimulationOrder(timeTable, new List<int>() { 1 }, new List<int>() { 1 }, 1000, 1500, simulationConfigurationId);
-            CreateSimulationOrder(timeTable, new List<int>() { 1 }, new List<int>() { 1 }, 1200, 1600, simulationConfigurationId);
+            //CreateSimulationOrder(timeTable, new List<int>() { 1 }, new List<int>() { 1 }, 1000, 1500, simulationConfigurationId);
+            //CreateSimulationOrder(timeTable, new List<int>() { 1 }, new List<int>() { 1 }, 1200, 1600, simulationConfigurationId);
             return timeTable;
         }
 
@@ -226,7 +232,7 @@ namespace Master40.Simulation.Simulation
             timeTable = timeTable.ProcessTimeline(timeTable);
             _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time = timeTable.Timer;
             _context.SaveChanges();
-            
+            CheckForOrderRequests(timeTable);
             var freeMachineIds = GetFreeMachines(timeTable);
             if (waitingItems.Any() && freeMachineIds.Any())
             {
@@ -287,6 +293,18 @@ namespace Master40.Simulation.Simulation
 
             // if Progress is empty Stop.
             return timeTable;
+        }
+
+        private void CheckForOrderRequests(TimeTable<ISimulationItem> timeTable)
+        {
+            var osi = timeTable.Items.Where(a => a.GetType() == typeof(OrderSimulationItem) && ((OrderSimulationItem)a).AddOrder).ToList();
+            if (!osi.Any() || !osi.Any(b=>((OrderSimulationItem)b).AddOrder)) return;
+            foreach (var singleOsi in osi)
+            {
+                var order = (OrderSimulationItem) singleOsi;
+                _context.CreateNewOrder(order.ArticleIds[0],order.Amounts[0],1,order.DueTime);
+            }
+            
         }
 
         /// <summary>
@@ -389,7 +407,7 @@ namespace Master40.Simulation.Simulation
 
         private async Task Recalculate(int simulationConfigurationId)
         {
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, simulationConfigurationId);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, simulationConfigurationId, _context);
         }
     }
     

@@ -44,7 +44,7 @@ namespace Master40.Controllers
             var jobId = 
             BackgroundJob.Enqueue<IProcessMrp>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All,1)
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All,1, null)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());

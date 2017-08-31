@@ -690,7 +690,7 @@ namespace Master40.DB.Data.Context
             if (demand.GetType() == typeof(DemandOrderPart))
             {
                 
-                demand = Demands.AsNoTracking().OfType<DemandOrderPart>().Include(a => a.OrderPart).ThenInclude(b => b.Order).Single(a => a.Id == demand.Id);
+                demand = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).ThenInclude(b => b.Order).ToList().Single(a => a.Id == demand.Id);
                 return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
             }
             if (demand.GetType() == typeof(DemandStock)) return 999999;
@@ -867,6 +867,7 @@ namespace Master40.DB.Data.Context
                 DueTime = dueTime,
                 CreationTime = creationTime,
                 Name = "injected Order",
+                OrderParts = new List<OrderPart>()
 
             };
             Orders.Add(order);
