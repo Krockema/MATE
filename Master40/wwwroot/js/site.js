@@ -38,7 +38,7 @@ imagePreview = function () {
     $("a.preview").hover(function (e) {
             this.t = this.title;
             this.title = "";
-            var c = (this.t != "") ? "<br/>" + this.t : "";
+            var c = (this.t !== "") ? "<br/>" + this.t : "";
             $("body").append("<p id='preview'><img src='" + this.href + "' alt='Image preview' width='800px'/>" + c + "</p>");
             $("#preview")
                 .css("top", (e.pageY - xOffset) + "px")
@@ -55,18 +55,3 @@ imagePreview = function () {
             .css("left", (e.pageX - yOffset - 800) + "px");
     });
 };
-
-$(function () {
-    // when the modal is closed
-    $('#modal-container').on('hidden.bs.modal', function () {
-        // remove the bs.modal data attribute from it
-        $(this).removeData('bs.modal');
-        // and empty the modal-content element
-        $('#modal-container .modal-content').empty();
-    });
-    // same for Subcontainer
-    $('#modal-sub-container').on('hidden.bs.modal', function () {
-        $(this).removeData('bs.modal');
-        $('#modal-sub-container .modal-content').empty();
-    });
-});

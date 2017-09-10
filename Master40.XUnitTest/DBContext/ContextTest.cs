@@ -1,17 +1,16 @@
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.Agents;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
-using Master40.DB.Enums;
-using Master40.DB.Migrations;
 using Master40.Simulation.Simulation;
 using Master40.DB.Models;
+using System.Data.Common;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Master40.XUnitTest.DBContext
@@ -115,6 +114,38 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task LoadContextAsync()
         {
+            int last = 0;
+
+
+            // In-memory database only exists while the connection is open
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
+            var connection = new SqliteConnection(connectionStringBuilder.ToString());
+
+            // create OptionsBuilder with InMemmory Context
+            var builder = new DbContextOptionsBuilder<MasterDBContext>();
+            builder.UseSqlite(connection);
+            
+            for (int i = 0; i < 2; i++)
+            {
+                using (var c = new ProductionDomainContext(builder.Options))
+                {
+                    c.Database.OpenConnection();
+                    c.Database.EnsureCreated();
+                    MasterDBInitializerLarge.DbInitialize(c);
+
+                    c.ArticleTypes.Add(new ArticleType { Name = "Test" + i });
+                    c.SaveChanges();
+                    last = c.ArticleTypes.Last().Id;
+
+                    Debug.WriteLine("Last Article Type Id: " + last);
+                }
+                connection.Close();
+            }
+            Assert.Equal(4, last);
+
+            /*
+
+
             var simState = _ctx.SaveSimulationState();
 
 
@@ -132,11 +163,26 @@ namespace Master40.XUnitTest.DBContext
             _masterDBContext.Database.EnsureCreated();
             //_inMemmoryContext.LoadContextFromSimulation(deserialized);
 
-
-            Assert.Equal(true, (_ctx.Articles.Any()));
+            */
 
         }
 
+        private static DbContextOptions<MasterDBContext> CreateNewContextOptions()
+        {
+            // Create a fresh service provider, and therefore a fresh 
+            // InMemory database instance.
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
+            // Create a new options instance telling the context to use an
+            // InMemory database and the new service provider.
+            var builder = new DbContextOptionsBuilder<MasterDBContext>();
+            builder.UseInMemoryDatabase()
+                .UseInternalServiceProvider(serviceProvider);
+
+            return builder.Options;
+        }
 
         // HardDatabase To InMemory
         [Fact]
