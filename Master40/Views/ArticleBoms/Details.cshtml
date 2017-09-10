@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "";
 }
 
 <h2>Details</h2>
@@ -38,7 +38,15 @@
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+@if (Model.ArticleChild.PictureUrl != null)
+{
+    <div>
+        <img src="@Html.Raw(Model.ArticleChild.PictureUrl)" width="550"/>
+    </div>
+}
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+    <a asp-action="Edit" class="btn-default btn" asp-route-id="@Model.Id"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</a>
 </div>

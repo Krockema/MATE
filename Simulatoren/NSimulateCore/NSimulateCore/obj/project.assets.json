@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "targets": {
     ".NETCoreApp,Version=v1.1": {
       "Libuv/1.9.1": {
@@ -7041,19 +7041,41 @@
   },
   "project": {
     "version": "1.0.0",
+    "restoreSettings": {
+      "hideWarningsAndErrors": true
+    },
     "restore": {
       "projectUniqueName": "C:\\Users\\marti\\Source\\Repos\\Master-4.0\\Simulatoren\\NSimulateCore\\NSimulateCore\\NSimulateCore.csproj",
       "projectName": "NSimulateCore",
       "projectPath": "C:\\Users\\marti\\Source\\Repos\\Master-4.0\\Simulatoren\\NSimulateCore\\NSimulateCore\\NSimulateCore.csproj",
+      "packagesPath": "C:\\Users\\marti\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\marti\\Source\\Repos\\Master-4.0\\Simulatoren\\NSimulateCore\\NSimulateCore\\obj\\",
       "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\marti\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\NuGet.Config"
+      ],
       "originalTargetFrameworks": [
         "netcoreapp1.1"
       ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://dotnet.myget.org/F/aspnetcore-ci-dev/api/v3/index.json": {},
+        "https://dotnet.myget.org/F/aspnetcore-release/api/v3/index.json": {},
+        "https://dotnet.myget.org/F/dotnet-core/api/v3/index.json": {}
+      },
       "frameworks": {
         "netcoreapp1.1": {
           "projectReferences": {}
         }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
       }
     },
     "frameworks": {

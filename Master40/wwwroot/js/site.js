@@ -24,3 +24,49 @@ $(function () {
         background: 'rgba(255,255,255,0.8)'
     }).hide().appendTo('body');
 });
+
+imagePreview = function () {
+    /* CONFIG */
+
+    var xOffset = 10;
+    var yOffset = 30;
+
+    // these 2 variable determine popup's distance from the cursor
+    // you might want to adjust to get the right result
+
+    /* END CONFIG */
+    $("a.preview").hover(function (e) {
+            this.t = this.title;
+            this.title = "";
+            var c = (this.t != "") ? "<br/>" + this.t : "";
+            $("body").append("<p id='preview'><img src='" + this.href + "' alt='Image preview' width='800px'/>" + c + "</p>");
+            $("#preview")
+                .css("top", (e.pageY - xOffset) + "px")
+                .css("left", (e.pageX + yOffset - 800) + "px")
+                .fadeIn("fast");
+        },
+        function () {
+            this.title = this.t;
+            $("#preview").remove();
+        });
+    $("a.preview").mousemove(function (e) {
+        $("#preview")
+            .css("top", (e.pageY - xOffset) + "px")
+            .css("left", (e.pageX - yOffset - 800) + "px");
+    });
+};
+
+$(function () {
+    // when the modal is closed
+    $('#modal-container').on('hidden.bs.modal', function () {
+        // remove the bs.modal data attribute from it
+        $(this).removeData('bs.modal');
+        // and empty the modal-content element
+        $('#modal-container .modal-content').empty();
+    });
+    // same for Subcontainer
+    $('#modal-sub-container').on('hidden.bs.modal', function () {
+        $(this).removeData('bs.modal');
+        $('#modal-sub-container .modal-content').empty();
+    });
+});
