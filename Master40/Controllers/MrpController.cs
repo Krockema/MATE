@@ -31,8 +31,7 @@ namespace Master40.Controllers
         {
             //call to process MRP I and II
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
-            //await _simulator.InitializeMrp(MrpTask.All);
-            await _simulator.Simulate();
+            await _simulator.InitializeMrp(MrpTask.All);
 
             await Task.Yield();
 
