@@ -21,7 +21,7 @@ namespace Master40.XUnitTest.DBContext
             .UseInMemoryDatabase(databaseName: "InMemoryDB")
             .Options);
 
-        InMemmoryContext _inMemmoryContext = new InMemmoryContext(new DbContextOptionsBuilder<MasterDBContext>()
+        InMemoryContext _inMemmoryContext = new InMemoryContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseInMemoryDatabase(databaseName: "InMemoryDB")
             .Options);
 
@@ -188,12 +188,10 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task CopyContext()
         {
-            _productionDomainContext.Database.EnsureCreated();
-            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
-            _ctx.Database.EnsureCreated();
-            _productionDomainContext.CopyAllTables(_ctx);
-            
-            Assert.Equal(true, (_ctx.Articles.Any()));
+            var context = InMemoryContext.CreateInMemoryContext();
+            InMemoryContext.LoadData(_productionDomainContext, context);
+
+            Assert.Equal(1, context.SimulationConfigurations.Count());
         }
 
         // Json to InMemory

@@ -28,7 +28,7 @@ namespace Master40.Simulation.Simulation
     public class Simulator : ISimulator
     {
         private readonly ProductionDomainContext _evaluationContext;
-        private InMemmoryContext _context;
+        private ProductionDomainContext _context;
         //private readonly CopyContext _copyContext;
         private IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
@@ -36,9 +36,6 @@ namespace Master40.Simulation.Simulation
         public Simulator(ProductionDomainContext context, /*InMemmoryContext inMemmoryContext, */ IMessageHub messageHub)//, CopyContext copyContext)
         {
             _evaluationContext = context;
-            _context = new InMemmoryContext(new DbContextOptionsBuilder<MasterDBContext>()
-                                            .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                                            .Options);
             _messageHub = messageHub;
         }
 
@@ -46,15 +43,6 @@ namespace Master40.Simulation.Simulation
         {
             return Task.Run(() =>
             {
-                _messageHub.SendToAllClients("Prepare InMemory-Tables");
-                _context.Orders.Add(new Order() { Name = "1", BusinessPartnerId = 1, CreationTime = 0, DueTime = 1500 });
-                _context.SaveChanges();
-                _context.Orders.Add(new Order() { Name = "2", BusinessPartnerId = 1, CreationTime = 0, DueTime = 1500 });
-                _context.SaveChanges();
-                //_context.Database.EnsureDeleted();
-                //_context.Database.EnsureCreated();
-                _context.Database.EnsureDeleted();
-                MasterDBInitializerLarge.DbInitialize(_context);
                 _processMrp = new ProcessMrpSim(_context, _messageHub);
                 _context.SaveChanges();
             });
@@ -100,6 +88,8 @@ namespace Master40.Simulation.Simulation
             {
                 // send Message to Client that Simulation has been Startet.
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
+                _context = InMemoryContext.CreateInMemoryContext();
+                InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Last().RecalculationTime);
@@ -175,6 +165,7 @@ namespace Master40.Simulation.Simulation
                 _evaluationContext.StockExchanges.Add(exchange);
             }
             _evaluationContext.SaveChanges();
+            _context.Database.CloseConnection();
         }
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable)

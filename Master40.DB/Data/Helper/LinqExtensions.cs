@@ -62,6 +62,28 @@ namespace Master40.DB.Data.Helper
             }
         }
 
+        public static dynamic CopyDbPropertiesWithoutId<T>(this T source)
+        {
+            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
+            var dest = Activator.CreateInstance(source.GetType());
+            foreach (PropertyInfo prop in plist)
+            {
+                if (prop.Name != "Id" && !prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
+            }
+
+            return dest;
+        }
+        public static dynamic GetTableWithoutId<T>(this T entity)
+        {
+            List<dynamic> dl = new List<dynamic>();
+            foreach (var item in (IQueryable)entity)
+            {
+                dl.Add(item.CopyDbPropertiesWithoutId());
+            }
+            return dl;
+        }
+
 
         public static List<PropertyInfo> GetDbSetProperties(this DbContext context)
         {
