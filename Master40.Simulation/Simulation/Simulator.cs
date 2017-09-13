@@ -156,7 +156,6 @@ namespace Master40.Simulation.Simulation
                     SimulationConfigurationId = _context.SimulationConfigurations.Last().Id,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
-                    Finished = pows.ProducingState == ProducingState.Finished
                 });
             }
             _context.SaveChanges();
