@@ -31,14 +31,16 @@ namespace Master40.ViewComponents
                     return null;
                 }
 
-               Chart chart = new Chart();
+                Chart chart = new Chart
+                {
+                    Type = "bar",
+                    Options = new Options {MaintainAspectRatio = true}
+                };
 
                 // charttype
-                chart.Type = "bar";
 
                 // use available hight in Chart
                 // use available hight in Chart
-                chart.Options = new Options { MaintainAspectRatio = true };
                 var machines = _context.SimulationWorkschedules.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1])
                     .Select(x => x.Machine)
                     .Distinct()

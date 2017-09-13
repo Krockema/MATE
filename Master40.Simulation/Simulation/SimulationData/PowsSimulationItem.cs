@@ -62,20 +62,24 @@ namespace Master40.Simulation.Simulation
                 
             }
             _context.UpdateRange(boms);
-            var pobs = _context.ArticleBoms.Where(a => a.ArticleParentId == ProductionOrderId);
+            var pobs = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == ProductionOrderId);
             foreach (var pob in pobs)
             {
-                var stock = _context.Stocks.Single(a => a.ArticleForeignKey == pob.ArticleChildId);
-                stock.Current-= pob.Quantity;
-                _context.StockExchanges.Add(new StockExchange()
+                foreach (var dpob in pob.DemandProductionOrderBoms)
                 {
-                    ExchangeType = ExchangeType.Withdrawal,
-                    Quantity = pob.Quantity,
-                    StockId = stock.Id,
-                    RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
-                });
-                _context.Stocks.Update(stock);
-                _context.SaveChanges();
+                    var stock = _context.Stocks.Single(a =>
+                        a.ArticleForeignKey == dpob.ArticleId);
+                    stock.Current -= pob.Quantity;
+                    _context.StockExchanges.Add(new StockExchange()
+                    {
+                        ExchangeType = ExchangeType.Withdrawal,
+                        Quantity = pob.Quantity,
+                        StockId = stock.Id,
+                        RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
+                    });
+                    _context.Stocks.Update(stock);
+                    _context.SaveChanges();
+                }
             }
             _context.SaveChanges();
 

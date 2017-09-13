@@ -22,6 +22,7 @@ namespace Master40.DB.Models
         public int HierarchyNumber { get; set; }
         public string Parent { get; set; }
         public string ParentId { get; set; }
+        public bool Finished { get; set; }
 
 
     }

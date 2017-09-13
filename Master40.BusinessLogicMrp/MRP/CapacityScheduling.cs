@@ -73,6 +73,7 @@ namespace Master40.BusinessLogicCentral.MRP
         
         private void AddMachine(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest)
         {
+            var time = _context.SimulationConfigurations.First().Time;
             var machines = _context.Machines.Where(a => a.MachineGroupId == shortest.MachineGroupId).ToList();
             if (machines.Count == 1)
             {

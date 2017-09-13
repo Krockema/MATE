@@ -37,6 +37,7 @@ namespace Master40.Simulation.Simulation
         {
             _evaluationContext = context;
             _messageHub = messageHub;
+            _context = context;
         }
 
         public Task PrepareSimulationContext()
@@ -106,6 +107,12 @@ namespace Master40.Simulation.Simulation
                     _processMrp.UpdateDemandsAndOrders();
                     itemCounter = timeTable.Items.Count;
                     _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed.");
+                    var test = _context.Stocks.Where(a => a.Current < 0);
+                    if (!test.Any()) continue;
+                    foreach (var article in test)
+                    {
+                        _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
+                    }
                 }
                 // end simulation and Unlock Screen
 
@@ -149,6 +156,7 @@ namespace Master40.Simulation.Simulation
                     SimulationConfigurationId = _context.SimulationConfigurations.Last().Id,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
+                    Finished = pows.ProducingState == ProducingState.Finished
                 });
             }
             _context.SaveChanges();
