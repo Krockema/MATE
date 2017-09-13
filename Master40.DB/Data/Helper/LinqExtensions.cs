@@ -57,7 +57,7 @@ namespace Master40.DB.Data.Helper
 
             foreach (PropertyInfo prop in plist)
             {
-                if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
+                if (prop.Name != "Id" && !prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
                     prop.SetValue(dest, prop.GetValue(source, null), null);
             }
         }

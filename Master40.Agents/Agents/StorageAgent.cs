@@ -86,7 +86,7 @@ namespace Master40.Agents.Agents
                 new StockExchange
                 {
                     StockId = StockElement.Id,
-                    EchangeType = EchangeType.Insert,
+                    ExchangeType = ExchangeType.Insert,
                     Quantity = 1,
                     RequiredOnTime = (int)Context.TimePeriod
                 });
@@ -179,7 +179,7 @@ namespace Master40.Agents.Agents
                 new StockExchange
                 {
                     StockId = StockElement.Id,
-                    EchangeType = EchangeType.Withdrawal,
+                    ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
                     RequiredOnTime = request.DueTime,
                 }
@@ -206,7 +206,7 @@ namespace Master40.Agents.Agents
                 new StockExchange
                 {
                     StockId = StockElement.Id,
-                    EchangeType = EchangeType.Insert,
+                    ExchangeType = ExchangeType.Insert,
                     Quantity = StockElement.Article.Stock.Max,
                     RequiredOnTime = time,
                 }

@@ -282,10 +282,23 @@ namespace Master40.DB.Data.Initializer
             }
             context.SaveChanges();
 
+            var order1 = new Order
+            {
+                BusinessPartnerId = businessPartner.Id,
+                DueTime = 1540,
+                Name = "First Truck order",
+                CreationTime = 0
+            };
+            var order2 = new Order
+            {
+                BusinessPartnerId = businessPartner.Id,
+                DueTime = 1690,
+                Name = "Second Truck order",
+                CreationTime = 0
+            };
             //create order
             var orders = new List<Order>() { 
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 1540, Name = "First Truck order", CreationTime = 0},
-                new Order {BusinessPartnerId = businessPartner.Id, DueTime = 1690, Name = "Second Truck order", CreationTime = 0},
+                order1, order2
             };
             foreach (var order in orders)
             {
@@ -296,9 +309,9 @@ namespace Master40.DB.Data.Initializer
             //create orderParts
             var orderParts = new List<OrderPart>()
             {
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 1, IsPlanned = false},
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 2, IsPlanned = false},
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = 2, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = order1.Id, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = order2.Id, IsPlanned = false},
+                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = order2.Id, IsPlanned = false},
             };
             foreach (var orderPart in orderParts)
             {

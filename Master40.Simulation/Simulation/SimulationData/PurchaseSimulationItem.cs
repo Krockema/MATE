@@ -36,7 +36,7 @@ namespace Master40.Simulation.Simulation
             stock.Current += purchasePart.Quantity;
             _context.StockExchanges.Add(new StockExchange()
             {
-                EchangeType = EchangeType.Insert,
+                ExchangeType = ExchangeType.Insert,
                 Quantity = purchasePart.Quantity,
                 StockId = stock.Id,
                 RequiredOnTime = purchasePart.Purchase.DueTime

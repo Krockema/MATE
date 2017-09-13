@@ -1,6 +1,6 @@
 ﻿namespace Master40.DB.Enums
 {
-    public enum EchangeType
+    public enum ExchangeType
     {
         Withdrawal,
         Insert

@@ -119,9 +119,9 @@ namespace Master40.Agents
             foreach (var stock in context.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
             {
                 var item = ((StorageAgent)stock);
-                var count = (item.StockElement.StockExchanges.Where(x => x.EchangeType == EchangeType.Insert)
+                var count = (item.StockElement.StockExchanges.Where(x => x.ExchangeType == ExchangeType.Insert)
                                  .Sum(x => x.Quantity) - item.StockElement.StockExchanges
-                                 .Where(x => x.EchangeType == EchangeType.Withdrawal).Sum(x => x.Quantity));
+                                 .Where(x => x.ExchangeType == ExchangeType.Withdrawal).Sum(x => x.Quantity));
                 Debug.WriteLine("Storage (" + item.Name + "): In: " + count);
             }
            
@@ -135,7 +135,7 @@ namespace Master40.Agents
                 foreach (var se in item.StockElement.StockExchanges)
                 {
                     se.SimulationType = SimulationType.Decentral;
-                    se.SimulationId = simId;
+                    se.SimulationConfigurationId = simId;
                     se.SimulationNumber = simNr;
                     _productionDomainContext.StockExchanges.Add(se);
                     _productionDomainContext.SaveChanges();

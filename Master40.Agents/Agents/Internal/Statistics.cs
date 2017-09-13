@@ -18,7 +18,7 @@ namespace Master40.Agents.Agents.Internal
                 WorkScheduleName = ws.WorkSchedule.Name,
                 DueTime = ws.DueTime,
                 EstimatedEnd = ws.EstimatedEnd,
-                SimulationId = -1,
+                SimulationConfigurationId = -1,
                 OrderId = orderId,
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
                 ProductionOrderId = ws.ProductionAgent.AgentId.ToString()
@@ -38,10 +38,10 @@ namespace Master40.Agents.Agents.Internal
         public static void UpdateSimulationId(int simulationId, SimulationType simluationType)
         {
             var simItems = AgentSimulation.SimulationWorkschedules
-                .Where(x => x.SimulationId == -1).ToList();
+                .Where(x => x.SimulationConfigurationId == -1).ToList();
             foreach (var item in simItems)
             {
-                item.SimulationId = simulationId;
+                item.SimulationConfigurationId = simulationId;
                 item.SimulationType = simluationType.ToString();
             }
         }

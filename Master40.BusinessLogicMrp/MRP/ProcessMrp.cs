@@ -15,9 +15,9 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IProcessMrp
     {
-        Task CreateAndProcessOrderDemand(MrpTask task, int simulationConfigurationId, ProductionDomainContext context);
-        void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int simulationConfigurationId);
-        void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationConfigurationId);
+        Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context);
+        void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
+        void PlanCapacities(MrpTask task, bool newOrdersAdded);
         void UpdateDemandsAndOrders();
     }
 
@@ -43,9 +43,8 @@ namespace Master40.BusinessLogicCentral.MRP
         /// Plans all unplanned Orders with MRP I + II
         /// </summary>
         /// <param name="task"></param>
-        /// <param name="simulationConfigurationId"></param>
         /// <returns></returns>
-        public async Task CreateAndProcessOrderDemand(MrpTask task, int simulationConfigurationId, ProductionDomainContext context)
+        public async Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context)
         {
             await Task.Run(() =>
             {
@@ -54,8 +53,8 @@ namespace Master40.BusinessLogicCentral.MRP
                 _messageHub.SendToAllClients("Start full MRP cycle...", MessageType.info);
 
                 //get all unplanned orderparts and iterate through them for MRP
-                var maxAllowedTime = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time +
-                                     _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).MaxCalculationTime;
+                var maxAllowedTime = _context.SimulationConfigurations.Last().Time +
+                                     _context.SimulationConfigurations.Last().MaxCalculationTime;
                 var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false).Include(a => a.Article).ToList();
                 orderParts = orderParts.Where(a => a.Order.DueTime < maxAllowedTime).ToList();
                 if (orderParts.Any()) newOrdersAdded = true;
@@ -63,13 +62,13 @@ namespace Master40.BusinessLogicCentral.MRP
                 {
                     var demand = GetDemand(orderPart);
                     //run the requirements planning and backward/forward termination algorithm
-                    RunRequirementsAndTermination(demand, task, simulationConfigurationId);
+                    RunRequirementsAndTermination(demand, task);
                 }
                 
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
                     //run the capacity algorithm
-                    PlanCapacities(task, newOrdersAdded, simulationConfigurationId);
+                    PlanCapacities(task, newOrdersAdded);
                     
                     _messageHub.SendToAllClients("Capacities are planned");
                 }
@@ -110,10 +109,9 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="task"></param>
         /// <param name="newOrdersAdded"></param>
-        /// <param name="simulationConfigurationId"></param>
-        public void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationConfigurationId)
+        public void PlanCapacities(MrpTask task, bool newOrdersAdded)
         {
-            var timer = _context.SimulationConfigurations.Single(a => a.Id == simulationConfigurationId).Time;
+            var timer = _context.SimulationConfigurations.Last().Time;
             var demands = _context.Demands.Where(a =>
                                a.State == State.BackwardScheduleExists || 
                                a.State == State.ForwardScheduleExists ||
@@ -124,22 +122,22 @@ namespace Master40.BusinessLogicCentral.MRP
 
             if (newOrdersAdded)
             {
-                _rebuildNets.Rebuild(simulationConfigurationId);
+                _rebuildNets.Rebuild();
                 _messageHub.SendToAllClients("RebuildNets completed");
             }
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
                 //creates a list with the needed capacities to follow the terminated schedules
-                machineList = _capacityScheduling.CapacityRequirementsPlanning(simulationConfigurationId);
+                machineList = _capacityScheduling.CapacityRequirementsPlanning();
             
             if (timer != 0 || (task == MrpTask.GifflerThompson || (_capacityScheduling.CapacityLevelingCheck(machineList) && task == MrpTask.All)))
-                _capacityScheduling.GifflerThompsonScheduling(simulationConfigurationId);
+                _capacityScheduling.GifflerThompsonScheduling();
             else
             {
                 foreach (var demand in demands)
                     SetStartEndFromTermination(demand);
                 
-                _capacityScheduling.SetMachines(simulationConfigurationId);
+                _capacityScheduling.SetMachines();
             }
             foreach (var demand in demands)
             {
@@ -183,12 +181,11 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="demand"></param>
         /// <param name="task"></param>
-        /// <param name="simulationConfigurationId"></param>
-        public void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int simulationConfigurationId)
+        public void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task)
         {
             if (demand.State == State.Created)
             {
-                ExecutePlanning(demand, task, simulationConfigurationId);
+                ExecutePlanning(demand, task);
                 if (demand.State != State.Finished)
                     demand.State = State.ProviderExist;
                 _context.Update(demand);
@@ -206,7 +203,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             }
 
-            if ((task == MrpTask.All && CheckNeedForward(demand, simulationConfigurationId)) || task == MrpTask.Forward)
+            if ((task == MrpTask.All && CheckNeedForward(demand)) || task == MrpTask.Forward)
             {
                 //schedules forward and then backward again with the finish of the forward algorithm
                 _scheduling.ForwardScheduling(demand);
@@ -219,16 +216,16 @@ namespace Master40.BusinessLogicCentral.MRP
             _context.SaveChanges();
         }
 
-        private bool CheckNeedForward(IDemandToProvider demand, int simulationConfigurationId)
+        private bool CheckNeedForward(IDemandToProvider demand)
         {
             var pows = new List<ProductionOrderWorkSchedule>();
-            return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < _context.SimulationConfigurations.Single(b => b.Id == simulationConfigurationId).Time);
+            return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < _context.SimulationConfigurations.Last().Time);
         }
 
-        private void ExecutePlanning(IDemandToProvider demand, MrpTask task, int simulationConfigurationId)
+        private void ExecutePlanning(IDemandToProvider demand, MrpTask task)
         {
             //creates Provider for the needs
-            var productionOrders = _demandForecast.NetRequirement(demand, task, simulationConfigurationId);
+            var productionOrders = _demandForecast.NetRequirement(demand, task);
             if (demand.State != State.Finished)
                 demand.State = State.ProviderExist;
             
@@ -253,10 +250,10 @@ namespace Master40.BusinessLogicCentral.MRP
                     //create Requester
                     var dpob = _context.CreateDemandProductionOrderBom(child.ArticleChildId,productionOrder.Quantity * (int) child.Quantity);
                     //create Production-BOM
-                    _context.TryCreateProductionOrderBoms(dpob, productionOrder, simulationConfigurationId);
+                    _context.TryCreateProductionOrderBoms(dpob, productionOrder);
                     
                     //call this method recursively for a depth-first search
-                    ExecutePlanning(dpob, task, simulationConfigurationId);
+                    ExecutePlanning(dpob, task);
                 }
             }
         }
@@ -335,7 +332,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 stock.Current -= singleOrderPart.Quantity;
                 _context.StockExchanges.Add(new StockExchange()
                 {
-                    EchangeType = EchangeType.Withdrawal,
+                    ExchangeType = ExchangeType.Withdrawal,
                     Quantity = singleOrderPart.Quantity,
                     StockId = stock.Id,
                     RequiredOnTime = order.DueTime

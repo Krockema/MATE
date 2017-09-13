@@ -13,7 +13,7 @@ namespace Master40.Simulation.Simulation
 {
     public class PowsSimulationItem : ISimulationItem
     {
-        public PowsSimulationItem(int productionOrderWorkScheduleId,int productionOrderId, int start, int end, ProductionDomainContext context, int simulationConfigurationId)
+        public PowsSimulationItem(int productionOrderWorkScheduleId,int productionOrderId, int start, int end, ProductionDomainContext context)
         {
             SimulationState = SimulationState.Waiting;
             ProductionOrderWorkScheduleId = productionOrderWorkScheduleId;
@@ -22,7 +22,6 @@ namespace Master40.Simulation.Simulation
             End = end;
             NeedToAddNext = false;
             _context = context;
-            SimulationConfigurationId = simulationConfigurationId;
         }
 
         private ProductionDomainContext _context;
@@ -32,7 +31,6 @@ namespace Master40.Simulation.Simulation
         public int ProductionOrderId { get; set; }
         public SimulationState SimulationState { get; set; }
         public bool NeedToAddNext { get; set; }
-        public int SimulationConfigurationId { get; set; }
         
         public Task<bool> DoAtStart()
         {
@@ -71,7 +69,7 @@ namespace Master40.Simulation.Simulation
                 stock.Current-= pob.Quantity;
                 _context.StockExchanges.Add(new StockExchange()
                 {
-                    EchangeType = EchangeType.Withdrawal,
+                    ExchangeType = ExchangeType.Withdrawal,
                     Quantity = pob.Quantity,
                     StockId = stock.Id,
                     RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
@@ -103,11 +101,11 @@ namespace Master40.Simulation.Simulation
                 powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
             var stock = _context.Stocks.Include(x => x.StockExchanges).Single(a => a.ArticleForeignKey == articleId);
-            var quantity = _context.SimulationConfigurations.Single(a => a.Id == SimulationConfigurationId).Lotsize;
+            var quantity = _context.SimulationConfigurations.Last().Lotsize;
             stock.Current += quantity;
             stock.StockExchanges.Add(new StockExchange()
             {
-                EchangeType = EchangeType.Insert,
+                ExchangeType = ExchangeType.Insert,
                 Quantity = quantity,
                 StockId = stock.Id,
                 RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime

@@ -39,7 +39,7 @@ namespace Master40.ViewComponents
                 // use available hight in Chart
                 // use available hight in Chart
                 chart.Options = new Options { MaintainAspectRatio = true };
-                var machines = _context.SimulationWorkschedules.Where(x => x.SimulationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1])
+                var machines = _context.SimulationWorkschedules.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1])
                     .Select(x => x.Machine)
                     .Distinct()
                     .ToList();
@@ -60,7 +60,7 @@ namespace Master40.ViewComponents
                     //barDataSet.Label = "Machines";
                     var machineWork =
                         _context.SimulationWorkschedules.Where(
-                            x => x.Machine == machine && x.SimulationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1]).ToList();
+                            x => x.Machine == machine && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1]).ToList();
 
                     var endSum = machineWork.Sum(x => x.End);
                     var startSum = machineWork.Sum(x => x.Start);

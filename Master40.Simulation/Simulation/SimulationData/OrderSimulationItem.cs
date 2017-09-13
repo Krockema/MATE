@@ -12,7 +12,7 @@ namespace Master40.Simulation.Simulation
 {
     public class OrderSimulationItem : ISimulationItem
     {
-        public OrderSimulationItem(int start, int end, ProductionDomainContext context, List<int> articleIds, List<int> amounts, int duetime, int simulationConfigurationId)
+        public OrderSimulationItem(int start, int end, ProductionDomainContext context, List<int> articleIds, List<int> amounts, int duetime)
         {
             SimulationState = SimulationState.Waiting;
             Start = start;
@@ -21,7 +21,6 @@ namespace Master40.Simulation.Simulation
             ArticleIds = articleIds;
             Amounts = amounts;
             DueTime = duetime;
-            SimulationConfigurationId = simulationConfigurationId;
             AddOrder = false;
         }
         public int DueTime { get; set; }
@@ -31,7 +30,6 @@ namespace Master40.Simulation.Simulation
         public int End { get; set; }
         private readonly ProductionDomainContext _context;
         public SimulationState SimulationState { get; set; }
-        public int SimulationConfigurationId { get; set; }
         public bool AddOrder { get; set; }
         public Task<bool> DoAtStart()
         {
@@ -43,7 +41,7 @@ namespace Master40.Simulation.Simulation
             for (var i = 0; i < ArticleIds.Count; i++)
             {
                 //_context.SimulationConfigurations.Add(new SimulationConfiguration());
-                //_context.CreateNewOrder(ArticleIds[i], Amounts[i], _context.SimulationConfigurations.AsNoTracking().Single(a => a.Id == SimulationConfigurationId).Time, DueTime);
+                //_context.CreateNewOrder(ArticleIds[i], Amounts[i], _context.SimulationConfigurations.AsNoTracking().Last().Time, DueTime);
             }
             AddOrder = true;
             return null;
