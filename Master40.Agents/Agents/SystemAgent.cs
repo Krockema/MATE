@@ -81,10 +81,13 @@ namespace Master40.Agents.Agents
 
         public void PrepareAgents(SimulationConfiguration simConfig)
         {
+            var due = 1640;
             for (int i = 1; i <= simConfig.OrderQuantity; i++)
             {
                 // Ranodmization Required here.
-                _productionDomainContext.CreateNewOrder(1, 1, 2, 1640);
+                _productionDomainContext.CreateNewOrder(1, 1, 2, due);
+
+                
             }
 
 

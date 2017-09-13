@@ -39,9 +39,18 @@
                 }
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-controller="ArticleBoms" asp-route-id="@item.Id"
+                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </a>
+                <a id="@item.Id" asp-action="Details" asp-controller="ArticleBoms" asp-route-id="@item.Id"
+                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </a> 
+                <a asp-action="Delete" asp-controller="ArticleBoms" asp-route-id="@item.Id"
+                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </a>
             </td>
         </tr>
         if (item.ArticleChild.ArticleBoms != null)

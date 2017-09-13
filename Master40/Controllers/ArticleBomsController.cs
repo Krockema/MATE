@@ -32,7 +32,7 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles.Include(w => w.WorkSchedules)
-                .Where(a => a.Id == 1).ToList();
+                .Where(a => a.Id == 1 || a.Id == 24).ToList();
 
             var articleList = new List<Article>();
             foreach (var item in masterDBContext)

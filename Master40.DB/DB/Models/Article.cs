@@ -39,6 +39,7 @@ namespace Master40.DB.Models
         public virtual ICollection<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set;}
         public bool ToPurchase { get; set; }
         public bool ToBuild { get; set; }
+        public string PictureUrl { get; set; }
 
 
     }
