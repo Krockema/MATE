@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40", "Master40\Master40.csproj", "{F2017DAA-0844-4782-9AC1-0AB19362C0C9}"
 EndProject
@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.BusinessLogicCentr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.MessageSystem", "Master40.MessageSystem\Master40.MessageSystem.csproj", "{B8140DE2-F5CA-461B-B867-09718A83289B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.Agents", "Master40.Agents\Master40.Agents.csproj", "{83CB4BAC-4D4B-4896-98C2-499D50B7AD53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.Agents", "Master40.Agents\Master40.Agents.csproj", "{83CB4BAC-4D4B-4896-98C2-499D50B7AD53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.NSimulate", "Master40.NSimulate\Master40.NSimulate.csproj", "{D2EF72D2-C292-4F9C-895B-F9EF690656C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.NSimulate", "Master40.NSimulate\Master40.NSimulate.csproj", "{D2EF72D2-C292-4F9C-895B-F9EF690656C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,5 +60,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DDB144B5-AC8E-4B53-B435-E5561E5CDDA9}
 	EndGlobalSection
 EndGlobal

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -192,6 +193,17 @@ namespace Master40.XUnitTest.DBContext
             InMemoryContext.LoadData(_productionDomainContext, context);
 
             Assert.Equal(1, context.SimulationConfigurations.Count());
+        }
+
+        [Fact]
+        public async Task TestDistribution()
+        {
+            var dl = new List<double>();
+            var ln = new MathNet.Numerics.Distributions.LogNormal(0.1, 0.5);
+            for (int i = 0; i < 1000; i++)
+            {
+                Debug.WriteLine(ln.Sample());
+            }
         }
 
         // Json to InMemory

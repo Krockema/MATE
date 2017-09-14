@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
-using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
-using Master40.Simulation.Simulation;
 using Master40.Simulation.Simulation.SimulationData;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Master40.Simulation.Simulation
 {

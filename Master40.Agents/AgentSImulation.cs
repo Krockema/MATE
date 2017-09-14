@@ -7,6 +7,7 @@ using Master40.Agents.Agents;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +56,8 @@ namespace Master40.Agents
                 Statistics.UpdateSimulationId(simulationId, SimulationType.Decentral);
                 _productionDomainContext.SimulationWorkschedules.AddRange(SimulationWorkschedules);
                 _productionDomainContext.SaveChanges();
-                SaveStockExchanges(simulationId, simulationNr, context);
+                //SaveStockExchanges(simulationId, simulationNr, context);
+                UpdateStockExchanges(simulationId, simulationNr);
 
             }
             return Agent.AgentStatistics;
@@ -137,10 +139,22 @@ namespace Master40.Agents
                     se.SimulationType = SimulationType.Decentral;
                     se.SimulationConfigurationId = simId;
                     se.SimulationNumber = simNr;
-                    _productionDomainContext.StockExchanges.Add(se);
+                    _productionDomainContext.StockExchanges.Add(se.CopyDbPropertiesWithoutId());
                     _productionDomainContext.SaveChanges();
                 }
             }
+        }
+
+        private void UpdateStockExchanges (int simId, int simNr)
+        {
+            var stockExchanges = _productionDomainContext.StockExchanges.Where(x => x.SimulationConfigurationId == 0);
+            foreach (var se in stockExchanges)
+            {
+                se.SimulationType = SimulationType.Decentral;
+                se.SimulationConfigurationId = simId;
+                se.SimulationNumber = simNr;
+            }
+            _productionDomainContext.SaveChanges();
         }
 
 
