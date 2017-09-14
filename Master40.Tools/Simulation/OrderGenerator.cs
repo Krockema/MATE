@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
 using System.Linq;
+using Master40.DB.Interfaces;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.Tools.Simulation
 {
     public static class OrderGenerator
     {
-        public static void GenerateOrders(ProductionDomainContext context)
+        public static void GenerateOrders(ProductionDomainContext context, int simulationId)
         {
             var time = 0;
             //get products by searching for articles without parents
             var productIds = context.ArticleBoms.Where(b => b.ArticleParentId == null).Select(a => a.ArticleChildId).ToList();
-            for (var i = 0; i < context.SimulationConfigurations.First().OrderQuantity; i++)
+            for (var i = 0; i < context.SimulationConfigurations.Single(a => a.Id == simulationId).OrderQuantity; i++)
             {
                 //get equal distribution from 0 to 1
                 var randomProductNumber = MathNet.Numerics.Distributions.DiscreteUniform.Sample(0,productIds.Count()-1);

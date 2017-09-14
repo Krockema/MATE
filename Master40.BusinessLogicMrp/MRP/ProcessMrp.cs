@@ -15,9 +15,9 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IProcessMrp
     {
-        Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context);
+        Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task);
-        void PlanCapacities(MrpTask task, bool newOrdersAdded);
+        void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId);
         void UpdateDemandsAndOrders();
     }
 
@@ -44,7 +44,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        public async Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context)
+        public async Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId)
         {
             await Task.Run(() =>
             {
@@ -68,7 +68,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
                     //run the capacity algorithm
-                    PlanCapacities(task, newOrdersAdded);
+                    PlanCapacities(task, newOrdersAdded, simulationId);
                     
                     _messageHub.SendToAllClients("Capacities are planned");
                 }
@@ -109,7 +109,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="task"></param>
         /// <param name="newOrdersAdded"></param>
-        public void PlanCapacities(MrpTask task, bool newOrdersAdded)
+        public void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId)
         {
             var timer = _context.SimulationConfigurations.Last().Time;
             var demands = _context.Demands.Where(a =>
@@ -128,16 +128,16 @@ namespace Master40.BusinessLogicCentral.MRP
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
                 //creates a list with the needed capacities to follow the terminated schedules
-                machineList = _capacityScheduling.CapacityRequirementsPlanning();
+                machineList = _capacityScheduling.CapacityRequirementsPlanning(simulationId);
             
             if (timer != 0 || (task == MrpTask.GifflerThompson || (_capacityScheduling.CapacityLevelingCheck(machineList) && task == MrpTask.All)))
-                _capacityScheduling.GifflerThompsonScheduling();
+                _capacityScheduling.GifflerThompsonScheduling(simulationId);
             else
             {
                 foreach (var demand in demands)
                     SetStartEndFromTermination(demand);
                 
-                _capacityScheduling.SetMachines();
+                _capacityScheduling.SetMachines(simulationId);
             }
             foreach (var demand in demands)
             {

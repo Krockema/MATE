@@ -18,7 +18,7 @@ namespace Master40.Simulation.Simulation
     public interface ISimulator
     {
         Task Simulate(int simulationId);
-        Task InitializeMrp(MrpTask task);
+        Task InitializeMrp(MrpTask task, int simulationId);
     }
 
     public class Simulator : ISimulator
@@ -29,8 +29,6 @@ namespace Master40.Simulation.Simulation
         //private readonly CopyContext _copyContext;
         private IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
-
-        private static SimulationConfiguration simulationConfiguration;
         //private readonly HubCallback _hubCallback;
         public Simulator(ProductionDomainContext context, /*InMemmoryContext inMemmoryContext, */ IMessageHub messageHub)//, CopyContext copyContext)
         {
@@ -68,16 +66,16 @@ namespace Master40.Simulation.Simulation
         }
 
 
-        public async Task InitializeMrp(MrpTask task)
+        public async Task InitializeMrp(MrpTask task, int simulationId)
         {
             await Task.Run(async () =>
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 await PrepareSimulationContext();
-                Tools.Simulation.OrderGenerator.GenerateOrders(_context);
+                Tools.Simulation.OrderGenerator.GenerateOrders(_context, 0);
 
                 //call initial central MRP-run
-                await _processMrp.CreateAndProcessOrderDemand(task, _context);
+                await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId);
 
                 _messageHub.EndScheduler();
             });
@@ -87,15 +85,14 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
-                simulationConfiguration = _context.SimulationConfigurations.Single(x => x.Id == simulationId);
                 // send a Message to the Client that the Simulation has been started
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 _context = InMemoryContext.CreateInMemoryContext();
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
-                Tools.Simulation.OrderGenerator.GenerateOrders(_context);
-                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context);
-                var timeTable = new TimeTable<ISimulationItem>(Simulator.simulationConfiguration.RecalculationTime);
+                Tools.Simulation.OrderGenerator.GenerateOrders(_context, simulationId);
+                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId);
+                var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;
@@ -104,7 +101,7 @@ namespace Master40.Simulation.Simulation
                 var itemCounter = 0;
                 while (timeTable.Items.Any(a => a.SimulationState == SimulationState.Waiting) || timeTable.Items.Any(a => a.SimulationState == SimulationState.InProgress) || waitingItems.Any())
                 {
-                    timeTable = await ProcessTimeline(timeTable, waitingItems);
+                    timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId);
                     if (itemCounter == timeTable.Items.Count) continue;
                     _processMrp.UpdateDemandsAndOrders();
                     itemCounter = timeTable.Items.Count;
@@ -240,7 +237,7 @@ namespace Master40.Simulation.Simulation
             return -1;
         }
 
-        public async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems)
+        public async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId)
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
@@ -300,7 +297,7 @@ namespace Master40.Simulation.Simulation
             }
             
             if (timeTable.Timer < (timeTable.RecalculateCounter+1) * timeTable.RecalculateTimer) return timeTable;
-            await Recalculate();
+            await Recalculate(simulationId);
             UpdateWaitingItems(timeTable, waitingItems);
             UpdateGoodsDelivery(timeTable);
             timeTable.RecalculateCounter++;
@@ -418,9 +415,9 @@ namespace Master40.Simulation.Simulation
             return freeMachines;
         }
 
-        private async Task Recalculate()
+        private async Task Recalculate(int simulationId)
         {
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId);
         }
     }
     
