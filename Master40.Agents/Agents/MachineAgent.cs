@@ -19,7 +19,10 @@ namespace Master40.Agents.Agents
         public List<WorkItem> Queue { get; }
         //private Queue<WorkItem> SchduledQueue;
         private LimitedQueue<WorkItem> ProcessingQueue { get; }
-        
+        /// <summary>
+        /// planing forecast, to drop requests over this value
+        /// </summary>
+        private int QueueLength { get; }
         private bool ItemsInProgess { get; set; }
 
 
@@ -41,7 +44,8 @@ namespace Master40.Agents.Agents
             ProcessingQueue = new LimitedQueue<WorkItem>(1);
             Machine = machine;
             ItemsInProgess = false;
-            RegisterService();            
+            RegisterService();
+            QueueLength = 90; // plaing forecast
         }
 
 
@@ -111,12 +115,13 @@ namespace Master40.Agents.Agents
             {
                 AgentId = this.AgentId,
                 WorkItemId = workItem.Id,
+                Postponed = (max<QueueLength), // bool to postpone the item for later
                 PossibleSchedule = max
             };
             // callback 
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.ProposalFromMachine.ToString(),
-                objectToProcess: proposal,
-                targetAgent: targetAgent);
+                                    objectToProcess: proposal,
+                                    targetAgent: targetAgent);
         }
 
         /// <summary>
