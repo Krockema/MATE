@@ -28,9 +28,8 @@ namespace Master40.Simulation.Simulation
         private ProductionDomainContext _context;
         //private readonly CopyContext _copyContext;
         private IProcessMrp _processMrp;
-        private readonly IMessageHub _messageHub;
 
-        private static SimulationConfiguration simulationConfiguration;
+        private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
         public Simulator(ProductionDomainContext context, /*InMemmoryContext inMemmoryContext, */ IMessageHub messageHub)//, CopyContext copyContext)
         {
@@ -87,7 +86,7 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
-                simulationConfiguration = _context.SimulationConfigurations.Single(x => x.Id == simulationId);
+                var simulationConfiguration = _context.SimulationConfigurations.Single(x => x.Id == simulationId);
                 // send a Message to the Client that the Simulation has been started
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 _context = InMemoryContext.CreateInMemoryContext();
@@ -95,7 +94,7 @@ namespace Master40.Simulation.Simulation
                 await PrepareSimulationContext();
                 Tools.Simulation.OrderGenerator.GenerateOrders(_context);
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context);
-                var timeTable = new TimeTable<ISimulationItem>(Simulator.simulationConfiguration.RecalculationTime);
+                var timeTable = new TimeTable<ISimulationItem>(simulationConfiguration.RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;
