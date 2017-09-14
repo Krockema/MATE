@@ -14,5 +14,6 @@ namespace Master40.DB.Models
         public int TimeSpanForOrders { get; set; }
         public int Seed { get; set; }
         public int RecalculationTime { get; set; }
+        
     }
 }
