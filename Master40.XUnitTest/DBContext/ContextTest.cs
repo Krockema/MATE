@@ -110,7 +110,7 @@ namespace Master40.XUnitTest.DBContext
             await simulation.InitializeMrp(MrpTask.All,0);
             //var mrpTest = new MrpTest();
             // await mrpTest.CreateAndProcessOrderForward(mrpContext);
-            await simulation.Simulate(0);
+            await simulation.Simulate(1);
 
             Assert.Equal(true, _productionDomainContext.ProductionOrderWorkSchedules.Any());
         }
