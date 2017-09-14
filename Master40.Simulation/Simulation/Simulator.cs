@@ -17,17 +17,20 @@ namespace Master40.Simulation.Simulation
 {
     public interface ISimulator
     {
-        Task Simulate();
+        Task Simulate(int simulationId);
         Task InitializeMrp(MrpTask task);
     }
 
     public class Simulator : ISimulator
     {
+
         private readonly ProductionDomainContext _evaluationContext;
         private ProductionDomainContext _context;
         //private readonly CopyContext _copyContext;
         private IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
+
+        private static SimulationConfiguration simulationConfiguration;
         //private readonly HubCallback _hubCallback;
         public Simulator(ProductionDomainContext context, /*InMemmoryContext inMemmoryContext, */ IMessageHub messageHub)//, CopyContext copyContext)
         {
@@ -80,10 +83,11 @@ namespace Master40.Simulation.Simulation
             });
         }
 
-        public async Task Simulate()
+        public async Task Simulate(int simulationId)
         {
             await Task.Run(async () =>
             {
+                simulationConfiguration = _context.SimulationConfigurations.Single(x => x.Id == simulationId);
                 // send a Message to the Client that the Simulation has been started
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 _context = InMemoryContext.CreateInMemoryContext();
@@ -91,7 +95,7 @@ namespace Master40.Simulation.Simulation
                 await PrepareSimulationContext();
                 Tools.Simulation.OrderGenerator.GenerateOrders(_context);
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context);
-                var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Last().RecalculationTime);
+                var timeTable = new TimeTable<ISimulationItem>(Simulator.simulationConfiguration.RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;

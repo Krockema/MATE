@@ -88,8 +88,7 @@ namespace Master40.Agents.Agents
                 due = due + avg;
                 // Ranodmization Required here.
                 _productionDomainContext.CreateNewOrder(1, 1, 2, due);
-
-                
+                Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext);
             }
 
 
