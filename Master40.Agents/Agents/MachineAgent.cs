@@ -45,7 +45,7 @@ namespace Master40.Agents.Agents
             Machine = machine;
             ItemsInProgess = false;
             RegisterService();
-            QueueLength = 90; // plaing forecast
+            QueueLength = 45; // plaing forecast
         }
 
 
