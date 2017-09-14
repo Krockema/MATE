@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +10,9 @@ using Master40.DB.Data.Initializer;
 using Master40.Simulation.Simulation;
 using Master40.DB.Models;
 using System.Data.Common;
+using System.IO;
+using System.Reflection;
+using Master40.Tools.Simulation;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -200,9 +204,36 @@ namespace Master40.XUnitTest.DBContext
         {
             var dl = new List<double>();
             var ln = new MathNet.Numerics.Distributions.LogNormal(0.1, 0.5);
+            
             for (int i = 0; i < 1000; i++)
             {
-                Debug.WriteLine(ln.Sample());
+                //Debug.WriteLine(ln.Sample());
+                dl.Add(ln.Sample());
+            }
+            CreateCSVFromDoubleList(dl,"lognormal.csv");
+
+            var uniformSamples = OrderGenerator.TestUniformDistribution(1000);
+            CreateCSVFromDoubleList(uniformSamples, "uniform.csv");
+
+            var exponentialSamples = OrderGenerator.TestExponentialDistribution(1000);
+            CreateCSVFromDoubleList(exponentialSamples, "exponential.csv");
+        }
+
+        /// <summary>
+        /// Creates the CSV from a generic list.
+        /// </summary>;
+        /// <typeparam name="T"></typeparam>;
+        /// <param name="list">The list.</param>;
+        /// <param name="csvNameWithExt">Name of CSV (w/ path) w/ file ext.</param>;
+        private static void CreateCSVFromDoubleList (List<double> list, string csvNameWithExt)
+        {
+            if (list == null || list.Count == 0) return;
+            
+            var filestream = System.IO.File.Create(csvNameWithExt);
+            var sw = new System.IO.StreamWriter(filestream);
+            foreach (var item in list)
+            {
+                sw.WriteLine(item);
             }
         }
 
