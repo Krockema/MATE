@@ -31,7 +31,7 @@ namespace Master40.Controllers
         {
             //call to process MRP I and II
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All);
-            await _simulator.InitializeMrp(MrpTask.All);
+            await _simulator.InitializeMrp(MrpTask.All,1);
 
             await Task.Yield();
 
@@ -44,7 +44,7 @@ namespace Master40.Controllers
             var jobId = 
             BackgroundJob.Enqueue<IProcessMrp>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All, null)
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());
@@ -57,7 +57,7 @@ namespace Master40.Controllers
         {
             //call to process MRP I and II
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
-            await _simulator.InitializeMrp(MrpTask.Backward);
+            await _simulator.InitializeMrp(MrpTask.Backward,1);
 
             await Task.Yield();
 
@@ -68,7 +68,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpForward()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
-            await _simulator.InitializeMrp(MrpTask.Forward);
+            await _simulator.InitializeMrp(MrpTask.Forward,1);
 
             await Task.Yield();
 
@@ -79,7 +79,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpGifflerThompson()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.GifflerThompson);
-            await _simulator.InitializeMrp(MrpTask.GifflerThompson);
+            await _simulator.InitializeMrp(MrpTask.GifflerThompson,1);
 
             await Task.Yield();
 
@@ -90,7 +90,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> CapacityPlanning()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
-            await _simulator.InitializeMrp(MrpTask.Capacity);
+            await _simulator.InitializeMrp(MrpTask.Capacity,1);
 
             await Task.Yield();
 

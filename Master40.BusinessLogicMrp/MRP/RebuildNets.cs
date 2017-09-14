@@ -10,7 +10,7 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IRebuildNets
     {
-        void Rebuild();
+        void Rebuild(int simulationId);
     }
 
     public class RebuildNets : IRebuildNets
@@ -21,7 +21,7 @@ namespace Master40.BusinessLogicCentral.MRP
             _context = context;
         }
 
-        public void Rebuild()
+        public void Rebuild(int simulationId)
         {
             //delete all demands but the head-demands
             _context.Demands.RemoveRange(_context.Demands.Where(a => (a.DemandRequesterId != null || a.GetType() == typeof(DemandProductionOrderBom)) && a.State != State.Finished).ToList());
@@ -32,22 +32,22 @@ namespace Master40.BusinessLogicCentral.MRP
 
             requester = (from req in requester
                          where req.GetType() == typeof(DemandStock) ||
-                               _context.GetDueTimeByOrder(req) < _context.SimulationConfigurations.Last().Time
-                               + _context.SimulationConfigurations.Last().MaxCalculationTime
+                               _context.GetDueTimeByOrder(req) < _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time
+                               + _context.SimulationConfigurations.Single(a => a.Id == simulationId).MaxCalculationTime
                          select req).ToList();
             
             //rebuild by using activity-slack to order demands
             while (requester.Any())
             {
-                var nextRequester = GetNextByActivitySlack(requester);
+                var nextRequester = GetNextByActivitySlack(requester, simulationId);
 
-                SatisfyRequest(nextRequester);
+                SatisfyRequest(nextRequester, simulationId);
                 requester.Remove(requester.Find(a => a.Id == nextRequester.Id));
             }
 
         }
 
-        private void SatisfyRequest(IDemandToProvider demand)
+        private void SatisfyRequest(IDemandToProvider demand, int simulationId)
         {
             var amount = demand.Quantity;
 
@@ -66,7 +66,7 @@ namespace Master40.BusinessLogicCentral.MRP
             if (amount != 0) throw new NotSupportedException();
             foreach (var dppo in demand.DemandProvider.OfType<DemandProviderProductionOrder>())
             {
-                CallChildrenSatisfyRequest(dppo.ProductionOrder);
+                CallChildrenSatisfyRequest(dppo.ProductionOrder,simulationId);
             }
         }
 
@@ -137,7 +137,7 @@ namespace Master40.BusinessLogicCentral.MRP
             return amount;
         }
 
-        private void CallChildrenSatisfyRequest(ProductionOrder po)
+        private void CallChildrenSatisfyRequest(ProductionOrder po, int simulationId)
         {
             if (po.ProductionOrderBoms != null && po.ProductionOrderBoms.Any()) return;
             //call method for each child
@@ -146,12 +146,12 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 var neededAmount = childBom.Quantity * po.Quantity;
                 var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount);
-                _context.TryCreateProductionOrderBoms(demandBom, po);
-                SatisfyRequest(demandBom);
+                _context.TryCreateProductionOrderBoms(demandBom, po, simulationId);
+                SatisfyRequest(demandBom, simulationId);
             }
         }
 
-        private IDemandToProvider GetNextByActivitySlack(List<DemandToProvider> demandRequester)
+        private IDemandToProvider GetNextByActivitySlack(List<DemandToProvider> demandRequester, int simulationId)
         {
             if (!demandRequester.Any()) return null;
             DemandToProvider mostUrgentRequester = null;
@@ -165,7 +165,7 @@ namespace Master40.BusinessLogicCentral.MRP
             var lowestActivitySlack = _context.GetDueTimeByOrder(mostUrgentRequester);
             foreach (var singleRequester in demandRequester)
             {
-                var activitySlack = GetActivitySlack(singleRequester);
+                var activitySlack = GetActivitySlack(singleRequester, simulationId);
                 if (activitySlack >= lowestActivitySlack) continue;
                 lowestActivitySlack = activitySlack;
                 mostUrgentRequester = singleRequester;
@@ -173,11 +173,11 @@ namespace Master40.BusinessLogicCentral.MRP
             return mostUrgentRequester;
         }
 
-        private int GetActivitySlack(IDemandToProvider demandRequester)
+        private int GetActivitySlack(IDemandToProvider demandRequester, int simulationId)
         {
             var dueTime = 999999;
             if (demandRequester.DemandProvider != null) dueTime = _context.GetDueTimeByOrder((DemandToProvider)demandRequester);
-            return dueTime - _context.SimulationConfigurations.Last().Time;
+            return dueTime - _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
         }
     }
 }

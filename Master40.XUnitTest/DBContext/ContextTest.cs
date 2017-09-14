@@ -107,7 +107,7 @@ namespace Master40.XUnitTest.DBContext
             //var rebuildNets = new RebuildNets(_productionDomainContext);
             //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
             var simulation = new Simulator(_productionDomainContext, msgHub);
-            await simulation.InitializeMrp(MrpTask.All);
+            await simulation.InitializeMrp(MrpTask.All,0);
             //var mrpTest = new MrpTest();
             // await mrpTest.CreateAndProcessOrderForward(mrpContext);
             await simulation.Simulate(1);
