@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
@@ -13,24 +11,19 @@ namespace Master40.Simulation.Simulation
 {
     public class PowsSimulationItem : ISimulationItem
     {
-        public PowsSimulationItem(int productionOrderWorkScheduleId,int productionOrderId, int start, int end, ProductionDomainContext context)
+        public PowsSimulationItem(ProductionDomainContext context)
         {
-            SimulationState = SimulationState.Waiting;
-            ProductionOrderWorkScheduleId = productionOrderWorkScheduleId;
-            ProductionOrderId = productionOrderId;
-            Start = start;
-            End = end;
-            NeedToAddNext = false;
             _context = context;
         }
 
-        private ProductionDomainContext _context;
+        private readonly ProductionDomainContext _context;
         public int Start { get; set; }
         public int End { get; set; }
         public int ProductionOrderWorkScheduleId { get; set; }
         public int ProductionOrderId { get; set; }
         public SimulationState SimulationState { get; set; }
         public bool NeedToAddNext { get; set; }
+        public int SimulationId { get; set; }
         
         public Task<bool> DoAtStart()
         {
@@ -105,7 +98,7 @@ namespace Master40.Simulation.Simulation
                 powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
             var stock = _context.Stocks.Include(x => x.StockExchanges).Single(a => a.ArticleForeignKey == articleId);
-            var quantity = _context.SimulationConfigurations.Last().Lotsize;
+            var quantity = _context.SimulationConfigurations.Single(a => a.Id == SimulationId).Lotsize;
             stock.Current += quantity;
             stock.StockExchanges.Add(new StockExchange()
             {
