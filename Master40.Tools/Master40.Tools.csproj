@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNet.SignalR.Client" Version="2.2.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -71,6 +71,7 @@ namespace Master40.Simulation.Simulation
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 await PrepareSimulationContext();
+                Tools.Simulation.OrderGenerator.GenerateOrders(_context);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context);
@@ -83,11 +84,12 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
-                // send Message to Client that Simulation has been Startet.
+                // send a Message to the Client that the Simulation has been started
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 _context = InMemoryContext.CreateInMemoryContext();
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
+                Tools.Simulation.OrderGenerator.GenerateOrders(_context);
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Last().RecalculationTime);
                 var waitingItems = CreateInitialTable();
