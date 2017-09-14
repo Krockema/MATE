@@ -85,9 +85,9 @@ namespace Master40.Agents.Agents
             var avg = 1640;
             for (int i = 1; i <= simConfig.OrderQuantity; i++)
             {
-                due = due + avg;
+                //due = due + avg;
                 // Ranodmization Required here.
-                _productionDomainContext.CreateNewOrder(1, 1, 2, due);
+                //_productionDomainContext.CreateNewOrder(1, 1, 2, due);
                 Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig.Id);
             }
 

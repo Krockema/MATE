@@ -105,22 +105,16 @@ namespace Master40.DB.Data.Initializer
             context.Articles.AddRange(articles);
             context.SaveChanges();
 
-            // get the name -> id mappings
-            var dbArticles = context
-              .Articles
-              .ToDictionary(p => p.Name, p => p.Id);
-
-
             // create Stock Entrys for each Article
             foreach (var article in dbArticles)
             {
-                var stock =  new Stock
+                var stock = new Stock
                 {
-                    ArticleForeignKey = article.Value,
-                    Name = "Stock: " + article.Key,
-                    Min = (article.Key == "Dump-Truck") ? 0 : 0,
-                    Max = 100,
-                    Current = (article.Key == "Dump-Truck") ? 0 : 0    
+                    ArticleForeignKey = article.Id,
+                    Name = "Stock: " + article.Name,
+                    Min = (article.ToBuild) ? 0 : 80,
+                    Max = (article.ToBuild) ? 100 : 1000,
+                    Current = (article.ToBuild) ? 0 : 0,
                 };
                 context.Stocks.Add(stock);
                 context.SaveChanges();
