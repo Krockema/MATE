@@ -112,7 +112,7 @@ namespace Master40.Agents.Agents
                 throw new InvalidCastException("Could not Cast Proposal on InstructionSet.ObjectToProcess");
             }
             // get releated workitem and add Proposal.
-            var workItem = WorkItemQueue.First(x => x.Id == proposal.WorkItemId);
+            var workItem = WorkItemQueue.Single(x => x.Id == proposal.WorkItemId);
             var proposalToRemove = workItem.Proposals.FirstOrDefault(x => x.AgentId == proposal.AgentId);
             if (proposalToRemove != null)
             {
@@ -127,8 +127,20 @@ namespace Master40.Agents.Agents
             // if all Machines Answered
             if (workItem.Proposals.Count == MachineAgents.Count)
             {
+                // item Postponed by All Machines ? -> reque after given amount of time.
+                if (workItem.Proposals.All(x => x.Postponed))
+                {
+                    // Call Comunication Agent to Requeue
+                    CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.EnqueueWorkItem.ToString(),
+                                                objectToProcess: workItem,
+                                                targetAgent: workItem.ComunicationAgent,
+                                                waitFor: proposal.PostponedFor);
+                    return;
+                }
+
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Min(p => p.PossibleSchedule));
+                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Min(p => p.PossibleSchedule)
+                                                                && x.Postponed == false);
 
                 workItem.Status = workItem.WasSetReady? Status.Ready : Status.InQueue;
                 workItem.MachineAgentId = acknowledgement.AgentId;

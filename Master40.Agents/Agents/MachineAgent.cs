@@ -115,7 +115,8 @@ namespace Master40.Agents.Agents
             {
                 AgentId = this.AgentId,
                 WorkItemId = workItem.Id,
-                Postponed = (max<QueueLength), // bool to postpone the item for later
+                Postponed = (max>Context.TimePeriod + QueueLength), // bool to postpone the item for later
+                PostponedFor = QueueLength,
                 PossibleSchedule = max
             };
             // callback 
