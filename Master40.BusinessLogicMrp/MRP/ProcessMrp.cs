@@ -18,7 +18,7 @@ namespace Master40.BusinessLogicCentral.MRP
         Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int simulationId);
         void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId);
-        void UpdateDemandsAndOrders();
+        void UpdateDemandsAndOrders(int simulationId);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -259,7 +259,7 @@ namespace Master40.BusinessLogicCentral.MRP
             }
         }
 
-        public void UpdateDemandsAndOrders()
+        public void UpdateDemandsAndOrders(int simulationId)
         {
             var requester = UpdateDemandStates();
             if (requester == null) return;
@@ -280,7 +280,7 @@ namespace Master40.BusinessLogicCentral.MRP
                         continue;
                 }
                 
-                FinishOrder(finishedOrderPart.OrderId);
+                FinishOrder(finishedOrderPart.OrderId, simulationId);
                 _context.SaveChanges();
             }
         }
@@ -320,10 +320,11 @@ namespace Master40.BusinessLogicCentral.MRP
         }
 
 
-        private void FinishOrder(int orderId)
+        private void FinishOrder(int orderId, int simulationId)
         {
             var order = _context.Orders.Single(a => a.Id == orderId);
             order.State = State.Finished;
+            order.FinishingTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             _context.Update(order);
             _context.SaveChanges();
             _messageHub.SendToAllClients("Order with Id " + order.Id + " finished!");

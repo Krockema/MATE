@@ -10,6 +10,7 @@ using Master40.DB.Models;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation.SimulationData;
+using Master40.Tools.Simulation;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -103,9 +104,9 @@ namespace Master40.Simulation.Simulation
                 {
                     timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId);
                     if (itemCounter == timeTable.Items.Count) continue;
-                    _processMrp.UpdateDemandsAndOrders();
                     itemCounter = timeTable.Items.Count;
                     _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed.");
+                    _processMrp.UpdateDemandsAndOrders(simulationId);
                     var test = _context.Stocks.Where(a => a.Current < 0);
                     if (!test.Any()) continue;
                     foreach (var article in test)
@@ -113,17 +114,29 @@ namespace Master40.Simulation.Simulation
                         _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
                     }
                 }
-                // end simulation and Unlock Screen
-
+                
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
-
-                _processMrp.UpdateDemandsAndOrders();
+                if (_context.Orders.Any(a => a.State != State.Finished))
+                    _messageHub.SendToAllClients("still unfinished orders!");
+                _processMrp.UpdateDemandsAndOrders(simulationId);
                 FillSimulationWorkSchedules(timeTable,simulationId);
-
+                _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
+                CalculateKpis.CalculateAllKpis(_context, simulationId);
+                CopyKpiToEvaluationContext();
                 _messageHub.EndScheduler();
+                _context.Database.CloseConnection();
             });
 
+        }
+
+        private void CopyKpiToEvaluationContext()
+        {
+            foreach (var kpi in _context.Kpis)
+            {
+                _evaluationContext.Kpis.Add(kpi.CopyDbPropertiesWithoutId());
+            }
+            _evaluationContext.SaveChanges();
         }
 
         private TimeTable<ISimulationItem> CreateInjectionOrders(TimeTable<ISimulationItem> timeTable)
@@ -139,7 +152,7 @@ namespace Master40.Simulation.Simulation
             {
                 var po = _context.ProductionOrders.Include(b => b.Article).Single(a => a.Id == item.ProductionOrderId);
                 var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
-                _evaluationContext.Add(new SimulationWorkschedule()
+                var schedule = new SimulationWorkschedule()
                 {
                     ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.Id),
                     ProductionOrderId = po.Id.ToString(),
@@ -155,7 +168,9 @@ namespace Master40.Simulation.Simulation
                     SimulationConfigurationId = simulationId,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
-                });
+                };
+                _context.Add(schedule);
+                _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
             }
             _context.SaveChanges();
             _evaluationContext.SaveChanges();
@@ -171,7 +186,7 @@ namespace Master40.Simulation.Simulation
                 _evaluationContext.StockExchanges.Add(exchange);
             }
             _evaluationContext.SaveChanges();
-            _context.Database.CloseConnection();
+            //_context.Database.CloseConnection();
         }
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)

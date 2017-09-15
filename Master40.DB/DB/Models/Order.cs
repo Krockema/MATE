@@ -9,6 +9,7 @@ namespace Master40.DB.Models
         public string Name { get; set; }
         public int DueTime { get; set; }
         public int CreationTime { get; set; }
+        public int FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }
         [JsonIgnore]
         public BusinessPartner BusinessPartner { get; set; }
