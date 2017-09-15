@@ -115,7 +115,7 @@ namespace Master40.Agents.Agents
             {
                 AgentId = this.AgentId,
                 WorkItemId = workItem.Id,
-                Postponed = (max>Context.TimePeriod + QueueLength), // bool to postpone the item for later
+                Postponed = (max > QueueLength && workItem.Status != Status.Ready), // bool to postpone the item for later, exept it is already Ready
                 PostponedFor = QueueLength,
                 PossibleSchedule = max
             };
@@ -166,10 +166,16 @@ namespace Master40.Agents.Agents
                 CallToReQueue(toRequeue);
 
                 DebugMessage("New Queue length = " + Queue.Count);
-                foreach (var q in Queue)
-                {
-                    DebugMessage("--> Position" + Array.IndexOf(Queue.OrderBy(x => x.Priority).ToArray(), q) + " Priority " + q.Priority + " Id " + q.Id);
-                }
+            }
+
+
+            if (workItem.Status == Status.Ready)
+            {
+                // update Processing queue
+                UpdateProcessingQueue(workItem);
+
+                // there is at least Something Ready so Start Work
+                DoWork(new InstructionSet());
             }
         }
 
@@ -198,13 +204,14 @@ namespace Master40.Agents.Agents
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
+
+
             // update Status
             var workItem = Queue.FirstOrDefault(x => x.Id == workItemStatus.WorkItemId);
-            
-            DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
          
-            if (workItem.Status == Status.Ready)
+            if (workItem != null && workItem.Status == Status.Ready)
             {
+                DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
                 // update Processing queue
                 UpdateProcessingQueue(workItem);
                 

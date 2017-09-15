@@ -54,6 +54,7 @@ namespace Master40.Agents.Agents
                 // reset Item.
                 DebugMessage("Got Item to Requeue: " + workItem.WorkSchedule.Name + "| with status:" + workItem.Status);
                 workItem.EstimatedEnd = 0;
+                workItem.MachineAgentId = Guid.Empty;
                 workItem.Proposals.Clear();
             }
             
@@ -83,10 +84,20 @@ namespace Master40.Agents.Agents
                 // Call for Work 
                 workItem.MaterialsProvided = true;
                 workItem.WasSetReady = true;
-                CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.StartWorkWith.ToString(),
-                                      objectToProcess: workItemStatus,
-                                          targetAgent: GetMachineAgentById(workItem.MachineAgentId));
-                DebugMessage("Call for Work");
+                // Check if this item has a corrosponding mashine slot
+                if (workItem.MachineAgentId == Guid.Empty)
+                {
+                    // If not Call Comunication Agent to Requeue
+                    // do Nothing 
+                    // CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.EnqueueWorkItem.ToString(),
+                    //     objectToProcess: workItem,
+                    //     targetAgent: workItem.ComunicationAgent);
+                } else { 
+                    CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.StartWorkWith.ToString(),
+                                          objectToProcess: workItemStatus,
+                                              targetAgent: GetMachineAgentById(workItem.MachineAgentId));
+                    DebugMessage("Call for Work");
+                }
             }
         }
 

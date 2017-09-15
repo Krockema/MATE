@@ -106,7 +106,7 @@ namespace Master40.DB.Data.Initializer
             context.SaveChanges();
 
             // create Stock Entrys for each Article
-            foreach (var article in dbArticles)
+            foreach (var article in articles)
             {
                 var stock = new Stock
                 {

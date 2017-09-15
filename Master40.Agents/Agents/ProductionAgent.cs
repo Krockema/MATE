@@ -203,7 +203,6 @@ namespace Master40.Agents.Agents
             };
 
             // tell Item in Queue to set it ready.
-            AgentStatistic.Log.Add("Wait1");
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.SetWorkItemStatus.ToString(),
                                   objectToProcess: message,
                                       targetAgent: comunicationAgent,

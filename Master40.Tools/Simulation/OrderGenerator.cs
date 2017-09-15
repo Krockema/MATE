@@ -12,7 +12,7 @@ namespace Master40.Tools.Simulation
     {
         public static void GenerateOrders(ProductionDomainContext context, int simulationId)
         {
-            var time = 0;
+            var time = 1400;
             var random = new Random(context.SimulationConfigurations.Single(a=> a.Id == simulationId).Seed);
             var exponential = new MathNet.Numerics.Distributions.Exponential(0.25, random);
             //get products by searching for articles without parents
