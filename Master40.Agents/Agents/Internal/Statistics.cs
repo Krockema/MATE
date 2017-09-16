@@ -9,7 +9,7 @@ namespace Master40.Agents.Agents.Internal
 {
     public static class Statistics
     {
-        public static void CreateSimulationWorkSchedule(WorkItem ws, string orderId)
+        public static void CreateSimulationWorkSchedule(WorkItem ws, string orderId, bool isHeadDemand)
         {
             var sws = new SimulationWorkschedule
             {
@@ -21,7 +21,8 @@ namespace Master40.Agents.Agents.Internal
                 SimulationConfigurationId = -1,
                 OrderId = orderId,
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
-                ProductionOrderId = ws.ProductionAgent.AgentId.ToString()
+                ProductionOrderId = ws.ProductionAgent.AgentId.ToString(),
+                Parent = isHeadDemand.ToString()
             };
             AgentSimulation.SimulationWorkschedules.Add(sws);
         }
@@ -48,13 +49,14 @@ namespace Master40.Agents.Agents.Internal
 
         internal static void UpdateSimulationWorkSchedule(List<Guid> productionAgents, Agent requesterAgent, int orderId)
         {
-            foreach (var AgentId in productionAgents)
+            foreach (var agentId in productionAgents)
             {
-                var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId == AgentId.ToString());
+                var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId == agentId.ToString());
                 foreach (var item in items)
                 {
-                    item.Parent = requesterAgent.Name;
-                    item.ParentId = requesterAgent.AgentId.ToString();
+                    item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.AgentId.ToString() +"]" : "[]";
+                    item.Parent =  requesterAgent.Name;
+
                    // item.OrderId = orderId;
                 }
             }

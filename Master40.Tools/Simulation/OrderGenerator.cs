@@ -5,6 +5,9 @@ using System.Linq;
 using Master40.DB.Interfaces;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using MathNet.Numerics.Random;
+using MathNet.Numerics.Distributions;
+
 
 namespace Master40.Tools.Simulation
 {
@@ -13,18 +16,25 @@ namespace Master40.Tools.Simulation
         public static void GenerateOrders(ProductionDomainContext context, int simulationId)
         {
             var time = 1400;
-            var random = new Random(context.SimulationConfigurations.Single(a=> a.Id == simulationId).Seed);
-            var exponential = new MathNet.Numerics.Distributions.Exponential(0.25, random);
-            //get products by searching for articles without parents
+            var samples = context.SimulationConfigurations.Single(a => a.Id == simulationId).OrderQuantity;
+            var seed = new Random(context.SimulationConfigurations.Single(a => a.Id == simulationId).Seed);
             var productIds = context.ArticleBoms.Where(b => b.ArticleParentId == null).Select(a => a.ArticleChildId).ToList();
-            for (var i = 0; i < context.SimulationConfigurations.Single(a => a.Id == simulationId).OrderQuantity; i++)
-            {
-                //get equal distribution from 0 to 1
-                var randomProductNumber = MathNet.Numerics.Distributions.DiscreteUniform.Sample(0,productIds.Count()-1);
+
+            var dist = new Exponential(rate: 0.25, randomSource: seed);
+            //get equal distribution from 0 to 1
+            var norml = new DiscreteUniform(0, productIds.Count() - 1, seed);
+
+
+            double[] exponential = new double[samples]; //new Exponential(0.25, seed);
+            int[] prodVariation = new int[samples];
+            dist.Samples(exponential);
+            norml.Samples(prodVariation);
+            //get products by searching for articles without parents
+            for (int i = 0; i < samples; i++) { 
                 //define the time between each new order
-                time += 50 + (int)Math.Round(exponential.Sample(),MidpointRounding.AwayFromZero);
+                time += 50 + (int)Math.Round(exponential[i], MidpointRounding.AwayFromZero);
                 //get which product is to be ordered
-                var productId = productIds.ElementAt(randomProductNumber);
+                var productId = productIds.ElementAt(prodVariation[i]);
                 //create order and orderpart, duetime is creationtime + 1 day
                 context.CreateNewOrder(productId, 1, time, time + 1440);
             }
@@ -43,17 +53,14 @@ namespace Master40.Tools.Simulation
         public static List<double> TestExponentialDistribution(int amount)
         {
             var seed = 1337;
-            var random = new Random(seed);
-            var random2 = new Random(seed);
-            var run1 = new MathNet.Numerics.Distributions.Exponential(0.25,random);
-            var run2 = new MathNet.Numerics.Distributions.Exponential(0.25,random2);
-            var samples = new List<double>();
-            for (var i = 0; i < amount; i++)
-            {
-                samples.Add(run1.Sample());
-                samples.Add(run2.Sample());
-            }
-            return samples;
+            var samples = 1000;
+            SystemRandomSource randomSource = new SystemRandomSource(seed);
+            var dist = new Exponential(rate: 0.25, randomSource: new Random(seed));
+
+            double[] list = new double[1000];
+            dist.Samples(list);
+            
+            return list.ToList();
         }
     }
 }

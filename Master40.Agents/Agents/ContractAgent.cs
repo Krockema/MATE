@@ -10,10 +10,14 @@ namespace Master40.Agents.Agents
 {
     public class ContractAgent : Agent
     {
+        private RequestItem requestItem;
+
         public ContractAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
         {
             //Instructions.Add(new Instruction{ Method = "StartOrder", ExpectedObjecType = typeof(RequestItem) });
         }
+
+
 
         public enum InstuctionsMethods
         {
@@ -32,7 +36,7 @@ namespace Master40.Agents.Agents
                 throw new InvalidCastException();
 
             // create Request Item
-            var requestItem = MapPropertiesToRequestItem(orderItem);
+            requestItem = MapPropertiesToRequestItem(orderItem);
 
             // Create Dispo Agent 
             var dispoAgent = new DispoAgent(creator: this, 
@@ -46,25 +50,26 @@ namespace Master40.Agents.Agents
 
         private RequestItem MapPropertiesToRequestItem(OrderPart orderPart)
         {
-            var requestItem = new RequestItem
+            return new RequestItem
             {
                 DueTime = orderPart.Order.DueTime,
                 Quantity = orderPart.Quantity,
                 Article = orderPart.Article,
-                OrderId = orderPart.Id
+                OrderId = orderPart.Id,
+                IsHeadDemand = true
                // IDemandToProvider = orderPart.DemandOrderParts.FirstOrDefault()
             };
-            return requestItem;
         }
 
         internal new void Finished(InstructionSet instructionSet)
         {
-
-            if (ChildAgents.All(x => x.Status == Status.Finished))
-            {
-                DebugMessage("Order Finished at:" + Context.TimePeriod);
-            }
-            
+            if (ChildAgents.Any(x => x.Status != Status.Finished)) return;
+            // else
+            // Call Finish
+            DebugMessage("Order Finished at:" + Context.TimePeriod);
+            CreateAndEnqueueInstuction(methodName: SystemAgent.InstuctionsMethods.OrderProvided.ToString(),
+                objectToProcess: requestItem,
+                targetAgent: this.Creator);
         }
 
     }

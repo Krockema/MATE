@@ -150,8 +150,8 @@ namespace Master40.Agents.Agents
                 }
 
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Min(p => p.PossibleSchedule)
-                                                                && x.Postponed == false);
+                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Where(y => y.Postponed == false).Min(p => p.PossibleSchedule)
+                                                               && x.Postponed == false);
 
                 workItem.Status = workItem.WasSetReady? Status.Ready : Status.InQueue;
                 workItem.MachineAgentId = acknowledgement.AgentId;

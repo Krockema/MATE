@@ -90,6 +90,8 @@ namespace Master40.XUnitTest.DBContext
             var sim = new AgentSimulation(_productionDomainContext, new Moc.MessageHub());
             await sim.RunSim(1);
 
+            CalculateKpis.CalculateAllKpis(_productionDomainContext, 1);
+
             Assert.Equal(true, true);
         }
 
@@ -216,7 +218,7 @@ namespace Master40.XUnitTest.DBContext
             CreateCSVFromDoubleList(uniformSamples, "uniform.csv");
 
             var exponentialSamples = OrderGenerator.TestExponentialDistribution(1000);
-            CreateCSVFromDoubleList(exponentialSamples, "exponential.csv");
+            CreateCSVFromDoubleList(exponentialSamples.ToList(), "exponential.csv");
         }
 
         /// <summary>

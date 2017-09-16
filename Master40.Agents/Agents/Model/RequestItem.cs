@@ -9,6 +9,7 @@ namespace Master40.Agents.Agents.Model
         public RequestItem()
         {
             Provided = false;
+            IsHeadDemand = false;
         }
         public Article Article { get; set; }
         public IDemandToProvider IDemandToProvider { get; set; }
@@ -18,5 +19,6 @@ namespace Master40.Agents.Agents.Model
         public int OrderId { get; set; }
         public int Providable { get; set; }
         public bool Provided { get; set; }
+        public bool IsHeadDemand { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
@@ -22,6 +23,7 @@ namespace Master40.Agents.Agents
         {
             CreateContractAgent,
             RequestArticleBom,
+            OrderProvided,
         }
         //TODO: System Talk.
 
@@ -108,5 +110,20 @@ namespace Master40.Agents.Agents
             }
         }
 
+        private void OrderProvided(InstructionSet instructionSet)
+        {
+            var requestItem = instructionSet.ObjectToProcess as RequestItem;
+            if (requestItem == null)
+            {
+                throw new InvalidCastException(this.Name + " Cast to RequestItem Failed");
+            }
+
+            var order = _productionDomainContext.Orders
+                .Include(x => x.OrderParts)
+                .Single(x => x.Id == _productionDomainContext.OrderParts.Single(s => s.Id == requestItem.OrderId).OrderId);
+            order.FinishingTime = (int)Context.TimePeriod;
+            order.State = State.Finished;
+            _productionDomainContext.SaveChanges();
+        }
     }
 }

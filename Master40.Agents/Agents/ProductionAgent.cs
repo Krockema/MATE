@@ -166,7 +166,7 @@ namespace Master40.Agents.Agents
                 lastdue = lastdue - workSchedule.Duration;
                 firstItemToBuild = false;
                 WorkItems.Add(n);
-                Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId.ToString());
+                Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId.ToString(), RequestItem.IsHeadDemand);
             }
         }
 
