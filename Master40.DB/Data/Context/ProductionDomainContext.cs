@@ -866,8 +866,7 @@ namespace Master40.DB.Data.Context
                 BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
                 DueTime = dueTime,
                 CreationTime = creationTime,
-                Name = "injected Order",
-                OrderParts = new List<OrderPart>()
+                Name = "injected Order"
 
             };
             Orders.Add(order);
@@ -879,7 +878,8 @@ namespace Master40.DB.Data.Context
                 Quantity = amount,
                 OrderId = order.Id
             };
-            order.OrderParts.Add(orderpart);
+            // order.OrderParts.Add(orderpart);
+            OrderParts.Add(orderpart);
             SaveChanges();
         }
 
