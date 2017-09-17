@@ -19,7 +19,7 @@ namespace Master40.Agents.Agents.Internal
                 DueTime = ws.DueTime,
                 EstimatedEnd = ws.EstimatedEnd,
                 SimulationConfigurationId = -1,
-                OrderId = orderId,
+                OrderId = "[" + orderId + "]",
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
                 ProductionOrderId = ws.ProductionAgent.AgentId.ToString(),
                 Parent = isHeadDemand.ToString()
@@ -36,14 +36,15 @@ namespace Master40.Agents.Agents.Internal
             edit.Machine = machine.Name;
         }
 
-        public static void UpdateSimulationId(int simulationId, SimulationType simluationType)
+        public static void UpdateSimulationId(int simulationId, SimulationType simluationType, int simNumber)
         {
             var simItems = AgentSimulation.SimulationWorkschedules
                 .Where(x => x.SimulationConfigurationId == -1).ToList();
             foreach (var item in simItems)
             {
                 item.SimulationConfigurationId = simulationId;
-                item.SimulationType = simluationType.ToString();
+                item.SimulationType = simluationType;
+                item.SimulationNumber = simNumber;
             }
         }
 

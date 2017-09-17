@@ -53,9 +53,9 @@ namespace Master40.Tools.Simulation
                     Name = relevantItems.First().Name,
                     Value = relevantItems.Sum(a => a.Value)/relevantItems.Count(),
                     IsKpi = true,
-                    KpiType = KpyType.LeadTime,
+                    KpiType = KpiType.LeadTime,
                     SimulationConfigurationId = simulationId,
-                    SimulationType = simulationType.ToString(),
+                    SimulationType = simulationType,
                     SimulationNumber = simulationNumber
                 });
                 foreach (var item in relevantItems)
@@ -83,9 +83,9 @@ namespace Master40.Tools.Simulation
                     Value = (double) relevantItemTimes.Sum() / simulationTime,
                     Name = machine,
                     IsKpi = true,
-                    KpiType = KpyType.MachineUtilization,
+                    KpiType = KpiType.MachineUtilization,
                     SimulationConfigurationId = simulationId,
-                    SimulationType = simulationType.ToString(),
+                    SimulationType = simulationType,
                     SimulationNumber = simulationNumber
                 }).ToList();
             context.Kpis.AddRange(kpis);
@@ -107,9 +107,9 @@ namespace Master40.Tools.Simulation
                 Name = "Timeliness",
                 Value = (double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count(),
                 IsKpi = true,
-                KpiType = KpyType.Timeliness,
+                KpiType = KpiType.Timeliness,
                 SimulationConfigurationId = simulationId,
-                SimulationType = simulationType.ToString(),
+                SimulationType = simulationType,
                 SimulationNumber = simulationNumber
 
             };

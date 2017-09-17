@@ -32,6 +32,7 @@ namespace Master40.Controllers
 
             var simulationConfiguration = await _context.SimulationConfigurations
                 .SingleOrDefaultAsync(m => m.Id == id);
+
             if (simulationConfiguration == null)
             {
                 return NotFound();

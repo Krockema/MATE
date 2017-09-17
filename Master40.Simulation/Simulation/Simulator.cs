@@ -120,10 +120,10 @@ namespace Master40.Simulation.Simulation
                 if (_context.Orders.Any(a => a.State != State.Finished))
                     _messageHub.SendToAllClients("still unfinished orders!");
                 _processMrp.UpdateDemandsAndOrders(simulationId);
-                FillSimulationWorkSchedules(timeTable,simulationId);
+                var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
+                FillSimulationWorkSchedules(timeTable,simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
-                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, 
-                    _context.GetSimulationNumber(simulationId, SimulationType.Central));
+                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber);
                 CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
@@ -138,7 +138,7 @@ namespace Master40.Simulation.Simulation
             return timeTable;
         }
 
-        private void FillSimulationWorkSchedules(TimeTable<ISimulationItem> timeTable, int simulationId)
+        private void FillSimulationWorkSchedules(TimeTable<ISimulationItem> timeTable, int simulationId, int simulationNumber)
         {
             foreach (var item in timeTable.Items.OfType<PowsSimulationItem>())
             {
@@ -146,8 +146,8 @@ namespace Master40.Simulation.Simulation
                 var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
                 var schedule = new SimulationWorkschedule()
                 {
-                    ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.Id),
-                    ProductionOrderId = po.Id.ToString(),
+                    ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.ProductionOrderId),
+                    ProductionOrderId = "[" + po.Id.ToString() + "]",
                     Article = po.Article.Name,
                     DueTime = po.Duetime,
                     End = pows.EndSimulation,
@@ -160,6 +160,9 @@ namespace Master40.Simulation.Simulation
                     SimulationConfigurationId = simulationId,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
+                    SimulationType = SimulationType.Central,
+                    SimulationNumber = simulationNumber
+
                 };
                 _context.Add(schedule);
                 _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());

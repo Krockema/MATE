@@ -855,7 +855,7 @@ namespace Master40.DB.Data.Context
         public int GetSimulationNumber(int simulationConfigurationId, SimulationType simType)
         {
             var any_sim = SimulationWorkschedules
-                .Where(x => x.SimulationType == simType.ToString() && x.SimulationConfigurationId == simulationConfigurationId);
+                .Where(x => x.SimulationType == simType && x.SimulationConfigurationId == simulationConfigurationId);
             return any_sim.Any() ? any_sim.Max(x => x.SimulationNumber) : 1;
         }
 

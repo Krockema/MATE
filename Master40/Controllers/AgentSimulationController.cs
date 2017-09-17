@@ -29,7 +29,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> Run()
         {
             
-            await _agentSimulator.RunSimulation(1);
+            await _agentSimulator.RunSimulation(1, 1);
             return View("Index");
         }
 
@@ -37,7 +37,7 @@ namespace Master40.Controllers
         public async void RunAsync()
         {
             // using Default Test Values.
-            await _agentSimulator.RunSimulation(1);
+            await _agentSimulator.RunSimulation(1, 1);
         }
 
         [HttpGet("[Controller]/ReloadGantt/{orderId}/{stateId}")]

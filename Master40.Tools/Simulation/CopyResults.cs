@@ -1,5 +1,6 @@
 ﻿using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
+using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
@@ -33,20 +34,30 @@ namespace Master40.Tools.Simulation
             productionDomainContext.SaveChanges();
 
             List<SimulationOrder> so = new List<SimulationOrder>();
-            var simId = productionDomainContext.Kpis.Last(); // i know not perfect ...
+            var sim = productionDomainContext.Kpis.Last(); // i know not perfect ...
             foreach (var item in inMemmoryContext.Orders)
             {
                 SimulationOrder set = new SimulationOrder();
                 item.CopyPropertiesTo<IOrder>(set);
-                set.SimulationConfigurationId = simId.SimulationConfigurationId;
-                set.SimulationNumber = simId.SimulationNumber;
-                set.SimulationType = simId.SimulationType;
+                set.SimulationConfigurationId = sim.SimulationConfigurationId;
+                set.SimulationNumber = sim.SimulationNumber;
+                set.SimulationType = sim.SimulationType;
+                set.OriginId = item.Id;
                 so.Add(set);
                 
             }
             productionDomainContext.SimulationOrders.AddRange(so);
             productionDomainContext.SaveChanges();
 
+            var simConfig = productionDomainContext.SimulationConfigurations.Single(s => s.Id == sim.SimulationConfigurationId);
+            if (sim.SimulationType == SimulationType.Central)
+            {
+                simConfig.CentralRuns += 1;
+            } else
+            {
+                simConfig.DecentralRuns += 1;
+            }
+            productionDomainContext.SaveChanges();
         }
 
     }

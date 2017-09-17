@@ -106,7 +106,7 @@ namespace Master40.XUnitTest.DBContext
                 InMemoryContext.LoadData(_productionDomainContext, c);
 
                 var sim = new AgentSimulation(c, new Moc.MessageHub());
-                await sim.RunSim(1);
+                await sim.RunSim(1,1);
 
                 CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 
                                                     _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral));

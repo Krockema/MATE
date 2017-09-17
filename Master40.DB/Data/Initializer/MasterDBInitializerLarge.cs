@@ -336,7 +336,9 @@ namespace Master40.DB.Data.Initializer
                 TimeSpanForOrders = 1,
                 Time = 1,
                 RecalculationTime = 1440,
-                SimulationEndTime = 4000
+                SimulationEndTime = 4000,
+                DecentralRuns = 0,
+                CentralRuns = 0
             };
             context.SimulationConfigurations.Add(simConfig);
             context.SaveChanges();

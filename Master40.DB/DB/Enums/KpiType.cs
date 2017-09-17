@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Master40.DB.Enums
 {
-    public enum KpyType
+    public enum KpiType
     {
         LeadTime,
         MachineUtilization,
