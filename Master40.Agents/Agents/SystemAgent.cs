@@ -83,15 +83,8 @@ namespace Master40.Agents.Agents
 
         public void PrepareAgents(SimulationConfiguration simConfig)
         {
-            var due = 0;
-            var avg = 1640;
-            for (int i = 1; i <= simConfig.OrderQuantity; i++)
-            {
-                //due = due + avg;
-                // Ranodmization Required here.
-                //_productionDomainContext.CreateNewOrder(1, 1, 2, due);
-                Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig.Id);
-            }
+            Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig.Id);
+
 
 
             foreach (var orderpart in _productionDomainContext.OrderParts
@@ -124,6 +117,7 @@ namespace Master40.Agents.Agents
             order.FinishingTime = (int)Context.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
+            DebugMessage("Oder No:" + order.Id + " finished at " + Context.TimePeriod);
         }
     }
 }

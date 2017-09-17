@@ -87,12 +87,31 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task AgentSimulationTestAsync()
         {
-            var sim = new AgentSimulation(_productionDomainContext, new Moc.MessageHub());
-            await sim.RunSim(1);
 
-            CalculateKpis.CalculateAllKpis(_productionDomainContext, 1);
+            // In-memory database only exists while the connection is open
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
+            var connection = new SqliteConnection(connectionStringBuilder.ToString());
 
-            Assert.Equal(true, true);
+            // create OptionsBuilder with InMemmory Context
+            var builder = new DbContextOptionsBuilder<MasterDBContext>();
+            builder.UseSqlite(connection);
+
+
+            using (var c = new InMemoryContext(builder.Options))
+            {
+                c.Database.OpenConnection();
+                c.Database.EnsureCreated();
+                InMemoryContext.LoadData(_productionDomainContext, c);
+
+                var sim = new AgentSimulation(c, new Moc.MessageHub());
+                await sim.RunSim(1);
+
+                CalculateKpis.CalculateAllKpis(c, 1);
+                CopyResults.Copy(c, _productionDomainContext);
+            }
+            connection.Close();
+
+            Assert.Equal(_productionDomainContext.Kpis.Any(), true);
         }
 
 
