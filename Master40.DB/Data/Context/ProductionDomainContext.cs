@@ -885,7 +885,9 @@ namespace Master40.DB.Data.Context
 
         public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule)
         {
-            var children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("["+simulationWorkschedule.Id.ToString()+"]"));
+            //var children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("["+simulationWorkschedule.Id.ToString()+"]"));
+            var children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString()));
+
             if (!children.Any()) return simulationWorkschedule.Start;
             var startTimes = new List<int>();
             foreach (var child in children)

@@ -15,7 +15,7 @@ namespace Master40.Tools.Simulation
     {
         public static void GenerateOrders(ProductionDomainContext context, int simulationId)
         {
-            var time = 1400;
+            var time = 0;
             var samples = context.SimulationConfigurations.Single(a => a.Id == simulationId).OrderQuantity;
             var seed = new Random(context.SimulationConfigurations.Single(a => a.Id == simulationId).Seed);
             var productIds = context.ArticleBoms.Where(b => b.ArticleParentId == null).Select(a => a.ArticleChildId).ToList();

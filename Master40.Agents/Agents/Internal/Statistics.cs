@@ -21,7 +21,7 @@ namespace Master40.Agents.Agents.Internal
                 SimulationConfigurationId = -1,
                 OrderId = orderId,
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
-                ProductionOrderId = ws.ProductionAgent.AgentId.ToString(),
+                ProductionOrderId = "["+ ws.ProductionAgent.AgentId.ToString() + "]",
                 Parent = isHeadDemand.ToString()
             };
             AgentSimulation.SimulationWorkschedules.Add(sws);
@@ -51,7 +51,7 @@ namespace Master40.Agents.Agents.Internal
         {
             foreach (var agentId in productionAgents)
             {
-                var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId == agentId.ToString());
+                var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId.Equals("[" + agentId.ToString() + "]"));
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.AgentId.ToString() +"]" : "[]";
