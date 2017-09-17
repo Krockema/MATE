@@ -25,7 +25,7 @@ namespace Master40.DB.Data.Context
         public DbSet<Machine> Machines { get; set; }
         public DbSet<MachineGroup> MachineGroups { get; set; }
         public DbSet<MachineTool> MachineTools { get; set; }
-        public DbSet<WorkSchedule> OperationCharts { get; set; }
+        public DbSet<SimulationOrder> SimulationOrders  { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderPart> OrderParts { get; set; }
         public DbSet<Purchase> Purchases { get; set; }

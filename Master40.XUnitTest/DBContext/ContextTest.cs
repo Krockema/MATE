@@ -43,8 +43,10 @@ namespace Master40.XUnitTest.DBContext
             //_ctx.Database.EnsureDeleted();
             //MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
-            _productionDomainContext.Database.EnsureDeleted();
-            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+            //_productionDomainContext.Database.EnsureDeleted();
+            //_productionDomainContext.Database.EnsureCreated();
+            //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+
         }
 
         /// <summary>
@@ -106,7 +108,8 @@ namespace Master40.XUnitTest.DBContext
                 var sim = new AgentSimulation(c, new Moc.MessageHub());
                 await sim.RunSim(1);
 
-                CalculateKpis.CalculateAllKpis(c, 1);
+                CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 
+                                                    _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral));
                 CopyResults.Copy(c, _productionDomainContext);
             }
             connection.Close();
@@ -118,22 +121,17 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task MrpTestForwardAsync()
         {
-            _productionDomainContext.Database.EnsureDeleted();
-            _productionDomainContext.Database.EnsureCreated();
-            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
-
             //var scheduling = new Scheduling(_productionDomainContext);
             //var capacityScheduling = new CapacityScheduling(_productionDomainContext);
             var msgHub = new Moc.MessageHub();
             //var rebuildNets = new RebuildNets(_productionDomainContext);
             //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
             var simulation = new Simulator(_productionDomainContext, msgHub);
-            await simulation.InitializeMrp(MrpTask.All,0);
             //var mrpTest = new MrpTest();
             // await mrpTest.CreateAndProcessOrderForward(mrpContext);
             await simulation.Simulate(1);
 
-            Assert.Equal(true, _productionDomainContext.ProductionOrderWorkSchedules.Any());
+            Assert.Equal(true, _productionDomainContext.Kpis.Any());
         }
 
         // Load Database from SimulationJason

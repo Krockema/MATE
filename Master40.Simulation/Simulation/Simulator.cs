@@ -91,7 +91,7 @@ namespace Master40.Simulation.Simulation
                 _context = InMemoryContext.CreateInMemoryContext();
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
-                Tools.Simulation.OrderGenerator.GenerateOrders(_context, simulationId);
+                OrderGenerator.GenerateOrders(_context, simulationId);
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
@@ -122,21 +122,13 @@ namespace Master40.Simulation.Simulation
                 _processMrp.UpdateDemandsAndOrders(simulationId);
                 FillSimulationWorkSchedules(timeTable,simulationId);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
-                CalculateKpis.CalculateAllKpis(_context, simulationId);
-                CopyKpiToEvaluationContext();
+                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, 
+                    _context.GetSimulationNumber(simulationId, SimulationType.Central));
+                CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
             });
 
-        }
-
-        private void CopyKpiToEvaluationContext()
-        {
-            foreach (var kpi in _context.Kpis)
-            {
-                _evaluationContext.Kpis.Add(kpi.CopyDbPropertiesWithoutId());
-            }
-            _evaluationContext.SaveChanges();
         }
 
         private TimeTable<ISimulationItem> CreateInjectionOrders(TimeTable<ISimulationItem> timeTable)

@@ -7,6 +7,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 
+
 namespace Master40.Tools.Simulation
 {
     public static class CalculateKpis
@@ -16,11 +17,11 @@ namespace Master40.Tools.Simulation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="simulationId"></param>
-        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId)
+        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
-            CalculateLeadTime(context, simulationId);
-            CalculateMachineUtilization(context, simulationId);
-            CalculateTimeliness(context);
+            CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber);
+            CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber);
+            CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber);
         }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace Master40.Tools.Simulation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="simulationId"></param>
-        public static void CalculateLeadTime(ProductionDomainContext context, int simulationId)
+        public static void CalculateLeadTime(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             //calculate lead times for each product
             var leadTimes = new List<Kpi>();
@@ -36,7 +37,7 @@ namespace Master40.Tools.Simulation
             foreach (var product in finishedProducts )
             {
                 var endTime = product.End;
-                var startTime = context.GetEarliestStart(context, product);
+                var startTime = context.GetEarliestStart(context, product, simulationType);
                 leadTimes.Add(new Kpi(){
                     Value = endTime - startTime,
                     Name = product.Article
@@ -49,9 +50,13 @@ namespace Master40.Tools.Simulation
                 var relevantItems = leadTimes.Where(a => a.Name.Equals(leadTimes.First().Name)).ToList();
                 leadTimesAverage.Add(new Kpi()
                 {
-                    Name = "LeadTime: "+relevantItems.First().Name,
+                    Name = relevantItems.First().Name,
                     Value = relevantItems.Sum(a => a.Value)/relevantItems.Count(),
-                    IsKpi = true
+                    IsKpi = true,
+                    KpiType = KpyType.LeadTime,
+                    SimulationConfigurationId = simulationId,
+                    SimulationType = simulationType.ToString(),
+                    SimulationNumber = simulationNumber
                 });
                 foreach (var item in relevantItems)
                 {
@@ -63,7 +68,7 @@ namespace Master40.Tools.Simulation
             context.SaveChanges();
         }
 
-        public static void CalculateMachineUtilization(ProductionDomainContext context, int simulationId)
+        public static void CalculateMachineUtilization(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             //get machines
             var machines = context.Machines.Select(a => a.Name).ToList();
@@ -76,14 +81,18 @@ namespace Master40.Tools.Simulation
                 select new Kpi()
                 {
                     Value = (double) relevantItemTimes.Sum() / simulationTime,
-                    Name = "MachineUtilization: " + machine,
-                    IsKpi = true
+                    Name = machine,
+                    IsKpi = true,
+                    KpiType = KpyType.MachineUtilization,
+                    SimulationConfigurationId = simulationId,
+                    SimulationType = simulationType.ToString(),
+                    SimulationNumber = simulationNumber
                 }).ToList();
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
 
-        public static void CalculateTimeliness(ProductionDomainContext context)
+        public static void CalculateTimeliness(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             var orderTimeliness = context.Orders.Where(a => a.State == State.Finished)
                                                 .ToList()
@@ -96,8 +105,13 @@ namespace Master40.Tools.Simulation
             var kpis = new Kpi()
             {
                 Name = "Timeliness",
-                Value = (double)orderTimeliness.Count(a => a.Value >= 0)/orderTimeliness.Count(),
-                IsKpi = true
+                Value = (double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count(),
+                IsKpi = true,
+                KpiType = KpyType.Timeliness,
+                SimulationConfigurationId = simulationId,
+                SimulationType = simulationType.ToString(),
+                SimulationNumber = simulationNumber
+
             };
 
             context.Add(kpis);
