@@ -2,6 +2,7 @@
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
+    var kpis = (List<Master40.DB.Models.Kpi>)ViewData["Data"];
     if (chart != null) {
         raw = chart.CreateChartCode("OrderTimeliness_"+type);
     }
@@ -55,16 +56,14 @@
                     <th>Quantity</th>
                     <th>Avg. Diffrence</th>
                 </tr>
-                <tr>
-                    <td>On Schedule</td>
-                    <td>90</td>
-                    <td>-8%</td>
-                </tr>
-                <tr>
-                    <td>Overtime</td>
-                    <td>10</td>
-                    <td>15%</td>
-                </tr>
+                @foreach (var item in kpis)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>To.Do</td>
+                        <td>@item.Value</td>
+                    </tr>
+                }
             </thead>
         </table>
     </div>

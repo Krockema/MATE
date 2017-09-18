@@ -109,7 +109,7 @@ namespace Master40.Agents.Agents
                 this.RequestedItems.Remove(requestProvidable);
 
                 // Update Work Item with Provider For
-                Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester.Creator, requestProvidable.OrderId);
+                Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
                 ProviderList.Clear();
             }
     }

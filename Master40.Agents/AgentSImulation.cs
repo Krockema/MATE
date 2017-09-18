@@ -30,7 +30,7 @@ namespace Master40.Agents
             SimulationWorkschedules = new List<SimulationWorkschedule>();
         }
 
-        public async Task<List<AgentStatistic>> RunSim(int simulationId)
+        public async Task<List<AgentStatistic>> RunSim(int simulationId, int simulationNumber)
         {
             AgentStatistic.Log = new List<string>();
             Debug.WriteLine("Simulation Starts");
@@ -53,7 +53,7 @@ namespace Master40.Agents
                 Debuglog(context);
 
                 var simulationNr = _productionDomainContext.GetSimulationNumber(simulationId, SimulationType.Decentral);
-                Statistics.UpdateSimulationId(simulationId, SimulationType.Decentral);
+                Statistics.UpdateSimulationId(simulationId, SimulationType.Decentral, simulationNumber);
                 _productionDomainContext.SimulationWorkschedules.AddRange(SimulationWorkschedules);
                 _productionDomainContext.SaveChanges();
                 //SaveStockExchanges(simulationId, simulationNr, context);

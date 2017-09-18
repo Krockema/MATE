@@ -24,7 +24,25 @@ $(function () {
         background: 'rgba(255,255,255,0.8)'
     }).hide().appendTo('body');
 });
+$(function () {
+    // when the modal is closed
+    $('#modal-container').on('hidden.bs.modal', function () {
+        // remove the bs.modal data attribute from it
+        $(this).removeData('bs.modal');
+        // and empty the modal-content element
+        $('#modal-container .modal-content').empty().html("<div class='loading center-div' />");
+    });
+});
 
+$(function () {
+    // when the modal is closed
+    $('#modal-sub-container').on('hidden.bs.modal', function () {
+        // remove the bs.modal data attribute from it
+        $(this).removeData('bs.modal');
+        // and empty the modal-content element
+        $('#modal-sub-container .modal-content').empty();
+    });
+});
 imagePreview = function () {
     /* CONFIG */
 

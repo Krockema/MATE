@@ -19,7 +19,7 @@ namespace Master40.Agents.Agents.Internal
                 DueTime = ws.DueTime,
                 EstimatedEnd = ws.EstimatedEnd,
                 SimulationConfigurationId = -1,
-                OrderId = orderId,
+                OrderId = "[" + orderId + "]",
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
                 ProductionOrderId = "["+ ws.ProductionAgent.AgentId.ToString() + "]",
                 Parent = isHeadDemand.ToString()
@@ -36,14 +36,15 @@ namespace Master40.Agents.Agents.Internal
             edit.Machine = machine.Name;
         }
 
-        public static void UpdateSimulationId(int simulationId, SimulationType simluationType)
+        public static void UpdateSimulationId(int simulationId, SimulationType simluationType, int simNumber)
         {
             var simItems = AgentSimulation.SimulationWorkschedules
                 .Where(x => x.SimulationConfigurationId == -1).ToList();
             foreach (var item in simItems)
             {
                 item.SimulationConfigurationId = simulationId;
-                item.SimulationType = simluationType.ToString();
+                item.SimulationType = simluationType;
+                item.SimulationNumber = simNumber;
             }
         }
 
@@ -54,8 +55,9 @@ namespace Master40.Agents.Agents.Internal
                 var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId.Equals("[" + agentId.ToString() + "]"));
                 foreach (var item in items)
                 {
-                    item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.AgentId.ToString() +"]" : "[]";
-                    item.Parent =  requesterAgent.Name;
+                    item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.Creator.AgentId.ToString() +"]" : "[]";
+                    item.Parent =  requesterAgent.Creator.Name;
+                    item.OrderId = "[" + orderId + "]";
 
                    // item.OrderId = orderId;
                 }

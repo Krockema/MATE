@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Master40.DB.Enums;
+using System;
 
 namespace Master40.DB.Models
 {
     public class SimulationWorkschedule : BaseEntity
     {
         public int SimulationConfigurationId { get; set; }
-        public string SimulationType { get; set; }
+        public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
         public int Time { get; set; }
         public string WorkScheduleName { get; set; }

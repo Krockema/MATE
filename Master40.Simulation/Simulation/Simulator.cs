@@ -91,7 +91,7 @@ namespace Master40.Simulation.Simulation
                 _context = InMemoryContext.CreateInMemoryContext();
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
-                Tools.Simulation.OrderGenerator.GenerateOrders(_context, simulationId);
+                OrderGenerator.GenerateOrders(_context, simulationId);
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
@@ -120,23 +120,15 @@ namespace Master40.Simulation.Simulation
                 if (_context.Orders.Any(a => a.State != State.Finished))
                     _messageHub.SendToAllClients("still unfinished orders!");
                 _processMrp.UpdateDemandsAndOrders(simulationId);
-                FillSimulationWorkSchedules(timeTable,simulationId);
+                var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
+                FillSimulationWorkSchedules(timeTable,simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
-                CalculateKpis.CalculateAllKpis(_context, simulationId);
-                CopyKpiToEvaluationContext();
+                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber);
+                CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
             });
 
-        }
-
-        private void CopyKpiToEvaluationContext()
-        {
-            foreach (var kpi in _context.Kpis)
-            {
-                _evaluationContext.Kpis.Add(kpi.CopyDbPropertiesWithoutId());
-            }
-            _evaluationContext.SaveChanges();
         }
 
         private TimeTable<ISimulationItem> CreateInjectionOrders(TimeTable<ISimulationItem> timeTable)
@@ -146,7 +138,7 @@ namespace Master40.Simulation.Simulation
             return timeTable;
         }
 
-        private void FillSimulationWorkSchedules(TimeTable<ISimulationItem> timeTable, int simulationId)
+        private void FillSimulationWorkSchedules(TimeTable<ISimulationItem> timeTable, int simulationId, int simulationNumber)
         {
             foreach (var item in timeTable.Items.OfType<PowsSimulationItem>())
             {
@@ -154,8 +146,8 @@ namespace Master40.Simulation.Simulation
                 var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
                 var schedule = new SimulationWorkschedule()
                 {
-                    ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.Id),
-                    ProductionOrderId = po.Id.ToString(),
+                    ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.ProductionOrderId),
+                    ProductionOrderId = "[" + po.Id.ToString() + "]",
                     Article = po.Article.Name,
                     DueTime = po.Duetime,
                     End = pows.EndSimulation,
@@ -168,6 +160,9 @@ namespace Master40.Simulation.Simulation
                     SimulationConfigurationId = simulationId,
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
+                    SimulationType = SimulationType.Central,
+                    SimulationNumber = simulationNumber
+
                 };
                 _context.Add(schedule);
                 _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
@@ -184,6 +179,23 @@ namespace Master40.Simulation.Simulation
                 var exchange = new StockExchange();
                 stockexchange.CopyDbPropertiesTo(exchange);
                 _evaluationContext.StockExchanges.Add(exchange);
+            }
+            _evaluationContext.SaveChanges();
+
+            foreach (var order in _context.Orders)
+            {
+                _evaluationContext.Add(new SimulationOrder()
+                {
+                    BusinessPartnerId = order.BusinessPartnerId,
+                    CreationTime = order.CreationTime,
+                    DueTime = order.DueTime,
+                    FinishingTime = order.FinishingTime,
+                    Name = order.Name,
+                    SimulationConfigurationId = simulationId,
+                    State = order.State,
+                    SimulationType = SimulationType.Central,
+                    
+                });
             }
             _evaluationContext.SaveChanges();
             //_context.Database.CloseConnection();

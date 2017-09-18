@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Master40.DB.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,6 +10,10 @@ namespace Master40.DB.Models
         public double Value { get; set; }
         public string Name { get; set; }
         public bool IsKpi { get; set; }
+        public KpiType KpiType {get ; set; }
+        public int SimulationConfigurationId { get; set; }
+        public SimulationType SimulationType { get; set; }
+        public int SimulationNumber { get; set; }
 
     }
 }

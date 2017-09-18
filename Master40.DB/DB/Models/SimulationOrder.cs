@@ -5,17 +5,17 @@ using Master40.DB.Interfaces;
 
 namespace Master40.DB.Models
 {
-    public class Order : BaseEntity, IOrder
+    public class SimulationOrder : BaseEntity, IOrder
     {
         public string Name { get; set; }
+        public int OriginId { get; set; }
         public int DueTime { get; set; }
         public int CreationTime { get; set; }
         public int FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }
-        [JsonIgnore]
-        public BusinessPartner BusinessPartner { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<OrderPart> OrderParts { get; set; }
         public State State { get; set; }
+        public int SimulationConfigurationId { get; set; }
+        public SimulationType SimulationType { get; set; }
+        public int SimulationNumber { get; set; }
     }
 }

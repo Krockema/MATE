@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
 using Master40.Extensions;
+using Master40.DB.Enums;
 
 namespace Master40.ViewComponents
 {
@@ -22,12 +23,19 @@ namespace Master40.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
+            // Determine Type and Data
+            SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            var kpi = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
+                                    && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                    && x.SimulationType == simType);
+
             var generateChartTask = Task.Run(() =>
             {
                 if (!_context.SimulationWorkschedules.Any())
                 {
                     return null;
                 }
+
 
                 Chart chart = new Chart();
 
@@ -51,16 +59,23 @@ namespace Master40.ViewComponents
                         {
                             new PieDataset
                             {
-                                BackgroundColor = new[] {"rgba(75, 192, 192, 0.0)", "rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.0)" },
-                                BorderColor = new[] { "rgba(102, 102, 102, 1)", "rgba(54, 162, 235, 1)", "rgba(102, 102, 102, 1)" },
+                                BackgroundColor = new[] { "rgba(102, 102, 102, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.2)","rgba(102, 102, 102, 0.2)" },
+                                BorderColor = new[] { "rgba(102, 102, 102, 0.7)", "rgba(75, 192, 192, 0.7)", "rgba(54, 162, 235, 0.7)", "rgba(255, 99, 132, 0.7)", "rgba(102, 102, 102, 0.7)", },
                                 BorderWidth = 1,
                            }
                         },
-                    Labels = new[] { " ", "avg", " " },
+                    Labels = new[] {" ", "min", "avg", "max", " " },
                 };
 
-                // Dummy data 
-                data.Datasets[0].Data = new List<double> { 65, 10, 25 };
+                var avg = kpi.Sum(x => x.Value) / kpi.Count();
+                
+                var min = kpi.Min(x => x.Value);
+                var max = kpi.Max(x => x.Value);
+                var end = ((int)Math.Ceiling(max / 100.0)) * 100;
+
+
+                //data.Datasets[0].Data = new List<double> { 0, (int)(min/end*100), (int)(avg /end*100), (int)(max /end*100), end };
+                data.Datasets[0].Data = new List<double> { min, avg, 10, max, end };
 
                 chart.Data = data;
                 return chart;
@@ -69,7 +84,8 @@ namespace Master40.ViewComponents
             // create JS to Render Chart.
             ViewData["chart"] = await generateChartTask;
             ViewData["Type"] = paramsList[1];
-            ViewData["percentage"] = "76%";
+            ViewData["Data"] = kpi.ToList();
+            ViewData["percentage"] = "125";
             return View($"ProductLeadTime");
         }
     }

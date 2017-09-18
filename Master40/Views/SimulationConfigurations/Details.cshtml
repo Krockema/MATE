@@ -55,7 +55,10 @@
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+    <a id="@Model.Id" asp-action="Edit" asp-controller="SimulationConfigurations" asp-route-id="@Model.Id"
+       data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
+    </a>
 </div>

@@ -855,7 +855,7 @@ namespace Master40.DB.Data.Context
         public int GetSimulationNumber(int simulationConfigurationId, SimulationType simType)
         {
             var any_sim = SimulationWorkschedules
-                .Where(x => x.SimulationType == simType.ToString() && x.SimulationConfigurationId == simulationConfigurationId);
+                .Where(x => x.SimulationType == simType && x.SimulationConfigurationId == simulationConfigurationId);
             return any_sim.Any() ? any_sim.Max(x => x.SimulationNumber) : 1;
         }
 
@@ -883,16 +883,19 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }
 
-        public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule)
+        public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType)
         {
-            //var children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("["+simulationWorkschedule.Id.ToString()+"]"));
-            var children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString()));
+            var children = new List<SimulationWorkschedule>();
+            if (simulationType == SimulationType.Central)
+                children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.Id.ToString() + "]")).ToList();
+            else
+                children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.ProductionOrderId.ToString() + "]")).ToList();
 
             if (!children.Any()) return simulationWorkschedule.Start;
             var startTimes = new List<int>();
             foreach (var child in children)
             {
-                startTimes.Add(GetEarliestStart(context, child));
+                startTimes.Add(GetEarliestStart(context, child, simulationType));
             }
             return startTimes.Min();
         }

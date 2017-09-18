@@ -7,6 +7,7 @@ using ChartJSCore.Models;
 using Master40.DB.Data.Context;
 using Master40.Extensions;
 using ChartJSCore.Models.Bar;
+using Master40.DB.Enums;
 
 namespace Master40.ViewComponents
 {
@@ -31,6 +32,8 @@ namespace Master40.ViewComponents
                     return null;
                 }
 
+                SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+                
                 Chart chart = new Chart
                 {
                     Type = "bar",
@@ -41,38 +44,26 @@ namespace Master40.ViewComponents
 
                 // use available hight in Chart
                 // use available hight in Chart
-                var machines = _context.SimulationWorkschedules.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1])
-                    .Select(x => x.Machine)
-                    .Distinct()
-                    .ToList();
-                var data = new Data { Labels = machines };
-                
-                //var yMaxScale = 0;
+                var machines = _context.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) 
+                                                    && x.SimulationType == simType
+                                                    && x.KpiType == KpiType.MachineUtilization) 
+                                                    .ToList();
+                var data = new Data { Labels = machines.Select(n => n.Name).ToList() };
 
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
 
                 var i = 0;
-                var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
+                //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
                 var barDataSet = new BarDataset{ Data = new List<double>(), BackgroundColor = new List<string>()};
 
                 foreach (var machine in machines)
                 {
-
-                    //barDataSet.Label = "Machines";
-                    var machineWork =
-                        _context.SimulationWorkschedules.Where(
-                            x => x.Machine == machine && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) && x.SimulationType == paramsList[1]).ToList();
-
-                    var endSum = machineWork.Sum(x => x.End);
-                    var startSum = machineWork.Sum(x => x.Start);
-                    var work = endSum - startSum;
-                    var percent = Math.Round((double)work / max * 100, 2);
+                    var percent = Math.Round(machine.Value * 100, 2);
                     // var wait = max - work;
                     barDataSet.Data.Add(percent);
                     barDataSet.BackgroundColor.Add(new ChartColor().Color[i]);
                     i++;
-                    
                 }
 
                 data.Datasets.Add(barDataSet);

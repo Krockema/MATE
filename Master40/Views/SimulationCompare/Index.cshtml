@@ -1,9 +1,21 @@
 ﻿@{
     ViewBag.Title = "Simulation Compareing";
     Layout = "_Layout";
+    int simid = (int)ViewData["simId"];
 }
+<style>
+    .modal-dialog {
+        width: 95%;
+        height: 80%;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+    .modal-dialog > .modal-content {
+        padding-top: 25px;
+        height: 100%;
+    }
 
-
+</style>
 <h2>Simulation Comparing</h2>
 
 <hr/>
@@ -12,12 +24,25 @@
         <div class="col-md-6">
             <div class="row">
                 <div class="col-md-12">
+                    <div style="font-size: x-large" class="pull-left"><b>Decentral</b></div>
+                    
+                    <!-- asp-route="SimulationTimeline/SimulationCompare/-1/Decentral/3/1/@simid" -->
+                    <a href="/SimulationCompare/SimulationTimeline/-1/Decentral/3/1/@simid"   
+                       data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
+                        <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+                    </a> 
+                    <!-- Machine Workloads -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
                     <h4>Machine Workloads</h4>
                     <div id="machineWorkload_Decentral" class="machineWorkload loading"></div>
                     <!-- Machine Workloads -->
                 </div>
             </div>
-            <hr/>
+            <hr />
             <div class="row">
                 <div class="col-md-12">
                     <h4>Product Lead Times</h4>
@@ -45,32 +70,95 @@
             <div class="row">
                 <div class="col-md-12">
                     <h4>Article Idle Time</h4>
-                    <div class="loading"></div>
+                    <div id="ArticleIdleTime_Decentral" class="loading"></div>
                     <!-- Idle Times -->
                 </div>
             </div>
         </div>
-        <div class="col-md-6"> Sim 2</div>
-        
-        
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <div style="font-size: x-large" class="pull-left"><b>Central</b></div>
 
+                    <!-- asp-route="SimulationTimeline/SimulationCompare/-1/Decentral/3/1/@simid" -->
+                    <a href="/SimulationCompare/SimulationTimeline/-1/Central/3/1/@simid"
+                       data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
+                        <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+                    </a>
+                    <!-- Machine Workloads -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Machine Workloads</h4>
+                    <div id="machineWorkload_Central" class="machineWorkload loading"></div>
+                    <!-- Machine Workloads -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Product Lead Times</h4>
+                    <div id="leadtime_Central" class="loading"></div>
+                    <!-- Lead Time -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Order Timeliness</h4>
+                    <div id="timeliness_Central" class="loading"></div>
+                    <!-- Order Timeliness -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Stock Evolution</h4>
+                    <div id="stockevolution_Central" class="loading"></div>
+                    <!-- Stock Evolution -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Article Idle Time</h4>
+                    <div id="ArticleIdleTime_Central" class="loading"></div>
+                    <!-- Idle Times -->
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<div id="modal-container" class="modal fade hidden-print" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="loading center-div"> </div>
+        </div>
+    </div>
+</div>
+
+
     <script>
-  
+
         $(document).ready(function () {
             $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
-            MachineWorkLoads(1, "Decentral");
-            Timeliness(1, "Decentral");
-            ProductLeadTime(1, "Decentral");
-            StockEvolution(1, "Decentral");
+            MachineWorkLoads(@simid, "Decentral");
+            MachineWorkLoads(@simid, "Central");
+            Timeliness(@simid, "Decentral");
+            Timeliness(@simid, "Central");
+            ProductLeadTime(@simid, "Decentral");
+            ProductLeadTime(@simid, "Central");
+            StockEvolution(@simid, "Decentral");
+            StockEvolution(@simid, "Central");
             // Load Parts
         });
 
 
         function MachineWorkLoads(simulationId, simType) {
             $.ajax({
-                url: "SimulationCompare/MachinesWorkLoad/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/MachinesWorkLoad/" + simulationId + "/" + simType,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -82,7 +170,7 @@
 
         function Timeliness(simulationId, simType) {
             $.ajax({
-                url: "SimulationCompare/Timeliness/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/Timeliness/" + simulationId + "/" + simType,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -93,7 +181,7 @@
 
         function ProductLeadTime(simulationId, simType) {
             $.ajax({
-                url: "SimulationCompare/ProductLeadTime/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/ProductLeadTime/" + simulationId + "/" + simType,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -104,7 +192,7 @@
 
         function StockEvolution(simulationId, simType) {
             $.ajax({
-                url: "SimulationCompare/StockEvolution/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/StockEvolution/" + simulationId + "/" + simType,
                 async: true,
                 context: document.body
             }).done(function (data) {

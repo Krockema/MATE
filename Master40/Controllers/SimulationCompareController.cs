@@ -11,8 +11,10 @@ namespace Master40.Controllers
 {
     public class SimulationCompareController : Controller
     {
-        public IActionResult Index()
+        [HttpGet("[Controller]/Index/{simId}")]
+        public IActionResult Index(int simId)
         {
+            ViewData["simId"] = simId;
             return View();
         }
 
@@ -51,6 +53,12 @@ namespace Master40.Controllers
             var vc = ViewComponent("StockEvolution", new List<string> { simulationId, simulationType });
             return vc;
         }
-
+        [HttpGet("[Controller]/SimulationTimeline/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}")]
+        public IActionResult SimulationTimeline(string orderId, string simulationType, string state, string simulationConfigurationId, string simNumber)
+        {
+            //call to Diagramm
+            var vc = ViewComponent("SimulationTimeline", new List<string> { orderId, simulationType, state, simulationConfigurationId, simNumber });
+            return vc;
+        }
     }
 }

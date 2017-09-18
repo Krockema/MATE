@@ -20,18 +20,18 @@ namespace Master40.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(int productionOrderId)
         {
-            {
-                var masterDBContext = _context.ProductionOrders
-                                                .Where(a => a.ArticleId == 1).ToList();
 
-                var articleList = new List<ProductionOrder>();
-                foreach (var item in masterDBContext)
-                {
-                    //var article = await _context.GetProductionOrderBomRecursive(item, item.Id);
-                    //articleList.Add(article);
-                }
-                return View(articleList);
+            var masterDBContext = _context.ProductionOrders
+                                            .Where(a => a.ArticleId == 1).ToList();
+
+            var articleList = new List<ProductionOrder>();
+            foreach (var item in masterDBContext)
+            {
+                //var article = await _context.GetProductionOrderBomRecursive(item, item.Id);
+                //articleList.Add(article);
             }
+            return View(articleList);
+
         }
     }
 }

@@ -39,7 +39,20 @@
     .gantt_row.task-parent{
         font-weight: bold;
     }
-</style>        
+</style>   
+<script>
+    function submitform() {
+        var value1 = $('#fcOrder').val();
+        var value2 = $('#fcState').val();
+        $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
+
+        // reload need to be programmed.
+        loadGantt(value1, value2);
+        loadCharts(value2)
+        //$('form').submit();
+    }
+
+</script>     
 <div class="col-md-12">
     <div class="panel panel-default">
         <div class="panel-heading">

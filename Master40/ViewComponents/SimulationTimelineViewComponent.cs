@@ -10,6 +10,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using Master40.DB.Enums;
 
 namespace Master40.ViewComponents
 {
@@ -17,7 +18,8 @@ namespace Master40.ViewComponents
     {
         private readonly ProductionDomainContext _context;
         private readonly long _today;
-        private int _orderId, _schedulingState;
+        private int _orderId, _schedulingState, _simulationNumber, _simulationConfigurationId;
+        private SimulationType _simulationType;
         private GanttContext _ganttContext;
         public SimulationTimelineViewComponent(ProductionDomainContext context)
         {
@@ -29,7 +31,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// called from ViewComponent.
         /// </summary>
-        public async Task<IViewComponentResult> InvokeAsync(List<int> paramsList)
+        public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
 
             if (!_context.SimulationWorkschedules.Any())
@@ -39,19 +41,30 @@ namespace Master40.ViewComponents
 
             //.Definitions();
             var orders = new List<int>();
-            _orderId = paramsList[0];
-            _schedulingState = paramsList[1];
-
-                // If Order is not selected.
-                if (_orderId == -1)
-                {   // for all Orders
-                    orders = _context?.OrderParts.Select(x => x.Id).ToList();
-                }
-                else
-                {  // for the specified Order
-                    orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
-                }
-
+            _orderId = Convert.ToInt32(paramsList[0]);
+            _schedulingState = Convert.ToInt32(paramsList[2]);
+            _simulationNumber = Convert.ToInt32(paramsList[3]);
+            _simulationConfigurationId = Convert.ToInt32(paramsList[4]);
+            _simulationType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            ///// Needs some changes to Work. i.e. Reference SimulationOrder , Create SimulationOrderPart and writing it back
+            // If Order is not selected.
+            if (_orderId == -1)
+            {   // for all Orders
+                orders = _context?.SimulationOrders.Where(x => x.SimulationType == _simulationType
+                                                        && x.SimulationNumber == _simulationNumber
+                                                        && x.SimulationConfigurationId == _simulationConfigurationId)
+                                                        .Select(x => x.Id).ToList();
+            }
+            else
+            {  // for the specified Order
+                orders = _context?.SimulationOrders.Where(x => x.Id == _orderId 
+                                                        && x.SimulationType == _simulationType
+                                                        && x.SimulationNumber == _simulationNumber
+                                                        && x.SimulationConfigurationId == _simulationConfigurationId)
+                                                        .Select(x => x.Id).ToList();
+                //orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
+            }
+            
             await GetSchedulesForOrderListAsync(orders);
             // Fill Select Fields
             var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
@@ -69,7 +82,11 @@ namespace Master40.ViewComponents
         {
             foreach (var ordersPart in ordersParts)
             {
-                foreach (var pow in _context.SimulationWorkschedules.Where(x => x.OrderId == ordersPart.ToString()))
+                var pows = _context.SimulationWorkschedules.Where(x => x.OrderId == "[" + ordersPart.ToString() + "]"
+                                                                        && x.SimulationType == _simulationType
+                                                                        && x.SimulationNumber == _simulationNumber
+                                                                        && x.SimulationConfigurationId == _simulationConfigurationId);
+                foreach (var pow in pows)
                 {
                     // check if head element is Created,
                     GanttTask timeline = GetOrCreateTimeline(pow, ordersPart);
@@ -212,12 +229,13 @@ namespace Master40.ViewComponents
         /// </summary>
         private SelectList SchedulingState(int selectedItem)
         {
-            var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
-            if (_context.ProductionOrderWorkSchedules.Any())
-            {
-                if (_context.ProductionOrderWorkSchedules.Max(x => x.StartForward) != 0)
-                    itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
-            }
+            var itemList = new List<SelectListItem>();
+            // var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
+            // if (_context.ProductionOrderWorkSchedules.Any())
+            // {
+            //     if (_context.ProductionOrderWorkSchedules.Max(x => x.StartForward) != 0)
+            //         itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
+            // }
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
             return new SelectList( itemList, "Value", "Text", selectedItem);

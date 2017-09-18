@@ -2,6 +2,7 @@
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
+    var kpis = (List<Master40.DB.Models.Kpi>)ViewData["Data"];
     if (chart != null) {
         raw = chart.CreateChartCode("ProductLeadTime_" + type);
     }
@@ -59,18 +60,15 @@
                     <th>Max</th>
                     <th>Average</th>
                 </tr>
-                <tr>
-                    <td>Dump-Truck</td>
-                    <td>49</td>
-                    <td>54</td>
-                    <td>52</td>
-                </tr>
-                <tr>
-                    <td>Speed-Truck</td>
-                    <td>42</td>
-                    <td>38</td>
-                    <td>40</td>
-                </tr>
+                @foreach (var item in kpis)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>To.Do</td>
+                        <td>To.Do</td>
+                        <td>@item.Value</td>
+                    </tr>
+                }
             </thead>
         </table>
     </div>
