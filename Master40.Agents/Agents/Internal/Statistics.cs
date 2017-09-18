@@ -55,8 +55,9 @@ namespace Master40.Agents.Agents.Internal
                 var items = AgentSimulation.SimulationWorkschedules.Where(x => x.ProductionOrderId == agentId.ToString());
                 foreach (var item in items)
                 {
-                    item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.AgentId.ToString() +"]" : "[]";
-                    item.Parent =  requesterAgent.Name;
+                    item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.Creator.AgentId.ToString() +"]" : "[]";
+                    item.Parent =  requesterAgent.Creator.Name;
+                    item.OrderId = "[" + orderId + "]";
 
                    // item.OrderId = orderId;
                 }

@@ -75,19 +75,18 @@ namespace Master40.Tools.Simulation
             //get SimulationTime
             var simulationTime = context.SimulationWorkschedules.Max(a => a.End);
             //get working time
-            var kpis = (from machine in machines
-                let relevantItems = context.SimulationWorkschedules.Where(a => a.Machine.Equals(machine)).ToList()
-                let relevantItemTimes = relevantItems.Select(item => item.End - item.Start).ToList()
-                select new Kpi()
-                {
-                    Value = (double) relevantItemTimes.Sum() / simulationTime,
-                    Name = machine,
-                    IsKpi = true,
-                    KpiType = KpiType.MachineUtilization,
-                    SimulationConfigurationId = simulationId,
-                    SimulationType = simulationType,
-                    SimulationNumber = simulationNumber
-                }).ToList();
+
+            var content = context.SimulationWorkschedules.Select(x => new { x.Start, x.End, x.Machine });
+            var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi()
+                                                                        {
+                                                                            Value = (double)(g.Sum(x => x.End) - g.Sum(x => x.Start)) / simulationTime,
+                                                                            Name = g.Key,
+                                                                            IsKpi = true,
+                                                                            KpiType = KpiType.MachineUtilization,
+                                                                            SimulationConfigurationId = simulationId,
+                                                                            SimulationType = simulationType,
+                                                                            SimulationNumber = simulationNumber
+                                                                        }).ToList();
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
@@ -105,7 +104,7 @@ namespace Master40.Tools.Simulation
             var kpis = new Kpi()
             {
                 Name = "Timeliness",
-                Value = (double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count,
+                Value = 1-((double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count),
                 IsKpi = true,
                 KpiType = KpiType.Timeliness,
                 SimulationConfigurationId = simulationId,

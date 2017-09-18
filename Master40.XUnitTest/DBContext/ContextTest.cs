@@ -219,6 +219,19 @@ namespace Master40.XUnitTest.DBContext
         }
 
         [Fact]
+        public async Task TestKpiCalculation()
+        {
+            Tools.Simulation.CalculateKpis.CalculateMachineUtilization(
+                context: _productionDomainContext,
+                simulationId: 1,
+                simulationType: DB.Enums.SimulationType.Decentral,
+                simulationNumber: 1
+                );
+        }
+
+
+
+        [Fact]
         public async Task TestDistribution()
         {
             var dl = new List<double>();
