@@ -54,12 +54,12 @@ namespace Master40.ViewComponents
                 data.Datasets = new List<Dataset>();
 
                 var i = 0;
-                var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
+                //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
                 var barDataSet = new BarDataset{ Data = new List<double>(), BackgroundColor = new List<string>()};
 
                 foreach (var machine in machines)
                 {
-                    var percent = Math.Round(machine.Value / max * 100, 2);
+                    var percent = Math.Round(machine.Value * 100, 2);
                     // var wait = max - work;
                     barDataSet.Data.Add(percent);
                     barDataSet.BackgroundColor.Add(new ChartColor().Color[i]);

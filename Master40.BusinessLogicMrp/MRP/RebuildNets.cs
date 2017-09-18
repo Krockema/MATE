@@ -63,7 +63,7 @@ namespace Master40.BusinessLogicCentral.MRP
             //find matching productionOrders
             amount = TryFindProductionOrders(demand,amount);
 
-            if (amount != 0) throw new NotSupportedException();
+            if (amount != 0) throw new NotSupportedException("logical error: still unsatisfied Requests!");
             foreach (var dppo in demand.DemandProvider.OfType<DemandProviderProductionOrder>())
             {
                 CallChildrenSatisfyRequest(dppo.ProductionOrder,simulationId);
@@ -73,7 +73,6 @@ namespace Master40.BusinessLogicCentral.MRP
         private decimal TryAssignPurchase(IDemandToProvider demand, decimal amount)
         {
             var purchaseParts = _context.PurchaseParts.Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId).ToList();
-            if (purchaseParts == null) return amount;
             while (purchaseParts.Any() && amount > 0)
             {
                 var amountAlreadyReserved = purchaseParts.First().DemandProviderPurchaseParts.Sum(a => a.Quantity);

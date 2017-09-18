@@ -51,7 +51,7 @@ namespace Master40.Tools.Simulation
                 leadTimesAverage.Add(new Kpi()
                 {
                     Name = relevantItems.First().Name,
-                    Value = relevantItems.Sum(a => a.Value)/relevantItems.Count(),
+                    Value = relevantItems.Sum(a => a.Value)/relevantItems.Count,
                     IsKpi = true,
                     KpiType = KpiType.LeadTime,
                     SimulationConfigurationId = simulationId,
@@ -73,7 +73,7 @@ namespace Master40.Tools.Simulation
             //get machines
             var machines = context.Machines.Select(a => a.Name).ToList();
             //get SimulationTime
-            var simulationTime = context.SimulationConfigurations.Single(a => a.Id == simulationId).SimulationEndTime;
+            var simulationTime = context.SimulationWorkschedules.Max(a => a.End);
             //get working time
             var kpis = (from machine in machines
                 let relevantItems = context.SimulationWorkschedules.Where(a => a.Machine.Equals(machine)).ToList()
@@ -101,11 +101,11 @@ namespace Master40.Tools.Simulation
                 Name = order.Name,
                 Value = order.FinishingTime - order.DueTime
             }).ToList();
-
+            if (!orderTimeliness.Any()) return;
             var kpis = new Kpi()
             {
                 Name = "Timeliness",
-                Value = (double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count(),
+                Value = (double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count,
                 IsKpi = true,
                 KpiType = KpiType.Timeliness,
                 SimulationConfigurationId = simulationId,

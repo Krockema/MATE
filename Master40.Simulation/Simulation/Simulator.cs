@@ -181,6 +181,23 @@ namespace Master40.Simulation.Simulation
                 _evaluationContext.StockExchanges.Add(exchange);
             }
             _evaluationContext.SaveChanges();
+
+            foreach (var order in _context.Orders)
+            {
+                _evaluationContext.Add(new SimulationOrder()
+                {
+                    BusinessPartnerId = order.BusinessPartnerId,
+                    CreationTime = order.CreationTime,
+                    DueTime = order.DueTime,
+                    FinishingTime = order.FinishingTime,
+                    Name = order.Name,
+                    SimulationConfigurationId = simulationId,
+                    State = order.State,
+                    SimulationType = SimulationType.Central,
+                    
+                });
+            }
+            _evaluationContext.SaveChanges();
             //_context.Database.CloseConnection();
         }
 
