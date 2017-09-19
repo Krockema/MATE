@@ -58,6 +58,17 @@ namespace Master40.Tools.Simulation
                 simConfig.DecentralRuns += 1;
             }
             productionDomainContext.SaveChanges();
+
+
+            List<StockExchange> se = new List<StockExchange>();
+            foreach (var item in inMemmoryContext.StockExchanges)
+            {
+                se.Add(item.CopyDbPropertiesWithoutId());
+            }
+            productionDomainContext.StockExchanges.AddRange(se);
+            productionDomainContext.SaveChanges();
+
+
         }
 
     }

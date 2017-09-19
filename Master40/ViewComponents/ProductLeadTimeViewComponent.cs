@@ -51,7 +51,7 @@ namespace Master40.ViewComponents
                     Rotation = 0.8 * Math.PI,
                     Circumference = 1.4 * Math.PI,
                     Legend = new Legend { Position = "bottom", Display = false },
-                    Title = new Title { Text = "Product Lead Time", Position = "top", FontSize = 24, FontStyle = "bold" }
+                    Title = new Title { Text = "Product Lead Time (Min)", Position = "top", FontSize = 24, FontStyle = "bold" }
                 };
                 var data = new Data
                 {
@@ -75,7 +75,7 @@ namespace Master40.ViewComponents
 
 
                 //data.Datasets[0].Data = new List<double> { 0, (int)(min/end*100), (int)(avg /end*100), (int)(max /end*100), end };
-                data.Datasets[0].Data = new List<double> { min, avg, 10, max, end };
+                data.Datasets[0].Data = new List<double> { min, avg, 10, max, end-max };
 
                 chart.Data = data;
                 return chart;
@@ -85,7 +85,7 @@ namespace Master40.ViewComponents
             ViewData["chart"] = await generateChartTask;
             ViewData["Type"] = paramsList[1];
             ViewData["Data"] = kpi.ToList();
-            ViewData["percentage"] = "125";
+            ViewData["percentage"] = Math.Round(kpi.Sum(x => x.Value) / kpi.Count()*100, 0);
             return View($"ProductLeadTime");
         }
     }

@@ -2,6 +2,7 @@
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
+    string percentage = ViewData["Percentage"].ToString() + " %";
     var kpis = (List<Master40.DB.Models.Kpi>)ViewData["Data"];
     if (chart != null) {
         raw = chart.CreateChartCode("OrderTimeliness_"+type);
@@ -11,12 +12,13 @@
 <style>
     .chartContainer {
         position: relative;
-        width: 400px;
-        height: 200px;
+        width: 250px;
+        margin-left: 75px;
+        height: 150px;
     }
     chartLayer > canvas {
-        width: 400px;
-        height: 200px;
+        width: 250px;
+        height: 150px;
     }
     .chartLayer, textLayer {
         position: absolute;
@@ -44,7 +46,7 @@
                 <canvas id="OrderTimeliness_@type"></canvas>
             </div>
             <div class="textLayer">
-                @ViewData["percentage"]
+                @percentage
             </div>
         </div>
     </div>
@@ -54,14 +56,18 @@
                 <tr>
                     <th>Orders</th>
                     <th>Quantity</th>
-                    <th>Avg. Diffrence</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>% In Time</th>
                 </tr>
                 @foreach (var item in kpis)
                 {
                     <tr>
                         <td>@item.Name</td>
-                        <td>To.Do</td>
-                        <td>@item.Value</td>
+                        <td>@item.Count</td>
+                        <td>@item.ValueMin</td>
+                        <td>@item.ValueMax</td>
+                        <td>@(item.Value * 100)</td>
                     </tr>
                 }
             </thead>

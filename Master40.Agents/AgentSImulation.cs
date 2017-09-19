@@ -56,8 +56,8 @@ namespace Master40.Agents
                 Statistics.UpdateSimulationId(simulationId, SimulationType.Decentral, simulationNumber);
                 _productionDomainContext.SimulationWorkschedules.AddRange(SimulationWorkschedules);
                 _productionDomainContext.SaveChanges();
-                //SaveStockExchanges(simulationId, simulationNr, context);
-                UpdateStockExchanges(simulationId, simulationNr);
+                SaveStockExchanges(simulationId, simulationNr, context);
+                //UpdateStockExchanges(simulationId, simulationNr);
 
             }
             return Agent.AgentStatistics;
@@ -134,14 +134,18 @@ namespace Master40.Agents
             foreach (var stock in context.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
             {
                 var item = ((StorageAgent)stock);
-                foreach (var se in item.StockElement.StockExchanges)
+                var stockExchanges = item.StockElement.StockExchanges.ToList();
+                var stockExchangesToAdd = new List<StockExchange>();
+                foreach (var se in stockExchanges)
                 {
-                    se.SimulationType = SimulationType.Decentral;
-                    se.SimulationConfigurationId = simId;
-                    se.SimulationNumber = simNr;
-                    _productionDomainContext.StockExchanges.Add(se.CopyDbPropertiesWithoutId());
-                    _productionDomainContext.SaveChanges();
+                    var toAdd = se.CopyDbPropertiesWithoutId();
+                    toAdd.SimulationType = SimulationType.Decentral;
+                    toAdd.SimulationConfigurationId = simId;
+                    toAdd.SimulationNumber = simNr;
+                    stockExchangesToAdd.Add(toAdd);
                 }
+                _productionDomainContext.StockExchanges.AddRange(stockExchangesToAdd);
+                _productionDomainContext.SaveChanges();
             }
         }
 

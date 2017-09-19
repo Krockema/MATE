@@ -10,7 +10,6 @@ namespace Master40.DB.Models
         public decimal Min { get; set; }
         public decimal Current { get; set; }
         public int ArticleForeignKey { get; set; }
-
         [JsonIgnore]
         public ICollection<StockExchange> StockExchanges { get; set; }
         [JsonIgnore]

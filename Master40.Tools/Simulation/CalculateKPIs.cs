@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
@@ -52,6 +50,8 @@ namespace Master40.Tools.Simulation
                 {
                     Name = relevantItems.First().Name,
                     Value = relevantItems.Sum(a => a.Value)/relevantItems.Count,
+                    ValueMin = relevantItems.Min(m => m.Value),
+                    ValueMax = relevantItems.Max(m => m.Value),
                     IsKpi = true,
                     KpiType = KpiType.LeadTime,
                     SimulationConfigurationId = simulationId,
@@ -94,26 +94,23 @@ namespace Master40.Tools.Simulation
         public static void CalculateTimeliness(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             var orderTimeliness = context.Orders.Where(a => a.State == State.Finished)
-                                                .ToList()
-                                                .Select(order => new Kpi()
-            {
-                Name = order.Name,
-                Value = order.FinishingTime - order.DueTime
-            }).ToList();
+                                         .Select(x => new {x.Name, x.FinishingTime, x.DueTime});
             if (!orderTimeliness.Any()) return;
-            var kpis = new Kpi()
+            var kpis = orderTimeliness.GroupBy(g => g.Name).Select(o => new Kpi()
             {
-                Name = "Timeliness",
-                Value = 1-((double)orderTimeliness.Count(a => a.Value >= 0) / orderTimeliness.Count),
+                Name = o.Key,
+                Value = (double)o.Count(x => (x.DueTime-x.FinishingTime) > 0) / o.Count(),
+                ValueMin = (double)o.Min(m => m.FinishingTime),
+                ValueMax = (double)o.Max(n => n.FinishingTime),
+                Count = o.Count(c => c.Name == o.Key),
                 IsKpi = true,
                 KpiType = KpiType.Timeliness,
                 SimulationConfigurationId = simulationId,
                 SimulationType = simulationType,
                 SimulationNumber = simulationNumber
-
-            };
-
-            context.Add(kpis);
+            }).ToList();
+            
+            context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
 

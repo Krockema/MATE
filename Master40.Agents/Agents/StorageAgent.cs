@@ -82,14 +82,12 @@ namespace Master40.Agents.Agents
 
             // Add the Produced item to Stock
             StockElement.Current++;
-            StockElement.StockExchanges.Add(
-                new StockExchange
-                {
+            var stockExchange = new StockExchange {
                     StockId = StockElement.Id,
                     ExchangeType = ExchangeType.Insert,
                     Quantity = 1,
-                    RequiredOnTime = (int)Context.TimePeriod
-                });
+                    State = State.Created,
+                    RequiredOnTime = (int)Context.TimePeriod };
 
             ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
@@ -107,12 +105,14 @@ namespace Master40.Agents.Agents
                 
                 // Remove from Requester List.
                 this.RequestedItems.Remove(requestProvidable);
+                stockExchange.State = State.Finished;
 
                 // Update Work Item with Provider For
                 Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
                 ProviderList.Clear();
             }
-    }
+            StockElement.StockExchanges.Add(stockExchange);
+        }
 
         private void StockRefill(InstructionSet instructionSet)
         {
@@ -125,18 +125,24 @@ namespace Master40.Agents.Agents
             // stock Income 
             DebugMessage(" income " + StockElement.Article.Name + " quantity " + (decimal)instructionSet.ObjectToProcess + " added to Stock");
             StockElement.Current += (decimal)instructionSet.ObjectToProcess;
-
-
+            var se = this.StockElement.StockExchanges.FirstOrDefault(x => x.State == State.Created && x.ExchangeType == ExchangeType.Insert);
+            if (se == null)
+                throw new InvalidOperationException();
+            //else
+            se.State = State.Finished;
+            
             // no Items to be served.
             if (!RequestedItems.Any()) return;
             
             // Try server all Nonserved Items.
             foreach (var request in RequestedItems.OrderBy(x => x.DueTime).ToList()) // .Where( x => x.DueTime <= Context.TimePeriod))
             {
-                    CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
-                        objectToProcess: request,
-                        targetAgent: request.Requester /*, 
-                            waitFor: request.DueTime */ );
+                var item = StockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
+                if (item != null) item.State = State.Finished; else throw new Exception("No StockExchange found");
+                CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
+                                                objectToProcess: request,
+                                                targetAgent: request.Requester /*, 
+                                                    waitFor: request.DueTime */ );
                     RequestedItems.Remove(request);
             }
         }
@@ -149,13 +155,22 @@ namespace Master40.Agents.Agents
         /// <returns></returns>
         private StockReservation MakeReservationFor(RequestItem request)
         {
+            request.StockExchangeId =  Guid.NewGuid();
+            StockReservation stockReservation = new StockReservation { DueTime = request.DueTime };
 
-            StockReservation stockReservation = new StockReservation { DueTime = request.DueTime, };
+            var insert = StockElement.StockExchanges
+                             .Where(x => x.RequiredOnTime <= request.DueTime &&
+                                         x.State != State.Finished &&
+                                         x.ExchangeType == ExchangeType.Insert)
+                             .Sum(x => x.Quantity);
 
+            var withdrawl = StockElement.StockExchanges
+                                .Where(x => x.RequiredOnTime <= request.DueTime &&
+                                            x.State != State.Finished &&
+                                            x.ExchangeType == ExchangeType.Withdrawal)
+                                .Sum(x => x.Quantity);
             // Element is NOT in Stock
-            if ((StockElement.Current - StockElement.StockExchanges
-                     .Where(x => x.RequiredOnTime <= request.DueTime)
-                     .Sum(x => x.Quantity) - request.Quantity) < 0)
+            if ((StockElement.Current + insert - withdrawl - request.Quantity) < 0)
             {
                 stockReservation.IsInStock = false;
                 stockReservation.Quantity = 0;
@@ -178,13 +193,15 @@ namespace Master40.Agents.Agents
             StockElement.StockExchanges.Add(
                 new StockExchange
                 {
+                    TrakingGuid = request.StockExchangeId,
                     StockId = StockElement.Id,
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
+                    Created = (int)Context.TimePeriod,
+                    State = State.Created,
                     RequiredOnTime = request.DueTime,
                 }
             );
-
 
             return stockReservation;
         }
@@ -207,6 +224,7 @@ namespace Master40.Agents.Agents
                 {
                     StockId = StockElement.Id,
                     ExchangeType = ExchangeType.Insert,
+                    State = State.Created,
                     Quantity = StockElement.Article.Stock.Max,
                     RequiredOnTime = time,
                 }

@@ -866,7 +866,7 @@ namespace Master40.DB.Data.Context
                 BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
                 DueTime = dueTime,
                 CreationTime = creationTime,
-                Name = "injected Order"
+                Name = Articles.Single(x => x.Id == articleId).Name
 
             };
             Orders.Add(order);
@@ -888,8 +888,8 @@ namespace Master40.DB.Data.Context
             var children = new List<SimulationWorkschedule>();
             if (simulationType == SimulationType.Central)
                 children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.Id.ToString() + "]")).ToList();
-            else
-                children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.ProductionOrderId.ToString() + "]")).ToList();
+            else // decentral
+                children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
 
             if (!children.Any()) return simulationWorkschedule.Start;
             var startTimes = new List<int>();

@@ -1,4 +1,6 @@
-﻿namespace Master40.Agents.Agents.Model
+﻿using System;
+
+namespace Master40.Agents.Agents.Model
 {
     public class StockReservation
     {
