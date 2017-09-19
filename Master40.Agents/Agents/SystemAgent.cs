@@ -92,14 +92,25 @@ namespace Master40.Agents.Agents
                                                                 .Include(x => x.Order)
                                                                 .AsNoTracking())
             {
-                this.InstructionQueue.Enqueue(new InstructionSet
+                if (orderpart.Order.CreationTime == 0)
                 {
-                    MethodName = SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
-                    ObjectToProcess = orderpart,
-                    ObjectType = orderpart.GetType(),
-                    SourceAgent = this,
-                    WaitFor = orderpart.Order.CreationTime
-                });
+                    this.InstructionQueue.Enqueue(new InstructionSet
+                    {
+                        MethodName = SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
+                        ObjectToProcess = orderpart,
+                        ObjectType = orderpart.GetType(),
+                        SourceAgent = this
+                    });
+                }
+                else
+                {
+                    this.CreateAndEnqueueInstuction(
+                        methodName: SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
+                        objectToProcess: orderpart,
+                        targetAgent: this,
+                        waitFor: orderpart.Order.CreationTime
+                    );
+                }
             }
         }
 

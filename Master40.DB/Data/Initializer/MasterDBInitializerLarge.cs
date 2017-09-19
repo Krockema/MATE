@@ -113,8 +113,8 @@ namespace Master40.DB.Data.Initializer
                     ArticleForeignKey = article.Id,
                     Name = "Stock: " + article.Name,
                     Min = (article.ToBuild) ? 0 : 80,
-                    Max = (article.ToBuild) ? 100 : 1000,
-                    Current = (article.ToBuild) ? 0 : 0,
+                    Max = (article.ToPurchase) ? 1000 : 0,
+                    Current = (article.ToPurchase) ? 800 : 0,
                 };
                 context.Stocks.Add(stock);
                 context.SaveChanges();
