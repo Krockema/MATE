@@ -121,7 +121,7 @@ namespace Master40.Agents
             foreach (var stock in context.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
             {
                 var item = ((StorageAgent)stock);
-                var count = (item.StockElement.StockExchanges.Where(x => x.ExchangeType == ExchangeType.Insert)
+                var count = item.StockElement.StartValue + (item.StockElement.StockExchanges.Where(x => x.ExchangeType == ExchangeType.Insert)
                                  .Sum(x => x.Quantity) - item.StockElement.StockExchanges
                                  .Where(x => x.ExchangeType == ExchangeType.Withdrawal).Sum(x => x.Quantity));
                 Debug.WriteLine("Storage (" + item.Name + "): In: " + count);

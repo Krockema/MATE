@@ -4,7 +4,7 @@ using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Master40.Tools.Simulation
 {
@@ -20,6 +20,7 @@ namespace Master40.Tools.Simulation
             CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber);
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber);
+            ArticleStockEvolution(context, simulationId, simulationType, simulationNumber);
         }
 
         /// <summary>
@@ -114,5 +115,74 @@ namespace Master40.Tools.Simulation
             context.SaveChanges();
         }
 
+        public static void ArticleStockEvolution(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
+        {
+            var stockEvoLutions = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article)
+                .Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber)
+                .Select(x => new { x.ExchangeType, x.RequiredOnTime, x.Stock.Article.Name, x.Stock.Article.Price, x.Stock.StartValue, x.Quantity })
+                .OrderBy(x => x.RequiredOnTime);
+            var evoMax = stockEvoLutions.Max(x => x.RequiredOnTime);
+            var articles = stockEvoLutions.Select(x => new { x.Name , x.StartValue }).Distinct();
+
+            var kpis = new List<Kpi>();
+
+
+            foreach (var item in articles)
+            {
+                var value = (double)item.StartValue;
+                var lastKpi = new Kpi();
+                var articleEvolutions = stockEvoLutions.Where(x => x.Name.Equals(item.Name));
+                foreach (var articleEvolution in articleEvolutions)
+                {
+                    value = (articleEvolution.ExchangeType == ExchangeType.Insert)
+                        ? value + (double)articleEvolution.Quantity
+                        : value - (double)articleEvolution.Quantity;
+
+                    if ((int)lastKpi.Count == articleEvolution.RequiredOnTime)
+                    {
+                        lastKpi.Value = value;
+                    } else { 
+                        lastKpi = new Kpi
+                        {
+                            Name = articleEvolution.Name,
+                            Value = Convert.ToDouble(value),
+                            ValueMin = Convert.ToDouble(value * articleEvolution.Price),
+                            ValueMax = 0,
+                            Count = Convert.ToDouble(articleEvolution.RequiredOnTime),
+                            IsKpi = true,
+                            KpiType = KpiType.StockEvolution,
+                            SimulationConfigurationId = simulationId,
+                            SimulationType = simulationType,
+                            SimulationNumber = simulationNumber
+                        };
+                        kpis.Add(lastKpi);
+                    }
+                }
+            }
+
+
+            foreach (var stockEvo in stockEvoLutions)
+            {
+                double lastValue = (double)stockEvo.StartValue;
+                double value;
+                if (kpis.Any(x => x.Name.Equals(stockEvo.Name)))
+                {
+                    var lastKpi = kpis.Last(x => x.Name.Equals(stockEvo.Name));
+                    if (lastKpi != null)
+                        lastValue = lastKpi.Value;
+                }
+
+                var exType = stockEvo.ExchangeType;
+                value = (exType == ExchangeType.Insert)
+                    ? lastValue + (double)stockEvo.Quantity
+                    : lastValue - (double)stockEvo.Quantity;
+
+
+                
+            }
+            context.Kpis.AddRange(kpis);
+            context.SaveChanges();
+        }
     }
 }
+

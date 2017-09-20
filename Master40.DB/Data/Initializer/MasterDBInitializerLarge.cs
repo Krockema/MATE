@@ -112,9 +112,10 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleForeignKey = article.Id,
                     Name = "Stock: " + article.Name,
-                    Min = (article.ToBuild) ? 0 : 80,
+                    Min = (article.ToPurchase) ? 200 : 0,
                     Max = (article.ToPurchase) ? 1000 : 0,
                     Current = (article.ToPurchase) ? 800 : 0,
+                    StartValue = (article.ToPurchase) ? 800 : 0,
                 };
                 context.Stocks.Add(stock);
                 context.SaveChanges();
@@ -194,8 +195,8 @@ namespace Master40.DB.Data.Initializer
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Packing").Id, Name = "Packing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
 
                 // Bom For Race Truck
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
@@ -204,8 +205,8 @@ namespace Master40.DB.Data.Initializer
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Packing").Id, Name = "Packing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
                 
 
                 // Bom for Skeleton

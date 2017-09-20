@@ -64,9 +64,9 @@
                 {
                     <tr>
                         <td>@item.Name</td>
-                        <td>@item.ValueMin</td>
-                        <td>@item.ValueMax</td>
-                        <td>@item.Value</td>
+                        <td>@(Math.Round(item.ValueMin, 0))</td>
+                        <td>@(Math.Round(item.ValueMax, 0))</td>
+                        <td>@(Math.Round(item.Value, 2))</td>
                     </tr>
                 }
             </thead>

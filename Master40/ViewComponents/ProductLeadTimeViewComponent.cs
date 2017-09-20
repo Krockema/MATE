@@ -85,7 +85,7 @@ namespace Master40.ViewComponents
             ViewData["chart"] = await generateChartTask;
             ViewData["Type"] = paramsList[1];
             ViewData["Data"] = kpi.ToList();
-            ViewData["percentage"] = Math.Round(kpi.Sum(x => x.Value) / kpi.Count()*100, 0);
+            ViewData["percentage"] = Math.Round(kpi.Sum(x => x.Value) / kpi.Count(), 0);
             return View($"ProductLeadTime");
         }
     }

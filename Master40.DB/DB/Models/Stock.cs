@@ -8,6 +8,7 @@ namespace Master40.DB.Models
         public string Name { get; set; }
         public decimal Max { get; set; }
         public decimal Min { get; set; }
+        public decimal StartValue { get; set; }
         public decimal Current { get; set; }
         public int ArticleForeignKey { get; set; }
         [JsonIgnore]

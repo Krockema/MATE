@@ -86,8 +86,9 @@ namespace Master40.Agents.Agents
                     StockId = StockElement.Id,
                     ExchangeType = ExchangeType.Insert,
                     Quantity = 1,
-                    State = State.Created,
+                    State = State.Finished,
                     RequiredOnTime = (int)Context.TimePeriod };
+            StockElement.StockExchanges.Add(stockExchange);
 
             ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
@@ -105,31 +106,30 @@ namespace Master40.Agents.Agents
                 
                 // Remove from Requester List.
                 this.RequestedItems.Remove(requestProvidable);
-                stockExchange.State = State.Finished;
 
                 // Update Work Item with Provider For
                 Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
                 ProviderList.Clear();
             }
-            StockElement.StockExchanges.Add(stockExchange);
+
         }
 
         private void StockRefill(InstructionSet instructionSet)
         {
-            var quantity = instructionSet.ObjectToProcess is decimal;
-            if (!quantity)
+
+            // TODO: Retrun Request Itme with id of Stock Exchange
+            var stockExchange = instructionSet.ObjectToProcess as StockExchange;
+            if (stockExchange == null)
             {
                 throw new InvalidCastException(this.Name + " failed to Cast Integer on Instruction.ObjectToProcess");
             }
 
             // stock Income 
-            DebugMessage(" income " + StockElement.Article.Name + " quantity " + (decimal)instructionSet.ObjectToProcess + " added to Stock");
-            StockElement.Current += (decimal)instructionSet.ObjectToProcess;
-            var se = this.StockElement.StockExchanges.FirstOrDefault(x => x.State == State.Created && x.ExchangeType == ExchangeType.Insert);
-            if (se == null)
-                throw new InvalidOperationException();
-            //else
-            se.State = State.Finished;
+            DebugMessage(" income " + StockElement.Article.Name + " quantity " + stockExchange.Quantity + " added to Stock");
+            StockElement.Current += stockExchange.Quantity;
+            // change element State to Finish
+            stockExchange.State = State.Finished;
+            stockExchange.RequiredOnTime = (int)Context.TimePeriod;
             
             // no Items to be served.
             if (!RequestedItems.Any()) return;
@@ -138,12 +138,13 @@ namespace Master40.Agents.Agents
             foreach (var request in RequestedItems.OrderBy(x => x.DueTime).ToList()) // .Where( x => x.DueTime <= Context.TimePeriod))
             {
                 var item = StockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
-                if (item != null) item.State = State.Finished; else throw new Exception("No StockExchange found");
+                if (item != null) { item.State = State.Finished; item.RequiredOnTime = (int)Context.TimePeriod; }
+                else throw new Exception("No StockExchange found");
                 CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
                                                 objectToProcess: request,
                                                 targetAgent: request.Requester /*, 
                                                     waitFor: request.DueTime */ );
-                    RequestedItems.Remove(request);
+                RequestedItems.Remove(request);
             }
         }
 
@@ -174,8 +175,11 @@ namespace Master40.Agents.Agents
             {
                 stockReservation.IsInStock = false;
                 stockReservation.Quantity = 0;
+                var purchaseOpen = StockElement.StockExchanges
+                    .Any(x => x.State != State.Finished &&
+                                x.ExchangeType == ExchangeType.Insert);
                 // Create Order 
-                if (!stockReservation.IsInStock && StockElement.Article.ToPurchase)
+                if (!stockReservation.IsInStock && StockElement.Article.ToPurchase && !purchaseOpen)
                 {
                     CreatePurchase();
                     DebugMessage(" Created purchase for " + this.StockElement.Article.Name);
@@ -198,7 +202,7 @@ namespace Master40.Agents.Agents
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
                     Created = (int)Context.TimePeriod,
-                    State = State.Created,
+                    State = stockReservation.IsInStock ? State.Finished : State.Created,
                     RequiredOnTime = request.DueTime,
                 }
             );
@@ -212,23 +216,24 @@ namespace Master40.Agents.Agents
                                     .ArticleToBusinessPartners
                                     .Single(x => x.BusinessPartner.Kreditor)
                                     .DueTime;
+            var stockExchange = new StockExchange
+            {
+                StockId = StockElement.Id,
+                ExchangeType = ExchangeType.Insert,
+                State = State.Created,
+                Created = (int)Context.TimePeriod,
+                Quantity = StockElement.Article.Stock.Max - StockElement.Article.Stock.Min,
+                RequiredOnTime = time
+            };
 
+            StockElement.StockExchanges.Add(stockExchange);
             CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.StockRefill.ToString(),
-                                    objectToProcess: StockElement.Article.Stock.Max,
+                                    objectToProcess: stockExchange,
                                     targetAgent: this,
                                     // TODO needs logic if more Kreditors are Added.
                                     waitFor: time);
 
-            StockElement.StockExchanges.Add(
-                new StockExchange
-                {
-                    StockId = StockElement.Id,
-                    ExchangeType = ExchangeType.Insert,
-                    State = State.Created,
-                    Quantity = StockElement.Article.Stock.Max,
-                    RequiredOnTime = time,
-                }
-            );
+
         }
 
     }

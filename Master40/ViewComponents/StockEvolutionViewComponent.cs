@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Master40.DB.Enums;
 
 namespace Master40.ViewComponents
 {
@@ -29,51 +31,42 @@ namespace Master40.ViewComponents
                 Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "line";
+                chart.Type = "scatter";
 
                 // use available hight in Chart
-                chart.Options = new LineOptions
+                chart.Options = new LineOptions()
                 {
                     MaintainAspectRatio = false,
                     Responsive = true,
                     
-                    Legend = new Legend { Position = "right", Display = true },
+                    Legend = new Legend { Position = "bottom", Display = true },
                     Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold" }
                 };
-                var data = new Data
+
+
+                SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+                var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
+                                                   && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                                   && x.SimulationType == simType);
+
+                var articles = kpis.Select(x => x.Name).Distinct();
+                
+                var data = new Data { Datasets = new List<Dataset>() };
+                foreach (var article in articles)
                 {
-                    Datasets = new List<Dataset>
-                        {
-                            new LineDataset
-                            {
-                                // stock Values over time
-                                Data = new List<double>{ 0.0, 10.0, 8.0, 6.0, 4.0, 2.0, 10.0, 8.0, 6.0, 4.0, 2.0, 10.0 },
-                                BorderWidth = 1,
-                                Label = "Plugs"
-                            },
-                            new LineDataset
-                            {
-                                // stock Values over time
-                                Data = new List<double>{ 2.0, 8.0, 4.0, 0.0, 10.0, 6.0, 2.0, 10.0, 6.0, 4.0, 2.0, 10.0 },
-                                BorderWidth = 1,
-                                Label = "Wheels"
-                            },
-                            new LineDataset
-                            {
-                                // min Stock
-                                Data = new List<double>{ 4,4,4,4,4,4,4,4,4,4,4,4 },
-                                BorderWidth = 1,
-                                BorderColor = "Red",
-                                Label = "Minimum Stock"
-                            }
-                        },
-                   
-                   Labels = new[] { "0", "1", "2", "3", "4", "5", "2", "7", "8", "9", "10", "11" },
-                };
+                    var articleKpis = kpis.Where(x => x.Name == article).Select(x => new LineScatterData { x = x.Count, y = x.ValueMin }).ToList();
+                    
+                    var lds = new LineScatterDataset()
+                    {
+                        // min Stock
+                        Data = articleKpis,
+                        BorderWidth = 1,
+                        Label = article,
+                        ShowLine = false
+                    };
+                    data.Datasets.Add(lds);
 
-                // Dummy data 
-               // data.Datasets[0].Data = new List<double> { 65, 10, 25 };
-
+                }
                 chart.Data = data;
                 return chart;
             });
