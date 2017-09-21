@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IRebuildNets
     {
-        void Rebuild(int simulationId);
+        void Rebuild(int simulationId, ProductionDomainContext evaluationContext);
     }
 
     public class RebuildNets : IRebuildNets
@@ -21,7 +23,7 @@ namespace Master40.BusinessLogicCentral.MRP
             _context = context;
         }
 
-        public void Rebuild(int simulationId)
+        public void Rebuild(int simulationId, ProductionDomainContext evaluationContext)
         {
             //delete all demands but the head-demands
             _context.Demands.RemoveRange(_context.Demands.Where(a => (a.DemandRequesterId != null || a.GetType() == typeof(DemandProductionOrderBom)) && a.State != State.Finished).ToList());
@@ -41,13 +43,13 @@ namespace Master40.BusinessLogicCentral.MRP
             {
                 var nextRequester = GetNextByActivitySlack(requester, simulationId);
 
-                SatisfyRequest(nextRequester, simulationId);
+                SatisfyRequest(nextRequester, simulationId, evaluationContext);
                 requester.Remove(requester.Find(a => a.Id == nextRequester.Id));
             }
 
         }
 
-        private void SatisfyRequest(IDemandToProvider demand, int simulationId)
+        private void SatisfyRequest(IDemandToProvider demand, int simulationId, ProductionDomainContext evaluationContext)
         {
             var amount = demand.Quantity;
 
@@ -63,30 +65,47 @@ namespace Master40.BusinessLogicCentral.MRP
             //find matching productionOrders
             amount = TryFindProductionOrders(demand,amount);
 
-            if (amount != 0) throw new NotSupportedException("logical error: still unsatisfied Requests!");
+            if (amount != 0)
+            {
+                SaveContext(evaluationContext);
+                amount = TryAssignStockReservation(demand, amount);
+                amount = TryAssignPurchase(demand, amount);
+                amount = TryFindProductionOrders(demand, amount);
+                throw new NotSupportedException("logical error: still unsatisfied Requests!");
+            }
             foreach (var dppo in demand.DemandProvider.OfType<DemandProviderProductionOrder>())
             {
-                CallChildrenSatisfyRequest(dppo.ProductionOrder,simulationId);
+                CallChildrenSatisfyRequest(dppo.ProductionOrder,simulationId, evaluationContext);
             }
+        }
+
+        private void SaveContext(ProductionDomainContext _evaluationContext)
+        {
+            foreach (var stockexchange in _context.StockExchanges)
+            {
+                stockexchange.SimulationConfigurationId = 1;
+                stockexchange.SimulationNumber = _context.GetSimulationNumber(stockexchange.SimulationConfigurationId, SimulationType.Central);
+                stockexchange.SimulationType = SimulationType.Central;
+                var name = _context.Stocks.Single(b => b.Id == stockexchange.StockId).Name;
+                stockexchange.StockId = _evaluationContext.Stocks.Single(a => a.Name.Equals(name)).Id;
+                var exchange = new StockExchange();
+                stockexchange.CopyDbPropertiesTo(exchange);
+                _evaluationContext.StockExchanges.Add(exchange);
+            }
+            _evaluationContext.SaveChanges();
+            
         }
 
         private decimal TryAssignPurchase(IDemandToProvider demand, decimal amount)
         {
             var purchaseParts = _context.PurchaseParts.Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId).ToList();
-            while (purchaseParts.Any() && amount > 0)
-            {
-                var amountAlreadyReserved = purchaseParts.First().DemandProviderPurchaseParts.Sum(a => a.Quantity);
-                var amountReservable = purchaseParts.First().Quantity - amountAlreadyReserved;
-                if (amountReservable == 0)
-                {
-                    purchaseParts.RemoveAt(0);
-                    continue;
-                }
-                var amountReserving = amountReservable > amount ? amount : amountReservable;
-                _context.CreateDemandProviderPurchasePart(demand, purchaseParts.First(), amountReserving);
-                amount -= amountReserving;
-                if (amountReservable == amountReserving) purchaseParts.RemoveAt(0);
-            }
+            var amountAlreadyReserved = purchaseParts.Select(a => a.DemandProviderPurchaseParts.Sum(b => b.Quantity)).Sum();
+            var amountReservable = purchaseParts.Select(a => a.Quantity).Sum() - amountAlreadyReserved;
+            if (amountReservable == 0)
+                return amount;
+            var amountReserving = amountReservable > amount ? amount : amountReservable;
+            _context.CreateDemandProviderStock(demand, amountReserving);
+            amount -= amountReserving;
             return amount;
         }
 
@@ -136,7 +155,7 @@ namespace Master40.BusinessLogicCentral.MRP
             return amount;
         }
 
-        private void CallChildrenSatisfyRequest(ProductionOrder po, int simulationId)
+        private void CallChildrenSatisfyRequest(ProductionOrder po, int simulationId,ProductionDomainContext evaluationContext)
         {
             if (po.ProductionOrderBoms != null && po.ProductionOrderBoms.Any()) return;
             //call method for each child
@@ -146,7 +165,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 var neededAmount = childBom.Quantity * po.Quantity;
                 var demandBom = _context.CreateDemandProductionOrderBom(childBom.ArticleChildId, neededAmount);
                 _context.TryCreateProductionOrderBoms(demandBom, po, simulationId);
-                SatisfyRequest(demandBom, simulationId);
+                SatisfyRequest(demandBom, simulationId, evaluationContext);
             }
         }
 

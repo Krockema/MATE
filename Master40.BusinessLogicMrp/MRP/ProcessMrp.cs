@@ -15,9 +15,9 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IProcessMrp
     {
-        Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId);
+        Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId, ProductionDomainContext c);
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int simulationId);
-        void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId);
+        void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId, ProductionDomainContext evaluationContext);
         void UpdateDemandsAndOrders(int simulationId);
     }
 
@@ -44,7 +44,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        public async Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId)
+        public async Task CreateAndProcessOrderDemand(MrpTask task, ProductionDomainContext context, int simulationId, ProductionDomainContext evaluationContext)
         {
             await Task.Run(() =>
             {
@@ -68,7 +68,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 if (task == MrpTask.All || task == MrpTask.GifflerThompson || task == MrpTask.Capacity)
                 {
                     //run the capacity algorithm
-                    PlanCapacities(task, newOrdersAdded, simulationId);
+                    PlanCapacities(task, newOrdersAdded, simulationId, evaluationContext);
                     
                     _messageHub.SendToAllClients("Capacities are planned");
                 }
@@ -109,7 +109,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="task"></param>
         /// <param name="newOrdersAdded"></param>
-        public void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId)
+        public void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId,ProductionDomainContext evaluationContext)
         {
             var timer = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             var demands = _context.Demands.Where(a =>
@@ -122,7 +122,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             if (newOrdersAdded)
             {
-                _rebuildNets.Rebuild(simulationId);
+                _rebuildNets.Rebuild(simulationId, evaluationContext);
                 _messageHub.SendToAllClients("RebuildNets completed");
             }
 
@@ -361,7 +361,8 @@ namespace Master40.BusinessLogicCentral.MRP
             foreach (var singleProvider in provider)
             {
                 var unfinishedProvider = singleProvider.DemandRequester.DemandProvider.Where(a => a.State != State.Finished);
-                if (unfinishedProvider.Any(a => a.GetType() != typeof(DemandProviderStock))) continue;
+                if (unfinishedProvider.Any(a => a.GetType() != typeof(DemandProviderStock)))
+                    continue;
                 if (singleProvider.DemandRequester.GetType() == typeof(DemandOrderPart))
                 {
                     var singledop = _context.Demands.OfType<DemandOrderPart>()

@@ -105,7 +105,7 @@ namespace Master40.Simulation.Simulation
                 ExchangeType = ExchangeType.Insert,
                 Quantity = quantity,
                 StockId = stock.Id,
-                RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
+                RequiredOnTime = _context.SimulationConfigurations.Single(a => a.Id == SimulationId).Time
             });
             _context.Update(stock);
             _context.SaveChanges();

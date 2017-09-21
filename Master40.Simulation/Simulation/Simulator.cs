@@ -76,7 +76,7 @@ namespace Master40.Simulation.Simulation
                 Tools.Simulation.OrderGenerator.GenerateOrders(_context, 0);
 
                 //call initial central MRP-run
-                await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId);
+                await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
 
                 _messageHub.EndScheduler();
             });
@@ -92,7 +92,7 @@ namespace Master40.Simulation.Simulation
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
                 OrderGenerator.GenerateOrders(_context, simulationId);
-                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId);
+                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId, _evaluationContext);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
@@ -285,7 +285,13 @@ namespace Master40.Simulation.Simulation
                     var item = items.First(a => a.Start == items.Min(b => b.Start));
 
                     //check children if they are finished
-                    if (!AllSimulationChildrenFinished(item, timeTable.Items) || (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item))) continue;
+                    if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
+                        (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
+                    {
+                        var test = ItemsInStock(item);
+                        var test2 = AllSimulationChildrenFinished(item, timeTable.Items);
+                        continue;
+                    }
 
                     // Roll new Duration
                     var rnd = GetRandomDelay();
@@ -384,8 +390,6 @@ namespace Master40.Simulation.Simulation
             }
         }
 
-       
-
         private bool AllSimulationChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
             var hierarchyFinished = SimulationHierarchyChildrenFinished(item, timeTableItems);
@@ -410,7 +414,9 @@ namespace Master40.Simulation.Simulation
                                select pows).ToList();
 
             var latestPows = from cP in childrenPows where cP.End == childrenPows.Max(a => a.End) select cP;
-            return latestPows.Select(pows => timeTableItems.OfType<PowsSimulationItem>().FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id && a.SimulationState == SimulationState.Finished)).All(psi => psi != null);
+            return latestPows.Select(pows => timeTableItems.OfType<PowsSimulationItem>()
+                    .FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id 
+                            && a.SimulationState == SimulationState.Finished)).All(psi => psi != null);
         }
 
         private bool? SimulationHierarchyChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
@@ -437,8 +443,10 @@ namespace Master40.Simulation.Simulation
 
         private async Task Recalculate(int simulationId)
         {
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId);
+            _processMrp.UpdateDemandsAndOrders(simulationId);
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId,_evaluationContext);
         }
+        
     }
     
 }

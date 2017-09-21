@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
+using Master40.DB.Data.Context;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 
@@ -44,7 +45,7 @@ namespace Master40.Controllers
             var jobId = 
             BackgroundJob.Enqueue<IProcessMrp>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1)
+                _processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());
