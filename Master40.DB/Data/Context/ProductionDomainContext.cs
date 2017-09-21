@@ -299,6 +299,7 @@ namespace Master40.DB.Data.Context
             else 
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a =>a.ArticleChildId == demand.ArticleId && 
                     a.ArticleParentId == null).Quantity * lotsize;
+            //Todo: check ||
             while (amount > 0 || bomQuantity > 0)
             {
                 var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand),simulationId);
@@ -357,13 +358,16 @@ namespace Master40.DB.Data.Context
         {
             var amountReserved = GetReserved(demand.ArticleId);
             var amountBought = 0;
-            var articlesBought = PurchaseParts.Where(a => a.ArticleId == demand.ArticleId);
+            var articlesBought = PurchaseParts.Where(a => a.ArticleId == demand.ArticleId && a.State != State.Finished);
             foreach (var articleBought in articlesBought)
             {
                 amountBought += articleBought.Quantity;
             }
+            //just produced articles have a reason and parents they got produced for so they cannot be reserved by another requester
+            var amountJustProduced = Demands.OfType<DemandProductionOrderBom>()
+                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
             //plannedStock is the amount of this article in stock after taking out the amount needed
-            var plannedStock = stock.Current + amountBought - demand.Quantity - amountReserved;
+            var plannedStock = stock.Current + amountBought - demand.Quantity - amountReserved - amountJustProduced;
 
             return plannedStock;
         }
@@ -615,7 +619,7 @@ namespace Master40.DB.Data.Context
             foreach (var reservation in reservations)
                 amountReserved += reservation.Quantity;
             //Todo check logic
-            reservations = Demands.OfType<DemandProviderPurchasePart>().Where(a => a.ArticleId == articleId);
+            reservations = Demands.OfType<DemandProviderPurchasePart>().Where(a => a.ArticleId == articleId && a.State != State.Finished);
             foreach (var reservation in reservations)
                 amountReserved += reservation.Quantity;
             return amountReserved;
@@ -843,6 +847,15 @@ namespace Master40.DB.Data.Context
                     if (!TryUpdateStockProvider(prov.DemandRequester))
                         continue;
                 }
+                //check for PO then set ready if it has started and taken out the articles from the stock
+                if (prov.DemandRequester.GetType() == typeof(DemandProductionOrderBom))
+                {
+                    var dpob = Demands.OfType<DemandProductionOrderBom>().Single(a => a.Id == prov.DemandRequester.Id);
+                    if (!dpob.ProductionOrderBom.ProductionOrderParent
+                        .ProductionOrderWorkSchedule.Any(a => a.ProducingState > ProducingState.Created))
+                        continue;
+                }
+                    
                 prov.DemandRequester.State = State.Finished;
                 Update(prov.DemandRequester);
                 SaveChanges();

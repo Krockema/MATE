@@ -33,6 +33,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
         public List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, int simulationId)
         {
+            //Todo: search for available POs
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = _context.GetPlannedStock(stock,demand);
