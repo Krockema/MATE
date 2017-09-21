@@ -120,16 +120,38 @@ namespace Master40.XUnitTest.DBContext
 
         [Fact]
         public async Task MrpTestForwardAsync()
-        {
-            //var scheduling = new Scheduling(_productionDomainContext);
-            //var capacityScheduling = new CapacityScheduling(_productionDomainContext);
-            var msgHub = new Moc.MessageHub();
-            //var rebuildNets = new RebuildNets(_productionDomainContext);
-            //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
-            var simulation = new Simulator(_productionDomainContext, msgHub);
-            //var mrpTest = new MrpTest();
-            // await mrpTest.CreateAndProcessOrderForward(mrpContext);
-            await simulation.Simulate(1);
+        {            
+            
+            // In-memory database only exists while the connection is open
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
+            var connection = new SqliteConnection(connectionStringBuilder.ToString());
+
+            // create OptionsBuilder with InMemmory Context
+            var builder = new DbContextOptionsBuilder<MasterDBContext>();
+            builder.UseSqlite(connection);
+
+
+            using (var c = new InMemoryContext(builder.Options))
+            {
+                c.Database.OpenConnection();
+                c.Database.EnsureCreated();
+                InMemoryContext.LoadData(_productionDomainContext, c);
+                //var scheduling = new Scheduling(_productionDomainContext);
+                //var capacityScheduling = new CapacityScheduling(_productionDomainContext);
+                var msgHub = new Moc.MessageHub();
+                //var rebuildNets = new RebuildNets(_productionDomainContext);
+                //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
+                var simulation = new Simulator(_productionDomainContext, msgHub);
+                //var mrpTest = new MrpTest();
+                // await mrpTest.CreateAndProcessOrderForward(mrpContext);
+                await simulation.Simulate(1);
+
+                CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral,
+                    _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral));
+                CopyResults.Copy(c, _productionDomainContext);
+            }
+            connection.Close();
+
 
             Assert.Equal(true, _productionDomainContext.Kpis.Any());
         }
