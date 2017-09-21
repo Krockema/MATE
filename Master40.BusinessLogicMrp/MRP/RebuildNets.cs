@@ -71,6 +71,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 amount = TryAssignStockReservation(demand, amount);
                 amount = TryAssignPurchase(demand, amount);
                 amount = TryFindProductionOrders(demand, amount);
+                throw new NotSupportedException("logical error: still unsatisfied Requests!");
             }
             foreach (var dppo in demand.DemandProvider.OfType<DemandProviderProductionOrder>())
             {
