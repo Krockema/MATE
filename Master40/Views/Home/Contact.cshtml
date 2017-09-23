@@ -3,7 +3,22 @@
 }
 <h2>@ViewData["Title"].</h2>
 <h3>@ViewData["Message"]</h3>
-
+<div class="chart-wrapper" id="chart-distro1"></div>
+<script>
+    chart1 = makeDistroChart({
+        data: [{ name: '123', age: 46 }, { name: '123', age: 30 }, { name: '123', age: 89 }, { name: '123', age: 20 }, { name: '123', age: 49 } ],
+        xName:'date',
+        yName:'value',
+        axisLabels: {xAxis: 'Years', yAxis: 'Values'},
+        selector:"#chart-distro1",
+        chartSize:{height:460, width:960},
+        constrainExtremes:true});
+    chart1.renderBoxPlot();
+    chart1.renderDataPlots();
+    chart1.renderNotchBoxes({showNotchBox:false});
+    chart1.renderViolinPlot({showViolinPlot:false});
+    });
+</script>
 <address>
     One Microsoft Way<br />
     Redmond, WA 98052-6399<br />

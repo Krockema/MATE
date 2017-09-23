@@ -4,6 +4,11 @@
 @using System.Linq;
 @using Master40.DB.Data.Helper;
 @{
+    var SimType = ViewData["SimulationType"].ToString();
+    var SimNr = ViewData["SimulationNumber"].ToString();
+    var SimConfig = ViewData["SimulationConfiguration"].ToString();
+
+
     string tasks = "[]", links = "[]";
     if (null != Model)
     {
@@ -48,7 +53,6 @@
 
         // reload need to be programmed.
         loadGantt(value1, value2);
-        loadCharts(value2)
         //$('form').submit();
     }
 
@@ -147,7 +151,7 @@
     //gantt.config.autofit = false;
     //gantt.config.start_date = "2017-06-15 00:00";
     //gantt.config.end_date = "2017-07-15 00:00";
-    gantt.config.fit_tasks = true; 
+    gantt.config.fit_tasks = true;
     gantt.config.columns = [
         {name:"text", label:" Name",  width:"250px", tree:true },
         //{name:"start_date", label:"Start time", align: "center" },
@@ -183,7 +187,7 @@
             "background-color: " + color
         ].join(";");
         box.className = class_name;
-			
+
         return box;
     }
 
@@ -241,8 +245,8 @@
     function zoom_tasks(node){
         switch (node.value) {
         case "day":
-            gantt.config.scale_unit = "hour"; 
-            gantt.config.date_scale = "%H:%i"; 
+            gantt.config.scale_unit = "hour";
+            gantt.config.date_scale = "%H:%i";
             gantt.config.subscales = [
                 { unit: "minute", step: 1, date: "%i" }
             ];
@@ -250,8 +254,8 @@
             gantt.config.min_column_width = 30;
             break;
         case "week":
-            gantt.config.scale_unit = "day"; 
-            gantt.config.date_scale = "%d %M"; 
+            gantt.config.scale_unit = "day";
+            gantt.config.date_scale = "%d %M";
             gantt.config.scale_height = 50;
             gantt.config.min_column_width = 30;
             gantt.config.subscales = [
@@ -260,15 +264,15 @@
             break;
         case "trplweek":
             gantt.config.min_column_width = 70;
-            gantt.config.scale_unit = "day"; 
-            gantt.config.date_scale = "%d %M"; 
+            gantt.config.scale_unit = "day";
+            gantt.config.date_scale = "%d %M";
             gantt.config.subscales = [ ];
             gantt.config.scale_height = 50;
             break;
         case "month":
             gantt.config.min_column_width = 70;
-            gantt.config.scale_unit = "week"; 
-            gantt.config.date_scale = "Week #%W"; 
+            gantt.config.scale_unit = "week";
+            gantt.config.date_scale = "Week #%W";
             gantt.config.subscales = [
                 {unit:"day", step:1, date:"%D"}
             ];
@@ -276,8 +280,8 @@
             break;
         case "year":
             gantt.config.min_column_width = 70;
-            gantt.config.scale_unit = "month"; 
-            gantt.config.date_scale = "%M"; 
+            gantt.config.scale_unit = "month";
+            gantt.config.date_scale = "%M";
             gantt.config.scale_height = 50;
             gantt.config.subscales = [
                 {unit:"week", step:1, date:"#%W"}
@@ -286,5 +290,34 @@
         }
         gantt.ignore_time = null;
         gantt.render();
+    }
+
+    function loadGantt(orderId, stateId) {
+        var source = "/SimulationCompare/SimulationTimeline/" + orderId + "/@Html.Raw(SimType)/" + stateId + "/@Html.Raw(SimConfig)/@Html.Raw(@SimNr)";
+        $.ajax({
+            url: source,
+            //url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
+            async: true,
+            context: document.body,
+            beforeSend: function () {
+                $('#ajax-busy').show();
+            },
+            success: function (msg) {
+                $(".MessageDisplayRunning").html("");
+                $('#ajax-busy').hide();
+
+            },
+            error: function () {
+                $(document).ajaxError(function (xhr, ajaxOptions, thrownError) {
+                    alert('status: ' +
+                        ajaxOptions.status +
+                        '-' +
+                        ajaxOptions.statusText +
+                        ' \n' +
+                        'error:\n' +
+                        ajaxOptions.responseText);
+                });
+            }
+        }).done(function (data) { $('#ProductionGantt').html(data); });
     }
 </script>

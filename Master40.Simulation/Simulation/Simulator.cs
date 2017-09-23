@@ -125,7 +125,7 @@ namespace Master40.Simulation.Simulation
                 if (_context.Orders.Any(a => a.State != State.Finished))
                     _messageHub.SendToAllClients("still unfinished orders!");
                 _processMrp.UpdateDemandsAndOrders(simulationId);
-                var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
+                var simNumber = _evaluationContext.GetSimulationNumber(simulationId, SimulationType.Central);
                 FillSimulationWorkSchedules(timeTable,simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
                 CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber);

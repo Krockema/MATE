@@ -867,9 +867,9 @@ namespace Master40.DB.Data.Context
 
         public int GetSimulationNumber(int simulationConfigurationId, SimulationType simType)
         {
-            var any_sim = SimulationWorkschedules
+            var anySim = SimulationWorkschedules
                 .Where(x => x.SimulationType == simType && x.SimulationConfigurationId == simulationConfigurationId);
-            return any_sim.Any() ? any_sim.Max(x => x.SimulationNumber) : 1;
+            return anySim.Any() ? anySim.Max(x => x.SimulationNumber) : 1;
         }
 
         public void CreateNewOrder(int articleId, int amount,int creationTime, int dueTime)

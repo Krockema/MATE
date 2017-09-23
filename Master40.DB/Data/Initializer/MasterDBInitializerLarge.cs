@@ -332,7 +332,7 @@ namespace Master40.DB.Data.Initializer
                 Name = "Test config",
                 Lotsize = 1,
                 MaxCalculationTime = 3000, // test  // 10080, // 7 days
-                OrderQuantity = 50,
+                OrderQuantity = 400,
                 Seed = 1337,
                 TimeSpanForOrders = 1,
                 Time = 1,
