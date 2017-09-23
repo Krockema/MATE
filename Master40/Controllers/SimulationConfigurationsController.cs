@@ -1,19 +1,24 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.DB.Models;
+using Master40.Simulation.Simulation;
 
 namespace Master40.Controllers
 {
     public class SimulationConfigurationsController : Controller
     {
         private readonly MasterDBContext _context;
+        private readonly ISimulator _simulator;
 
-        public SimulationConfigurationsController(MasterDBContext context)
+        public SimulationConfigurationsController(MasterDBContext context, ISimulator simulator)
         {
-            _context = context;    
+            _context = context;
+            _simulator = simulator;
         }
 
         // GET: SimulationConfigurations
@@ -147,5 +152,21 @@ namespace Master40.Controllers
         {
             return _context.SimulationConfigurations.Any(e => e.Id == id);
         }
+
+        [HttpGet("[Controller]/Central/{simulationId}")]
+        public void Decentral(int simulationId)
+        {
+                BackgroundJob.Enqueue<ISimulator>(x =>
+                    _simulator.Simulate(simulationId));
+        }
+
+
+        [HttpGet("[Controller]/Decentral/{simulationId}")]
+        public void Central(int simulationId)
+        {
+            BackgroundJob.Enqueue<ISimulator>(x =>
+                _simulator.AgentSimulatioAsync(simulationId));
+        }
+
     }
 }

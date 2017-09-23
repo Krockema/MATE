@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,7 +42,7 @@ namespace Master40.XUnitTest.DBContext
         public ContextTest()
         {
             //_ctx.Database.EnsureDeleted();
-            //MasterDBInitializerLarge.DbInitialize(_ctx);
+            MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
             _productionDomainContext.Database.EnsureDeleted();
             _productionDomainContext.Database.EnsureCreated();
@@ -59,17 +60,6 @@ namespace Master40.XUnitTest.DBContext
         }
         */
 
-
-
-        [Fact]
-        public void OrderContextTest()
-        {
-            _ctx.Orders.Add(new Order {Name = "Order1"});
-            _ctx.SaveChanges();
-
-            Assert.Equal(2, _ctx.Orders.Count());
-        }
-
         [Fact]
         public async Task MrpTestAsync()
         {
@@ -82,7 +72,6 @@ namespace Master40.XUnitTest.DBContext
             var mrpTest = new MrpTest();
             await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
             Assert.Equal(true, (_ctx.ProductionOrderWorkSchedules.Any()));
-
         }
 
         //public DemandToProvider getRequester
@@ -119,101 +108,63 @@ namespace Master40.XUnitTest.DBContext
 
 
         [Fact]
-        public async Task MrpTestForwardAsync()
+        public async Task MrpInMemmoryTest()
         {            
-            
-            // In-memory database only exists while the connection is open
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
-            var connection = new SqliteConnection(connectionStringBuilder.ToString());
-
-            // create OptionsBuilder with InMemmory Context
-            var builder = new DbContextOptionsBuilder<MasterDBContext>();
-            builder.UseSqlite(connection);
-
-
-            using (var c = new InMemoryContext(builder.Options))
-            {
-                c.Database.OpenConnection();
-                c.Database.EnsureCreated();
-                InMemoryContext.LoadData(_productionDomainContext, c);
-                //var scheduling = new Scheduling(_productionDomainContext);
-                //var capacityScheduling = new CapacityScheduling(_productionDomainContext);
-                var msgHub = new Moc.MessageHub();
-                //var rebuildNets = new RebuildNets(_productionDomainContext);
-                //var mrpContext = new ProcessMrp(_productionDomainContext, scheduling, capacityScheduling, msgHub, rebuildNets);
-                var simulation = new Simulator(_productionDomainContext, msgHub);
-                //var mrpTest = new MrpTest();
-                // await mrpTest.CreateAndProcessOrderForward(mrpContext);
-                await simulation.Simulate(1);
-
-                CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral,
-                    _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral));
-                CopyResults.Copy(c, _productionDomainContext);
-            }
-            connection.Close();
-
-
+            var msgHub = new Moc.MessageHub();
+            var simulation = new Simulator(_productionDomainContext, msgHub);
+            await simulation.Simulate(1);
             Assert.Equal(true, _productionDomainContext.Kpis.Any());
         }
 
-        // Load Database from SimulationJason
+
         [Fact]
-        public async Task LoadContextAsync()
+        public async Task MrpGifflerTest()
         {
-            int last = 0;
+            // what we need:
+            // processMrp.ExecutePlanning(IDemandToProvider demand, MrpTask task, int simulationId)
+            // _capacityScheduling.GifflerThompsonScheduling(simulationId);
+            // probably _rebuildNets.Rebuild(simulationId, evaluationContext);
+            var ctx = InMemoryContext.CreateInMemoryContext();
+            InMemoryContext.LoadData(_productionDomainContext, ctx);
 
-
-            // In-memory database only exists while the connection is open
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
-            var connection = new SqliteConnection(connectionStringBuilder.ToString());
-
-            // create OptionsBuilder with InMemmory Context
-            var builder = new DbContextOptionsBuilder<MasterDBContext>();
-            builder.UseSqlite(connection);
-            
-            for (int i = 0; i < 2; i++)
+            var scheduling = new Scheduling(ctx);
+            var capacityScheduling = new CapacityScheduling(ctx);
+            var msgHub = new Moc.MessageHub();
+            var rebuildNets = new RebuildNets(ctx);
+            var mrpContext = new ProcessMrp(ctx, scheduling, capacityScheduling, msgHub, rebuildNets);
+            var maxAllowedTime = ctx.SimulationConfigurations.Where(a => a.Id == 1).Select(x => x.Time + x.MaxCalculationTime).First();
+            var orderParts = ctx.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false
+                                                 && a.Order.DueTime < maxAllowedTime)
+                                                 .Include(a => a.Article).ToList();
+            var sw = new Stopwatch();
+            sw.Start();
+            foreach (var orderPart in orderParts.ToList())
             {
-                using (var c = new ProductionDomainContext(builder.Options))
-                {
-                    c.Database.OpenConnection();
-                    c.Database.EnsureCreated();
-                    MasterDBInitializerLarge.DbInitialize(c);
 
-                    c.ArticleTypes.Add(new ArticleType { Name = "Test" + i });
-                    c.SaveChanges();
-                    last = c.ArticleTypes.Last().Id;
-
-                    Debug.WriteLine("Last Article Type Id: " + last);
-                }
-                connection.Close();
+                Debug.WriteLine(sw.ElapsedMilliseconds + " Start orderPart Id:" + orderPart.Id);
+                var demand = mrpContext.GetDemand(orderPart);
+                //run the requirements planning and backward/forward termination algorithm
+                mrpContext.ExecutePlanning(demand, MrpTask.All,1);
+                Debug.WriteLine(sw.ElapsedMilliseconds + " End orderPart Id:" + orderPart.Id);
             }
-            Assert.Equal(4, last);
 
-            /*
-
-
-            var simState = _ctx.SaveSimulationState();
-
-
-            var stringSimState =
-                JsonConvert.SerializeObject(simState, Formatting.Indented,
-                    new JsonSerializerSettings()
-                    {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                    }
-                );
-
-            var deserialized = JsonConvert.DeserializeObject<SimulationDbState>(stringSimState);
-
-            _masterDBContext.Database.EnsureDeleted();
-            _masterDBContext.Database.EnsureCreated();
-            //_inMemmoryContext.LoadContextFromSimulation(deserialized);
-
-            */
-
+            sw.Restart();
+            Debug.WriteLine(sw.ElapsedMilliseconds + " Start Rebuild Net");
+            rebuildNets.Rebuild(1, _productionDomainContext);
+            Debug.WriteLine(sw.ElapsedMilliseconds + " End Rebuild Net");
+            sw.Restart();
+            Debug.WriteLine(sw.ElapsedMilliseconds + " Start Giffler");
+            capacityScheduling.GifflerThompsonScheduling(1);
+            Debug.WriteLine(sw.ElapsedMilliseconds + " End Giffler");
+            //await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
+            InMemoryContext.SaveData(ctx, _productionDomainContext);
+            Assert.Equal(true, (ctx.ProductionOrderWorkSchedules.Any()));
+            
         }
+        // Load Database from SimulationJason
 
-        private static DbContextOptions<MasterDBContext> CreateNewContextOptions()
+
+        private async Task CreateNewContextOptions()
         {
             // Create a fresh service provider, and therefore a fresh 
             // InMemory database instance.
@@ -227,7 +178,10 @@ namespace Master40.XUnitTest.DBContext
             builder.UseInMemoryDatabase()
                 .UseInternalServiceProvider(serviceProvider);
 
-            return builder.Options;
+           var inMem = new MasterDBContext(builder.Options);
+
+            Assert.Equal(true, inMem.Database.GetDbConnection().State == ConnectionState.Open);
+
         }
 
         // HardDatabase To InMemory
@@ -236,19 +190,18 @@ namespace Master40.XUnitTest.DBContext
         {
             var context = InMemoryContext.CreateInMemoryContext();
             InMemoryContext.LoadData(_productionDomainContext, context);
-
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
 
         [Fact]
         public async Task TestKpiCalculation()
         {
-            Tools.Simulation.CalculateKpis.CalculateMachineUtilization(
-                context: _productionDomainContext,
-                simulationId: 1,
-                simulationType: DB.Enums.SimulationType.Decentral,
-                simulationNumber: 1
-                );
+            //CalculateKpis.CalculateMachineUtilization(
+            //    context: _productionDomainContext,
+            //    simulationId: 1,
+            //    simulationType: DB.Enums.SimulationType.Decentral,
+            //    simulationNumber: 1
+            //    );
         }
 
 
@@ -290,23 +243,6 @@ namespace Master40.XUnitTest.DBContext
                 sw.WriteLine(item);
             }
         }
-
-        // Json to InMemory
-        [Fact]
-        public async Task CopyJsonToInMemmory()
-        {
-
-            var json = _ctx.SaveSimulationState();
-
-            _ctx.Database.EnsureDeleted();
-            _ctx.Database.EnsureCreated();
-
-            //_ctx.LoadInMemoryDB(json);
-
-            Assert.Equal(true, (_ctx.Articles.Any()));
-
-        }
-
     }
 }
 

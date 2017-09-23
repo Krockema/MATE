@@ -10,6 +10,7 @@ namespace Master40.MessageSystem.SignalR
         void SendToAllClients(string msg, MessageType msgType);
         string ReturnMsgBox(string msg, MessageType type);
         void EndScheduler();
+        void EndSimulation(string msg);
     }
 
     public class MessageHub : Hub, IMessageHub
@@ -39,6 +40,11 @@ namespace Master40.MessageSystem.SignalR
         {
             _connectionManager.GetHubContext<ProcessingHub>()
                 .Clients.All.clientListener("MrpProcessingComplete");
+        }
+        public void EndSimulation(string text)
+        {
+            _connectionManager.GetHubContext<ProcessingHub>()
+                .Clients.All.clientListener("ProcessingComplete", "text");
         }
 
     }

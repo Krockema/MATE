@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.Agents;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
+using Master40.DB.Interfaces;
 using Master40.DB.Models;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation.SimulationData;
 using Master40.Tools.Simulation;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -20,6 +23,7 @@ namespace Master40.Simulation.Simulation
     {
         Task Simulate(int simulationId);
         Task InitializeMrp(MrpTask task, int simulationId);
+        Task AgentSimulatioAsync(int simulationConfigurationId);
     }
 
     public class Simulator : ISimulator
@@ -73,7 +77,7 @@ namespace Master40.Simulation.Simulation
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 await PrepareSimulationContext();
-                Tools.Simulation.OrderGenerator.GenerateOrders(_context, 0);
+                OrderGenerator.GenerateOrders(_context, 0);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
@@ -92,6 +96,7 @@ namespace Master40.Simulation.Simulation
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
                 OrderGenerator.GenerateOrders(_context, simulationId);
+                // TODO: Process all orders for the current day, correct?, Why WIth 2x Context, Why Plan Capacitys with _evaluationContext -> !InMemmory
                 await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId, _evaluationContext);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
                 var waitingItems = CreateInitialTable();
@@ -259,12 +264,13 @@ namespace Master40.Simulation.Simulation
 
         private int GetRandomDelay()
         {
+            // TODO : do not forgett to change
             //later use this:
             //return new RandomNumbers().RandomInt();
             return -1;
         }
 
-        public async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId)
+        private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId)
         {
             //Todo: implement statistics
             timeTable = timeTable.ProcessTimeline(timeTable);
@@ -288,6 +294,7 @@ namespace Master40.Simulation.Simulation
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
                     {
+                        // TODO : 2 test without use ? 
                         var test = ItemsInStock(item);
                         var test2 = AllSimulationChildrenFinished(item, timeTable.Items);
                         continue;
@@ -296,6 +303,7 @@ namespace Master40.Simulation.Simulation
                     // Roll new Duration
                     var rnd = GetRandomDelay();
 
+                    // ToDo: Why minus ?
                     // set 0 to 0 if below 0 to prevent negativ starts
                     if (item.DurationSimulation - rnd <= 0)
                         rnd = 0;
@@ -367,6 +375,7 @@ namespace Master40.Simulation.Simulation
                 if (_context.Stocks
                         .Single(a => a.ArticleForeignKey == bom.ArticleChildId)
                         .Current
+                    // less then
                     < item.ProductionOrder.Quantity * bom.Quantity)
                     return false;
             }
@@ -400,7 +409,7 @@ namespace Master40.Simulation.Simulation
         }
 
 
-        private bool? SimulationBomChildrenFinished(ProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
+        private bool? SimulationBomChildrenFinished(ISimulationProductionOrderWorkSchedule item, List<ISimulationItem> timeTableItems)
         {
             var childBoms = item.ProductionOrder.ProductionOrderBoms;
             var childrenPos = (from bom in childBoms where bom.DemandProductionOrderBoms.Any()
@@ -429,6 +438,8 @@ namespace Master40.Simulation.Simulation
 
             var pows = (from hC in hierarchyChildren where hC.HierarchyNumber == hierarchyChildren.Max(a => a.HierarchyNumber) select hC).Single();
             if (timeTableItems.OfType<PowsSimulationItem>().FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id) != null)
+
+                // TODO: Return with status change?!
                 return timeTableItems.OfType<PowsSimulationItem>().FirstOrDefault(a => a.ProductionOrderWorkScheduleId == pows.Id)
                            .SimulationState == SimulationState.Finished;
             return false;
@@ -446,7 +457,37 @@ namespace Master40.Simulation.Simulation
             _processMrp.UpdateDemandsAndOrders(simulationId);
             await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId,_evaluationContext);
         }
-        
+
+        public async Task AgentSimulatioAsync(int simulationConfigurationId)
+        {
+
+            // In-memory database only exists while the connection is open
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
+            var connection = new SqliteConnection(connectionStringBuilder.ToString());
+
+            // create OptionsBuilder with InMemmory Context
+            var builder = new DbContextOptionsBuilder<MasterDBContext>();
+            builder.UseSqlite(connection);
+
+
+            using (var c = new InMemoryContext(builder.Options))
+            {
+                var simNumber = _evaluationContext.GetSimulationNumber(simulationConfigurationId, SimulationType.Decentral);
+                c.Database.OpenConnection();
+                c.Database.EnsureCreated();
+                InMemoryContext.LoadData(_evaluationContext, c);
+
+                var sim = new AgentSimulation(c, _messageHub);
+                await sim.RunSim(simulationConfigurationId, simNumber);
+
+                CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber
+                    );
+                CopyResults.Copy(c, _evaluationContext);
+            }
+            connection.Close();
+            _messageHub.EndSimulation("Simulation with Id:" + simulationConfigurationId + " Completed.");
+        }
+
     }
     
 }

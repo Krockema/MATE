@@ -48,9 +48,12 @@ textarea {
 
 .modal-content {
     padding: 0 25px 10px;
+    min-height: 315px;
 }
+
 .modal-dialog {
     margin: 110px auto;
+
 }
 
 .alert {

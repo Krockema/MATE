@@ -633,7 +633,7 @@ namespace Master40.DB.Data.Context
                 ArticleId = articleId,
                 State = State.Created,
             };
-            Add(dpob);
+            DemandProductionOrderBoms.Add(dpob);
             SaveChanges();
             return dpob;
         }

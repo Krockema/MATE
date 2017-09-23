@@ -19,6 +19,8 @@ namespace Master40.BusinessLogicCentral.MRP
         void RunRequirementsAndTermination(IDemandToProvider demand, MrpTask task, int simulationId);
         void PlanCapacities(MrpTask task, bool newOrdersAdded, int simulationId, ProductionDomainContext evaluationContext);
         void UpdateDemandsAndOrders(int simulationId);
+        void ExecutePlanning(IDemandToProvider demand, MrpTask task, int simulationId);
+        IDemandToProvider GetDemand(OrderPart orderPart);
     }
 
     public class ProcessMrp : IProcessMrp
@@ -53,10 +55,10 @@ namespace Master40.BusinessLogicCentral.MRP
                 _messageHub.SendToAllClients("Start full MRP cycle...", MessageType.info);
 
                 //get all unplanned orderparts and iterate through them for MRP
-                var maxAllowedTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time +
-                                     _context.SimulationConfigurations.Single(a => a.Id == simulationId).MaxCalculationTime;
-                var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false).Include(a => a.Article).ToList();
-                orderParts = orderParts.Where(a => a.Order.DueTime < maxAllowedTime).ToList();
+                var maxAllowedTime = _context.SimulationConfigurations.Where(a => a.Id == simulationId).Select(x => x.Time + x.MaxCalculationTime).First();
+                var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false
+                                            && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
+
                 if (orderParts.Any()) newOrdersAdded = true;
                 foreach (var orderPart in orderParts.ToList())
                 {
@@ -89,7 +91,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="orderPart"></param>
         /// <returns></returns>
-        private IDemandToProvider GetDemand(OrderPart orderPart)
+        public IDemandToProvider GetDemand(OrderPart orderPart)
         {
             var demandOrderParts =
                         _context.Demands.OfType<DemandOrderPart>().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
@@ -204,7 +206,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             }
 
-            if ((task == MrpTask.All && CheckNeedForward(demand, simulationId)) || task == MrpTask.Forward)
+            if (task == MrpTask.All && CheckNeedForward(demand, simulationId) || task == MrpTask.Forward)
             {
                 //schedules forward and then backward again with the finish of the forward algorithm
                 _scheduling.ForwardScheduling(demand);
@@ -223,7 +225,7 @@ namespace Master40.BusinessLogicCentral.MRP
             return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < _context.SimulationConfigurations.Single(b => b.Id == simulationId).Time);
         }
 
-        private void ExecutePlanning(IDemandToProvider demand, MrpTask task, int simulationId)
+        public void ExecutePlanning(IDemandToProvider demand, MrpTask task, int simulationId)
         {
             //creates Provider for the needs
             var productionOrders = _demandForecast.NetRequirement(demand, task, simulationId);

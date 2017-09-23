@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
+using Master40.DB.Enums;
 using Master40.MessageSystem.MessageReciever;
+using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 
 namespace Master40.Controllers
@@ -60,5 +62,6 @@ namespace Master40.Controllers
             var vc = ViewComponent("SimulationTimeline", new List<string> { orderId, simulationType, state, simulationConfigurationId, simNumber });
             return vc;
         }
+
     }
 }

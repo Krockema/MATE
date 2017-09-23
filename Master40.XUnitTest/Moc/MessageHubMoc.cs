@@ -27,6 +27,11 @@ namespace Master40.XUnitTest.Moc
         {
             Debug.WriteLine("Finished Scheduler");
         }
+
+        public void EndSimulation(string msg)
+        {
+            Debug.WriteLine(msg);
+        }
     }
 
 }

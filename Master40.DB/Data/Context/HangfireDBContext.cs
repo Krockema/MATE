@@ -18,7 +18,6 @@ namespace Master40.DB.Data.Context
         {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-
         }
     }
 }
