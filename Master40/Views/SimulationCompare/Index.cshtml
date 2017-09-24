@@ -182,7 +182,7 @@
 
         function ProductLeadTime(simulationId, simType) {
             $.ajax({
-                url: "/SimulationCompare/ProductLeadTime/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/ProductLeadTimeBoxPlot/" + simulationId + "/" + simType,
                 async: true,
                 context: document.body
             }).done(function (data) {

@@ -77,7 +77,7 @@ namespace Master40.Simulation.Simulation
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 await PrepareSimulationContext();
-                OrderGenerator.GenerateOrders(_context, 0);
+                OrderGenerator.GenerateOrders(_context, 1);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);

@@ -1,24 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Contact";
 }
+
 <h2>@ViewData["Title"].</h2>
 <h3>@ViewData["Message"]</h3>
-<div class="chart-wrapper" id="chart-distro1"></div>
-<script>
-    chart1 = makeDistroChart({
-        data: [{ name: '123', age: 46 }, { name: '123', age: 30 }, { name: '123', age: 89 }, { name: '123', age: 20 }, { name: '123', age: 49 } ],
-        xName:'date',
-        yName:'value',
-        axisLabels: {xAxis: 'Years', yAxis: 'Values'},
-        selector:"#chart-distro1",
-        chartSize:{height:460, width:960},
-        constrainExtremes:true});
-    chart1.renderBoxPlot();
-    chart1.renderDataPlots();
-    chart1.renderNotchBoxes({showNotchBox:false});
-    chart1.renderViolinPlot({showViolinPlot:false});
-    });
-</script>
+<div class="chart" id="chart"></div>
 <address>
     One Microsoft Way<br />
     Redmond, WA 98052-6399<br />
@@ -30,3 +16,19 @@
     <strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
     <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
 </address>
+
+
+<div class="row" style="border-bottom: 2px solid; border-left: 2px solid; width: 100px;">
+    <div class="col-md-10 col-md-offset-1" style="margin-top: 30px; color: transparent; height: 60px; border-top: 2px solid grey">
+        <div class="row">
+            <div class="col-md-6" style="border-right: 2px solid grey; height: 60px"></div>
+        </div>
+    </div>
+    <div class="col-md-10 col-md-offset-1" style="color: grey; height: 40px; border: solid 2px;"></div>
+    <div class="col-md-10 col-md-offset-1" style="color: grey; height: 27px; border: solid 2px;"></div>
+    <div class="col-md-10 col-md-offset-1" style="margin-bottom: 15px; color: transparent; height: 15px; border-bottom: 2px solid grey">
+        <div class="row">
+            <div class="col-md-6" style="border-right: 2px solid grey; height: 15px"></div>
+        </div>
+    </div>
+</div>

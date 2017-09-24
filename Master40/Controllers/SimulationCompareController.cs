@@ -48,6 +48,15 @@ namespace Master40.Controllers
             var vc = ViewComponent("ProductLeadTime", new List<string> { simulationId, simulationType });
             return vc;
         }
+        [HttpGet("[Controller]/ProductLeadTimeBoxPlot/{simulationId}/{simulationType}")]
+        public IActionResult ProductLeadTimeBoxPlot(string simulationId, string simulationType)
+        {
+            //call to Diagramm
+            var vc = ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simulationId, simulationType });
+            return vc;
+        }
+
+
         [HttpGet("[Controller]/StockEvolution/{simulationId}/{simulationType}")]
         public IActionResult StockEvolution(string simulationId, string simulationType)
         {
