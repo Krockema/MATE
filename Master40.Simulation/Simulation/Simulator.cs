@@ -35,12 +35,18 @@ namespace Master40.Simulation.Simulation
         private IProcessMrp _processMrp;
         private readonly IMessageHub _messageHub;
         //private readonly HubCallback _hubCallback;
+        private CapacityScheduling capacityScheduling;
+
+        private bool firstRunOfTheDay = true;
+
+        private RebuildNets rebuildNets;
         public Simulator(ProductionDomainContext context, /*InMemmoryContext inMemmoryContext, */ IMessageHub messageHub)//, CopyContext copyContext)
         {
             _evaluationContext = context;
             _messageHub = messageHub;
             _context = context;
-        }
+            
+    }
 
         public Task PrepareSimulationContext()
         {
@@ -53,7 +59,11 @@ namespace Master40.Simulation.Simulation
 
         private List<ProductionOrderWorkSchedule> CreateInitialTable()
         {
-            var demands = _context.Demands.Include(a => a.DemandProvider).Where(a => a.State == State.ExistsInCapacityPlan).ToList();
+            //Todo: Revert changes after testing
+            //var demands = _context.Demands.Include(a => a.DemandProvider).Where(a => a.State == State.ExistsInCapacityPlan).ToList();
+            var demands = new List<IDemandToProvider>();
+            demands.AddRange(_context.Demands.OfType<DemandOrderPart>().Include(a => a.DemandProvider).Where(a => a.State != State.Finished).ToList());
+            demands.AddRange(_context.Demands.OfType<DemandProductionOrderBom>().Include(a => a.DemandProvider).Where(a => a.State != State.Finished).ToList());
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var demand in demands)
             {
@@ -94,24 +104,28 @@ namespace Master40.Simulation.Simulation
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 _context = InMemoryContext.CreateInMemoryContext();
                 InMemoryContext.LoadData(_evaluationContext, _context);
+                capacityScheduling = new CapacityScheduling(_context);
+                rebuildNets = new RebuildNets(_context);
                 await PrepareSimulationContext();
                 OrderGenerator.GenerateOrders(_context, simulationId);
-                // TODO: Process all orders for the current day, correct?, Why WIth 2x Context, Why Plan Capacitys with _evaluationContext -> !InMemmory
-                await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId, _evaluationContext);
+                var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
+                await Recalculate(timeTable,simulationId, simNumber);
+                
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
                 if (!_context.ProductionOrderWorkSchedules.Any()) return;
                 timeTable = UpdateGoodsDelivery(timeTable,simulationId);
-                timeTable = CreateInjectionOrders(timeTable);
+                //timeTable = CreateInjectionOrders(timeTable);
                 var itemCounter = 0;
                 while (timeTable.Timer < _context.SimulationConfigurations.Single(a => a.Id == simulationId).SimulationEndTime)
                 {
-                    timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId);
+                    timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId, simNumber);
                     if (itemCounter == timeTable.Items.Count) continue;
                     itemCounter = timeTable.Items.Count;
                     _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed.");
                     _processMrp.UpdateDemandsAndOrders(simulationId);
+                    
                     var test = _context.Stocks.Where(a => a.Current < 0);
                     if (!test.Any()) continue;
                     foreach (var article in test)
@@ -124,9 +138,30 @@ namespace Master40.Simulation.Simulation
                 // SaveContext();
                 if (_context.Orders.Any(a => a.State != State.Finished))
                     _messageHub.SendToAllClients("still unfinished orders!");
+                _messageHub.SendToAllClients(waitingItems.Count+" waiting Items!");
+                var stocks = _context.Stocks.Where(a => a.Current > 0 && a.Article.ToBuild);
+                foreach (var stock in stocks)
+                {
+                    _messageHub.SendToAllClients("Article: "+stock.ArticleForeignKey + " Current: "+stock.Current);
+                }
+                var bom = _context.Demands.OfType<DemandProductionOrderBom>();
+                _messageHub.SendToAllClients(bom.Count(a => a.State != State.Finished)+" bom unfinished of "+bom.Count());
+                var boms = bom.Where(a => a.State != State.Finished).Select(a => a.ArticleId).Distinct();
+                foreach (var b in boms)
+                {
+                    _messageHub.SendToAllClients(b + " Article bom unfinished");
+                }
+                var op = _context.Demands.OfType<DemandOrderPart>();
+                _messageHub.SendToAllClients(op.Count(a => a.State != State.Finished) + " op unfinished of " + op.Count());
+                var ds = _context.Demands.OfType<DemandStock>();
+                _messageHub.SendToAllClients(ds.Count(a => a.State != State.Finished) + " ds unfinished of " + ds.Count());
                 _processMrp.UpdateDemandsAndOrders(simulationId);
-                var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
-                FillSimulationWorkSchedules(timeTable,simulationId, simNumber);
+                var pows = _context.ProductionOrderWorkSchedules;
+                _messageHub.SendToAllClients(pows.Count(a => a.ProducingState != ProducingState.Finished)+" unfinished pows of " +pows.Count());
+                var po = _context.ProductionOrders;
+                
+                SaveCompletedContext(timeTable,simulationId,simNumber);
+                FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
                 CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber);
                 CopyResults.Copy(_context, _evaluationContext);
@@ -136,16 +171,53 @@ namespace Master40.Simulation.Simulation
 
         }
 
-        private TimeTable<ISimulationItem> CreateInjectionOrders(TimeTable<ISimulationItem> timeTable)
+        private void SaveCompletedContext(TimeTable<ISimulationItem> timetable,int simulationId, int simulationNumber)
         {
-            //CreateSimulationOrder(timeTable, new List<int>() { 1 }, new List<int>() { 1 }, 1000, 1500);
-            //CreateSimulationOrder(timeTable, new List<int>() { 1 }, new List<int>() { 1 }, 1200, 1600);
-            return timeTable;
+            var finishedOrders = _context.Orders.Where(a => a.State == State.Finished).Include(a => a.OrderParts).ThenInclude(b => b.DemandOrderParts);
+            foreach (var order in finishedOrders)       {
+                //orderpart
+                foreach (var orderPart in order.OrderParts.ToList())
+                {
+                    foreach (var dop in orderPart.DemandOrderParts.ToList())
+                    {
+                        CopyDemandsAndPows(dop,timetable,simulationId,simulationNumber);
+                    }
+                }
+            }
         }
 
-        private void FillSimulationWorkSchedules(TimeTable<ISimulationItem> timeTable, int simulationId, int simulationNumber)
+        private void CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, int simulationId, int simulationNumber)
         {
-            foreach (var item in timeTable.Items.OfType<PowsSimulationItem>())
+            foreach (var provider in dop.DemandProvider.OfType<DemandProviderProductionOrder>().ToList())
+            {
+                foreach (var pob in provider.ProductionOrder.ProductionOrderBoms.ToList())
+                {
+                    foreach (var dpob in pob.DemandProductionOrderBoms.ToList())
+                    {
+                        CopyDemandsAndPows(dpob, timetable,simulationId,simulationNumber);
+                    }
+                    _context.ProductionOrderBoms.Remove(pob);
+                }
+                List<PowsSimulationItem> items = new List<PowsSimulationItem>();
+                foreach (var schedule in provider.ProductionOrder.ProductionOrderWorkSchedule)
+                {
+                    _context.ProductionOrderWorkSchedules.Remove(schedule);
+                    var item = timetable.Items.OfType<PowsSimulationItem>()
+                        .Single(a => a.ProductionOrderWorkScheduleId == schedule.Id);
+                    items.Add(item);
+                    timetable.Items.Remove(item);
+                }
+                FillSimulationWorkSchedules(items,simulationId,simulationNumber);
+                _context.ProductionOrders.Remove(provider.ProductionOrder);
+                _context.Demands.Remove(provider);
+                if (provider.DemandRequester != null) _context.Demands.Remove(provider.DemandRequester);
+            }
+            _context.SaveChanges();
+        }
+
+        private void FillSimulationWorkSchedules(List<PowsSimulationItem> items, int simulationId, int simulationNumber)
+        {
+            foreach (var item in items)
             {
                 var po = _context.ProductionOrders.Include(b => b.Article).Single(a => a.Id == item.ProductionOrderId);
                 var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
@@ -174,41 +246,14 @@ namespace Master40.Simulation.Simulation
             }
             _context.SaveChanges();
             _evaluationContext.SaveChanges();
-            foreach (var stockexchange in _context.StockExchanges)
-            {
-                stockexchange.SimulationConfigurationId = simulationId;
-                stockexchange.SimulationNumber = _context.GetSimulationNumber(stockexchange.SimulationConfigurationId,SimulationType.Central);
-                stockexchange.SimulationType = SimulationType.Central;
-                var name = _context.Stocks.Single(b => b.Id == stockexchange.StockId).Name;
-                stockexchange.StockId = _evaluationContext.Stocks.Single(a => a.Name.Equals(name)).Id;
-                var exchange = new StockExchange();
-                stockexchange.CopyDbPropertiesTo(exchange);
-                _evaluationContext.StockExchanges.Add(exchange);
-            }
-            _evaluationContext.SaveChanges();
-
-            foreach (var order in _context.Orders)
-            {
-                _evaluationContext.Add(new SimulationOrder()
-                {
-                    BusinessPartnerId = order.BusinessPartnerId,
-                    CreationTime = order.CreationTime,
-                    DueTime = order.DueTime,
-                    FinishingTime = order.FinishingTime,
-                    Name = order.Name,
-                    SimulationConfigurationId = simulationId,
-                    State = order.State,
-                    SimulationType = SimulationType.Central,
-                    
-                });
-            }
-            _evaluationContext.SaveChanges();
-            //_context.Database.CloseConnection();
+            
         }
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)
         {
-            var purchases = _context.Purchases.Include(a => a.PurchaseParts).Where(a => a.DueTime > timeTable.Timer);
+            var purchases = _context.Purchases.Include(a => a.PurchaseParts).Where(a =>
+                a.DueTime > timeTable.Timer &&
+                timeTable.Items.OfType<PurchaseSimulationItem>().All(b => b.PurchasePartId != a.Id));
             if (purchases == null) return timeTable;
             var purchaseDeliveries = timeTable.Items.OfType<PurchaseSimulationItem>().ToList();
             foreach (var purchase in purchases)
@@ -270,10 +315,13 @@ namespace Master40.Simulation.Simulation
             return -1;
         }
 
-        private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId)
+        private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
         {
-            //Todo: implement statistics
-            timeTable = timeTable.ProcessTimeline(timeTable);
+            if (!firstRunOfTheDay)
+            {
+                timeTable = timeTable.ProcessTimeline(timeTable);
+            }
+            firstRunOfTheDay = false;
             _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time = timeTable.Timer;
             _context.SaveChanges();
             CheckForOrderRequests(timeTable);
@@ -345,7 +393,7 @@ namespace Master40.Simulation.Simulation
             }
             
             if (timeTable.Timer < (timeTable.RecalculateCounter+1) * timeTable.RecalculateTimer) return timeTable;
-            await Recalculate(simulationId);
+            await Recalculate(timeTable,simulationId,simNumber);
             UpdateWaitingItems(timeTable, waitingItems);
             UpdateGoodsDelivery(timeTable,simulationId);
             timeTable.RecalculateCounter++;
@@ -452,10 +500,35 @@ namespace Master40.Simulation.Simulation
             return freeMachines;
         }
 
-        private async Task Recalculate(int simulationId)
+        private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber)
         {
+            SaveCompletedContext(timetable,simulationId,simNumber);
             _processMrp.UpdateDemandsAndOrders(simulationId);
-            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId,_evaluationContext);
+            var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
+            var maxAllowedTime = _context.SimulationConfigurations.Where(a => a.Id == simulationId).Select(x => x.Time + x.MaxCalculationTime).First();
+            var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false
+                                                                                  && a.Order.CreationTime <= time
+                                                                                  && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
+            _messageHub.SendToAllClients("before orderParts");
+            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All, _context, simulationId,_evaluationContext);
+            foreach (var orderPart in orderParts.ToList())
+            {
+                _messageHub.SendToAllClients("Requirements: orderPart: "+orderPart.Id);
+                var demand = _processMrp.GetDemand(orderPart);
+                //run the requirements planning and backward/forward termination algorithm
+                if (demand.State == State.Created)
+                {
+                    _processMrp.ExecutePlanning(demand, MrpTask.All, 1);
+                    orderPart.IsPlanned = true;
+                }
+                
+            }
+            _messageHub.SendToAllClients("before Rebuild");
+            rebuildNets.Rebuild(1, _evaluationContext);
+            _messageHub.SendToAllClients("before GT");
+            capacityScheduling.GifflerThompsonScheduling(1);
+            _messageHub.SendToAllClients("finished GT");
+            firstRunOfTheDay = true;
         }
 
         public async Task AgentSimulatioAsync(int simulationConfigurationId)

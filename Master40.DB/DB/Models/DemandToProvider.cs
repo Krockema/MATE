@@ -51,6 +51,7 @@ namespace Master40.DB.Models
         public int OrderPartId { get; set; }
         [JsonIgnore]
         public OrderPart OrderPart { get; set; }
+        
     }
     public class DemandProductionOrderBom : DemandToProvider
     {

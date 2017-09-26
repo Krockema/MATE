@@ -118,6 +118,7 @@ namespace Master40.DB.Data.Context
         public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
+            if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
             return (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into requester
                     where requester.GetType() == typeof(DemandProductionOrderBom)
@@ -195,8 +196,9 @@ namespace Master40.DB.Data.Context
         {
             po = ProductionOrders.Include(a => a.DemandProviderProductionOrders).ThenInclude(b => b.DemandRequester).Single(a => a.Id == po.Id);
             var ids = new List<int>();
-            var requester = from provider in po.DemandProviderProductionOrders
-                select provider.DemandRequester;
+            var requester = (from provider in po.DemandProviderProductionOrders
+                select provider.DemandRequester).ToList();
+            if (requester.First() == null) return ids;
             foreach (var singleRequester in requester)
             {
                 if (singleRequester.GetType() == typeof(DemandProductionOrderBom))
@@ -365,7 +367,7 @@ namespace Master40.DB.Data.Context
             }
             //just produced articles have a reason and parents they got produced for so they cannot be reserved by another requester
             var amountJustProduced = Demands.OfType<DemandProductionOrderBom>()
-                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.Any() && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
             //plannedStock is the amount of this article in stock after taking out the amount needed
             var plannedStock = stock.Current + amountBought - demand.Quantity - amountReserved - amountJustProduced;
 
@@ -431,7 +433,7 @@ namespace Master40.DB.Data.Context
                 DueTime = articleToPurchase.DueTime
             };
             //amount to be purchased has to be raised to fit the packsize
-            amount = Math.Ceiling(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
+            amount = Math.Floor(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
             var purchasePart = new PurchasePart()
             {
                 ArticleId = demand.ArticleId,
@@ -851,8 +853,7 @@ namespace Master40.DB.Data.Context
                 if (prov.DemandRequester.GetType() == typeof(DemandProductionOrderBom))
                 {
                     var dpob = Demands.OfType<DemandProductionOrderBom>().Single(a => a.Id == prov.DemandRequester.Id);
-                    if (!dpob.ProductionOrderBom.ProductionOrderParent
-                        .ProductionOrderWorkSchedule.Any(a => a.ProducingState > ProducingState.Created))
+                    if (dpob.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(a => a.ProducingState == ProducingState.Created))
                         continue;
                 }
                     

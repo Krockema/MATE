@@ -311,7 +311,7 @@ namespace Master40.BusinessLogicCentral.MRP
                                                     .Where(b => b.State == State.BackwardScheduleExists 
                                                             || b.State == State.ExistsInCapacityPlan 
                                                             || b.State == State.ForwardScheduleExists
-                                                            || b.State == State.Injected)
+                                                            || b.State == State.ProviderExist)
                                                             .ToList();
             
             var pows = new List<ProductionOrderWorkSchedule>();

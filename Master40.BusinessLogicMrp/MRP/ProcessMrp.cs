@@ -327,6 +327,7 @@ namespace Master40.BusinessLogicCentral.MRP
         private void FinishOrder(int orderId, int simulationId)
         {
             var order = _context.Orders.Single(a => a.Id == orderId);
+            if (order.State == State.Finished) return;
             order.State = State.Finished;
             order.FinishingTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             _context.Update(order);
