@@ -53,15 +53,15 @@ namespace Master40.ViewComponents
                 orders = _context?.SimulationOrders.Where(x => x.SimulationType == _simulationType
                                                         && x.SimulationNumber == _simulationNumber
                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                        .Select(x => x.Id).ToList();
+                                                        .Select(x => x.OriginId).ToList();
             }
             else
             {  // for the specified Order
-                orders = _context?.SimulationOrders.Where(x => x.Id == _orderId 
+                orders = _context?.SimulationOrders.Where(x => x.OriginId == _orderId 
                                                         && x.SimulationType == _simulationType
                                                         && x.SimulationNumber == _simulationNumber
                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                        .Select(x => x.Id).ToList();
+                                                        .Select(x => x.OriginId).ToList();
                 //orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
             }
             
@@ -70,6 +70,10 @@ namespace Master40.ViewComponents
             var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
             ViewData["SchedulingState"] = SchedulingState(_schedulingState);
+            ViewData["SimulationType"] = _simulationType.ToString();
+            ViewData["SimulationNumber"] = _simulationNumber.ToString();
+            ViewData["SimulationConfiguration"] = _simulationConfigurationId.ToString();
+
             _ganttContext.Tasks = _ganttContext.Tasks.OrderBy(x => x.type).ToList();
             // return schedule
             return View("SimulationTimeline", _ganttContext);

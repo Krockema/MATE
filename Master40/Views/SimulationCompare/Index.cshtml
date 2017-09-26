@@ -18,6 +18,7 @@
 </style>
 <h2>Simulation Comparing</h2>
 
+
 <hr/>
 <div class="container-fluid">
     <div class="row">
@@ -181,7 +182,7 @@
 
         function ProductLeadTime(simulationId, simType) {
             $.ajax({
-                url: "/SimulationCompare/ProductLeadTime/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/ProductLeadTimeBoxPlot/" + simulationId + "/" + simType,
                 async: true,
                 context: document.body
             }).done(function (data) {

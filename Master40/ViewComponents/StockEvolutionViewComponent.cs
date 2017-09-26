@@ -23,46 +23,52 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
-                {
-                    return null;
-                }
+            if (!_context.SimulationWorkschedules.Any())
+            {
+                return null;
+            }
 
-                Chart chart = new Chart();
+            Chart chart = new Chart();
 
-                // charttype
-                chart.Type = "scatter";
+            // charttype
+            chart.Type = "scatter";
 
-                // use available hight in Chart
-                chart.Options = new LineOptions()
-                {
-                    MaintainAspectRatio = false,
-                    Responsive = true,
-                    
-                    Legend = new Legend { Position = "bottom", Display = true },
-                    Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold" }
-                };
+            // use available hight in Chart
+            chart.Options = new LineOptions()
+            {
+                MaintainAspectRatio = false,
+                Responsive = true,
+
+                Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
+                Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold" }
+            };
 
 
-                SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
-                var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
-                                                   && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
-                                                   && x.SimulationType == simType);
+            SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
+                                               && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                               && x.SimulationType == simType);
 
-                var articles = kpis.Select(x => x.Name).Distinct();
-                
-                var data = new Data { Datasets = new List<Dataset>() };
-                foreach (var article in articles)
-                {
-                    var articleKpis = kpis.Where(x => x.Name == article).Select(x => new LineScatterData { x = x.Count, y = x.ValueMin }).ToList();
-                    
+            var articles = kpis.Select(x => x.Name).Distinct();
+
+            var data = new Data { Datasets = new List<Dataset>() };
+            foreach (var article in articles)
+            {
+                // add zero to start
+                var articleKpis = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
+                articleKpis.AddRange(kpis.Where(x => x.Name == article).OrderBy(x => x.Count)
+                    .Select(x => new LineScatterData { x = x.Count, y = x.ValueMin }).ToList());
+
                     var lds = new LineScatterDataset()
                     {
                         // min Stock
                         Data = articleKpis,
                         BorderWidth = 1,
                         Label = article,
-                        ShowLine = false
+                        ShowLine = true,
+                        SteppedLine = true,
+                        LineTension = 0
+                        , Hidden = (article.Equals("Dump-Truck") || article.Equals("Race-Truck")) ? false : true
                     };
                     data.Datasets.Add(lds);
 

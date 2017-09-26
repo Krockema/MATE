@@ -76,11 +76,16 @@
                            data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         </a>
-                        <a class="btn btn-default btn-xs simbtn" asp-controller="SimulationConfigurations" asp-action="Decentral" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')">
-                            <i class="fa fa-ravelry fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.DecentralRuns)</span>
+
+                        <a class="btn btn-default btn-xs simbtn ladda-button" data-style="zoom-in" asp-controller="SimulationConfigurations" asp-action="Decentral" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')">
+                            <span class="ladda-label">
+                                <i class="fa fa-ravelry fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.DecentralRuns)</span>
+                            </span>
                         </a>
-                        <a class="btn btn-default btn-xs simbtn" asp-controller="SimulationConfigurations" asp-action="Central" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')">
-                            <i class="fa fa-magic fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.CentralRuns)</span>
+                        <a class="btn btn-default btn-xs simbtn ladda-button" data-style="zoom-in" asp-controller="SimulationConfigurations" asp-action="Central" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')">
+                            <span class="ladda-label">
+                                <i class="fa fa-magic fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.CentralRuns)</span>
+                            </span>
                         </a>
                         <a asp-action="Index" asp-route-id="@item.Id" asp-controller="SimulationCompare" class="btn btn-default btn-xs">                                
                             Compare <i class="fa fa-tachometer fa-2x"></i>
@@ -106,6 +111,23 @@
         </div>
     </div>
 <script>
+
+    $(document).ready(function () {
+        // Block Interactions
+        var l = Ladda.create(document.querySelector('.simbtn'));
+        //Ladda.bind( '.simbtn' );
+        $('.simbtn').click(function(e) {
+            e.preventDefault();
+            l.start();
+            e.currentTarget.style.background = 'grey';
+            $.get(e.currentTarget.href);
+                //.always(function() { l.stop(); })
+                ;
+            //return false;
+        });
+
+
+    });
     var processingProxy = $.connection.hub.createHubProxy("ProcessingHub");
     processingProxy.on("clientListener", function (msg) {
         if (msg == "MrpProcessingComplete") {
@@ -118,16 +140,14 @@
     processingProxy.on("clientListener", function (op, msg) {
         if (op == "ProcessingComplete") {
             growlMsg(msg);
+            Ladda.stopAll();
+            e.currentTarget.style.background = 'white';
         } 
     });
 
     // Processing Hub is loaded
     $.connection.hub.start().done(function () {
         processingProxy.invoke('SystemReady');
-        $(".simbtn").click(function(e) {
-            e.preventDefault();
-            $.get(e.currentTarget.href);
-        });
     })
 
     function growlMsg(msg) {

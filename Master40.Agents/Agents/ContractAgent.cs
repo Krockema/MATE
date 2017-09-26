@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
@@ -66,7 +67,7 @@ namespace Master40.Agents.Agents
             if (ChildAgents.Any(x => x.Status != Status.Finished)) return;
             // else
             // Call Finish
-            DebugMessage("Order Finished at:" + Context.TimePeriod);
+            Debug.WriteLine("Order Finished at:" + Context.TimePeriod);
             CreateAndEnqueueInstuction(methodName: SystemAgent.InstuctionsMethods.OrderProvided.ToString(),
                 objectToProcess: requestItem,
                 targetAgent: this.Creator);

@@ -15,6 +15,8 @@ namespace Master40.Tools.Simulation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="simulationId"></param>
+        /// <param name="simulationType"></param>
+        /// <param name="simulationNumber"></param>
         public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber);
@@ -28,6 +30,8 @@ namespace Master40.Tools.Simulation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="simulationId"></param>
+        /// <param name="simulationType"></param>
+        /// <param name="simulationNumber"></param>
         public static void CalculateLeadTime(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             //calculate lead times for each product
@@ -161,25 +165,22 @@ namespace Master40.Tools.Simulation
             }
 
 
-            foreach (var stockEvo in stockEvoLutions)
-            {
-                double lastValue = (double)stockEvo.StartValue;
-                double value;
-                if (kpis.Any(x => x.Name.Equals(stockEvo.Name)))
-                {
-                    var lastKpi = kpis.Last(x => x.Name.Equals(stockEvo.Name));
-                    if (lastKpi != null)
-                        lastValue = lastKpi.Value;
-                }
-
-                var exType = stockEvo.ExchangeType;
-                value = (exType == ExchangeType.Insert)
-                    ? lastValue + (double)stockEvo.Quantity
-                    : lastValue - (double)stockEvo.Quantity;
-
-
-                
-            }
+           // foreach (var stockEvo in stockEvoLutions)
+           // {
+           //     double lastValue = (double)stockEvo.StartValue;
+           //     double value;
+           //     if (kpis.Any(x => x.Name.Equals(stockEvo.Name)))
+           //     {
+           //         var lastKpi = kpis.Last(x => x.Name.Equals(stockEvo.Name));
+           //         if (lastKpi != null)
+           //             lastValue = lastKpi.Value;
+           //     }
+           //
+           //     var exType = stockEvo.ExchangeType;
+           //     value = (exType == ExchangeType.Insert)
+           //         ? lastValue + (double)stockEvo.Quantity
+           //         : lastValue - (double)stockEvo.Quantity;
+           // }
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
