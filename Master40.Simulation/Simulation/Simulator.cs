@@ -174,22 +174,19 @@ namespace Master40.Simulation.Simulation
         private void SaveCompletedContext(TimeTable<ISimulationItem> timetable,int simulationId, int simulationNumber)
         {
             var finishedOrders = _context.Orders.Where(a => a.State == State.Finished).Include(a => a.OrderParts).ThenInclude(b => b.DemandOrderParts);
-            foreach (var order in finishedOrders)       {
-                //orderpart
-                foreach (var orderPart in order.OrderParts.ToList())
-                {
-                    foreach (var dop in orderPart.DemandOrderParts.ToList())
-                    {
-                        CopyDemandsAndPows(dop,timetable,simulationId,simulationNumber);
-                    }
-                }
-            }
+            var counterPows = _context.ProductionOrderWorkSchedules.Count();
+            var counter = (from order in finishedOrders.ToList() from orderPart in order.OrderParts.ToList() from dop in orderPart.DemandOrderParts.ToList() select CopyDemandsAndPows(dop, timetable, simulationId, simulationNumber)).Sum();
+            _messageHub.SendToAllClients(counterPows + " Pows -> now " + _context.ProductionOrderWorkSchedules.Count());
+            _messageHub.SendToAllClients(counter+" simPows deleted, now there are "+timetable.Items.Count()+" left");
         }
 
-        private void CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, int simulationId, int simulationNumber)
+        private int CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, int simulationId, int simulationNumber)
         {
-            foreach (var provider in dop.DemandProvider.OfType<DemandProviderProductionOrder>().ToList())
+            var providerlist = dop.DemandProvider.OfType<DemandProviderProductionOrder>().ToList();
+            var counter = 0;
+            while (providerlist.Any())
             {
+                var provider = providerlist.First();
                 foreach (var pob in provider.ProductionOrder.ProductionOrderBoms.ToList())
                 {
                     foreach (var dpob in pob.DemandProductionOrderBoms.ToList())
@@ -198,21 +195,36 @@ namespace Master40.Simulation.Simulation
                     }
                     _context.ProductionOrderBoms.Remove(pob);
                 }
-                List<PowsSimulationItem> items = new List<PowsSimulationItem>();
-                foreach (var schedule in provider.ProductionOrder.ProductionOrderWorkSchedule)
+                if (provider.ProductionOrder.DemandProviderProductionOrders.Any(a => a.Id != provider.Id))
                 {
-                    _context.ProductionOrderWorkSchedules.Remove(schedule);
-                    var item = timetable.Items.OfType<PowsSimulationItem>()
-                        .Single(a => a.ProductionOrderWorkScheduleId == schedule.Id);
-                    items.Add(item);
-                    timetable.Items.Remove(item);
+                    _context.Demands.Remove(_context.Demands.Single(a => a.Id == provider.Id));
+                    var po = _context.ProductionOrders.Single(a => a.Id == provider.ProductionOrderId);
+                    po.DemandProviderProductionOrders.Remove(provider);
+                    _context.Update(po);
                 }
-                FillSimulationWorkSchedules(items,simulationId,simulationNumber);
-                _context.ProductionOrders.Remove(provider.ProductionOrder);
+                else
+                {
+                    var items = new List<PowsSimulationItem>();
+                    foreach (var schedule in provider.ProductionOrder.ProductionOrderWorkSchedule.ToList())
+                    {
+                        _context.ProductionOrderWorkSchedules.Remove(schedule);
+                        var item = timetable.Items.OfType<PowsSimulationItem>()
+                            .Single(a => a.ProductionOrderWorkScheduleId == schedule.Id);
+                        items.Add(item);
+                        timetable.Items.Remove(item);
+                        counter++;
+                    }
+                    FillSimulationWorkSchedules(items, simulationId, simulationNumber);
+
+                    _context.ProductionOrders.Remove(provider.ProductionOrder);
+                }
+                
                 _context.Demands.Remove(provider);
                 if (provider.DemandRequester != null) _context.Demands.Remove(provider.DemandRequester);
+                providerlist.RemoveAt(0);
             }
             _context.SaveChanges();
+            return counter;
         }
 
         private void FillSimulationWorkSchedules(List<PowsSimulationItem> items, int simulationId, int simulationNumber)

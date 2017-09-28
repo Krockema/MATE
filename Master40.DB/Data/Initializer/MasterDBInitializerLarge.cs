@@ -330,14 +330,14 @@ namespace Master40.DB.Data.Initializer
             var simConfig = new SimulationConfiguration
             {
                 Name = "Test config",
-                Lotsize = 1,
+                Lotsize = 5,
                 MaxCalculationTime = 3000, // test  // 10080, // 7 days
-                OrderQuantity = 20,
+                OrderQuantity = 12,
                 Seed = 1337,
                 TimeSpanForOrders = 1,
                 Time = 0,
                 RecalculationTime = 1440,
-                SimulationEndTime = 4310,
+                SimulationEndTime = 7190,
                 DecentralRuns = 0,
                 CentralRuns = 0
             };
