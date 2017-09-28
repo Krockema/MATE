@@ -16,7 +16,7 @@ namespace Master40.DB.Models
         public int RequiredOnTime { get; set; }
         public State State { get; set; }
         public decimal Quantity { get; set; }
-        public int Created { get; set; }
+        public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
 
     }

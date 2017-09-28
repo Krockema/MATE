@@ -63,15 +63,12 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task MrpTestAsync()
         {
-            var scheduling = new Scheduling(_ctx);
-            var capacityScheduling = new CapacityScheduling(_ctx);
+            var imc = InMemoryContext.CreateInMemoryContext();
+            InMemoryContext.LoadData(_productionDomainContext, imc);
             var msgHub = new Moc.MessageHub();
-            var rebuildNets = new RebuildNets(_ctx);
-            var mrpContext = new ProcessMrp(_ctx, scheduling, capacityScheduling, msgHub, rebuildNets);
-
-            var mrpTest = new MrpTest();
-            await mrpTest.CreateAndProcessOrderDemandAll(mrpContext);
-            Assert.Equal(true, (_ctx.ProductionOrderWorkSchedules.Any()));
+            var simulation = new Simulator(imc, msgHub);
+            await simulation.Simulate(1);
+            Assert.Equal(true, _productionDomainContext.Kpis.Any());
         }
 
         //public DemandToProvider getRequester

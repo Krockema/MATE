@@ -9,6 +9,7 @@ namespace Master40.DB.Enums
         LeadTime,
         MachineUtilization,
         Timeliness,
-        StockEvolution
+        StockEvolution,
+        LayTime
     }
 }

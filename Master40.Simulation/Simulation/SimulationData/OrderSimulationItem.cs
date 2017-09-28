@@ -31,12 +31,12 @@ namespace Master40.Simulation.Simulation
         private readonly ProductionDomainContext _context;
         public SimulationState SimulationState { get; set; }
         public bool AddOrder { get; set; }
-        public Task<bool> DoAtStart()
+        public Task<bool> DoAtStart(int time)
         {
             return null;
         }
 
-        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
+        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus, int time) where T : ISimulationItem
         {
             for (var i = 0; i < ArticleIds.Count; i++)
             {

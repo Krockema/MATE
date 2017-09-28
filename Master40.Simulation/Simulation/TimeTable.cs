@@ -62,13 +62,13 @@ namespace Master40.Simulation.Simulation
         private void HandleFinishedItems(ISimulationItem item)
         {
             item.SimulationState = SimulationState.Finished;
-            item.DoAtEnd(ListMachineStatus);
+            item.DoAtEnd(ListMachineStatus, Timer);
         }
 
         private void AddToInProgress(ISimulationItem item)
         {
             item.SimulationState = SimulationState.InProgress;
-            item.DoAtStart();
+            item.DoAtStart(Timer);
         }
 
         public class MachineStatus
