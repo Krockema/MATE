@@ -24,12 +24,12 @@ namespace Master40.Simulation.Simulation
         public int End { get; set; }
         public SimulationState SimulationState { get; set; }
 
-        public Task<bool> DoAtStart()
+        public Task<bool> DoAtStart(int time)
         {
             return null;
         }
 
-        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
+        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus, int time) where T : ISimulationItem
         {
             var purchasePart = _context.PurchaseParts.Single(a => a.Id == PurchasePartId);
             var stock = _context.Stocks.Single(a => a.ArticleForeignKey == purchasePart.ArticleId);
@@ -39,7 +39,8 @@ namespace Master40.Simulation.Simulation
                 ExchangeType = ExchangeType.Insert,
                 Quantity = purchasePart.Quantity,
                 StockId = stock.Id,
-                RequiredOnTime = purchasePart.Purchase.DueTime
+                RequiredOnTime = purchasePart.Purchase.DueTime,
+                Time = time
             });
             purchasePart.State = State.Finished;
             _context.SaveChanges();

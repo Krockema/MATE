@@ -133,7 +133,7 @@ namespace Master40.Simulation.Simulation
                         _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
                     }
                 }
-                
+                _messageHub.SendToAllClients("Daycount: "+_messageHub.GetDayCount(simulationId));
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
                 if (_context.Orders.Any(a => a.State != State.Finished))
@@ -177,7 +177,7 @@ namespace Master40.Simulation.Simulation
             var counterPows = _context.ProductionOrderWorkSchedules.Count();
             var counter = (from order in finishedOrders.ToList() from orderPart in order.OrderParts.ToList() from dop in orderPart.DemandOrderParts.ToList() select CopyDemandsAndPows(dop, timetable, simulationId, simulationNumber)).Sum();
             _messageHub.SendToAllClients(counterPows + " Pows -> now " + _context.ProductionOrderWorkSchedules.Count());
-            _messageHub.SendToAllClients(counter+" simPows deleted, now there are "+timetable.Items.Count()+" left");
+            _messageHub.SendToAllClients(counter+" simPows deleted, now there are "+timetable.Items.Count+" left");
         }
 
         private int CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, int simulationId, int simulationNumber)
@@ -541,6 +541,7 @@ namespace Master40.Simulation.Simulation
             capacityScheduling.GifflerThompsonScheduling(1);
             _messageHub.SendToAllClients("finished GT");
             firstRunOfTheDay = true;
+            if (timetable.Timer > 0) _messageHub.IncreaseDayCount(simulationId);
         }
 
         public async Task AgentSimulatioAsync(int simulationConfigurationId)

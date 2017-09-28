@@ -201,7 +201,7 @@ namespace Master40.Agents.Agents
                     StockId = StockElement.Id,
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
-                    Created = (int)Context.TimePeriod,
+                    Time = (int)Context.TimePeriod,
                     State = stockReservation.IsInStock ? State.Finished : State.Created,
                     RequiredOnTime = request.DueTime,
                 }
@@ -221,7 +221,7 @@ namespace Master40.Agents.Agents
                 StockId = StockElement.Id,
                 ExchangeType = ExchangeType.Insert,
                 State = State.Created,
-                Created = (int)Context.TimePeriod,
+                Time = (int)Context.TimePeriod,
                 Quantity = StockElement.Article.Stock.Max - StockElement.Article.Stock.Min,
                 RequiredOnTime = time
             };

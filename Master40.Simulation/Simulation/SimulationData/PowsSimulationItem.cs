@@ -25,7 +25,7 @@ namespace Master40.Simulation.Simulation
         public bool NeedToAddNext { get; set; }
         public int SimulationId { get; set; }
         
-        public Task<bool> DoAtStart()
+        public Task<bool> DoAtStart(int time)
         {
             var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId);
             pows.ProducingState = ProducingState.Producing;
@@ -68,7 +68,8 @@ namespace Master40.Simulation.Simulation
                         ExchangeType = ExchangeType.Withdrawal,
                         Quantity = pob.Quantity,
                         StockId = stock.Id,
-                        RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime
+                        RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime,
+                        Time = time
                     });
                     _context.Stocks.Update(stock);
                     _context.SaveChanges();
@@ -86,7 +87,7 @@ namespace Master40.Simulation.Simulation
             return pows.HierarchyNumber != powslist.Min(a => a.HierarchyNumber);
         }
 
-        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem
+        public Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus, int time) where T : ISimulationItem
         {
             var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId);
             pows.ProducingState = ProducingState.Finished;
@@ -105,7 +106,8 @@ namespace Master40.Simulation.Simulation
                 ExchangeType = ExchangeType.Insert,
                 Quantity = quantity,
                 StockId = stock.Id,
-                RequiredOnTime = _context.SimulationConfigurations.Single(a => a.Id == SimulationId).Time
+                RequiredOnTime = _context.SimulationConfigurations.Single(a => a.Id == SimulationId).Time,
+                Time = time
             });
             _context.Update(stock);
             _context.SaveChanges();

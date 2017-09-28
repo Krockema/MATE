@@ -10,8 +10,8 @@ namespace Master40.Simulation.Simulation
         int Start { get; set; }
         int End { get; set; }
         SimulationState SimulationState { get; set; }
-        Task<bool> DoAtStart();
+        Task<bool> DoAtStart(int time);
         //Task<bool> DoAtEnd(List<ISimulationItem>. );
-        Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus) where T : ISimulationItem;
+        Task<bool> DoAtEnd<T>(List<TimeTable<T>.MachineStatus> listMachineStatus, int time) where T : ISimulationItem;
     }
 }

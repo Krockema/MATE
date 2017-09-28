@@ -23,6 +23,59 @@ namespace Master40.Tools.Simulation
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber);
+            CalculateLayTimes(context, simulationId, simulationType, simulationNumber);
+        }
+
+        private static void CalculateLayTimes(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
+        {
+            foreach (var article in context.Articles.Include(a => a.Stock))
+            {
+                var exchanges = context.StockExchanges.Where(a => a.StockId == article.Stock.Id).ToList();
+                var layTimesList = new List<int>();
+                while (exchanges.Any())
+                {
+                    var withdrawal = exchanges.FirstOrDefault(a => a.ExchangeType == ExchangeType.Withdrawal);
+                    if (withdrawal == null) break;
+                    if (exchanges.IndexOf(withdrawal) == 0)
+                    {
+                        exchanges.Remove(withdrawal);
+                        continue;
+                    }
+                    var insertion = exchanges.ElementAt(exchanges.IndexOf(withdrawal) - 1);
+                    layTimesList.Add(withdrawal.Time - insertion.Time);
+                    if (insertion.Quantity > withdrawal.Quantity)
+                    {
+                        exchanges.Remove(withdrawal);
+                        exchanges.ElementAt(exchanges.IndexOf(insertion)).Quantity -= withdrawal.Quantity;
+                    }
+                    else if (insertion.Quantity == withdrawal.Quantity)
+                    {
+                        exchanges.Remove(withdrawal);
+                        exchanges.Remove(insertion);
+                    }
+                    else
+                    {
+                        exchanges.Remove(insertion);
+                        exchanges.ElementAt(exchanges.IndexOf(withdrawal)).Quantity -= insertion.Quantity;
+                    }
+                }
+                if (layTimesList.Count > 0)
+                {
+                    context.Kpis.Add(new Kpi()
+                    {
+                    IsKpi = true,
+                    Value = layTimesList.Average(),
+                    Name = article.Name,
+                    KpiType = KpiType.LayTime,
+                    SimulationConfigurationId = simulationId,
+                    SimulationNumber = simulationNumber,
+                    ValueMax = layTimesList.Max(),
+                    ValueMin = layTimesList.Min(),
+                    SimulationType = simulationType,
+                    });
+                }
+            }
+            context.SaveChanges();
         }
 
         /// <summary>

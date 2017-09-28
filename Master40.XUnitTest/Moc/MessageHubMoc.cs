@@ -32,6 +32,8 @@ namespace Master40.XUnitTest.Moc
         {
             Debug.WriteLine(msg);
         }
+
+
     }
 
 }

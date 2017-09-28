@@ -342,7 +342,8 @@ namespace Master40.BusinessLogicCentral.MRP
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = singleOrderPart.Quantity,
                     StockId = stock.Id,
-                    RequiredOnTime = order.DueTime
+                    RequiredOnTime = order.DueTime,
+                    Time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time
                 });
                 _context.Update(stock);
             }
