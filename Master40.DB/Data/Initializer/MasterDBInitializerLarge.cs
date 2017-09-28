@@ -322,7 +322,6 @@ namespace Master40.DB.Data.Initializer
             {
                 new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, OrderId = order1.Id, IsPlanned = false},
                 new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = order2.Id, IsPlanned = false},
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = order2.Id, IsPlanned = false},
             };
             context.OrderParts.AddRange(orderParts);
             context.SaveChanges();

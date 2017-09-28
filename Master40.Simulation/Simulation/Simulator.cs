@@ -100,6 +100,7 @@ namespace Master40.Simulation.Simulation
         {
             await Task.Run(async () =>
             {
+                
                 // send a Message to the Client that the Simulation has been started
                 _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
                 _context = InMemoryContext.CreateInMemoryContext();
@@ -109,6 +110,7 @@ namespace Master40.Simulation.Simulation
                 await PrepareSimulationContext();
                 OrderGenerator.GenerateOrders(_context, simulationId);
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
+                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
                 await Recalculate(timeTable,simulationId, simNumber);
                 
@@ -123,7 +125,7 @@ namespace Master40.Simulation.Simulation
                     timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId, simNumber);
                     if (itemCounter == timeTable.Items.Count) continue;
                     itemCounter = timeTable.Items.Count;
-                    _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed.");
+                    // _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed.");
                     _processMrp.UpdateDemandsAndOrders(simulationId);
                     
                     var test = _context.Stocks.Where(a => a.Current < 0);
@@ -133,7 +135,6 @@ namespace Master40.Simulation.Simulation
                         _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
                     }
                 }
-                _messageHub.SendToAllClients("Daycount: "+_messageHub.GetDayCount(simulationId));
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
                 if (_context.Orders.Any(a => a.State != State.Finished))
@@ -514,10 +515,11 @@ namespace Master40.Simulation.Simulation
 
         private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber)
         {
+            var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
             SaveCompletedContext(timetable,simulationId,simNumber);
             _processMrp.UpdateDemandsAndOrders(simulationId);
-            var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
-            var maxAllowedTime = _context.SimulationConfigurations.Where(a => a.Id == simulationId).Select(x => x.Time + x.MaxCalculationTime).First();
+            var time = simConfig.Time;
+            var maxAllowedTime = simConfig.Time + simConfig.MaxCalculationTime;
             var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false
                                                                                   && a.Order.CreationTime <= time
                                                                                   && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
@@ -541,7 +543,6 @@ namespace Master40.Simulation.Simulation
             capacityScheduling.GifflerThompsonScheduling(1);
             _messageHub.SendToAllClients("finished GT");
             firstRunOfTheDay = true;
-            if (timetable.Timer > 0) _messageHub.IncreaseDayCount(simulationId);
         }
 
         public async Task AgentSimulatioAsync(int simulationConfigurationId)

@@ -65,7 +65,8 @@ namespace Master40.Agents
 
         private object CreateModel(SimulationContext context,int simulationId)
         {
-            var system = new SystemAgent(null, "System", false, _productionDomainContext);
+            var simConfig = _productionDomainContext.SimulationConfigurations.Single(x => x.Id == simulationId);
+            var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig.OrderQuantity);
             
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", false);
@@ -92,7 +93,7 @@ namespace Master40.Agents
                                                    stockElement: stock ));
             }
 
-            system.PrepareAgents(_productionDomainContext.SimulationConfigurations.First(x => x.Id == simulationId));
+            system.PrepareAgents(simConfig);
             // Return System Agent to Context
             return system;
         }

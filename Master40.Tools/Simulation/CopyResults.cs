@@ -15,24 +15,21 @@ namespace Master40.Tools.Simulation
     {
         public static void Copy(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
-            List<Kpi> kpis = new List<Kpi>();
-            foreach (var item in inMemmoryContext.Kpis)
-            {
-                kpis.Add(item.CopyDbPropertiesWithoutId());
-            }
-            productionDomainContext.Kpis.AddRange(kpis);
+            ExtractKpis(inMemmoryContext, productionDomainContext);
+            ExtractWorkSchedules(inMemmoryContext, productionDomainContext);
+            ExtractStockExchanges(inMemmoryContext, productionDomainContext);
+            Kpi sim = ExtractSimulationOrders(inMemmoryContext, productionDomainContext);
+
+            var simConfig = productionDomainContext.SimulationConfigurations.Single(s => s.Id == sim.SimulationConfigurationId);
+            if (sim.SimulationType == SimulationType.Central) { simConfig.CentralRuns += 1; } else { simConfig.DecentralRuns += 1; }
             productionDomainContext.SaveChanges();
 
 
-            List<SimulationWorkschedule> sw = new List<SimulationWorkschedule>();
-            foreach (var item in inMemmoryContext.SimulationWorkschedules)
-            {
-                sw.Add(item.CopyDbPropertiesWithoutId());
-            }
 
-            productionDomainContext.SimulationWorkschedules.AddRange(sw);
-            productionDomainContext.SaveChanges();
+        }
 
+        private static Kpi ExtractSimulationOrders(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
+        {
             List<SimulationOrder> so = new List<SimulationOrder>();
             var sim = productionDomainContext.Kpis.Last(); // i know not perfect ...
             foreach (var item in inMemmoryContext.Orders)
@@ -44,22 +41,38 @@ namespace Master40.Tools.Simulation
                 set.SimulationType = sim.SimulationType;
                 set.OriginId = item.Id;
                 so.Add(set);
-                
+
             }
             productionDomainContext.SimulationOrders.AddRange(so);
             productionDomainContext.SaveChanges();
+            return sim;
+        }
 
-            var simConfig = productionDomainContext.SimulationConfigurations.Single(s => s.Id == sim.SimulationConfigurationId);
-            if (sim.SimulationType == SimulationType.Central)
+        private static void ExtractKpis(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
+        {
+            List<Kpi> kpis = new List<Kpi>();
+            foreach (var item in inMemmoryContext.Kpis)
             {
-                simConfig.CentralRuns += 1;
-            } else
-            {
-                simConfig.DecentralRuns += 1;
+                kpis.Add(item.CopyDbPropertiesWithoutId());
             }
+            productionDomainContext.Kpis.AddRange(kpis);
             productionDomainContext.SaveChanges();
+        }
 
+        private static void ExtractWorkSchedules(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
+        {
+            List<SimulationWorkschedule> sw = new List<SimulationWorkschedule>();
+            foreach (var item in inMemmoryContext.SimulationWorkschedules)
+            {
+                sw.Add(item.CopyDbPropertiesWithoutId());
+            }
 
+            productionDomainContext.SimulationWorkschedules.AddRange(sw);
+            productionDomainContext.SaveChanges();
+        }
+
+        private static void ExtractStockExchanges(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
+        {
             List<StockExchange> se = new List<StockExchange>();
             foreach (var item in inMemmoryContext.StockExchanges)
             {
@@ -67,9 +80,6 @@ namespace Master40.Tools.Simulation
             }
             productionDomainContext.StockExchanges.AddRange(se);
             productionDomainContext.SaveChanges();
-
-
         }
-
     }
 }

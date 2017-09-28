@@ -3,6 +3,8 @@ using System.Linq;
 using Master40.MessageSystem.Messages;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Infrastructure;
+using Master40.DB.Enums;
+using System;
 
 namespace Master40.MessageSystem.SignalR
 {
@@ -13,16 +15,12 @@ namespace Master40.MessageSystem.SignalR
         string ReturnMsgBox(string msg, MessageType type);
         void EndScheduler();
         void EndSimulation(string msg);
-
-        void IncreaseDayCount(int simId);
-        int GetDayCount(int simId);
-
+        void ProcessingUpdate(int simId, int timer, SimulationType simType, int max);
     }
 
     public class MessageHub : Hub, IMessageHub
     {
         private readonly IConnectionManager _connectionManager;
-        private readonly List<SimulationDayCount> _dayCount = new List<SimulationDayCount>();
         public MessageHub(IConnectionManager connectionManager)
         {
             _connectionManager = connectionManager;
@@ -46,38 +44,18 @@ namespace Master40.MessageSystem.SignalR
         public void EndScheduler()
         {
             _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("MrpProcessingComplete");
+                .Clients.All.clientListener("MrpProcessingComplete", 1);
         }
         public void EndSimulation(string text)
         {
             _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("ProcessingComplete", "text");
+                .Clients.All.clientListener("ProcessingComplete", 1);
         }
 
-        public void IncreaseDayCount(int simId)
+        public void ProcessingUpdate(int simId, int counter, SimulationType simType, int max)
         {
-            var count = _dayCount.FirstOrDefault(a => a.SimulationId == simId);
-            if (count != null)
-                _dayCount.Find(a => a.SimulationId == simId).DayCount++;
-            else _dayCount.Add(new SimulationDayCount()
-                {
-                    SimulationId = simId,
-                    DayCount = 1
-                });
+            _connectionManager.GetHubContext<ProcessingHub>()
+               .Clients.All.clientListener("ProcessingUpdate", simId, Math.Round((double)counter / max * 100, 0).ToString(), simType.ToString() );
         }
-
-        public int GetDayCount(int simId)
-        {
-            var count = _dayCount.Where(a => a.SimulationId == simId).ToList();
-            return count.Any() ? count.First().DayCount : 0;
-        }
-
-    }
-
-    internal class SimulationDayCount
-    {
-        internal int SimulationId { get; set; }
-        internal int DayCount { get; set; }
-
     }
 }

@@ -8,16 +8,22 @@ using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
+using Master40.MessageSystem.SignalR;
 
 namespace Master40.Agents.Agents
 {
     public class SystemAgent : Agent
     {
         private readonly ProductionDomainContext _productionDomainContext;
+        private readonly IMessageHub _messageHub;
+        private int orderCount = 1;
+        private int _max;
 
-        public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext) : base(creator, name, debug)
+        public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext, IMessageHub messageHub, int max) : base(creator, name, debug)
         {
             this._productionDomainContext = productionDomainContext;
+            _messageHub = messageHub;
+            _max = max;
         }
         public enum InstuctionsMethods
         {
@@ -129,6 +135,7 @@ namespace Master40.Agents.Agents
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
             DebugMessage("Oder No:" + order.Id + " finished at " + Context.TimePeriod);
+            _messageHub.ProcessingUpdate(1, orderCount++, SimulationType.Decentral, _max);
         }
     }
 }
