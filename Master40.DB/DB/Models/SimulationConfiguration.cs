@@ -17,6 +17,6 @@ namespace Master40.DB.Models
         public int SimulationEndTime { get; set; }
         public int CentralRuns { get; set; }
         public int DecentralRuns { get; set; }
-        
+        public int DynamicKpiTimeSpan { get; set; }
     }
 }

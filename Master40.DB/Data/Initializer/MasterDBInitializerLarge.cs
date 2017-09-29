@@ -12,6 +12,7 @@ namespace Master40.DB.Data.Initializer
         {
             context.Database.EnsureCreated();
 
+
             // Look for any Entrys.
             if (context.Articles.Any())
             {
@@ -336,9 +337,10 @@ namespace Master40.DB.Data.Initializer
                 TimeSpanForOrders = 1,
                 Time = 0,
                 RecalculationTime = 1440,
-                SimulationEndTime = 7190,
+                SimulationEndTime = 3000,
                 DecentralRuns = 0,
-                CentralRuns = 0
+                CentralRuns = 0,
+                DynamicKpiTimeSpan = 480
             };
             context.SimulationConfigurations.Add(simConfig);
             context.SaveChanges();

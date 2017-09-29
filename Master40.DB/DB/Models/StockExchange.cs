@@ -18,6 +18,6 @@ namespace Master40.DB.Models
         public decimal Quantity { get; set; }
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
-
+        
     }
 }
