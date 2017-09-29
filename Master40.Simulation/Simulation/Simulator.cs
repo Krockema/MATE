@@ -132,6 +132,7 @@ namespace Master40.Simulation.Simulation
                     {
                         _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
                     }
+                    CalculateKpis.CalculateAllKpis(_context,simulationId,SimulationType.Central,simNumber);
                 }
                 _messageHub.SendToAllClients("Daycount: "+_messageHub.GetDayCount(simulationId));
                 // Save Current Context to Database as Complext Json
