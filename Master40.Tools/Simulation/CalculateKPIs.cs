@@ -5,6 +5,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using MathNet.Numerics.Statistics;
 
 namespace Master40.Tools.Simulation
 {
@@ -89,7 +90,7 @@ namespace Master40.Tools.Simulation
         {
             //calculate lead times for each product
             var leadTimes = new List<Kpi>();
-            var finishedProducts = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]") && a.SimulationConfigurationId == simulationId);
+            var finishedProducts = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]"));
             foreach (var product in finishedProducts )
             {
                 var endTime = product.End;
@@ -99,30 +100,60 @@ namespace Master40.Tools.Simulation
                     Name = product.Article
                 });
             }
+
+
+            var products = leadTimes.Select(x => x.Name).Distinct();
+            var leadTimesBoxPlot = new List<Kpi>();
             //calculate Average per article
-            var leadTimesAverage = new List<Kpi>();
-            while (leadTimes.Any())
+
+            foreach (var product in products)
             {
-                var relevantItems = leadTimes.Where(a => a.Name.Equals(leadTimes.First().Name)).ToList();
-                leadTimesAverage.Add(new Kpi()
+                var relevantItems = leadTimes.Where(x => x.Name.Equals(product)).Select(x => x.Value);
+                // BoxPlot: without bounderys
+                var stat = Statistics.FiveNumberSummary(relevantItems);
+                leadTimesBoxPlot.Add(new Kpi()
                 {
-                    Name = relevantItems.First().Name,
-                    Value = relevantItems.Sum(a => a.Value)/relevantItems.Count,
-                    ValueMin = relevantItems.Min(m => m.Value),
-                    ValueMax = relevantItems.Max(m => m.Value),
+                    Name = product,
+                    Value = stat[2],
+                    ValueMin = stat[0],
+                    ValueMax = stat[4],
                     IsKpi = true,
                     KpiType = KpiType.LeadTime,
                     SimulationConfigurationId = simulationId,
                     SimulationType = simulationType,
                     SimulationNumber = simulationNumber
                 });
-                foreach (var item in relevantItems)
+
+                // Recalculation for Diagram with cut of outliners
+                // calculate bounderies using lower mild fence (1,5) -> source: http://www.statisticshowto.com/upper-and-lower-fences/
+                var interQuantileRange = stat[3] - stat[1];
+                var uperFence = stat[3] + 1.5 * interQuantileRange;
+                var lowerFence = stat[1] - 1.5 * interQuantileRange;
+
+                // cut them from the sample
+                relevantItems = relevantItems.Where(x => x > lowerFence && x < uperFence);
+
+                // BoxPlot: without bounderys
+                stat = Statistics.FiveNumberSummary(relevantItems);
+
+                // Drop to Database
+                foreach (var item in stat)
                 {
-                    leadTimes.Remove(item);
+                    leadTimesBoxPlot.Add(new Kpi()
+                    {
+                        Name = product,
+                        Value = item,
+                        ValueMin = 0,
+                        ValueMax = 0,
+                        IsKpi = false,
+                        KpiType = KpiType.LeadTime,
+                        SimulationConfigurationId = simulationId,
+                        SimulationType = simulationType,
+                        SimulationNumber = simulationNumber
+                    });
                 }
             }
-            //insert
-            context.Kpis.AddRange(leadTimesAverage);
+            context.Kpis.AddRange(leadTimesBoxPlot);
             context.SaveChanges();
         }
 
@@ -175,7 +206,7 @@ namespace Master40.Tools.Simulation
         public static void ArticleStockEvolution(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
         {
             var stockEvoLutions = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article)
-                .Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber)
+                //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber)
                 .Select(x => new { x.ExchangeType, x.RequiredOnTime, x.Stock.Article.Name, x.Stock.Article.Price, x.Stock.StartValue, x.Quantity })
                 .OrderBy(x => x.RequiredOnTime);
             var evoMax = stockEvoLutions.Max(x => x.RequiredOnTime);
