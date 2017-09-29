@@ -8,6 +8,8 @@ namespace Master40.DB.Models
         public string Name { get; set; }
         [JsonIgnore]
         public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
+        public string ImageUrl { get; set; }
+        public int Stage { get; set; }
         [JsonIgnore]
         public virtual ICollection<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
         [JsonIgnore]

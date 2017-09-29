@@ -132,7 +132,7 @@ namespace Master40.DB.Data.Context
                 target.Orders.Add(item.CopyProperties());
             }
             target.SaveChanges();
-
+            
             foreach (var item in source.OrderParts)
             {
                 target.OrderParts.Add(item.CopyProperties());

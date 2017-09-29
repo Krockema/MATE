@@ -32,15 +32,34 @@ namespace Master40.ViewComponents
 
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!kpi.Any())
                 {
                     return null;
                 }
-                var chart = new List<BoxPlot>
+
+                var chart = new List<BoxPlot>();
+                var products = kpi.Select(x => x.Name).Distinct();
+                var colors = new ChartColor();
+                int i = 0;
+
+                foreach (var product in products)
                 {
-                    new BoxPlot{ HeigestSample=379, UpperQartile=220, Median=180, LowerQuartile= 150, LowestSample = 95, Name="Dump-Truck", Color = "rgba(255,136,51," },
-                    new BoxPlot{ HeigestSample=337, UpperQartile=195, Median=163, LowerQuartile= 136, LowestSample = 73, Name="Race-Truck", Color = "rgba(0,102,255," }
-                };
+                    var boxplotValues = kpi.Where(x => x.IsKpi == false && x.Name == product).OrderBy(x => x.Value).ToList();
+                    chart.Add(new BoxPlot
+                    {
+                        HeigestSample = (decimal)boxplotValues.ElementAt(4).Value,
+                        UpperQartile = (decimal)boxplotValues.ElementAt(3).Value,
+                        Median = (decimal)boxplotValues.ElementAt(2).Value,
+                        LowerQuartile = (decimal)boxplotValues.ElementAt(1).Value,
+                        LowestSample = (decimal)boxplotValues.ElementAt(0).Value,
+                        Name = product,
+                        Color = colors.Color[i].Substring(0, colors.Color[i++].Length - 4)
+                    });
+                }
+
+                
+                
+                    //new BoxPlot{ HeigestSample=337, UpperQartile=195, Median=163, LowerQuartile= 136, LowestSample = 73, Name="Race-Truck", Color = "rgba(0,102,255," }
                 return chart;
             });
            
@@ -48,7 +67,7 @@ namespace Master40.ViewComponents
             var boxPlot = await generateChartTask;
             ViewData["BoxPlot"] = boxPlot;
             ViewData["Type"] = paramsList[1];
-            ViewData["Data"] = kpi.ToList();
+            ViewData["Data"] = kpi.Where(x => x.IsKpi == true).ToList();
             ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
             return View($"ProductLeadTimeBoxPlot");
         }

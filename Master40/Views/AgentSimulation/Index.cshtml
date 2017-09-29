@@ -13,7 +13,6 @@
         <div class="col-md-3 col-sm-4">
             <div class="container-fluid">
                 <div class="row">
-
                     <div class="col-md-12">
                         <h2>MRP </h2>
                         <p>
@@ -67,7 +66,7 @@
                             Stock
                             Production
                             Com
-                            Machine(Machine<div>so</div>)
+                            Machine(Machine)
                             Dir-->Machine
                             System-->Dispo
                             System-->Contract
@@ -109,7 +108,7 @@
 <script>
     var processingProxy = $.connection.hub.createHubProxy("ProcessingHub");
     processingProxy.on("clientListener", function (msg) {
-        if (msg == "MrpProcessingComplete") {
+        if (msg == "ProcessingComplete") {
             $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
             $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
             @foreach(var a in machines)
@@ -120,8 +119,10 @@
             $('#ajax-busy').hide();
         } else if (msg == "SignalReady") {
             $('#ajax-busy').hide();
-        }
-        else {
+        } else if (msg == "ProcessingUpdate")
+        { 
+            // do nothing
+        } else {
             $(".MessageDisplay").prepend(msg);
             $(".MessageDisplayRunning").prepend(msg);
         }

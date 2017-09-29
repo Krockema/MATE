@@ -6,7 +6,7 @@
     var median = Math.Round((Model.Median - Model.LowerQuartile) / max * 200, 0);
     var upperQuartile = Math.Round((Model.UpperQartile - Model.Median) / max * 200, 0);
     var heighestSample = Math.Round((Model.HeigestSample - Model.UpperQartile) / max * 200, 0);
-    var rest = Math.Round((400 - Model.HeigestSample) / max * 200, 0);
+    var rest = Math.Round((max - Model.HeigestSample) / max * 200, 0);
 }
 
     <div class="col-md-10 col-md-offset-1" style="margin-top: @Html.Raw(rest)px; color: transparent; height: @Html.Raw(heighestSample)px; border-top: 2px solid @Html.Raw(Model.Color) 1);">
@@ -21,4 +21,3 @@
             <div class="col-md-6" style="border-right: 2px solid @Html.Raw(Model.Color) 1); height: @Html.Raw(lowerQuartile)px"></div>
         </div>
     </div>
-    <div class="col-md-10 col-md-offset-1" style="color: black; height: 5px; border-right: 2px solid black;"></div>
