@@ -4,16 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Master40.DB.Enums;
 
 namespace Master40.ViewComponents
 {
-    public class StockEvolutionViewComponent : ViewComponent
+    public class IdlePeriodViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
 
-        public StockEvolutionViewComponent(ProductionDomainContext context)
+        public IdlePeriodViewComponent(ProductionDomainContext context)
         {
             _context = context;
         }

@@ -87,7 +87,9 @@ namespace Master40.Agents.Agents
                     ExchangeType = ExchangeType.Insert,
                     Quantity = 1,
                     State = State.Finished,
-                    RequiredOnTime = (int)Context.TimePeriod };
+                    RequiredOnTime = (int)Context.TimePeriod,
+                    Time = (int)Context.TimePeriod
+            };
             StockElement.StockExchanges.Add(stockExchange);
 
             ProviderList.Add(productionAgent.AgentId);
@@ -129,8 +131,9 @@ namespace Master40.Agents.Agents
             StockElement.Current += stockExchange.Quantity;
             // change element State to Finish
             stockExchange.State = State.Finished;
-            stockExchange.RequiredOnTime = (int)Context.TimePeriod;
-            
+            //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
+            stockExchange.Time = (int)Context.TimePeriod;
+
             // no Items to be served.
             if (!RequestedItems.Any()) return;
             
@@ -138,7 +141,7 @@ namespace Master40.Agents.Agents
             foreach (var request in RequestedItems.OrderBy(x => x.DueTime).ToList()) // .Where( x => x.DueTime <= Context.TimePeriod))
             {
                 var item = StockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
-                if (item != null) { item.State = State.Finished; item.RequiredOnTime = (int)Context.TimePeriod; }
+                if (item != null) { item.State = State.Finished; item.Time = (int)Context.TimePeriod; }
                 else throw new Exception("No StockExchange found");
                 CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
                                                 objectToProcess: request,
@@ -176,8 +179,7 @@ namespace Master40.Agents.Agents
                 stockReservation.IsInStock = false;
                 stockReservation.Quantity = 0;
                 var purchaseOpen = StockElement.StockExchanges
-                    .Any(x => x.State != State.Finished &&
-                                x.ExchangeType == ExchangeType.Insert);
+                    .Any(x => x.State != State.Finished && x.ExchangeType == ExchangeType.Insert);
                 // Create Order 
                 if (!stockReservation.IsInStock && StockElement.Article.ToPurchase && !purchaseOpen)
                 {
@@ -223,7 +225,7 @@ namespace Master40.Agents.Agents
                 State = State.Created,
                 Time = (int)Context.TimePeriod,
                 Quantity = StockElement.Article.Stock.Max - StockElement.Article.Stock.Min,
-                RequiredOnTime = time
+                RequiredOnTime = (int)Context.TimePeriod + time
             };
 
             StockElement.StockExchanges.Add(stockExchange);
