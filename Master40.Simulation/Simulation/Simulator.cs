@@ -134,7 +134,7 @@ namespace Master40.Simulation.Simulation
                     {
                         _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
                     }
-                    CalculateKpis.CalculateAllKpis(_context,simulationId,SimulationType.Central,simNumber);
+                    CalculateKpis.CalculateAllKpis(_context,simulationId,SimulationType.Central,simNumber, false);
                 }
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
@@ -165,7 +165,7 @@ namespace Master40.Simulation.Simulation
                 SaveCompletedContext(timeTable,simulationId,simNumber);
                 FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
-                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber);
+                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true);
                 CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
@@ -568,7 +568,7 @@ namespace Master40.Simulation.Simulation
                 var sim = new AgentSimulation(c, _messageHub);
                 await sim.RunSim(simulationConfigurationId, simNumber);
 
-                CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber
+                CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber, true
                     );
                 CopyResults.Copy(c, _evaluationContext);
             }

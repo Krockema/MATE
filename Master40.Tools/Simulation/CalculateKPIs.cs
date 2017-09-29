@@ -18,10 +18,8 @@ namespace Master40.Tools.Simulation
         /// <param name="simulationId"></param>
         /// <param name="simulationType"></param>
         /// <param name="simulationNumber"></param>
-        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber)
+        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
         {
-            var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var final = simConfig.Time >= simConfig.SimulationEndTime;
             CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber, final);
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final);
@@ -34,18 +32,14 @@ namespace Master40.Tools.Simulation
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             foreach (var article in context.Articles.Include(a => a.Stock))
             {
-                List<StockExchange> exchanges;
-                if (final)
-                    exchanges = context.StockExchanges.Where(a => a.StockId == article.Stock.Id).ToList();
-                else
-                {
-                    exchanges = context.StockExchanges.Where(a =>
-                        a.StockId == article.Stock.Id && a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
-                }
+                var exchanges = final ? context.StockExchanges.Where(a => a.StockId == article.Stock.Id).ToList()
+                                      : context.StockExchanges.Where(a =>
+                                            a.StockId == article.Stock.Id && a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
+                
                 var layTimesList = new List<int>();
                 while (exchanges.Any())
                 {
-                    var withdrawal = exchanges.FirstOrDefault(a => a.ExchangeType == ExchangeType.Withdrawal);
+                    var withdrawal = exchanges.OrderBy(a => a.Time).FirstOrDefault(a => a.ExchangeType == ExchangeType.Withdrawal);
                     if (withdrawal == null) break;
                     if (exchanges.IndexOf(withdrawal) == 0)
                     {
@@ -101,8 +95,8 @@ namespace Master40.Tools.Simulation
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             //calculate lead times for each product
-            var finishedProducts = final ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]") && a.SimulationConfigurationId == simulationId).ToList()
-                                         : context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]") && a.SimulationConfigurationId == simulationId && a.Start >= simConfig.Time - simConfig.DynamicKpiTimeSpan && a.End <= simConfig.Time).ToList();
+            var finishedProducts = final ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]")).ToList()
+                                         : context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]")  && a.Start >= simConfig.Time - simConfig.DynamicKpiTimeSpan && a.End <= simConfig.Time).ToList();
             var leadTimes = (from product in finishedProducts
                 let endTime = product.End
                 let startTime = context.GetEarliestStart(context, product, simulationType)
