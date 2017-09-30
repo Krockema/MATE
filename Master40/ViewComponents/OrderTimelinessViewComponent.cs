@@ -49,14 +49,16 @@ namespace Master40.ViewComponents
                                                     , Legend = new Legend { Position = "bottom", Display = false }
                                                     , Title = new Title{ Text = "Timeliness", Position = "top", FontSize = 24, FontStyle = "bold"}
                                                 };
+
+                var cc = new ChartColor();
                 var data = new Data
                 {
                     Datasets = new List<Dataset>
                         {
                             new PieDataset
                             {
-                                BackgroundColor = new[] {"rgba(75, 192, 192, 0.2)","rgba(255, 99, 132, 0.2)" },
-                                BorderColor = new[] {"rgba(75, 192, 192, 0.7)", "rgba(255, 99, 132, 0.7)" },
+                                BackgroundColor = new[] { cc.Color[4].Substring(0, cc.Color[4].Length -4) + "0.3)",cc.Color[1].Substring(0, cc.Color[1].Length -4) + "0.3)" },
+                                BorderColor = new[] { cc.Color[4].Substring(0, cc.Color[4].Length - 4) + "0.8)", cc.Color[1].Substring(0, cc.Color[1].Length -4) + "0.8)" },
                                 BorderWidth = 1,
                            }
                         },

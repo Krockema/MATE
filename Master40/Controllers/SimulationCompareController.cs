@@ -55,13 +55,18 @@ namespace Master40.Controllers
             var vc = ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simulationId, simulationType });
             return vc;
         }
-
-
         [HttpGet("[Controller]/StockEvolution/{simulationId}/{simulationType}")]
         public IActionResult StockEvolution(string simulationId, string simulationType)
         {
             //call to Diagramm
             var vc = ViewComponent("StockEvolution", new List<string> { simulationId, simulationType });
+            return vc;
+        }
+        [HttpGet("[Controller]/IdlePeriod/{simulationId}/{simulationType}")]
+        public IActionResult IdlePeriod(string simulationId, string simulationType)
+        {
+            //call to Diagramm
+            var vc = ViewComponent("IdlePeriod", new List<string> { simulationId, simulationType });
             return vc;
         }
         [HttpGet("[Controller]/SimulationTimeline/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}")]

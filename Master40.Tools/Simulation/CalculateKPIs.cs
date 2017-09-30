@@ -87,9 +87,9 @@ namespace Master40.Tools.Simulation
                     kpis.Add(new Kpi()
                     {
                         Name = article.Name,
-                        Value = stat[2],
-                        ValueMin = stat[0],
-                        ValueMax = stat[4],
+                        Value = Math.Round(stat[2], 2),
+                        ValueMin = Math.Round(stat[0], 2),
+                        ValueMax = Math.Round(stat[4], 2),
                         IsKpi = true,
                         KpiType = KpiType.LayTime,
                         SimulationConfigurationId = simulationId,
@@ -224,9 +224,9 @@ namespace Master40.Tools.Simulation
                 leadTimesBoxPlot.Add(new Kpi()
                 {
                     Name = product,
-                    Value = stat[2],
-                    ValueMin = stat[0],
-                    ValueMax = stat[4],
+                    Value = Math.Round(stat[2], 2),
+                    ValueMin = Math.Round(stat[0], 2),
+                    ValueMax = Math.Round(stat[4], 2),
                     IsKpi = final,
                     KpiType = KpiType.LeadTime,
                     SimulationConfigurationId = simulationId,
@@ -282,17 +282,16 @@ namespace Master40.Tools.Simulation
                 ? context.SimulationWorkschedules.Select(x => new {x.Start, x.End, x.Machine}).ToList()
                 : context.SimulationWorkschedules.Where(a => a.Start >= simConfig.Time - simConfig.DynamicKpiTimeSpan)
                     .Select(x => new {x.Start, x.End, x.Machine}).ToList();
-            var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi()
-                                                                        {
-                                                                            Value = (double)(g.Sum(x => x.End) - g.Sum(x => x.Start)) / simulationTime,
-                                                                            Name = g.Key,
-                                                                            IsKpi = final,
-                                                                            KpiType = KpiType.MachineUtilization,
-                                                                            SimulationConfigurationId = simulationId,
-                                                                            SimulationType = simulationType,
-                                                                            SimulationNumber = simulationNumber,
-                                                                            Time = simConfig.Time
-                                                                        }).ToList();
+            var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi() {
+                                        Value = Math.Round((double)(g.Sum(x => x.End) - g.Sum(x => x.Start)) / simulationTime, 2),
+                                        Name = g.Key,
+                                        IsKpi = final,
+                                        KpiType = KpiType.MachineUtilization,
+                                        SimulationConfigurationId = simulationId,
+                                        SimulationType = simulationType,
+                                        SimulationNumber = simulationNumber,
+                                        Time = simConfig.Time
+                                    }).ToList();
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
@@ -308,9 +307,9 @@ namespace Master40.Tools.Simulation
             var kpis = orderTimeliness.GroupBy(g => g.Name).Select(o => new Kpi()
             {
                 Name = o.Key,
-                Value = (double)o.Count(x => (x.DueTime-x.FinishingTime) > 0) / o.Count(),
-                ValueMin = (double)o.Min(m => m.FinishingTime),
-                ValueMax = (double)o.Max(n => n.FinishingTime),
+                Value = Math.Round((double)(o.Count(x => (x.DueTime - x.FinishingTime) > 0) / o.Count()), 2),
+                ValueMin = Math.Round((double)o.Min(m => m.FinishingTime), 2),
+                ValueMax = Math.Round((double)o.Max(n => n.FinishingTime), 2),
                 Count = o.Count(c => c.Name == o.Key),
                 IsKpi = final,
                 KpiType = KpiType.Timeliness,
@@ -361,8 +360,8 @@ namespace Master40.Tools.Simulation
                         lastKpi = new Kpi
                         {
                             Name = articleEvolution.Name,
-                            Value = Convert.ToDouble(value),
-                            ValueMin = Convert.ToDouble(value * articleEvolution.Price),
+                            Value = Math.Round(Convert.ToDouble(value), 2),
+                            ValueMin = Math.Round(Convert.ToDouble(value * articleEvolution.Price), 2),
                             ValueMax = 0,
                             Count = Convert.ToDouble(articleEvolution.Time),
                             IsKpi = final,

@@ -25,6 +25,8 @@ namespace Master40.Extensions
             "rgba(4, 45, 64, 0.6)", // blue whale
             "rgba(7, 52, 74, 0.6)" // midnight blue
         };
+        public const string Transparent = "rgba(0, 0, 0, 0.0)";
+        
     };
 
 

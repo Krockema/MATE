@@ -71,7 +71,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h4>Article Idle Time</h4>
-                    <div id="ArticleIdleTime_Decentral" class="loading"></div>
+                    <div id="ArticleIdlePeriod_Decentral" class="loading"></div>
                     <!-- Idle Times -->
                 </div>
             </div>
@@ -125,7 +125,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h4>Article Idle Time</h4>
-                    <div id="ArticleIdleTime_Central" class="loading"></div>
+                    <div id="ArticleIdlePeriod_Central" class="loading"></div>
                     <!-- Idle Times -->
                 </div>
             </div>
@@ -153,6 +153,8 @@
             ProductLeadTime(@simid, "Central");
             StockEvolution(@simid, "Decentral");
             StockEvolution(@simid, "Central");
+            ArticleIdlePeriod(@simid, "Central");
+            ArticleIdlePeriod(@simid, "Decentral");
             // Load Parts
         });
 
@@ -201,5 +203,17 @@
                 $('#stockevolution_' + simType).html(data);
             });
         }
+
+        function ArticleIdlePeriod(simulationId, simType) {
+            $.ajax({
+                url: "/SimulationCompare/IdlePeriod/" + simulationId + "/" + simType,
+                async: true,
+                context: document.body
+            }).done(function (data) {
+                $('#ArticleIdlePeriod_' + simType).removeClass('loading');
+                $('#ArticleIdlePeriod_' + simType).html(data);
+            });
+        }
+
 
     </script>
