@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Master40.DB.Data.Helper;
+using Master40.DB.Enums;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
 
@@ -33,7 +34,10 @@ namespace Master40.XUnitTest.Moc
             Debug.WriteLine(msg);
         }
 
-
+        public void ProcessingUpdate(int simId, int timer, SimulationType simType, int max)
+        {
+            //Do nothing 
+        }
     }
 
 }

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Helper;
 using Master40.DB.Models;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Remotion.Linq.Parsing;
 
 namespace Master40.Agents.Agents
 {
@@ -40,7 +37,8 @@ namespace Master40.Agents.Agents
         {
             ResponseFromStock,
             RequestProvided,
-            ResponseFromSystemForBom
+            ResponseFromSystemForBom,
+            WithdrawMaterialsFromStock
         }
 
         private void RequestFromStock()
@@ -93,14 +91,10 @@ namespace Master40.Agents.Agents
         private void ResponseFromSystemForBom(InstructionSet instructionSet)
         {
             var article = instructionSet.ObjectToProcess as Article;
-            if (article == null)
-            {
-                throw new InvalidCastException(this.Name + " failed to Cast Article on Instruction.ObjectToProcess");
-            }
 
             // create new Request Item
             RequestItem item = RequestItem.CopyProperties();
-            item.Article = article;
+            item.Article = article ?? throw new InvalidCastException(this.Name + " failed to Cast Article on Instruction.ObjectToProcess");
             item.OrderId = RequestItem.OrderId;
 
             // set new Due Time if there is Work to do.
@@ -117,6 +111,13 @@ namespace Master40.Agents.Agents
             }
         }
 
+        private void WithdrawMaterialsFromStock(InstructionSet instructionSet)
+        {
+            CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.WithdrawlMaterial.ToString(),
+                                  objectToProcess: RequestItem,
+                                      targetAgent: StockAgent);
+        }
+        
         private void RequestProvided(InstructionSet instructionSet)
         {
             this.Finish();

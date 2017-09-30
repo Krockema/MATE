@@ -28,7 +28,8 @@ namespace Master40.Agents.Agents
 
         public enum InstuctionsMethods
         {
-            Finished
+            Finished,
+            ProductionStarted
         }
 
         private void StartProductionAgent()
@@ -222,6 +223,22 @@ namespace Master40.Agents.Agents
             CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
                                   objectToProcess: workItem,
                                       targetAgent: workItem.ProductionAgent);
+        }
+
+        private void ProductionStarted(InstructionSet instructionSet)
+        {
+            var workItem = instructionSet.ObjectToProcess as WorkItem;
+            if (this.Status != Status.Processed)
+            {
+                this.Status = Status.Processed;
+                foreach (var agent in ChildAgents)
+                {
+                    CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.WithdrawMaterialsFromStock.ToString(),
+                                          objectToProcess: "Production Start",
+                                              targetAgent: agent);
+                }
+            }
+            
         }
 
     }

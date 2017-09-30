@@ -25,6 +25,16 @@ namespace Master40.Agents.Agents
             StockFor = stockElement.Article.Name;
             RequestedItems = new List<RequestItem>();
             ProviderList = new List<Guid>();
+            var stockExchange = new StockExchange
+            {
+                StockId = StockElement.Id,
+                ExchangeType = ExchangeType.Insert,
+                Quantity = stockElement.StartValue,
+                State = State.Finished,
+                RequiredOnTime = (int)Context.TimePeriod,
+                Time = (int)Context.TimePeriod
+            };
+            StockElement.StockExchanges.Add(stockExchange);
             //Instructions = new List<Instruction>{ new Instruction{ Method = "RequestArticle", ExpectedObjecType = typeof(int) } };
         }
 
@@ -33,7 +43,8 @@ namespace Master40.Agents.Agents
             // Create and Return a Reservation for Article
             RequestArticle,
             ResponseFromProduction,
-            StockRefill
+            StockRefill,
+            WithdrawlMaterial
         }
 
         /// <summary>
@@ -100,6 +111,12 @@ namespace Master40.Agents.Agents
                 // Reduce Stock 
                 StockElement.Current = StockElement.Current - requestProvidable.Quantity;
                 DebugMessage("------------->> items in STOCK: " + StockElement.Current + " Items Requested " + requestProvidable.Quantity);
+
+                if (requestProvidable.IsHeadDemand && requestProvidable.DueTime >= (int)Context.TimePeriod)
+                    StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = requestProvidable.DueTime;
+                else
+                    StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = (int)Context.TimePeriod;
+
 
                 // Create Callback for Production
                 CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
@@ -174,7 +191,8 @@ namespace Master40.Agents.Agents
                                             x.ExchangeType == ExchangeType.Withdrawal)
                                 .Sum(x => x.Quantity);
             // Element is NOT in Stock
-            if ((StockElement.Current + insert - withdrawl - request.Quantity) < 0)
+            //if ((StockElement.Current + insert - withdrawl - request.Quantity) < 0)
+            if ((StockElement.Current - withdrawl - request.Quantity) < 0)
             {
                 stockReservation.IsInStock = false;
                 stockReservation.Quantity = 0;
@@ -236,6 +254,18 @@ namespace Master40.Agents.Agents
                                     waitFor: time);
 
 
+        }
+
+        private void WithdrawlMaterial(InstructionSet instructionSet)
+        {
+            var request = instructionSet.ObjectToProcess as RequestItem;
+            if (request == null)
+            {
+                throw new InvalidCastException(this.Name + " failed to Cast ProductionAgent on Instruction.ObjectToProcess");
+            }
+            var item = StockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
+            if (item != null) { item.State = State.Finished; item.Time = (int)Context.TimePeriod; }
+            else throw new Exception("No StockExchange found");
         }
 
     }

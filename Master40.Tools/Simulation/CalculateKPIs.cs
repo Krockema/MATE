@@ -24,7 +24,112 @@ namespace Master40.Tools.Simulation
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final);
-            CalculateLayTimes(context, simulationId, simulationType, simulationNumber, final);
+            CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
+        }
+
+        public static void CalculateLayTimesV2(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        {
+            var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
+            var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
+            //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
+            if (final)
+                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
+            var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
+                                                                           x.Time,
+                                                                           x.Stock.Article.Name,
+                                                                           x.Stock.Article.Price,
+                                                                           x.Quantity})
+                                                        .OrderBy(x => x.Time).ThenByDescending(x => x.ExchangeType);
+            var kpis = new List<Kpi>();
+
+            foreach (var article in context.Articles.Include(a => a.Stock)) //.Where(x => x.Name.Equals("Dump-Truck")))
+            {
+                var laytimeList = new List<double>();
+
+
+                var startValue = article.Stock.StartValue;
+                Queue<dynamic> inserts = new Queue<dynamic>(stockEvoLutions
+                                                        .Where(a => a.ExchangeType == ExchangeType.Insert 
+                                                                 && a.Name == article.Name)
+                                                        .OrderBy(t => t.Time).ToList());
+                Queue<dynamic> withdrawls = new Queue<dynamic>(stockEvoLutions
+                                                        .Where(a => a.ExchangeType == ExchangeType.Withdrawal
+                                                                 && a.Name == article.Name)
+                                                        .OrderBy(t => t.Time).ToList());
+
+                decimal restCount = 0
+                      , insertAmount = 0;
+
+                while (inserts.Any() || withdrawls.Any())
+                {
+                    var insert = inserts.Dequeue();
+                    insertAmount = insert.Quantity;
+                    while (insertAmount > 0 && withdrawls.Count() > 0)
+                    {
+                        var withdrawl = withdrawls.Dequeue();
+                        var requiredAmount = withdrawl.Quantity + restCount;
+                        restCount = insertAmount - requiredAmount;
+                        if (restCount >= 0)
+                        {
+                            for (int i = 0; i < requiredAmount; i++) laytimeList.Add(withdrawl.Time - insert.Time);
+                            insertAmount = restCount;
+                        } else
+                        {
+                            for (int i = 0; i < insertAmount; i++) laytimeList.Add(withdrawl.Time - insert.Time);
+                            restCount = restCount * -1;
+                        }
+                    }
+                }
+
+                if (laytimeList.Count() > 0)
+                {
+                    var stat = laytimeList.FiveNumberSummary();
+                    kpis.Add(new Kpi()
+                    {
+                        Name = article.Name,
+                        Value = stat[2],
+                        ValueMin = stat[0],
+                        ValueMax = stat[4],
+                        IsKpi = true,
+                        KpiType = KpiType.LayTime,
+                        SimulationConfigurationId = simulationId,
+                        SimulationType = simulationType,
+                        SimulationNumber = simulationNumber,
+                        Time = simConfig.Time
+                    });
+
+
+                    var interQuantileRange = stat[3] - stat[1];
+                    var uperFence = stat[3] + 1.5 * interQuantileRange;
+                    var lowerFence = stat[1] - 1.5 * interQuantileRange;
+
+                    // cut them from the sample
+                    var relevantItems = stat.Where(x => x > lowerFence && x < uperFence);
+
+                    // BoxPlot: without bounderys
+                    stat = relevantItems.FiveNumberSummary();
+
+                    foreach (var item in stat)
+                    {
+                        kpis.Add(new Kpi()
+                        {
+                            Name = article.Name,
+                            Value = item,
+                            ValueMin = 0,
+                            ValueMax = 0,
+                            IsKpi = false,
+                            KpiType = KpiType.LayTime,
+                            SimulationConfigurationId = simulationId,
+                            SimulationType = simulationType,
+                            SimulationNumber = simulationNumber
+                        });
+                    }
+                }
+
+
+            }
+            context.Kpis.AddRange(kpis);
+            context.SaveChanges();
         }
 
         public static void CalculateLayTimes(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
@@ -222,22 +327,25 @@ namespace Master40.Tools.Simulation
         public static void ArticleStockEvolution(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article)
-                .Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
+            var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
+                //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (final)
-                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan);
-            var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType, x.RequiredOnTime, x.Stock.Article.Name, x.Stock.Article.Price, x.Stock.StartValue, x.Quantity })
-
-                .OrderBy(x => x.RequiredOnTime);
-            var evoMax = stockEvoLutions.Max(x => x.RequiredOnTime);
-            var articles = stockEvoLutions.Select(x => new { x.Name , x.StartValue }).Distinct();
+                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
+            var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
+                                                                           x.Time,
+                                                                           x.Stock.Article.Name,
+                                                                           x.Stock.Article.Price,
+                                                                           x.Stock.StartValue,
+                                                                           x.Quantity }).OrderBy(x => x.Time).ThenByDescending(x => x.ExchangeType);
+            var evoMax = stockEvoLutions.Max(x => x.Time);
+            var articles = stockEvoLutions.Select(x => new { x.Name }).Distinct();
 
             var kpis = new List<Kpi>();
 
 
             foreach (var item in articles)
             {
-                var value = (double)item.StartValue;
+                var value = 0.0;
                 var lastKpi = new Kpi();
                 var articleEvolutions = stockEvoLutions.Where(x => x.Name.Equals(item.Name));
                 foreach (var articleEvolution in articleEvolutions)
@@ -246,7 +354,7 @@ namespace Master40.Tools.Simulation
                         ? value + (double)articleEvolution.Quantity
                         : value - (double)articleEvolution.Quantity;
 
-                    if ((int)lastKpi.Count == articleEvolution.RequiredOnTime)
+                    if ((int)lastKpi.Count == articleEvolution.Time)
                     {
                         lastKpi.Value = value;
                     } else { 
@@ -256,7 +364,7 @@ namespace Master40.Tools.Simulation
                             Value = Convert.ToDouble(value),
                             ValueMin = Convert.ToDouble(value * articleEvolution.Price),
                             ValueMax = 0,
-                            Count = Convert.ToDouble(articleEvolution.RequiredOnTime),
+                            Count = Convert.ToDouble(articleEvolution.Time),
                             IsKpi = final,
                             KpiType = KpiType.StockEvolution,
                             SimulationConfigurationId = simulationId,
@@ -269,23 +377,6 @@ namespace Master40.Tools.Simulation
                 }
             }
 
-
-           // foreach (var stockEvo in stockEvoLutions)
-           // {
-           //     double lastValue = (double)stockEvo.StartValue;
-           //     double value;
-           //     if (kpis.Any(x => x.Name.Equals(stockEvo.Name)))
-           //     {
-           //         var lastKpi = kpis.Last(x => x.Name.Equals(stockEvo.Name));
-           //         if (lastKpi != null)
-           //             lastValue = lastKpi.Value;
-           //     }
-           //
-           //     var exType = stockEvo.ExchangeType;
-           //     value = (exType == ExchangeType.Insert)
-           //         ? lastValue + (double)stockEvo.Quantity
-           //         : lastValue - (double)stockEvo.Quantity;
-           // }
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
