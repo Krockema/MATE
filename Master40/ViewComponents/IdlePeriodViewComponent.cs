@@ -27,57 +27,59 @@ namespace Master40.ViewComponents
             var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.LayTime
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                && x.SimulationType == simType
-                                               && x.IsKpi == true);
-
+                                               && x.IsKpi == true).OrderBy(x => x.ValueMax).ToList();
+            
 
             var generateChartTask = Task.Run(() =>
             {
-            if (!_context.SimulationWorkschedules.Any())
-            {
-                return null;
-            }
+                if (!_context.SimulationWorkschedules.Any())
+                {
+                    return null;
+                }
 
-            Chart chart = new Chart();
-            var cc = new ChartColor();
-            // charttype
-            chart.Type = "horizontalBar";
+                Chart chart = new Chart();
+                var lables = new List<string>();
+                var cc = new ChartColor();
+                // charttype
+                chart.Type = "horizontalBar";
 
-            var data = new Data { Datasets = new List<Dataset>(),
-                                  Labels = kpis.Select(x => x.Name).ToList() };
+                var data = new Data { Datasets = new List<Dataset>() };
 
-            var min = new BarDataset {
-                Data = new List<double>(),
-                BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
-            };
-            var avg = new BarDataset {
-                Data = new List<double>(),
-                BackgroundColor = new List<string>() // { cc.Color[8], , cc.Color[1] }
-            };
-            var max = new BarDataset {
-                Data = new List<double>(),
-                BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
-            };
+                var min = new BarDataset {
+                    Data = new List<double>(),
+                    BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
+                };
+                var avg = new BarDataset {
+                    Data = new List<double>(),
+                    BackgroundColor = new List<string>() // { cc.Color[8], , cc.Color[1] }
+                };
+                var max = new BarDataset {
+                    Data = new List<double>(),
+                    BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
+                };
 
-            foreach (var kpi in kpis)
-            {
-                min.Data.Add(kpi.ValueMin);
-                avg.Data.Add(kpi.Value);
-                max.Data.Add(kpi.ValueMax);
-                min.BackgroundColor.Add(ChartColor.Transparent);
-                avg.BackgroundColor.Add(cc.Color[4]);
-                max.BackgroundColor.Add(cc.Color[1]);
-            }
+                foreach (var kpi in kpis)
+                {
+                    lables.Add(kpi.Name);
+                    min.Data.Add(kpi.ValueMin);
+                    avg.Data.Add(kpi.Value - kpi.ValueMin);
+                    max.Data.Add(kpi.ValueMax - kpi.Value - kpi.ValueMin);
+                    min.BackgroundColor.Add(ChartColor.Transparent);
+                    avg.BackgroundColor.Add(cc.Color[4]);
+                    max.BackgroundColor.Add(cc.Color[1]);
+                }
 
-            data.Datasets.Add(min);
-            data.Datasets.Add(avg);
-            data.Datasets.Add(max);
+                data.Datasets.Add(min);
+                data.Datasets.Add(avg);
+                data.Datasets.Add(max);
+                data.Labels = lables;
 
-            var xAxis = new List<Scale>() { new BarScale { Stacked = true } };
-            var yAxis = new List<Scale>() { new BarScale { Stacked = true } }; // Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 }
-            //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
-            chart.Options = new Options() { Scales = new Scales { XAxes = xAxis, YAxes = yAxis }, MaintainAspectRatio = false, Responsive = true, Legend = new Legend { Display = false } };
-            chart.Data = data;
-            return chart;
+                var xAxis = new List<Scale>() { new BarScale { Stacked = true } };
+                var yAxis = new List<Scale>() { new BarScale { Stacked = true } }; // Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 }
+                //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
+                chart.Options = new Options() { Scales = new Scales { XAxes = xAxis, YAxes = yAxis }, MaintainAspectRatio = false, Responsive = true, Legend = new Legend { Display = false } };
+                chart.Data = data;
+                return chart;
             });
 
             // create JS to Render Chart.
