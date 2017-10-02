@@ -64,7 +64,7 @@ namespace Master40.Tools.Simulation
                 {
                     var insert = inserts.Dequeue();
                     insertAmount = insert.Quantity;
-                    while (insertAmount > 0 && withdrawls.Count() > 0)
+                    while (insertAmount > 0 && withdrawls.Any())
                     {
                         var withdrawl = withdrawls.Dequeue();
                         var requiredAmount = withdrawl.Quantity + restCount;
@@ -81,52 +81,45 @@ namespace Master40.Tools.Simulation
                     }
                 }
 
-                if (laytimeList.Count() > 0)
+                if (!laytimeList.Any()) continue;
+                var stat = laytimeList.FiveNumberSummary();
+                kpis.Add(new Kpi()
                 {
-                    var stat = laytimeList.FiveNumberSummary();
-                    kpis.Add(new Kpi()
-                    {
-                        Name = article.Name,
-                        Value = Math.Round(stat[2], 2),
-                        ValueMin = Math.Round(stat[0], 2),
-                        ValueMax = Math.Round(stat[4], 2),
-                        IsKpi = true,
-                        KpiType = KpiType.LayTime,
-                        SimulationConfigurationId = simulationId,
-                        SimulationType = simulationType,
-                        SimulationNumber = simulationNumber,
-                        Time = simConfig.Time
-                    });
+                    Name = article.Name,
+                    Value = Math.Round(stat[2], 2),
+                    ValueMin = Math.Round(stat[0], 2),
+                    ValueMax = Math.Round(stat[4], 2),
+                    IsKpi = true,
+                    KpiType = KpiType.LayTime,
+                    SimulationConfigurationId = simulationId,
+                    SimulationType = simulationType,
+                    SimulationNumber = simulationNumber,
+                    Time = simConfig.Time
+                });
 
 
-                    var interQuantileRange = stat[3] - stat[1];
-                    var uperFence = stat[3] + 1.5 * interQuantileRange;
-                    var lowerFence = stat[1] - 1.5 * interQuantileRange;
+                var interQuantileRange = stat[3] - stat[1];
+                var uperFence = stat[3] + 1.5 * interQuantileRange;
+                var lowerFence = stat[1] - 1.5 * interQuantileRange;
 
-                    // cut them from the sample
-                    var relevantItems = stat.Where(x => x > lowerFence && x < uperFence);
+                // cut them from the sample
+                var relevantItems = stat.Where(x => x > lowerFence && x < uperFence);
 
-                    // BoxPlot: without bounderys
-                    stat = relevantItems.FiveNumberSummary();
+                // BoxPlot: without bounderys
+                stat = relevantItems.FiveNumberSummary();
 
-                    foreach (var item in stat)
-                    {
-                        kpis.Add(new Kpi()
-                        {
-                            Name = article.Name,
-                            Value = item,
-                            ValueMin = 0,
-                            ValueMax = 0,
-                            IsKpi = false,
-                            KpiType = KpiType.LayTime,
-                            SimulationConfigurationId = simulationId,
-                            SimulationType = simulationType,
-                            SimulationNumber = simulationNumber
-                        });
-                    }
-                }
-
-
+                kpis.AddRange(stat.Select(item => new Kpi()
+                {
+                    Name = article.Name,
+                    Value = item,
+                    ValueMin = 0,
+                    ValueMax = 0,
+                    IsKpi = false,
+                    KpiType = KpiType.LayTime,
+                    SimulationConfigurationId = simulationId,
+                    SimulationType = simulationType,
+                    SimulationNumber = simulationNumber
+                }));
             }
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
@@ -328,7 +321,7 @@ namespace Master40.Tools.Simulation
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
                 //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
-            if (final)
+            if (!final)
                 stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
             var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
                                                                            x.Time,

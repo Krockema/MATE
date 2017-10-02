@@ -906,11 +906,7 @@ namespace Master40.DB.Data.Context
                 children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
 
             if (!children.Any()) return simulationWorkschedule.Start;
-            var startTimes = new List<int>();
-            foreach (var child in children)
-            {
-                startTimes.Add(GetEarliestStart(context, child, simulationType));
-            }
+            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType)).ToList();
             return startTimes.Min();
         }
     }
