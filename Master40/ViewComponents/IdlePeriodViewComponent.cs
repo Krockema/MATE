@@ -63,7 +63,7 @@ namespace Master40.ViewComponents
                     lables.Add(kpi.Name);
                     min.Data.Add(kpi.ValueMin);
                     avg.Data.Add(kpi.Value - kpi.ValueMin);
-                    max.Data.Add(kpi.ValueMax - kpi.Value - kpi.ValueMin);
+                    max.Data.Add(kpi.ValueMax - kpi.Value);
                     min.BackgroundColor.Add(ChartColor.Transparent);
                     avg.BackgroundColor.Add(cc.Color[4]);
                     max.BackgroundColor.Add(cc.Color[1]);
