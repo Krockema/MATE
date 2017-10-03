@@ -106,7 +106,7 @@ namespace Master40.DB.Data.Context
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
             {
-                if (mainSchedule.ProductionOrderId != pows.ProductionOrderId) continue;
+                //if (mainSchedule.ProductionOrderId != pows.ProductionOrderId) continue;
                 if (mainSchedule.HierarchyNumber <= pows.HierarchyNumber ||
                     mainSchedule.HierarchyNumber >= hierarchyParentNumber) continue;
                 hierarchyParent = mainSchedule;

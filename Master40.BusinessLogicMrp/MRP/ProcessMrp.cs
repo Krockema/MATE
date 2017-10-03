@@ -31,7 +31,6 @@ namespace Master40.BusinessLogicCentral.MRP
         private readonly IScheduling _scheduling;
         private readonly IDemandForecast _demandForecast;
         private readonly ICapacityScheduling _capacityScheduling;
-        private int itemcount = 0;
         public ProcessMrp(ProductionDomainContext context, IScheduling scheduling, ICapacityScheduling capacityScheduling, IMessageHub messageHub, IRebuildNets rebuildNets)
         {
             _messageHub = messageHub;
@@ -330,11 +329,9 @@ namespace Master40.BusinessLogicCentral.MRP
             var order = _context.Orders.Single(a => a.Id == orderId);
             if (order.State == State.Finished) return;
             order.State = State.Finished;
-            var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            order.FinishingTime = simConfig.Time;
+            order.FinishingTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             _context.Update(order);
             _context.SaveChanges();
-            _messageHub.ProcessingUpdate(simulationId, ++itemcount, SimulationType.Central, simConfig.OrderQuantity);
             _messageHub.SendToAllClients("Order with Id " + order.Id + " finished!");
             foreach (var singleOrderPart in order.OrderParts)
             {
