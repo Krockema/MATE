@@ -901,7 +901,7 @@ namespace Master40.DB.Data.Context
         {
             var children = new List<SimulationWorkschedule>();
             if (simulationType == SimulationType.Central)
-                children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.Id.ToString() + "]")).ToList();
+                children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")).ToList();
             else // decentral
                 children = context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
 

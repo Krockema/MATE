@@ -112,6 +112,7 @@ namespace Master40.Simulation.Simulation
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
                 var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
+                UpdateStockExchangesWithInitialValues(simulationId, simNumber);
                 await Recalculate(timeTable,simulationId, simNumber);
                 
                 var waitingItems = CreateInitialTable();
@@ -173,13 +174,34 @@ namespace Master40.Simulation.Simulation
 
         }
 
+        private void UpdateStockExchangesWithInitialValues(int simulationId, int simulationNumber)
+        {
+            foreach (var stock in _context.Stocks.Where(a => a.Current > 0))
+            {
+                _context.Add(new StockExchange()
+                {
+                    ExchangeType = ExchangeType.Insert,
+                    Quantity = stock.Current,
+                    StockId = stock.Id,
+                    Time = 0,
+                    State = State.Finished,
+                    SimulationType = SimulationType.Central,
+                    SimulationConfigurationId = simulationId,
+                    SimulationNumber = simulationNumber
+                });
+            }
+            _context.SaveChanges();
+        }
+
         private void SaveCompletedContext(TimeTable<ISimulationItem> timetable,int simulationId, int simulationNumber)
         {
+            
             var finishedOrders = _context.Orders.Where(a => a.State == State.Finished).Include(a => a.OrderParts).ThenInclude(b => b.DemandOrderParts);
             var counterPows = _context.ProductionOrderWorkSchedules.Count();
             var counter = (from order in finishedOrders.ToList() from orderPart in order.OrderParts.ToList() from dop in orderPart.DemandOrderParts.ToList() select CopyDemandsAndPows(dop, timetable, simulationId, simulationNumber)).Sum();
             _messageHub.SendToAllClients(counterPows + " Pows -> now " + _context.ProductionOrderWorkSchedules.Count());
             _messageHub.SendToAllClients(counter+" simPows deleted, now there are "+timetable.Items.Count+" left");
+            
         }
 
         private int CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, int simulationId, int simulationNumber)
@@ -238,7 +260,7 @@ namespace Master40.Simulation.Simulation
                 var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
                 var schedule = new SimulationWorkschedule()
                 {
-                    ParentId = JsonConvert.SerializeObject(from parents in _context.GetParents(pows) select parents.ProductionOrderId),
+                    ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
                     ProductionOrderId = "[" + po.Id.ToString() + "]",
                     Article = po.Article.Name,
                     DueTime = po.Duetime,
