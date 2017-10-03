@@ -171,9 +171,9 @@
         }
         if (mstype == "MrpProcessingComplete") {
             growlMsg("Central MRP Run Compleated")
-            var l = Ladda.create(document.querySelector("#decentral-ladda-btn_" + simId));
+            var l = Ladda.create(document.querySelector("#central-ladda-btn_" + simId));
             l.toggle();
-            $("#decentral-ladda-btn_" + simId).css('background', 'white');
+            $("#central-ladda-btn_" + simId).css('background', 'white');
         } else {
             growlMsg(mstype);
         }
