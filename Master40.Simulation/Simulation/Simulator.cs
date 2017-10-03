@@ -222,9 +222,10 @@ namespace Master40.Simulation.Simulation
                 }
                 
                 _context.Demands.Remove(provider);
-                if (provider.DemandRequester != null) _context.Demands.Remove(provider.DemandRequester);
+                
                 providerlist.RemoveAt(0);
             }
+            _context.Demands.Remove((DemandToProvider)dop);
             _context.SaveChanges();
             return counter;
         }
