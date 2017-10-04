@@ -25,18 +25,18 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Time)
                 </th>
-                <!--th>
+                <th>
                     @Html.DisplayNameFor(model => model.MaxCalculationTime)
-                </th -->
+                </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Lotsize)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.OrderQuantity)
                 </th>
-                <!--th>
-                    @Html.DisplayNameFor(model => model.TimeSpanForOrders)
-                </th-->
+                <th>
+                    @Html.DisplayNameFor(model => model.ConsecutiveRuns)
+                </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Seed)
                 </th>
@@ -50,9 +50,9 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
                     </td>
-                    <!-- td>
+                    <td>
                         @Html.DisplayFor(modelItem => item.Time)
-                    </td -->
+                    </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.MaxCalculationTime)
                     </td>
@@ -62,9 +62,9 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.OrderQuantity)
                     </td>
-                    <!--td>
-                        @Html.DisplayFor(modelItem => item.TimeSpanForOrders)
-                    </td -->
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ConsecutiveRuns)
+                    </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Seed)
                     </td>
@@ -94,9 +94,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="6">
+                    <td colspan="8">
                         <div class="row">
-                            <div class="col-md-3">Decentral</div>
+                        <div class="col-md-3">Decentral Run <span id="@Html.Raw(item.Id)PogressRunDecentral" class="badge">@item.DecentralRuns</span> of <span class="badge">@item.ConsecutiveRuns</span></div>
                             <div class="col-md-9">
                                 <div class="progress">
                                     <div id="@Html.Raw(item.Id)PogressDecentral" class="progress-bar" role="progressbar" aria-valuenow="0"
@@ -105,7 +105,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">Central</div>
+                            <div class="col-md-3">Central Run <span id="@Html.Raw(item.Id)PogressRunCentral" class="badge">@item.CentralRuns</span> of <span class="badge">@item.ConsecutiveRuns</span></div>
                             <div class="col-md-9">
                                 <div class="progress">
                                     <div id="@Html.Raw(item.Id)PogressCentral" class="progress-bar" role="progressbar" aria-valuenow="0"
@@ -167,7 +167,9 @@
             growlMsg("Decentral Run Completed")
             var l = Ladda.create(document.querySelector("#decentral-ladda-btn_" + simId ));
             l.toggle();
-            $("#decentral-ladda-btn_" + simId ).css('background', 'white');
+            $("#decentral-ladda-btn_" + simId).css('background', 'white');
+            let selector = "#" + simId + "PogressRunDecentral";
+            $(selector).text(count);
         }
         if (mstype == "MrpProcessingComplete") {
             growlMsg("Central MRP Run Compleated")

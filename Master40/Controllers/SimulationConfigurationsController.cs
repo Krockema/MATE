@@ -57,7 +57,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SimulationId,Name,Time,MaxCalculationTime,Lotsize,OrderQuantity,TimeSpanForOrders,Seed,Id")] SimulationConfiguration simulationConfiguration)
+        public async Task<IActionResult> Create([Bind("SimulationId,Name,Time,MaxCalculationTime,Lotsize,OrderQuantity,TimeSpanForOrders,Seed,ConsecutiveRuns,Id")] SimulationConfiguration simulationConfiguration)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SimulationId,Name,Time,MaxCalculationTime,Lotsize,OrderQuantity,TimeSpanForOrders,Seed,Id")] SimulationConfiguration simulationConfiguration)
+        public async Task<IActionResult> Edit(int id, [Bind("SimulationId,Name,Time,MaxCalculationTime,Lotsize,OrderQuantity,TimeSpanForOrders,Seed,ConsecutiveRuns,Id")] SimulationConfiguration simulationConfiguration)
         {
             if (id != simulationConfiguration.Id)
             {
@@ -154,18 +154,44 @@ namespace Master40.Controllers
         }
 
         [HttpGet("[Controller]/Central/{simulationId}")]
-        public void Decentral(int simulationId)
+        public void Central(int simulationId)
         {
-                BackgroundJob.Enqueue<ISimulator>(x =>
-                    _simulator.Simulate(simulationId));
+            var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
+            string run = "";
+            for (int i = 0; i < runs; i++)
+            {
+                if (run == "")
+                { // initial Run.
+                    run = BackgroundJob.Enqueue<ISimulator>(
+                        x => _simulator.Simulate(simulationId));
+                } // consecutive Runs 
+                else
+                {
+                    run = BackgroundJob.ContinueWith<ISimulator>(run,
+                        x => _simulator.Simulate(simulationId));
+                }
+            }
         }
 
 
         [HttpGet("[Controller]/Decentral/{simulationId}")]
-        public void Central(int simulationId)
+        public void Decentral(int simulationId)
         {
-            BackgroundJob.Enqueue<ISimulator>(x =>
-                _simulator.AgentSimulatioAsync(simulationId));
+            var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
+            string run = "";
+            for (int i = 0; i < runs; i++)
+            {
+                if (run == "")
+                { // initial Run.
+                    run = BackgroundJob.Enqueue<ISimulator>(
+                          x => _simulator.AgentSimulatioAsync(simulationId));
+                } // consecutive Runs 
+                else
+                {
+                   run =  BackgroundJob.ContinueWith<ISimulator>(run ,
+                          x => _simulator.AgentSimulatioAsync(simulationId));
+                }
+            }
         }
 
     }

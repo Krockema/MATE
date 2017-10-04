@@ -13,6 +13,9 @@ namespace Master40.DB.Models
         public int OrderQuantity { get; set; }
         public int TimeSpanForOrders { get; set; }
         public int Seed { get; set; }
+        public int SettlingStart { get; set; }
+        public int SettlingEnd { get; set; }
+        public int ConsecutiveRuns { get; set; }
         public int RecalculationTime { get; set; }
         public int SimulationEndTime { get; set; }
         public int CentralRuns { get; set; }

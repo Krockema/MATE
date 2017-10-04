@@ -579,11 +579,10 @@ namespace Master40.Simulation.Simulation
             // create OptionsBuilder with InMemmory Context
             var builder = new DbContextOptionsBuilder<MasterDBContext>();
             builder.UseSqlite(connection);
-
+            var simNumber = _evaluationContext.GetSimulationNumber(simulationConfigurationId, SimulationType.Decentral);
 
             using (var c = new InMemoryContext(builder.Options))
-            {
-                var simNumber = _evaluationContext.GetSimulationNumber(simulationConfigurationId, SimulationType.Decentral);
+            {   
                 c.Database.OpenConnection();
                 c.Database.EnsureCreated();
                 InMemoryContext.LoadData(_evaluationContext, c);
@@ -596,7 +595,9 @@ namespace Master40.Simulation.Simulation
                 CopyResults.Copy(c, _evaluationContext);
             }
             connection.Close();
-            _messageHub.EndSimulation("Simulation with Id:" + simulationConfigurationId + " Completed.");
+            _messageHub.EndSimulation("Simulation with Id:" + simulationConfigurationId + " Completed."
+                                            , simulationConfigurationId.ToString()
+                                            , simNumber.ToString());
         }
 
     }

@@ -14,7 +14,7 @@ namespace Master40.MessageSystem.SignalR
         void SendToAllClients(string msg, MessageType msgType);
         string ReturnMsgBox(string msg, MessageType type);
         void EndScheduler();
-        void EndSimulation(string msg);
+        void EndSimulation(string msg, string simId, string simNumber);
         void ProcessingUpdate(int simId, int timer, SimulationType simType, int max);
     }
 
@@ -46,10 +46,10 @@ namespace Master40.MessageSystem.SignalR
             _connectionManager.GetHubContext<ProcessingHub>()
                 .Clients.All.clientListener("MrpProcessingComplete", 1);
         }
-        public void EndSimulation(string text)
+        public void EndSimulation(string text,string simId,string simNumber)
         {
             _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("ProcessingComplete", 1);
+                .Clients.All.clientListener("ProcessingComplete", simId, simNumber);
         }
 
         public void ProcessingUpdate(int simId, int counter, SimulationType simType, int max)
