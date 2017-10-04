@@ -19,22 +19,24 @@ namespace Master40.Tools.Simulation
         /// <param name="simulationId"></param>
         /// <param name="simulationType"></param>
         /// <param name="simulationNumber"></param>
+        /// <param name="final"></param>
+        /// <param name="time"></param>
         public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
-            CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber, final);
+            CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber, final, time);
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final, time);
-            CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final);
-            ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final);
-            CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
+            CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final, time);
+            ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final, time);
+            CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final, time);
         }
 
-        public static void CalculateLayTimesV2(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void CalculateLayTimesV2(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
             //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (!final)
-                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
+                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= time - simConfig.DynamicKpiTimeSpan).ToList();
             var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
                                                                            x.Time,
                                                                            x.Stock.Article.Name,
@@ -92,7 +94,7 @@ namespace Master40.Tools.Simulation
                     SimulationConfigurationId = simulationId,
                     SimulationType = simulationType,
                     SimulationNumber = simulationNumber,
-                    Time = simConfig.Time
+                    Time = time
                 });
                 var interQuantileRange = stat[3] - stat[1];
                 var upperFence = stat[3] + 1.5 * interQuantileRange;
@@ -123,14 +125,14 @@ namespace Master40.Tools.Simulation
             context.SaveChanges();
         }
 
-        public static void CalculateLayTimes(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void CalculateLayTimes(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             foreach (var article in context.Articles.Include(a => a.Stock))
             {
                 var exchanges = final ? context.StockExchanges.Where(a => a.StockId == article.Stock.Id).ToList()
                                       : context.StockExchanges.Where(a =>
-                                            a.StockId == article.Stock.Id && a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
+                                            a.StockId == article.Stock.Id && a.Time >=time - simConfig.DynamicKpiTimeSpan).ToList();
                 
                 var layTimesList = new List<int>();
                 while (exchanges.Any())
@@ -173,7 +175,7 @@ namespace Master40.Tools.Simulation
                         ValueMax = layTimesList.Max(),
                         ValueMin = layTimesList.Min(),
                         SimulationType = simulationType,
-                        Time = simConfig.Time
+                        Time = time
                     });
                 }
             }
@@ -187,12 +189,12 @@ namespace Master40.Tools.Simulation
         /// <param name="simulationId"></param>
         /// <param name="simulationType"></param>
         /// <param name="simulationNumber"></param>
-        public static void CalculateLeadTime(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void CalculateLeadTime(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             //calculate lead times for each product
             var finishedProducts = final ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]")).ToList()
-                                         : context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]")  && a.Start >= simConfig.Time - simConfig.DynamicKpiTimeSpan && a.End <= simConfig.Time).ToList();
+                                         : context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[]")  && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = (from product in finishedProducts
                 let endTime = product.End
                 let startTime = context.GetEarliestStart(context, product, simulationType)
@@ -223,7 +225,7 @@ namespace Master40.Tools.Simulation
                     SimulationConfigurationId = simulationId,
                     SimulationType = simulationType,
                     SimulationNumber = simulationNumber,
-                    Time = simConfig.Time
+                    Time = time
                 });
 
                 // Recalculation for Diagram with cut of outliners
@@ -289,12 +291,12 @@ namespace Master40.Tools.Simulation
             context.SaveChanges();
         }
 
-        public static void CalculateTimeliness(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void CalculateTimeliness(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var orderTimeliness = final ? context.Orders.Where(a => a.State == State.Finished)
                                             .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()
-                                        : context.Orders.Where(a => a.State == State.Finished && a.FinishingTime >= simConfig.Time - simConfig.DynamicKpiTimeSpan)
+                                        : context.Orders.Where(a => a.State == State.Finished && a.FinishingTime >= time - simConfig.DynamicKpiTimeSpan)
                                             .Select(x => new { x.Name, x.FinishingTime, x.DueTime }).ToList();
             if (!orderTimeliness.Any()) return;
             var kpis = orderTimeliness.GroupBy(g => g.Name).Select(o => new Kpi()
@@ -309,20 +311,20 @@ namespace Master40.Tools.Simulation
                 SimulationConfigurationId = simulationId,
                 SimulationType = simulationType,
                 SimulationNumber = simulationNumber,
-                Time = simConfig.Time
+                Time = time
             }).ToList();
             
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
 
-        public static void ArticleStockEvolution(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void ArticleStockEvolution(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
                 //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (!final)
-                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
+                stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= time - simConfig.DynamicKpiTimeSpan).ToList();
             var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
                                                                            x.Time,
                                                                            x.Stock.Article.Name,
@@ -362,7 +364,7 @@ namespace Master40.Tools.Simulation
                             SimulationConfigurationId = simulationId,
                             SimulationType = simulationType,
                             SimulationNumber = simulationNumber,
-                            Time = simConfig.Time
+                            Time = time
                         };
                         kpis.Add(lastKpi);
                     }
