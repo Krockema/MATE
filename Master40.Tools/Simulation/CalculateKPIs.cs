@@ -25,7 +25,7 @@ namespace Master40.Tools.Simulation
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final);
-            CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
+            //CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
         }
 
         public static void CalculateLayTimesV2(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
@@ -94,14 +94,12 @@ namespace Master40.Tools.Simulation
                     SimulationNumber = simulationNumber,
                     Time = simConfig.Time
                 });
-                context.SaveChanges();
-
                 var interQuantileRange = stat[3] - stat[1];
-                var uperFence = stat[3] + 1.5 * interQuantileRange;
+                var upperFence = stat[3] + 1.5 * interQuantileRange;
                 var lowerFence = stat[1] - 1.5 * interQuantileRange;
 
                 // cut them from the sample
-                var relevantItems = stat.Where(x => x >= lowerFence && x <= uperFence);
+                var relevantItems = stat.Where(x => x >= lowerFence && x <= upperFence);
 
                 // BoxPlot: without bounderys
                 stat = relevantItems.FiveNumberSummary();
@@ -121,7 +119,6 @@ namespace Master40.Tools.Simulation
                         SimulationNumber = simulationNumber
                     });
                 }
-                Debug.WriteLine(article.Name);
             }
             context.SaveChanges();
         }
