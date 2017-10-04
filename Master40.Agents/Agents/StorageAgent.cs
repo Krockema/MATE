@@ -191,19 +191,21 @@ namespace Master40.Agents.Agents
                                             x.ExchangeType == ExchangeType.Withdrawal)
                                 .Sum(x => x.Quantity);
             // Element is NOT in Stock
+            // Create Order if Required.
+            var purchaseOpen = StockElement.StockExchanges
+                .Any(x => x.State != State.Finished && x.ExchangeType == ExchangeType.Insert);
+            var min = ((StockElement.Current - withdrawl - request.Quantity) < StockElement.Min);
+            if (min && StockElement.Article.ToPurchase && !purchaseOpen)
+            {
+                CreatePurchase();
+                DebugMessage(" Created purchase for " + this.StockElement.Article.Name);
+            }
+
             //if ((StockElement.Current + insert - withdrawl - request.Quantity) < 0)
             if ((StockElement.Current - withdrawl - request.Quantity) < 0)
             {
                 stockReservation.IsInStock = false;
                 stockReservation.Quantity = 0;
-                var purchaseOpen = StockElement.StockExchanges
-                    .Any(x => x.State != State.Finished && x.ExchangeType == ExchangeType.Insert);
-                // Create Order 
-                if (!stockReservation.IsInStock && StockElement.Article.ToPurchase && !purchaseOpen)
-                {
-                    CreatePurchase();
-                    DebugMessage(" Created purchase for " + this.StockElement.Article.Name);
-                }
             }
             else
             {
