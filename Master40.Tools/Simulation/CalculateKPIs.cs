@@ -19,13 +19,13 @@ namespace Master40.Tools.Simulation
         /// <param name="simulationId"></param>
         /// <param name="simulationType"></param>
         /// <param name="simulationNumber"></param>
-        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber, final);
-            CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final);
+            CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final, time);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final);
-            //CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
+            CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
         }
 
         public static void CalculateLayTimesV2(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
@@ -260,7 +260,7 @@ namespace Master40.Tools.Simulation
 
         }
 
-        public static void CalculateMachineUtilization(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
+        public static void CalculateMachineUtilization(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             //get machines
@@ -269,7 +269,7 @@ namespace Master40.Tools.Simulation
             //get working time
             var content = final
                 ? context.SimulationWorkschedules.Select(x => new {x.Start, x.End, x.Machine}).ToList()
-                : context.SimulationWorkschedules.Where(a => a.Start >= simConfig.Time - simConfig.DynamicKpiTimeSpan)
+                : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan)
                     .Select(x => new {x.Start, x.End, x.Machine}).ToList();
             //get SimulationTime
             var simulationTime = final ? context.SimulationWorkschedules.Max(a => a.End)
@@ -283,7 +283,7 @@ namespace Master40.Tools.Simulation
                                         SimulationConfigurationId = simulationId,
                                         SimulationType = simulationType,
                                         SimulationNumber = simulationNumber,
-                                        Time = simConfig.Time
+                                        Time = time
                                     }).ToList();
             context.Kpis.AddRange(kpis);
             context.SaveChanges();

@@ -165,7 +165,7 @@ namespace Master40.Simulation.Simulation
                 SaveCompletedContext(timeTable,simulationId,simNumber);
                 FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
-                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true);
+                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
                 CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
@@ -430,7 +430,8 @@ namespace Master40.Simulation.Simulation
             if (recalc > kpi)
             {
                 SaveCompletedContext(timeTable,simulationId,simNumber);
-                CalculateKpis.CalculateMachineUtilization(_context,simulationId,SimulationType.Central,simNumber,false);
+                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
+                CalculateKpis.CalculateMachineUtilization(_context,simulationId,SimulationType.Central,simNumber,false, simConfig.Time);
                 timeTable.KpiCounter++;
                 return timeTable;
             }
