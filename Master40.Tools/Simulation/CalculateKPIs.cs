@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
@@ -32,22 +33,19 @@ namespace Master40.Tools.Simulation
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
             //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
-            if (final)
+            if (!final)
                 stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
             var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
                                                                            x.Time,
                                                                            x.Stock.Article.Name,
                                                                            x.Stock.Article.Price,
                                                                            x.Quantity})
-                                                        .OrderBy(x => x.Time).ThenByDescending(x => x.ExchangeType);
-            var kpis = new List<Kpi>();
+                                                        .OrderBy(x => x.Time).ThenByDescending(x => x.ExchangeType).ToList();
 
-            foreach (var article in context.Articles.Include(a => a.Stock)) //.Where(x => x.Name.Equals("Dump-Truck")))
+            var articles = context.Articles.Include(a => a.Stock).ToList();
+            foreach (var article in articles) //.Where(x => x.Name.Equals("Dump-Truck")))
             {
                 var laytimeList = new List<double>();
-
-
-                var startValue = article.Stock.StartValue;
                 Queue<dynamic> inserts = new Queue<dynamic>(stockEvoLutions
                                                         .Where(a => a.ExchangeType == ExchangeType.Insert 
                                                                  && a.Name == article.Name)
@@ -83,7 +81,7 @@ namespace Master40.Tools.Simulation
 
                 if (!laytimeList.Any()) continue;
                 var stat = laytimeList.FiveNumberSummary();
-                kpis.Add(new Kpi()
+                context.Kpis.Add(new Kpi()
                 {
                     Name = article.Name,
                     Value = Math.Round(stat[2], 2),
@@ -96,32 +94,35 @@ namespace Master40.Tools.Simulation
                     SimulationNumber = simulationNumber,
                     Time = simConfig.Time
                 });
-
+                context.SaveChanges();
 
                 var interQuantileRange = stat[3] - stat[1];
                 var uperFence = stat[3] + 1.5 * interQuantileRange;
                 var lowerFence = stat[1] - 1.5 * interQuantileRange;
 
                 // cut them from the sample
-                var relevantItems = stat.Where(x => x > lowerFence && x < uperFence);
+                var relevantItems = stat.Where(x => x >= lowerFence && x <= uperFence);
 
                 // BoxPlot: without bounderys
                 stat = relevantItems.FiveNumberSummary();
 
-                kpis.AddRange(stat.Select(item => new Kpi()
+                foreach (var item in stat)
                 {
-                    Name = article.Name,
-                    Value = item,
-                    ValueMin = 0,
-                    ValueMax = 0,
-                    IsKpi = false,
-                    KpiType = KpiType.LayTime,
-                    SimulationConfigurationId = simulationId,
-                    SimulationType = simulationType,
-                    SimulationNumber = simulationNumber
-                }));
+                    context.Kpis.Add(new Kpi()
+                    {
+                        Name = article.Name,
+                        Value = Math.Round(item, 2),
+                        ValueMin = 0,
+                        ValueMax = 0,
+                        IsKpi = false,
+                        KpiType = KpiType.LayTime,
+                        SimulationConfigurationId = simulationId,
+                        SimulationType = simulationType,
+                        SimulationNumber = simulationNumber
+                    });
+                }
+                Debug.WriteLine(article.Name);
             }
-            context.Kpis.AddRange(kpis);
             context.SaveChanges();
         }
 
