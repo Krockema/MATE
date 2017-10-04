@@ -95,7 +95,7 @@ namespace Master40.XUnitTest.DBContext
                 await sim.RunSim(1,1);
 
                 CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 
-                                                    _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral),true);
+                                                    _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral),true, int.MaxValue);
                 CopyResults.Copy(c, _productionDomainContext);
             }
             connection.Close();

@@ -55,6 +55,13 @@
             </div>
         </div>
         <div class="form-group">
+            <label asp-for="DynamicKpiTimeSpan" class="col-md-4 control-label"></label>
+            <div class="col-md-8">
+                <input asp-for="DynamicKpiTimeSpan" class="form-control" />
+                <span asp-validation-for="DynamicKpiTimeSpan" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
             <label asp-for="Seed" class="col-md-4 control-label"></label>
             <div class="col-md-8">
                 <input asp-for="Seed" class="form-control" />

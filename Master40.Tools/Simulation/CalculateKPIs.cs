@@ -19,7 +19,7 @@ namespace Master40.Tools.Simulation
         /// <param name="simulationId"></param>
         /// <param name="simulationType"></param>
         /// <param name="simulationNumber"></param>
-        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
+        public static void CalculateAllKpis(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time = 0)
         {
             CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber, final);
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final, time);
@@ -371,6 +371,17 @@ namespace Master40.Tools.Simulation
 
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
+        }
+
+        public static void MachineSattleTime(ProductionDomainContext context, int simulationId,
+            SimulationType simulationType, int simulationNumber)
+        {
+            var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
+            var ts = simConfig.DynamicKpiTimeSpan;
+            for (int i = ts; i < simConfig.MaxCalculationTime; i=i+ts)
+            {
+                CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, false, i);
+            }
         }
     }
 }

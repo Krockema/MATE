@@ -595,8 +595,10 @@ namespace Master40.Simulation.Simulation
                 var sim = new AgentSimulation(c, _messageHub);
                 await sim.RunSim(simulationConfigurationId, simNumber);
 
-                CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber, true
-                    );
+
+                CalculateKpis.MachineSattleTime(c, simulationConfigurationId, SimulationType.Decentral, simNumber);
+
+                CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber, true);
                 CopyResults.Copy(c, _evaluationContext);
             }
             connection.Close();
