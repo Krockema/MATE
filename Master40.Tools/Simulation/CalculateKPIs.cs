@@ -265,14 +265,16 @@ namespace Master40.Tools.Simulation
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             //get machines
             var machines = context.Machines.Select(a => a.Name).ToList();
-            //get SimulationTime
-            var simulationTime = context.SimulationWorkschedules.Max(a => a.End);
+            
             //get working time
-
             var content = final
                 ? context.SimulationWorkschedules.Select(x => new {x.Start, x.End, x.Machine}).ToList()
                 : context.SimulationWorkschedules.Where(a => a.Start >= simConfig.Time - simConfig.DynamicKpiTimeSpan)
                     .Select(x => new {x.Start, x.End, x.Machine}).ToList();
+            //get SimulationTime
+            var simulationTime = final ? context.SimulationWorkschedules.Max(a => a.End)
+                                       : simConfig.DynamicKpiTimeSpan;
+
             var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi() {
                                         Value = Math.Round((double)(g.Sum(x => x.End) - g.Sum(x => x.Start)) / simulationTime, 2),
                                         Name = g.Key,

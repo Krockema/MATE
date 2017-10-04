@@ -111,17 +111,16 @@ namespace Master40.Simulation.Simulation
                 OrderGenerator.GenerateOrders(_context, simulationId);
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-                var timeTable = new TimeTable<ISimulationItem>(_context.SimulationConfigurations.Single(a => a.Id == simulationId).RecalculationTime);
+                var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime, simConfig.DynamicKpiTimeSpan);
                 UpdateStockExchangesWithInitialValues(simulationId, simNumber);
                 await Recalculate(timeTable,simulationId, simNumber);
                 
                 var waitingItems = CreateInitialTable();
                 CreateMachinesReady(timeTable);
-                if (!_context.ProductionOrderWorkSchedules.Any()) return;
                 timeTable = UpdateGoodsDelivery(timeTable,simulationId);
                 //timeTable = CreateInjectionOrders(timeTable);
                 var itemCounter = 0;
-                while (timeTable.Timer < _context.SimulationConfigurations.Single(a => a.Id == simulationId).SimulationEndTime)
+                while (timeTable.Timer < simConfig.SimulationEndTime)
                 {
                     timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId, simNumber);
                     if (itemCounter == timeTable.Items.Count) continue;
@@ -135,7 +134,7 @@ namespace Master40.Simulation.Simulation
                     {
                         _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
                     }
-                    CalculateKpis.CalculateAllKpis(_context,simulationId,SimulationType.Central,simNumber, false);
+                    
                 }
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
@@ -378,12 +377,8 @@ namespace Master40.Simulation.Simulation
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
-                    {
-                        // TODO : 2 test without use ? 
-                        var test = ItemsInStock(item);
-                        var test2 = AllSimulationChildrenFinished(item, timeTable.Items);
                         continue;
-                    }
+                    
 
                     // Roll new Duration
                     var rnd = GetRandomDelay();
@@ -428,8 +423,17 @@ namespace Master40.Simulation.Simulation
                     timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
                 }
             }
-            
-            if (timeTable.Timer < (timeTable.RecalculateCounter+1) * timeTable.RecalculateTimer) return timeTable;
+            var recalc = (timeTable.RecalculateCounter + 1) * timeTable.RecalculateTimer;
+            var kpi = (timeTable.KpiCounter + 1) * timeTable.KpiTimer;
+            var nextcalc = recalc < kpi ? recalc : kpi;
+            if (timeTable.Timer < nextcalc) return timeTable;
+            if (recalc > kpi)
+            {
+                SaveCompletedContext(timeTable,simulationId,simNumber);
+                CalculateKpis.CalculateMachineUtilization(_context,simulationId,SimulationType.Central,simNumber,false);
+                timeTable.KpiCounter++;
+                return timeTable;
+            }
             await Recalculate(timeTable,simulationId,simNumber);
             UpdateWaitingItems(timeTable, waitingItems);
             UpdateGoodsDelivery(timeTable,simulationId);

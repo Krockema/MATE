@@ -7,10 +7,11 @@ namespace Master40.Simulation.Simulation
 {
     public class TimeTable<T> where T : ISimulationItem
     {
-        public TimeTable(int recalculateTimer = -1)
+        public TimeTable(int recalculateTimer = -1, int kpiTimer = -1)
         {
             Timer = 0;
             RecalculateTimer = recalculateTimer;
+            KpiTimer = kpiTimer;
             Items = new List<T>();
             ListMachineStatus = new List<MachineStatus>();
         }
@@ -19,27 +20,31 @@ namespace Master40.Simulation.Simulation
         public List<T> Items { get; set; }
 
         public int Timer { get; set; }
+        public int KpiTimer { get; set; }
+        public int KpiCounter { get; set; }
         public int RecalculateTimer { get; set; }
         public int RecalculateCounter { get; set; }
 
         public TimeTable<ISimulationItem> ProcessTimeline(TimeTable<ISimulationItem> timeTable)
         {
             var recalculate = timeTable.RecalculateTimer * (timeTable.RecalculateCounter+1);
+            var kpi = timeTable.KpiTimer * (timeTable.KpiCounter + 1);
+            var calc = kpi < recalculate ? kpi : recalculate;
             if (!timeTable.Items.Any())
             {
-                timeTable.Timer = recalculate;
+                timeTable.Timer = calc;
                 return timeTable;
             }
-            var start = recalculate + 1;
+            var start = calc + 1;
             var startItems = timeTable.Items.Where(a => a.SimulationState == SimulationState.Waiting).ToList();
             if (startItems.Any()) start = startItems.Min(a => a.Start);
-            var end = recalculate + 1;
+            var end = calc + 1;
             var endItems = timeTable.Items.Where(a => a.SimulationState == SimulationState.InProgress).ToList();
             if (endItems.Any()) end = endItems.Min(a => a.End);
             // Timewarp - set Start Time
-            if (recalculate < start && recalculate < end)
+            if (calc < start && calc < end)
             {
-                timeTable.Timer = recalculate;
+                timeTable.Timer = calc;
                 return timeTable;
             }
             timeTable.Timer = start < end ? start : end;
