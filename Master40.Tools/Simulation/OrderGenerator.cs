@@ -32,7 +32,7 @@ namespace Master40.Tools.Simulation
             //get products by searching for articles without parents
             for (int i = 0; i < samples; i++) { 
                 //define the time between each new order
-                time += 50 + (int)Math.Round(exponential[i], MidpointRounding.AwayFromZero);
+                time += (int)Math.Round(exponential[i]*10, MidpointRounding.AwayFromZero);
                 //get which product is to be ordered
                 var productId = productIds.ElementAt(prodVariation[i]);
                 //create order and orderpart, duetime is creationtime + 1 day
@@ -59,7 +59,10 @@ namespace Master40.Tools.Simulation
 
             double[] list = new double[1000];
             dist.Samples(list);
-            
+            for(var i=0;i<list.Count();i++)
+            {
+                list[i] *= 10;
+            }
             return list.ToList();
         }
     }

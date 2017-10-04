@@ -113,10 +113,10 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleForeignKey = article.Id,
                     Name = "Stock: " + article.Name,
-                    Min = (article.ToPurchase) ? 200 : 0,
-                    Max = (article.ToPurchase) ? 1000 : 0,
-                    Current = (article.ToPurchase) ? 800 : 0,
-                    StartValue = (article.ToPurchase) ? 800 : 0,
+                    Min = (article.ToPurchase) ? 1000 : 0,
+                    Max = (article.ToPurchase) ? 2000 : 0,
+                    Current = (article.ToPurchase) ? 1000 : 0,
+                    StartValue = (article.ToPurchase) ? 1000 : 0,
                 };
                 context.Stocks.Add(stock);
                 context.SaveChanges();
@@ -298,43 +298,13 @@ namespace Master40.DB.Data.Initializer
             };
             context.ArticleToBusinessPartners.AddRange(artToBusinessPartner);
             context.SaveChanges();
-
-            var order1 = new Order
-            {
-                BusinessPartnerId = businessPartner.Id,
-                DueTime = 1540,
-                Name = "Race-Truck",
-                CreationTime = 0
-            };
-            var order2 = new Order
-            {
-                BusinessPartnerId = businessPartner.Id,
-                DueTime = 1690,
-                Name = "Dump-Truck",
-                CreationTime = 0
-            };
-            //create order
-            var orders = new List<Order>() { 
-                order1, order2
-            };
-            context.Orders.AddRange(orders);
-            context.SaveChanges();
-
-            //create orderParts
-            var orderParts = new List<OrderPart>()
-            {
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, OrderId = order1.Id, IsPlanned = false},
-                new OrderPart(){Quantity = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, OrderId = order2.Id, IsPlanned = false},
-            };
-            context.OrderParts.AddRange(orderParts);
-            context.SaveChanges();
-
+            
             var simConfig = new SimulationConfiguration
             {
                 Name = "Test config",
                 Lotsize = 1,
                 MaxCalculationTime = 3000, // test  // 10080, // 7 days
-                OrderQuantity = 5,
+                OrderQuantity = 200,
                 Seed = 1337,
                 TimeSpanForOrders = 1,
                 Time = 0,

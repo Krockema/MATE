@@ -870,7 +870,7 @@ namespace Master40.DB.Data.Context
         {
             var anySim = SimulationWorkschedules
                 .Where(x => x.SimulationType == simType && x.SimulationConfigurationId == simulationConfigurationId);
-            return anySim.Any() ? anySim.Max(x => x.SimulationNumber) : 1;
+            return anySim.Any() ? anySim.Max(x => x.SimulationNumber)+1 : 1;
         }
 
         public void CreateNewOrder(int articleId, int amount,int creationTime, int dueTime)

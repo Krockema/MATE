@@ -24,7 +24,7 @@ namespace Master40.Tools.Simulation
             CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final);
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final);
-            CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
+            //CalculateLayTimesV2(context, simulationId, simulationType, simulationNumber, final);
         }
 
         public static void CalculateLayTimesV2(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final)
@@ -32,7 +32,7 @@ namespace Master40.Tools.Simulation
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
             //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
-            if (final)
+            if (!final)
                 stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= simConfig.Time - simConfig.DynamicKpiTimeSpan).ToList();
             var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
                                                                            x.Time,
@@ -45,9 +45,6 @@ namespace Master40.Tools.Simulation
             foreach (var article in context.Articles.Include(a => a.Stock)) //.Where(x => x.Name.Equals("Dump-Truck")))
             {
                 var laytimeList = new List<double>();
-
-
-                var startValue = article.Stock.StartValue;
                 Queue<dynamic> inserts = new Queue<dynamic>(stockEvoLutions
                                                         .Where(a => a.ExchangeType == ExchangeType.Insert 
                                                                  && a.Name == article.Name)
@@ -99,11 +96,11 @@ namespace Master40.Tools.Simulation
 
 
                 var interQuantileRange = stat[3] - stat[1];
-                var uperFence = stat[3] + 1.5 * interQuantileRange;
+                var upperFence = stat[3] + 1.5 * interQuantileRange;
                 var lowerFence = stat[1] - 1.5 * interQuantileRange;
 
                 // cut them from the sample
-                var relevantItems = stat.Where(x => x > lowerFence && x < uperFence);
+                var relevantItems = stat.Where(x => x > lowerFence && x < upperFence);
 
                 // BoxPlot: without bounderys
                 stat = relevantItems.FiveNumberSummary();

@@ -74,7 +74,7 @@
                             <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                         </a>
                         <a id="@item.Id" asp-action="Edit" asp-controller="SimulationConfigurations" asp-route-id="@item.Id"
-                           data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                           data-target="#modal-container" data-toggle="modal" class="btn btn-default">
                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         </a>
 
@@ -164,7 +164,7 @@
             $(selector).text(count + "%");
         }
         if (mstype == "ProcessingComplete") {
-            growlMsg("Decentral Run Compleated")
+            growlMsg("Decentral Run Completed")
             var l = Ladda.create(document.querySelector("#decentral-ladda-btn_" + simId ));
             l.toggle();
             $("#decentral-ladda-btn_" + simId ).css('background', 'white');
