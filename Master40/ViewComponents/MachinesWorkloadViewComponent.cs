@@ -46,7 +46,8 @@ namespace Master40.ViewComponents
                 // use available hight in Chart
                 var machines = _context.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) 
                                                     && x.SimulationType == simType
-                                                    && x.KpiType == KpiType.MachineUtilization) 
+                                                    && x.KpiType == KpiType.MachineUtilization
+                                                    && x.IsKpi) 
                                                     .ToList();
                 var data = new Data { Labels = machines.Select(n => n.Name).ToList() };
 

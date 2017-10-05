@@ -257,9 +257,9 @@ namespace Master40.Agents.Agents
 
 
             // TODO: Roll delay here
-            var duration = item.WorkSchedule.Duration - 1;
+            var duration = item.WorkSchedule.Duration;
 
-            Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration, this.Machine);
+            Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
             
             // get item = ready and lowest priority
             CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.FinishWork.ToString(),

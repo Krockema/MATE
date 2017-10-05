@@ -271,7 +271,7 @@ namespace Master40.Tools.Simulation
             //get working time
             var content = final
                 ? context.SimulationWorkschedules.Select(x => new {x.Start, x.End, x.Machine}).ToList()
-                : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan)
+                : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan && a.End <= time)
                     .Select(x => new {x.Start, x.End, x.Machine}).ToList();
             //get SimulationTime
             var simulationTime = final ? context.SimulationWorkschedules.Max(a => a.End)
