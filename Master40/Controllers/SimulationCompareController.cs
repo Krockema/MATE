@@ -26,11 +26,11 @@ namespace Master40.Controllers
             return View();
         }
 
-        [HttpGet("[Controller]/MachinesWorkLoad/{simulationId}/{simulationType}/{simNumber}")]
-        public IActionResult MachineWorkLoads(string simulationId, string simulationType, string simNumber)
+        [HttpGet("[Controller]/MachinesWorkLoad/{simulationId}/{simulationType}/{simNumber}/{overTime}")]
+        public IActionResult MachineWorkLoads(string simulationId, string simulationType, string simNumber, string overTime)
         {
             //call to Diagramm
-            return ViewComponent("MachinesWorkLoad", new List<string> { simulationId, simulationType, simNumber });
+            return ViewComponent("MachinesWorkLoad", new List<string> { simulationId, simulationType, simNumber, overTime });
         }
 
 
