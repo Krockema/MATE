@@ -56,7 +56,13 @@ namespace Master40.Tools.Simulation
             var dist = new LogNormal(0,0.125);
             for (int i = 0; i < amount; i++)
             {
-                samples.Add(dist.Sample()*5);
+                var sample = dist.Sample();
+                var round = Math.Round(sample, MidpointRounding.AwayFromZero);
+                if (sample < 0.5 || sample > 1.5)
+                {
+                    var a = 1;
+                }
+                samples.Add(5 * (int)round);
             }
             return samples;
         }
