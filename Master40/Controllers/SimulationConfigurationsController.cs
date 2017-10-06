@@ -195,8 +195,8 @@ namespace Master40.Controllers
             }
         }
 
-        [HttpGet("[Controller]/{simulationId}")]
-        public void ConsolidateRums(int simulationId)
+        [HttpGet("[Controller]/ConsolidateRuns/{simulationId}")]
+        public void ConsolidateRuns(int simulationId)
         {
             var tasklist = CalculateKpis.ConsolidateRuns(_context, simulationId);
 
