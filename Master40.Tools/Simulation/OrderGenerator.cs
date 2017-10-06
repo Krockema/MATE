@@ -53,6 +53,7 @@ namespace Master40.Tools.Simulation
             }
             return samples;*/
             var samples = new List<double>();
+            var dist = new LogNormal(0,0.125);
             for (int i = 0; i < amount; i++)
             {
                 samples.Add(dist.Sample()*5);
