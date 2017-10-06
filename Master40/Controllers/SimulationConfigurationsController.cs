@@ -196,11 +196,10 @@ namespace Master40.Controllers
         }
 
         [HttpGet("[Controller]/ConsolidateRuns/{simulationId}")]
-        public void ConsolidateRuns(int simulationId)
+        public async Task ConsolidateRuns(int simulationId)
         {
-            var tasklist = CalculateKpis.ConsolidateRuns(_context, simulationId);
-
-            Task.WaitAll(tasklist.ToArray());
+            var task = CalculateKpis.ConsolidateRuns(_context, simulationId);
+            await task;
         }
 
     }
