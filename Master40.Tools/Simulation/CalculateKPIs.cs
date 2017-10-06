@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
@@ -384,6 +385,48 @@ namespace Master40.Tools.Simulation
             {
                 CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, false, i);
             }
+        }
+
+
+        public static List<Task> ConsolidateRuns(MasterDBContext context, int simulationId)
+        {
+            var taskList = new List<Task>
+            {
+                ConsolidateMachineWorkload(context, simulationId, SimulationType.Decentral)
+            };
+            return taskList;
+        }
+
+        private static Task ConsolidateMachineWorkload(MasterDBContext context, int simulationId, SimulationType simType)
+        {
+            var task = Task.Run(() =>
+            {
+                var kpis = context.Kpis.Where(x => x.SimulationConfigurationId == simulationId
+                                                   && x.SimulationType == simType
+                                                   && x.KpiType != KpiType.StockEvolution
+                                                   && x.IsKpi).ToList();
+                var machines = kpis.Select(x => x.Name).Distinct();
+                var summary = (from machine in machines
+                    let machineValues = kpis.Where(x => x.Name == machine).ToList()
+                    select new Kpi()
+                    {
+                        Name = machine,
+                        Value = Math.Round(machineValues.Sum(x => x.Value) / machineValues.Count, 2),
+                        ValueMin = 0,
+                        ValueMax = 0,
+                        IsKpi = true,
+                        KpiType = KpiType.LeadTime,
+                        SimulationConfigurationId = simulationId,
+                        SimulationType = simType,
+                        SimulationNumber = 0
+                    }).ToList();
+
+                context.Kpis.AddRange(summary);
+                context.SaveChanges();
+            });
+
+            
+            return task;
         }
     }
 }

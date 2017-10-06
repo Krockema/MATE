@@ -23,19 +23,16 @@
                     @Html.DisplayNameFor(model => model.Name)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Time)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.MaxCalculationTime)
+                    Max Time
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Lotsize)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.OrderQuantity)
+                    Orders
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.ConsecutiveRuns)
+                    Runs
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Seed)
@@ -49,9 +46,6 @@
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Time)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.MaxCalculationTime)
@@ -77,24 +71,44 @@
                            data-target="#modal-container" data-toggle="modal" class="btn btn-default">
                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         </a>
-
-                        <a class="btn btn-default btn-xs simbtn ladda-button" id="decentral-ladda-btn_@Html.Raw(item.Id)" data-style="zoom-in" asp-controller="SimulationConfigurations" asp-action="Decentral" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')">
+                        <div class="btn-group btn-group">
+                        <a class="btn btn-default btn-xs simbtn ladda-button" id="decentral-ladda-btn_@Html.Raw(item.Id)" data-style="zoom-in" asp-controller="SimulationConfigurations" asp-action="Decentral" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')" style="height: 34px">
                             <span class="ladda-label">
                                 <i class="fa fa-ravelry fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.DecentralRuns)</span>
                             </span>
                         </a>
-                        <a class="btn btn-default btn-xs simbtn ladda-button" id="central-ladda-btn_@Html.Raw(item.Id)" data-style="zoom-in" asp-controller="SimulationConfigurations" asp-action="Central" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')">
-                            <span class="ladda-label">
-                                <i class="fa fa-magic fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.CentralRuns)</span>
-                            </span>
-                        </a>
-                        <a asp-action="Index" asp-route-id="@item.Id" asp-controller="SimulationCompare" class="btn btn-default btn-xs">                                
-                            Compare <i class="fa fa-tachometer fa-2x"></i>
-                        </a>
+                            <a class="btn btn-default btn-xs simbtn ladda-button" id="central-ladda-btn_@Html.Raw(item.Id)" data-style="zoom-in" asp-controller="SimulationConfigurations" asp-action="Central" asp-route-id="@item.Id" onclick=" growlMsg('Simulation Started')" style="height: 34px">
+                                <span class="ladda-label">
+                                    <i class="fa fa-magic fa-2x"></i>Run <span class="badge">@Html.DisplayFor(modelItem => item.CentralRuns)</span>
+                                </span>
+                            </a>
+                            
+                            <!-- Split button -->
+                            <div class="btn-group">
+                                <a asp-action="Index" asp-route-id="@item.Id" asp-controller="SimulationCompare" class="btn btn-default btn-xs" style="height: 34px">
+                                    <i class="fa fa-tachometer fa-2x"></i> Compare 
+                                </a>
+                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a asp-action="Index" asp-route-id="@item.Id" asp-controller="SimulationConfigurations" class="btn btn-default btn-xs" style="height: 34px">
+                                        Consolidate Runs
+                                    </a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#">(Optional Show - LeadTime)</a></li>
+                                    <li><a href="#">(Optional Show - Timeliness)</a></li>
+                                    <li><a href="#">(Optional Show - LayTimes)</a></li>
+                                </ul>
+                            </div>
+
+
+                        </div>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="8">
+                    <td colspan="7">
                         <div class="row">
                         <div class="col-md-3">Decentral Run <span id="@Html.Raw(item.Id)PogressRunDecentral" class="badge">@item.DecentralRuns</span> of <span class="badge">@item.ConsecutiveRuns</span></div>
                             <div class="col-md-9">

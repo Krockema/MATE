@@ -7,6 +7,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.Simulation.Simulation;
+using Master40.Tools.Simulation;
 
 namespace Master40.Controllers
 {
@@ -192,6 +193,14 @@ namespace Master40.Controllers
                           x => _simulator.AgentSimulatioAsync(simulationId));
                 }
             }
+        }
+
+        [HttpGet("[Controller]/{simulationId}")]
+        public void ConsolidateRums(int simulationId)
+        {
+            var tasklist = CalculateKpis.ConsolidateRuns(_context, simulationId);
+
+            Task.WaitAll(tasklist.ToArray());
         }
 
     }
