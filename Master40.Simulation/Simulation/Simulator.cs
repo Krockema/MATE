@@ -37,6 +37,8 @@ namespace Master40.Simulation.Simulation
         //private readonly HubCallback _hubCallback;
         private CapacityScheduling capacityScheduling;
 
+        private WorkTimeGenerator _workTimeGenerator;
+
         private bool firstRunOfTheDay = true;
 
         private RebuildNets rebuildNets;
@@ -46,7 +48,7 @@ namespace Master40.Simulation.Simulation
             _messageHub = messageHub;
             _context = context;
             
-    }
+        }
 
         public Task PrepareSimulationContext()
         {
@@ -111,6 +113,7 @@ namespace Master40.Simulation.Simulation
                 OrderGenerator.GenerateOrders(_context, simulationId);
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
+                _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation);
                 var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime, simConfig.DynamicKpiTimeSpan);
                 UpdateStockExchangesWithInitialValues(simulationId, simNumber);
                 await Recalculate(timeTable,simulationId, simNumber);
@@ -343,14 +346,6 @@ namespace Master40.Simulation.Simulation
             }
         }
 
-        private int GetRandomDelay()
-        {
-            // TODO : do not forgett to change
-            //later use this:
-            //return new RandomNumbers().RandomInt();
-            return -1;
-        }
-
         private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
         {
             if (!firstRunOfTheDay)
@@ -366,7 +361,6 @@ namespace Master40.Simulation.Simulation
             {
                 foreach (var freeMachineId in freeMachineIds)
                 {
-
                     var relevantItems = (from wI in waitingItems where wI.MachineId == freeMachineId select wI).ToList();
                     if (!relevantItems.Any()) continue;
                     var items = (from tT in relevantItems
@@ -378,20 +372,10 @@ namespace Master40.Simulation.Simulation
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
                         continue;
-                    
 
-                    // Roll new Duration
-                    var rnd = GetRandomDelay();
-
-                    // ToDo: Why minus ?
-                    // set 0 to 0 if below 0 to prevent negativ starts
-                    if (item.DurationSimulation - rnd <= 0)
-                        rnd = 0;
-
-                    var newDuration = item.DurationSimulation + rnd;
+                    var newDuration = _workTimeGenerator.GetRandomWorkTime(item.Duration);
                     if (newDuration != item.EndSimulation - item.StartSimulation)
                     {
-
                         // set Time
                         //if (item.SimulatedStart == 0) item.SimulatedStart = item.Start;
                         item.EndSimulation = item.StartSimulation + newDuration;
