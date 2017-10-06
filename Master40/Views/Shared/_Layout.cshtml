@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Master ERP 4.0</title>
 
-    <environment names="Development">
+    <environment names="Development,Staging,Production">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/MenuV2.css" />
@@ -31,15 +31,6 @@
         <script src="Signalr/hubs"></script>
         <!--<script src="~/lib/timeline/resize.js"></script>
         <script src="~/lib/timeline/simpleTimeline.js"></script>-->
-    </environment>
-    <environment names="Staging,Production">
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/MenuV2.css" />
-        <link href="~/css/simpleTimeline.css" rel="stylesheet" />
-        <link rel="stylesheet" href="~/css/font-awesome.min.css" />
     </environment>
     <style>
         #wrapper.active #sidebar-wrapper {

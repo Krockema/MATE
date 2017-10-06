@@ -26,13 +26,14 @@
         <div class="col-md-6">
             <div class="row">
                 <div class="col-md-12">
-                    <div style="font-size: x-large" class="pull-left"><b>Decentral</b> <button class="btn btn-default pull-left" onclick="MachineWorkLoads(@simid, 'Decentral', 1, 1)">Show Over Time</button></div>
+                    <div style="font-size: x-large" class="pull-left"><b>Decentral</b></div>
                     
                     <!-- asp-route="SimulationTimeline/SimulationCompare/-1/Decentral/3/1/@simid" -->
                     <a href="/SimulationCompare/SimulationTimeline/-1/Decentral/3/1/@simid"   
                        data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
                         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
                     </a> 
+                    <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Decentral', 1, 1)">Show Over Time</button>
                     <!-- Machine Workloads -->
                 </div>
             </div>
@@ -80,13 +81,12 @@
         <div class="col-md-6">
             <div class="row">
                 <div class="col-md-12">
-                    <div style="font-size: x-large" class="pull-left"><b>Central</b><button class="btn btn-default pull-left" onclick="MachineWorkLoads(@simid, 'Central', 1, 1)">Show Over Time</button></div>
-
-                    <!-- asp-route="SimulationTimeline/SimulationCompare/-1/Decentral/3/1/@simid" -->
+                    <div style="font-size: x-large" class="pull-left"><b>Central</b></div>
                     <a href="/SimulationCompare/SimulationTimeline/-1/Central/3/1/@simid"
                        data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
                         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
                     </a>
+                    <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Central', 1, 1)">Show Over Time</button>
                     <!-- Machine Workloads -->
                 </div>
             </div>
