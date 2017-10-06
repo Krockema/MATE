@@ -85,8 +85,9 @@
                             
                             <!-- Split button -->
                             <div class="btn-group">
-                                <a asp-action="Index" asp-route-id="@item.Id" asp-controller="SimulationCompare" class="btn btn-default btn-xs" style="height: 34px">
-                                    <i class="fa fa-tachometer fa-2x"></i> Compare 
+                                <a href="/SimulationCompare/Index/@item.Id/1"  
+                                   class="btn btn-default btn-xs" style="height: 34px">
+                                    <i class="fa fa-tachometer fa-2x"></i> Compare
                                 </a>
                                 <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret"></span>
