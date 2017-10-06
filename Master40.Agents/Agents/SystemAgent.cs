@@ -87,12 +87,10 @@ namespace Master40.Agents.Agents
 
         }
 
-        public void PrepareAgents(SimulationConfiguration simConfig)
+        public void PrepareAgents(SimulationConfiguration simConfig, int simNr)
         {
-            Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig.Id);
-
-
-
+            Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig.Id, simNr);
+            
             foreach (var orderpart in _productionDomainContext.OrderParts
                                                                 .Include(x => x.Article)
                                                                 .Include(x => x.Order)
@@ -122,8 +120,7 @@ namespace Master40.Agents.Agents
 
         private void OrderProvided(InstructionSet instructionSet)
         {
-            var requestItem = instructionSet.ObjectToProcess as RequestItem;
-            if (requestItem == null)
+            if (!(instructionSet.ObjectToProcess is RequestItem requestItem))
             {
                 throw new InvalidCastException(this.Name + " Cast to RequestItem Failed");
             }
