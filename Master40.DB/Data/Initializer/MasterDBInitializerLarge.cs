@@ -303,9 +303,9 @@ namespace Master40.DB.Data.Initializer
             {
                 Name = "Test config",
                 Lotsize = 1,
-                MaxCalculationTime = 3000, // test  // 10080, // 7 days
-                OrderQuantity = 10,
-                Seed = 1337,
+                MaxCalculationTime = 20000, // test  // 10080, // 7 days
+                OrderQuantity = 500,
+                Seed = 1338,
                 TimeSpanForOrders = 1,
                 ConsecutiveRuns = 1,
                 Time = 0,
@@ -313,7 +313,9 @@ namespace Master40.DB.Data.Initializer
                 SimulationEndTime = 3000,
                 DecentralRuns = 0,
                 CentralRuns = 0,
-                DynamicKpiTimeSpan = 480
+                DynamicKpiTimeSpan = 480,
+                SettlingStart = 2880
+                
             };
             context.SimulationConfigurations.Add(simConfig);
             context.SaveChanges();
