@@ -93,7 +93,7 @@
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a asp-action="Index" asp-route-id="@item.Id" asp-controller="SimulationConfigurations" class="btn btn-default btn-xs" style="height: 34px">
+                                    <li><a id="consolidate" asp-action="ConsolidateRuns" asp-route-id="@item.Id" asp-controller="SimulationConfigurations" class="btn btn-default btn-xs" style="height: 34px" onclick="preventDefault">
                                         Consolidate Runs
                                     </a></li>
                                     <li role="separator" class="divider"></li>
@@ -155,6 +155,13 @@
     $(document).ready(function () {
         // Block Interactions
         //Ladda.bind( '.simbtn' );
+        $('#consolidate').click(function(e) {
+            var l = Ladda.create(this);
+            l.start();
+            $.get(e.currentTarget.href)
+                .always(function() { l.stop(); });
+            return false;
+        });
         $('.simbtn').click(function(e) {
             e.preventDefault();
             var l = Ladda.create(document.querySelector("#" + e.currentTarget.id));
