@@ -7,9 +7,9 @@ namespace Master40.Tools.Simulation
 {
     public class WorkTimeGenerator
     {
-        public WorkTimeGenerator(int seed, double deviation)
+        public WorkTimeGenerator(int seed, double deviation, int simNumber)
         {
-            var source = new Random(seed);
+            var source = new Random(seed+simNumber);
             _distribution = new Normal(0, deviation, source);
         }
 

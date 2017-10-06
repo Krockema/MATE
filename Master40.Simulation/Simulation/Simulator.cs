@@ -89,7 +89,7 @@ namespace Master40.Simulation.Simulation
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 await PrepareSimulationContext();
-                OrderGenerator.GenerateOrders(_context, 1);
+                OrderGenerator.GenerateOrders(_context, 1, 1);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
@@ -110,10 +110,11 @@ namespace Master40.Simulation.Simulation
                 capacityScheduling = new CapacityScheduling(_context);
                 rebuildNets = new RebuildNets(_context);
                 await PrepareSimulationContext();
-                OrderGenerator.GenerateOrders(_context, simulationId);
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-                _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation);
+                simConfig.Time = 0;
+                OrderGenerator.GenerateOrders(_context, simulationId, simNumber);
+                _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation, simNumber);
                 var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime, simConfig.DynamicKpiTimeSpan);
                 UpdateStockExchangesWithInitialValues(simulationId, simNumber);
                 await Recalculate(timeTable,simulationId, simNumber);
