@@ -46,10 +46,17 @@ namespace Master40.Tools.Simulation
 
         public static List<double> TestUniformDistribution(int amount)
         {
-            var samples = new List<double>();
+            /*var samples = new List<double>();
             for (var i = 0; i < amount; i++)
             {
                samples.Add(MathNet.Numerics.Distributions.DiscreteUniform.Sample(0, 1000)/1000.00);
+            }
+            return samples;*/
+            var samples = new List<double>();
+            var dist = new LogNormal(0,0.125);
+            for (int i = 0; i < amount; i++)
+            {
+                samples.Add(dist.Sample()*5);
             }
             return samples;
         }

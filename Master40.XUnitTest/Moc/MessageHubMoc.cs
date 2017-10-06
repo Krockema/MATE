@@ -38,6 +38,11 @@ namespace Master40.XUnitTest.Moc
         {
             //Do nothing 
         }
+
+        public void EndSimulation(string msg, string simId, string simNumber)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 }
