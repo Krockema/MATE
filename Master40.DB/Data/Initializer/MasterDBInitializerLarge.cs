@@ -314,7 +314,8 @@ namespace Master40.DB.Data.Initializer
                 DecentralRuns = 0,
                 CentralRuns = 0,
                 DynamicKpiTimeSpan = 480,
-                SettlingStart = 2880
+                SettlingStart = 2880,
+                WorkTimeDeviation = 0.1
                 
             };
             context.SimulationConfigurations.Add(simConfig);
