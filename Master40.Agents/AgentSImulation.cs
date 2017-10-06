@@ -42,7 +42,7 @@ namespace Master40.Agents
             {
 
                 // initialise the model
-                var system = CreateModel(context: context, simulationId: simulationId);
+                var system = CreateModel(context: context, simulationId: simulationId, simNr: simulationNumber);
 
                 // instantate a new simulator
                 var simulator = new Simulator();
@@ -64,12 +64,12 @@ namespace Master40.Agents
             return Agent.AgentStatistics;
         }
 
-        private object CreateModel(SimulationContext context,int simulationId)
+        private object CreateModel(SimulationContext context,int simulationId, int simNr)
         {
             var simConfig = _productionDomainContext.SimulationConfigurations.Single(x => x.Id == simulationId);
             var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig.OrderQuantity);
             
-            var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation);
+            var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNr);
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", false);
             system.ChildAgents.Add(directoryAgent);
@@ -97,7 +97,7 @@ namespace Master40.Agents
                                                    stockElement: stock ));
             }
 
-            system.PrepareAgents(simConfig);
+            system.PrepareAgents(simConfig, simNr);
             // Return System Agent to Context
             return system;
         }
