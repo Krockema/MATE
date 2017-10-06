@@ -20,7 +20,7 @@ namespace Master40.Tools.Simulation
             var seed = new Random(context.SimulationConfigurations.Single(a => a.Id == simulationId).Seed+simulationNumber);
             var productIds = context.ArticleBoms.Where(b => b.ArticleParentId == null).Select(a => a.ArticleChildId).ToList();
 
-            var dist = new Exponential(rate: 0.25, randomSource: seed);
+            var dist = new Exponential(rate: 0.31, randomSource: seed);
             //get equal distribution from 0 to 1
             var norml = new DiscreteUniform(0, productIds.Count() - 1, seed);
             //get equal distribution for duetime
