@@ -5,6 +5,7 @@ using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Models;
+using Master40.Tools.Simulation;
 
 namespace Master40.Agents.Agents
 {
@@ -24,7 +25,7 @@ namespace Master40.Agents.Agents
         /// </summary>
         private int QueueLength { get; }
         private bool ItemsInProgess { get; set; }
-
+        private WorkTimeGenerator WorkTimeGenerator { get; }
 
         public enum InstuctionsMethods
         {
@@ -36,13 +37,14 @@ namespace Master40.Agents.Agents
             FinishWork
         }
 
-        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine) : base(creator, name, debug)
+        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine, WorkTimeGenerator workTimeGenerator) : base(creator, name, debug)
         {
             _directoryAgent = directoryAgent;
             ProgressQueueSize = 1; // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
             Queue = new List<WorkItem>();  // ThenBy( x => x.Status)
             ProcessingQueue = new LimitedQueue<WorkItem>(1);
             Machine = machine;
+            WorkTimeGenerator = workTimeGenerator;
             ItemsInProgess = false;
             RegisterService();
             QueueLength = 45; // plaing forecast
@@ -257,7 +259,7 @@ namespace Master40.Agents.Agents
 
 
             // TODO: Roll delay here
-            var duration = item.WorkSchedule.Duration;
+            var duration = WorkTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration);
 
             Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
             

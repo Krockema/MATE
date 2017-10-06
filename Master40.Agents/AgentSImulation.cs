@@ -13,6 +13,7 @@ using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using NSimulate;
 using Master40.MessageSystem.SignalR;
+using Master40.Tools.Simulation;
 
 namespace Master40.Agents
 {
@@ -68,6 +69,7 @@ namespace Master40.Agents
             var simConfig = _productionDomainContext.SimulationConfigurations.Single(x => x.Id == simulationId);
             var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig.OrderQuantity);
             
+            var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation);
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", false);
             system.ChildAgents.Add(directoryAgent);
@@ -79,7 +81,8 @@ namespace Master40.Agents
                                                            name: "Machine: " + machine.Name, 
                                                           debug: false, 
                                                  directoryAgent: directoryAgent,
-                                                        machine: machine)); 
+                                                        machine: machine,
+                                              workTimeGenerator: randomWorkTime)); 
             }
 
             // Create Stock Agents
