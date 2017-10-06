@@ -21,7 +21,12 @@ namespace Master40.Tools.Simulation
         /// <returns></returns>
         public int GetRandomWorkTime(int duration)
         {
-            var newDuration = duration + (int)Math.Round(_distribution.Sample(), MidpointRounding.AwayFromZero);
+            int newDuration;
+            while (true)
+            {
+                newDuration = duration + (int)Math.Round(_distribution.Sample(), MidpointRounding.AwayFromZero);
+                if (newDuration <= 3 * duration) break;
+            }
             return newDuration > 0 ? newDuration : 0;
         }
     }
