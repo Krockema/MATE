@@ -46,6 +46,7 @@ namespace Master40.ViewComponents
             SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
             var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                               && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                                && x.SimulationType == simType);
 
             var articles = kpis.Select(x => x.Name).Distinct();

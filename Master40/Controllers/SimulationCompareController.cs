@@ -13,10 +13,11 @@ namespace Master40.Controllers
 {
     public class SimulationCompareController : Controller
     {
-        [HttpGet("[Controller]/Index/{simId}")]
-        public IActionResult Index(int simId)
+        [HttpGet("[Controller]/Index/{simId}/{simNumber}")]
+        public IActionResult Index(int simId, int simNumber)
         {
             ViewData["simId"] = simId;
+            ViewData["simNr"] = simNumber;
             return View();
         }
 
@@ -25,48 +26,48 @@ namespace Master40.Controllers
             return View();
         }
 
-        [HttpGet("[Controller]/MachinesWorkLoad/{simulationId}/{simulationType}")]
-        public IActionResult MachineWorkLoads(string simulationId, string simulationType)
+        [HttpGet("[Controller]/MachinesWorkLoad/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult MachineWorkLoads(string simulationId, string simulationType, string simNumber)
         {
             //call to Diagramm
-            return ViewComponent("MachinesWorkLoad", new List<string> { simulationId, simulationType });
+            return ViewComponent("MachinesWorkLoad", new List<string> { simulationId, simulationType, simNumber });
         }
 
 
-        [HttpGet("[Controller]/Timeliness/{simulationId}/{simulationType}")]
-        public IActionResult OrderTimeliness(string simulationId, string simulationType)
+        [HttpGet("[Controller]/Timeliness/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult OrderTimeliness(string simulationId, string simulationType, string simNumber)
         {
             //call to Diagramm
-            var vc = ViewComponent("OrderTimeliness", new List<string> { simulationId, simulationType });
+            var vc = ViewComponent("OrderTimeliness", new List<string> { simulationId, simulationType, simNumber });
             return vc;
         }
 
-        [HttpGet("[Controller]/ProductLeadTime/{simulationId}/{simulationType}")]
-        public IActionResult ProductLeadTime(string simulationId, string simulationType)
+        [HttpGet("[Controller]/ProductLeadTime/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult ProductLeadTime(string simulationId, string simulationType, string simNumber)
         {
             //call to Diagramm
-            var vc = ViewComponent("ProductLeadTime", new List<string> { simulationId, simulationType });
+            var vc = ViewComponent("ProductLeadTime", new List<string> { simulationId, simulationType, simNumber });
             return vc;
         }
-        [HttpGet("[Controller]/ProductLeadTimeBoxPlot/{simulationId}/{simulationType}")]
-        public IActionResult ProductLeadTimeBoxPlot(string simulationId, string simulationType)
+        [HttpGet("[Controller]/ProductLeadTimeBoxPlot/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult ProductLeadTimeBoxPlot(string simulationId, string simulationType, string simNumber)
         {
             //call to Diagramm
-            var vc = ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simulationId, simulationType });
+            var vc = ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simulationId, simulationType, simNumber });
             return vc;
         }
-        [HttpGet("[Controller]/StockEvolution/{simulationId}/{simulationType}")]
-        public IActionResult StockEvolution(string simulationId, string simulationType)
+        [HttpGet("[Controller]/StockEvolution/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult StockEvolution(string simulationId, string simulationType, string simNumber)
         {
             //call to Diagramm
-            var vc = ViewComponent("StockEvolution", new List<string> { simulationId, simulationType });
+            var vc = ViewComponent("StockEvolution", new List<string> { simulationId, simulationType, simNumber });
             return vc;
         }
-        [HttpGet("[Controller]/IdlePeriod/{simulationId}/{simulationType}")]
-        public IActionResult IdlePeriod(string simulationId, string simulationType)
+        [HttpGet("[Controller]/IdlePeriod/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult IdlePeriod(string simulationId, string simulationType, string simNumber)
         {
             //call to Diagramm
-            var vc = ViewComponent("IdlePeriod", new List<string> { simulationId, simulationType });
+            var vc = ViewComponent("IdlePeriod", new List<string> { simulationId, simulationType, simNumber });
             return vc;
         }
         [HttpGet("[Controller]/SimulationTimeline/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}")]

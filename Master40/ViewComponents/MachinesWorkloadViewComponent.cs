@@ -47,7 +47,8 @@ namespace Master40.ViewComponents
                 var machines = _context.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0]) 
                                                     && x.SimulationType == simType
                                                     && x.KpiType == KpiType.MachineUtilization
-                                                    && x.IsKpi) 
+                                                    && x.IsKpi
+                                                    && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2])) 
                                                     .ToList();
                 var data = new Data { Labels = machines.Select(n => n.Name).ToList() };
 

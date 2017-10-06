@@ -306,7 +306,6 @@ namespace Master40.DB.Data.Initializer
                 MaxCalculationTime = 20000, // test  // 10080, // 7 days
                 OrderQuantity = 100,
                 Seed = 1338,
-                TimeSpanForOrders = 1,
                 ConsecutiveRuns = 1,
                 Time = 0,
                 RecalculationTime = 1440,

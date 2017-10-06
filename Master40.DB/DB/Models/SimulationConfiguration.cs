@@ -11,7 +11,6 @@ namespace Master40.DB.Models
         public int MaxCalculationTime { get; set; }
         public int Lotsize { get; set; }
         public int OrderQuantity { get; set; }
-        public int TimeSpanForOrders { get; set; }
         public int Seed { get; set; }
         public int SettlingStart { get; set; }
         public int ConsecutiveRuns { get; set; }

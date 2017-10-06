@@ -27,6 +27,7 @@ namespace Master40.ViewComponents
             SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
             var kpi = _context.Kpis.Where(x => x.KpiType == KpiType.Timeliness
                                     && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                    && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                     && x.SimulationType == simType);
             var generateChartTask = Task.Run(() =>
             {

@@ -27,6 +27,7 @@ namespace Master40.ViewComponents
             var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.LayTime
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                && x.SimulationType == simType
+                                               && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                                && x.IsKpi == true).OrderBy(x => x.ValueMax).ToList();
             
 

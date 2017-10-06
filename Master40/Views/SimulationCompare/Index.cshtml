@@ -2,6 +2,7 @@
     ViewBag.Title = "Simulation Comparing";
     Layout = "_Layout";
     int simid = (int)ViewData["simId"];
+    int simNr = (int)ViewData["simNr"];
 }
 <style>
     .modal-dialog {
@@ -145,23 +146,23 @@
 
         $(document).ready(function () {
             $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
-            MachineWorkLoads(@simid, "Decentral");
-            MachineWorkLoads(@simid, "Central");
-            Timeliness(@simid, "Decentral");
-            Timeliness(@simid, "Central");
-            ProductLeadTime(@simid, "Decentral");
-            ProductLeadTime(@simid, "Central");
-            StockEvolution(@simid, "Decentral");
-            StockEvolution(@simid, "Central");
-            ArticleIdlePeriod(@simid, "Central");
-            ArticleIdlePeriod(@simid, "Decentral");
+            MachineWorkLoads(@simid, "Decentral", @simNr);
+            MachineWorkLoads(@simid, "Central", @simNr);
+            Timeliness(@simid, "Decentral", @simNr);
+            Timeliness(@simid, "Central", @simNr);
+            ProductLeadTime(@simid, "Decentral", @simNr);
+            ProductLeadTime(@simid, "Central", @simNr);
+            StockEvolution(@simid, "Decentral", @simNr);
+            StockEvolution(@simid, "Central", @simNr);
+            ArticleIdlePeriod(@simid, "Central", @simNr);
+            ArticleIdlePeriod(@simid, "Decentral", @simNr);
             // Load Parts
         });
 
 
-        function MachineWorkLoads(simulationId, simType) {
+        function MachineWorkLoads(simulationId, simType, simNr) {
             $.ajax({
-                url: "/SimulationCompare/MachinesWorkLoad/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/MachinesWorkLoad/" + simulationId + "/" + simType + "/" + simNr,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -171,9 +172,9 @@
         }
 
 
-        function Timeliness(simulationId, simType) {
+        function Timeliness(simulationId, simType, simNr) {
             $.ajax({
-                url: "/SimulationCompare/Timeliness/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/Timeliness/" + simulationId + "/" + simType + "/" + simNr,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -182,9 +183,9 @@
             });
         }
 
-        function ProductLeadTime(simulationId, simType) {
+        function ProductLeadTime(simulationId, simType, simNr) {
             $.ajax({
-                url: "/SimulationCompare/ProductLeadTimeBoxPlot/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/ProductLeadTimeBoxPlot/" + simulationId + "/" + simType + "/" + simNr,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -193,9 +194,9 @@
             });
         }
 
-        function StockEvolution(simulationId, simType) {
+        function StockEvolution(simulationId, simType, simNr) {
             $.ajax({
-                url: "/SimulationCompare/StockEvolution/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/StockEvolution/" + simulationId + "/" + simType + "/" + simNr,
                 async: true,
                 context: document.body
             }).done(function (data) {
@@ -204,9 +205,9 @@
             });
         }
 
-        function ArticleIdlePeriod(simulationId, simType) {
+        function ArticleIdlePeriod(simulationId, simType, simNr) {
             $.ajax({
-                url: "/SimulationCompare/IdlePeriod/" + simulationId + "/" + simType,
+                url: "/SimulationCompare/IdlePeriod/" + simulationId + "/" + simType + "/" + simNr,
                 async: true,
                 context: document.body
             }).done(function (data) {
