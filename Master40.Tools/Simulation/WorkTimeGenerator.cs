@@ -10,10 +10,10 @@ namespace Master40.Tools.Simulation
         public WorkTimeGenerator(int seed, double deviation, int simNumber)
         {
             var source = new Random(seed+simNumber);
-            _distribution = new Normal(0, deviation, source);
+            _distribution = new LogNormal(0, deviation, source);
         }
 
-        private readonly Normal _distribution;
+        private readonly LogNormal _distribution;
         /// <summary>
         /// Returns LogNormal-distributed worktime.
         /// </summary>
@@ -24,7 +24,7 @@ namespace Master40.Tools.Simulation
             int newDuration;
             while (true)
             {
-                newDuration = duration * (int)Math.Round(_distribution.Sample(), MidpointRounding.AwayFromZero);
+                newDuration = (int)Math.Round(duration * _distribution.Sample(), MidpointRounding.AwayFromZero);
                 if (newDuration <= 3 * duration) break;
             }
             if (duration != newDuration)
