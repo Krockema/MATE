@@ -102,7 +102,7 @@ namespace Master40.Agents.Agents
             }
             // else
             DebugMessage("Im Ready To get Enqued");
-            Status = Status.Ready;
+            Status = (Status== Status.Processed)? Status.Processed : Status.Ready;
             WorkItems.ForEach(item => item.MaterialsProvided = true);
             SetWorkItemReady();
         }
@@ -188,8 +188,7 @@ namespace Master40.Agents.Agents
                 return;
             }
 
-            var comunicationAgent = ComunicationAgents.FirstOrDefault(x => x.ContractType 
-                                                                        == nextItem.WorkSchedule.MachineGroup.Name);
+            var comunicationAgent = ComunicationAgents.FirstOrDefault(x => x.ContractType == nextItem.WorkSchedule.MachineGroup.Name);
 
             DebugMessage("SetFirstWorkItemReady From Status " + nextItem.Status + " Time " + Context.TimePeriod);
 
