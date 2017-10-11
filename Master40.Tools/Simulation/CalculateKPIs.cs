@@ -372,7 +372,7 @@ namespace Master40.Tools.Simulation
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var ts = simConfig.DynamicKpiTimeSpan;
-            for (var i = ts; i < simConfig.MaxCalculationTime; i=i+ts)
+            for (var i = ts; i < simConfig.SimulationEndTime; i=i+ts)
             {
                 CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, false, i);
             }

@@ -138,6 +138,7 @@ namespace Master40.Agents.Agents
             // if all Machines Answered
             if (workItem.Proposals.Count == MachineAgents.Count)
             {
+                workItem.Status = workItem.WasSetReady ? Status.Ready : Status.InQueue;
                 // item Postponed by All Machines ? -> reque after given amount of time.
                 if (workItem.Proposals.All(x => x.Postponed))
                 {
@@ -150,10 +151,11 @@ namespace Master40.Agents.Agents
                 }
 
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Where(y => y.Postponed == false).Min(p => p.PossibleSchedule)
-                                                               && x.Postponed == false);
+                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Where(y => y.Postponed == false)
+                                                                                                            .Min(p => p.PossibleSchedule)
+                                                                 && x.Postponed == false);
 
-                workItem.Status = workItem.WasSetReady? Status.Ready : Status.InQueue;
+                
                 workItem.MachineAgentId = acknowledgement.AgentId;
                 workItem.EstimatedEnd = acknowledgement.PossibleSchedule + workItem.WorkSchedule.Duration;
                 

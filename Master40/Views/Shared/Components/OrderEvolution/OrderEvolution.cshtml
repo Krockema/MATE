@@ -1,0 +1,49 @@
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    string raw = "Chart Rendering Failed";
+    string type = ViewData["Type"].ToString();
+    if (chart != null) {
+        raw = chart.CreateChartCode("OrderEvolution_" + type);
+    }
+}
+
+<style>
+    .chartWrapper {
+        position: relative;
+            
+    }
+
+    .chartWrapper > canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        pointer-events:none;
+    }
+    .chartAreaWrapper {
+        overflow-x: scroll;
+        position: relative;
+        width: 100%;
+    }
+    .chartAreaWrapper2 {
+        position: relative;
+        height: 300px;
+    }
+</style>
+<div class="chartWrapper">
+    <div class="chartAreaWrapper">
+        <div class="chartAreaWrapper2">
+                <!--div id="js-legend" class="chart-legend"><div-->
+                <canvas id="OrderEvolution_@type" height="300"></canvas>
+            </div>
+    </div>
+</div>
+
+<script>
+    @Html.Raw(raw);
+    // $( document ).ready(function() {
+    //     // var newwidth = 20 * $('#StockEvolution_@type').data.datasets[0].data.length;
+    //     // $('.chartAreaWrapper2').width(newwidth);
+    //     // $('.chartAreaWrapper').animate({scrollLeft:newwidth});
+    //     //document.getElementById('js-legend').innerHTML = MaschineChart.generateLegend();
+    // });
+</script>

@@ -254,7 +254,7 @@ namespace Master40.Agents.Agents
                 return;
             }
             
-            DebugMessage("------>> Start With" +  item.WorkSchedule.Name);
+            DebugMessage("Start With " +  item.WorkSchedule.Name);
             ItemsInProgess = true;
             item.Status = Status.Processed;
 
@@ -286,7 +286,7 @@ namespace Master40.Agents.Agents
 
             // Set Machine State to Ready for next
             ItemsInProgess = false;
-            DebugMessage("------>> Finished Work with " + item.WorkSchedule.Name + " take next...");
+            DebugMessage("Finished Work with " + item.WorkSchedule.Name + " take next...");
 
             // Call Comunication Agent that item has ben processed.
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.FinishWorkItem.ToString(),

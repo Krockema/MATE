@@ -61,6 +61,14 @@
                     <!-- Order Timeliness -->
                 </div>
             </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Order Distribution</h4>
+                    <div id="orderevolution_Decentral" class="loading"></div>
+                    <!-- Order Times -->
+                </div>
+            </div>
             <hr/>
             <div class="row">
                 <div class="col-md-12">
@@ -109,7 +117,7 @@
             <hr />
             <div class="row">
                 <div class="col-md-12">
-                    <h4>Order Timeliness</h4>
+                    <h4>Order Distribution</h4>
                     <div id="timeliness_Central" class="loading"></div>
                     <!-- Order Timeliness -->
                 </div>
@@ -117,8 +125,16 @@
             <hr />
             <div class="row">
                 <div class="col-md-12">
-                    <h4>Stock Evolution</h4>
-                    <div id="stockevolution_Central" class="loading"></div>
+                    <h4>Order Distribution</h4>
+                    <div id="orderevolution_Decentral" class="loading"></div>
+                    <!-- Order Times -->
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Order Evolution</h4>
+                    <div id="orderevolution_Central" class="loading"></div>
                     <!-- Stock Evolution -->
                 </div>
             </div>
@@ -153,6 +169,7 @@
             ProductLeadTime(@simid, "Decentral", @simNr);
             ProductLeadTime(@simid, "Central", @simNr);
             StockEvolution(@simid, "Decentral", @simNr);
+            OrderEvolution(@simid, "Decentral", @simNr);
             StockEvolution(@simid, "Central", @simNr);
             ArticleIdlePeriod(@simid, "Central", @simNr);
             ArticleIdlePeriod(@simid, "Decentral", @simNr);
@@ -202,6 +219,17 @@
             }).done(function (data) {
                 $('#stockevolution_' + simType).removeClass('loading');
                 $('#stockevolution_' + simType).html(data);
+            });
+        }
+
+        function OrderEvolution(simulationId, simType, simNr) {
+            $.ajax({
+                url: "/SimulationCompare/OrderEvolution/" + simulationId + "/" + simType + "/" + simNr,
+                async: true,
+                context: document.body
+            }).done(function (data) {
+                $('#orderevolution_' + simType).removeClass('loading');
+                $('#orderevolution_' + simType).html(data);
             });
         }
 
