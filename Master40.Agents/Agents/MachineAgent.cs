@@ -262,7 +262,7 @@ namespace Master40.Agents.Agents
             // TODO: Roll delay here
             var duration = WorkTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration);
 
-            Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
+            //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
             Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
             
             // get item = ready and lowest priority

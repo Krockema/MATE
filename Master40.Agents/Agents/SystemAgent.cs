@@ -17,13 +17,13 @@ namespace Master40.Agents.Agents
         private readonly ProductionDomainContext _productionDomainContext;
         private readonly IMessageHub _messageHub;
         private int orderCount = 1;
-        private int _max;
+        private SimulationConfiguration _simConfig;
 
-        public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext, IMessageHub messageHub, int max) : base(creator, name, debug)
+        public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext, IMessageHub messageHub, SimulationConfiguration simConfig) : base(creator, name, debug)
         {
             this._productionDomainContext = productionDomainContext;
             _messageHub = messageHub;
-            _max = max;
+            _simConfig = simConfig;
         }
         public enum InstuctionsMethods
         {
@@ -89,7 +89,7 @@ namespace Master40.Agents.Agents
 
         public void PrepareAgents(SimulationConfiguration simConfig, int simNr)
         {
-            Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig.Id, simNr);
+            Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig, simNr);
             
             foreach (var orderpart in _productionDomainContext.OrderParts
                                                                 .Include(x => x.Article)
@@ -132,7 +132,7 @@ namespace Master40.Agents.Agents
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
             DebugMessage("Oder No:" + order.Id + " finished at " + Context.TimePeriod);
-            _messageHub.ProcessingUpdate(1, orderCount++, SimulationType.Decentral, _max);
+            _messageHub.ProcessingUpdate(_simConfig.Id, orderCount++, SimulationType.Decentral, _simConfig.OrderQuantity);
         }
     }
 }
