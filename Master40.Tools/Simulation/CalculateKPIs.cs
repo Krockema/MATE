@@ -62,7 +62,7 @@ namespace Master40.Tools.Simulation
                 decimal restCount = 0
                       , insertAmount = 0;
 
-                while (inserts.Any() || withdrawls.Any())
+                while (inserts.Any() && withdrawls.Any())
                 {
                     var insert = inserts.Dequeue();
                     insertAmount = insert.Quantity;
@@ -239,7 +239,7 @@ namespace Master40.Tools.Simulation
                 : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan && a.End <= time)
                     .Select(x => new {x.Start, x.End, x.Machine}).ToList();
             //get SimulationTime
-            var simulationTime = final ? context.SimulationWorkschedules.Max(a => a.End)
+            var simulationTime = final ? context.SimulationWorkschedules.Max(a => a.End) - simConfig.SettlingStart
                                        : simConfig.DynamicKpiTimeSpan;
 
             var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi() {
@@ -377,8 +377,6 @@ namespace Master40.Tools.Simulation
                 CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, false, i);
             }
         }
-
-
         public static Task ConsolidateRuns(MasterDBContext context, int simulationId)
         {
             var task = Task.Run(() =>
@@ -417,7 +415,6 @@ namespace Master40.Tools.Simulation
                 context.Kpis.AddRange(summary);
                 context.SaveChanges();
         }
-
         private static void ConsolidateTimeliness(MasterDBContext context, int simulationId, SimulationType simType)
         {
 
@@ -505,7 +502,6 @@ namespace Master40.Tools.Simulation
             }
             context.SaveChanges();
         }
-
         private static void ConsolidateLayTime(MasterDBContext context, int simulationId, SimulationType simType)
         {
             var kpis = context.Kpis.Where(x => x.SimulationConfigurationId == simulationId

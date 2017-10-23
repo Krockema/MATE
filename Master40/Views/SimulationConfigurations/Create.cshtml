@@ -48,19 +48,26 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="ConsecutiveRuns" class="col-md-4 control-label">Spawn Time</label>
+            <label asp-for="OrderRate" class="col-md-4 control-label">Order Rate</label>
+            <div class="col-md-8">
+                <input asp-for="OrderRate" class="form-control" />
+                <span asp-validation-for="OrderRate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ConsecutiveRuns" class="col-md-4 control-label">Consecutive Runs</label>
             <div class="col-md-8">
                 <input asp-for="ConsecutiveRuns" class="form-control" />
                 <span asp-validation-for="ConsecutiveRuns" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="DynamicKpiTimeSpan" class="col-md-4 control-label">Spawn Time</label>
+            <label asp-for="DynamicKpiTimeSpan" class="col-md-4 control-label">Kpi Frame</label>
             <div class="col-md-8">
                 <input asp-for="DynamicKpiTimeSpan" class="form-control" />
                 <span asp-validation-for="DynamicKpiTimeSpan" class="text-danger"></span>
             </div>
-        </div>DynamicKpiTimeSpan
+        </div>
         <div class="form-group">
             <label asp-for="Seed" class="col-md-4 control-label"></label>
             <div class="col-md-8">

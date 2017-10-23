@@ -163,6 +163,7 @@ namespace Master40.ViewComponents
                         Label = machine,
                         ShowLine = true,
                         SteppedLine = false,
+                        BackgroundColor = cc.Color[i],
                         BorderColor = cc.Color[i++],
                         Fill = false,
                         //LineTension = 0
@@ -184,7 +185,7 @@ namespace Master40.ViewComponents
                     Scales = new Scales { XAxes = xAxis, YAxes = yAxis },
                     MaintainAspectRatio = false,
                     Responsive = true,
-                    Legend = new Legend { Display = false }
+                    Legend = new Legend { Display = true, Position = "bottom"}
                 };
 
                 return chart;

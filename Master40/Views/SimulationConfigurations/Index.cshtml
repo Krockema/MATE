@@ -181,16 +181,14 @@
             let selector = "#" + simId + "Pogress" + simType;
             $(selector).css('width', count + '%').attr('aria-valuenow', count);
             $(selector).text(count + "%");
-        }
-        if (mstype == "ProcessingComplete") {
+        } else if (mstype == "ProcessingComplete") {
             growlMsg("Decentral Run Completed")
             var l = Ladda.create(document.querySelector("#decentral-ladda-btn_" + simId ));
             l.toggle();
             $("#decentral-ladda-btn_" + simId).css('background', 'white');
             let selector = "#" + simId + "PogressRunDecentral";
             $(selector).text(count);
-        }
-        if (mstype == "MrpProcessingComplete") {
+        } else if (mstype == "MrpProcessingComplete") {
             growlMsg("Central MRP Run Compleated")
             var l = Ladda.create(document.querySelector("#central-ladda-btn_" + simId));
             l.toggle();

@@ -7,6 +7,7 @@
 
   <PropertyGroup>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+    <AssemblyName>Master40</AssemblyName>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -43,7 +44,6 @@
   <ItemGroup>
     <Folder Include="Lib\" />
     <Folder Include="Views\AgentSimulation\" />
-    <Folder Include="Views\SimulationConfig\" />
     <Folder Include="Views\Shared\Components\Menu\" />
   </ItemGroup>
   <ItemGroup>

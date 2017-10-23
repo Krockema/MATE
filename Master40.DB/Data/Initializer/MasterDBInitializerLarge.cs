@@ -307,6 +307,7 @@ namespace Master40.DB.Data.Initializer
                 OrderQuantity = 500,
                 Seed = 1338,
                 ConsecutiveRuns = 1,
+                OrderRate = 0.25,
                 Time = 0,
                 RecalculationTime = 1440,
                 SimulationEndTime = 20000,

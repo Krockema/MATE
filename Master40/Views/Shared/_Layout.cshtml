@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Master ERP 4.0</title>
 
-    <environment names="Development">
+    
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/MenuV2.css" />
@@ -31,16 +31,6 @@
         <script src="Signalr/hubs"></script>
         <!--<script src="~/lib/timeline/resize.js"></script>
         <script src="~/lib/timeline/simpleTimeline.js"></script>-->
-    </environment>
-    <environment names="Staging,Production">
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/MenuV2.css" />
-        <link href="~/css/simpleTimeline.css" rel="stylesheet" />
-        <link rel="stylesheet" href="~/css/font-awesome.min.css" />
-    </environment>
     <style>
         #wrapper.active #sidebar-wrapper {
             left: 10px;
@@ -97,32 +87,18 @@
                 </div>
         </div>
 
-                <environment names="Staging,Production">
-                    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-                            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                            asp-fallback-test="window.jQuery"
-                            crossorigin="anonymous"
-                            integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
-                    </script>
-                    <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-                            asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                            asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                            crossorigin="anonymous"
-                            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-                    </script>
-                    <script src="~/js/site.min.js" asp-append-version="true"></script>
-                    <script>
-                            $(document).ready(function () {
-                                $("#menu-toggle").click(function (e) {
-                                    e.preventDefault();
-                                    $("#wrapper").toggleClass("active");
-                                });
-                            });
-                    </script>
-                </environment>
-
-                @RenderSection("Scripts", required: false)
-                <!-- number validation fix for '.' -> ',' -->
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+        <script>
+                $(document).ready(function () {
+                    $("#menu-toggle").click(function (e) {
+                        e.preventDefault();
+                        $("#wrapper").toggleClass("active");
+                    });
+                });
+        </script>
+    
+        @RenderSection("Scripts", required: false)
+        <!-- number validation fix for '.' -> ',' -->
 
 </body>
 </html>

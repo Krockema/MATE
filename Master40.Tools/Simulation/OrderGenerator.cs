@@ -13,15 +13,14 @@ namespace Master40.Tools.Simulation
 {
     public static class OrderGenerator
     {
-        public static void GenerateOrders(ProductionDomainContext context, int simulationId, int simulationNumber)
+        public static void GenerateOrders(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber)
         {
             var time = 0;
-            var samples = context.SimulationConfigurations.Single(a => a.Id == simulationId).OrderQuantity;
-            var seed = new Random(context.SimulationConfigurations.Single(a => a.Id == simulationId).Seed+simulationNumber);
+            var samples = simConfig.OrderQuantity;
+            var seed = new Random(simConfig.Seed+simulationNumber);
             var productIds = context.ArticleBoms.Where(b => b.ArticleParentId == null).Select(a => a.ArticleChildId).ToList();
-
-            var dist = new Exponential(rate: 0.31, randomSource: seed);
-            //var dist = new Exponential(0.1,seed);
+            
+            var dist = new Exponential(rate: simConfig.OrderRate, randomSource: seed);
             //get equal distribution from 0 to 1
             var norml = new DiscreteUniform(0, productIds.Count() - 1, seed);
             //get equal distribution for duetime
@@ -58,12 +57,12 @@ namespace Master40.Tools.Simulation
             for (int i = 0; i < amount; i++)
             {
                 var sample = dist.Sample();
-                var round = Math.Round(sample, MidpointRounding.AwayFromZero);
-                if (sample < 0.5 || sample > 1.5)
+                var round = Math.Round(sample*5, MidpointRounding.AwayFromZero);
+                if (sample < 5 || sample > 5)
                 {
                     var a = 1;
                 }
-                samples.Add(5 * (int)round);
+                samples.Add( (int)round);
             }
             return samples;
         }

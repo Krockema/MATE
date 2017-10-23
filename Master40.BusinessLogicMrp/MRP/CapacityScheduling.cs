@@ -32,7 +32,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         public void GifflerThompsonScheduling(int simulationId)
         {
-            var productionOrderWorkSchedules = GetProductionSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
             productionOrderWorkSchedules = ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
@@ -164,7 +164,7 @@ namespace Master40.BusinessLogicCentral.MRP
         public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int simulationId)
         {   
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetProductionSchedules();
+            var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -297,7 +297,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             if (schedule == null) return 0;
             var parents = _context.GetParents(schedule);
-            if (parents == null || !parents.Any()) return schedule.Duration;
+            if (!parents.Any()) return schedule.Duration;
             var maxTime = 0;
             foreach (var parent in parents)
             {
@@ -307,19 +307,30 @@ namespace Master40.BusinessLogicCentral.MRP
             return maxTime;
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules()
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules(int simulationId)
         {
-            var demandProvider = _context.Demands.OfType<DemandProviderProductionOrder>().AsNoTracking()
+            /*var demandProvider = _context.Demands.OfType<DemandProviderProductionOrder>().AsNoTracking()
                 .Include(a => a.DemandRequester)
                 .Include(a => a.ProductionOrder)
                 .ThenInclude(a => a.ProductionOrderWorkSchedule)
                 .Where(b => b.State != State.Finished)
+                .ToList();*/
+            var demandRequester = _context.Demands.AsNoTracking()
+                .Include(a => a.DemandProvider)
+                .Include(a => a.DemandRequester)
+                .ThenInclude(a => a.DemandRequester)
+                .Where(b => b.State == State.BackwardScheduleExists
+                            || b.State == State.ExistsInCapacityPlan
+                            || b.State == State.ForwardScheduleExists
+                            || b.State == State.ProviderExist)
                 .ToList();
 
             var pows = new List<ProductionOrderWorkSchedule>();
-            foreach (var singleProvider in demandProvider)
+            foreach (var singleDemandRequester in demandRequester)
             {
-                pows.AddRange(singleProvider.ProductionOrder.ProductionOrderWorkSchedule);
+                if (_context.GetDueTimeByOrder(singleDemandRequester) <= _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time + _context.SimulationConfigurations.Single(a => a.Id == simulationId).MaxCalculationTime || singleDemandRequester.GetType() == typeof(DemandStock))
+                    _context.GetWorkSchedulesFromDemand(singleDemandRequester, ref pows);
+                /*pows.AddRange(singleRequester.ProductionOrder.ProductionOrderWorkSchedule);*/
             }
             return pows.AsEnumerable().Distinct().ToList();
         }
@@ -355,7 +366,7 @@ namespace Master40.BusinessLogicCentral.MRP
         public void SetMachines(int simulationId)
         {  
             //gets called when plan is fitting to capacities
-            var schedules = GetProductionSchedules();
+            var schedules = GetProductionSchedules(simulationId);
             foreach (var schedule in schedules)
             {
                 var machines = _context.Machines.Where(a => a.MachineGroupId == schedule.MachineGroupId).ToList();

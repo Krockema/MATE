@@ -67,8 +67,9 @@ namespace Master40.Agents
         private object CreateModel(SimulationContext context,int simulationId, int simNr)
         {
             var simConfig = _productionDomainContext.SimulationConfigurations.Single(x => x.Id == simulationId);
-            var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig.OrderQuantity);
-            
+            //context.Register(new SimulationEndTrigger(() => (context.TimePeriod > simConfig.SimulationEndTime)));
+
+            var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig);
             var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNr);
             // Create Directory Agent,
             var directoryAgent = new DirectoryAgent(system, "Directory", false);
@@ -118,11 +119,9 @@ namespace Master40.Agents
                 Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
             }
 
-            var jobs =  AgentStatistic.Log.Count(x => x.Contains("Finished Work with"));
+            var jobs = SimulationWorkschedules.Count;
             Debug.WriteLine(jobs + " Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
-            var poWait = AgentStatistic.Log.Count(x => x.Equals("Wait1"));
-            Debug.WriteLine("Po Wait Counter:" + poWait);
-
+            
             foreach (var stock in context.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
             {
                 var item = ((StorageAgent)stock);

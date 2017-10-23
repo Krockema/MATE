@@ -124,7 +124,7 @@ namespace Master40.DB.Data.Context
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
             if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
-            var requester =  (from demandProviderProductionOrder in provider
+            /*var requester =  (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into req
                     where req.GetType() == typeof(DemandProductionOrderBom) 
                     || req.GetType() == typeof(DemandOrderPart)
@@ -139,13 +139,13 @@ namespace Master40.DB.Data.Context
                 var schedules = demand.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule;
                 pows.Add(schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber)));
             }
-            return pows;
+            return pows;*/
 
-            /*return (from demandProviderProductionOrder in provider
+            return (from demandProviderProductionOrder in provider
             select demandProviderProductionOrder.DemandRequester into requester
             where requester.GetType() == typeof(DemandProductionOrderBom)
             select ((DemandProductionOrderBom)requester).ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule into schedules
-            select schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber))).ToList();*/
+            select schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber))).ToList();
         }
 
 
