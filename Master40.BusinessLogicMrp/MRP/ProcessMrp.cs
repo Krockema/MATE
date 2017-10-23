@@ -127,11 +127,11 @@ namespace Master40.BusinessLogicCentral.MRP
            
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
 
-            if (newOrdersAdded)
-            {
-                _rebuildNets.Rebuild(simulationId, evaluationContext);
-                _messageHub.SendToAllClients("RebuildNets completed");
-            }
+            //if (newOrdersAdded)
+            //{
+            //    _rebuildNets.Rebuild(simulationId, evaluationContext);
+            //    _messageHub.SendToAllClients("RebuildNets completed");
+            //}
 
             if (timer == 0 && (task == MrpTask.All || task == MrpTask.Capacity))
                 //creates a list with the needed capacities to follow the terminated schedules

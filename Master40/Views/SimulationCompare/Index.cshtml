@@ -246,5 +246,30 @@
             });
         }
 
-
-    </script>
+        function loadGantt(orderId, stateId, page, type, config, simNr) {
+        var source = "/SimulationCompare/SimulationTimeline/" + orderId + "/"+ type + "/" + stateId + "/" + config + "/" + simNr + "/" + page;
+        $.ajax({
+            url: source,
+            //url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
+            async: true,
+            context: document.body,
+            beforeSend: function () {
+                // and empty the modal-content element
+                $('#modal-container .modal-content').empty().html("<div class='loading center-div' />");
+            },
+            success: function (msg) {
+            },
+            error: function () {
+                $(document).ajaxError(function (xhr, ajaxOptions, thrownError) {
+                    alert('status: ' +
+                        ajaxOptions.status +
+                        '-' +
+                        ajaxOptions.statusText +
+                        ' \n' +
+                        'error:\n' +
+                        ajaxOptions.responseText);
+                });
+            }
+        }).done(function (data) { $('.modal-content').html(data); });
+    }
+</script>     

@@ -6,6 +6,7 @@
     var SimNr = ViewData["SimulationNumber"].ToString();
     var SimConfig = ViewData["SimulationConfiguration"].ToString();
     var SimulationPage = ViewData["SimulationPage"].ToString();
+    var MaxPage = ViewData["MaxPage"].ToString();
 
 
     string tasks = "[]", links = "[]";
@@ -34,9 +35,9 @@
         font-size: 12px;
     }
     .gantt_task_line.task-collapsed{
-         height: 4px;
-         opacity: 0.25;
-     }
+        height: 4px;
+        opacity: 0.25;
+    }
     .gantt_task_line.gantt_project.task-collapsed .gantt_task_content{
         display: none;
     }
@@ -50,15 +51,22 @@
         var value2 = $('#fcState').val();
         var value3 = $('#fcPage').val();
         console.log(value3);
-        debugger;
         $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
 
         // reload need to be programmed.
-        loadGantt(value1, value2, value3);
+        loadGantt(value1, value2, value3,"@Html.Raw(SimType)", @Html.Raw(SimConfig), @Html.Raw(SimNr));
         //$('form').submit();
     }
-
-</script>     
+    function pageChange(dir) {
+        var page = $('#fcPage').val();
+        if (dir == 'down' && page != "0") {
+            $('#fcPage').attr('value', parseInt(page) - 1);
+        } else {
+            $('#fcPage').attr('value', parseInt(page) + 1);
+        }
+        submitform();
+    }
+</script>
 <div class="col-md-12">
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -113,9 +121,23 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="row">
-                                <label class="control-label col-md-4">Timeframe</label>
+                                
+                                <label class="control-label col-md-4">Timeframe <span class="badge">@Html.Raw(MaxPage)</span> </label>
                                 <div class="col-md-8">
-                                    <input class="form-control" id="fcPage" name="SchedulingPage" value="0" />
+                                    <div class="btn-group" style="display: inline-flex;">
+                                        <div class="button btn btn-default">
+                                            <a href="#" aria-label="Previous" onclick="pageChange('down')">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </div>
+                                        <div class="button btn-default"><input id="fcPage" name="SchedulingPage" value="@Html.Raw(SimulationPage)" style="width: 40px; height: 34px; border: 1px solid #ccc; text-align: center;"/>
+                                        </div>
+                                        <div class="button btn btn-default">
+                                            <a href="#" aria-label="Next" onclick="pageChange('up')">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </div>
+                                    </div>                                  
                                 </div>
                             </div>
                         </div>
@@ -217,12 +239,12 @@
                 var child_sizes = gantt.getTaskPosition(child);
 
                 child_el = createBox({
-                    height: sub_height,
-                    top:sizes.top,
-                    left:child_sizes.left,
-                    width: child_sizes.width
-                }, "child_preview gantt_task_line"
-                , child.color);
+                        height: sub_height,
+                        top:sizes.top,
+                        left:child_sizes.left,
+                        width: child_sizes.width
+                    }, "child_preview gantt_task_line"
+                    , child.color);
                 child_el.innerHTML =  child.text;
                 el.appendChild(child_el);
             }
@@ -236,7 +258,7 @@
         "links": @Html.Raw(links)
     };
     gantt.parse(demo_tasks);
-    //gantt.refreshData();
+
 
     gantt.templates.tooltip_text = function(start,end,task){
         return "<b>Task:</b> "+task.desc+"<br/><b>Duration:</b> " + task.duration;
@@ -290,34 +312,5 @@
         }
         gantt.ignore_time = null;
         gantt.render();
-    }
-
-    function loadGantt(orderId, stateId, page) {
-        var source = "/SimulationCompare/SimulationTimeline/" + orderId + "/@Html.Raw(SimType)/" + stateId + "/@Html.Raw(SimConfig)/@Html.Raw(@SimNr)/" + page;
-        $.ajax({
-            url: source,
-            //url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
-            async: true,
-            context: document.body,
-            beforeSend: function () {
-                $('#ajax-busy').show();
-            },
-            success: function (msg) {
-                $(".MessageDisplayRunning").html("");
-                $('#ajax-busy').hide();
-
-            },
-            error: function () {
-                $(document).ajaxError(function (xhr, ajaxOptions, thrownError) {
-                    alert('status: ' +
-                        ajaxOptions.status +
-                        '-' +
-                        ajaxOptions.statusText +
-                        ' \n' +
-                        'error:\n' +
-                        ajaxOptions.responseText);
-                });
-            }
-        }).done(function (data) { $('#ProductionGantt').html(data); });
     }
 </script>
