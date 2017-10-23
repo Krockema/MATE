@@ -204,9 +204,9 @@ namespace Master40.Agents.Agents
 
             // tell Item in Queue to set it ready.
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.SetWorkItemStatus.ToString(),
-                                  objectToProcess: message,
-                                      targetAgent: comunicationAgent)
-                                        // ,waitFor: 1); // Start Production during the next time period
+                objectToProcess: message,
+                targetAgent: comunicationAgent);
+            // ,waitFor: 1); // Start Production during the next time period
         }
 
 

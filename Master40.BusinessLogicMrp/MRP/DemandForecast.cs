@@ -36,7 +36,6 @@ namespace Master40.BusinessLogicCentral.MRP
             //Todo: search for available POs
             var stock = _context.Stocks.Include(a => a.DemandStocks)
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
-            var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             var plannedStock = _context.GetPlannedStock(stock,demand);
             var productionOrders = new List<ProductionOrder>();
             _context.TryCreateStockReservation(demand);
@@ -73,7 +72,6 @@ namespace Master40.BusinessLogicCentral.MRP
                 else
                     _context.CreatePurchaseDemand(demand, stock.Max);
             }
-            //if the plannedStock goes below the Minimum for this article, start a productionOrder for this article until max is reached
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
                 return productionOrders;
             

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Master40.DB.Data.Context
 {
@@ -94,7 +97,9 @@ namespace Master40.DB.Data.Context
             var parents = new List<ProductionOrderWorkSchedule>();
             var parent = GetHierarchyParent(schedule);
             if (parent != null) parents.Add(parent);
-            else parents.AddRange(GetBomParents(schedule));
+            var bomParents = GetBomParents(schedule);
+            if (bomParents == null) return null;
+            if (parents.Any()) parents.AddRange(bomParents);
             return parents;
         }
 
@@ -119,172 +124,189 @@ namespace Master40.DB.Data.Context
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
             if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
-            return (from demandProviderProductionOrder in provider
-                    select demandProviderProductionOrder.DemandRequester into requester
-                    where requester.GetType() == typeof(DemandProductionOrderBom)
-                    select ((DemandProductionOrderBom)requester).ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule into schedules
-                    select schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber))).ToList();
-        }
-
-
-
-        public async Task<Article> GetArticleBomRecursive(Article article, int articleId)
-        {
-            article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
-                                                        .ThenInclude(w => w.WorkSchedules)
-                                                        .Where(a => a.ArticleParentId == articleId).ToList();
-
-            foreach (var item in article.ArticleChilds)
-            {
-                await GetArticleBomRecursive(item.ArticleParent, item.ArticleChildId);
-            }
-            await Task.Yield();
-            return article;
-
-        }
-
-        /// <summary>
-        /// returns the Production Order Work Schedules for a given Order
-        /// </summary>
-        /// <param name="orderId"></param>
-        /// <returns></returns>
-        public Task<List<ProductionOrderWorkSchedule>> GetProductionOrderWorkScheduleByOrderId(int orderId)
-        {
-            return Task.Run(() =>
-            {
-                // get the corresponding Order Parts to Order
-                var demands = Demands.OfType<DemandOrderPart>()
-                    .Include(x => x.OrderPart)
-                    .Where(o => o.OrderPart.OrderId == orderId)
-                    .ToList();
-
-                // ReSharper Linq
-                var demandboms = demands.SelectMany(demand => Demands.OfType<DemandProductionOrderBom>()
-                    .Where(a => a.DemandRequesterId == demand.Id)).ToList();
-
-                // get Demand Providers for this Order
-                var demandProviders = new List<DemandProviderProductionOrder>();
-                foreach (var order in (Demands.OfType<DemandProviderProductionOrder>()
-                    .Join(demands, c => c.DemandRequesterId, d => ((IDemandToProvider)d).Id, (c, d) => c)))
-                {
-                    demandProviders.Add(order);
-                }
-
-                var demandBomProviders = (Demands.OfType<DemandProviderProductionOrder>()
-                    .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
-
-                // get ProductionOrderWorkSchedule for 
-                var pows = ProductionOrderWorkSchedules.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
-                var powDetails = pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
-                    (p, dp) => p).ToList();
-
-                var powBoms = (from p in pows
-                               join dbp in demandBomProviders on p.ProductionOrderId equals dbp.ProductionOrderId
-                               select p).ToList();
-
-                powDetails.AddRange(powBoms);
-                return powDetails;
-            });
-        }
-
-        /// <summary>
-        /// returns the OrderIds for the ProductionOrder
-        /// </summary>
-        /// <param name="po"></param>
-        /// <returns></returns>
-        public List<int> GetOrderIdsFromProductionOrder(ProductionOrder po)
-        {
-            po = ProductionOrders.Include(a => a.DemandProviderProductionOrders).ThenInclude(b => b.DemandRequester).Single(a => a.Id == po.Id);
-            var ids = new List<int>();
-            var requester = (from provider in po.DemandProviderProductionOrders
-                select provider.DemandRequester).ToList();
-            if (requester.First() == null) return ids;
+            var requester =  (from demandProviderProductionOrder in provider
+                    select demandProviderProductionOrder.DemandRequester into req
+                    where req.GetType() == typeof(DemandProductionOrderBom) 
+                    || req.GetType() == typeof(DemandOrderPart)
+                    select req).ToList();
+            var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleRequester in requester)
             {
-                if (singleRequester.GetType() == typeof(DemandProductionOrderBom))
-                {
-                    
-                    ids.AddRange(GetOrderIdsFromProductionOrder(
-                        ((DemandProductionOrderBom) singleRequester).ProductionOrderBom.ProductionOrderParent));
-                }
-                else if (singleRequester.GetType() == typeof(DemandOrderPart))
-                {
-                    var dop = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
-                    return new List<int>()
-                        {
-                            dop.OrderPart.OrderId
-                        };
-                }
-                    
+                if (requester.GetType() == typeof(DemandOrderPart)) return null;
+                var demand = Demands.OfType<DemandProductionOrderBom>().Include(a => a.ProductionOrderBom)
+                    .ThenInclude(b => b.ProductionOrderParent).ThenInclude(c => c.ProductionOrderWorkSchedule)
+                    .Single(a => a.Id == singleRequester.Id);
+                var schedules = demand.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule;
+                pows.Add(schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber)));
             }
-            return ids;
+            return pows;
+
+            /*return (from demandProviderProductionOrder in provider
+            select demandProviderProductionOrder.DemandRequester into requester
+            where requester.GetType() == typeof(DemandProductionOrderBom)
+            select ((DemandProductionOrderBom)requester).ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule into schedules
+            select schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber))).ToList();*/
         }
 
-        /// <summary>
-        /// Deepseach thorugh tree to Return all Workschedules Related to one Order.
-        /// </summary>
-        /// <param name="demandRequester"></param>
-        /// <param name="productionOrderWorkSchedule"></param>
-        /// <returns>List of ProductionOrderWorkSchedules - Attention May Include Dupes Through Complex Backlinks !</returns>
-        public List<ProductionOrderWorkSchedule> GetWorkSchedulesFromDemand(IDemandToProvider demandRequester, ref List<ProductionOrderWorkSchedule> productionOrderWorkSchedule)
-        {
-            foreach (var item in demandRequester.DemandProvider.OfType<DemandProviderProductionOrder>())
-            {
-                var productionOrders = ProductionOrders
-                    .Include(x => x.ProductionOrderWorkSchedule)
-                    .ThenInclude(x => x.MachineGroup)
-                    .Include(x => x.ProductionOrderWorkSchedule)
-                    .ThenInclude(x => x.Machine)
-                    .Include(x => x.ProductionOrderBoms)
-                    .ThenInclude(x => x.DemandProductionOrderBoms)
-                    .ThenInclude(x => x.DemandProvider)
-                    .FirstOrDefault(x => x.Id == item.ProductionOrderId);
 
-                productionOrderWorkSchedule.AddRange(productionOrders.ProductionOrderWorkSchedule);
-                foreach (var po in productionOrders.ProductionOrderBoms)
+
+            public async Task<Article> GetArticleBomRecursive(Article article, int articleId)
+            {
+                article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
+                                                            .ThenInclude(w => w.WorkSchedules)
+                                                            .Where(a => a.ArticleParentId == articleId).ToList();
+
+                foreach (var item in article.ArticleChilds)
                 {
-                    foreach (var dpob in po.DemandProductionOrderBoms)
+                    await GetArticleBomRecursive(item.ArticleParent, item.ArticleChildId);
+                }
+                await Task.Yield();
+                return article;
+
+            }
+
+            /// <summary>
+            /// returns the Production Order Work Schedules for a given Order
+            /// </summary>
+            /// <param name="orderId"></param>
+            /// <returns></returns>
+            public Task<List<ProductionOrderWorkSchedule>> GetProductionOrderWorkScheduleByOrderId(int orderId)
+            {
+                return Task.Run(() =>
+                {
+                    // get the corresponding Order Parts to Order
+                    var demands = Demands.OfType<DemandOrderPart>()
+                        .Include(x => x.OrderPart)
+                        .Where(o => o.OrderPart.OrderId == orderId)
+                        .ToList();
+
+                    // ReSharper Linq
+                    var demandboms = demands.SelectMany(demand => Demands.OfType<DemandProductionOrderBom>()
+                        .Where(a => a.DemandRequesterId == demand.Id)).ToList();
+
+                    // get Demand Providers for this Order
+                    var demandProviders = new List<DemandProviderProductionOrder>();
+                    foreach (var order in (Demands.OfType<DemandProviderProductionOrder>()
+                        .Join(demands, c => c.DemandRequesterId, d => ((IDemandToProvider)d).Id, (c, d) => c)))
                     {
-                        GetWorkSchedulesFromDemand(dpob, ref productionOrderWorkSchedule);
+                        demandProviders.Add(order);
+                    }
+
+                    var demandBomProviders = (Demands.OfType<DemandProviderProductionOrder>()
+                        .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
+
+                    // get ProductionOrderWorkSchedule for 
+                    var pows = ProductionOrderWorkSchedules.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
+                    var powDetails = pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
+                        (p, dp) => p).ToList();
+
+                    var powBoms = (from p in pows
+                                   join dbp in demandBomProviders on p.ProductionOrderId equals dbp.ProductionOrderId
+                                   select p).ToList();
+
+                    powDetails.AddRange(powBoms);
+                    return powDetails;
+                });
+            }
+
+            /// <summary>
+            /// returns the OrderIds for the ProductionOrder
+            /// </summary>
+            /// <param name="po"></param>
+            /// <returns></returns>
+            public List<int> GetOrderIdsFromProductionOrder(ProductionOrder po)
+            {
+                po = ProductionOrders.Include(a => a.DemandProviderProductionOrders).ThenInclude(b => b.DemandRequester).Single(a => a.Id == po.Id);
+                var ids = new List<int>();
+                var requester = (from provider in po.DemandProviderProductionOrders
+                    select provider.DemandRequester).ToList();
+                if (requester.First() == null) return ids;
+                foreach (var singleRequester in requester)
+                {
+                    if (singleRequester.GetType() == typeof(DemandProductionOrderBom))
+                    {
+
+                        ids.AddRange(GetOrderIdsFromProductionOrder(
+                            ((DemandProductionOrderBom) singleRequester).ProductionOrderBom.ProductionOrderParent));
+                    }
+                    else if (singleRequester.GetType() == typeof(DemandOrderPart))
+                    {
+                        var dop = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
+                        return new List<int>()
+                            {
+                                dop.OrderPart.OrderId
+                            };
+                    }
+
+                }
+                return ids;
+            }
+
+            /// <summary>
+            /// Deepseach thorugh tree to Return all Workschedules Related to one Order.
+            /// </summary>
+            /// <param name="demandRequester"></param>
+            /// <param name="productionOrderWorkSchedule"></param>
+            /// <returns>List of ProductionOrderWorkSchedules - Attention May Include Dupes Through Complex Backlinks !</returns>
+            public List<ProductionOrderWorkSchedule> GetWorkSchedulesFromDemand(IDemandToProvider demandRequester, ref List<ProductionOrderWorkSchedule> productionOrderWorkSchedule)
+            {
+                foreach (var item in demandRequester.DemandProvider.OfType<DemandProviderProductionOrder>())
+                {
+                    var productionOrders = ProductionOrders
+                        .Include(x => x.ProductionOrderWorkSchedule)
+                        .ThenInclude(x => x.MachineGroup)
+                        .Include(x => x.ProductionOrderWorkSchedule)
+                        .ThenInclude(x => x.Machine)
+                        .Include(x => x.ProductionOrderBoms)
+                        .ThenInclude(x => x.DemandProductionOrderBoms)
+                        .ThenInclude(x => x.DemandProvider)
+                        .FirstOrDefault(x => x.Id == item.ProductionOrderId);
+
+                    productionOrderWorkSchedule.AddRange(productionOrders.ProductionOrderWorkSchedule);
+                    foreach (var po in productionOrders.ProductionOrderBoms)
+                    {
+                        foreach (var dpob in po.DemandProductionOrderBoms)
+                        {
+                            GetWorkSchedulesFromDemand(dpob, ref productionOrderWorkSchedule);
+                        }
                     }
                 }
+                return productionOrderWorkSchedule;
             }
-            return productionOrderWorkSchedule;
-        }
 
 
 
-        /***
-         * Requirements
-         * */
-         /*
-        /// <summary>
-        /// Creates stock reservation if possible
-        /// </summary>
-        /// <param name="stock"></param>
-        /// <param name="demand"></param>
-        public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
-        {
-            var stockReservations = GetReserved(demand.ArticleId);
-            var bought = GetAmountBought(demand.ArticleId);
-            //get the current amount of free available articles
-            var current = stock.Current + bought - stockReservations;
-            decimal quantity;
-            //either reserve all that are in stock or the amount needed
-            quantity = demand.Quantity > current ? current : demand.Quantity;
-            if (quantity == 0) return;
-            var demandProviderStock = new DemandProviderStock()
-            {
-                ArticleId = stock.ArticleForeignKey,
-                Quantity = quantity,
-                DemandRequesterId = demand.DemandRequesterId ?? demand.Id,
-                StockId = stock.Id
-            };
-            Demands.Add(demandProviderStock);
-            SaveChanges();
-        }*/
+            /***
+             * Requirements
+             * */
+            /*
+           /// <summary>
+           /// Creates stock reservation if possible
+           /// </summary>
+           /// <param name="stock"></param>
+           /// <param name="demand"></param>
+           public void TryCreateStockReservation(Stock stock, IDemandToProvider demand)
+           {
+               var stockReservations = GetReserved(demand.ArticleId);
+               var bought = GetAmountBought(demand.ArticleId);
+               //get the current amount of free available articles
+               var current = stock.Current + bought - stockReservations;
+               decimal quantity;
+               //either reserve all that are in stock or the amount needed
+               quantity = demand.Quantity > current ? current : demand.Quantity;
+               if (quantity == 0) return;
+               var demandProviderStock = new DemandProviderStock()
+               {
+                   ArticleId = stock.ArticleForeignKey,
+                   Quantity = quantity,
+                   DemandRequesterId = demand.DemandRequesterId ?? demand.Id,
+                   StockId = stock.Id
+               };
+               Demands.Add(demandProviderStock);
+               SaveChanges();
+           }*/
 
-        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, int simulationId)
+            public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, int simulationId)
         {
             ProductionOrderBom bom = null;
             if (demand.GetType() == typeof(DemandProductionOrderBom))
@@ -861,6 +883,18 @@ namespace Master40.DB.Data.Context
                 Update(prov.DemandRequester);
                 SaveChanges();
                 changedRequester.Add(prov.DemandRequester);
+            }
+            var test = Demands.OfType<DemandProductionOrderBom>().Where(a => a.State != State.Finished);
+            var test2 = test.Where(a => a.DemandProvider.All(b => b.State == State.Finished));
+            Debug.WriteLine(test2.Count() +" items waiting to be concluded");
+            Debug.WriteLine(test2.Count(a => a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.First().Name == "Wedding"));
+            
+            var dpobs = Demands.OfType<DemandProductionOrderBom>().Where(a => a.State!=State.Finished 
+                                                                                    && a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.Any(c => c.ProducingState!=ProducingState.Created));
+            foreach (var dpob in dpobs)
+            {
+                dpob.State = State.Finished;
+                changedRequester.Add(dpob);
             }
             return changedRequester;
         }

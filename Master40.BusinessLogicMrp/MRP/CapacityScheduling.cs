@@ -32,8 +32,8 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         public void GifflerThompsonScheduling(int simulationId)
         {
-            var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
-            ResetStartEnd(productionOrderWorkSchedules);
+            var productionOrderWorkSchedules = GetProductionSchedules();
+            productionOrderWorkSchedules = ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
             var plannableSchedules = new List<ProductionOrderWorkSchedule>();
@@ -41,13 +41,11 @@ namespace Master40.BusinessLogicCentral.MRP
             GetInitialPlannables(productionOrderWorkSchedules,plannedSchedules, plannableSchedules);
             while (plannableSchedules.Any())
             {
-
                 //find next element by using the activity slack rule
+                //Todo: Remove after testing
+                //var shortest = GetHighestPriority(plannableSchedules);
                 CalculateActivitySlack(plannableSchedules, simulationId);
-                
-                
                 var shortest = GetShortest(plannableSchedules);
-
                 plannableSchedules.Remove(shortest);
                 //Add a fix spot on a machine with start/end
                 AddMachine(plannedSchedules, shortest, simulationId);
@@ -63,6 +61,12 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
                 
             }
+        }
+
+        private ProductionOrderWorkSchedule GetHighestPriority(List<ProductionOrderWorkSchedule> plannableSchedules)
+        {
+            return plannableSchedules.First(a =>
+                a.ProductionOrder.Duetime == plannableSchedules.Min(b => b.ProductionOrder.Duetime));
         }
 
         private List<ProductionOrderWorkSchedule> GetInitialPlannedSchedules(int simulationId)
@@ -143,13 +147,14 @@ namespace Master40.BusinessLogicCentral.MRP
             return 0;
         }
 
-        private void ResetStartEnd(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
+        private List<ProductionOrderWorkSchedule> ResetStartEnd(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules)
         {
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
             {
                 productionOrderWorkSchedule.Start = 0;
                 productionOrderWorkSchedule.End = 0;
             }
+            return productionOrderWorkSchedules;
         }
 
         /// <summary>
@@ -159,7 +164,7 @@ namespace Master40.BusinessLogicCentral.MRP
         public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int simulationId)
         {   
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
+            var productionOrderWorkSchedules = GetProductionSchedules();
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -277,7 +282,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules, int simulationId)
         {
-            foreach (var plannableSchedule in plannableSchedules)
+            foreach (var plannableSchedule in plannableSchedules.Where(a => a.ActivitySlack == 0))
             {
                 var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
                 var processDueTime = plannableSchedule.ProductionOrder.Duetime -
@@ -292,7 +297,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             if (schedule == null) return 0;
             var parents = _context.GetParents(schedule);
-            if (!parents.Any()) return schedule.Duration;
+            if (parents == null || !parents.Any()) return schedule.Duration;
             var maxTime = 0;
             foreach (var parent in parents)
             {
@@ -302,23 +307,19 @@ namespace Master40.BusinessLogicCentral.MRP
             return maxTime;
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules(int simulationId)
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules()
         {
-            var demandRequester = _context.Demands.AsNoTracking()
-                                            .Include(a => a.DemandProvider)
-                                            .Include(a => a.DemandRequester)
-                                            .ThenInclude(a => a.DemandRequester)
-                                                    .Where(b => b.State == State.BackwardScheduleExists 
-                                                            || b.State == State.ExistsInCapacityPlan 
-                                                            || b.State == State.ForwardScheduleExists
-                                                            || b.State == State.ProviderExist)
-                                                            .ToList();
-            
+            var demandProvider = _context.Demands.OfType<DemandProviderProductionOrder>().AsNoTracking()
+                .Include(a => a.DemandRequester)
+                .Include(a => a.ProductionOrder)
+                .ThenInclude(a => a.ProductionOrderWorkSchedule)
+                .Where(b => b.State != State.Finished)
+                .ToList();
+
             var pows = new List<ProductionOrderWorkSchedule>();
-            foreach (var singleDemandRequester in demandRequester)
+            foreach (var singleProvider in demandProvider)
             {
-                if (_context.GetDueTimeByOrder(singleDemandRequester) <= _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time + _context.SimulationConfigurations.Single(a  => a.Id == simulationId).MaxCalculationTime || singleDemandRequester.GetType() == typeof(DemandStock))
-                    _context.GetWorkSchedulesFromDemand(singleDemandRequester, ref pows);
+                pows.AddRange(singleProvider.ProductionOrder.ProductionOrderWorkSchedule);
             }
             return pows.AsEnumerable().Distinct().ToList();
         }
@@ -354,7 +355,7 @@ namespace Master40.BusinessLogicCentral.MRP
         public void SetMachines(int simulationId)
         {  
             //gets called when plan is fitting to capacities
-            var schedules = GetProductionSchedules(simulationId);
+            var schedules = GetProductionSchedules();
             foreach (var schedule in schedules)
             {
                 var machines = _context.Machines.Where(a => a.MachineGroupId == schedule.MachineGroupId).ToList();
