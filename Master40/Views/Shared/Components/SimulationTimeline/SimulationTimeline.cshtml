@@ -1,12 +1,11 @@
 ﻿@model Master40.Models.GanttContext
 @using Master40.Models
 @using Newtonsoft.Json;
-@using System.Linq;
-@using Master40.DB.Data.Helper;
 @{
     var SimType = ViewData["SimulationType"].ToString();
     var SimNr = ViewData["SimulationNumber"].ToString();
     var SimConfig = ViewData["SimulationConfiguration"].ToString();
+    var SimulationPage = ViewData["SimulationPage"].ToString();
 
 
     string tasks = "[]", links = "[]";
@@ -49,10 +48,13 @@
     function submitform() {
         var value1 = $('#fcOrder').val();
         var value2 = $('#fcState').val();
+        var value3 = $('#fcPage').val();
+        console.log(value3);
+        debugger;
         $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
 
         // reload need to be programmed.
-        loadGantt(value1, value2);
+        loadGantt(value1, value2, value3);
         //$('form').submit();
     }
 
@@ -90,7 +92,7 @@
             </div>
             <form method="post" asp-action="Index" onchange="submitform()">
                 <div class="form">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label class="control-label col-md-4">Order</label>
                             <div class="col-md-8">
@@ -98,12 +100,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-7">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <div class="row">
                                 <label class="control-label col-md-4">State of Planning</label>
                                 <div class="col-md-8">
                                     <select class="form-control" asp-items="ViewBag.SchedulingState" id="fcState" name="SchedulingState"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="control-label col-md-4">Timeframe</label>
+                                <div class="col-md-8">
+                                    <input class="form-control" id="fcPage" name="SchedulingPage" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -126,18 +138,6 @@
         </div>
     </div>
 </div>
-
-
-    <!--
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Apply" class="btn btn-default" />
-        </div>
-    </div>
-    -->
-
-
-
 
 <script type="text/javascript">
     gantt.config.row_height = 24;
@@ -292,8 +292,8 @@
         gantt.render();
     }
 
-    function loadGantt(orderId, stateId) {
-        var source = "/SimulationCompare/SimulationTimeline/" + orderId + "/@Html.Raw(SimType)/" + stateId + "/@Html.Raw(SimConfig)/@Html.Raw(@SimNr)";
+    function loadGantt(orderId, stateId, page) {
+        var source = "/SimulationCompare/SimulationTimeline/" + orderId + "/@Html.Raw(SimType)/" + stateId + "/@Html.Raw(SimConfig)/@Html.Raw(@SimNr)/" + page;
         $.ajax({
             url: source,
             //url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
