@@ -56,16 +56,18 @@ namespace Master40.BusinessLogicCentral.MRP
                 _messageHub.SendToAllClients("Start full MRP cycle...", MessageType.info);
 
                 //get all unplanned orderparts and iterate through them for MRP
-                var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
-                var maxAllowedTime = _context.SimulationConfigurations.Where(a => a.Id == simulationId).Select(x => x.Time + x.MaxCalculationTime).First();
-                var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false
-                                            && a.Order.CreationTime > time
-                                            && a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
+                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
+                var maxAllowedTime = simConfig.Time + simConfig.MaxCalculationTime;
+                //Todo: put together if problem is solved
+                var orderParts3 = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false);
+                var orderParts2 = orderParts3.Where(a => a.Order.CreationTime <= simConfig.Time);
+                var orderParts = orderParts2.Where(a => a.Order.DueTime < maxAllowedTime).Include(a => a.Article).ToList();
 
                 if (orderParts.Any()) newOrdersAdded = true;
                 foreach (var orderPart in orderParts.ToList())
                 {
                     var demand = GetDemand(orderPart);
+                    _messageHub.SendToAllClients("running requirements for orderpart "+orderPart.Id);
                     //run the requirements planning and backward/forward termination algorithm
                     RunRequirementsAndTermination(demand, task, simulationId);
                 }
