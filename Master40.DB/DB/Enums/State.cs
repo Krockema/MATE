@@ -8,6 +8,7 @@
         BackwardScheduleExists,
         ForwardScheduleExists,
         ExistsInCapacityPlan,
+        Producing,
         Finished
     }
 

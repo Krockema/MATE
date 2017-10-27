@@ -24,7 +24,7 @@ namespace Master40.Tools.Simulation
             //get equal distribution from 0 to 1
             var norml = new DiscreteUniform(0, productIds.Count() - 1, seed);
             //get equal distribution for duetime
-            var normalDuetime = new DiscreteUniform(2160, 3600, seed);
+            var normalDuetime = new DiscreteUniform(1160, 1600, seed);//2160,3600
 
             double[] exponential = new double[samples]; //new Exponential(0.25, seed);
             int[] prodVariation = new int[samples];
@@ -37,7 +37,7 @@ namespace Master40.Tools.Simulation
                 //define the time between each new order
                 time += (int)Math.Round(exponential[i]*10, MidpointRounding.AwayFromZero);
                 //get which product is to be ordered
-                var productId = productIds.ElementAt(prodVariation[i]);
+                var productId = productIds.ElementAt(0);//prodVariation[i]);
                 
                 //create order and orderpart, duetime is creationtime + 1 day
                 context.CreateNewOrder(productId, 1, time, time+duetime[i]);

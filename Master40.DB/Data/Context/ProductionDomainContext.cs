@@ -16,8 +16,7 @@ namespace Master40.DB.Data.Context
     public class ProductionDomainContext : MasterDBContext
     {
         public ProductionDomainContext(DbContextOptions<MasterDBContext> options) : base(options) { }
-
-
+        
         public Order OrderById(int id)
         {
             return Orders.FirstOrDefault(x => x.Id == id);
@@ -93,21 +92,23 @@ namespace Master40.DB.Data.Context
 
         public List<ProductionOrderWorkSchedule> GetParents(ProductionOrderWorkSchedule schedule)
         {
-            if (schedule == null) return null;
             var parents = new List<ProductionOrderWorkSchedule>();
+            if (schedule == null) return parents;
             var parent = GetHierarchyParent(schedule);
-            if (parent != null) parents.Add(parent);
+            if (parent != null)
+            {
+                parents.Add(parent);
+                return parents;
+            }
             var bomParents = GetBomParents(schedule);
-            if (bomParents == null) return null;
-            if (parents.Any()) parents.AddRange(bomParents);
-            return parents;
+            return bomParents ?? parents;
         }
 
         public ProductionOrderWorkSchedule GetHierarchyParent(ProductionOrderWorkSchedule pows)
         {
 
             ProductionOrderWorkSchedule hierarchyParent = null;
-            int hierarchyParentNumber = 100000;
+            int hierarchyParentNumber = Int32.MaxValue;
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
             {
@@ -123,29 +124,27 @@ namespace Master40.DB.Data.Context
         public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
-            if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
-            /*var requester =  (from demandProviderProductionOrder in provider
+            //if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
+            var requester =  (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into req
-                    where req.GetType() == typeof(DemandProductionOrderBom) 
-                    || req.GetType() == typeof(DemandOrderPart)
                     select req).ToList();
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleRequester in requester)
             {
-                if (requester.GetType() == typeof(DemandOrderPart)) return null;
+                if (singleRequester.GetType() == typeof(DemandOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
                 var demand = Demands.OfType<DemandProductionOrderBom>().Include(a => a.ProductionOrderBom)
                     .ThenInclude(b => b.ProductionOrderParent).ThenInclude(c => c.ProductionOrderWorkSchedule)
                     .Single(a => a.Id == singleRequester.Id);
                 var schedules = demand.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule;
                 pows.Add(schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber)));
             }
-            return pows;*/
+            return pows;
 
-            return (from demandProviderProductionOrder in provider
+            /*return (from demandProviderProductionOrder in provider
             select demandProviderProductionOrder.DemandRequester into requester
             where requester.GetType() == typeof(DemandProductionOrderBom)
             select ((DemandProductionOrderBom)requester).ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule into schedules
-            select schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber))).ToList();
+            select schedules.Single(a => a.HierarchyNumber == schedules.Min(b => b.HierarchyNumber))).ToList();*/
         }
 
 

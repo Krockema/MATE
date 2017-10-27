@@ -29,6 +29,12 @@ namespace Master40.Simulation.Simulation
         {
             var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId);
             pows.ProducingState = ProducingState.Producing;
+            var demandProvider = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId).ProductionOrder
+                .DemandProviderProductionOrders;
+            foreach (var provider in demandProvider)
+            {
+                provider.State = State.Producing;
+            }
             _context.ProductionOrderWorkSchedules.Update(pows);
             if (HasHierarchyChildren(pows))
             {
