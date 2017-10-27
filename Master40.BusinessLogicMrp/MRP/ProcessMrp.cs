@@ -126,7 +126,7 @@ namespace Master40.BusinessLogicCentral.MRP
                                (timer > 0 && a.State == State.Injected)).ToList();
            
             List<MachineGroupProductionOrderWorkSchedule> machineList = null;
-
+            
             /*if (newOrdersAdded)
             {
                 _rebuildNets.Rebuild(simulationId, evaluationContext);

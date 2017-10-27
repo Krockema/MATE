@@ -21,6 +21,8 @@ namespace Master40.ViewComponents
         private int _orderId, _schedulingState, _simulationNumber, _simulationConfigurationId;
         private SimulationType _simulationType;
         private GanttContext _ganttContext;
+        private int _schedulingPage = 0, _maxPage = 0, _timeSpan;
+
         public SimulationTimelineViewComponent(ProductionDomainContext context)
         {
             _context = context;
@@ -39,21 +41,22 @@ namespace Master40.ViewComponents
                 return View("SimulationTimeline", _ganttContext);
             }
 
+
             //.Definitions();
             var orders = new List<int>();
             _orderId = Convert.ToInt32(paramsList[0]);
             _schedulingState = Convert.ToInt32(paramsList[2]);
             _simulationNumber = Convert.ToInt32(paramsList[3]);
             _simulationConfigurationId = Convert.ToInt32(paramsList[4]);
+            _schedulingPage = Convert.ToInt32(paramsList[5]);
             _simulationType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            _timeSpan = _context.SimulationConfigurations.Single(x => x.Id == _simulationConfigurationId).DynamicKpiTimeSpan;
             ///// Needs some changes to Work. i.e. Reference SimulationOrder , Create SimulationOrderPart and writing it back
             // If Order is not selected.
             if (_orderId == -1)
             {   // for all Orders
-                orders = _context?.SimulationOrders.Where(x => x.SimulationType == _simulationType
-                                                        && x.SimulationNumber == _simulationNumber
-                                                        && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                        .Select(x => x.OriginId).ToList();
+
+                await GetSchedulesForTimeSlotListAsync(_timeSpan * _schedulingPage, _timeSpan * _schedulingPage + _timeSpan,false);
             }
             else
             {  // for the specified Order
@@ -62,16 +65,20 @@ namespace Master40.ViewComponents
                                                         && x.SimulationNumber == _simulationNumber
                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
                                                         .Select(x => x.OriginId).ToList();
+                await GetSchedulesForOrderListAsync(orders);
                 //orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
             }
             
-            await GetSchedulesForOrderListAsync(orders);
+
             // Fill Select Fields
             var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
             ViewData["SchedulingState"] = SchedulingState(_schedulingState);
+            ViewData["SimulationPage"] = _schedulingPage.ToString();
             ViewData["SimulationType"] = _simulationType.ToString();
             ViewData["SimulationNumber"] = _simulationNumber.ToString();
+            // - 1 caus we start with 0
+            ViewData["MaxPage"] = _maxPage - 1;
             ViewData["SimulationConfiguration"] = _simulationConfigurationId.ToString();
 
             _ganttContext.Tasks = _ganttContext.Tasks.OrderBy(x => x.type).ToList();
@@ -126,11 +133,63 @@ namespace Master40.ViewComponents
             }
         }
 
+        private async Task GetSchedulesForTimeSlotListAsync(int pageStart, int pageEnd, bool folowLinks)
+        {
+            var pows = _context.SimulationWorkschedules.Where(x => x.Start >= pageStart && x.End <= pageEnd
+                                                                    && x.SimulationType == _simulationType
+                                                                    && x.SimulationNumber == _simulationNumber
+                                                                    && x.SimulationConfigurationId == _simulationConfigurationId);
+            _maxPage = (int)Math.Ceiling((double)_context.SimulationWorkschedules.Where(x => x.SimulationType == _simulationType
+                                                                                      && x.SimulationNumber == _simulationNumber
+                                                                                      && x.SimulationConfigurationId ==
+                                                                                      _simulationConfigurationId) .Max(m => m.End) / _timeSpan);
+
+            foreach (var pow in pows)
+            {
+                
+                // check if head element is Created,
+                GanttTask timeline = GetOrCreateTimeline(pow);
+                long start = 0, end = 0;
+                DefineStartEnd(ref start, ref end, pow);
+                // Add Item To Timeline
+                _ganttContext.Tasks.Add(
+                    CreateGanttTask(
+                        pow,
+                        start,
+                        end,
+                        timeline.color,
+                        timeline.id
+                    )
+                );
+
+                if (folowLinks)
+                {
+                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow);
+
+                    if (!c.Any()) continue;
+                    // create Links for this pow
+                    foreach (var link in c)
+                    {
+                        _ganttContext.Links.Add(
+                            new GanttLink
+                            {
+                                id = Guid.NewGuid().ToString(),
+                                type = LinkType.finish_to_start,
+                                source = pow.Id.ToString(),
+                                target = link.Id.ToString()
+                            }
+                        );
+                    } // end foreach link 
+                }
+            } // emd pows
+            
+        }
+
         /// <summary>
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.
         /// -- Headline for one Project
         /// </summary>
-        private GanttTask GetOrCreateTimeline(SimulationWorkschedule pow,int orderId = 0)
+        private GanttTask GetOrCreateTimeline(SimulationWorkschedule pow, int orderId = 0)
         {
             IEnumerable<GanttTask> project;
             // get Timeline

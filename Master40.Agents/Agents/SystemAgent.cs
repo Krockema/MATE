@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
@@ -7,7 +6,6 @@ using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Master40.MessageSystem.SignalR;
 
 namespace Master40.Agents.Agents
