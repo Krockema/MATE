@@ -37,7 +37,7 @@ namespace Master40.Tools.Simulation
                 //define the time between each new order
                 time += (int)Math.Round(exponential[i]*10, MidpointRounding.AwayFromZero);
                 //get which product is to be ordered
-                var productId = productIds.ElementAt(0);//prodVariation[i]);
+                var productId = productIds.ElementAt(prodVariation[i]);
                 
                 //create order and orderpart, duetime is creationtime + 1 day
                 context.CreateNewOrder(productId, 1, time, time+duetime[i]);

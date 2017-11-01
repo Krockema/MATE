@@ -581,8 +581,8 @@ namespace Master40.Simulation.Simulation
                 _processMrp.ExecutePlanning(demand, MrpTask.All, 1);
                 orderPart.IsPlanned = true;
             }
-            _messageHub.SendToAllClients("before Rebuild");
-            rebuildNets.Rebuild(1, _evaluationContext);
+            //_messageHub.SendToAllClients("before Rebuild");
+            //rebuildNets.Rebuild(1, _evaluationContext);
             _messageHub.SendToAllClients("before GT");
             capacityScheduling.GifflerThompsonScheduling(1);
             _messageHub.SendToAllClients("finished GT");
