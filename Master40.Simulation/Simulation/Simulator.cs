@@ -274,6 +274,10 @@ namespace Master40.Simulation.Simulation
                 
                 providerlist.RemoveAt(0);
             }
+            while (dop.DemandProvider.Any())
+            {
+                _context.Demands.Remove(dop.DemandProvider.First());
+            }
             _context.Demands.Remove((DemandToProvider)dop);
             _context.SaveChanges();
             return counter;
