@@ -277,6 +277,7 @@ namespace Master40.Simulation.Simulation
             while (dop.DemandProvider.Any())
             {
                 _context.Demands.Remove(dop.DemandProvider.First());
+                dop.DemandProvider.Remove(dop.DemandProvider.First());
             }
             _context.Demands.Remove((DemandToProvider)dop);
             _context.SaveChanges();
@@ -630,6 +631,10 @@ namespace Master40.Simulation.Simulation
     }
     
 }
+
+
+
+
 
 
 
