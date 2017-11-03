@@ -583,11 +583,19 @@ namespace Master40.Simulation.Simulation
                 var demand = _processMrp.GetDemand(orderPart);
                 //run the requirements planning and backward/forward termination algorithm
                 if (demand.State != State.Created) continue;
+                var powsCountBefore = _context.ProductionOrderWorkSchedules.Count();
+                Debug.WriteLine("Amount of Pows (before): " + powsCountBefore);
                 _processMrp.ExecutePlanning(demand, MrpTask.All, 1);
+                var powsCountAfter = _context.ProductionOrderWorkSchedules.Count();
+                Debug.WriteLine("Amount of Pows (after): "+powsCountAfter);
+                _messageHub.SendToAllClients("Amount of Pows Added: "+(powsCountAfter-powsCountBefore));
                 orderPart.IsPlanned = true;
             }
             //_messageHub.SendToAllClients("before Rebuild");
             //rebuildNets.Rebuild(1, _evaluationContext);
+            var testSideWall = _context.ProductionOrders.Count(a => a.ArticleId == 15);
+            var testCountTruck = _context.ProductionOrders.Count(a => a.ArticleId == 1);
+            _messageHub.SendToAllClients("counter: "+testCountTruck +" sidewalls: "+testSideWall);
             _messageHub.SendToAllClients("before GT");
             capacityScheduling.GifflerThompsonScheduling(1);
             _messageHub.SendToAllClients("finished GT");
