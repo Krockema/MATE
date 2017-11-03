@@ -619,11 +619,14 @@ namespace Master40.DB.Data.Context
             var stock = Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId);
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);
+            var justProduced = Demands.OfType<DemandProductionOrderBom>()
+                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.Any() && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
             //get the current amount of free available articles
-            var current = stock.Current + bought - stockReservations;
+            var current = stock.Current + bought - stockReservations - justProduced;
             decimal quantity;
             //either reserve all that are in stock or the amount needed
             quantity = demand.Quantity > current ? current : demand.Quantity;
+            
             return quantity == 0 ? null : CreateDemandProviderStock(demand, quantity);
         }
 
