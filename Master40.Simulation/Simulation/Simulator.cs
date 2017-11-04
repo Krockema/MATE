@@ -320,24 +320,14 @@ namespace Master40.Simulation.Simulation
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)
         {
-            var purchases = _context.Purchases.Include(a => a.PurchaseParts).Where(a =>
-                a.DueTime > timeTable.Timer &&
+            var purchaseParts = _context.PurchaseParts.Include(a => a.Purchase).Where(a =>
+                a.State != State.Finished &&
                 timeTable.Items.OfType<PurchaseSimulationItem>().All(b => b.PurchasePartId != a.Id));
-            if (purchases == null) return timeTable;
-            var purchaseDeliveries = timeTable.Items.OfType<PurchaseSimulationItem>().ToList();
-            foreach (var purchase in purchases)
+            if (purchaseParts == null) return timeTable;
+            foreach (var purchasePart in purchaseParts)
             {
-                foreach (var purchasePart in purchase.PurchaseParts)
-                {
-                    // check for existence in timeTable
-                    var purchaseEvent = from pd in purchaseDeliveries
-                               where purchasePart.PurchaseId == pd.PurchaseId && purchasePart.Id == pd.PurchasePartId
-                               select pd;
-                    if (purchaseEvent.Any()) continue;
-
-                    // insert into timetable with rnd-duetime
-                    timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart,simulationId));
-                }
+                // insert into timetable with rnd-duetime
+                timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart,simulationId));
             }
             return timeTable;
         }
