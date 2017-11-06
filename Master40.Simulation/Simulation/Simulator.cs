@@ -445,7 +445,9 @@ namespace Master40.Simulation.Simulation
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
             timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && a.SimulationState != SimulationState.InProgress);
             UpdateWaitingItems(timeTable, waitingItems);
+            var test1 = timeTable.Items.Count();
             UpdateGoodsDelivery(timeTable,simulationId);
+            var test4 = timeTable.Items.Count();
             timeTable.RecalculateCounter++;
             firstRunOfTheDay = true;
             return timeTable;

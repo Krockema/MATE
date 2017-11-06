@@ -644,10 +644,6 @@ namespace Master40.DB.Data.Context
             IQueryable<IDemandToProvider> reservations = Demands.OfType<DemandProviderStock>().Where(a => a.State != State.Finished && a.ArticleId == articleId);
             foreach (var reservation in reservations)
                 amountReserved += reservation.Quantity;
-            //Todo check logic
-            reservations = Demands.OfType<DemandProviderPurchasePart>().Where(a => a.ArticleId == articleId && a.State != State.Finished);
-            foreach (var reservation in reservations)
-                amountReserved += reservation.Quantity;
             return amountReserved;
         }
 
