@@ -30,6 +30,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="demand"></param>
         /// <param name="task"></param>
+        /// <param name="simulationId"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
         public List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, int simulationId)
         {
@@ -73,7 +74,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
             }
             else if (plannedStock < stock.Min)
-                _context.CreatePurchaseDemand(demand, stock.Max);
+                _context.CreatePurchaseDemand(demand, stock.Max, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
                 return productionOrders;
             

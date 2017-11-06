@@ -414,7 +414,7 @@ namespace Master40.DB.Data.Context
         }
 
         //Todo: check logic
-        public void CreatePurchaseDemand(IDemandToProvider demand, decimal amount)
+        public void CreatePurchaseDemand(IDemandToProvider demand, decimal amount, int time)
         {
             if (NeedToRefill(demand, amount))
             {
@@ -427,7 +427,7 @@ namespace Master40.DB.Data.Context
                 };
                 Demands.Add(providerPurchasePart);
 
-                CreatePurchase(demand, amount, providerPurchasePart);
+                CreatePurchase(demand, amount, providerPurchasePart,time);
                 Demands.Update(providerPurchasePart);
             }
             else
@@ -445,13 +445,13 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }
 
-        public void CreatePurchase(IDemandToProvider demand, decimal amount, DemandProviderPurchasePart demandProviderPurchasePart)
+        public void CreatePurchase(IDemandToProvider demand, decimal amount, DemandProviderPurchasePart demandProviderPurchasePart, int time)
         {
             var articleToPurchase = ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
             var purchase = new Purchase()
             {
                 BusinessPartnerId = articleToPurchase.BusinessPartnerId,
-                DueTime = articleToPurchase.DueTime
+                DueTime = articleToPurchase.DueTime + time
             };
             //amount to be purchased has to be raised to fit the packsize
             amount = Math.Floor(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
@@ -573,7 +573,8 @@ namespace Master40.DB.Data.Context
             var purchase = new Purchase()
             {
                 BusinessPartnerId = articleToPurchase.BusinessPartnerId,
-                DueTime = articleToPurchase.DueTime
+                DueTime = articleToPurchase.DueTime,
+                
             };
             //amount to be purchased has to be raised to fit the packsize
             amount = Math.Ceiling(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
@@ -582,7 +583,8 @@ namespace Master40.DB.Data.Context
                 ArticleId = demand.ArticleId,
                 Quantity = (int)amount,
                 DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>(),
-                PurchaseId = purchase.Id
+                PurchaseId = purchase.Id,
+                
             };
             purchase.PurchaseParts = new List<PurchasePart>()
             {
