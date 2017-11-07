@@ -102,7 +102,7 @@ namespace Master40.Simulation.Simulation
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 await PrepareSimulationContext();
                 var simConfig =  _context.SimulationConfigurations.Single(x => x.Id == simulationId);
-                OrderGenerator.GenerateOrders(_context, simConfig, 1);
+                OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
@@ -406,9 +406,6 @@ namespace Master40.Simulation.Simulation
                                  where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
                     var item = items.First(a => a.Start == items.Min(b => b.Start));
-                    var test = waitingItems.Where(a => a.Id == 1451);
-                    var test2 = waitingItems.Where(a => a.Name.Equals("Wedding"));
-                    var test3 = test2.Where(a => a.Start < 1440);
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
@@ -463,9 +460,7 @@ namespace Master40.Simulation.Simulation
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
             timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && a.SimulationState != SimulationState.InProgress);
             UpdateWaitingItems(timeTable, waitingItems);
-            var test1 = timeTable.Items.Count();
             UpdateGoodsDelivery(timeTable,simulationId);
-            var test4 = timeTable.Items.Count();
             timeTable.RecalculateCounter++;
             firstRunOfTheDay = true;
             return timeTable;
@@ -593,21 +588,13 @@ namespace Master40.Simulation.Simulation
                 var demand = _processMrp.GetDemand(orderPart);
                 //run the requirements planning and backward/forward termination algorithm
                 if (demand.State != State.Created) continue;
-                var powsCountBefore = _context.ProductionOrderWorkSchedules.Count();
-                Debug.WriteLine("Amount of Pows (before): " + powsCountBefore);
-                _processMrp.ExecutePlanning(demand, MrpTask.All, 1);
-                var powsCountAfter = _context.ProductionOrderWorkSchedules.Count();
-                Debug.WriteLine("Amount of Pows (after): "+powsCountAfter);
-                _messageHub.SendToAllClients("Amount of Pows Added: "+(powsCountAfter-powsCountBefore));
+                _processMrp.ExecutePlanning(demand, MrpTask.All, simulationId);
                 orderPart.IsPlanned = true;
             }
             //_messageHub.SendToAllClients("before Rebuild");
-            //rebuildNets.Rebuild(1, _evaluationContext);
-            var testSideWall = _context.ProductionOrders.Count(a => a.ArticleId == 15);
-            var testCountTruck = _context.ProductionOrders.Count(a => a.ArticleId == 1);
-            _messageHub.SendToAllClients("counter: "+testCountTruck +" sidewalls: "+testSideWall);
+            //rebuildNets.Rebuild(simulationId, _evaluationContext);
             _messageHub.SendToAllClients("before GT");
-            capacityScheduling.GifflerThompsonScheduling(1);
+            capacityScheduling.GifflerThompsonScheduling(simulationId);
             _messageHub.SendToAllClients("finished GT");
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All,_context,simulationId,_evaluationContext);
             var test = _context.ProductionOrderWorkSchedules.Where(a => a.Name.Equals("Wedding") && a.Start != 0 && a.Start != 935).Min(a => a.Start);
