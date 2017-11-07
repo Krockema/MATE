@@ -68,11 +68,11 @@ namespace Master40.Simulation.Simulation
                 {
                     var stock = _context.Stocks.Single(a =>
                         a.ArticleForeignKey == dpob.ArticleId);
-                    stock.Current -= pob.Quantity;
+                    stock.Current -= dpob.Quantity;
                     _context.StockExchanges.Add(new StockExchange()
                     {
                         ExchangeType = ExchangeType.Withdrawal,
-                        Quantity = pob.Quantity,
+                        Quantity = dpob.Quantity,
                         StockId = stock.Id,
                         RequiredOnTime = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).Duetime,
                         Time = time

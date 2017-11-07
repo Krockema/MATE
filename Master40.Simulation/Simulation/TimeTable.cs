@@ -54,7 +54,7 @@ namespace Master40.Simulation.Simulation
                                         (tT.End == timeTable.Timer && tT.SimulationState == SimulationState.InProgress)
                                   select tT).ToList())
             {
-                if (item.Start == timeTable.Timer)
+                if (item.SimulationState == SimulationState.Waiting)
                     AddToInProgress(item);
                 else
                     HandleFinishedItems(item);

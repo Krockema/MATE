@@ -30,6 +30,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         /// <param name="demand"></param>
         /// <param name="task"></param>
+        /// <param name="simulationId"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
         public List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, int simulationId)
         {
@@ -38,14 +39,17 @@ namespace Master40.BusinessLogicCentral.MRP
                 .Single(a => a.ArticleForeignKey == demand.ArticleId);
             var plannedStock = _context.GetPlannedStock(stock,demand);
             var productionOrders = new List<ProductionOrder>();
-            _context.TryCreateStockReservation(demand);
-            //if the plannedStock is below zero, articles have to be produced for its negative amount 
-            if (plannedStock < 0)
+            var stockProvider = _context.TryCreateStockReservation(demand);
+
+            //if the article has no children it has to be purchased
+            var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
+            if (children.Any())
             {
-                //if the article has no children it has to be purchased
-                var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
-                if (children.Any())
+
+                //if the plannedStock is below zero, articles have to be produced for its negative amount 
+                if (plannedStock < 0)
                 {
+                
 
                     var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
                     var amount = -plannedStock;
@@ -67,11 +71,10 @@ namespace Master40.BusinessLogicCentral.MRP
                         var pos = _context.CreateChildProductionOrders(demand, amount, simulationId);
                         productionOrders.AddRange(pos);
                     }
-
                 }
-                else
-                    _context.CreatePurchaseDemand(demand, stock.Max);
             }
+            else if (plannedStock < stock.Min)
+                _context.CreatePurchaseDemand(demand, stock.Max, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
                 return productionOrders;
             

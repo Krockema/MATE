@@ -320,24 +320,14 @@ namespace Master40.Simulation.Simulation
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)
         {
-            var purchases = _context.Purchases.Include(a => a.PurchaseParts).Where(a =>
-                a.DueTime > timeTable.Timer &&
+            var purchaseParts = _context.PurchaseParts.Include(a => a.Purchase).Where(a =>
+                a.State != State.Finished &&
                 timeTable.Items.OfType<PurchaseSimulationItem>().All(b => b.PurchasePartId != a.Id));
-            if (purchases == null) return timeTable;
-            var purchaseDeliveries = timeTable.Items.OfType<PurchaseSimulationItem>().ToList();
-            foreach (var purchase in purchases)
+            if (purchaseParts == null) return timeTable;
+            foreach (var purchasePart in purchaseParts)
             {
-                foreach (var purchasePart in purchase.PurchaseParts)
-                {
-                    // check for existence in timeTable
-                    var purchaseEvent = from pd in purchaseDeliveries
-                               where purchasePart.PurchaseId == pd.PurchaseId && purchasePart.Id == pd.PurchasePartId
-                               select pd;
-                    if (purchaseEvent.Any()) continue;
-
-                    // insert into timetable with rnd-duetime
-                    timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart,simulationId));
-                }
+                // insert into timetable with rnd-duetime
+                timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart,simulationId));
             }
             return timeTable;
         }
@@ -455,7 +445,9 @@ namespace Master40.Simulation.Simulation
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
             timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && a.SimulationState != SimulationState.InProgress);
             UpdateWaitingItems(timeTable, waitingItems);
+            var test1 = timeTable.Items.Count();
             UpdateGoodsDelivery(timeTable,simulationId);
+            var test4 = timeTable.Items.Count();
             timeTable.RecalculateCounter++;
             firstRunOfTheDay = true;
             return timeTable;
@@ -583,11 +575,19 @@ namespace Master40.Simulation.Simulation
                 var demand = _processMrp.GetDemand(orderPart);
                 //run the requirements planning and backward/forward termination algorithm
                 if (demand.State != State.Created) continue;
+                var powsCountBefore = _context.ProductionOrderWorkSchedules.Count();
+                Debug.WriteLine("Amount of Pows (before): " + powsCountBefore);
                 _processMrp.ExecutePlanning(demand, MrpTask.All, 1);
+                var powsCountAfter = _context.ProductionOrderWorkSchedules.Count();
+                Debug.WriteLine("Amount of Pows (after): "+powsCountAfter);
+                _messageHub.SendToAllClients("Amount of Pows Added: "+(powsCountAfter-powsCountBefore));
                 orderPart.IsPlanned = true;
             }
             //_messageHub.SendToAllClients("before Rebuild");
             //rebuildNets.Rebuild(1, _evaluationContext);
+            var testSideWall = _context.ProductionOrders.Count(a => a.ArticleId == 15);
+            var testCountTruck = _context.ProductionOrders.Count(a => a.ArticleId == 1);
+            _messageHub.SendToAllClients("counter: "+testCountTruck +" sidewalls: "+testSideWall);
             _messageHub.SendToAllClients("before GT");
             capacityScheduling.GifflerThompsonScheduling(1);
             _messageHub.SendToAllClients("finished GT");
