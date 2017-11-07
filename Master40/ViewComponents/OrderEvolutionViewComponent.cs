@@ -47,10 +47,10 @@ namespace Master40.ViewComponents
                 SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
                 var kpis = _context.SimulationOrders.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                    && x.SimulationNumber == Convert.ToInt32(paramsList[2])
-                                                   && x.SimulationType == simType);
+                                                   && x.SimulationType == simType
+                                                   && x.FinishingTime != 0); // filter unfinished orders
 
-                var articles = kpis.Select(x => x.Name).Distinct();
-                    var data = new Data { Datasets = new List<Dataset>() };
+                var data = new Data { Datasets = new List<Dataset>() };
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == Convert.ToInt32(paramsList[0]));
                     var startVal = 0;
                     var ts = simConfig.DynamicKpiTimeSpan;
