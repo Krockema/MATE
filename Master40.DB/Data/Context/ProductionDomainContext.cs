@@ -231,10 +231,7 @@ namespace Master40.DB.Data.Context
                     else if (singleRequester.GetType() == typeof(DemandOrderPart))
                     {
                         var dop = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
-                        return new List<int>()
-                            {
-                                dop.OrderPart.OrderId
-                            };
+                        ids.Add(dop.OrderPart.OrderId);
                     }
 
                 }

@@ -185,11 +185,29 @@ namespace Master40.Simulation.Simulation
                 FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
                 CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
+                RemoveSimulationWorkschedules();
                 CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
             });
 
+        }
+
+        private void RemoveSimulationWorkschedules()
+        {
+            var schedules = _context.SimulationWorkschedules.ToList();
+            while (schedules.Any())
+            {
+                if (_context.ProductionOrderWorkSchedules.Any(a =>
+                    a.Id.ToString().Equals(schedules.First().WorkScheduleId)))
+                {
+                    schedules.RemoveAt(0);
+                    continue;
+                };
+                var toRemove = _context.SimulationWorkschedules.Single(a => a.Id == schedules.First().Id);
+                    _context.SimulationWorkschedules.Remove(toRemove);
+            }
+            _context.SaveChanges();
         }
 
         private void UpdateStockExchangesWithInitialValues(int simulationId, int simulationNumber)

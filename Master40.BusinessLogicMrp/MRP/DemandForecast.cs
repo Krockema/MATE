@@ -45,12 +45,9 @@ namespace Master40.BusinessLogicCentral.MRP
             var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
             if (children.Any())
             {
-
                 //if the plannedStock is below zero, articles have to be produced for its negative amount 
                 if (plannedStock < 0)
                 {
-                
-
                     var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
                     var amount = -plannedStock;
                     if (fittingProductionOrders != null)
@@ -74,7 +71,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
             }
             else if (plannedStock < stock.Min)
-                _context.CreatePurchaseDemand(demand, stock.Max, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
+                _context.CreatePurchaseDemand(demand, stock.Max-stock.Min, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
                 return productionOrders;
             

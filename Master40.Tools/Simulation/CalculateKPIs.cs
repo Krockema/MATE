@@ -278,8 +278,8 @@ namespace Master40.Tools.Simulation
             {
                 Name = o.Key,
                 Value = Math.Round((o.Count(x => (x.DueTime - x.FinishingTime) > 0) / (double)o.Count()), 2),
-                ValueMin = Math.Round((double)o.Min(m => m.FinishingTime), 2),
-                ValueMax = Math.Round((double)o.Max(n => n.FinishingTime), 2),
+                ValueMin = Math.Round((double)o.Min(m => m.DueTime - m.FinishingTime), 2),
+                ValueMax = Math.Round((double)o.Max(n => n.DueTime - n.FinishingTime), 2),
                 Count = o.Count(c => c.Name == o.Key),
                 IsKpi = final,
                 KpiType = KpiType.Timeliness,
