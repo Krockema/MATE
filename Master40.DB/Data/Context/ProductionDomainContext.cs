@@ -631,7 +631,7 @@ namespace Master40.DB.Data.Context
 
         public decimal GetAmountBought(int articleId)
         {
-            var purchaseParts = PurchaseParts.Where(a => a.ArticleId == articleId);
+            var purchaseParts = PurchaseParts.Where(a => a.ArticleId == articleId && a.State != State.Finished);
             var purchasedAmount = 0;
             foreach (var purchasePart in purchaseParts)
                 purchasedAmount += purchasePart.Quantity;
