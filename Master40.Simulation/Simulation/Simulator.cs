@@ -205,7 +205,8 @@ namespace Master40.Simulation.Simulation
                     continue;
                 };
                 var toRemove = _context.SimulationWorkschedules.Single(a => a.Id == schedules.First().Id);
-                    _context.SimulationWorkschedules.Remove(toRemove);
+                _context.SimulationWorkschedules.Remove(toRemove);
+                schedules.RemoveAt(0);
             }
             _context.SaveChanges();
         }
@@ -559,14 +560,14 @@ namespace Master40.Simulation.Simulation
         private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber, List<ProductionOrderWorkSchedule> waitingItems)
         {
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var filestream = System.IO.File.Create("D://stocks.csv");
+            var filestream = System.IO.File.Create("G://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
             {
                 sw.WriteLine(item.Name + ";" + item.Current);
             }
             sw.Dispose();
-            filestream = System.IO.File.Create("D://waiting POs.csv");
+            filestream = System.IO.File.Create("G://waiting POs.csv");
             sw = new System.IO.StreamWriter(filestream);
             foreach (var item in waitingItems)
             {
