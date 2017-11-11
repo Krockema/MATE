@@ -100,6 +100,7 @@ namespace Master40.Simulation.Simulation
             await Task.Run(async () =>
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
+                _context = InMemoryContext.CreateInMemoryContext();
                 await PrepareSimulationContext();
                 var simConfig =  _context.SimulationConfigurations.Single(x => x.Id == simulationId);
                 OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
@@ -155,6 +156,16 @@ namespace Master40.Simulation.Simulation
                     }
                     
                 }
+                foreach (var pro in _context.ProductionOrders)
+                {
+                    _evaluationContext.Add(pro.CopyDbPropertiesWithoutId());
+                }
+                _evaluationContext.SaveChanges();
+                foreach (var schedule in _context.ProductionOrderWorkSchedules)
+                {
+                    _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
+                }
+                _evaluationContext.SaveChanges();
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
                 if (_context.Orders.Any(a => a.State != State.Finished))
@@ -189,6 +200,7 @@ namespace Master40.Simulation.Simulation
                 CopyResults.Copy(_context, _evaluationContext);
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
+                
             });
 
         }
@@ -559,6 +571,7 @@ namespace Master40.Simulation.Simulation
 
         private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber, List<ProductionOrderWorkSchedule> waitingItems)
         {
+            /*
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var filestream = System.IO.File.Create("G://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
@@ -597,7 +610,8 @@ namespace Master40.Simulation.Simulation
             _messageHub.SendToAllClients("before GT");
             capacityScheduling.GifflerThompsonScheduling(simulationId);
             _messageHub.SendToAllClients("finished GT");
-            //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All,_context,simulationId,_evaluationContext);
+            */
+            await _processMrp.CreateAndProcessOrderDemand(MrpTask.All,_context,simulationId,_evaluationContext);
             var test = _context.ProductionOrderWorkSchedules.Where(a => a.Name.Equals("Wedding") && a.Start != 0 && a.Start != 935).Min(a => a.Start);
         }
 
