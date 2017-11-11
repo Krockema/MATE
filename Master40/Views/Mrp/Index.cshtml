@@ -117,14 +117,14 @@
         function startBackward() {
             $(".MessageDisplayRunning").html("");
             $('#ajax-busy').show();
-            processingProxy.invoke('StartBackwardScheduler');
+            $.get("Mrp/MrpBackward"); MrpBackward
         }
 
         // Start Firward Scheduler
         function startForward() {
             $(".MessageDisplayRunning").html("");
             $('#ajax-busy').show();
-            processingProxy.invoke('StartForwardScheduler');
+            $.get("Mrp/MrpForward");
         }
         // Start Full Scheduler
         function startFullPlanning() {

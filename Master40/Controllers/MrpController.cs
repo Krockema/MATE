@@ -58,9 +58,13 @@ namespace Master40.Controllers
         {
             //call to process MRP I and II
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Backward);
-            await _simulator.InitializeMrp(MrpTask.Backward,1);
 
-            await Task.Yield();
+            var jobId =
+                BackgroundJob.Enqueue<ISimulator>(x =>
+                            _simulator.InitializeMrp(MrpTask.Backward, 1)
+                );
+            BackgroundJob.ContinueWith(jobId,
+                () => _messageHub.EndScheduler());
 
             return View("Index");
         }
@@ -69,9 +73,13 @@ namespace Master40.Controllers
         public async Task<IActionResult> MrpForward()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Forward);
-            await _simulator.InitializeMrp(MrpTask.Forward,1);
 
-            await Task.Yield();
+            var jobId =
+                BackgroundJob.Enqueue<ISimulator>(x =>
+                        _simulator.InitializeMrp(MrpTask.Forward, 1)
+                );
+            BackgroundJob.ContinueWith(jobId,
+                () => _messageHub.EndScheduler());
 
             return View("Index");
         }
