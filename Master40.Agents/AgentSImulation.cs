@@ -42,7 +42,7 @@ namespace Master40.Agents
             {
 
                 // initialise the model
-                var system = CreateModel(context: context, simulationId: simulationId, simNr: simulationNumber);
+                var system = await CreateModel(context: context, simulationId: simulationId, simNr: simulationNumber);
 
                 // instantate a new simulator
                 var simulator = new Simulator();
@@ -64,7 +64,7 @@ namespace Master40.Agents
             return Agent.AgentStatistics;
         }
 
-        private object CreateModel(SimulationContext context,int simulationId, int simNr)
+        private async Task<SystemAgent> CreateModel(SimulationContext context,int simulationId, int simNr)
         {
             var simConfig = _productionDomainContext.SimulationConfigurations.Single(x => x.Id == simulationId);
             //context.Register(new SimulationEndTrigger(() => (context.TimePeriod > simConfig.SimulationEndTime)));
@@ -98,7 +98,7 @@ namespace Master40.Agents
                                                    stockElement: stock ));
             }
 
-            system.PrepareAgents(simConfig, simNr);
+            await system.PrepareAgents(simConfig, simNr);
             // Return System Agent to Context
             return system;
         }

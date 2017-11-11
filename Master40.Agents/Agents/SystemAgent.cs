@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
@@ -85,9 +86,9 @@ namespace Master40.Agents.Agents
 
         }
 
-        public void PrepareAgents(SimulationConfiguration simConfig, int simNr)
+        public async Task PrepareAgents(SimulationConfiguration simConfig, int simNr)
         {
-            Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig, simNr);
+            await Tools.Simulation.OrderGenerator.GenerateOrders(_productionDomainContext,simConfig, simNr);
             
             foreach (var orderpart in _productionDomainContext.OrderParts
                                                                 .Include(x => x.Article)
