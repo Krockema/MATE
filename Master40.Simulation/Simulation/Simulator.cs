@@ -486,7 +486,8 @@ namespace Master40.Simulation.Simulation
             foreach (var singleOsi in osi)
             {
                 var order = (OrderSimulationItem) singleOsi;
-                _context.CreateNewOrder(order.ArticleIds[0],order.Amounts[0],1,order.DueTime);
+                _context.Orders.Add(
+                _context.CreateNewOrder(order.ArticleIds[0],order.Amounts[0],1,order.DueTime));
             }
             
         }
