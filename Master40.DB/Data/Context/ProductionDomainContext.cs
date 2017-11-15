@@ -903,31 +903,28 @@ namespace Master40.DB.Data.Context
             return anySim.Any() ? anySim.Max(x => x.SimulationNumber)+1 : 1;
         }
 
-        public void CreateNewOrder(int articleId, int amount,int creationTime, int dueTime)
+        public Order CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
         {
             var order = new Order()
             {
                 BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
                 DueTime = dueTime,
                 CreationTime = creationTime,
-                Name = Articles.Single(x => x.Id == articleId).Name
+                Name = Articles.Single(x => x.Id == articleId).Name,
+                OrderParts = new List<OrderPart> {new OrderPart {
+                        ArticleId = articleId,
+                        IsPlanned = false,
+                        Quantity = amount,
+                    }
+                }
 
             };
-            Orders.Add(order);
-            SaveChanges();
-            var orderpart = new OrderPart()
-            {
-                ArticleId = articleId,
-                IsPlanned = false,
-                Quantity = amount,
-                OrderId = order.Id
-            };
-            // order.OrderParts.Add(orderpart);
-            OrderParts.Add(orderpart);
-            SaveChanges();
+            return order;
         }
 
-        public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType)
+    
+
+    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType)
         {
             var children = new List<SimulationWorkschedule>();
 

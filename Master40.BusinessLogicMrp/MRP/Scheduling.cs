@@ -150,7 +150,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var parents = _context.GetBomParents(productionOrderWorkSchedule);
             int end;
-            if (!parents.Any()) end = state == State.ForwardScheduleExists ? productionOrderWorkSchedule.EndForward : productionOrderWorkSchedule.ProductionOrder.Duetime;
+            if (parents == null || !parents.Any()) end = state == State.ForwardScheduleExists ? productionOrderWorkSchedule.EndForward : productionOrderWorkSchedule.ProductionOrder.Duetime;
             else if (state != State.ForwardScheduleExists)
             {
                 end = parents.Min(a => a.StartBackward);

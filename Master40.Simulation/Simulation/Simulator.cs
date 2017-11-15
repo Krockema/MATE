@@ -100,6 +100,7 @@ namespace Master40.Simulation.Simulation
             await Task.Run(async () =>
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
+                _context = InMemoryContext.CreateInMemoryContext();
                 await PrepareSimulationContext();
                 var simConfig =  _context.SimulationConfigurations.Single(x => x.Id == simulationId);
                 OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
@@ -156,7 +157,6 @@ namespace Master40.Simulation.Simulation
                     }
                     
                 }
-                
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
                 if (_context.Orders.Any(a => a.State != State.Finished))
@@ -209,7 +209,8 @@ namespace Master40.Simulation.Simulation
                     continue;
                 };
                 var toRemove = _context.SimulationWorkschedules.Single(a => a.Id == schedules.First().Id);
-                    _context.SimulationWorkschedules.Remove(toRemove);
+                _context.SimulationWorkschedules.Remove(toRemove);
+                schedules.RemoveAt(0);
             }
             _context.SaveChanges();
         }
@@ -476,7 +477,8 @@ namespace Master40.Simulation.Simulation
             foreach (var singleOsi in osi)
             {
                 var order = (OrderSimulationItem) singleOsi;
-                _context.CreateNewOrder(order.ArticleIds[0],order.Amounts[0],1,order.DueTime);
+                _context.Orders.Add(
+                _context.CreateNewOrder(order.ArticleIds[0],order.Amounts[0],1,order.DueTime));
             }
             
         }
@@ -561,15 +563,16 @@ namespace Master40.Simulation.Simulation
 
         private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber, List<ProductionOrderWorkSchedule> waitingItems)
         {
+            
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var filestream = System.IO.File.Create("D://stocks.csv");
+            var filestream = System.IO.File.Create("G://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
             {
                 sw.WriteLine(item.Name + ";" + item.Current);
             }
             sw.Dispose();
-            filestream = System.IO.File.Create("D://waiting POs.csv");
+            filestream = System.IO.File.Create("G://waiting POs.csv");
             sw = new System.IO.StreamWriter(filestream);
             foreach (var item in waitingItems)
             {
@@ -601,6 +604,7 @@ namespace Master40.Simulation.Simulation
             capacityScheduling.GifflerThompsonScheduling(simulationId);
             _messageHub.SendToAllClients("finished GT");
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All,_context,simulationId,_evaluationContext);
+
         }
 
         public async Task AgentSimulatioAsync(int simulationConfigurationId)

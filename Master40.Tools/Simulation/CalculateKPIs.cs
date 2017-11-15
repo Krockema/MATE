@@ -34,11 +34,11 @@ namespace Master40.Tools.Simulation
         public static void CalculateLayTimes(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
+            var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).AsQueryable();
             //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (!final)
                 stockEvoLutionsContext = stockEvoLutionsContext
-                    .Where(a => a.Time >= time - simConfig.DynamicKpiTimeSpan).ToList();
+                    .Where(a => a.Time >= time - simConfig.DynamicKpiTimeSpan);
             var stockEvoLutions = stockEvoLutionsContext.Select(x => new { x.ExchangeType,
                                                                            x.Time,
                                                                            x.Stock.Article.Name,
@@ -52,7 +52,8 @@ namespace Master40.Tools.Simulation
                 var laytimeList = new List<double>();
                 Queue<dynamic> inserts = new Queue<dynamic>(stockEvoLutions
                                                         .Where(a => a.ExchangeType == ExchangeType.Insert 
-                                                                 && a.Name == article.Name)
+                                                                 && a.Name == article.Name
+                                                                 && a.Quantity != 0)
                                                         .OrderBy(t => t.Time).ToList());
                 Queue<dynamic> withdrawls = new Queue<dynamic>(stockEvoLutions
                                                         .Where(a => a.ExchangeType == ExchangeType.Withdrawal
@@ -60,31 +61,44 @@ namespace Master40.Tools.Simulation
                                                         .OrderBy(t => t.Time).ToList());
 
                 decimal restCount = 0
-                      , insertAmount = 0;
+                      , insertAmount = 0
+                      , withdrawlAmount = 0;
+                int withdrawlTime = 0;
 
-                while (inserts.Any() && withdrawls.Any())
+                while (inserts.Any())
                 {
                     var insert = inserts.Dequeue();
                     insertAmount = insert.Quantity;
-                    while (insertAmount > 0 && withdrawls.Any())
+                    while (insertAmount > 0 && (withdrawls.Any() || restCount != 0))
                     {
-                        var withdrawl = withdrawls.Dequeue();
-                        var requiredAmount = withdrawl.Quantity + restCount;
-                        restCount = insertAmount - requiredAmount;
+
+                        if (restCount == 0) { 
+                            dynamic withdrawl = withdrawls.Dequeue();
+                            withdrawlAmount = withdrawl.Quantity;
+                            withdrawlTime = withdrawl.Time;
+                        }
+                    
+                        restCount = insertAmount - withdrawlAmount;
                         if (restCount >= 0)
                         {
-                            for (int i = 0; i < requiredAmount; i++)
+                            for (int i = 0; i < withdrawlAmount; i++)
                             {
-                                if (insert.Time > simConfig.SettlingStart) laytimeList.Add(withdrawl.Time - insert.Time);
+                                //if (insert.Time > simConfig.SettlingStart)
+                                laytimeList.Add(withdrawlTime - insert.Time);
+                                insertAmount--;
+                                withdrawlAmount--;
+
                             }
-                            insertAmount = restCount;
+                            restCount = 0;
                         } else
                         {
                             for (int i = 0; i < insertAmount; i++)
                             {
-                                if (insert.Time > simConfig.SettlingStart) laytimeList.Add(withdrawl.Time - insert.Time);
+                                //if (insert.Time > simConfig.SettlingStart)
+                                    laytimeList.Add(withdrawlTime - insert.Time);
+                                insertAmount--;
+                                withdrawlAmount--;
                             }
-                            restCount = restCount * -1;
                         }
                     }
                 }
