@@ -8,6 +8,7 @@ using Master40.Agents;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.Enums;
 using Master40.Simulation.Simulation;
 using Master40.Tools.Simulation;
 using Microsoft.Data.Sqlite;
@@ -38,11 +39,11 @@ namespace Master40.XUnitTest.DBContext
         public ContextTest()
         {
             //_ctx.Database.EnsureDeleted();
-            MasterDBInitializerLarge.DbInitialize(_ctx);
+            //MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
-            _productionDomainContext.Database.EnsureDeleted();
-            _productionDomainContext.Database.EnsureCreated();
-            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+            //_productionDomainContext.Database.EnsureDeleted();
+            //_productionDomainContext.Database.EnsureCreated();
+            //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
         }
 
@@ -55,7 +56,7 @@ namespace Master40.XUnitTest.DBContext
             _ctx.Dispose();
         }
         */
-
+        /*
         [Fact]
         public async Task MrpTestAsync()
         {
@@ -185,19 +186,33 @@ namespace Master40.XUnitTest.DBContext
             InMemoryContext.LoadData(_productionDomainContext, context);
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
-
+        */
         [Fact]
         public async Task TestKpiCalculation()
         {
-            //CalculateKpis.CalculateMachineUtilization(
-            //    context: _productionDomainContext,
-            //    simulationId: 1,
-            //    simulationType: DB.Enums.SimulationType.Decentral,
-            //    simulationNumber: 1
-            //    );
+            var simType = SimulationType.Decentral;
+            var toRemove = _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+                                                                && x.KpiType == KpiType.MachineUtilization).ToList();
+            _productionDomainContext.Kpis.RemoveRange(toRemove);
+            _productionDomainContext.SaveChanges();
+            //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
+            CalculateKpis.MachineSattleTime(_productionDomainContext
+                                            , 1
+                                            , simType
+                                            , 1);
+
+            //            CalculateKpis.CalculateAllKpis(
+            CalculateKpis.CalculateMachineUtilization(
+            context: _productionDomainContext,
+                simulationId: 1,
+                simulationType: simType,
+                simulationNumber: 1,
+                final: true,
+                time: 20000);
+            
         }
 
-
+        /*
 
         [Fact]
         public async Task TestDistribution()
@@ -236,6 +251,7 @@ namespace Master40.XUnitTest.DBContext
                 sw.WriteLine(item);
             }
         }
+        */
     }
 }
 
