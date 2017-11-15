@@ -249,7 +249,7 @@ namespace Master40.Tools.Simulation
             
             //get working time
             var content = final
-                ? context.SimulationWorkschedules.Where(a => a.Start > simConfig.SettlingStart).Select(x => new {x.Start, x.End, x.Machine}).ToList()
+                ? context.SimulationWorkschedules.Where(a => a.Start > simConfig.SettlingStart && a.End < simConfig.SimulationEndTime).Select(x => new {x.Start, x.End, x.Machine}).ToList()
                 : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan && a.End <= time)
                     .Select(x => new {x.Start, x.End, x.Machine}).ToList();
             //get SimulationTime
@@ -283,7 +283,7 @@ namespace Master40.Tools.Simulation
         public static void CalculateTimeliness(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var orderTimeliness = final ? context.Orders.Where(a => a.State == State.Finished && a.CreationTime > simConfig.SettlingStart)
+            var orderTimeliness = final ? context.Orders.Where(a => a.State == State.Finished && a.CreationTime > simConfig.SettlingStart && a.CreationTime < simConfig.SimulationEndTime)
                                             .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()
                                         : context.Orders.Where(a => a.State == State.Finished && a.FinishingTime >= time - simConfig.DynamicKpiTimeSpan)
                                             .Select(x => new { x.Name, x.FinishingTime, x.DueTime }).ToList();
@@ -292,8 +292,8 @@ namespace Master40.Tools.Simulation
             {
                 Name = o.Key,
                 Value = Math.Round((o.Count(x => (x.DueTime - x.FinishingTime) > 0) / (double)o.Count()), 2),
-                ValueMin = Math.Round((double)o.Min(m => m.DueTime - m.FinishingTime), 2),
-                ValueMax = Math.Round((double)o.Max(n => n.DueTime - n.FinishingTime), 2),
+                ValueMin = Math.Round((double)o.Min(m => m.FinishingTime - m.DueTime), 2),
+                ValueMax = Math.Round((double)o.Max(n => n.FinishingTime - n.DueTime), 2),
                 Count = o.Count(c => c.Name == o.Key),
                 IsKpi = final,
                 KpiType = KpiType.Timeliness,
@@ -320,7 +320,7 @@ namespace Master40.Tools.Simulation
         public static void ArticleStockEvolution(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
+            var stockEvoLutionsContext = context.StockExchanges.Where(a => a.Time < simConfig.SimulationEndTime).Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
                 //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (!final)
                 stockEvoLutionsContext = stockEvoLutionsContext.Where(a => a.Time >= time - simConfig.DynamicKpiTimeSpan).ToList();
