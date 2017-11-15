@@ -631,19 +631,18 @@ namespace Master40.DB.Data.Context
 
         public decimal GetAmountBought(int articleId)
         {
-            var purchaseParts = PurchaseParts.Where(a => a.ArticleId == articleId);
+            var purchaseParts = PurchaseParts.Where(a => a.ArticleId == articleId && a.State != State.Finished);
             var purchasedAmount = 0;
             foreach (var purchasePart in purchaseParts)
                 purchasedAmount += purchasePart.Quantity;
             return purchasedAmount;
         }
+
         public decimal GetReserved(int articleId)
         {
-            decimal amountReserved = 0;
-            IQueryable<IDemandToProvider> reservations = Demands.OfType<DemandProviderStock>().Where(a => a.State != State.Finished && a.ArticleId == articleId);
-            foreach (var reservation in reservations)
-                amountReserved += reservation.Quantity;
-            return amountReserved;
+            var demands = Demands.OfType<DemandProviderStock>()
+                .Where(a => a.State != State.Finished && a.ArticleId == articleId).Sum(a => a.Quantity);
+            return demands;
         }
 
         public DemandProductionOrderBom CreateDemandProductionOrderBom(int articleId, decimal quantity)

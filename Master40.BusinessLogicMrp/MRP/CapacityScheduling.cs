@@ -32,6 +32,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// </summary>
         public void GifflerThompsonScheduling(int simulationId)
         {
+            var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             //var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
             var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.Where(a =>
                 a.ProducingState == ProducingState.Created || a.ProducingState == ProducingState.Waiting).ToList();
@@ -46,11 +47,11 @@ namespace Master40.BusinessLogicCentral.MRP
                 //find next element by using the activity slack rule
                 //Todo: Remove after testing
                 //var shortest = GetHighestPriority(plannableSchedules);
-                CalculateActivitySlack(plannableSchedules, simulationId);
+                CalculateActivitySlack(plannableSchedules, currentTime);
                 var shortest = GetShortest(plannableSchedules);
                 plannableSchedules.Remove(shortest);
                 //Add a fix spot on a machine with start/end
-                AddMachine(plannedSchedules, shortest, simulationId);
+                AddMachine(plannedSchedules, shortest, currentTime);
                 plannedSchedules.Add(shortest);
 
                 //search for parents and if available and allowed add it to the schedule
@@ -77,14 +78,14 @@ namespace Master40.BusinessLogicCentral.MRP
             return timer == 0 ? null : _context.ProductionOrderWorkSchedules.Where(a => a.Start <= timer && a.End - a.Start == a.Duration).ToList();
         }
         
-        private void AddMachine(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest, int simulationId)
+        private void AddMachine(List<ProductionOrderWorkSchedule> plannedSchedules, ProductionOrderWorkSchedule shortest, int currentTime)
         {
-            var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
+           
             var machines = _context.Machines.Where(a => a.MachineGroupId == shortest.MachineGroupId).ToList();
             if (machines.Count == 1)
             {
                 shortest.Start = GetChildEndTime(shortest);
-                if (shortest.Start == 0) shortest.Start = time;
+                if (shortest.Start == 0) shortest.Start = currentTime;
                 shortest.End = shortest.Start + shortest.Duration;
                 var earliestPlanned = FindStartOnMachine(plannedSchedules, machines.First().Id, shortest);
                 var earliestPows = FindStartOnMachine(plannedSchedules, machines.First().Id, shortest);
@@ -97,8 +98,11 @@ namespace Master40.BusinessLogicCentral.MRP
                
             else if (machines.Count > 1)
             {
+                //Todo: possible boosts: 
+                //getchild, if same machinegroup take same machine default
+                //else look for min free time if same start
                 shortest.Start = GetChildEndTime(shortest);
-                if (shortest.Start == 0) shortest.Start = time;
+                if (shortest.Start == 0) shortest.Start = currentTime;
                 shortest.End = shortest.Start + shortest.Duration;
                 var earliestPlanned = FindStartOnMachine(plannedSchedules, machines.First().Id, shortest);
                 var earliest = earliestPlanned;
@@ -118,6 +122,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 shortest.End = shortest.Start + shortest.Duration;
             }
             _context.Update(shortest);
+
             _context.SaveChanges();
         }
 
@@ -284,11 +289,10 @@ namespace Master40.BusinessLogicCentral.MRP
             return schedules;
         }
 
-        private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules, int simulationId)
+        private void CalculateActivitySlack(List<ProductionOrderWorkSchedule> plannableSchedules, int currentTime)
         {
             foreach (var plannableSchedule in plannableSchedules)
             {
-                var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
                 var processDueTime = plannableSchedule.ProductionOrder.Duetime -
                                      ((int) plannableSchedule.WorkTimeWithParents - plannableSchedule.Duration);
                 plannableSchedule.ActivitySlack = PriorityRules.ActivitySlack(currentTime, plannableSchedule.Duration,processDueTime );

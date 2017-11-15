@@ -236,7 +236,12 @@ namespace Master40.BusinessLogicCentral.MRP
             var productionOrders = _demandForecast.NetRequirement(demand, task, simulationId);
             if (demand.State != State.Finished)
                 demand.State = State.ProviderExist;
-            
+
+            var articleBoms = _context.ArticleBoms
+                .Include(a => a.ArticleChild)
+                .ThenInclude(a => a.ArticleBoms)
+                .ToList();
+
             //If there was enough in stock this does not have to be produced
             if (!productionOrders.Any()) return;
             foreach (var productionOrder in productionOrders)
@@ -246,10 +251,7 @@ namespace Master40.BusinessLogicCentral.MRP
                     !productionOrder.ProductionOrderWorkSchedule.Any())
                     _context.CreateProductionOrderWorkSchedules(productionOrder);
                 
-                var children = _context.ArticleBoms
-                                    .Include(a => a.ArticleChild)
-                                    .ThenInclude(a => a.ArticleBoms)
-                                    .Where(a => a.ArticleParentId == productionOrder.ArticleId)
+                var children = articleBoms.Where(a => a.ArticleParentId == productionOrder.ArticleId)
                                     .ToList();
                 
                 if (!children.Any()) return;

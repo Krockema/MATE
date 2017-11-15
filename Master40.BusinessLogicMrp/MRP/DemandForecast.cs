@@ -40,7 +40,7 @@ namespace Master40.BusinessLogicCentral.MRP
             var plannedStock = _context.GetPlannedStock(stock,demand);
             var productionOrders = new List<ProductionOrder>();
             var stockProvider = _context.TryCreateStockReservation(demand);
-
+            var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             //if the article has no children it has to be purchased
             var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
             if (children.Any())
