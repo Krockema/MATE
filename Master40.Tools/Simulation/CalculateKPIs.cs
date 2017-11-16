@@ -295,7 +295,7 @@ namespace Master40.Tools.Simulation
             {
                 var list = allKpis.Where(a => a.Name == kpis[i].Name).ToList();
                 kpis[i].Count = list.Sum(item => Math.Pow(item.Value - kpis[i].Value, 2))/(list.Count-1.00);
-               
+                kpis[i].ValueMin = kpis[i].Count / list.Count;
             }
             context.UpdateRange(kpis);
             context.SaveChanges();
