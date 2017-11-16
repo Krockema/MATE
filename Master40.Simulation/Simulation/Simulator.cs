@@ -103,7 +103,7 @@ namespace Master40.Simulation.Simulation
                 _context = InMemoryContext.CreateInMemoryContext();
                 await PrepareSimulationContext();
                 var simConfig =  _context.SimulationConfigurations.Single(x => x.Id == simulationId);
-                OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
+                await OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
@@ -127,7 +127,7 @@ namespace Master40.Simulation.Simulation
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
                 simConfig.Time = 0;
-                OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
+                await OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
                 _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation, simNumber);
                 var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime, simConfig.DynamicKpiTimeSpan);
                 UpdateStockExchangesWithInitialValues(simulationId, simNumber);
