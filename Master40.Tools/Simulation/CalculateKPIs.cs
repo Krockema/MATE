@@ -249,11 +249,21 @@ namespace Master40.Tools.Simulation
             
             //get working time
             var content = final
-                ? context.SimulationWorkschedules.Where(a => a.Start > simConfig.SettlingStart && a.End < simConfig.SimulationEndTime).Select(x => new {x.Start, x.End, x.Machine}).ToList()
-                : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan && a.End <= time)
-                    .Select(x => new {x.Start, x.End, x.Machine}).ToList();
+                ? context.SimulationWorkschedules.Where(a => a.Start >= simConfig.SettlingStart 
+                                                            && a.End <= simConfig.SimulationEndTime
+                                                            && a.End >= simConfig.SettlingStart
+                                                            && a.SimulationNumber == simulationNumber
+                                                            && a.SimulationType == simulationType
+                                                            && a.SimulationConfigurationId == simulationId)
+                                                 .Select(x => new {x.Start, x.End, x.Machine}).ToList()
+                : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan 
+                                                            && a.End <= time
+                                                             && a.SimulationNumber == simulationNumber
+                                                             && a.SimulationType == simulationType
+                                                             && a.SimulationConfigurationId == simulationId)
+                                                 .Select(x => new {x.Start, x.End, x.Machine}).ToList();
             //get SimulationTime
-            var simulationTime = final ? context.SimulationWorkschedules.Max(a => a.End) - simConfig.SettlingStart
+            var simulationTime = final ? simConfig.SimulationEndTime - simConfig.SettlingStart
                                        : simConfig.DynamicKpiTimeSpan;
 
             var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi() {
@@ -305,10 +315,23 @@ namespace Master40.Tools.Simulation
         public static void CalculateTimeliness(ProductionDomainContext context, int simulationId, SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
+            /*var orderTimeliness = final ? context.SimulationOrders.Where(a => a.State == State.Finished 
+                                                                && a.CreationTime > simConfig.SettlingStart 
+                                                                && a.CreationTime < simConfig.SimulationEndTime
+                                                                && a.SimulationType == simulationType)
+                .Select(x => new { x.Name, x.FinishingTime, x.DueTime }).ToList() : 
+                context.SimulationOrders.Where(a => a.State == State.Finished 
+                                                && a.FinishingTime >= time - simConfig.DynamicKpiTimeSpan
+                                                && a.SimulationType == simulationType)
+                .Select(x => new { x.Name, x.FinishingTime, x.DueTime }).ToList();
+
+
+            */ 
             var orderTimeliness = final ? context.Orders.Where(a => a.State == State.Finished && a.CreationTime > simConfig.SettlingStart && a.CreationTime < simConfig.SimulationEndTime)
                                             .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()
                                         : context.Orders.Where(a => a.State == State.Finished && a.FinishingTime >= time - simConfig.DynamicKpiTimeSpan)
                                             .Select(x => new { x.Name, x.FinishingTime, x.DueTime }).ToList();
+            
             if (!orderTimeliness.Any()) return;
             var kpis = orderTimeliness.GroupBy(g => g.Name).Select(o => new Kpi()
             {
