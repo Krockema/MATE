@@ -310,7 +310,7 @@ namespace Master40.DB.Data.Initializer
                 OrderRate = 0.25, //0.25
                 Time = 0,
                 RecalculationTime = 1440,
-                SimulationEndTime = 20000,
+                SimulationEndTime = 20160,
                 DecentralRuns = 0,
                 CentralRuns = 0,
                 DynamicKpiTimeSpan = 480,
