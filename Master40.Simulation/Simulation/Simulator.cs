@@ -103,7 +103,7 @@ namespace Master40.Simulation.Simulation
                 _context = InMemoryContext.CreateInMemoryContext();
                 await PrepareSimulationContext();
                 var simConfig =  _context.SimulationConfigurations.Single(x => x.Id == simulationId);
-                OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
+                await OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
 
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
@@ -127,7 +127,7 @@ namespace Master40.Simulation.Simulation
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
                 simConfig.Time = 0;
-                OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
+                await OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
                 _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation, simNumber);
                 var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime, simConfig.DynamicKpiTimeSpan);
                 UpdateStockExchangesWithInitialValues(simulationId, simNumber);
@@ -388,12 +388,11 @@ namespace Master40.Simulation.Simulation
 
         private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
         {
-            var test2 = _evaluationContext.SimulationWorkschedules.Count(a => a.OrderId.Equals("[228]"));
-            var test1 = _context.SimulationWorkschedules.Count(a => a.OrderId.Equals("[228]"));
             if (!firstRunOfTheDay)
             {
                 timeTable = timeTable.ProcessTimeline(timeTable);
             }
+            
             firstRunOfTheDay = false;
             _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time = timeTable.Timer;
             _context.SaveChanges();
@@ -565,14 +564,14 @@ namespace Master40.Simulation.Simulation
         {
             
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var filestream = System.IO.File.Create("G://stocks.csv");
+            var filestream = System.IO.File.Create("D://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
             {
                 sw.WriteLine(item.Name + ";" + item.Current);
             }
             sw.Dispose();
-            filestream = System.IO.File.Create("G://waiting POs.csv");
+            filestream = System.IO.File.Create("D://waiting POs.csv");
             sw = new System.IO.StreamWriter(filestream);
             foreach (var item in waitingItems)
             {

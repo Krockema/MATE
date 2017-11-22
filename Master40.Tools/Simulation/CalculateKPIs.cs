@@ -277,7 +277,29 @@ namespace Master40.Tools.Simulation
                                         Time = time,
                                         IsFinal = final
                                     }).ToList();
+            
             context.Kpis.AddRange(kpis);
+            context.SaveChanges();
+
+            if (!final) return;
+            
+            var allKpis = context.Kpis.Where(a => a.KpiType == KpiType.MachineUtilization
+                                               && a.SimulationConfigurationId == simulationId
+                                               && a.SimulationNumber == simulationNumber
+                                               && a.SimulationType == simulationType
+                                               && !a.IsFinal
+                                               && a.Time > simConfig.SettlingStart
+                                               && a.Time < simConfig.SimulationEndTime).ToList();
+            //for each machine
+            for (var i = 0; i < kpis.Count(); i++)
+            {
+                var list = allKpis.Where(a => a.Name == kpis[i].Name).ToList();
+                if (list.Count == 0 || list.Count == 1)
+                    continue;
+                kpis[i].Count = list.Sum(item => Math.Pow(item.Value - kpis[i].Value, 2))/(list.Count-1.00);
+                kpis[i].ValueMin = kpis[i].Count / list.Count;
+            }
+            context.UpdateRange(kpis);
             context.SaveChanges();
         }
 

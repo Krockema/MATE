@@ -219,7 +219,7 @@ namespace Master40.DB.Data.Context
                 var ids = new List<int>();
                 var requester = (from provider in po.DemandProviderProductionOrders
                     select provider.DemandRequester).ToList();
-                if (requester.First() == null) return ids;
+                if (!requester.Any() || requester.First() == null) return ids;
                 foreach (var singleRequester in requester)
                 {
                     if (singleRequester.GetType() == typeof(DemandProductionOrderBom))
@@ -928,7 +928,11 @@ namespace Master40.DB.Data.Context
         {
             var children = new List<SimulationWorkschedule>();
 
-            children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")).ToList() 
+            //not fit for lotsizes > 1
+            /*children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")).ToList() 
+                                                                : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();*/
+
+            children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Contains(simulationWorkschedule.WorkScheduleId.ToString())).ToList()
                                                                 : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
 
 
