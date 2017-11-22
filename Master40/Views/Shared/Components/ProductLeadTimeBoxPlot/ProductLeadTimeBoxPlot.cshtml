@@ -26,9 +26,9 @@
                     @{ scale = 0; }
 
                 </div>
-                <div style="height: 190px">  @ViewData["max"]</div>
-                <div style="height: 20px">  0</div>
-                <div style="height: 20px">  Articles</div>
+                <div style="height: 190px">@ViewData["max"]</div>
+                <div style="height: 20px">0&nbsp;min</div>
+                <div style="height: 20px"><b>Articles</b></div>
             </div>
             <div class="col-md-10">
                 <div class="row" style="border-bottom: 2px solid #808080; border-left: 2px solid #808080; text-align: center; top: 0px;">
@@ -75,9 +75,9 @@
             <thead>
                 <tr>
                     <th>Article</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                    <th>Average</th>
+                    <th>Min [min]</th>
+                    <th>Max [min]</th>
+                    <th>Average [min]</th>
                 </tr>
                 @foreach (var item in kpis)
                 {
