@@ -9,7 +9,7 @@
         var value1 = $('#fcOrder').val();
         var value2 = $('#fcState').val();
         $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
-        loadGantt(value1, value2);
+        loadGantt(value1, value2, 0, "ForwardPlanning", 1, 1);
         loadCharts(value2)
         //$('form').submit();
     }
@@ -164,9 +164,11 @@
         });
 
 
-        function loadGantt(orderId, stateId) {
+        
+        function loadGantt(orderId, stateId, page, type, config, simNr) {
+            var source = "Mrp/ReloadGantt/" + orderId + "/"+ type + "/" + stateId + "/" + config + "/" + simNr + "/" + page;
             $.ajax({
-                url: "Mrp/ReloadGantt/" + orderId + "/" + stateId,
+                url: source,
                 async: true,
                 context: document.body,
                 beforeSend: function () {
