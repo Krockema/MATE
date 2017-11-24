@@ -165,14 +165,9 @@ namespace Master40.ViewComponents
                                                         }).ToList();
             */
 
-            var machines = _context.Machines.Where(x => x.MachineGroupId == machineGroupId).ToList();
-            var productionOrderWorkSchedulesBy = new List<SimulationWorkschedule>();
-            foreach (var machine in machines)
-            {
-                productionOrderWorkSchedulesBy.AddRange(simulationWorkschedule.Where(x => x.Machine == machine.Name));
-            }
-
-          
+            
+            
+            var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(x => x.Machine == machineGroupId.ToString());
             
             var data = new List<double>();
             for (var i = minRange; i < maxRange; i++)
