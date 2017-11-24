@@ -359,7 +359,8 @@ namespace Master40.Simulation.Simulation
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
                     SimulationType = SimulationType.BackwardPlanning,
-                    SimulationNumber = simulationNumber
+                    SimulationNumber = simulationNumber,
+                    Machine = pows.MachineGroupId.ToString()
 
                 };
                 _context.Add(backward);
@@ -380,7 +381,8 @@ namespace Master40.Simulation.Simulation
                     WorkScheduleId = pows.Id.ToString(),
                     WorkScheduleName = pows.Name,
                     SimulationType = SimulationType.ForwardPlanning,
-                    SimulationNumber = simulationNumber
+                    SimulationNumber = simulationNumber,
+                    Machine = pows.MachineGroupId.ToString()
 
                 };
                 _context.Add(forward);
