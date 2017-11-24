@@ -204,7 +204,7 @@ namespace Master40.Simulation.Simulation
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
                 CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
                 RemoveSimulationWorkschedules();
-                CopyResults.Copy(_context, _evaluationContext);
+                CopyResults.Copy(_context, _evaluationContext, simulationId, simNumber, SimulationType.Central);
                 
                 _messageHub.EndScheduler();
                 _context.Database.CloseConnection();
@@ -683,7 +683,7 @@ namespace Master40.Simulation.Simulation
                 CalculateKpis.MachineSattleTime(c, simulationConfigurationId, SimulationType.Decentral, simNumber);
 
                 CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber, true);
-                CopyResults.Copy(c, _evaluationContext);
+                CopyResults.Copy(c, _evaluationContext, simulationConfigurationId, simNumber, SimulationType.Decentral);
             }
             connection.Close();
             _messageHub.EndSimulation("Simulation with Id:" + simulationConfigurationId + " Completed."

@@ -50,6 +50,7 @@ namespace Master40.ViewComponents
             _simulationNumber = Convert.ToInt32(paramsList[3]);
             _simulationConfigurationId = Convert.ToInt32(paramsList[4]);
             _schedulingPage = Convert.ToInt32(paramsList[5]);
+            var folowLinks = false;
             switch (paramsList[1])
             {
                 case "Decentral":
@@ -57,9 +58,11 @@ namespace Master40.ViewComponents
                     break;
                 case "BackwardPlanning":
                     _simulationType = SimulationType.BackwardPlanning;
+                    folowLinks = true;
                     break;
                 case "ForwardPlanning":
                     _simulationType = SimulationType.ForwardPlanning;
+                    folowLinks = true;
                     break;
                 default:
                     _simulationType = SimulationType.Central;
@@ -71,7 +74,7 @@ namespace Master40.ViewComponents
             if (_orderId == -1)
             {   // for all Orders
 
-                await GetSchedulesForTimeSlotListAsync(_timeSpan * _schedulingPage, _timeSpan * _schedulingPage + _timeSpan,false);
+                await GetSchedulesForTimeSlotListAsync(_timeSpan * _schedulingPage, _timeSpan * _schedulingPage + _timeSpan, folowLinks);
             }
             else
             {  // for the specified Order
@@ -243,15 +246,18 @@ namespace Master40.ViewComponents
                 default: // back and forward
                     project = _ganttContext.Tasks
                         .Where(x => x.type == GanttType.project && x.id == "O" + orderId);
-                    if (project.Any())
+                    var p = project.First();
+                    if (p != null)
                     {
-                        return project.First();
+                        return p;
                     }
                     else
                     {
                         var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
                         var pt = CreateProjectTask("O" + orderId, _context.OrderParts.
-                                                                    Include(x => x.Order).FirstOrDefault(x => x.Id == orderId).Order.Name, "", 0, (GanttColors)gc);
+                                                                    Include(x => x.Order)
+                                                                    .FirstOrDefault(x => x.Id == orderId)
+                                                                        .Order.Name, "", 0, (GanttColors)gc);
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }

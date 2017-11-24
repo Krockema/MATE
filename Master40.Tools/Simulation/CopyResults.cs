@@ -8,44 +8,44 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Master40.Tools.Simulation
 {
     public static class CopyResults
     {
-        public static void Copy(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
+        public static void Copy(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext, int simId, int simNo, SimulationType simType)
         {
             ExtractKpis(inMemmoryContext, productionDomainContext);
             ExtractWorkSchedules(inMemmoryContext, productionDomainContext);
             ExtractStockExchanges(inMemmoryContext, productionDomainContext);
-            Kpi sim = ExtractSimulationOrders(inMemmoryContext, productionDomainContext);
+            ExtractSimulationOrders(inMemmoryContext, productionDomainContext, simId, simNo, simType);
 
-            var simConfig = productionDomainContext.SimulationConfigurations.Single(s => s.Id == sim.SimulationConfigurationId);
-            if (sim.SimulationType == SimulationType.Central) { simConfig.CentralRuns += 1; } else { simConfig.DecentralRuns += 1; }
+            var simConfig = productionDomainContext.SimulationConfigurations.Single(s => s.Id == simId);
+            if (simType == SimulationType.Central) { simConfig.CentralRuns += 1; } else { simConfig.DecentralRuns += 1; }
             productionDomainContext.SaveChanges();
 
 
 
         }
 
-        private static Kpi ExtractSimulationOrders(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
+        public static void ExtractSimulationOrders(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext, 
+            int simId, int simNo, SimulationType simType)
         {
-            List<SimulationOrder> so = new List<SimulationOrder>();
-            var sim = productionDomainContext.Kpis.Last(); // i know not perfect ...
+            List<SimulationOrder> so = new List<SimulationOrder>();// i know not perfect ...
             foreach (var item in inMemmoryContext.Orders)
             {
                 SimulationOrder set = new SimulationOrder();
                 item.CopyPropertiesTo<IOrder>(set);
-                set.SimulationConfigurationId = sim.SimulationConfigurationId;
-                set.SimulationNumber = sim.SimulationNumber;
-                set.SimulationType = sim.SimulationType;
+                set.SimulationConfigurationId = simId;
+                set.SimulationNumber = simNo;
+                set.SimulationType = simType;
                 set.OriginId = item.Id;
                 so.Add(set);
 
             }
             productionDomainContext.SimulationOrders.AddRange(so);
             productionDomainContext.SaveChanges();
-            return sim;
         }
 
         private static void ExtractKpis(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
