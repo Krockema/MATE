@@ -11,6 +11,7 @@ using Master40.DB.Data.Helper;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Enums;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Master40.ViewComponents
 {
@@ -49,7 +50,21 @@ namespace Master40.ViewComponents
             _simulationNumber = Convert.ToInt32(paramsList[3]);
             _simulationConfigurationId = Convert.ToInt32(paramsList[4]);
             _schedulingPage = Convert.ToInt32(paramsList[5]);
-            _simulationType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            switch (paramsList[1])
+            {
+                case "Decentral":
+                    _simulationType = SimulationType.Decentral;
+                    break;
+                case "BackwardPlanning":
+                    _simulationType = SimulationType.BackwardPlanning;
+                    break;
+                case "ForwardPlanning":
+                    _simulationType = SimulationType.ForwardPlanning;
+                    break;
+                default:
+                    _simulationType = SimulationType.Central;
+                    break;
+            }
             _timeSpan = _context.SimulationConfigurations.Single(x => x.Id == _simulationConfigurationId).DynamicKpiTimeSpan;
             ///// Needs some changes to Work. i.e. Reference SimulationOrder , Create SimulationOrderPart and writing it back
             // If Order is not selected.
@@ -292,13 +307,13 @@ namespace Master40.ViewComponents
         /// </summary>
         private SelectList SchedulingState(int selectedItem)
         {
-            var itemList = new List<SelectListItem>();
-            // var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
-            // if (_context.ProductionOrderWorkSchedules.Any())
-            // {
-            //     if (_context.ProductionOrderWorkSchedules.Max(x => x.StartForward) != 0)
-            //         itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
-            // }
+            // var itemList = new List<SelectListItem>();
+            var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
+            if (_context.ProductionOrderWorkSchedules.Any())
+            {
+                if (_context.ProductionOrderWorkSchedules.Max(x => x.StartForward) != 0)
+                    itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
+            }
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
             return new SelectList( itemList, "Value", "Text", selectedItem);
