@@ -109,15 +109,15 @@ namespace Master40.ViewComponents
             {
                 case 1:
                     min = schedules.Where(x => x.SimulationType == SimulationType.BackwardPlanning).Min(x => x.Start);
-                    max = schedules.Where(x => x.SimulationType == SimulationType.BackwardPlanning).Min(x => x.End);
+                    max = schedules.Where(x => x.SimulationType == SimulationType.BackwardPlanning).Max(x => x.End);
                     break;
                 case 2:
                     min = schedules.Where(x => x.SimulationType == SimulationType.ForwardPlanning).Min(x => x.Start);
-                    max = schedules.Where(x => x.SimulationType == SimulationType.ForwardPlanning).Min(x => x.End);
+                    max = schedules.Where(x => x.SimulationType == SimulationType.ForwardPlanning).Max(x => x.End);
                     break;
                 default:
                     min = schedules.Where(x => x.SimulationType == SimulationType.Central).Min(x => x.Start);
-                    max = schedules.Where(x => x.SimulationType == SimulationType.Central).Min(x => x.End);
+                    max = schedules.Where(x => x.SimulationType == SimulationType.Central).Max(x => x.End);
                     break;
 /*
                 case 1:
