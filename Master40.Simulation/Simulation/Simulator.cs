@@ -124,6 +124,7 @@ namespace Master40.Simulation.Simulation
                         .ToList();
                     FillSimulationWorkSchedules(list,simulationId,simulationNumber);
                 }
+                CopyResults.ExtractSimulationOrders(_context, _evaluationContext, simulationId, simulationNumber, SimulationType.BackwardPlanning);
                 _messageHub.EndScheduler();
             });
         }

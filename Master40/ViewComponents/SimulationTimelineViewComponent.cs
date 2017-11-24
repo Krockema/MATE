@@ -246,10 +246,9 @@ namespace Master40.ViewComponents
                 default: // back and forward
                     project = _ganttContext.Tasks
                         .Where(x => x.type == GanttType.project && x.id == "O" + orderId);
-                    var p = project.First();
-                    if (p != null)
+                    if (project.Any())
                     {
-                        return p;
+                        return project.First();
                     }
                     else
                     {

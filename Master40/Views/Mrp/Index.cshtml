@@ -96,7 +96,7 @@
         processingProxy.on("clientListener", function (msg) {
             if (msg == "MrpProcessingComplete") {
                 loadCharts(1);
-                loadGantt(1, 1, 1, "ForwardPlanning", 1, 1);
+                loadGantt(1, 1, 1, "BackwardPlanning", 1, 1);
                 $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
                 $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
                 $(".MessageDisplayRunning").prepend('<div class="alert alert-info">Loading Results...</div>');
@@ -109,7 +109,7 @@
         // Processing Hub is loaded
         $.connection.hub.start().done(function () {
             processingProxy.invoke('SystemReady');
-            loadGantt(1, 1, 1, "ForwardPlanning", 1, 1);
+            loadGantt(1, 1, 1, "BackwardPlanning", 1, 1);
             loadCharts(1);
         })
         
