@@ -37,7 +37,11 @@ namespace Master40.ViewComponents
             {
                 MaintainAspectRatio = false,
                 Responsive = true,
-
+                Scales = new Scales
+                {
+                    YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
+                    XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
+                },
                 Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
                 Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold" }
             };
@@ -47,7 +51,7 @@ namespace Master40.ViewComponents
             var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                && x.SimulationNumber == Convert.ToInt32(paramsList[2])
-                                               && x.SimulationType == simType);
+                                               && x.SimulationType == simType).OrderBy(x => x.Name).ToList();
 
             var articles = kpis.Select(x => x.Name).Distinct();
 
@@ -69,6 +73,7 @@ namespace Master40.ViewComponents
                         SteppedLine = true,
                         LineTension = 0
                         , Hidden = (article.Equals("Dump-Truck") || article.Equals("Race-Truck")) ? false : true
+                        ,YAxesID = "first-y-axis"
                     };
                     data.Datasets.Add(lds);
 

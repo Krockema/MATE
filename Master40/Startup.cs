@@ -18,6 +18,7 @@ using Master40.DB.Data.Initializer;
 using Master40.MessageSystem.SignalR;
 using Master40.MessageSystem.MessageReciever;
 using Master40.Simulation.Simulation;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Master40
 {
@@ -68,6 +69,11 @@ namespace Master40
             services.AddSingleton<AgentSimulator>();
             // services.AddSingleton<Client>();
 
+            // Register the Swagger generator, defining one or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "SSPS 4.0 API", Version = "v1" });
+            });
 
 
             services.Configure<RequestLocalizationOptions>(
@@ -133,6 +139,15 @@ namespace Master40
             };
             app.UseHangfireServer(serverOptions);
             app.UseHangfireDashboard();
+
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API DOC V1");
+            });
+
 
             app.UseMvc(routes =>
             {

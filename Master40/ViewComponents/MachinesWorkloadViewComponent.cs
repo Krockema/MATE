@@ -66,6 +66,7 @@ namespace Master40.ViewComponents
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && x.IsKpi
                                                         && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
+                                           .OrderByDescending(g => g.Name)
                     .ToList();
                 var data = new Data {Labels = machines.Select(n => n.Name).ToList()};
 
@@ -90,9 +91,13 @@ namespace Master40.ViewComponents
 
                 // Specifie xy Axis
                 var xAxis = new List<Scale>() {new BarScale {Stacked = false}};
-                var yAxis = new List<Scale>()
+                var yAxis = new List<Scale>() 
                 {
-                    new BarScale {Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}}
+                    new BarScale
+                    {
+                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100},
+                        Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = true, FontSize = 12 },
+                    }
                 };
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options()
@@ -177,7 +182,11 @@ namespace Master40.ViewComponents
                 var xAxis = new List<Scale>() { new RadialLinearScale { Stacked = false } };
                 var yAxis = new List<Scale>()
                 {
-                    new RadialLinearScale() {Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}}
+                    new RadialLinearScale()
+                    {
+                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100},
+                        Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = true, FontSize = 12 },
+                    }
                 };
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options()
