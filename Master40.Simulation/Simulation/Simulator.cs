@@ -100,14 +100,30 @@ namespace Master40.Simulation.Simulation
             await Task.Run(async () =>
             {
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
+                rebuildNets = new RebuildNets(_context);
+                capacityScheduling = new CapacityScheduling(_context);
+                
                 _context = InMemoryContext.CreateInMemoryContext();
+                InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
                 var simConfig =  _context.SimulationConfigurations.Single(x => x.Id == simulationId);
                 await OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
-
+                var simulationNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
-
+                if (task == MrpTask.Backward || task == MrpTask.Forward || task == MrpTask.All)
+                {
+                    var list = _context.ProductionOrderWorkSchedules.Select(schedule => new PowsSimulationItem(_context)
+                        {
+                            End = (task == MrpTask.Backward) ? schedule.EndBackward : schedule.EndForward,
+                            Start = (task == MrpTask.Backward) ? schedule.StartBackward : schedule.StartForward,
+                            ProductionOrderId = schedule.ProductionOrderId,
+                            ProductionOrderWorkScheduleId = schedule.Id,
+                            SimulationId = simulationId
+                        })
+                        .ToList();
+                    FillSimulationWorkSchedules(list,simulationId,simulationNumber);
+                }
                 _messageHub.EndScheduler();
             });
         }
@@ -313,7 +329,7 @@ namespace Master40.Simulation.Simulation
                     EstimatedEnd = pows.End,
                     EstimatedStart = pows.Start,
                     HierarchyNumber = pows.HierarchyNumber,
-                    Machine = _context.Machines.Single(a => a.Id == pows.MachineId).Name,
+                    Machine = pows.MachineId==null? null: _context.Machines.Single(a => a.Id == pows.MachineId).Name,
                     Start = pows.StartSimulation,
                     OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
                     SimulationConfigurationId = simulationId,
@@ -323,15 +339,51 @@ namespace Master40.Simulation.Simulation
                     SimulationNumber = simulationNumber
 
                 };
-                var test = _context.SimulationWorkschedules.Count(a => a.OrderId.Equals("[115]"));
-                var test2 = _context.Demands.OfType<DemandProductionOrderBom>()
-                    .Where(a => a.ProductionOrderBom == null);
-                var test3 = _context.DemandProductionOrderBoms.Where(a =>
-                    a.ProductionOrderBom.ProductionOrderParent.DemandProviderProductionOrders.First().DemandRequester
-                        .GetType() == typeof(DemandOrderPart));
-                //var test4 = test3.Where(a => a.OrderPart.OrderId == 116);
                 _context.Add(schedule);
+                _context.SaveChanges();
                 _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
+                _evaluationContext.SaveChanges();
+                if (pows.EndBackward - pows.StartBackward != pows.Duration) continue;
+                var backward = new SimulationWorkschedule()
+                {
+                    ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
+                    ProductionOrderId = "[" + po.Id.ToString() + "]",
+                    Article = po.Article.Name,
+                    DueTime = po.Duetime,
+                    End = pows.EndBackward,
+                    HierarchyNumber = pows.HierarchyNumber,
+                    Start = pows.StartBackward,
+                    OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
+                    SimulationConfigurationId = simulationId,
+                    WorkScheduleId = pows.Id.ToString(),
+                    WorkScheduleName = pows.Name,
+                    SimulationType = SimulationType.BackwardPlanning,
+                    SimulationNumber = simulationNumber
+
+                };
+                _context.Add(backward);
+                _evaluationContext.Add(backward.CopyDbPropertiesWithoutId());
+                
+                if (pows.EndForward - pows.StartForward != pows.Duration) continue;
+                var forward = new SimulationWorkschedule()
+                {
+                    ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
+                    ProductionOrderId = "[" + po.Id.ToString() + "]",
+                    Article = po.Article.Name,
+                    DueTime = po.Duetime,
+                    End = pows.EndForward,
+                    HierarchyNumber = pows.HierarchyNumber,
+                    Start = pows.StartForward,
+                    OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
+                    SimulationConfigurationId = simulationId,
+                    WorkScheduleId = pows.Id.ToString(),
+                    WorkScheduleName = pows.Name,
+                    SimulationType = SimulationType.ForwardPlanning,
+                    SimulationNumber = simulationNumber
+
+                };
+                _context.Add(forward);
+                _evaluationContext.Add(forward.CopyDbPropertiesWithoutId());
             }
             _context.SaveChanges();
             _evaluationContext.SaveChanges();
