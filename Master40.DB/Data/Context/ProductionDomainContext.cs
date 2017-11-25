@@ -679,7 +679,8 @@ namespace Master40.DB.Data.Context
             var pos = ProductionOrders.Include(b => b.ProductionOrderWorkSchedule)
                                     .Include(a => a.DemandProviderProductionOrders)
                                     .Where(a => a.ArticleId == demand.ArticleId 
-                                        && (GetLatestEndFromProductionOrder(a)== null 
+                                        && (GetLatestEndFromProductionOrder(a)== null
+                                            || GetLatestEndFromProductionOrder(a) == 0
                                             || GetLatestEndFromProductionOrder(a)>=timer)).ToList();
             foreach (var po in pos)
             {
