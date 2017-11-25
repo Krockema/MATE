@@ -122,7 +122,7 @@ namespace Master40.Simulation.Simulation
                             SimulationId = simulationId
                         })
                         .ToList();
-                    FillSimulationWorkSchedules(list,simulationId,simulationNumber);
+                    FillSimulationWorkSchedules(list,simulationId,simulationNumber, task);
                 }
                 CopyResults.ExtractSimulationOrders(_context, _evaluationContext, simulationId, simulationNumber, SimulationType.BackwardPlanning);
                 _messageHub.EndScheduler();
@@ -201,7 +201,7 @@ namespace Master40.Simulation.Simulation
                 var po = _context.ProductionOrders;
                 
                 //SaveCompletedContext(timeTable,simulationId,simNumber);
-                FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber);
+                FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber,0);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
                 CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
                 RemoveSimulationWorkschedules();
@@ -302,7 +302,7 @@ namespace Master40.Simulation.Simulation
                         timetable.Items.Remove(itemList.First());
                         counter++;
                     }
-                    FillSimulationWorkSchedules(items, simulationId, simulationNumber);
+                    FillSimulationWorkSchedules(items, simulationId, simulationNumber, 0);
 
                     _context.ProductionOrders.Remove(provider.ProductionOrder);
                     _context.Demands.Remove(provider);
@@ -314,79 +314,86 @@ namespace Master40.Simulation.Simulation
             return counter;
         }
 
-        private void FillSimulationWorkSchedules(List<PowsSimulationItem> items, int simulationId, int simulationNumber)
+        private void FillSimulationWorkSchedules(List<PowsSimulationItem> items, int simulationId, int simulationNumber, MrpTask task)
         {
             foreach (var item in items)
             {
                 var po = _context.ProductionOrders.Include(b => b.Article).Single(a => a.Id == item.ProductionOrderId);
                 var pows = _context.ProductionOrderWorkSchedules.Single(a => a.Id == item.ProductionOrderWorkScheduleId);
-                var schedule = new SimulationWorkschedule()
-                {
-                    ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
-                    ProductionOrderId = "[" + po.Id.ToString() + "]",
-                    Article = po.Article.Name,
-                    DueTime = po.Duetime,
-                    End = pows.EndSimulation,
-                    EstimatedEnd = pows.End,
-                    EstimatedStart = pows.Start,
-                    HierarchyNumber = pows.HierarchyNumber,
-                    Machine = pows.MachineId==null? null: _context.Machines.Single(a => a.Id == pows.MachineId).Name,
-                    Start = pows.StartSimulation,
-                    OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                    SimulationConfigurationId = simulationId,
-                    WorkScheduleId = pows.Id.ToString(),
-                    WorkScheduleName = pows.Name,
-                    SimulationType = SimulationType.Central,
-                    SimulationNumber = simulationNumber
 
-                };
-                _context.Add(schedule);
-                _context.SaveChanges();
-                _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
-                _evaluationContext.SaveChanges();
-                if (pows.EndBackward - pows.StartBackward != pows.Duration) continue;
-                var backward = new SimulationWorkschedule()
+                if (task == MrpTask.None)
                 {
-                    ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
-                    ProductionOrderId = "[" + po.Id.ToString() + "]",
-                    Article = po.Article.Name,
-                    DueTime = po.Duetime,
-                    End = pows.EndBackward,
-                    HierarchyNumber = pows.HierarchyNumber,
-                    Start = pows.StartBackward,
-                    OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                    SimulationConfigurationId = simulationId,
-                    WorkScheduleId = pows.Id.ToString(),
-                    WorkScheduleName = pows.Name,
-                    SimulationType = SimulationType.BackwardPlanning,
-                    SimulationNumber = simulationNumber,
-                    Machine = pows.MachineGroupId.ToString()
+                    var schedule = new SimulationWorkschedule()
+                    {
+                        ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
+                        ProductionOrderId = "[" + po.Id.ToString() + "]",
+                        Article = po.Article.Name,
+                        DueTime = po.Duetime,
+                        End = pows.EndSimulation,
+                        EstimatedEnd = pows.End,
+                        EstimatedStart = pows.Start,
+                        HierarchyNumber = pows.HierarchyNumber,
+                        Machine = pows.MachineId == null ? null : _context.Machines.Single(a => a.Id == pows.MachineId).Name,
+                        Start = pows.StartSimulation,
+                        OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
+                        SimulationConfigurationId = simulationId,
+                        WorkScheduleId = pows.Id.ToString(),
+                        WorkScheduleName = pows.Name,
+                        SimulationType = SimulationType.Central,
+                        SimulationNumber = simulationNumber
 
-                };
-                _context.Add(backward);
-                _evaluationContext.Add(backward.CopyDbPropertiesWithoutId());
+                    };
+                    _context.Add(schedule);
+                    _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
+                }
+
+                if (task == MrpTask.Backward || task == MrpTask.All)
+                {
+                    var backward = new SimulationWorkschedule()
+                    {
+                        ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.ProductionOrderId),
+                        ProductionOrderId = "[" + po.Id.ToString() + "]",
+                        Article = po.Article.Name,
+                        DueTime = po.Duetime,
+                        End = pows.EndBackward,
+                        HierarchyNumber = pows.HierarchyNumber,
+                        Start = pows.StartBackward,
+                        OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
+                        SimulationConfigurationId = simulationId,
+                        WorkScheduleId = pows.Id.ToString(),
+                        WorkScheduleName = pows.Name,
+                        SimulationType = SimulationType.BackwardPlanning,
+                        SimulationNumber = simulationNumber,
+                        Machine = pows.MachineGroupId.ToString()
+
+                    };
+                    _context.Add(backward);
+                    _evaluationContext.Add(backward.CopyDbPropertiesWithoutId());
+                }
+                if (task == MrpTask.Forward || task == MrpTask.All)
+                {
+                    var forward = new SimulationWorkschedule()
+                    {
+                        ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.ProductionOrderId),
+                        ProductionOrderId = "[" + po.Id.ToString() + "]",
+                        Article = po.Article.Name,
+                        DueTime = po.Duetime,
+                        End = pows.EndForward,
+                        HierarchyNumber = pows.HierarchyNumber,
+                        Start = pows.StartForward,
+                        OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
+                        SimulationConfigurationId = simulationId,
+                        WorkScheduleId = pows.Id.ToString(),
+                        WorkScheduleName = pows.Name,
+                        SimulationType = SimulationType.ForwardPlanning,
+                        SimulationNumber = simulationNumber,
+                        Machine = pows.MachineGroupId.ToString()
+
+                    };
+                    _context.Add(forward);
+                    _evaluationContext.Add(forward.CopyDbPropertiesWithoutId());
+                }
                 
-                if (pows.EndForward - pows.StartForward != pows.Duration) continue;
-                var forward = new SimulationWorkschedule()
-                {
-                    ParentId = JsonConvert.SerializeObject(from parent in _context.GetParents(pows) select parent.Id),
-                    ProductionOrderId = "[" + po.Id.ToString() + "]",
-                    Article = po.Article.Name,
-                    DueTime = po.Duetime,
-                    End = pows.EndForward,
-                    HierarchyNumber = pows.HierarchyNumber,
-                    Start = pows.StartForward,
-                    OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                    SimulationConfigurationId = simulationId,
-                    WorkScheduleId = pows.Id.ToString(),
-                    WorkScheduleName = pows.Name,
-                    SimulationType = SimulationType.ForwardPlanning,
-                    SimulationNumber = simulationNumber,
-                    Machine = pows.MachineGroupId.ToString()
-
-                };
-                _context.Add(forward);
-                _evaluationContext.Add(forward.CopyDbPropertiesWithoutId());
             }
             _context.SaveChanges();
             _evaluationContext.SaveChanges();
@@ -634,7 +641,7 @@ namespace Master40.Simulation.Simulation
             }
             sw.Dispose();
             //SaveCompletedContext(timetable,simulationId,simNumber);
-            FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber);
+            FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber,0);
             _processMrp.UpdateDemandsAndOrders(simulationId);
             var time = simConfig.Time;
             var maxAllowedTime = simConfig.Time + simConfig.MaxCalculationTime;
