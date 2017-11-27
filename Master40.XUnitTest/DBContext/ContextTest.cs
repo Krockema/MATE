@@ -187,12 +187,13 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
         */
-        [Fact]
-        public async Task TestKpiCalculation()
+        [Theory]
+        [InlineData(SimulationType.Central)]
+        [InlineData(SimulationType.Decentral)]
+        public async Task TestKpiCalculation(SimulationType simType)
         {
-            var simType = SimulationType.Decentral;
-            var toRemove = _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                && x.KpiType == KpiType.MachineUtilization).ToList();
+            var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+                                                                && x.KpiType == KpiType.MachineUtilization).ToListAsync();
             _productionDomainContext.Kpis.RemoveRange(toRemove);
             _productionDomainContext.SaveChanges();
             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);

@@ -30,7 +30,9 @@ namespace Master40.ViewComponents
                                         && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                         && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                         && x.SimulationType == simType);
-
+            var max = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
+                                        && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                        && x.SimulationNumber == Convert.ToInt32(paramsList[2])).Max(m => m.Value);
             var generateChartTask = Task.Run(() =>
             {
                 if (!kpi.Any())
@@ -69,7 +71,8 @@ namespace Master40.ViewComponents
             ViewData["BoxPlot"] = boxPlot;
             ViewData["Type"] = paramsList[1];
             ViewData["Data"] = kpi.Where(x => x.IsKpi == true).ToList();
-            ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
+            ViewData["Max"] = Math.Ceiling(max / 100) * 100;
+            //ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
             return View($"ProductLeadTimeBoxPlot");
         }
     }
