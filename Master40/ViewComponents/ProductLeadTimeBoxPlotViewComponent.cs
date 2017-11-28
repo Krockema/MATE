@@ -29,7 +29,7 @@ namespace Master40.ViewComponents
             var kpi = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
                                         && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                         && x.SimulationNumber == Convert.ToInt32(paramsList[2])
-                                        && x.SimulationType == simType);
+                                        && x.SimulationType == simType).ToList();
             var max = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
                                         && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                         && x.SimulationNumber == Convert.ToInt32(paramsList[2])).Max(m => m.Value);
@@ -41,7 +41,7 @@ namespace Master40.ViewComponents
                 }
 
                 var chart = new List<BoxPlot>();
-                var products = kpi.Select(x => x.Name).Distinct();
+                var products = kpi.Select(x => x.Name).Distinct().ToList();
                 var colors = new ChartColor();
                 int i = 0;
 
