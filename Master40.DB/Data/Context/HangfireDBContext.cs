@@ -16,7 +16,7 @@ namespace Master40.DB.Data.Context
     {
         public static void DbInitialize(HangfireDBContext context)
         {
-            context.Database.EnsureDeleted();
+            //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
         }
     }

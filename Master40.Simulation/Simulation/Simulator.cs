@@ -397,7 +397,6 @@ namespace Master40.Simulation.Simulation
             }
             _context.SaveChanges();
             _evaluationContext.SaveChanges();
-            
         }
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)
@@ -626,6 +625,7 @@ namespace Master40.Simulation.Simulation
         {
             
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
+            /*
             var filestream = System.IO.File.Create("D://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
@@ -640,6 +640,7 @@ namespace Master40.Simulation.Simulation
                 sw.WriteLine(item.Name);
             }
             sw.Dispose();
+            */
             //SaveCompletedContext(timetable,simulationId,simNumber);
             FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber,0);
             _processMrp.UpdateDemandsAndOrders(simulationId);
