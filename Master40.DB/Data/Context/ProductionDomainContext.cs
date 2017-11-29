@@ -108,7 +108,7 @@ namespace Master40.DB.Data.Context
         {
 
             ProductionOrderWorkSchedule hierarchyParent = null;
-            int hierarchyParentNumber = Int32.MaxValue;
+            var hierarchyParentNumber = int.MaxValue;
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
             {
@@ -124,10 +124,13 @@ namespace Master40.DB.Data.Context
         public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
-            //if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
+            if (provider == null || provider.ToList().Any(dppo => dppo.DemandRequester == null))
+                return new List<ProductionOrderWorkSchedule>();
             var requester =  (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into req
                     select req).ToList();
+            
+
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleRequester in requester)
             {
