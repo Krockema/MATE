@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using ChartJSCore.Models.Bar;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
+using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.Extensions;
 
@@ -36,7 +38,7 @@ namespace Master40.ViewComponents
                 }
                 */
                 // Create Chart Object
-                if (!_context.ProductionOrderWorkSchedules.Any())
+                if (!_context.SimulationWorkschedules.Any())
                 {
                     return null;
                 }
@@ -48,9 +50,11 @@ namespace Master40.ViewComponents
                 };
 
                 // charttype
-
+                var schedules =
+                    _context.SimulationWorkschedules.Where(
+                        x => x.SimulationConfigurationId == 1 && x.SimulationNumber == 1).ToList();
                 // use available hight in Chart
-                var data = new Data { Labels = GetRangeForSchedulingType(schedulingState) };
+                var data = new Data { Labels = GetRangeForSchedulingType(schedulingState, schedules) };
                 var machineGroups = _context.MachineGroups.Select(x => x.Id);
 
 
@@ -63,7 +67,7 @@ namespace Master40.ViewComponents
                     foreach (var id in machineGroups)
                     {
                         data.Datasets.Add(GetCapacityForMachineGroupById(id, Convert.ToInt32(data.Labels.First()),
-                            Convert.ToInt32(data.Labels.Last()), schedulingState));
+                            Convert.ToInt32(data.Labels.Last()), schedulingState, schedules));
                         var tempMax = Convert.ToInt32(data.Datasets.Last().Data.Max());
                         if (yMaxScale < tempMax)
                             yMaxScale = tempMax;
@@ -91,11 +95,12 @@ namespace Master40.ViewComponents
         /// creates Range for given Scheduling state
         /// </summary>
         /// <param name="schedulingState"></param>
+        /// <param name="schedules"></param>
         /// 1: Backward
         /// 2: Forward
         /// 3: Default
         /// <returns></returns>
-        private List<string> GetRangeForSchedulingType(int schedulingState)
+        private List<string> GetRangeForSchedulingType(int schedulingState, List<SimulationWorkschedule> schedules)
         {
             List<string> labeList = new List<string>();
             int min, max;
@@ -103,16 +108,16 @@ namespace Master40.ViewComponents
             switch (schedulingState)
             {
                 case 1:
-                    min = _context.ProductionOrderWorkSchedules.Min(x => x.StartBackward);
-                    max = _context.ProductionOrderWorkSchedules.Max(x => x.EndBackward);
+                    min = schedules.Where(x => x.SimulationType == SimulationType.BackwardPlanning).Min(x => x.Start);
+                    max = schedules.Where(x => x.SimulationType == SimulationType.BackwardPlanning).Max(x => x.End);
                     break;
                 case 2:
-                    min = _context.ProductionOrderWorkSchedules.Min(x => x.StartForward);
-                    max = _context.ProductionOrderWorkSchedules.Max(x => x.EndForward);
+                    min = schedules.Where(x => x.SimulationType == SimulationType.ForwardPlanning).Min(x => x.Start);
+                    max = schedules.Where(x => x.SimulationType == SimulationType.ForwardPlanning).Max(x => x.End);
                     break;
                 default:
-                    min = _context.ProductionOrderWorkSchedules.Min(x => x.Start);
-                    max = _context.ProductionOrderWorkSchedules.Max(x => x.End);
+                    min = schedules.Where(x => x.SimulationType == SimulationType.Central).Min(x => x.Start);
+                    max = schedules.Where(x => x.SimulationType == SimulationType.Central).Max(x => x.End);
                     break;
 /*
                 case 1:
@@ -139,7 +144,7 @@ namespace Master40.ViewComponents
 
 
 
-        private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange, int schedulingState)
+        private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange,int state, List<SimulationWorkschedule> simulationWorkschedule)
         {
             /*
             select ts.Time, Count(ts.Id)
@@ -160,24 +165,28 @@ namespace Master40.ViewComponents
                                                         }).ToList();
             */
 
-            var productionOrderWorkSchedulesBy = _context.ProductionOrderWorkSchedules.Where(x => x.MachineGroupId == machineGroupId).AsNoTracking();
+            
+            
+            var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(x => x.Machine == machineGroupId.ToString());
             
             var data = new List<double>();
             for (var i = minRange; i < maxRange; i++)
             {
                 int item;
-                switch (schedulingState)
-                {
-                    case 1:
-                        item = productionOrderWorkSchedulesBy.Count(x => x.StartBackward <= i && x.EndBackward > i);
+                switch (state)
+                    {
+                        case 1:
+                            item = productionOrderWorkSchedulesBy.Where(x => x.SimulationType == SimulationType.BackwardPlanning).Count(x => x.Start <= i && x.End > i);
+                            break;
+                        case 2:
+                            item = productionOrderWorkSchedulesBy.Where(x => x.SimulationType == SimulationType.ForwardPlanning).Count(x => x.Start <= i && x.End > i);
                         break;
-                    case 2:
-                        item = productionOrderWorkSchedulesBy.Count(x => x.StartForward <= i && x.EndForward > i);
+                        default:
+                            item = productionOrderWorkSchedulesBy.Where(x => x.SimulationType == SimulationType.Central).Count(x => x.Start <= i && x.End > i);
                         break;
-                    default:
-                        item = productionOrderWorkSchedulesBy.Count(x => x.Start <= i && x.End > i);
-                        break;
-                }
+                    }
+
+
                 data.Add(item);
             }
 

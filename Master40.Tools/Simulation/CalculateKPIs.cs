@@ -25,9 +25,9 @@ namespace Master40.Tools.Simulation
         public static void CalculateAllKpis(ProductionDomainContext context, int simulationId,
             SimulationType simulationType, int simulationNumber, bool final, int time = 0)
         {
-            CalculateLeadTime(context, simulationId, simulationType, simulationNumber, final, time);
-            CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, final, time);
-            CalculateTimeliness(context, simulationId, simulationType, simulationNumber, final, time);
+            CalculateLeadTime(context, simulationId,  simulationType,  simulationNumber, final, time);
+            CalculateMachineUtilization(context, simulationId,  simulationType,  simulationNumber, final, time);
+            CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final, time);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final, time);
             CalculateLayTimes(context, simulationId, simulationType, simulationNumber, final, time);
         }

@@ -44,9 +44,10 @@ namespace Master40.Controllers
         public void MrpProcessingAjax()
         {
             var jobId = 
-            BackgroundJob.Enqueue<IProcessMrp>(x =>
+            BackgroundJob.Enqueue<ISimulator>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
+                //_processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
+                _simulator.InitializeMrp(MrpTask.All, 1)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());
