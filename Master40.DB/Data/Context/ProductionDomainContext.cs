@@ -57,21 +57,21 @@ namespace Master40.DB.Data.Context
             return rs;
         }
 
-        public Task<List<SimulationWorkschedule>> GetFollowerProductionOrderWorkSchedules(SimulationWorkschedule simulationWorkSchedule)
+        public Task<List<SimulationWorkschedule>> GetFollowerProductionOrderWorkSchedules(SimulationWorkschedule simulationWorkSchedule, SimulationType type, List<SimulationWorkschedule> relevantItems)
         {
             var rs = Task.Run(() =>
             {
                 var priorItems = new List<SimulationWorkschedule>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
-                var maxHierarchy = SimulationWorkschedules.Where(x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
+                var maxHierarchy = relevantItems.Where(x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
                     .Max(x => x.HierarchyNumber);
 
                 if (maxHierarchy == simulationWorkSchedule.HierarchyNumber)
                 {
                     // get Previous Article
-                    priorItems.AddRange(SimulationWorkschedules
+                    priorItems.AddRange(relevantItems
                         .Where(x => x.ProductionOrderId == simulationWorkSchedule.ParentId
-                                && x.HierarchyNumber == SimulationWorkschedules
+                                && x.HierarchyNumber == relevantItems
                                     .Where(w => w.ProductionOrderId == simulationWorkSchedule.ParentId)
                                     .Min(m => m.HierarchyNumber)));
                 }
@@ -79,7 +79,7 @@ namespace Master40.DB.Data.Context
                 {
                     // get Previous Workschedule
                     var previousPows =
-                        SimulationWorkschedules.Where(
+                        relevantItems.Where(
                                 x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId
                                      && x.HierarchyNumber > simulationWorkSchedule.HierarchyNumber)
                             .OrderBy(x => x.HierarchyNumber).FirstOrDefault();

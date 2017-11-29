@@ -122,6 +122,7 @@ namespace Master40.Simulation.Simulation
                             SimulationId = simulationId
                         })
                         .ToList();
+                    _evaluationContext.SaveChanges();
                     FillSimulationWorkSchedules(list,simulationId,simulationNumber, task);
                 }
                 CopyResults.ExtractSimulationOrders(_context, _evaluationContext, simulationId, simulationNumber, SimulationType.BackwardPlanning);

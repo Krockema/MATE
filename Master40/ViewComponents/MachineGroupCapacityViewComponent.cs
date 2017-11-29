@@ -49,10 +49,13 @@ namespace Master40.ViewComponents
                     Options = new Options {MaintainAspectRatio = true}
                 };
 
+                var simType = (schedulingState == 1) ? SimulationType.BackwardPlanning : SimulationType.ForwardPlanning;
+                    if (schedulingState == 3) simType = SimulationType.Central;
+
                 // charttype
                 var schedules =
                     _context.SimulationWorkschedules.Where(
-                        x => x.SimulationConfigurationId == 1 && x.SimulationNumber == 1).ToList();
+                        x => x.SimulationConfigurationId == 1 && x.SimulationNumber == 1 && x.SimulationType == simType).ToList();
                 // use available hight in Chart
                 var data = new Data { Labels = GetRangeForSchedulingType(schedulingState, schedules) };
                 var machineGroups = _context.MachineGroups.Select(x => x.Id);
@@ -146,27 +149,7 @@ namespace Master40.ViewComponents
 
         private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange,int state, List<SimulationWorkschedule> simulationWorkschedule)
         {
-            /*
-            select ts.Time, Count(ts.Id)
-            from[ProductionOrderWorkSchedulesByTimeSteps] ts
-                join MachineGroupProductionOrderWorkSchedules ws on ts.MachineGroupProductionOrderWorkScheduleId = ws.Id
-            where Time< 9000 AND MachineGroupId = 1
-            group by Time, MachineGroupId
-            Order By Time
-            */
-            /*
-            var productionOrderWorkSchedulesBy =
-                _context.ProductionOrderWorkSchedulesByTimeSteps
-                    .Include(x => x.MachineGroupProductionOrderWorkSchedule)
-                    .Where(x => x.MachineGroupProductionOrderWorkSchedule.MachineGroupId == machineGroupId && x.Time < 9000)
-                    .GroupBy(x => x.Time).Select(n => new {
-                                                            MetricName = n.Key,
-                                                            MetricCount = n.Count()
-                                                        }).ToList();
-            */
-
-            
-            
+       
             var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(x => x.Machine == machineGroupId.ToString());
             
             var data = new List<double>();
@@ -185,8 +168,6 @@ namespace Master40.ViewComponents
                             item = productionOrderWorkSchedulesBy.Where(x => x.SimulationType == SimulationType.Central).Count(x => x.Start <= i && x.End > i);
                         break;
                     }
-
-
                 data.Add(item);
             }
 

@@ -324,7 +324,7 @@ namespace Master40.DB.Data.Initializer
                 BusinessPartnerId = businessPartner.Id,
                 CreationTime = 0,
                 Name = "BeispielOrder",
-                DueTime = 200
+                DueTime = 30
             };
             context.Add(order);
             context.SaveChanges();
