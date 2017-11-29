@@ -77,9 +77,9 @@ namespace Master40.ViewComponents
                 var cc = new ChartColor();
                 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>(), YAxesID="y-normal"};
-                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxesID= "y-diversity"};
-                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxesID="y-diversity"};
+                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>(), YAxisID="y-normal"};
+                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxisID= "y-diversity"};
+                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxisID="y-diversity"};
                 foreach (var machine in machines)
                 {
                     var percent = Math.Round(machine.Value * 100, 2);
@@ -108,7 +108,7 @@ namespace Master40.ViewComponents
                 {
                     new BarScale { Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
                     new BarScale {
-                        Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display ="false",
+                        Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display = false,
                         Id = "y-diversity", ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = false, FontSize = 12 },
                     },
                 };

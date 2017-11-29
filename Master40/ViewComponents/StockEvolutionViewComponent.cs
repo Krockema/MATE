@@ -73,7 +73,7 @@ namespace Master40.ViewComponents
                         SteppedLine = true,
                         LineTension = 0
                         , Hidden = (article.Equals("Dump-Truck") || article.Equals("Race-Truck")) ? false : true
-                        ,YAxesID = "first-y-axis"
+                        ,YAxisID = "first-y-axis"
                     };
                     data.Datasets.Add(lds);
 
