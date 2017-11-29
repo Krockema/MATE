@@ -43,7 +43,7 @@ namespace Master40.ViewComponents
                     XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
                 },
                 Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
-                Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold" }
+                Title = new Title { Text = "Machine Workloads", Position = "top", FontSize = 24, FontStyle = "bold" }
             };
 
 

@@ -22,7 +22,13 @@ namespace Master40.Tools.Simulation
             ExtractSimulationOrders(inMemmoryContext, productionDomainContext, simId, simNo, simType);
 
             var simConfig = productionDomainContext.SimulationConfigurations.Single(s => s.Id == simId);
-            if (simType == SimulationType.Central) { simConfig.CentralRuns += 1; } else { simConfig.DecentralRuns += 1; }
+            if (simType == SimulationType.Central) {
+                simConfig.CentralRuns += 1;
+                simConfig.CentralIsRunning = false;
+            } else {
+                simConfig.DecentralRuns += 1;
+                simConfig.DecentralIsRunning = false;
+            }
             productionDomainContext.SaveChanges();
 
 
@@ -32,8 +38,8 @@ namespace Master40.Tools.Simulation
         public static void ExtractSimulationOrders(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext, 
             int simId, int simNo, SimulationType simType)
         {
-            List<SimulationOrder> so = new List<SimulationOrder>();// i know not perfect ...
-            foreach (var item in inMemmoryContext.Orders)
+            List<SimulationOrder> so = new List<SimulationOrder>();
+            foreach (var item in inMemmoryContext.Orders.ToList())
             {
                 SimulationOrder set = new SimulationOrder();
                 item.CopyPropertiesTo<IOrder>(set);
@@ -51,22 +57,26 @@ namespace Master40.Tools.Simulation
         private static void ExtractKpis(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
             List<Kpi> kpis = new List<Kpi>();
-            foreach (var item in inMemmoryContext.Kpis)
+            //inMemmoryContext.Kpis.AsNoTracking().ToList();
+            foreach (var item in inMemmoryContext.Kpis.ToList())
             {
                 kpis.Add(item.CopyDbPropertiesWithoutId());
             }
+            //var kpis = inMemmoryContext.Kpis.ToList().Select(x => { x.Id = 0; return x; }).ToList();
+
+
             productionDomainContext.Kpis.AddRange(kpis);
             productionDomainContext.SaveChanges();
         }
 
         private static void ExtractWorkSchedules(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
-            List<SimulationWorkschedule> sw = new List<SimulationWorkschedule>();
-            foreach (var item in inMemmoryContext.SimulationWorkschedules)
-            {
-                sw.Add(item.CopyDbPropertiesWithoutId());
-            }
-
+           List<SimulationWorkschedule> sw = new List<SimulationWorkschedule>();
+           foreach (var item in inMemmoryContext.SimulationWorkschedules.ToList())
+           {
+               sw.Add(item.CopyDbPropertiesWithoutId());
+           }
+           
             productionDomainContext.SimulationWorkschedules.AddRange(sw);
             productionDomainContext.SaveChanges();
         }
@@ -74,7 +84,8 @@ namespace Master40.Tools.Simulation
         private static void ExtractStockExchanges(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
             List<StockExchange> se = new List<StockExchange>();
-            foreach (var item in inMemmoryContext.StockExchanges)
+            
+            foreach (var item in inMemmoryContext.StockExchanges.ToList())
             {
                 se.Add(item.CopyDbPropertiesWithoutId());
             }

@@ -147,7 +147,7 @@ namespace Master40.Simulation.Simulation
                 simConfig.Time = 0;
                 await OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
                 _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation, simNumber);
-                var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime, simConfig.DynamicKpiTimeSpan);
+                var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime);
                 UpdateStockExchangesWithInitialValues(simulationId, simNumber);
                 await Recalculate(timeTable,simulationId, simNumber, new List<ProductionOrderWorkSchedule>());
 
@@ -204,6 +204,7 @@ namespace Master40.Simulation.Simulation
                 //SaveCompletedContext(timeTable,simulationId,simNumber);
                 FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber,0);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
+                CalculateKpis.MachineSattleTime(_context,simulationId,SimulationType.Central, simNumber);
                 CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
                 RemoveSimulationWorkschedules();
                 CopyResults.Copy(_context, _evaluationContext, simulationId, simNumber, SimulationType.Central);
@@ -398,7 +399,6 @@ namespace Master40.Simulation.Simulation
             }
             _context.SaveChanges();
             _evaluationContext.SaveChanges();
-            
         }
 
         private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)
@@ -494,7 +494,7 @@ namespace Master40.Simulation.Simulation
                     }
                     _context.Update(item);
                     _context.SaveChanges();
-
+                    
                     timeTable.Items.Add(new PowsSimulationItem(_context)
                     {
                         End = item.EndSimulation,
@@ -503,6 +503,8 @@ namespace Master40.Simulation.Simulation
                         ProductionOrderId = item.ProductionOrderId,
                         ProductionOrderWorkScheduleId = item.Id,
                         SimulationState = SimulationState.Waiting,
+                        Quantity = item.ProductionOrder.Quantity
+                        
                     });
                     waitingItems.Remove(item);
                     item.ProducingState = ProducingState.Waiting;
@@ -512,17 +514,7 @@ namespace Master40.Simulation.Simulation
                 }
             }
             var recalc = (timeTable.RecalculateCounter + 1) * timeTable.RecalculateTimer;
-            var kpi = (timeTable.KpiCounter + 1) * timeTable.KpiTimer;
-            var nextcalc = recalc < kpi ? recalc : kpi;
-            if (timeTable.Timer < nextcalc) return timeTable;
-            if (kpi == nextcalc)
-            {
-                //SaveCompletedContext(timeTable,simulationId,simNumber);
-                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-                CalculateKpis.CalculateMachineUtilization(_context,simulationId,SimulationType.Central,simNumber,false, simConfig.Time);
-                timeTable.KpiCounter++;
-                return timeTable;
-            }
+            if (timeTable.Timer < recalc) return timeTable;
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
             timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && a.SimulationState != SimulationState.InProgress);
             UpdateWaitingItems(timeTable, waitingItems);
@@ -627,6 +619,7 @@ namespace Master40.Simulation.Simulation
         {
             
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
+            /*
             var filestream = System.IO.File.Create("D://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
@@ -641,6 +634,7 @@ namespace Master40.Simulation.Simulation
                 sw.WriteLine(item.Name);
             }
             sw.Dispose();
+            */
             //SaveCompletedContext(timetable,simulationId,simNumber);
             FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber,0);
             _processMrp.UpdateDemandsAndOrders(simulationId);

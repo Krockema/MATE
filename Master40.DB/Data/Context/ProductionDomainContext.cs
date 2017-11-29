@@ -108,7 +108,7 @@ namespace Master40.DB.Data.Context
         {
 
             ProductionOrderWorkSchedule hierarchyParent = null;
-            int hierarchyParentNumber = Int32.MaxValue;
+            var hierarchyParentNumber = int.MaxValue;
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
             {
@@ -124,10 +124,13 @@ namespace Master40.DB.Data.Context
         public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
-            //if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
+            if (provider == null || provider.ToList().Any(dppo => dppo.DemandRequester == null))
+                return new List<ProductionOrderWorkSchedule>();
             var requester =  (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into req
                     select req).ToList();
+            
+
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleRequester in requester)
             {
@@ -679,7 +682,8 @@ namespace Master40.DB.Data.Context
             var pos = ProductionOrders.Include(b => b.ProductionOrderWorkSchedule)
                                     .Include(a => a.DemandProviderProductionOrders)
                                     .Where(a => a.ArticleId == demand.ArticleId 
-                                        && (GetLatestEndFromProductionOrder(a)== null 
+                                        && (GetLatestEndFromProductionOrder(a)== null
+                                            || GetLatestEndFromProductionOrder(a) == 0
                                             || GetLatestEndFromProductionOrder(a)>=timer)).ToList();
             foreach (var po in pos)
             {
@@ -924,20 +928,20 @@ namespace Master40.DB.Data.Context
 
     
 
-    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType)
+    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, List<SimulationWorkschedule> schedules)
         {
             var children = new List<SimulationWorkschedule>();
 
-            //not fit for lotsizes > 1
-            /*children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")).ToList() 
-                                                                : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();*/
+            //Todo: not the cleanest solution
+            children = simulationType == SimulationType.Central ? schedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + ",")
+                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + "]")
+                                                                                                            || a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")
+                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + ",")).ToList()
+                                                                : schedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
 
-            children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Contains(simulationWorkschedule.WorkScheduleId.ToString())).ToList()
-                                                                : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
-
-
+            
             if (!children.Any()) return simulationWorkschedule.Start;
-            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType)).ToList();
+            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType, schedules)).ToList();
             return startTimes.Min();
         }
     }

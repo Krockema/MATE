@@ -74,30 +74,43 @@ namespace Master40.ViewComponents
                 data.Datasets = new List<Dataset>();
 
                 var i = 0;
+                var cc = new ChartColor();
+                
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>()};
-
+                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>(), YAxesID="y-normal"};
+                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxesID= "y-diversity"};
+                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxesID="y-diversity"};
                 foreach (var machine in machines)
                 {
                     var percent = Math.Round(machine.Value * 100, 2);
                     // var wait = max - work;
                     barDataSet.Data.Add(percent);
-                    barDataSet.BackgroundColor.Add(new ChartColor().Color[i]);
+                    barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.4)");
+                    
+                    barDiversityInvisSet.Data.Add(percent - 5);
+                    barDiversityInvisSet.BackgroundColor.Add(ChartColor.Transparent);
+
+                    barDiversitySet.Data.Add(10);
+                    barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.9)");
+
                     i++;
                 }
 
                 data.Datasets.Add(barDataSet);
+                data.Datasets.Add(barDiversityInvisSet);
+                data.Datasets.Add(barDiversitySet);
+                
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() {new BarScale {Stacked = false}};
+                var xAxis = new List<Scale>() { new BarScale { Stacked = true, Id = "x-normal" } };
                 var yAxis = new List<Scale>() 
                 {
-                    new BarScale
-                    {
-                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100},
-                        Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = true, FontSize = 12 },
-                    }
+                    new BarScale { Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
+                    new BarScale {
+                        Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display ="false",
+                        Id = "y-diversity", ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = false, FontSize = 12 },
+                    },
                 };
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options()
@@ -194,7 +207,8 @@ namespace Master40.ViewComponents
                     Scales = new Scales { XAxes = xAxis, YAxes = yAxis },
                     MaintainAspectRatio = false,
                     Responsive = true,
-                    Legend = new Legend { Display = true, Position = "bottom"}
+                    Legend = new Legend { Display = true, Position = "bottom"},
+                    Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold", Display=false}
                 };
 
                 return chart;
