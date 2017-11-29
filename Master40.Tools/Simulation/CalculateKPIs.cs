@@ -176,18 +176,22 @@ namespace Master40.Tools.Simulation
                 : context.SimulationWorkschedules.Where(a =>
                     a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
-            var leadTimes = (from product in finishedProducts
-                let endTime = product.End
-                let startTime = context.GetEarliestStart(context, product, simulationType)
-                select new Kpi()
+            var leadTimes = new List<Kpi>();
+            var schedules = context.SimulationWorkschedules.Where(a => a.Start > simConfig.SettlingStart).ToList();
+            var i = 0;
+            foreach (var product in finishedProducts)
+            {
+                leadTimes.Add(new Kpi
                 {
-                    Value = endTime - startTime,
+                    Value = product.End - context.GetEarliestStart(context, product, simulationType, schedules),
                     Name = product.Article,
                     IsFinal = final
-                }).ToList();
+                });
+                Debug.WriteLine("Leadtimes Schleifendurchlauf: "+i);
+                i++;
+            }
 
-
-            var products = leadTimes.Select(x => x.Name).Distinct();
+            var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
             var leadTimesBoxPlot = new List<Kpi>();
             //calculate Average per article
 
@@ -251,10 +255,10 @@ namespace Master40.Tools.Simulation
                     if (double.IsNaN(leadTimesBoxPlot.Last().Value))
                         leadTimesBoxPlot.Last().Value = 0;
                 }
-                context.Kpis.AddRange(leadTimesBoxPlot);
-                context.SaveChanges();
-
+               
             }
+            context.Kpis.AddRange(leadTimesBoxPlot);
+            context.SaveChanges();
         }
 
         /// <summary>

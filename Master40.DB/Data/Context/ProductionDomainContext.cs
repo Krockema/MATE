@@ -928,20 +928,20 @@ namespace Master40.DB.Data.Context
 
     
 
-    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType)
+    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, List<SimulationWorkschedule> schedules)
         {
             var children = new List<SimulationWorkschedule>();
 
-            //not fit for lotsizes > 1
-            /*children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")).ToList() 
-                                                                : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();*/
+            //Todo: not the cleanest solution
+            children = simulationType == SimulationType.Central ? schedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + ",")
+                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + "]")
+                                                                                                            || a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")
+                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + ",")).ToList()
+                                                                : schedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
 
-            children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Contains(simulationWorkschedule.WorkScheduleId.ToString())).ToList()
-                                                                : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
-
-
+            
             if (!children.Any()) return simulationWorkschedule.Start;
-            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType)).ToList();
+            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType, schedules)).ToList();
             return startTimes.Min();
         }
     }
