@@ -39,8 +39,8 @@ namespace Master40.ViewComponents
                 Responsive = true,
                 Scales = new Scales
                 {
-                    YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
-                    XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
+                    YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
+                    XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
                 },
                 Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
                 Title = new Title { Text = "Machine Workloads", Position = "top", FontSize = 24, FontStyle = "bold" }

@@ -174,6 +174,7 @@
     //gantt.config.start_date = "2017-06-15 00:00";
     //gantt.config.end_date = "2017-07-15 00:00";
     gantt.config.fit_tasks = true;
+    gantt.config.sort = true;
     gantt.config.columns = [
         {name:"text", label:" Name",  width:"250px", tree:true },
         //{name:"start_date", label:"Start time", align: "center" },
@@ -195,8 +196,9 @@
         {name: "type", type: "typeselect", map_to: "type"},
         {name: "time", type: "duration", map_to: "auto"}
     ];
+    
     gantt.init("gantt_here");
-
+    
     function createBox(sizes, class_name, color){
         var box = document.createElement('div');
         box.style.cssText = [

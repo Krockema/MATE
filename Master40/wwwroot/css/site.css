@@ -101,3 +101,12 @@ textarea {
     /* symbol for "collapsed" panels */
     content: "\e080"; /* adjust as needed, taken from bootstrap.css */
 }
+
+
+.gantt_grid_head_cell {
+    display: block !important;
+}
+.gantt_sort {
+    left: 150px !important;
+    top: 20px !important;
+}

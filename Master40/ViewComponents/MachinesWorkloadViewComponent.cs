@@ -77,22 +77,26 @@ namespace Master40.ViewComponents
                 var cc = new ChartColor();
                 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>(), YAxisID="y-normal"};
-                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxisID= "y-diversity"};
-                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), YAxisID="y-diversity"};
+                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID ="y-normal"};
+                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID= "y-diversity"};
+                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID ="y-diversity"};
                 foreach (var machine in machines)
                 {
                     var percent = Math.Round(machine.Value * 100, 2);
                     // var wait = max - work;
                     barDataSet.Data.Add(percent);
                     barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.4)");
-                    
-                    barDiversityInvisSet.Data.Add(percent - 5);
+                    barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.7)");
+
+                    var varianz = machine.Count * 100;
+
+                    barDiversityInvisSet.Data.Add(percent - Math.Round(varianz / 2, 2));
                     barDiversityInvisSet.BackgroundColor.Add(ChartColor.Transparent);
+                    barDiversityInvisSet.HoverBackgroundColor.Add(ChartColor.Transparent);
 
-                    barDiversitySet.Data.Add(10);
-                    barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.9)");
-
+                    barDiversitySet.Data.Add(Math.Round(varianz, 2));
+                    barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.8)");
+                    barDiversitySet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "1)");
                     i++;
                 }
 
@@ -103,10 +107,10 @@ namespace Master40.ViewComponents
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() { new BarScale { Stacked = true, Id = "x-normal" } };
+                var xAxis = new List<Scale>() { new BarScale { Stacked = true, Id = "x-normal", Display = true } };
                 var yAxis = new List<Scale>() 
                 {
-                    new BarScale { Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
+                    new BarScale { Stacked = true, Display = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
                     new BarScale {
                         Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display = false,
                         Id = "y-diversity", ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = false, FontSize = 12 },
@@ -146,7 +150,7 @@ namespace Master40.ViewComponents
                     {
                         MaintainAspectRatio = true,
                         Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
-                        Title = new Title { Text = "Machine Workload over Time", Position = "top", FontSize = 24, FontStyle = "bold" }
+                        Title = new Title { Text = "Machine Workload over Time", Position = "top", FontSize = 24, FontStyle = "bold", Display = true }
                     }
                 };
 
@@ -192,12 +196,12 @@ namespace Master40.ViewComponents
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() { new RadialLinearScale { Stacked = false } };
+                var xAxis = new List<Scale>() { new RadialLinearScale { Stacked = false, Display = true } };
                 var yAxis = new List<Scale>()
                 {
                     new RadialLinearScale()
                     {
-                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100},
+                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display = true,
                         Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = true, FontSize = 12 },
                     }
                 };

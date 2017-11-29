@@ -123,7 +123,7 @@ namespace Master40.ViewComponents
                                                                         && x.SimulationType == _simulationType
                                                                         && x.SimulationNumber == _simulationNumber
                                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                            .OrderBy(x => x.ProductionOrderId).ThenBy(x => x.Start);
+                                                            .OrderBy(x => x.Machine).ThenBy(x => x.ProductionOrderId).ThenBy(x => x.Start);
 
 
                 foreach (var pow in pows)
