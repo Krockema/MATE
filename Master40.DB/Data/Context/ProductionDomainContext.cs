@@ -315,15 +315,15 @@ namespace Master40.DB.Data.Context
             
             var lotsize = SimulationConfigurations.Single(a => a.Id == simulationId).Lotsize;
             var productionOrders = new List<ProductionOrder>();
-            decimal bomQuantity;
+            /*decimal bomQuantity;
             if (bom != null)
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a => a.ArticleChildId == demand.ArticleId &&
                     a.ArticleParentId == bom.ProductionOrderParent.ArticleId).Quantity * lotsize;
             else 
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a =>a.ArticleChildId == demand.ArticleId && 
                     a.ArticleParentId == null).Quantity * lotsize;
-            //Todo: check ||
-            while (amount > 0 || bomQuantity > 0)
+            */
+            while (amount > 0)// || bomQuantity > 0)
             {
                 var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand),simulationId);
                 if (amount > 0)
@@ -340,7 +340,7 @@ namespace Master40.DB.Data.Context
                 }
                 SaveChanges();
                 amount -= lotsize;
-                bomQuantity -= lotsize;
+                //bomQuantity -= lotsize;
                 productionOrders.Add(productionOrder);
             }
             

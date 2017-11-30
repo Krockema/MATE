@@ -341,7 +341,8 @@ namespace Master40.Simulation.Simulation
                         WorkScheduleId = pows.Id.ToString(),
                         WorkScheduleName = pows.Name,
                         SimulationType = SimulationType.Central,
-                        SimulationNumber = simulationNumber
+                        SimulationNumber = simulationNumber,
+                        
 
                     };
                     _context.Add(schedule);
