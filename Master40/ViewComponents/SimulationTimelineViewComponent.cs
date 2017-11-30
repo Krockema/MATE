@@ -22,7 +22,7 @@ namespace Master40.ViewComponents
         private int _orderId, _schedulingState, _simulationNumber, _simulationConfigurationId;
         private SimulationType _simulationType;
         private GanttContext _ganttContext;
-        private int _schedulingPage = 0, _maxPage = 0, _timeSpan;
+        private int _schedulingPage = 0, _maxPage = 1, _timeSpan;
 
         public SimulationTimelineViewComponent(ProductionDomainContext context)
         {
@@ -36,13 +36,6 @@ namespace Master40.ViewComponents
         /// </summary>
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
-
-            if (!_context.SimulationWorkschedules.Any())
-            {
-                return View("SimulationTimeline", _ganttContext);
-            }
-
-
             //.Definitions();
             var orders = new List<int>();
             _orderId = Convert.ToInt32(paramsList[0]);
@@ -68,18 +61,41 @@ namespace Master40.ViewComponents
                     _simulationType = SimulationType.Central;
                     break;
             }
+            // refill ViewData
+            // Fill Select Fields
+            var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
+            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
+            ViewData["SchedulingState"] = SchedulingState(_schedulingState);
+            ViewData["SimulationPage"] = _schedulingPage.ToString();
+            ViewData["SimulationType"] = _simulationType.ToString();
+            ViewData["SimulationNumber"] = _simulationNumber.ToString();
+            ViewData["SimulationConfiguration"] = _simulationConfigurationId.ToString();
+            // - 1 caus we start with 0
+            ViewData["MaxPage"] = _maxPage;
+
+            // if no data 
+            if (!_context.SimulationWorkschedules.Any())
+            {
+                return View("SimulationTimeline", _ganttContext); ;
+            }
+
+
             _timeSpan = _context.SimulationConfigurations.Single(x => x.Id == _simulationConfigurationId).DynamicKpiTimeSpan;
             ///// Needs some changes to Work. i.e. Reference SimulationOrder , Create SimulationOrderPart and writing it back
             // If Order is not selected.
             if (_orderId == -1)
             {   // for all Orders
-
                 await GetSchedulesForTimeSlotListAsync(_timeSpan * _schedulingPage, _timeSpan * _schedulingPage + _timeSpan, folowLinks);
             }
             else
             {  // for the specified Order
+                // temporary fix 
+                var tempType = (_simulationType == SimulationType.ForwardPlanning)
+                    ? SimulationType.BackwardPlanning
+                    : _simulationType;
+
                 orders = _context?.SimulationOrders.Where(x => x.OriginId == _orderId 
-                                                        && x.SimulationType == _simulationType
+                                                        && x.SimulationType == tempType
                                                         && x.SimulationNumber == _simulationNumber
                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
                                                         .Select(x => x.OriginId).ToList();
@@ -88,16 +104,8 @@ namespace Master40.ViewComponents
             }
             
 
-            // Fill Select Fields
-            var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
-            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
-            ViewData["SchedulingState"] = SchedulingState(_schedulingState);
-            ViewData["SimulationPage"] = _schedulingPage.ToString();
-            ViewData["SimulationType"] = _simulationType.ToString();
-            ViewData["SimulationNumber"] = _simulationNumber.ToString();
-            // - 1 caus we start with 0
-            ViewData["MaxPage"] = _maxPage - 1;
-            ViewData["SimulationConfiguration"] = _simulationConfigurationId.ToString();
+
+
 
             _ganttContext.Tasks = _ganttContext.Tasks.OrderBy(x => x.type).ToList();
             // return schedule
@@ -114,7 +122,10 @@ namespace Master40.ViewComponents
                 var pows = _context.SimulationWorkschedules.Where(x => x.OrderId == "[" + ordersPart.ToString() + "]"
                                                                         && x.SimulationType == _simulationType
                                                                         && x.SimulationNumber == _simulationNumber
-                                                                        && x.SimulationConfigurationId == _simulationConfigurationId);
+                                                                        && x.SimulationConfigurationId == _simulationConfigurationId)
+                                                            .OrderBy(x => x.Machine).ThenBy(x => x.ProductionOrderId).ThenBy(x => x.Start);
+
+
                 foreach (var pow in pows)
                 {
                     // check if head element is Created,
@@ -131,7 +142,7 @@ namespace Master40.ViewComponents
                             timeline.id
                         )
                     );
-                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow);
+                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow, _simulationType, pows.ToList());
 
                     if (!c.Any()) continue;
                     // create Links for this pow
@@ -182,7 +193,7 @@ namespace Master40.ViewComponents
 
                 if (folowLinks)
                 {
-                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow);
+                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow, _simulationType, pows.ToList());
 
                     if (!c.Any()) continue;
                     // create Links for this pow
@@ -314,10 +325,9 @@ namespace Master40.ViewComponents
         {
             // var itemList = new List<SelectListItem>();
             var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
-            if (_context.ProductionOrderWorkSchedules.Any())
+            if (_context.SimulationWorkschedules.Any(x => x.SimulationType == SimulationType.ForwardPlanning && x.Start > 0))
             {
-                if (_context.ProductionOrderWorkSchedules.Max(x => x.StartForward) != 0)
-                    itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
+                itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
             }
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });

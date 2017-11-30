@@ -4,17 +4,7 @@
 }
 
 
-<script>
-    function submitform() {
-        var value1 = $('#fcOrder').val();
-        var value2 = $('#fcState').val();
-        $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
-        loadGantt(value1, value2, 1, "ForwardPlanning", 1, 1);
-        loadCharts(value2)
-        //$('form').submit();
-    }
 
-</script>
 <hr/>
 <div class="container-fluid">
     <div class="row">
@@ -166,7 +156,13 @@
 
         
         function loadGantt(orderId, stateId, page, type, config, simNr) {
-            var source = "Mrp/ReloadGantt/" + orderId + "/"+ type + "/" + stateId + "/" + config + "/" + simNr + "/" + page;
+            if (stateId == 1) {
+                type = "BackwardPlanning"
+            } else {
+                type = "ForwardPlanning"
+            }
+            loadCharts(stateId);
+            var source = "Mrp/ReloadGantt/" + orderId + "/" + type + "/" + stateId + "/" + config + "/" + simNr + "/" + page;
             $.ajax({
                 url: source,
                 async: true,
