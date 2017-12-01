@@ -473,6 +473,7 @@ namespace Master40.Simulation.Simulation
                                  where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
                     var item = items.First(a => a.Start == items.Min(b => b.Start));
+                    
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
@@ -517,7 +518,7 @@ namespace Master40.Simulation.Simulation
             var recalc = (timeTable.RecalculateCounter + 1) * timeTable.RecalculateTimer;
             if (timeTable.Timer < recalc) return timeTable;
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
-            timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && a.SimulationState != SimulationState.InProgress);
+            timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && !(a.SimulationState == SimulationState.InProgress || a.SimulationState == SimulationState.Waiting));
             UpdateWaitingItems(timeTable, waitingItems);
             UpdateGoodsDelivery(timeTable,simulationId);
             timeTable.RecalculateCounter++;
@@ -615,6 +616,7 @@ namespace Master40.Simulation.Simulation
             var freeMachines = timeTable.ListMachineStatus.Where(a => a.Free).Select(a => a.MachineId).ToList();
             return freeMachines;
         }
+
 
         private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber, List<ProductionOrderWorkSchedule> waitingItems)
         {
