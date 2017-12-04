@@ -179,12 +179,6 @@ namespace Master40.Agents.Agents
             request.StockExchangeId =  Guid.NewGuid();
             StockReservation stockReservation = new StockReservation { DueTime = request.DueTime };
 
-            var insert = StockElement.StockExchanges
-                             .Where(x => x.RequiredOnTime <= request.DueTime &&
-                                         x.State != State.Finished &&
-                                         x.ExchangeType == ExchangeType.Insert)
-                             .Sum(x => x.Quantity);
-
             var withdrawl = StockElement.StockExchanges
                                 .Where(x => x.RequiredOnTime <= request.DueTime &&
                                             x.State != State.Finished &&
