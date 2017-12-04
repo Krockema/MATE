@@ -105,3 +105,4 @@ Chart.plugins.register({
         }
     },
 });
+
