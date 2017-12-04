@@ -639,7 +639,7 @@ namespace Master40.Simulation.Simulation
             sw.Dispose();
             */
             //SaveCompletedContext(timetable,simulationId,simNumber);
-            FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber,0);
+            FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().Where(a => a.SimulationState == SimulationState.Finished).ToList(), simulationId, simNumber,0);
             _processMrp.UpdateDemandsAndOrders(simulationId);
             var time = simConfig.Time;
             var maxAllowedTime = simConfig.Time + simConfig.MaxCalculationTime;
