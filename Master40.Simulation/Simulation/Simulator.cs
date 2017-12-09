@@ -177,30 +177,6 @@ namespace Master40.Simulation.Simulation
                 }
                 // Save Current Context to Database as Complext Json
                 // SaveContext();
-                if (_context.Orders.Any(a => a.State != State.Finished))
-                    _messageHub.SendToAllClients("still unfinished orders!");
-                _messageHub.SendToAllClients(waitingItems.Count+" waiting Items!");
-                var stocks = _context.Stocks.Where(a => a.Current > 0 && a.Article.ToBuild);
-                foreach (var stock in stocks)
-                {
-                    _messageHub.SendToAllClients("Article: "+stock.ArticleForeignKey + " Current: "+stock.Current);
-                }
-                var bom = _context.Demands.OfType<DemandProductionOrderBom>();
-                _messageHub.SendToAllClients(bom.Count(a => a.State != State.Finished)+" bom unfinished of "+bom.Count());
-                var boms = bom.Where(a => a.State != State.Finished).Select(a => a.ArticleId).Distinct();
-                foreach (var b in boms)
-                {
-                    _messageHub.SendToAllClients(b + " Article bom unfinished");
-                }
-                var op = _context.Demands.OfType<DemandOrderPart>();
-                _messageHub.SendToAllClients(op.Count(a => a.State != State.Finished) + " op unfinished of " + op.Count());
-                var ds = _context.Demands.OfType<DemandStock>();
-                _messageHub.SendToAllClients(ds.Count(a => a.State != State.Finished) + " ds unfinished of " + ds.Count());
-                _processMrp.UpdateDemandsAndOrders(simulationId);
-                var pows = _context.ProductionOrderWorkSchedules;
-                _messageHub.SendToAllClients(pows.Count(a => a.ProducingState != ProducingState.Finished)+" unfinished pows of " +pows.Count());
-                var po = _context.ProductionOrders;
-                
                 //SaveCompletedContext(timeTable,simulationId,simNumber);
                 FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber,0);
                 _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
@@ -452,6 +428,9 @@ namespace Master40.Simulation.Simulation
 
         private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
         {
+            var test1 = waitingItems.Where(a => a.Name.Contains("Glue")).ToList();
+            var test2 = test1.Select(a => a.End).ToList();
+            test2.Sort();
             if (!firstRunOfTheDay)
             {
                 timeTable = timeTable.ProcessTimeline(timeTable);
@@ -462,6 +441,7 @@ namespace Master40.Simulation.Simulation
             _context.SaveChanges();
             CheckForOrderRequests(timeTable);
             var freeMachineIds = GetFreeMachines(timeTable);
+            _messageHub.SendToAllClients("Free Machines: "+ JsonConvert.SerializeObject(freeMachineIds));
             if (waitingItems.Any() && freeMachineIds.Any())
             {
                 //Todo: no items fulfill AllSimulationChildrenFinished and exception at savecompletedcontext (invalidoperationexception)
@@ -473,7 +453,9 @@ namespace Master40.Simulation.Simulation
                                  where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
                     var item = items.First(a => a.Start == items.Min(b => b.Start));
-                    
+                    var test4 = timeTable.Items.OfType<PowsSimulationItem>()
+                        .Where(a => a.SimulationState != SimulationState.Finished).ToList();
+                    var test6 = waitingItems.Where(a => a.MachineId == 5 && (a.ProducingState == ProducingState.Waiting || a.ProducingState == ProducingState.Producing)).ToList();
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
@@ -518,7 +500,7 @@ namespace Master40.Simulation.Simulation
             var recalc = (timeTable.RecalculateCounter + 1) * timeTable.RecalculateTimer;
             if (timeTable.Timer < recalc) return timeTable;
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
-            timeTable.Items.RemoveAll(a => a.GetType() == typeof(PowsSimulationItem) && !(a.SimulationState == SimulationState.InProgress || a.SimulationState == SimulationState.Waiting));
+            timeTable.Items.RemoveAll(a => a.SimulationState == SimulationState.Finished);
             UpdateWaitingItems(timeTable, waitingItems);
             UpdateGoodsDelivery(timeTable,simulationId);
             timeTable.RecalculateCounter++;
@@ -622,7 +604,7 @@ namespace Master40.Simulation.Simulation
         {
             
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            /*
+            
             var filestream = System.IO.File.Create("D://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
@@ -637,7 +619,7 @@ namespace Master40.Simulation.Simulation
                 sw.WriteLine(item.Name);
             }
             sw.Dispose();
-            */
+            
             //SaveCompletedContext(timetable,simulationId,simNumber);
             FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().Where(a => a.SimulationState == SimulationState.Finished).ToList(), simulationId, simNumber,0);
             _processMrp.UpdateDemandsAndOrders(simulationId);
