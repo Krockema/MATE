@@ -51,7 +51,7 @@ namespace Master40.Agents
                 await simulator.SimulateAsync(0);
 
                 // Debug
-                Debuglog(context);
+                Debuglog(simulationContext: context, productionDomainContextContext: _productionDomainContext, simNr: simulationNumber, simId: simulationId);
 
                 var simulationNr = _productionDomainContext.GetSimulationNumber(simulationId, SimulationType.Decentral);
                 Statistics.UpdateSimulationId(simulationId, SimulationType.Decentral, simulationNumber);
@@ -103,7 +103,7 @@ namespace Master40.Agents
             return system;
         }
 
-        private void Debuglog(SimulationContext context)
+        private void Debuglog(SimulationContext simulationContext, ProductionDomainContext productionDomainContextContext, int simNr, int simId)
         {
             var itemlist = from val in Agent.AgentStatistics
                 group val by new { val.AgentType } into grouped
@@ -111,9 +111,26 @@ namespace Master40.Agents
 
             foreach (var item in itemlist)
             {
+                var count = Agent.AgentCounter.Count(x => x == item.Agent);
                 Debug.WriteLine(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) + "): " + item.Agent + " -> Runtime: " + item.ProcessingTime + " Milliseconds with " + item.Count + " Instructions Processed");
+                _productionDomainContext.Kpis.Add(
+                    new Kpi
+                    {
+                        SimulationType = SimulationType.Decentral,
+                        IsKpi = true,
+                        IsFinal = true,
+                        KpiType = KpiType.AgentStatistics,
+                        Name = item.Agent,
+                        Count = count,
+                        Value = Convert.ToDouble(item.Count),
+                        Time = Convert.ToInt32(item.ProcessingTime),
+                        SimulationNumber = simNr,
+                        SimulationConfigurationId = simId
+                    });
             }
-            foreach (var machine in context.ActiveProcesses.Where(x => x.GetType() == typeof(MachineAgent)))
+            _productionDomainContext.SaveChanges();
+
+            foreach (var machine in simulationContext.ActiveProcesses.Where(x => x.GetType() == typeof(MachineAgent)))
             {
                 var item = ((MachineAgent)machine);
                 Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
@@ -122,7 +139,7 @@ namespace Master40.Agents
             var jobs = SimulationWorkschedules.Count;
             Debug.WriteLine(jobs + " Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
             
-            foreach (var stock in context.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
+            foreach (var stock in simulationContext.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
             {
                 var item = ((StorageAgent)stock);
                 var count = item.StockElement.StartValue + (item.StockElement.StockExchanges.Where(x => x.ExchangeType == ExchangeType.Insert)
