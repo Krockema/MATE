@@ -111,7 +111,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/Simulate")]
         public async Task<IActionResult> Simulate()
         {
-            await _simulator.Simulate(1);
+            await _simulator.Simulate(3);
 
             await Task.Yield();
 
@@ -122,7 +122,7 @@ namespace Master40.Controllers
         public void SimulateAjax()
         {
             BackgroundJob.Enqueue<ISimulator>(x =>
-                _simulator.Simulate(1));
+                _simulator.Simulate(3));
         }
 
         public IActionResult Error()
