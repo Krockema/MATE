@@ -266,15 +266,23 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             //check for every child if its planned
             var child = GetHierarchyChild(schedule);
-            if (child != null && !plannedSchedules.Any(a => a.ProductionOrderId == child.ProductionOrderId && a.HierarchyNumber == child.HierarchyNumber) && child.ProducingState == ProducingState.Created)
-            {
+            if (child != null) return plannedSchedules
+                                          .Any(a => a.Id == child.Id)
+                                      || child.ProducingState == ProducingState.Waiting
+                                      || child.ProducingState == ProducingState.Producing
+                                      || child.ProducingState == ProducingState.Finished;
+            /*
+                && !plannedSchedules.Any(a => a.ProductionOrderId == child.ProductionOrderId 
+                                                        && a.HierarchyNumber == child.HierarchyNumber) 
+                                                        && child.ProducingState == ProducingState.Created)
                 return false;
-            }
-            if (child != null) return true;
+           
+            if (child != null) return true;*/
             var childs = GetBomChilds(schedule);
             if (childs == null) return true;
             return childs.All(childSchedule => plannedSchedules
-                    .Any(a => a.Id == childSchedule.Id) 
+                    .Any(a => a.Id == childSchedule.Id)
+                    || childSchedule.ProducingState == ProducingState.Waiting
                     || childSchedule.ProducingState == ProducingState.Producing 
                     || childSchedule.ProducingState == ProducingState.Finished);
             

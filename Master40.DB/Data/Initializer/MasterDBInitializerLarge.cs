@@ -342,7 +342,7 @@ namespace Master40.DB.Data.Initializer
             {
                 Name = "Lot 1, 8h, 8h, 0.2",
                 Lotsize = 1,
-                MaxCalculationTime = 480, // test  // 10080, // 7 days
+                MaxCalculationTime = 480,
                 OrderQuantity = 600,
                 Seed = 1340,
                 ConsecutiveRuns = 1,
