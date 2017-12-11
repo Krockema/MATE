@@ -76,14 +76,14 @@ namespace Master40.Simulation.Simulation
                 _context.GetWorkSchedulesFromDemand(demand, ref pows);
             }
             pows = pows.Distinct().ToList();
-            var test = pows.Where(a => a.ProductionOrder.DemandProviderProductionOrders.Any(b => b.State == State.Finished)).ToList();
+            /*var test = pows.Where(a => a.ProductionOrder.DemandProviderProductionOrders.Any(b => b.State == State.Finished)).ToList();
             while (test.Any())
             {
                 var item = test.First();
                 pows.Remove(item);
                 if (item != null)
                     test.Remove(item);
-            }
+            }*/
             foreach (var singlePows in pows)
             {
                 singlePows.StartSimulation = singlePows.Start;
@@ -428,9 +428,7 @@ namespace Master40.Simulation.Simulation
 
         private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
         {
-            var test1 = waitingItems.Where(a => a.Name.Contains("Glue")).ToList();
-            var test2 = test1.Select(a => a.End).ToList();
-            test2.Sort();
+            
             if (!firstRunOfTheDay)
             {
                 timeTable = timeTable.ProcessTimeline(timeTable);
@@ -453,9 +451,9 @@ namespace Master40.Simulation.Simulation
                                  where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
                                  select tT).ToList();
                     var item = items.First(a => a.Start == items.Min(b => b.Start));
-                    var test4 = timeTable.Items.OfType<PowsSimulationItem>()
+                    /*var test4 = timeTable.Items.OfType<PowsSimulationItem>()
                         .Where(a => a.SimulationState != SimulationState.Finished).ToList();
-                    var test6 = waitingItems.Where(a => a.MachineId == 5 && (a.ProducingState == ProducingState.Waiting || a.ProducingState == ProducingState.Producing)).ToList();
+                    var test6 = waitingItems.Where(a => a.MachineId == 5 && (a.ProducingState == ProducingState.Waiting || a.ProducingState == ProducingState.Producing)).ToList();*/
                     //check children if they are finished
                     if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
                         (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
@@ -604,7 +602,7 @@ namespace Master40.Simulation.Simulation
         {
             
             var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            
+            /*
             var filestream = System.IO.File.Create("D://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
             foreach (var item in _context.Stocks)
@@ -619,7 +617,7 @@ namespace Master40.Simulation.Simulation
                 sw.WriteLine(item.Name);
             }
             sw.Dispose();
-            
+            */
             //SaveCompletedContext(timetable,simulationId,simNumber);
             FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().Where(a => a.SimulationState == SimulationState.Finished).ToList(), simulationId, simNumber,0);
             _processMrp.UpdateDemandsAndOrders(simulationId);
