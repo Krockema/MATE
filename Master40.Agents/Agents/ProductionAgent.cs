@@ -12,14 +12,14 @@ namespace Master40.Agents.Agents
     public class ProductionAgent : Agent
     {
         private RequestItem RequestItem { get; } // the for this Work
-        private List<RequestItem> RequestMaterials { get; set; }
+        //private List<RequestItem> RequestArtikles { get; set; }
         private List<ComunicationAgent> ComunicationAgents;
         private List<WorkItem> WorkItems { get; set; }
         public ProductionAgent(Agent creator, string name, bool debug, RequestItem requestItem) 
             : base(creator, name, debug)
         {
             RequestItem = requestItem;
-            RequestMaterials = new List<RequestItem>();
+            //RequestArtikles = new List<RequestItem>();
             ComunicationAgents = new List<ComunicationAgent>();
             DebugMessage("Woke up. My dueTime is :" + requestItem.DueTime);
             StartProductionAgent();

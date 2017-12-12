@@ -12,7 +12,6 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             GetOrCreateComunicationAgentForType,
-            GetComunicationAgentForType
         }
         
 
@@ -39,7 +38,7 @@ namespace Master40.Agents.Agents
             }
 
             // Tell the Machine the corrosponding Comunication Agent.
-            CreateAndEnqueueInstuction(methodName: "SetComunicationAgent",
+            CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.SetComunicationAgent.ToString(),
                                   objectToProcess: comunicationAgent,
                                       targetAgent: objects.SourceAgent);
 

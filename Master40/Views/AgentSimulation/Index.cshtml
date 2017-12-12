@@ -88,8 +88,8 @@
     }
     text {
         fill:black;
-        font-family:'Sans serif';
-        font-size: 12px;
+        /* font-family:'Sans serif'; */
+        font-size: 14px;
     }
 
     .link {
@@ -302,14 +302,14 @@
 
                             //"rgba(107, 166, 81, 0.6)", // dark green
                             //"rgba(98, 186, 184, 0.6)", // aqua
-                            "rgba(83, 172, 170, 0.6)", // light turquise
+                            "rgba(83, 172, 170, 0.4)", // light turquise
                             //"rgba(30, 123, 119, 0.6)", // light blue 
-                            "rgba(125, 180, 86, 0.6)", // green
+                            "rgba(125, 180, 86, 0.3)", // green
                             "rgba(32, 84, 96, 0.6)", // blue dianne
                             "rgba(4, 45, 64, 0.6)", // blue whale
                             "rgba(7, 52, 74, 0.6)" // midnight blue
                         ]);
-                    var names = ["Contract","System","Stock","Machine","Directory","Production","Comunication","Dispo"]
+                    var names = ["Contract", "System", "Stock", "Machine", "Directory", "Comunication", "Production","Dispo"]
                     var links = [ ];
                     var c = 0;
                     var nodes = [
@@ -324,8 +324,8 @@
                         y=y+dist;
                     } // 1 -> 100 
                     // Machine Agent 5/167250
-                    dist = 0.01;
-                    y = 0.85;
+                    dist = 0.025;
+                    y = 0.55;
                     for (var i = 1; i < 6; i++) {
                         nodes.push({x: 3, y: y});
                         y=y+dist;
@@ -341,10 +341,10 @@
                     nodes.push({x: 4, y: .8 });
                     // Production Agent 1000/9050
                     dist = 0.35/1000;
-                    y = 0.35/1000; 
+                    y = .55-0.35/1000; 
                     c = 0;
                     for (var i = 1; i < 1001; i++) {
-                        nodes.push({x: 5, y: y});
+                        nodes.push({x: 6, y: y});
                         y=y+dist; 
                         c++;
                         if(c == 20){
@@ -353,9 +353,9 @@
                         }
                     } // 134 - 1133
                     // Communication 3/178143
-                    nodes.push({x: 6, y: 1-.1 });
-                    nodes.push({x: 6, y: 1-.11 });
-                    nodes.push({x: 6, y: 1-.12 });
+                    nodes.push({x: 5, y: 1-.1 });
+                    nodes.push({x: 5, y: 1-.125 });
+                    nodes.push({x: 5, y: 1-.15 });
                     // Dipso 3200/8100
                     dist = .9/3200;
                     y = .9/3200;
@@ -385,13 +385,13 @@
                     }
                     // Contract to Dispo
                     for (var i = 1; i < 100; i++) {
-                        links.push({source: nodes[i], target: nodes[32*i+1134] });
+                        links.push({source: nodes[i], target: nodes[randomIntFromInterval(1134,4330)] });
+                        links.push({ source: nodes[i], target: nodes[randomIntFromInterval(1134, 4330)] });
+                        links.push({ source: nodes[i], target: nodes[randomIntFromInterval(1134, 4330)] });
                     }
                     // Stock to Dispo
-                    for (var i = 1; i < 27; i++) {
-                        for(var j = 1; j < 10; j++) {
-                            links.push({source: nodes[105+i], target: nodes[randomIntFromInterval(1138,4300)] });
-                        }
+                    for (var i = 1; i < 320; i++) {
+                        links.push({source: nodes[randomIntFromInterval(106,131)], target: nodes[(i*10)+1132]})
                     }
                     // Comunication to Production and Dispo
                     for (var i = 0; i < 3; i++) {
@@ -413,11 +413,11 @@
                         links.push({source: nodes[i], target: nodes[0] });
                     }
                     // Comunication to Machine
-                    links.push({source: nodes[1133], target: nodes[102] });
+                    links.push({source: nodes[1133], target: nodes[101] });
                     links.push({source: nodes[1133], target: nodes[102] }); 
                     links.push({source: nodes[1134], target: nodes[103] });
                     links.push({source: nodes[1135], target: nodes[104] }); 
-                    links.push({source: nodes[1135], target: nodes[104] }); 
+                    links.push({source: nodes[1135], target: nodes[105] }); 
             
             
                     var svg = d3.select(placement).append("svg")
@@ -440,7 +440,7 @@
                         .enter().append("text").attr("transform", function(d) { return "rotate(" + degrees(angle(d)) + ")"; }).text(function(d) {
                             return names[d]
                             //'Axis '+d;
-                        }).attr('x', radius.range()[1]-20).attr('y', 10);
+                        }).attr('x', radius.range()[1]-20).attr('y', 15);
 
                     svg.selectAll(".link")
                         .data(links)
