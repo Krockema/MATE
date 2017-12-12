@@ -388,7 +388,10 @@ namespace Master40.DB.Data.Context
             }
             //just produced articles have a reason and parents they got produced for so they cannot be reserved by another requester
             var amountJustProduced = Demands.OfType<DemandProductionOrderBom>()
-                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.Any() && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+                .Where(a => (a.State != State.Finished || a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(b => b.ProducingState == ProducingState.Created || b.ProducingState == ProducingState.Waiting))
+                            && a.ArticleId == demand.ArticleId
+                            && a.DemandProvider.Any()
+                            && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
             //plannedStock is the amount of this article in stock after taking out the amount needed
             var plannedStock = stock.Current + amountBought - demand.Quantity - amountReserved - amountJustProduced;
 
@@ -622,14 +625,18 @@ namespace Master40.DB.Data.Context
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);
             var justProduced = Demands.OfType<DemandProductionOrderBom>()
-                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.Any() && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+                .Where(a => (a.State != State.Finished || a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(b => b.ProducingState == ProducingState.Created || b.ProducingState == ProducingState.Waiting))
+                            && a.ArticleId == demand.ArticleId
+                            && a.DemandProvider.Any()
+                            && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+            
             //get the current amount of free available articles
             var current = stock.Current + bought - stockReservations - justProduced;
             decimal quantity;
             //either reserve all that are in stock or the amount needed
             quantity = demand.Quantity > current ? current : demand.Quantity;
             
-            return quantity == 0 ? null : CreateDemandProviderStock(demand, quantity);
+            return quantity <= 0 ? null : CreateDemandProviderStock(demand, quantity);
         }
 
         public decimal GetAmountBought(int articleId)
