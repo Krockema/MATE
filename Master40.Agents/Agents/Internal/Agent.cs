@@ -72,16 +72,13 @@ namespace Master40.Agents.Agents.Internal
                     continue;
                 }
 
-
                 // Statistic
                 InstructionCounter++;
                 TimerStart();
                 // Proceed with each one by one - Methods to call MUST be implemented by the Derived Agent itself
-
                 var method = this.GetType().GetMethod(doTask.MethodName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (method == null)
                     throw new NotImplementedException(Name  + " | Source: " + doTask.SourceAgent + " | Method Name: " + doTask.MethodName);
-
                 // call Method.
                 var invokeReturn = method.Invoke(this, new object[] { doTask }) ;
             }
