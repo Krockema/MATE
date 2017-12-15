@@ -105,6 +105,7 @@ namespace Master40.Agents
 
         private void Debuglog(SimulationContext simulationContext, ProductionDomainContext productionDomainContextContext, int simNr, int simId)
         {
+            _messageHub.SendToAllClients("Some statistics:");
             var itemlist = from val in Agent.AgentStatistics
                 group val by new { val.AgentType } into grouped
                 select new { Agent = grouped.First().AgentType, ProcessingTime = grouped.Sum(x => x.ProcessingTime), Count = grouped.Count().ToString() };
@@ -134,11 +135,16 @@ namespace Master40.Agents
             {
                 var item = ((MachineAgent)machine);
                 Debug.WriteLine("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
+                _messageHub.SendToAllClients("Agent " + item.Name + " Queue Length:" + item.Queue.Count);
             }
 
             var jobs = SimulationWorkschedules.Count;
             Debug.WriteLine(jobs + " Jobs processed in {0} minutes", Agent.AgentStatistics.Max(x => x.Time));
-            
+            _messageHub.SendToAllClients(jobs + " Jobs processed in " 
+                                              + Agent.AgentStatistics.Max(x => x.Time) +
+                                                " minutes");
+
+
             foreach (var stock in simulationContext.ActiveProcesses.Where(x => x.GetType() == typeof(StorageAgent)))
             {
                 var item = ((StorageAgent)stock);

@@ -3,6 +3,7 @@
     ViewBag.Title = "Agent Basic";
     Layout = "_Layout";
     List<string> machines = (List<string>)ViewData["machines"];
+
     Kpi DirectoryAgent = (Kpi)ViewData["DirectoryAgent"];
     Kpi MachineAgent = (Kpi)ViewData["MachineAgent"];
     Kpi ComunicationAgent = (Kpi)ViewData["ComunicationAgent"];
@@ -11,39 +12,45 @@
     Kpi StorageAgent = (Kpi)ViewData["StorageAgent"];
     Kpi DispoAgent = (Kpi)ViewData["DispoAgent"];
     Kpi ProductionAgent = (Kpi)ViewData["ProductionAgent"];
+    string holymoly = "";
 
+    try
+    {
+        holymoly = @"graph LR;
+                    System(<div style='width: 200px'><div class='floating'><img src='/images/Agents/System.svg' width='50'></div><div class='floating distance'><p><u>System Agent</u></p> Agent Count: " + @Html.Raw(SystemAgent.Count) + @"<br>Messages: " + SystemAgent.Value + @"<br>RunTime " + SystemAgent.Time + @"</div></div>)
+                    Contract(<div style='width: 200px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Contract Agent</u></p> Agent Count: " + ContractAgent.Count + @"<br>Messages: " + ContractAgent.Value + @"<br>RunTime " + ContractAgent.Time + @"</div></div>)
+                    Dispo(<div style='width: 250px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Dispo Agent</u></p> Agent Count: " + DispoAgent.Count + @"<br>Messages: " + DispoAgent.Value + @"<br>RunTime " + DispoAgent.Time + @"</div></div>)
+                    Dir(<div style='width: 200px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Directory Agent</u></p> Agent Count: " + DirectoryAgent.Count + @"<br>Messages: " + DirectoryAgent.Value + @"<br>RunTime " + DirectoryAgent.Time + @"</div></div>)
+                    Stock(<div style='width: 200px'><div class='floating'><img src='/images/Agents/StockAgent.svg' width='40'></div><div class='floating distance'><p><u>Stock Agent</u></p> Agent Count: " + StorageAgent.Count + @"<br>Messages: " + StorageAgent.Value + @"<br>RunTime " + StorageAgent.Time + @"</div></div>)    
+                    Production(<div style='width: 220px'><div class='floating'><img src='/images/Agents/engineer.png' width='40'></div><div class='floating distance'><p><u>Production Agent</u></p> Agent Count: " + ProductionAgent.Count + @"<br>Messages: " + ProductionAgent.Value + @"<br>RunTime " + ProductionAgent.Time + @"</div></div>)    
+                    Com(<div style='width: 250px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Communication Agent</u></p> Agent Count: " + ComunicationAgent.Count + @"<br>Messages: " + ComunicationAgent.Value + @"<br>RunTime " + ComunicationAgent.Time + @"</div></div>)    
+                    Machine(<div style='width: 220px'><div class='floating'><img src='/images/Agents/MachineAgent.png' width='40'></div><div class='floating distance'><p><u>Machine Agent</u></p> Agent Count: " + MachineAgent.Count + @"<br>Messages: " + MachineAgent.Value + @"<br>RunTime " + MachineAgent.Time + @"</div></div>)    
+                    Dir-->Machine
+                    System-->Dispo
+                    System-->Contract
+                    Contract-->Dispo
+                    Dispo-->Stock
+                    Stock-->Dispo
+                    Dispo-->Production
+                    Stock-->Production
+                    Production-->Stock
+                    Production-->Com
+                    Machine-->Dir
+                    Com-->Machine
+                    Dir-->Com
+                    Machine-->Com
+                    Com-->Production
+                    Dir-->Production
+                    Production-->Dir
+                    Dispo-->Contract
+                    Dispo-->System
+                    Contract-->System";
+    }
+    catch (Exception e)
+    {
 
-    string holymoly = @"graph LR;
-    System(<div style='width: 200px'><div class='floating'><img src='/images/Agents/System.svg' width='50'></div><div class='floating distance'><p><u>System Agent</u></p> Agent Count: " + @Html.Raw(SystemAgent.Count) + @"<br>Messages: " + SystemAgent.Value + @"<br>RunTime " + SystemAgent.Time + @"</div></div>)
-    Contract(<div style='width: 200px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Contract Agent</u></p> Agent Count: " + ContractAgent.Count + @"<br>Messages: " + ContractAgent.Value + @"<br>RunTime " + ContractAgent.Time + @"</div></div>)
-    Dispo(<div style='width: 250px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Dispo Agent</u></p> Agent Count: " + DispoAgent.Count + @"<br>Messages: " + DispoAgent.Value + @"<br>RunTime " + DispoAgent.Time + @"</div></div>)
-    Dir(<div style='width: 200px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Directory Agent</u></p> Agent Count: " + DirectoryAgent.Count + @"<br>Messages: " + DirectoryAgent.Value + @"<br>RunTime " + DirectoryAgent.Time + @"</div></div>)
-    Stock(<div style='width: 200px'><div class='floating'><img src='/images/Agents/StockAgent.svg' width='40'></div><div class='floating distance'><p><u>Stock Agent</u></p> Agent Count: " + StorageAgent.Count + @"<br>Messages: " + StorageAgent.Value + @"<br>RunTime " + StorageAgent.Time + @"</div></div>)    
-    Production(<div style='width: 220px'><div class='floating'><img src='/images/Agents/engineer.png' width='40'></div><div class='floating distance'><p><u>Production Agent</u></p> Agent Count: " + ProductionAgent.Count + @"<br>Messages: " + ProductionAgent.Value + @"<br>RunTime " + ProductionAgent.Time + @"</div></div>)    
-    Com(<div style='width: 250px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Communication Agent</u></p> Agent Count: " + ComunicationAgent.Count + @"<br>Messages: " + ComunicationAgent.Value + @"<br>RunTime " + ComunicationAgent.Time + @"</div></div>)    
-    Machine(<div style='width: 220px'><div class='floating'><img src='/images/Agents/MachineAgent.png' width='40'></div><div class='floating distance'><p><u>Machine Agent</u></p> Agent Count: " + MachineAgent.Count + @"<br>Messages: " + MachineAgent.Value + @"<br>RunTime " + MachineAgent.Time + @"</div></div>)    
-    Dir-->Machine
-    System-->Dispo
-    System-->Contract
-    Contract-->Dispo
-    Dispo-->Stock
-    Stock-->Dispo
-    Dispo-->Production
-    Stock-->Production
-    Production-->Stock
-    Production-->Com
-    Machine-->Dir
-    Com-->Machine
-    Dir-->Com
-    Machine-->Com
-    Com-->Production
-    Dir-->Production
-    Production-->Dir
-    Dispo-->Contract
-    Dispo-->System
-    Contract-->System";
+    }
     //class System back";
-
 }
 <link href="~/css/mermaid.css" rel="stylesheet" />
 <style>
@@ -114,7 +121,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        <h2>MRP </h2>
+                        <h2>Control Panel </h2>
                         <p>
                             Container to Release the Force
                         </p>
@@ -155,17 +162,46 @@
         <div class="col-md-9 col-sm-8">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-12">
-                        <h4>Agent Conections</h4>
-                        <div class="mermaid" >
-                            @holymoly
+                    <h2>Agent System</h2>
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse1" data-parent="#accordion">Processing Messages</a>
+                                </h4>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse in">
+                                <div class="mermaid">
+                                    @holymoly
+                                </div>
+                            </div>
                         </div>
-                        <h4>Processing State:</h4>
-                        <div id="" class="MessageDisplay"></div>
                     </div>
-                    <div class="row">
-                        <div id="graph-canvas"></div>
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse2" data-parent="#accordion">Agent Conections</a>
+                                </h4>
+                            </div>
+                            <div id="collapse2" class="panel-collapse collapse">
+                                <div id="" class="MessageDisplay"></div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#hiveplot" data-parent="#accordion">Agent Communication Network as Hive Plot</a>
+                                </h4>
+                            </div>
+                            <div id="hiveplot" class="panel-collapse collapse">
+                                <div id="graph-canvas"></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

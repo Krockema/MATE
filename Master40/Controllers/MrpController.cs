@@ -47,7 +47,8 @@ namespace Master40.Controllers
             BackgroundJob.Enqueue<ISimulator>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
-                _simulator.InitializeMrp(MrpTask.All, 1)
+                //_simulator.InitializeMrp(MrpTask.All, 1)
+                _simulator.Simulate(1)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());
