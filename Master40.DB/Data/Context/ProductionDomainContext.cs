@@ -57,21 +57,21 @@ namespace Master40.DB.Data.Context
             return rs;
         }
 
-        public Task<List<SimulationWorkschedule>> GetFollowerProductionOrderWorkSchedules(SimulationWorkschedule simulationWorkSchedule)
+        public Task<List<SimulationWorkschedule>> GetFollowerProductionOrderWorkSchedules(SimulationWorkschedule simulationWorkSchedule, SimulationType type, List<SimulationWorkschedule> relevantItems)
         {
             var rs = Task.Run(() =>
             {
                 var priorItems = new List<SimulationWorkschedule>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
-                var maxHierarchy = SimulationWorkschedules.Where(x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
+                var maxHierarchy = relevantItems.Where(x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
                     .Max(x => x.HierarchyNumber);
 
                 if (maxHierarchy == simulationWorkSchedule.HierarchyNumber)
                 {
                     // get Previous Article
-                    priorItems.AddRange(SimulationWorkschedules
+                    priorItems.AddRange(relevantItems
                         .Where(x => x.ProductionOrderId == simulationWorkSchedule.ParentId
-                                && x.HierarchyNumber == SimulationWorkschedules
+                                && x.HierarchyNumber == relevantItems
                                     .Where(w => w.ProductionOrderId == simulationWorkSchedule.ParentId)
                                     .Min(m => m.HierarchyNumber)));
                 }
@@ -79,7 +79,7 @@ namespace Master40.DB.Data.Context
                 {
                     // get Previous Workschedule
                     var previousPows =
-                        SimulationWorkschedules.Where(
+                        relevantItems.Where(
                                 x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId
                                      && x.HierarchyNumber > simulationWorkSchedule.HierarchyNumber)
                             .OrderBy(x => x.HierarchyNumber).FirstOrDefault();
@@ -108,7 +108,7 @@ namespace Master40.DB.Data.Context
         {
 
             ProductionOrderWorkSchedule hierarchyParent = null;
-            int hierarchyParentNumber = Int32.MaxValue;
+            var hierarchyParentNumber = int.MaxValue;
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
             {
@@ -124,10 +124,13 @@ namespace Master40.DB.Data.Context
         public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
-            //if (provider.First().DemandRequester == null) return new List<ProductionOrderWorkSchedule>();
+            if (provider == null || provider.ToList().Any(dppo => dppo.DemandRequester == null))
+                return new List<ProductionOrderWorkSchedule>();
             var requester =  (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into req
                     select req).ToList();
+            
+
             var pows = new List<ProductionOrderWorkSchedule>();
             foreach (var singleRequester in requester)
             {
@@ -219,7 +222,7 @@ namespace Master40.DB.Data.Context
                 var ids = new List<int>();
                 var requester = (from provider in po.DemandProviderProductionOrders
                     select provider.DemandRequester).ToList();
-                if (requester.First() == null) return ids;
+                if (!requester.Any() || requester.First() == null) return ids;
                 foreach (var singleRequester in requester)
                 {
                     if (singleRequester.GetType() == typeof(DemandProductionOrderBom))
@@ -312,15 +315,15 @@ namespace Master40.DB.Data.Context
             
             var lotsize = SimulationConfigurations.Single(a => a.Id == simulationId).Lotsize;
             var productionOrders = new List<ProductionOrder>();
-            decimal bomQuantity;
+            /*decimal bomQuantity;
             if (bom != null)
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a => a.ArticleChildId == demand.ArticleId &&
                     a.ArticleParentId == bom.ProductionOrderParent.ArticleId).Quantity * lotsize;
             else 
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a =>a.ArticleChildId == demand.ArticleId && 
                     a.ArticleParentId == null).Quantity * lotsize;
-            //Todo: check ||
-            while (amount > 0 || bomQuantity > 0)
+            */
+            while (amount > 0)// || bomQuantity > 0)
             {
                 var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand),simulationId);
                 if (amount > 0)
@@ -337,7 +340,7 @@ namespace Master40.DB.Data.Context
                 }
                 SaveChanges();
                 amount -= lotsize;
-                bomQuantity -= lotsize;
+                //bomQuantity -= lotsize;
                 productionOrders.Add(productionOrder);
             }
             
@@ -385,7 +388,10 @@ namespace Master40.DB.Data.Context
             }
             //just produced articles have a reason and parents they got produced for so they cannot be reserved by another requester
             var amountJustProduced = Demands.OfType<DemandProductionOrderBom>()
-                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.Any() && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+                .Where(a => (a.State != State.Finished || a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(b => b.ProducingState == ProducingState.Created || b.ProducingState == ProducingState.Waiting))
+                            && a.ArticleId == demand.ArticleId
+                            && a.DemandProvider.Any()
+                            && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
             //plannedStock is the amount of this article in stock after taking out the amount needed
             var plannedStock = stock.Current + amountBought - demand.Quantity - amountReserved - amountJustProduced;
 
@@ -619,14 +625,18 @@ namespace Master40.DB.Data.Context
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);
             var justProduced = Demands.OfType<DemandProductionOrderBom>()
-                .Where(a => a.State != State.Finished && a.ArticleId == demand.ArticleId && a.DemandProvider.Any() && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+                .Where(a => (a.State != State.Finished || a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(b => b.ProducingState == ProducingState.Created || b.ProducingState == ProducingState.Waiting))
+                            && a.ArticleId == demand.ArticleId
+                            && a.DemandProvider.Any()
+                            && a.DemandProvider.All(b => b.State == State.Finished)).Sum(a => a.Quantity);
+            
             //get the current amount of free available articles
             var current = stock.Current + bought - stockReservations - justProduced;
             decimal quantity;
             //either reserve all that are in stock or the amount needed
             quantity = demand.Quantity > current ? current : demand.Quantity;
             
-            return quantity == 0 ? null : CreateDemandProviderStock(demand, quantity);
+            return quantity <= 0 ? null : CreateDemandProviderStock(demand, quantity);
         }
 
         public decimal GetAmountBought(int articleId)
@@ -679,7 +689,8 @@ namespace Master40.DB.Data.Context
             var pos = ProductionOrders.Include(b => b.ProductionOrderWorkSchedule)
                                     .Include(a => a.DemandProviderProductionOrders)
                                     .Where(a => a.ArticleId == demand.ArticleId 
-                                        && (GetLatestEndFromProductionOrder(a)== null 
+                                        && (GetLatestEndFromProductionOrder(a)== null
+                                            || GetLatestEndFromProductionOrder(a) == 0
                                             || GetLatestEndFromProductionOrder(a)>=timer)).ToList();
             foreach (var po in pos)
             {
@@ -924,16 +935,25 @@ namespace Master40.DB.Data.Context
 
     
 
-    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType)
+    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, List<SimulationWorkschedule> schedules)
         {
+            if (simulationType == SimulationType.Decentral)
+            {
+                var start = context.SimulationWorkschedules.Where(x => x.OrderId.Equals(simulationWorkschedule.OrderId)).Min(m => m.Start);
+                return start;
+            }
+            
+            //Todo: not the cleanest solution
+            // yes and does not work with decentral solution. :-(
             var children = new List<SimulationWorkschedule>();
-
-            children = simulationType == SimulationType.Central ? context.SimulationWorkschedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")).ToList() 
-                                                                : context.SimulationWorkschedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
-
-
+            children = simulationType == SimulationType.Central ? schedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + ",")
+                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + "]")
+                                                                                                            || a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")
+                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + ",")).ToList()
+                                                                : schedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
+            
             if (!children.Any()) return simulationWorkschedule.Start;
-            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType)).ToList();
+            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType, schedules)).ToList();
             return startTimes.Min();
         }
     }

@@ -6,6 +6,8 @@
     if (chart != null)
     {
         raw = chart.CreateChartCode("MaschineChart_" + type);
+        // buxfix in ChartJS Core
+        raw = raw.Replace("\"false\"", "false").Replace("yAxesID", "yAxisID");
     }
 
 }

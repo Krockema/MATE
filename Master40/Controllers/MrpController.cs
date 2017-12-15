@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
+using Master40.DB.Enums;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 
@@ -43,9 +44,11 @@ namespace Master40.Controllers
         public void MrpProcessingAjax()
         {
             var jobId = 
-            BackgroundJob.Enqueue<IProcessMrp>(x =>
+            BackgroundJob.Enqueue<ISimulator>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
-                _processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
+                //_processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
+                //_simulator.InitializeMrp(MrpTask.All, 1)
+                _simulator.Simulate(1)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());
@@ -109,7 +112,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/Simulate")]
         public async Task<IActionResult> Simulate()
         {
-            await _simulator.Simulate(1);
+            await _simulator.Simulate(3);
 
             await Task.Yield();
 
@@ -120,7 +123,7 @@ namespace Master40.Controllers
         public void SimulateAjax()
         {
             BackgroundJob.Enqueue<ISimulator>(x =>
-                _simulator.Simulate(1));
+                _simulator.Simulate(3));
         }
 
         public IActionResult Error()
@@ -141,11 +144,12 @@ namespace Master40.Controllers
             //call to ReloadChart Diagramm
             return ViewComponent("MachineGroupCapacity", stateId);
         }
-        [HttpGet("[Controller]/ReloadGantt/Data")]
-        public IActionResult ReloadGanttData(int stateId)
+        [HttpGet("[Controller]/ReloadGantt/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}/{simulationPage}")]
+        public IActionResult ReloadGantt(string orderId, string simulationType, string state, string simulationConfigurationId, string simNumber, string simulationPage)
         {
-            //call to ReloadChart Diagramm
-            return ViewComponent("ProductionSchedule");
+            //call to ReloadChart Diagramm 
+            //return ViewComponent("ProductionSchedule");
+            return ViewComponent("SimulationTimeline", new List<string> {orderId, simulationType, state, simulationConfigurationId, simNumber, simulationPage });
         }
     }
 }

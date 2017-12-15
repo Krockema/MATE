@@ -316,3 +316,4 @@ Master40.Agents/bin/*
 Master40.NSimulate/obj/*
 Master40.NSimulate/bin/*
 /Master40.DB/Data/Context/RawContext.cs
+/Master40/appsettings.Azure.json

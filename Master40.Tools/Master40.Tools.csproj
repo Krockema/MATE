@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <Configurations>Debug;Release;Azure</Configurations>
    </PropertyGroup>
 
   <ItemGroup>

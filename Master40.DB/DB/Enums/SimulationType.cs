@@ -4,6 +4,8 @@
     {
         None,
         Central,
-        Decentral
+        Decentral,
+        ForwardPlanning,
+        BackwardPlanning
     }
 }

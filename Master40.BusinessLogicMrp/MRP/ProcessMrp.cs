@@ -421,6 +421,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
     public enum MrpTask
     {
+        None,
         All,
         Forward,
         Backward,

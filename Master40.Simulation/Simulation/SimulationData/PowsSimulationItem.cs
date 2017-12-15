@@ -24,6 +24,7 @@ namespace Master40.Simulation.Simulation
         public SimulationState SimulationState { get; set; }
         public bool NeedToAddNext { get; set; }
         public int SimulationId { get; set; }
+        public decimal Quantity { get; set; }
         
         public Task<bool> DoAtStart(int time)
         {
@@ -31,11 +32,15 @@ namespace Master40.Simulation.Simulation
             pows.ProducingState = ProducingState.Producing;
             var demandProvider = _context.ProductionOrderWorkSchedules.Single(a => a.Id == ProductionOrderWorkScheduleId).ProductionOrder
                 .DemandProviderProductionOrders;
-            foreach (var provider in demandProvider)
+            if (demandProvider != null && demandProvider.Any())
             {
-                provider.State = State.Producing;
+                foreach (var provider in demandProvider)
+                {
+                    provider.State = State.Producing;
+                }
+                _context.ProductionOrderWorkSchedules.Update(pows);
             }
-            _context.ProductionOrderWorkSchedules.Update(pows);
+            
             if (HasHierarchyChildren(pows))
             {
                 _context.SaveChanges();
@@ -105,12 +110,11 @@ namespace Master40.Simulation.Simulation
                 powslist.Max(a => a.HierarchyNumber)) return null;
             var articleId = _context.ProductionOrders.Single(a => a.Id == ProductionOrderId).ArticleId;
             var stock = _context.Stocks.Include(x => x.StockExchanges).Single(a => a.ArticleForeignKey == articleId);
-            var quantity = _context.SimulationConfigurations.Single(a => a.Id == SimulationId).Lotsize;
-            stock.Current += quantity;
+            stock.Current += Quantity;
             stock.StockExchanges.Add(new StockExchange()
             {
                 ExchangeType = ExchangeType.Insert,
-                Quantity = quantity,
+                Quantity = Quantity,
                 StockId = stock.Id,
                 RequiredOnTime = _context.SimulationConfigurations.Single(a => a.Id == SimulationId).Time,
                 Time = time

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Master40.DB.Enums;
 using ChartJSCore.Models.Bar;
@@ -28,8 +27,11 @@ namespace Master40.ViewComponents
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                && x.SimulationType == simType
                                                && x.SimulationNumber == Convert.ToInt32(paramsList[2])
-                                               && x.IsKpi == true).OrderBy(x => x.ValueMax).ToList();
-            
+                                               && x.IsKpi == true).OrderBy(x => x.Name).ToList();
+            var maxVal = _context.Kpis.Where(x => x.KpiType == KpiType.LayTime
+                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                                && x.SimulationNumber == Convert.ToInt32(paramsList[2])
+                                                && x.IsKpi == true).Max(x => x.ValueMax);
 
             var generateChartTask = Task.Run(() =>
             {
@@ -75,8 +77,12 @@ namespace Master40.ViewComponents
                 data.Datasets.Add(max);
                 data.Labels = lables;
 
-                var xAxis = new List<Scale>() { new BarScale { Stacked = true } };
-                var yAxis = new List<Scale>() { new BarScale { Stacked = true } }; // Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 }
+                var xAxis = new List<Scale>() { new BarScale
+                {
+                    Stacked = true, Display = true, Ticks = new Tick{ Max = Convert.ToInt32(maxVal), Display = true } , 
+                    Id = "first-x-axis", Type = "linear", ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 }
+                }, };
+                var yAxis = new List<Scale>() { new BarScale { Stacked = true, Display = true } }; // Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 }
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options() { Scales = new Scales { XAxes = xAxis, YAxes = yAxis }, MaintainAspectRatio = false, Responsive = true, Legend = new Legend { Display = false } };
                 chart.Data = data;

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
+using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.MessageSystem.MessageReciever;
 using Master40.MessageSystem.SignalR;
@@ -13,11 +15,20 @@ namespace Master40.Controllers
 {
     public class SimulationCompareController : Controller
     {
+        private readonly MasterDBContext _context;
+
+        public SimulationCompareController(MasterDBContext context)
+        {
+            _context = context;
+        }
+
+
         [HttpGet("[Controller]/Index/{simId}/{simNumber}")]
         public IActionResult Index(int simId, int simNumber)
         {
             ViewData["simId"] = simId;
             ViewData["simNr"] = simNumber;
+            ViewData["simName"] = _context.SimulationConfigurations.Single(x => x.Id == simId).Name.ToString();
             return View();
         }
 

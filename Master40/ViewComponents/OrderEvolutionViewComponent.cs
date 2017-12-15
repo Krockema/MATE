@@ -32,13 +32,21 @@ namespace Master40.ViewComponents
                 ChartColor cc = new ChartColor();
                 // charttype
                 chart.Type = "scatter";
-
+                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == Convert.ToInt32(paramsList[0]));
                 // use available hight in Chart
                 chart.Options = new LineOptions()
                 {
                     MaintainAspectRatio = false,
                     Responsive = true,
-
+                    Scales = new Scales
+                    {
+                        YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear", Display = true
+                                                , Ticks = new Tick{ Max = 50, Min = 0 , Display = true }
+                                                , ScaleLabel = new ScaleLabel { LabelString = "Quantity", Display = true, FontSize = 12 } } },
+                        XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true
+                                                , Ticks = new Tick{ Max = simConfig.SimulationEndTime , Min = 0 , Display = true }
+                                                , ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } }
+                    },
                     Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
                     Title = new Title { Text = "Order Evolution", Position = "top", FontSize = 24, FontStyle = "bold" }
                 };
@@ -51,7 +59,7 @@ namespace Master40.ViewComponents
                                                    && x.FinishingTime != 0); // filter unfinished orders
 
                 var data = new Data { Datasets = new List<Dataset>() };
-                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == Convert.ToInt32(paramsList[0]));
+                
                     var startVal = 0;
                     var ts = simConfig.DynamicKpiTimeSpan;
                     var input = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
