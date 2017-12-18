@@ -96,9 +96,7 @@ $(document).ready(function () {
 // chart js extension 
 Chart.plugins.register({
     afterDatasetsUpdate: function (chart) {
-        //debugger;			"Timeliness"	string
-
-        if (chart.chart.chart.config.options.title.text !== "Timeliness") {
+        if (chart.chart.chart.config.options.title.text === "Machine Workloads") {
             Chart.helpers.each(chart.getDatasetMeta(2).data, function (rectangle, index) {
                 rectangle._view.width = rectangle._model.width = 10;
             });

@@ -50,6 +50,7 @@ textarea {
 .modal-content {
     padding: 0 25px 10px;
     min-height: 315px;
+    width: max-content;
 }
 
 .modal-dialog {

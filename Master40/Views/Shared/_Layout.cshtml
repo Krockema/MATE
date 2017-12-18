@@ -78,10 +78,6 @@
                         <div class="col-md-12">
 
                             @RenderBody()
-                            <hr />
-                            <footer>
-                                <p>&copy; 2017 - Master ERP 4.0 (Martin, Krockert && Sebastian Seifert)</p>
-                            </footer>
                         </div>
                     </div>
                     <!-- /#page-content-wrapper -->
@@ -97,9 +93,12 @@
                     });
                 });
         </script>
-    
+    <footer style="position: absolute;">
+        <p>&copy; 2017 - Master ERP 4.0 (Martin, Krockert && Sebastian Seifert)</p>
+    </footer>
         @RenderSection("Scripts", required: false)
         <!-- number validation fix for '.' -> ',' -->
 
 </body>
+
 </html>

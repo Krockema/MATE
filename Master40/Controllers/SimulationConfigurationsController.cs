@@ -8,6 +8,7 @@ using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.Simulation.Simulation;
 using Master40.Tools.Simulation;
+using System.Collections.Generic;
 
 namespace Master40.Controllers
 {
@@ -196,10 +197,9 @@ namespace Master40.Controllers
         }
 
         [HttpGet("[Controller]/ConsolidateRuns/{simulationId}")]
-        public async Task ConsolidateRuns(int simulationId)
+        public async Task<IActionResult> ConsolidateRuns(int simulationId)
         {
-            var task = CalculateKpis.ConsolidateRuns(_context, simulationId);
-            await task;
+            return ViewComponent("MergedMachineWorkload", new List<string> { simulationId.ToString(), "1" });
         }
 
     }

@@ -53,8 +53,7 @@ namespace Master40.ViewComponents
 
                 Chart chart = new Chart
                 {
-                    Type = "bar",
-                    Options = new Options {MaintainAspectRatio = true}
+                    Type = "bar"                             
                 };
 
                 // charttype
@@ -119,10 +118,11 @@ namespace Master40.ViewComponents
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options()
                 {
-                    Scales = new Scales {XAxes = xAxis, YAxes = yAxis},
+                    Scales = new Scales { XAxes = xAxis, YAxes = yAxis },
                     MaintainAspectRatio = false,
                     Responsive = true,
-                    Legend = new Legend {Display = false}
+                    Title = new Title { Text = "Machine Workloads", Position = "top", FontSize = 24, FontStyle = "bold", Display = true },
+                    Legend = new Legend { Position = "bottom", Display = false }
                 };
 
                 return chart;

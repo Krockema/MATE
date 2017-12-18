@@ -91,7 +91,8 @@
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a id="consolidate" asp-action="ConsolidateRuns" asp-route-id="@item.Id" asp-controller="SimulationConfigurations" class="btn btn-default btn-xs" style="height: 34px" onclick="preventDefault">
+                                    <li><a id="consolidateRuns" asp-action="ConsolidateRuns" asp-route-id="@item.Id" asp-controller="SimulationConfigurations" 
+                                           data-target="#modal-container" data-toggle="modal" class="btn btn-default btn-xs" style="height: 30px">
                                         Consolidate Runs
                                     </a></li>
                                     <li role="separator" class="divider"></li>
