@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Master40.BusinessLogicCentral.HelperCapacityPlanning;
 using Master40.DB.Data.Context;
@@ -25,17 +26,18 @@ namespace Master40.BusinessLogicCentral.MRP
             _context = context;
         }
 
-
+        private int i;
 
         /// <summary>
         /// An algorithm for capacity-leveling. Writes Start/End in ProductionOrderWorkSchedule.
         /// </summary>
         public void GifflerThompsonScheduling(int simulationId)
         {
+            var notplanned = new List<ProductionOrderWorkSchedule>();
             var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
             //var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
             var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.Where(a =>
-                a.ProducingState == ProducingState.Created || a.ProducingState == ProducingState.Waiting).ToList();
+                a.ProducingState == ProducingState.Created).ToList();
             productionOrderWorkSchedules = ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
@@ -62,6 +64,11 @@ namespace Master40.BusinessLogicCentral.MRP
                         plannableSchedules.Add(parent);
                     _context.SaveChanges();
                 }
+                
+            }
+            if (productionOrderWorkSchedules.Count() != plannedSchedules.Count())
+            {
+                notplanned = productionOrderWorkSchedules.Where(pows => !plannedSchedules.Contains(pows)).ToList();
                 
             }
         }
@@ -259,15 +266,23 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             //check for every child if its planned
             var child = GetHierarchyChild(schedule);
-            if (child != null && !plannedSchedules.Any(a => a.ProductionOrderId == child.ProductionOrderId && a.HierarchyNumber == child.HierarchyNumber) && (child.ProducingState == ProducingState.Created || child.ProducingState == ProducingState.Waiting))
-            {
+            if (child != null) return plannedSchedules
+                                          .Any(a => a.Id == child.Id)
+                                      || child.ProducingState == ProducingState.Waiting
+                                      || child.ProducingState == ProducingState.Producing
+                                      || child.ProducingState == ProducingState.Finished;
+            /*
+                && !plannedSchedules.Any(a => a.ProductionOrderId == child.ProductionOrderId 
+                                                        && a.HierarchyNumber == child.HierarchyNumber) 
+                                                        && child.ProducingState == ProducingState.Created)
                 return false;
-            }
-            if (child != null) return true;
+           
+            if (child != null) return true;*/
             var childs = GetBomChilds(schedule);
             if (childs == null) return true;
             return childs.All(childSchedule => plannedSchedules
-                    .Any(a => a.Id == childSchedule.Id) 
+                    .Any(a => a.Id == childSchedule.Id)
+                    || childSchedule.ProducingState == ProducingState.Waiting
                     || childSchedule.ProducingState == ProducingState.Producing 
                     || childSchedule.ProducingState == ProducingState.Finished);
             
@@ -357,8 +372,11 @@ namespace Master40.BusinessLogicCentral.MRP
         private List<ProductionOrderWorkSchedule> GetBomChilds(
             ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
+            i++;
+            Debug.WriteLine("Schleifendurchlauf: " +i);
+
             var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms;
-            var bomChilds = (from bom in boms where bom.DemandProductionOrderBoms.Any()
+            var bomChilds = (from bom in boms where bom.DemandProductionOrderBoms != null && bom.DemandProductionOrderBoms.Any()
                              from provider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
                              select provider.ProductionOrder.ProductionOrderWorkSchedule into schedules
                              select schedules.Single(a => a.HierarchyNumber == schedules.Max(b => b.HierarchyNumber))

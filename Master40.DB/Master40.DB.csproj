@@ -6,6 +6,7 @@
       $(PackageTargetFallback);portable-net45+win8+wp8+wpa81;
     </PackageTargetFallback>
     <StartupObject />
+    <Configurations>Debug;Release;Azure</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.3" />

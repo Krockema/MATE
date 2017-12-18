@@ -3,6 +3,7 @@
     Layout = "_Layout";
     int simid = (int)ViewData["simId"];
     int simNr = (int)ViewData["simNr"];
+    string simName = (string)ViewData["simName"]; 
 }
 <style>
     .modal-dialog {
@@ -17,7 +18,7 @@
     }
 
 </style>
-<h2>Simulation Comparing</h2>
+<h2>Simulation Comparing for - @simName</h2>
 
 
 <hr/>

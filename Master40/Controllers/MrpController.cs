@@ -47,7 +47,8 @@ namespace Master40.Controllers
             BackgroundJob.Enqueue<ISimulator>(x =>
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All)
                 //_processMrp.CreateAndProcessOrderDemand(MrpTask.All, null,1, null)
-                _simulator.InitializeMrp(MrpTask.All, 1)
+                //_simulator.InitializeMrp(MrpTask.All, 1)
+                _simulator.Simulate(1)
             );
             BackgroundJob.ContinueWith(jobId, 
                 () => _messageHub.EndScheduler());
@@ -111,7 +112,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/Simulate")]
         public async Task<IActionResult> Simulate()
         {
-            await _simulator.Simulate(1);
+            await _simulator.Simulate(3);
 
             await Task.Yield();
 
@@ -122,7 +123,7 @@ namespace Master40.Controllers
         public void SimulateAjax()
         {
             BackgroundJob.Enqueue<ISimulator>(x =>
-                _simulator.Simulate(1));
+                _simulator.Simulate(3));
         }
 
         public IActionResult Error()

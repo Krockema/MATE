@@ -306,7 +306,7 @@ namespace Master40.DB.Data.Initializer
                 Lotsize = 5,
                 MaxCalculationTime = 1440, // test  // 10080, // 7 days
                 OrderQuantity = 600,
-                Seed = 1338,
+                Seed = 1340,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,
@@ -325,7 +325,7 @@ namespace Master40.DB.Data.Initializer
                 Lotsize = 10,
                 MaxCalculationTime = 1440, // test  // 10080, // 7 days
                 OrderQuantity = 600,
-                Seed = 1339,
+                Seed = 1340,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,
@@ -342,7 +342,7 @@ namespace Master40.DB.Data.Initializer
             {
                 Name = "Lot 1, 8h, 8h, 0.2",
                 Lotsize = 1,
-                MaxCalculationTime = 480, // test  // 10080, // 7 days
+                MaxCalculationTime = 480,
                 OrderQuantity = 600,
                 Seed = 1340,
                 ConsecutiveRuns = 1,
@@ -363,7 +363,7 @@ namespace Master40.DB.Data.Initializer
                 Lotsize = 1,
                 MaxCalculationTime = 1680, // test  // 10080, // 7 days
                 OrderQuantity = 600,
-                Seed = 1341,
+                Seed = 1340,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,
@@ -382,7 +382,7 @@ namespace Master40.DB.Data.Initializer
                 Lotsize = 1,
                 MaxCalculationTime = 1440, // test  // 10080, // 7 days
                 OrderQuantity = 600,
-                Seed = 1342,
+                Seed = 1340,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,
@@ -401,7 +401,7 @@ namespace Master40.DB.Data.Initializer
                 Lotsize = 1,
                 MaxCalculationTime = 1440, // test  // 10080, // 7 days
                 OrderQuantity = 600,
-                Seed = 1343,
+                Seed = 1340,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,
@@ -420,7 +420,7 @@ namespace Master40.DB.Data.Initializer
                 Lotsize = 1,
                 MaxCalculationTime = 1440, // test  // 10080, // 7 days
                 OrderQuantity = 600,
-                Seed = 1344,
+                Seed = 1340,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,

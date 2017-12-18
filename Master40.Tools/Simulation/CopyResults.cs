@@ -56,13 +56,13 @@ namespace Master40.Tools.Simulation
 
         private static void ExtractKpis(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
-            List<Kpi> kpis = new List<Kpi>();
+            //List<Kpi> kpis = new List<Kpi>();
             //inMemmoryContext.Kpis.AsNoTracking().ToList();
-            foreach (var item in inMemmoryContext.Kpis.ToList())
-            {
-                kpis.Add(item.CopyDbPropertiesWithoutId());
-            }
-            //var kpis = inMemmoryContext.Kpis.ToList().Select(x => { x.Id = 0; return x; }).ToList();
+            // foreach (var item in inMemmoryContext.Kpis.ToList())
+            // {
+            //     kpis.Add(item.CopyDbPropertiesWithoutId());
+            // }
+            var kpis = inMemmoryContext.Kpis.ToList().Select(x => { x.Id = 0; return x; }).ToList();
 
 
             productionDomainContext.Kpis.AddRange(kpis);

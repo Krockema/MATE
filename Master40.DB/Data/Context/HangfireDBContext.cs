@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
 {
@@ -16,7 +17,10 @@ namespace Master40.DB.Data.Context
     {
         public static void DbInitialize(HangfireDBContext context)
         {
-            //context.Database.EnsureDeleted();
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Azure")
+                
+         //   context.Database.EnsureDeleted();
+            // else
             context.Database.EnsureCreated();
         }
     }

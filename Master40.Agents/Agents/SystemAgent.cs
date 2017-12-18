@@ -115,6 +115,7 @@ namespace Master40.Agents.Agents
                     );
                 }
             }
+            _messageHub.SendToAllClients("Agent-System ready for Work");
         }
 
         private void OrderProvided(InstructionSet instructionSet)
@@ -130,7 +131,7 @@ namespace Master40.Agents.Agents
             order.FinishingTime = (int)Context.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
-            DebugMessage("Oder No:" + order.Id + " finished at " + Context.TimePeriod);
+            _messageHub.SendToAllClients("Oder No:" + order.Id + " finished at " + Context.TimePeriod);
             _messageHub.ProcessingUpdate(_simConfig.Id, orderCount++, SimulationType.Decentral, _simConfig.OrderQuantity);
         }
     }

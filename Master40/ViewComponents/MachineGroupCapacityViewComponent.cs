@@ -38,10 +38,6 @@ namespace Master40.ViewComponents
                 }
                 */
                 // Create Chart Object
-                if (!_context.SimulationWorkschedules.Any())
-                {
-                    return null;
-                }
 
                 var chart = new Chart
                 {
@@ -56,6 +52,11 @@ namespace Master40.ViewComponents
                 var schedules =
                     _context.SimulationWorkschedules.Where(
                         x => x.SimulationConfigurationId == 1 && x.SimulationNumber == 1 && x.SimulationType == simType).ToList();
+
+                // no data no Gant.
+                if (schedules.Count == 0)
+                    return null;
+
                 // use available hight in Chart
                 var data = new Data { Labels = GetRangeForSchedulingType(schedulingState, schedules) };
                 var machineGroups = _context.MachineGroups.Select(x => x.Id);
