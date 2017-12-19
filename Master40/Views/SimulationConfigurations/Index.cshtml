@@ -96,7 +96,10 @@
                                         Consolidate Runs
                                     </a></li>
                                     <li role="separator" class="divider"></li>
-                                    <li><a href="#">(Optional Show - LeadTime)</a></li>
+                                    <li><a id="consolidateRuns" asp-action="ConsolidateLeadTimes" asp-route-id="@item.Id" asp-controller="SimulationConfigurations"
+                                           data-target="#modal-container" data-toggle="modal" class="btn btn-default btn-xs" style="height: 30px">
+                                        (Optional Show - LeadTime) 
+                                    </a></li>
                                     <li><a href="#">(Optional Show - Timeliness)</a></li>
                                     <li><a href="#">(Optional Show - LayTimes)</a></li>
                                 </ul>

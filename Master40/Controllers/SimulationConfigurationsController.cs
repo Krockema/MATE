@@ -202,5 +202,11 @@ namespace Master40.Controllers
             return ViewComponent("MergedMachineWorkload", new List<string> { simulationId.ToString(), "1" });
         }
 
+        [HttpGet("[Controller]/ConsolidateLeadTimes/{simulationId}")]
+        public async Task<IActionResult> ConsolidateLeadTimes(int simulationId)
+        {
+            return ViewComponent("ProductLeadTime", new List<string> { simulationId.ToString(), "Decentral" , "1"  });
+        }
+
     }
 }

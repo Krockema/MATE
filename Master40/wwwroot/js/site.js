@@ -101,6 +101,14 @@ Chart.plugins.register({
                 rectangle._view.width = rectangle._model.width = 10;
             });
         }
+        if (chart.chart.chart.config.options.title.text === "BoxPlot LeadTimes") {
+            Chart.helpers.each(chart.getDatasetMeta(2).data, function (rectangle, index) {
+                rectangle._view.width = rectangle._model.width = 10;
+            });
+            Chart.helpers.each(chart.getDatasetMeta(5).data, function (rectangle, index) {
+                rectangle._view.width = rectangle._model.width = 10;
+            });
+        }
     },
 });
 

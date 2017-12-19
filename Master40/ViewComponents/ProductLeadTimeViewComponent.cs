@@ -19,16 +19,53 @@ namespace Master40.ViewComponents
             _context = context;
         }
 
+        private string BoxplotCallback()
+        {
+            return @"function(tooltipItem, data) {
+        		                    var text = '';
+                                  switch (tooltipItem.datasetIndex){
+              	                    case 0:
+                	                    text = 'Min: ' + data.datasets[0].data[0];
+
+                                        break; 
+              	                    case 1:
+                                      text = '2. Quantile: ' + Math.round(data.datasets[0].data[0] + data.datasets[1].data[0] + data.datasets[2].data[0]);
+                                break; 
+              	                    case 3:
+                	                    text = 'Median: ' + Math.round(data.datasets[0].data[0] + data.datasets[1].data[0] + data.datasets[2].data[0] + data.datasets[3].data[0]);
+                                break; 
+              	                    case 4:
+                	                    text = '3. Quantile: ' + Math.round(data.datasets[0].data[0] + data.datasets[1].data[0] + data.datasets[2].data[0] + data.datasets[3].data[0] + data.datasets[4].data[0]);
+                                break;   
+              	                    case 6:
+                	                    text = 'Max: ' + Math.round(data.datasets[0].data[0] + data.datasets[1].data[0] + data.datasets[2].data[0] + data.datasets[3].data[0] + data.datasets[4].data[0] + data.datasets[5].data[0] + data.datasets[6].data[0]);
+                                break;
+                                default:
+                	                    text = '';
+                            }
+                                  return text;              
+                              }";
+        }
 
 
+        /// <summary>
+        /// 1st = Param[0] = SimulationId
+        /// 2st = Param[1] = SimulationType
+        /// 3nd = Param[2] = SimulationNumber
+        /// </summary>
+        /// <param name="paramsList"></param>
+        /// <returns></returns>
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             // Determine Type and Data
             SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
             var kpi = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
-                                    && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
-                                    && x.SimulationType == simType);
-
+                                        && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                        && x.SimulationNumber == Convert.ToInt32(paramsList[2])
+                                        && x.SimulationType == simType).ToList();
+            var max = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
+                                        && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                                        && x.SimulationNumber == Convert.ToInt32(paramsList[2])).Max(m => m.Value);
             var generateChartTask = Task.Run(() =>
             {
                 if (!_context.SimulationWorkschedules.Any())
@@ -40,42 +77,103 @@ namespace Master40.ViewComponents
                 Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "doughnut";
+                chart.Type = "bar";
 
                 // use available hight in Chart
-                chart.Options = new PieOptions
+                chart.Options = new Options()
                 {
                     MaintainAspectRatio = false,
                     Responsive = true,
-                    CutoutPercantage = 80,
-                    Rotation = 0.8 * Math.PI,
-                    Circumference = 1.4 * Math.PI,
                     Legend = new Legend { Position = "bottom", Display = false },
-                    Title = new Title { Text = "Product Lead Time (Min)", Position = "top", FontSize = 24, FontStyle = "bold" }
-                };
-                var data = new Data
-                {
-                    Datasets = new List<Dataset>
-                        {
-                            new PieDataset
-                            {
-                                BackgroundColor = new[] { "rgba(102, 102, 102, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(255, 99, 132, 0.2)","rgba(102, 102, 102, 0.2)" },
-                                BorderColor = new[] { "rgba(102, 102, 102, 0.7)", "rgba(75, 192, 192, 0.7)", "rgba(54, 162, 235, 0.7)", "rgba(255, 99, 132, 0.7)", "rgba(102, 102, 102, 0.7)", },
-                                BorderWidth = 1,
-                           }
-                        },
-                    Labels = new[] {" ", "min", "avg", "max", " " },
+                    Title = new Title { Text = "BoxPlot LeadTimes", Position = "top", FontSize = 24, FontStyle = "bold" , Display = true },
+                    Scales = new Scales { YAxes = new List<Scale> { new Scale { Stacked = true, Display = true, Ticks = new Tick { Max = ((int)Math.Ceiling(max / 100.0)) * 100 } } },
+                                          XAxes = new List<Scale> { new Scale { Stacked = true , Display = true} },
+                    },
+                    Tooltips = new ToolTip { Mode = "x", Callbacks = new Callback { Label = BoxplotCallback() } }
                 };
 
+                var labels = kpi.Select(n => n.Name).Distinct().ToList();
+
+                var data = new Data
+                {
+                    Datasets = new List<Dataset>(),
+                    Labels = labels,
+                };
+                var dsClear = new BarDataset { Data = new List<double>(), Label = "dsClear", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var lowerStroke = new BarDataset { Data = new List<double>(), Label = "lowerStroke", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var firstQuartile = new BarDataset { Data = new List<double>(), Label = "fQ", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var secondQuartile = new BarDataset { Data = new List<double>(), Label = "Med", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var thirdQuartile = new BarDataset { Data = new List<double>(), Label = "uQ", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var fourthQuartile = new BarDataset { Data = new List<double>(), Label = "line", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var upperStroke = new BarDataset { Data = new List<double>(), Label = "upperStroke", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+
+
+                var products = kpi.Select(x => x.Name).Distinct().ToList();
+                var colors = new ChartColor();
+                int i = 3;
+
+                foreach (var product in products)
+                {
+                    var boxplotValues = kpi.Where(x => x.IsKpi == false && x.Name == product).OrderBy(x => x.Value).ToList();
+
+                    dsClear.Data.Add((double)boxplotValues.ElementAt(0).Value);
+                    dsClear.BackgroundColor.Add(ChartColor.Transparent);
+                    dsClear.BorderColor.Add(ChartColor.Transparent);
+                    dsClear.BorderWidth.Add(0);
+
+                    lowerStroke.Data.Add(5);
+                    lowerStroke.BackgroundColor.Add(ChartColor.Transparent);
+                    lowerStroke.BorderColor.Add("rgba(50, 50, 50, 1)");
+                    lowerStroke.BorderWidth.Add(2);
+
+                    var fq = (double)(boxplotValues.ElementAt(1).Value - boxplotValues.ElementAt(0).Value - 5);
+                    firstQuartile.Data.Add(fq);
+                    firstQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
+                    firstQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                    firstQuartile.BorderWidth.Add(0);
+
+                    var m = (double)(boxplotValues.ElementAt(2).Value - boxplotValues.ElementAt(1).Value);
+                    secondQuartile.Data.Add(m);
+                    secondQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
+                    secondQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                    secondQuartile.BorderWidth.Add(1);
+
+                    var up = (double)(boxplotValues.ElementAt(3).Value - boxplotValues.ElementAt(2).Value);
+                    thirdQuartile.Data.Add(up);
+                    thirdQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
+                    thirdQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                    thirdQuartile.BorderWidth.Add(1);
+
+                    var hs = (double)(boxplotValues.ElementAt(4).Value - boxplotValues.ElementAt(3).Value - 5);
+                    fourthQuartile.Data.Add(hs);
+                    fourthQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
+                    fourthQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                    fourthQuartile.BorderWidth.Add(0);
+
+                    upperStroke.Data.Add(5);
+                    upperStroke.BackgroundColor.Add(ChartColor.Transparent);
+                    upperStroke.BorderColor.Add("rgba(50, 50, 50, 1)");
+                    upperStroke.BorderWidth.Add(2);
+                    i=i+3;
+                }
+
+
+                data.Datasets.Add(dsClear);
+                data.Datasets.Add(lowerStroke);
+                data.Datasets.Add(firstQuartile);
+                data.Datasets.Add(secondQuartile);
+                data.Datasets.Add(thirdQuartile);
+                data.Datasets.Add(fourthQuartile);
+                data.Datasets.Add(upperStroke);
+
+
                 var avg = kpi.Sum(x => x.Value) / kpi.Count();
-                
                 var min = kpi.Min(x => x.Value);
-                var max = kpi.Max(x => x.Value);
                 var end = ((int)Math.Ceiling(max / 100.0)) * 100;
 
 
                 //data.Datasets[0].Data = new List<double> { 0, (int)(min/end*100), (int)(avg /end*100), (int)(max /end*100), end };
-                data.Datasets[0].Data = new List<double> { min, avg, 10, max, end-max };
+                //data.Datasets[0].Data = new List<double> { min, avg, 10, max, end-max };
 
                 chart.Data = data;
                 return chart;
@@ -84,7 +182,7 @@ namespace Master40.ViewComponents
             // create JS to Render Chart.
             ViewData["chart"] = await generateChartTask;
             ViewData["Type"] = paramsList[1];
-            ViewData["Data"] = kpi.ToList();
+            ViewData["Data"] = kpi.Where(w => w.IsFinal && w.IsKpi).ToList();
             ViewData["percentage"] = Math.Round(kpi.Sum(x => x.Value) / kpi.Count(), 0);
             return View($"ProductLeadTime");
         }
