@@ -52,8 +52,9 @@
                 <thead>
                 <tr>
                     <th>Machine</th>
-                    <th>Decentral</th>
-                    <th>Central</th>
+                    @for(var j = 0; j < chart.Data.Datasets.Count; j++ ) { 
+                        <td> Run @j</td>
+                    }
                 </tr>
                 </thead>
 

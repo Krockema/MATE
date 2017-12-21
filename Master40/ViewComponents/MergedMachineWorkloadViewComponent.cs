@@ -42,7 +42,7 @@ namespace Master40.ViewComponents
             _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[1]), (paramsList[0] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[7]), (paramsList[6] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[5]), (paramsList[4] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[1]), (paramsList[2] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[3]), (paramsList[2] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             
 
 
@@ -121,6 +121,7 @@ namespace Master40.ViewComponents
 
 
                     }
+                    i++;
                     i++;
                     data.Datasets.Add(barDataSet);
                     //data.Datasets.Add(barDiversityInvisSet);
