@@ -177,17 +177,15 @@ namespace Master40.Tools.Simulation
                     a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
-            var schedules = context.SimulationWorkschedules.Where(a => a.Start > simConfig.SettlingStart).ToList();
             var i = 0;
             foreach (var product in finishedProducts)
             {
                 leadTimes.Add(new Kpi
                 {
-                    Value = product.End - context.GetEarliestStart(context, product, simulationType, schedules),
+                    Value = product.End - context.GetEarliestStart(context, product.OrderId, simulationType),
                     Name = product.Article,
                     IsFinal = final
                 });
-                Debug.WriteLine("Leadtimes Schleifendurchlauf: "+i);
                 i++;
             }
 

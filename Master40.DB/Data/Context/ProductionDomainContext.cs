@@ -935,14 +935,22 @@ namespace Master40.DB.Data.Context
 
     
 
-    public int GetEarliestStart(ProductionDomainContext context, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, List<SimulationWorkschedule> schedules)
-        {
+    public int GetEarliestStart(ProductionDomainContext context, string orderId, SimulationType simulationType)
+    {
+        int start;
             if (simulationType == SimulationType.Decentral)
             {
-                var start = context.SimulationWorkschedules.Where(x => x.OrderId.Equals(simulationWorkschedule.OrderId)).Min(m => m.Start);
+                start = context.SimulationWorkschedules.Where(x => x.OrderId.Equals(orderId)).Min(m => m.Start);
                 return start;
             }
-            
+        orderId = orderId.Replace("[", "").Replace("]", "");
+            start = context.SimulationWorkschedules.Where(a =>
+                a.OrderId.Equals("[" + orderId.ToString() + ",")
+                || a.OrderId.Equals("," + orderId.ToString() + "]")
+                || a.OrderId.Equals("[" + orderId.ToString() + "]")
+                || a.OrderId.Equals("," + orderId.ToString() + ",")).Min(b => b.Start);
+            return start;
+            /*
             //Todo: not the cleanest solution
             // yes and does not work with decentral solution. :-(
             var children = new List<SimulationWorkschedule>();
@@ -954,7 +962,7 @@ namespace Master40.DB.Data.Context
             
             if (!children.Any()) return simulationWorkschedule.Start;
             var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType, schedules)).ToList();
-            return startTimes.Min();
+            return startTimes.Min();*/
         }
     }
 }
