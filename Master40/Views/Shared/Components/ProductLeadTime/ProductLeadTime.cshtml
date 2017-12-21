@@ -1,6 +1,6 @@
 @{
-    ViewBag.Title = "Mrp Basic";
-    Layout = "_Layout";
+    ViewBag.Title = "Product Lead Times";
+    //Layout = "_Layout";
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
@@ -43,7 +43,7 @@
         align-items: center; /* align vertical */
     }
 </style>
-<div class="row">
+<div class="row" style="width: 900px; height: 450px; padding: 10px, 0px, 10px, 0px;">
     <div class="col-md-6">
         <div class="LeadChartContainer">
             <div class="LeadChartLayer">
