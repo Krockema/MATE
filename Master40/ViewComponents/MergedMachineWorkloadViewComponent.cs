@@ -88,14 +88,14 @@ namespace Master40.ViewComponents
 
                 var i = 0;
                 var cc = new ChartColor();
-
+                
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                foreach (var t1 in _simList)
+                foreach (var t1 in _simList.OrderBy(x => x.Item1))
                 {
                     var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-normal" };
                     var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
                     var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
-                    barDataSet.Label = "Sim Id:" + t1.Item1 + t1.Item2;
+                    barDataSet.Label = "Sim Id:" + t1.Item1 + " " + t1.Item2;
                     foreach (var machineName in data.Labels)
                     {
 

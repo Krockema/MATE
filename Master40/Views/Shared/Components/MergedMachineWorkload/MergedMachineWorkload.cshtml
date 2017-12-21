@@ -53,7 +53,7 @@
                 <tr>
                     <th>Machine</th>
                     @for(var j = 0; j < chart.Data.Datasets.Count; j++ ) { 
-                        <td> Run @j</td>
+                        <th> @chart.Data.Datasets[j].Label</th>
                     }
                 </tr>
                 </thead>
