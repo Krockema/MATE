@@ -61,7 +61,7 @@
                 @for (int i = 0; i < 5; i++)
                 {
                     <tr>
-                        <td>@chart.Data.Labels[i]</td>
+                        <td  style="width: 120px; display: block;">@chart.Data.Labels[i]</td>
                        @for(var j = 0; j < chart.Data.Datasets.Count; j++ ) { 
                         <td>@chart.Data.Datasets[j].Data[i] %</td>
                        }
