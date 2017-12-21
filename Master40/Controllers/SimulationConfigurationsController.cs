@@ -199,7 +199,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}")]
         public async Task<IActionResult> ConsolidateRuns(int simId1, string simType1)
         {
-            return ViewComponent("MergedMachineWorkload", new List<string> {"2", "5", "2", "6", "2", "7" });
+            return ViewComponent("MergedMachineWorkload", new List<string> {simId1.ToString(),simType1 });
         }
 
         [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}/{simId4}/{simType4}")]
