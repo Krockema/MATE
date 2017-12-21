@@ -196,16 +196,34 @@ namespace Master40.Controllers
             }
         }
 
-        [HttpGet("[Controller]/ConsolidateRuns/{simulationId}")]
-        public async Task<IActionResult> ConsolidateRuns(int simulationId)
+        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}")]
+        public async Task<IActionResult> ConsolidateRuns(int simId1, string simType1)
         {
-            return ViewComponent("MergedMachineWorkload", new List<string> { simulationId.ToString(), "1" });
+            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1});
         }
 
-        [HttpGet("[Controller]/ConsolidateLeadTimes/{simulationId}")]
-        public async Task<IActionResult> ConsolidateLeadTimes(int simulationId)
+        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}/{simId4}/{simType4}")]
+        public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1, int simId2, string simType2, int simId3, string simType3, int simId4, string simType4)
         {
-            return ViewComponent("ProductLeadTime", new List<string> { simulationId.ToString(), "Decentral" , "1"  });
+            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3, simId4.ToString(), simType4 });
+        }
+
+        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}")]
+        public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1, int simId2, string simType2, int simId3, string simType3)
+        {
+            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3 });
+        }
+
+        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}")]
+        public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1, int simId2, string simType2)
+        {
+            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2 });
+        }
+
+        [HttpGet("[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}")]
+        public async Task<IActionResult> ConsolidateLeadTimes(int simId1)
+        {
+            return ViewComponent("ProductLeadTime", new List<string> { simId1.ToString() });
         }
 
     }

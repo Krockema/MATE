@@ -15,22 +15,36 @@ namespace Master40.ViewComponents
     public partial class MergedMachineWorkloadViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
-
+        private List<Tuple<int, SimulationType>> _simList;
+        
         public MergedMachineWorkloadViewComponent(ProductionDomainContext context)
         {
             _context = context;
+            _simList = new List<Tuple<int, SimulationType>>();
         }
 
 
         /// <summary>
-        /// 1st = Param[0] = SimulationId
-        /// 2nd = Param[1] = SimulationNumber
+        /// 1st = Param[0] = SimulationType
+        /// 2nd = Param[1] = SimulationId 1
+        /// 3rd = Param[2] = SimulationType
+        /// 4th = Param[3] = SimulationId 2
+        /// 5th = Param[4] = SimulationType
+        /// 6th = Param[5] = SimulationId 3
+        /// 7th = Param[6] = SimulationType
+        /// 8th = Param[7] = SimulationId 4
         /// </summary>
         /// <param name="paramsList"></param>
         /// <returns></returns>
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             Task<Chart> generateChartTask = GenerateChartTask(paramsList);
+            _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[1]), (paramsList[0] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[7]), (paramsList[6] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[5]), (paramsList[4] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[1]), (paramsList[2] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            
+
 
             // create JS to Render Chart.
             ViewData["chart"] = await generateChartTask;
@@ -52,15 +66,19 @@ namespace Master40.ViewComponents
                     Options = new Options { MaintainAspectRatio = true }
                 };
 
+                var machines = new List<Kpi>();
                 // charttype
+                foreach (var sim in _simList)
+                {
+                    var trick17 = _context.Kpis.Where(x => x.SimulationConfigurationId == sim.Item1
+                                                 && x.KpiType == KpiType.MachineUtilization
+                                                 && x.IsKpi && x.SimulationType == sim.Item2
+                                                 && x.SimulationNumber == 1
+                                                 && x.IsFinal).OrderByDescending(g => g.Name);
+                    machines.AddRange(trick17.ToList());
+                }
 
-                // use available hight in Chart
-                // use available hight in Chart
-                var machines = _context.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
-                                                        && x.KpiType == KpiType.MachineUtilization
-                                                        && x.IsKpi
-                                                        && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[1]))
-                                           .OrderByDescending(g => g.Name).ToList();
+
 
 
                 var data = new Data { Labels = machines.Select(n => n.Name).Distinct().ToList() };
@@ -72,43 +90,41 @@ namespace Master40.ViewComponents
                 var cc = new ChartColor();
 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                for (double t = 0.4; t < 0.8; t = t + 0.3)
+                foreach (var t1 in _simList)
                 {
                     var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-normal" };
                     var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
                     var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
-                    if (t == 0.4) barDataSet.Label = "Dentral";
-                    else barDataSet.Label = "Central";
+                    barDataSet.Label = "Sim Id:" + t1.Item1 + t1.Item2;
                     foreach (var machineName in data.Labels)
-                        {
+                    {
 
-                            Kpi machine = null;
-                            if (t == 0.4) machine = machines.Single(x => x.Name == machineName && x.SimulationType == SimulationType.Decentral);
-                            else machine = machines.Single(x => x.Name == machineName && x.SimulationType == SimulationType.Central);
+                        Kpi machine = null;
+                        var t  = machines.Where(x => x.Name == machineName && x.SimulationConfigurationId == t1.Item1 && x.SimulationType == t1.Item2).Distinct();
+                        machine = t.Single();
 
-                            var percent = Math.Round(machine.Value * 100, 2);
-                            // var wait = max - work;
-                            barDataSet.Data.Add(percent);
-                            barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + t.ToString().Replace(",", ".") + ")");// "0.4)");
-                            barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + (t + 0.3).ToString().Replace(",", ".") + ")"); //"0.7)");
+                        var percent = Math.Round(machine.Value * 100, 2);
+                        // var wait = max - work;
+                        barDataSet.Data.Add(percent);
+                        barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.4)");
+                        barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.7)");
 
-                            //var varianz = machine.Count * 100;
+                        //var varianz = machine.Count * 100;
 
-                            //barDiversityInvisSet.Data.Add(percent - Math.Round(varianz / 2, 2));
-                            //barDiversityInvisSet.BackgroundColor.Add(ChartColor.Transparent);
-                            //barDiversityInvisSet.HoverBackgroundColor.Add(ChartColor.Transparent);
-                            //
-                            //barDiversitySet.Data.Add(Math.Round(varianz, 2));
-                            //barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + (t + 0.3) + ")");
-                            //barDiversitySet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "1)");
+                        //barDiversityInvisSet.Data.Add(percent - Math.Round(varianz / 2, 2));
+                        //barDiversityInvisSet.BackgroundColor.Add(ChartColor.Transparent);
+                        //barDiversityInvisSet.HoverBackgroundColor.Add(ChartColor.Transparent);
+                        //
+                        //barDiversitySet.Data.Add(Math.Round(varianz, 2));
+                        //barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + (t + 0.3) + ")");
+                        //barDiversitySet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "1)");
 
 
-                        }
+                    }
                     i++;
                     data.Datasets.Add(barDataSet);
                     //data.Datasets.Add(barDiversityInvisSet);
                     //data.Datasets.Add(barDiversitySet);
-
                 }
                 
                 chart.Data = data;

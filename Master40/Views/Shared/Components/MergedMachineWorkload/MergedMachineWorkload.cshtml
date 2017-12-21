@@ -1,4 +1,5 @@
 @{
+    Layout = "_Layout";
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     if (chart != null)
@@ -60,8 +61,9 @@
                 {
                     <tr>
                         <td>@chart.Data.Labels[i]</td>
-                        <td>@chart.Data.Datasets[0].Data[i] %</td>
-                        <td>@chart.Data.Datasets[1].Data[i] %</td>
+                       @for(var j = 0; j < chart.Data.Datasets.Count; j++ ) { 
+                        <td>@chart.Data.Datasets[j].Data[i] %</td>
+                       }
                     </tr>
                 }
             </table>
