@@ -73,11 +73,12 @@ namespace Master40.ViewComponents
                             LowerQuartile = (decimal)boxplotValues.ElementAt(1).Value,
                             LowestSample = (decimal)boxplotValues.ElementAt(0).Value,
                             Name = product + "<br> SimId:" + sim.Item1 + " " + sim.Item2,
-                            Color = colors.Color[i].Substring(0, colors.Color[i++].Length - 4)
+                            Color = colors.Color[i].Substring(0, colors.Color[i].Length - 4)
                         });
-                        i++;
-                        
+                        if (_simList.Count() == 1)  i++;
+
                     }
+                    i = i + 2;
 
                 }
                 
