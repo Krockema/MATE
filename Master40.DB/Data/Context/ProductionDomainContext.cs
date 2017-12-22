@@ -933,36 +933,28 @@ namespace Master40.DB.Data.Context
             return order;
         }
 
-    
 
-    public int GetEarliestStart(ProductionDomainContext context, string orderId, SimulationType simulationType)
-    {
-        int start;
-            if (simulationType == SimulationType.Decentral)
+
+        public int GetEarliestStart(ProductionDomainContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, List<SimulationWorkschedule> schedules = null)
+        {
+            
+            if (simulationType == SimulationType.Central)
             {
-                start = context.SimulationWorkschedules.Where(x => x.OrderId.Equals(orderId)).Min(m => m.Start);
+                var orderId = simulationWorkschedule.OrderId.Replace("[", "").Replace("]", "");
+                var start = kpiContext.SimulationWorkschedules.Where(a =>
+                    a.OrderId.Equals("[" + orderId.ToString() + ",")
+                    || a.OrderId.Equals("," + orderId.ToString() + "]")
+                    || a.OrderId.Equals("[" + orderId.ToString() + "]")
+                    || a.OrderId.Equals("," + orderId.ToString() + ",")).Min(b => b.Start);
                 return start;
             }
-        orderId = orderId.Replace("[", "").Replace("]", "");
-            start = context.SimulationWorkschedules.Where(a =>
-                a.OrderId.Equals("[" + orderId.ToString() + ",")
-                || a.OrderId.Equals("," + orderId.ToString() + "]")
-                || a.OrderId.Equals("[" + orderId.ToString() + "]")
-                || a.OrderId.Equals("," + orderId.ToString() + ",")).Min(b => b.Start);
-            return start;
-            /*
-            //Todo: not the cleanest solution
-            // yes and does not work with decentral solution. :-(
+
             var children = new List<SimulationWorkschedule>();
-            children = simulationType == SimulationType.Central ? schedules.Where(a => a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + ",")
-                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + "]")
-                                                                                                            || a.ParentId.Equals("[" + simulationWorkschedule.WorkScheduleId.ToString() + "]")
-                                                                                                            || a.ParentId.Equals("," + simulationWorkschedule.WorkScheduleId.ToString() + ",")).ToList()
-                                                                : schedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
+            children = schedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
             
             if (!children.Any()) return simulationWorkschedule.Start;
-            var startTimes = children.Select(child => GetEarliestStart(context, child, simulationType, schedules)).ToList();
-            return startTimes.Min();*/
+            var startTimes = children.Select(child => GetEarliestStart(kpiContext, child, simulationType, schedules)).ToList();
+            return startTimes.Min();
         }
     }
 }

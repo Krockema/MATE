@@ -204,19 +204,6 @@ namespace Master40.XUnitTest.DBContext
                                             , true
                                             , 20160);
 
-            CalculateKpis.CalculateLeadTime(_productionDomainContext
-                                            , 6
-                                            , simType
-                                            , 1
-                                            , true
-                                            , 20160);
-
-            CalculateKpis.CalculateLeadTime(_productionDomainContext
-                                            , 7
-                                            , simType
-                                            , 1
-                                            , true
-                                            , 20160);
 
             //            CalculateKpis.CalculateAllKpis(
             //CalculateKpis.CalculateMachineUtilization(

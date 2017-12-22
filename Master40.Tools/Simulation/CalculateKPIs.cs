@@ -172,21 +172,27 @@ namespace Master40.Tools.Simulation
             //calculate lead times for each product
             var finishedProducts = final
                 ? context.SimulationWorkschedules
-                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart).ToList()
+                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20).ToList()
                 : context.SimulationWorkschedules.Where(a =>
-                    a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan &&
+                    a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
-            var i = 0;
+            var simulationWorkSchedules = context.SimulationWorkschedules.Where(
+                x => x.SimulationConfigurationId == simulationId
+                     && x.SimulationType == simulationType
+                     && x.SimulationNumber == simulationNumber).ToList();
+
+
+
             foreach (var product in finishedProducts)
             {
+                var val = product.End - context.GetEarliestStart(context, product, simulationType, simulationWorkSchedules);
                 leadTimes.Add(new Kpi
                 {
-                    Value = product.End - context.GetEarliestStart(context, product.OrderId, simulationType),
+                    Value = val,
                     Name = product.Article,
                     IsFinal = final
                 });
-                i++;
             }
 
             var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
@@ -197,7 +203,8 @@ namespace Master40.Tools.Simulation
             {
                 var relevantItems = leadTimes.Where(x => x.Name.Equals(product)).Select(x => x.Value);
                 // BoxPlot: without bounderys
-                var stat = relevantItems.FiveNumberSummary();
+                var enumerable = relevantItems as double[] ?? relevantItems.ToArray();
+                var stat = enumerable.FiveNumberSummary();
                 leadTimesBoxPlot.Add(new Kpi()
                 {
                     Name = product,
@@ -228,7 +235,7 @@ namespace Master40.Tools.Simulation
                 var lowerFence = stat[1] - 1.5 * interQuantileRange;
 
                 // cut them from the sample
-                relevantItems = relevantItems.Where(x => x > lowerFence && x < uperFence);
+                relevantItems = enumerable.Where(x => x > lowerFence && x < uperFence);
 
                 // BoxPlot: without bounderys
                 stat = relevantItems.FiveNumberSummary();
