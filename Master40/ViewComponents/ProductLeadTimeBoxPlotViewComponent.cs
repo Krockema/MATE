@@ -56,7 +56,7 @@ namespace Master40.ViewComponents
                 var colors = new ChartColor();
                 int i = 0;
 
-                foreach (var sim in _simList)
+                foreach (var sim in _simList.OrderBy(x => x.Item1))
                 {
                     foreach (var product in products)
                     {
@@ -72,10 +72,11 @@ namespace Master40.ViewComponents
                             Median = (decimal)boxplotValues.ElementAt(2).Value,
                             LowerQuartile = (decimal)boxplotValues.ElementAt(1).Value,
                             LowestSample = (decimal)boxplotValues.ElementAt(0).Value,
-                            Name = product + " \r\n SimId:" + sim.Item1 + " " + sim.Item2,
+                            Name = product + "<br> SimId:" + sim.Item1 + " " + sim.Item2,
                             Color = colors.Color[i].Substring(0, colors.Color[i++].Length - 4)
                         });
                         i++;
+                        
                     }
 
                 }
