@@ -193,24 +193,40 @@ namespace Master40.XUnitTest.DBContext
         public async Task TestKpiCalculation(SimulationType simType)
         {
             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                && x.KpiType == KpiType.MachineUtilization).ToListAsync();
+                                                                && x.KpiType == KpiType.LeadTime).ToListAsync();
             _productionDomainContext.Kpis.RemoveRange(toRemove);
             _productionDomainContext.SaveChanges();
             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-            CalculateKpis.MachineSattleTime(_productionDomainContext
-                                            , 1
+            CalculateKpis.CalculateLeadTime(_productionDomainContext
+                                            , 5
                                             , simType
-                                            , 1);
+                                            , 1
+                                            , true
+                                            , 20160);
+
+            CalculateKpis.CalculateLeadTime(_productionDomainContext
+                                            , 6
+                                            , simType
+                                            , 1
+                                            , true
+                                            , 20160);
+
+            CalculateKpis.CalculateLeadTime(_productionDomainContext
+                                            , 7
+                                            , simType
+                                            , 1
+                                            , true
+                                            , 20160);
 
             //            CalculateKpis.CalculateAllKpis(
-            CalculateKpis.CalculateMachineUtilization(
-            context: _productionDomainContext,
-                simulationId: 1,
-                simulationType: simType,
-                simulationNumber: 1,
-                final: true,
-                time: 20000);
-            
+            //CalculateKpis.CalculateMachineUtilization(
+            //context: _productionDomainContext,
+            //    simulationId: 1,
+            //    simulationType: simType,
+            //    simulationNumber: 1,
+            //    final: true,
+            //    time: 20000);
+
         }
 
         /*

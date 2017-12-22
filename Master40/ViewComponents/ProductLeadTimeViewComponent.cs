@@ -7,15 +7,18 @@ using ChartJSCore.Models;
 using Master40.DB.Data.Context;
 using Master40.Extensions;
 using Master40.DB.Enums;
+using Master40.DB.Models;
 
 namespace Master40.ViewComponents
 {
     public partial class ProductLeadTimeViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
+        private List<Tuple<int, SimulationType>> _simList;
 
         public ProductLeadTimeViewComponent(ProductionDomainContext context)
         {
+            _simList = new List<Tuple<int, SimulationType>>();
             _context = context;
         }
 
@@ -58,14 +61,24 @@ namespace Master40.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             // Determine Type and Data
-            SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
-            var kpi = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
-                                        && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
-                                        && x.SimulationNumber == Convert.ToInt32(paramsList[2])
-                                        && x.SimulationType == simType).ToList();
-            var max = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
-                                        && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
-                                        && x.SimulationNumber == Convert.ToInt32(paramsList[2])).Max(m => m.Value);
+            _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[0]), (paramsList[1] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[6]), (paramsList[7] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[4]), (paramsList[5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[2]), (paramsList[3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+
+            var kpi = new List<Kpi>();
+            // charttype
+            foreach (var sim in _simList)
+            {
+                var trick17 = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
+                                                       && x.SimulationConfigurationId == sim.Item1
+                                                       && x.SimulationNumber == 1
+                                                       && x.SimulationType == sim.Item2);
+                kpi.AddRange(trick17.ToList());
+            }
+
+            var max = kpi.Max(m => m.Value);
+
             var generateChartTask = Task.Run(() =>
             {
                 if (!_context.SimulationWorkschedules.Any())
@@ -110,51 +123,60 @@ namespace Master40.ViewComponents
 
                 var products = kpi.Select(x => x.Name).Distinct().ToList();
                 var colors = new ChartColor();
-                int i = 3;
+                int i = 0;
 
-                foreach (var product in products)
+                foreach (var sim in _simList)
                 {
-                    var boxplotValues = kpi.Where(x => x.IsKpi == false && x.Name == product).OrderBy(x => x.Value).ToList();
+                    foreach (var product in products)
+                    {
+                        var boxplotValues = kpi.Where(x => x.IsKpi == false && x.Name == product 
+                                                        && x.SimulationConfigurationId == sim.Item1
+                                                        && x.SimulationType == sim.Item2).OrderBy(x => x.Value)
+                            .ToList();
 
-                    dsClear.Data.Add((double)boxplotValues.ElementAt(0).Value);
-                    dsClear.BackgroundColor.Add(ChartColor.Transparent);
-                    dsClear.BorderColor.Add(ChartColor.Transparent);
-                    dsClear.BorderWidth.Add(0);
+                        dsClear.Data.Add((double) boxplotValues.ElementAt(0).Value);
+                        dsClear.BackgroundColor.Add(ChartColor.Transparent);
+                        dsClear.BorderColor.Add(ChartColor.Transparent);
+                        dsClear.BorderWidth.Add(0);
 
-                    lowerStroke.Data.Add(5);
-                    lowerStroke.BackgroundColor.Add(ChartColor.Transparent);
-                    lowerStroke.BorderColor.Add("rgba(50, 50, 50, 1)");
-                    lowerStroke.BorderWidth.Add(2);
+                        lowerStroke.Data.Add(5);
+                        lowerStroke.BackgroundColor.Add(ChartColor.Transparent);
+                        lowerStroke.BorderColor.Add("rgba(50, 50, 50, 1)");
+                        lowerStroke.BorderWidth.Add(2);
 
-                    var fq = (double)(boxplotValues.ElementAt(1).Value - boxplotValues.ElementAt(0).Value - 5);
-                    firstQuartile.Data.Add(fq);
-                    firstQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
-                    firstQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
-                    firstQuartile.BorderWidth.Add(0);
+                        var fq = (double) (boxplotValues.ElementAt(1).Value - boxplotValues.ElementAt(0).Value - 5);
+                        firstQuartile.Data.Add(fq);
+                        firstQuartile.BackgroundColor.Add("rgba(50, 50, 50, 1)");// .Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
+                        firstQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                        firstQuartile.BorderWidth.Add(0);
 
-                    var m = (double)(boxplotValues.ElementAt(2).Value - boxplotValues.ElementAt(1).Value);
-                    secondQuartile.Data.Add(m);
-                    secondQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
-                    secondQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
-                    secondQuartile.BorderWidth.Add(1);
+                        var m = (double) (boxplotValues.ElementAt(2).Value - boxplotValues.ElementAt(1).Value);
+                        secondQuartile.Data.Add(m);
+                        secondQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) +
+                                                           "0.8)");
+                        secondQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                        secondQuartile.BorderWidth.Add(1);
 
-                    var up = (double)(boxplotValues.ElementAt(3).Value - boxplotValues.ElementAt(2).Value);
-                    thirdQuartile.Data.Add(up);
-                    thirdQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
-                    thirdQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
-                    thirdQuartile.BorderWidth.Add(1);
+                        var up = (double) (boxplotValues.ElementAt(3).Value - boxplotValues.ElementAt(2).Value);
+                        thirdQuartile.Data.Add(up);
+                        thirdQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) +
+                                                          "0.8)");
+                        thirdQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                        thirdQuartile.BorderWidth.Add(1);
 
-                    var hs = (double)(boxplotValues.ElementAt(4).Value - boxplotValues.ElementAt(3).Value - 5);
-                    fourthQuartile.Data.Add(hs);
-                    fourthQuartile.BackgroundColor.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
-                    fourthQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
-                    fourthQuartile.BorderWidth.Add(0);
+                        var hs = (double) (boxplotValues.ElementAt(4).Value - boxplotValues.ElementAt(3).Value - 5);
+                        fourthQuartile.Data.Add(hs);
+                        fourthQuartile.BackgroundColor.Add("rgba(50, 50, 50, 1)"); //.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) +  "0.8)");
+                        fourthQuartile.BorderColor.Add("rgba(50, 50, 50, 1)");
+                        fourthQuartile.BorderWidth.Add(0);
 
-                    upperStroke.Data.Add(5);
-                    upperStroke.BackgroundColor.Add(ChartColor.Transparent);
-                    upperStroke.BorderColor.Add("rgba(50, 50, 50, 1)");
-                    upperStroke.BorderWidth.Add(2);
-                    i=i+3;
+                        upperStroke.Data.Add(5);
+                        upperStroke.BackgroundColor.Add(ChartColor.Transparent);
+                        upperStroke.BorderColor.Add("rgba(50, 50, 50, 1)");
+                        upperStroke.BorderWidth.Add(2);
+                        i = i + 2;
+                    }
+
                 }
 
 
@@ -165,7 +187,6 @@ namespace Master40.ViewComponents
                 data.Datasets.Add(thirdQuartile);
                 data.Datasets.Add(fourthQuartile);
                 data.Datasets.Add(upperStroke);
-
 
                 var avg = kpi.Sum(x => x.Value) / kpi.Count();
                 var min = kpi.Min(x => x.Value);

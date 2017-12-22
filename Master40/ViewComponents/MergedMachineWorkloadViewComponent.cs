@@ -39,10 +39,10 @@ namespace Master40.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             Task<Chart> generateChartTask = GenerateChartTask(paramsList);
-            _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[1]), (paramsList[0] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[7]), (paramsList[6] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[5]), (paramsList[4] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[3]), (paramsList[2] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[0]), (paramsList[1] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[6]), (paramsList[7] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[4]), (paramsList[5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[2]), (paramsList[3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             
 
 
