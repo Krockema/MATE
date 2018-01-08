@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <Configurations>Debug;Release;Azure</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
 
   </PropertyGroup>
 

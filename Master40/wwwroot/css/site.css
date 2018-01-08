@@ -50,7 +50,8 @@ textarea {
 .modal-content {
     padding: 0 25px 10px;
     min-height: 315px;
-    width: fit-content;
+    min-width: 400px;
+    /* width: fit-content; */
 }
 
 .modal-dialog {
@@ -82,7 +83,8 @@ textarea {
 
 .loading {
     background: white url(/images/loading.svg) no-repeat center;
-    min-height: 120px; 
+    min-height: 120px;
+    margin-top: 100px;
 }
 
 .panel-collapse-clickable {

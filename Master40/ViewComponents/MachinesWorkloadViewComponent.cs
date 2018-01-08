@@ -143,16 +143,7 @@ namespace Master40.ViewComponents
                     ? SimulationType.Decentral
                     : SimulationType.Central;
 
-                Chart chart = new Chart
-                {
-                    Type = "scatter",
-                    Options = new Options
-                    {
-                        MaintainAspectRatio = true,
-                        Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
-                        Title = new Title { Text = "Machine Workload over Time", Position = "top", FontSize = 24, FontStyle = "bold", Display = true }
-                    }
-                };
+                Chart chart = new Chart { Type = "scatter" };
 
                 // charttype
                 var cc = new ChartColor();
@@ -164,6 +155,7 @@ namespace Master40.ViewComponents
                                                         && !x.IsKpi
                                                         && !x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
                     .ToList();
+                var settlingTime = _context.SimulationConfigurations.First(x => x.Id == Convert.ToInt32(paramsList[0])).SettlingStart;
                 var machines = machinesKpi.Select(n => n.Name).Distinct().ToList();
                 var data = new Data { Labels = machines };
 
@@ -193,6 +185,21 @@ namespace Master40.ViewComponents
                     data.Datasets.Add(lds);
 
                 }
+
+                data.Datasets.Add(new LineScatterDataset()
+                {
+                    Data = new List<LineScatterData> { new LineScatterData { x = 0, y = 100 }, new LineScatterData { x = Convert.ToDouble(settlingTime), y = 100 } },
+                    BorderWidth = 1,
+                    Label = "Settling time",
+                    BackgroundColor = "rgba(0, 0, 0, 0.1)",
+                    BorderColor = "rgba(0, 0, 0, 0.3)",
+                    ShowLine = true,
+                    Fill = true,
+                    SteppedLine = false,
+                    LineTension = 0,
+                    PointRadius = new List<int> { 0, 0}
+                });
+
                 chart.Data = data;
 
                 // Specifie xy Axis
@@ -209,10 +216,10 @@ namespace Master40.ViewComponents
                 chart.Options = new Options()
                 {
                     Scales = new Scales { XAxes = xAxis, YAxes = yAxis },
-                    MaintainAspectRatio = false,
                     Responsive = true,
-                    Legend = new Legend { Display = true, Position = "bottom"},
-                    Title = new Title { Text = "Stock Evolution", Position = "top", FontSize = 24, FontStyle = "bold", Display=false}
+                    MaintainAspectRatio = true,
+                    Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
+                    Title = new Title { Text = "Machine Workload over Time", Position = "top", FontSize = 24, FontStyle = "bold", Display = true }
                 };
 
                 return chart;

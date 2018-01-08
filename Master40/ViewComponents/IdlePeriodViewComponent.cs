@@ -32,6 +32,7 @@ namespace Master40.ViewComponents
                                                 && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                 && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                                 && x.IsKpi == true).Max(x => x.ValueMax);
+            maxVal = Math.Ceiling(maxVal / 100) * 100;
 
             var generateChartTask = Task.Run(() =>
             {

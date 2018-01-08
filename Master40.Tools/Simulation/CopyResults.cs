@@ -62,7 +62,7 @@ namespace Master40.Tools.Simulation
             // {
             //     kpis.Add(item.CopyDbPropertiesWithoutId());
             // }
-            var kpis = inMemmoryContext.Kpis.ToList().Select(x => { x.Id = 0; return x; }).ToList();
+            var kpis = inMemmoryContext.Kpis.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList();
 
 
             productionDomainContext.Kpis.AddRange(kpis);

@@ -18,8 +18,7 @@ namespace Master40.DB.Data.Context
         public static void DbInitialize(HangfireDBContext context)
         {
             //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Azure")
-                
-         //   context.Database.EnsureDeleted();
+                //   context.Database.EnsureDeleted();
             // else
             context.Database.EnsureCreated();
         }

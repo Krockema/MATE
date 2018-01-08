@@ -34,6 +34,7 @@ namespace Master40.ViewComponents
                 chart.Type = "scatter";
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == Convert.ToInt32(paramsList[0]));
                 // use available hight in Chart
+                var max = Math.Floor((decimal)simConfig.SimulationEndTime / 1000) * 1000;
                 chart.Options = new LineOptions()
                 {
                     MaintainAspectRatio = false,
@@ -44,7 +45,7 @@ namespace Master40.ViewComponents
                                                 , Ticks = new Tick{ Max = 50, Min = 0 , Display = true }
                                                 , ScaleLabel = new ScaleLabel { LabelString = "Quantity", Display = true, FontSize = 12 } } },
                         XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true
-                                                , Ticks = new Tick{ Max = simConfig.SimulationEndTime , Min = 0 , Display = true }
+                                                , Ticks = new Tick{ Max = Convert.ToInt32(max), Min = 0, Display = true }
                                                 , ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } }
                     },
                     Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
@@ -87,8 +88,21 @@ namespace Master40.ViewComponents
                             startVal = i;
                         }
 
+                data.Datasets.Add(new LineScatterDataset()
+                {
+                    Data = new List<LineScatterData> { new LineScatterData { x = 0, y = 50 }, new LineScatterData { x = simConfig.SettlingStart, y = 50 } },
+                    BorderWidth = 1,
+                    Label = "Settling time",
+                    BackgroundColor = "rgba(0, 0, 0, 0.1)",
+                    BorderColor = "rgba(0, 0, 0, 0.3)",
+                    ShowLine = true,
+                    Fill = true,
+                    SteppedLine = false,
+                    LineTension = 0,
+                    PointRadius = new List<int> { 0, 0 }
+                });
 
-                    data.Datasets.Add(new LineScatterDataset()
+                data.Datasets.Add(new LineScatterDataset()
                     {
                         Data = input,
                         BorderWidth = 3,
