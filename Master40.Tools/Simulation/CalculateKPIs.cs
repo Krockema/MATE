@@ -172,8 +172,10 @@ namespace Master40.Tools.Simulation
             //calculate lead times for each product
             var finishedProducts = final
                 ? context.SimulationWorkschedules
+                    .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                     .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20).ToList()
-                : context.SimulationWorkschedules.Where(a =>
+                : context.SimulationWorkschedules
+                    .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a =>
                     a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
@@ -186,7 +188,7 @@ namespace Master40.Tools.Simulation
 
             foreach (var product in finishedProducts)
             {
-                var val = product.End - context.GetEarliestStart(context, product, simulationType, simulationWorkSchedules);
+                var val = product.End - context.GetEarliestStart(context, product, simulationType, simulationId, simulationWorkSchedules);
                 leadTimes.Add(new Kpi
                 {
                     Value = val,
@@ -295,11 +297,6 @@ namespace Master40.Tools.Simulation
                                                                 && a.SimulationType == simulationType
                                                                 && a.SimulationConfigurationId == simulationId)
                     .Select(x => new {x.Start, x.End, x.Machine}).Distinct().ToList();
-            if (final && content.Count(a => a.Start == 3745) > 1)
-            {
-                var x = content.Where(a => a.Start == 3745);
-                Debug.WriteLine("Verdacht bestätigt!");
-            }
                 
             //get SimulationTime
             var simulationTime = final
@@ -370,11 +367,15 @@ namespace Master40.Tools.Simulation
     
             */
             var orderTimeliness = final
-                ? context.SimulationOrders.Where(a =>
+                ? context.SimulationOrders
+                .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
+                .Where(a =>
                         a.State == State.Finished && a.CreationTime > simConfig.SettlingStart &&
                         a.CreationTime < simConfig.SimulationEndTime)
                     .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()
-                : context.SimulationOrders.Where(a =>
+                : context.SimulationOrders
+                    .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
+                    .Where(a =>
                         a.State == State.Finished && a.FinishingTime >= time - simConfig.DynamicKpiTimeSpan)
                     .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList();
 

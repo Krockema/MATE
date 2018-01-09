@@ -18,13 +18,13 @@
     }
 
 </style>
-<h2>Simulation Comparing for - @simName</h2>
-
+<h2>Simulation Comparing for - @simName </h2>
+	
 
 <hr/>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-6">
+        <div id="decentralcontent" class="col-md-6 collapse in">
             <div class="row">
                 <div class="col-md-12">
                     <div style="font-size: x-large" class="pull-left"><b>Decentral</b></div>
@@ -34,6 +34,7 @@
                        data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
                         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
                     </a> 
+                    <button class="btn btn-default pull-right" onclick="togglDecentral()"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></button>
                     <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Decentral', @simNr, 0)">Total</button>
                     <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Decentral', @simNr, 1)">Over Time</button>
                     <!-- Machine Workloads -->
@@ -87,7 +88,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div id="centralcontent" class="col-md-6 collapse in">
             <div class="row">
                 <div class="col-md-12">
                     <div style="font-size: x-large" class="pull-left"><b>Central</b></div>
@@ -95,6 +96,7 @@
                        data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
                         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
                     </a>
+                    <button class="btn btn-default pull-right" onclick="togglCentral()"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></button>
                     <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Central', @simNr, 0)">Total</button>
                     <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Central', @simNr, 1)">Over Time</button>
                     <!-- Machine Workloads -->
@@ -177,6 +179,22 @@
             ArticleIdlePeriod(@simid, "Decentral", @simNr);
             // Load Parts
         });
+
+        function togglDecentral() {
+            var dc = $('#decentralcontent');
+            if (dc.hasClass("in")){
+                dc.removeClass("in");
+                $('#centralcontent').removeClass("col-md-6").addClass("col-md-8 col-md-offset-2")
+            }
+        };
+
+        function togglCentral() {
+            var cc = $('#centralcontent');
+            if (cc.hasClass("in")){
+                cc.removeClass("in");
+                $('#decentralcontent').removeClass("col-md-6").addClass("col-md-8 col-md-offset-2")
+            }
+        };
 
 
         function MachineWorkLoads(simulationId, simType, simNr, overTime) {

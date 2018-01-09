@@ -39,8 +39,8 @@ namespace Master40.ViewComponents
             {
                 var trick17 = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
                                                        && x.SimulationConfigurationId == sim.Item1
-                                                       && x.SimulationNumber == 1);
-                                                       //&& x.SimulationType == sim.Item2);
+                                                       && x.SimulationNumber == 1
+                                                       && x.SimulationType == sim.Item2);
                 kpi.AddRange(trick17.ToList());
             }
             var max = kpi.Max(m => m.Value);

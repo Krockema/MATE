@@ -935,13 +935,14 @@ namespace Master40.DB.Data.Context
 
 
 
-        public int GetEarliestStart(ProductionDomainContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, List<SimulationWorkschedule> schedules = null)
+        public int GetEarliestStart(ProductionDomainContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationWorkschedule> schedules = null)
         {
-            
             if (simulationType == SimulationType.Central)
             {
                 var orderId = simulationWorkschedule.OrderId.Replace("[", "").Replace("]", "");
-                var start = kpiContext.SimulationWorkschedules.Where(a =>
+                var start = kpiContext.SimulationWorkschedules
+                    .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
+                    .Where(a =>
                     a.OrderId.Equals("[" + orderId.ToString() + ",")
                     || a.OrderId.Equals("," + orderId.ToString() + "]")
                     || a.OrderId.Equals("[" + orderId.ToString() + "]")
@@ -950,10 +951,10 @@ namespace Master40.DB.Data.Context
             }
 
             var children = new List<SimulationWorkschedule>();
-            children = schedules.Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
+            children = schedules.Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
             
             if (!children.Any()) return simulationWorkschedule.Start;
-            var startTimes = children.Select(child => GetEarliestStart(kpiContext, child, simulationType, schedules)).ToList();
+            var startTimes = children.Select(child => GetEarliestStart(kpiContext, child, simulationType, simulationId, schedules)).ToList();
             return startTimes.Min();
         }
     }

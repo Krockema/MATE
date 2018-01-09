@@ -188,21 +188,24 @@ namespace Master40.XUnitTest.DBContext
         }
         */
         [Theory]
-        [InlineData(SimulationType.Central, 1)]
-        [InlineData(SimulationType.Central, 2)]
+        //[InlineData(SimulationType.Central, 1)]
+        //[InlineData(SimulationType.Central, 2)]
         [InlineData(SimulationType.Central, 3)]
-        [InlineData(SimulationType.Central, 4)]
-        [InlineData(SimulationType.Central, 5)]
-        [InlineData(SimulationType.Central, 6)]
-        [InlineData(SimulationType.Central, 7)]
+        //[InlineData(SimulationType.Central, 4)]
+        //[InlineData(SimulationType.Central, 5)]
+        //[InlineData(SimulationType.Central, 6)]
+        //[InlineData(SimulationType.Central, 7)]
         //[InlineData(SimulationType.Decentral)]
         public async Task TestKpiCalculation(SimulationType simType, int simId)
         {
             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                && x.KpiType == KpiType.MachineUtilization
-                                                                && x.IsFinal == true).ToListAsync();
+                                                                && x.SimulationNumber == simId
+                                                                && x.KpiType == KpiType.MachineUtilization).ToListAsync();
             _productionDomainContext.Kpis.RemoveRange(toRemove);
             _productionDomainContext.SaveChanges();
+            CalculateKpis.MachineSattleTime(_productionDomainContext, simId
+                , simType
+                , 1);
             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
             CalculateKpis.CalculateMachineUtilization(_productionDomainContext
                                             , simId
@@ -210,6 +213,7 @@ namespace Master40.XUnitTest.DBContext
                                             , 1
                                             , true
                                             , 20160);
+
 
 
             //            CalculateKpis.CalculateAllKpis(
