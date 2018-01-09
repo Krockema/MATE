@@ -288,13 +288,19 @@ namespace Master40.Tools.Simulation
                                                                 && a.SimulationNumber == simulationNumber
                                                                 && a.SimulationType == simulationType
                                                                 && a.SimulationConfigurationId == simulationId)
-                    .Select(x => new {x.Start, x.End, x.Machine}).ToList()
+                    .Select(x => new {x.Start, x.End, x.Machine}).Distinct().ToList()
                 : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan
                                                                 && a.End <= time
                                                                 && a.SimulationNumber == simulationNumber
                                                                 && a.SimulationType == simulationType
                                                                 && a.SimulationConfigurationId == simulationId)
-                    .Select(x => new {x.Start, x.End, x.Machine}).ToList();
+                    .Select(x => new {x.Start, x.End, x.Machine}).Distinct().ToList();
+            if (final && content.Count(a => a.Start == 3745) > 1)
+            {
+                var x = content.Where(a => a.Start == 3745);
+                Debug.WriteLine("Verdacht bestätigt!");
+            }
+                
             //get SimulationTime
             var simulationTime = final
                 ? simConfig.SimulationEndTime - simConfig.SettlingStart
@@ -364,11 +370,11 @@ namespace Master40.Tools.Simulation
     
             */
             var orderTimeliness = final
-                ? context.Orders.Where(a =>
+                ? context.SimulationOrders.Where(a =>
                         a.State == State.Finished && a.CreationTime > simConfig.SettlingStart &&
                         a.CreationTime < simConfig.SimulationEndTime)
                     .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()
-                : context.Orders.Where(a =>
+                : context.SimulationOrders.Where(a =>
                         a.State == State.Finished && a.FinishingTime >= time - simConfig.DynamicKpiTimeSpan)
                     .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList();
 

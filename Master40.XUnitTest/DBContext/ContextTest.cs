@@ -197,22 +197,13 @@ namespace Master40.XUnitTest.DBContext
             _productionDomainContext.Kpis.RemoveRange(toRemove);
             _productionDomainContext.SaveChanges();
             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-            CalculateKpis.CalculateLeadTime(_productionDomainContext
                                             , 5
                                             , simType
                                             , 1
                                             , true
-                                            , 20160);
 
 
-            //            CalculateKpis.CalculateAllKpis(
             //CalculateKpis.CalculateMachineUtilization(
-            //context: _productionDomainContext,
-            //    simulationId: 1,
-            //    simulationType: simType,
-            //    simulationNumber: 1,
-            //    final: true,
-            //    time: 20000);
 
         }
 
