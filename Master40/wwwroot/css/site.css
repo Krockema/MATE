@@ -112,3 +112,9 @@ textarea {
     left: 150px !important;
     top: 20px !important;
 }
+
+footer {
+    position: sticky;
+    padding-left: 100px;
+    bottom: 0px;
+}
