@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using ChartJSCore.Models;
 using Master40.DB.Data.Context;
 using Master40.Extensions;
 using Master40.DB.Enums;
@@ -39,8 +38,8 @@ namespace Master40.ViewComponents
             {
                 var trick17 = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
                                                        && x.SimulationConfigurationId == sim.Item1
-                                                       && x.SimulationNumber == 1
-                                                       && x.SimulationType == sim.Item2);
+                                                       && x.SimulationNumber == 1);
+                                                       //&& x.SimulationType == sim.Item2);
                 kpi.AddRange(trick17.ToList());
             }
             var max = kpi.Max(m => m.Value);
@@ -64,6 +63,7 @@ namespace Master40.ViewComponents
                                                       && x.KpiType == KpiType.LeadTime
                                                       && x.SimulationConfigurationId == sim.Item1
                                                       && x.SimulationNumber == 1
+                                                      && x.IsFinal
                                                       && x.SimulationType == sim.Item2).OrderBy(x => x.Value).ToList();
                         chart.Add(new BoxPlot
                         {

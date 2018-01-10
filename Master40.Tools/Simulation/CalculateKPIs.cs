@@ -319,7 +319,8 @@ namespace Master40.Tools.Simulation
             context.Kpis.AddRange(kpis);
             context.SaveChanges();
 
-            if (!final) return;
+            if (!final)
+            { return; }
 
             var allKpis = context.Kpis.Where(a => a.KpiType == KpiType.MachineUtilization
                                                     && a.SimulationConfigurationId == simulationId

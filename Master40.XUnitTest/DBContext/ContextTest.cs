@@ -189,13 +189,12 @@ namespace Master40.XUnitTest.DBContext
         */
         [Theory]
         //[InlineData(SimulationType.Central, 1)]
-        //[InlineData(SimulationType.Central, 2)]
+        [InlineData(SimulationType.Central, 2)]
         [InlineData(SimulationType.Central, 3)]
-        //[InlineData(SimulationType.Central, 4)]
-        //[InlineData(SimulationType.Central, 5)]
-        //[InlineData(SimulationType.Central, 6)]
-        //[InlineData(SimulationType.Central, 7)]
-        //[InlineData(SimulationType.Decentral)]
+        [InlineData(SimulationType.Central, 4)]
+        [InlineData(SimulationType.Central, 5)]
+        [InlineData(SimulationType.Central, 6)]
+        [InlineData(SimulationType.Central, 7)]
         public async Task TestKpiCalculation(SimulationType simType, int simId)
         {
             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
