@@ -27,8 +27,11 @@ namespace Master40.ViewComponents
                 return null;
             }
 
-            Chart chart = new Chart();
+            var simConfig = _context.SimulationConfigurations.Single(x => x.Id == Convert.ToInt32(paramsList[0]));
+            var maxX = Convert.ToInt32(Math.Floor((decimal)simConfig.SimulationEndTime / 1000) * 1000);
 
+            Chart chart = new Chart();
+            
             // charttype
             chart.Type = "scatter";
 
@@ -40,7 +43,9 @@ namespace Master40.ViewComponents
                 Scales = new Scales
                 {
                     YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
-                    XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
+                    XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true,
+                        Ticks = new Tick{ Max = maxX, Min = 0 , Display = true }, 
+                        ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
                 },
                 Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
                 Title = new Title { Text = "Machine Workloads", Position = "top", FontSize = 24, FontStyle = "bold" }
@@ -49,6 +54,7 @@ namespace Master40.ViewComponents
 
             SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
             var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
+                                               && x.Count <= maxX
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                                && x.SimulationType == simType).OrderBy(x => x.Name).ToList();

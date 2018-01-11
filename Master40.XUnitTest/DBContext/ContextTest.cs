@@ -188,13 +188,13 @@ namespace Master40.XUnitTest.DBContext
         }
         */
         [Theory]
-        //[InlineData(SimulationType.Central, 1)]
-        //[InlineData(SimulationType.Central, 2)]
-        [InlineData(SimulationType.Central, 3)]
-        //[InlineData(SimulationType.Central, 4)]
-        //[InlineData(SimulationType.Central, 5)]
-        //[InlineData(SimulationType.Central, 6)]
-        //[InlineData(SimulationType.Central, 7)]
+        //[InlineData(SimulationType.Decentral, 5)]
+        //[InlineData(SimulationType.Decentral, 6)]
+        [InlineData(SimulationType.Central, 9)]
+        // [InlineData(SimulationType.Central, 4)]
+        // [InlineData(SimulationType.Central, 5)]
+        // [InlineData(SimulationType.Central, 6)]
+        // [InlineData(SimulationType.Central, 7)]
         public async Task TestKpiCalculation(SimulationType simType, int simId)
         {
             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
@@ -211,20 +211,20 @@ namespace Master40.XUnitTest.DBContext
                                             , true
                                             , 20160);
 
-            var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                          && x.SimulationConfigurationId == simId
-                                                                          && x.KpiType == KpiType.LayTime)
-                .ToListAsync();
-            _productionDomainContext.Kpis.RemoveRange(toRemove2);
-            _productionDomainContext.SaveChanges();
-
-            CalculateKpis.CalculateLayTimes(_productionDomainContext
-                , simId
-                , simType
-                , 1
-                , true
-                , 20160);
-
+             var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+                                                                           && x.SimulationConfigurationId == simId
+                                                                           && x.KpiType == KpiType.LayTime)
+                 .ToListAsync();
+             _productionDomainContext.Kpis.RemoveRange(toRemove2);
+             _productionDomainContext.SaveChanges();
+             
+             CalculateKpis.CalculateLayTimes(_productionDomainContext
+                 , simId
+                 , simType
+                 , 1
+                 , true
+                 , 20160);
+             
 
 
             //            CalculateKpis.CalculateAllKpis(

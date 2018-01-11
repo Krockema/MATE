@@ -32,7 +32,7 @@ namespace Master40.ViewComponents
             if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[4]), (paramsList[5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[2]), (paramsList[3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             _simList = _simList.OrderBy(x => x.Item2).ThenBy(x => x.Item1).ToList();
-
+            var displayData = new List<Kpi>();
             var kpi = new List<Kpi>();
             // charttype
             foreach (var sim in _simList)
@@ -58,6 +58,11 @@ namespace Master40.ViewComponents
 
                 foreach (var sim in _simList)
                 {
+                    displayData.AddRange(kpi.Where(x => x.IsKpi 
+                                                    && x.SimulationConfigurationId == sim.Item1 
+                                                    && x.SimulationType == sim.Item2).OrderBy(x => x.Value).ToList());
+
+
                     foreach (var product in products)
                     {
                         var boxplotValues = kpi.Where(x => x.IsKpi == false && x.Name == product
@@ -87,14 +92,12 @@ namespace Master40.ViewComponents
                 //new BoxPlot{ HeigestSample=337, UpperQartile=195, Median=163, LowerQuartile= 136, LowestSample = 73, Name="Race-Truck", Color = "rgba(0,102,255," }
                 return chart;
             });
-           
+
             // create JS to Render Chart.
             var boxPlot = await generateChartTask;
             ViewData["BoxPlot"] = boxPlot;
             ViewData["Type"] = paramsList[1];
-            ViewData["Data"] = kpi.Where(x => x.IsKpi == true && x.IsFinal).Distinct().OrderBy(x => x.SimulationType)
-                                                            .ThenBy(x => x.SimulationConfigurationId)
-                                                            .ThenBy(x => x.Value).ToList();
+            ViewData["Data"] = displayData.ToList();
             ViewData["Max"] = Math.Ceiling(max / 100) * 100;
             //ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
             return View($"ProductLeadTimeBoxPlot");

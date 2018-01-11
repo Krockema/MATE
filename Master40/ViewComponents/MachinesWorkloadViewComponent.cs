@@ -84,8 +84,8 @@ namespace Master40.ViewComponents
                     var percent = Math.Round(machine.Value * 100, 2);
                     // var wait = max - work;
                     barDataSet.Data.Add(percent);
-                    barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.4)");
-                    barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.7)");
+                    barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "0.4)");
+                    barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "0.7)");
 
                     var varianz = machine.Count * 100;
 
@@ -94,8 +94,8 @@ namespace Master40.ViewComponents
                     barDiversityInvisSet.HoverBackgroundColor.Add(ChartColor.Transparent);
 
                     barDiversitySet.Data.Add(Math.Round(varianz, 2));
-                    barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.8)");
-                    barDiversitySet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "1)");
+                    barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "0.8)");
+                    barDiversitySet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "1)");
                     i++;
                 }
 

@@ -11,6 +11,7 @@ namespace Master40.DB.Enums
         Timeliness,
         StockEvolution,
         LayTime,
-        AgentStatistics
+        AgentStatistics,
+        TimeToStart
     }
 }

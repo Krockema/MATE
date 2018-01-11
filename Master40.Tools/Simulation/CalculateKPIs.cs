@@ -8,6 +8,7 @@ using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using MathNet.Numerics.Statistics;
+using MathNet.Numerics.Statistics.Mcmc;
 
 namespace Master40.Tools.Simulation
 {
@@ -180,6 +181,7 @@ namespace Master40.Tools.Simulation
                     a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
+            var tts = new List<Kpi>();
             var simulationWorkSchedules = context.SimulationWorkschedules.Where(
                 x => x.SimulationConfigurationId == simulationId
                      && x.SimulationType == simulationType
@@ -189,17 +191,29 @@ namespace Master40.Tools.Simulation
 
             foreach (var product in finishedProducts)
             {
-                var val = product.End - context.GetEarliestStart(context, product, simulationType, simulationId, simulationWorkSchedules);
+                var start = context.GetEarliestStart(context, product, simulationType, simulationId, simulationWorkSchedules);
+                var val = product.End - start;
                 leadTimes.Add(new Kpi
                 {
                     Value = val,
                     Name = product.Article,
                     IsFinal = final
                 });
+                tts.Add(new Kpi
+                {
+                    Value = val,
+                    Name = product.Article,
+                    IsFinal = final,
+                    SimulationConfigurationId = simulationId,
+                    SimulationType = simulationType,
+                    SimulationNumber = simulationNumber,
+                    IsKpi = true,
+                    KpiType = KpiType.TimeToStart
+                });
             }
 
             var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
-            var leadTimesBoxPlot = new List<Kpi>();
+            var leadTimesBoxPlot = tts;
             //calculate Average per article
 
             foreach (var product in products)
@@ -415,7 +429,9 @@ namespace Master40.Tools.Simulation
             SimulationType simulationType, int simulationNumber, bool final, int time)
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
-            var stockEvoLutionsContext = context.StockExchanges.Where(a => a.Time < simConfig.SimulationEndTime)
+            var stockEvoLutionsContext = context.StockExchanges
+                .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
+                .Where(a => a.Time < simConfig.SimulationEndTime)
                 .Include(x => x.Stock).ThenInclude(x => x.Article).ToList();
             //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (!final)
@@ -433,7 +449,43 @@ namespace Master40.Tools.Simulation
             var articles = stockEvoLutions.Select(x => new {x.Name}).Distinct();
 
             var kpis = new List<Kpi>();
+            
 
+            var globalValue = 0.0;
+            var lastGlobal = new Kpi();
+            foreach (var articleEvolution in stockEvoLutions)
+            {
+                
+                globalValue = (articleEvolution.ExchangeType == ExchangeType.Insert)
+                    ? globalValue + Math.Round(Convert.ToDouble(articleEvolution.Quantity) * articleEvolution.Price, 2)
+                    : globalValue - Math.Round(Convert.ToDouble(articleEvolution.Quantity) * articleEvolution.Price, 2);
+
+
+                if ((int)lastGlobal.Count == articleEvolution.Time)
+                {
+                    lastGlobal.ValueMin = globalValue;
+                }
+                else
+                {
+                    lastGlobal = new Kpi
+                  {
+                      Name = "Stock Total",
+                      Value = 0, // Math.Round(Convert.ToDouble(globalValue.value), 2),
+                      ValueMin = globalValue,
+                      ValueMax = 0,
+                      Count = Convert.ToDouble(articleEvolution.Time),
+                      IsKpi = final,
+                      KpiType = KpiType.StockEvolution,
+                      SimulationConfigurationId = simulationId,
+                      SimulationType = simulationType,
+                      SimulationNumber = simulationNumber,
+                      Time = time,
+                      IsFinal = final
+                  };
+
+                  kpis.Add(lastGlobal);
+                }
+            }
 
             foreach (var item in articles)
             {
@@ -467,9 +519,13 @@ namespace Master40.Tools.Simulation
                             Time = time,
                             IsFinal = final
                         };
+                        
                         kpis.Add(lastKpi);
                     }
                 }
+
+
+
             }
 
             context.Kpis.AddRange(kpis);
