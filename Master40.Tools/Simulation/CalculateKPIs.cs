@@ -37,6 +37,7 @@ namespace Master40.Tools.Simulation
         {
             var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var stockEvoLutionsContext = context.StockExchanges.Include(x => x.Stock).ThenInclude(x => x.Article)
+                .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                 .Where(a => a.Stock.Article.ToBuild).AsQueryable();
             //.Where(x => x.SimulationType == simulationType && x.SimulationConfigurationId == simulationId && x.SimulationNumber == simulationNumber);
             if (!final)

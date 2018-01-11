@@ -80,10 +80,10 @@
                 <th>Max [min]</th>
                 <th>Average [min]</th>
             </tr>
-                @for (var i = 0; i < boxPlot.Count(); i++)
+                @for (var i = 0; i < kpis.Count(); i++)
                 {
                     <tr>
-                        <td>@Html.Raw(boxPlot[i].Name)</td>
+                        <td>@Html.Raw(kpis[i].Name + "<br> SimId: " + kpis[i].SimulationConfigurationId + " " + kpis[i].SimulationType)</td>
                         <td>@(Math.Round(kpis[i].ValueMin, 0))</td>
                         <td>@(Math.Round(kpis[i].ValueMax, 0))</td>
                         <td>@(Math.Round(kpis[i].Value, 2))</td>
