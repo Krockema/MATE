@@ -199,17 +199,6 @@ namespace Master40.Tools.Simulation
                     Name = product.Article,
                     IsFinal = final
                 });
-                tts.Add(new Kpi
-                {
-                    Value = val,
-                    Name = product.Article,
-                    IsFinal = final,
-                    SimulationConfigurationId = simulationId,
-                    SimulationType = simulationType,
-                    SimulationNumber = simulationNumber,
-                    IsKpi = true,
-                    KpiType = KpiType.TimeToStart
-                });
             }
 
             var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
@@ -282,6 +271,121 @@ namespace Master40.Tools.Simulation
             context.Kpis.AddRange(leadTimesBoxPlot);
             context.SaveChanges();
         }
+
+        /// <summary>
+        /// must be called only after filling SimulationSchedules!
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="simulationId"></param>
+        /// <param name="simulationType"></param>
+        /// <param name="simulationNumber"></param>
+        /// <param name="final"></param>
+        /// <param name="time"></param>
+        public static void CalculateMeanStartTime(ProductionDomainContext context, int simulationId,
+            SimulationType simulationType, int simulationNumber, bool final, int time)
+        {
+            var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
+            //calculate lead times for each product
+            var finishedProducts = final
+                ? context.SimulationWorkschedules
+                    .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
+                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20).ToList()
+                : context.SimulationWorkschedules
+                    .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a =>
+                        a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
+                        a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
+            var leadTimes = new List<Kpi>();
+            var tts = new List<Kpi>();
+            var simulationWorkSchedules = context.SimulationWorkschedules.Where(
+                x => x.SimulationConfigurationId == simulationId
+                     && x.SimulationType == simulationType
+                     && x.SimulationNumber == simulationNumber).ToList();
+
+
+
+            foreach (var product in finishedProducts)
+            {
+                var start = context.GetEarliestStart(context, product, simulationType, simulationId, simulationWorkSchedules);
+                var val = product.End - start;
+                leadTimes.Add(new Kpi
+                {
+                    //Value = context.GetDueTimeByOrder(),
+                    Name = product.Article,
+                    IsFinal = final
+                });
+            }
+
+            var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
+            var leadTimesBoxPlot = tts;
+            //calculate Average per article
+
+            foreach (var product in products)
+            {
+                var relevantItems = leadTimes.Where(x => x.Name.Equals(product)).Select(x => x.Value);
+                // BoxPlot: without bounderys
+                var enumerable = relevantItems as double[] ?? relevantItems.ToArray();
+                var stat = enumerable.FiveNumberSummary();
+                leadTimesBoxPlot.Add(new Kpi()
+                {
+                    Name = product,
+                    Value = Math.Round(stat[2], 2),
+                    ValueMin = Math.Round(stat[0], 2),
+                    ValueMax = Math.Round(stat[4], 2),
+                    IsKpi = final,
+                    KpiType = KpiType.LeadTime,
+                    SimulationConfigurationId = simulationId,
+                    SimulationType = simulationType,
+                    SimulationNumber = simulationNumber,
+                    Time = time,
+                    IsFinal = final
+                });
+
+                if (double.IsNaN(leadTimesBoxPlot.Last().Value))
+                    leadTimesBoxPlot.Last().Value = 0;
+                if (double.IsNaN(leadTimesBoxPlot.Last().ValueMin))
+                    leadTimesBoxPlot.Last().ValueMin = 0;
+                if (double.IsNaN(leadTimesBoxPlot.Last().ValueMax))
+                    leadTimesBoxPlot.Last().ValueMax = 0;
+
+
+                // Recalculation for Diagram with cut of outliners
+                // calculate bounderies using lower mild fence (1,5) -> source: http://www.statisticshowto.com/upper-and-lower-fences/
+                var interQuantileRange = stat[3] - stat[1];
+                var uperFence = stat[3] + 1.5 * interQuantileRange;
+                var lowerFence = stat[1] - 1.5 * interQuantileRange;
+
+                // cut them from the sample
+                relevantItems = enumerable.Where(x => x > lowerFence && x < uperFence);
+
+                // BoxPlot: without bounderys
+                stat = relevantItems.FiveNumberSummary();
+
+                // Drop to Database
+                foreach (var item in stat)
+                {
+                    leadTimesBoxPlot.Add(new Kpi()
+                    {
+                        Name = product,
+                        Value = Math.Round(item, 2),
+                        ValueMin = 0,
+                        ValueMax = 0,
+                        IsKpi = false,
+                        KpiType = KpiType.LeadTime,
+                        SimulationConfigurationId = simulationId,
+                        SimulationType = simulationType,
+                        SimulationNumber = simulationNumber,
+                        IsFinal = final
+                    });
+
+                    if (double.IsNaN(leadTimesBoxPlot.Last().Value))
+                        leadTimesBoxPlot.Last().Value = 0;
+                }
+
+            }
+            context.Kpis.AddRange(leadTimesBoxPlot);
+            context.SaveChanges();
+        }
+
 
         /// <summary>
         /// 

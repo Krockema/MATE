@@ -728,8 +728,8 @@ namespace Master40.DB.Data.Context
                 demand = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).ThenInclude(b => b.Order).ToList().Single(a => a.Id == demand.Id);
                 return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
             }
-            if (demand.GetType() == typeof(DemandStock)) return 999999;
-            if (demand.GetType() != typeof(DemandProductionOrderBom)) return 99999999;
+            if (demand.GetType() == typeof(DemandStock)) return int.MaxValue;
+            if (demand.GetType() != typeof(DemandProductionOrderBom)) return int.MaxValue;
             {
                 demand =
                     Demands.AsNoTracking().OfType<DemandProductionOrderBom>()

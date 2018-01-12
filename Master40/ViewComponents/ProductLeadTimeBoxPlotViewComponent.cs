@@ -97,7 +97,7 @@ namespace Master40.ViewComponents
             var boxPlot = await generateChartTask;
             ViewData["BoxPlot"] = boxPlot;
             ViewData["Type"] = paramsList[1];
-            ViewData["Data"] = displayData.ToList();
+            ViewData["Data"] = displayData.Distinct().ToList();
             ViewData["Max"] = Math.Ceiling(max / 100) * 100;
             //ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
             return View($"ProductLeadTimeBoxPlot");
