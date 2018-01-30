@@ -123,7 +123,7 @@ namespace Master40.Controllers
         public void SimulateAjax()
         {
             BackgroundJob.Enqueue<ISimulator>(x =>
-                _simulator.Simulate(3));
+                _simulator.Simulate(1));
         }
 
         public IActionResult Error()
