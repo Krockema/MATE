@@ -112,6 +112,8 @@ namespace Master40.Agents.Agents
                 StockElement.Current = StockElement.Current - requestProvidable.Quantity;
                 DebugMessage("------------->> items in STOCK: " + StockElement.Current + " Items Requested " + requestProvidable.Quantity);
 
+
+                //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
                 if (requestProvidable.IsHeadDemand && requestProvidable.DueTime >= (int)Context.TimePeriod)
                     StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = requestProvidable.DueTime;
                 else

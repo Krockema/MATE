@@ -12,6 +12,6 @@ namespace Master40.DB.Enums
         StockEvolution,
         LayTime,
         AgentStatistics,
-        TimeToStart
+        MeanTimeToStart
     }
 }

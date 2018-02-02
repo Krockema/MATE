@@ -13,13 +13,13 @@
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-2 col-lg-1" style="padding-right: 0px;">
-                <div class="pull-right" style="height: 200px;">
+                <div class="pull-right" style="height: 300px;">
                     @{ var scale = 0;
                         var strScale = "";
                         }
                     @for (int i = 0; i < 3; i++)
                     {
-                        { scale = scale + 50;
+                        { scale = scale + 75;
                           strScale = scale + "px"; }
                         <div style="position: absolute; top: 0px; right:0px; width: 5px; border-bottom: 1px solid #808080; height: @strScale; vertical-align: top; text-align: right;"></div>
 
@@ -27,7 +27,7 @@
                     @{ scale = 0; }
 
                 </div>
-                <div style="height: 190px">@ViewData["max"]</div>
+                <div style="height: 290px">@ViewData["max"]</div>
                 <div style="height: 20px">0&nbsp;min</div>
                 <div style="height: 20px"><b>Articles</b></div>
             </div>
@@ -35,7 +35,7 @@
                 <div class="row" style="border-bottom: 2px solid #808080; border-left: 2px solid #808080; text-align: center; top: 0px;">
                     @for (int i = 0; i < 3; i++)
                     {
-                        { scale = scale + 50;
+                        { scale = scale + 75;
                           strScale = scale + "px";
                         }
                         <div style="position: absolute; top: 0px; left: 0px; width: -webkit-fill-available; border-bottom: 1px dashed #808080; height: @strScale; vertical-align: top; text-align: right;"></div>
@@ -44,7 +44,7 @@
 
                     @foreach (var item in boxPlot)
                     {
-                        <div class="boxplot-box" style="width: @Html.Raw(100 / @boxPlot.Count())%; max-width:80px; display: inline-block; cursor:pointer; top: 0px; height:200px;" data-toggle="popover"
+                        <div class="boxplot-box" style="width: @Html.Raw(100 / @boxPlot.Count())%; max-width:80px; display: inline-block; cursor:pointer; top: 0px; height:300px;" data-toggle="popover"
                              onmouseover="this.style.background='lightgray';" onmouseout="this.style.background='transparent';"
                              data-placement="right" data-original-title="Details: @Html.Raw(item.Name)" 
                              data-content="Highest Sample: @item.HeigestSample <br /> Upper Quartile: @item.UpperQartile<br />Median: @item.Median<br /> Lower Quartile: @item.LowerQuartile<br /> Lowest Sample: @item.LowestSample">

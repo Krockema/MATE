@@ -187,10 +187,11 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
         */
+        /*
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
-        //[InlineData(SimulationType.Decentral, 6)]
-        [InlineData(SimulationType.Central, 9)]
+        [InlineData(SimulationType.Decentral, 10)]
+        //[InlineData(SimulationType.Central, 6)]
         // [InlineData(SimulationType.Central, 4)]
         // [InlineData(SimulationType.Central, 5)]
         // [InlineData(SimulationType.Central, 6)]
@@ -199,31 +200,31 @@ namespace Master40.XUnitTest.DBContext
         {
             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
                                                                           && x.SimulationConfigurationId == simId
-                                                                          && x.KpiType == KpiType.StockEvolution)
+                                                                          && x.KpiType == KpiType.Timeliness)
                 .ToListAsync();
             _productionDomainContext.Kpis.RemoveRange(toRemove);
             _productionDomainContext.SaveChanges();
             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-            CalculateKpis.ArticleStockEvolution(_productionDomainContext
+            CalculateKpis.CalculateTimeliness(_productionDomainContext
                                             , simId
                                             , simType
                                             , 1
                                             , true
                                             , 20160);
 
-             var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                           && x.SimulationConfigurationId == simId
-                                                                           && x.KpiType == KpiType.LayTime)
-                 .ToListAsync();
-             _productionDomainContext.Kpis.RemoveRange(toRemove2);
-             _productionDomainContext.SaveChanges();
-             
-             CalculateKpis.CalculateLayTimes(_productionDomainContext
-                 , simId
-                 , simType
-                 , 1
-                 , true
-                 , 20160);
+            // var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+            //                                                               && x.SimulationConfigurationId == simId
+            //                                                               && x.KpiType == KpiType.LayTime)
+            //     .ToListAsync();
+            // _productionDomainContext.Kpis.RemoveRange(toRemove2);
+            // _productionDomainContext.SaveChanges();
+            // 
+            // CalculateKpis.CalculateLayTimes(_productionDomainContext
+            //     , simId
+            //     , simType
+            //     , 1
+            //     , true
+            //     , 20160);
              
 
 
@@ -238,15 +239,18 @@ namespace Master40.XUnitTest.DBContext
 
         }
 
-        /*
-
+        
+    */
         [Fact]
         public async Task TestDistribution()
-        {
-            var dl = new List<double>();
-            var ln = new MathNet.Numerics.Distributions.LogNormal(0.1, 0.5);
+        {      //Sigma² ==> Varianz
+               //Sigma  ==> Standardabweichung
+               //Erwartungswert ==> 
+
+            var dl = new List<double>();                        // Erwartungswert // Standardab
+            var ln = new MathNet.Numerics.Distributions.LogNormal(0.0, 0.2);
             
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 //Debug.WriteLine(ln.Sample());
                 dl.Add(ln.Sample());
@@ -277,7 +281,7 @@ namespace Master40.XUnitTest.DBContext
                 sw.WriteLine(item);
             }
         }
-        */
+        
     }
 }
 

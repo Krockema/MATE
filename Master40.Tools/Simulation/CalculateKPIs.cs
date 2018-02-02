@@ -295,28 +295,34 @@ namespace Master40.Tools.Simulation
                         a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
                         a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
-            var tts = new List<Kpi>();
             var simulationWorkSchedules = context.SimulationWorkschedules.Where(
                 x => x.SimulationConfigurationId == simulationId
                      && x.SimulationType == simulationType
                      && x.SimulationNumber == simulationNumber).ToList();
 
-
+            var simOrders = context.SimulationOrders.Where(
+                x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).AsNoTracking().ToList();
 
             foreach (var product in finishedProducts)
             {
-                var start = context.GetEarliestStart(context, product, simulationType, simulationId, simulationWorkSchedules);
-                var val = product.End - start;
-                leadTimes.Add(new Kpi
+                
+                var id = Convert.ToInt32(product.OrderId.Replace("[", "").Replace("]", ""));
+                var start = simulationWorkSchedules.Where(x => x.OrderId == product.OrderId).Min(x => x.Start);
+                var insert = simOrders.SingleOrDefault(x => x.OriginId == id);
+                if (insert != null)
                 {
-                    //Value = context.GetDueTimeByOrder(),
-                    Name = product.Article,
-                    IsFinal = final
-                });
+                    leadTimes.Add(new Kpi
+                    {
+                        Value = start - insert.CreationTime,
+                        Name = product.Article,
+                        IsFinal = final
+                    });
+                }
+
             }
 
             var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
-            var leadTimesBoxPlot = tts;
+            var leadTimesBoxPlot = new List<Kpi>();
             //calculate Average per article
 
             foreach (var product in products)
@@ -332,7 +338,7 @@ namespace Master40.Tools.Simulation
                     ValueMin = Math.Round(stat[0], 2),
                     ValueMax = Math.Round(stat[4], 2),
                     IsKpi = final,
-                    KpiType = KpiType.LeadTime,
+                    KpiType = KpiType.MeanTimeToStart,
                     SimulationConfigurationId = simulationId,
                     SimulationType = simulationType,
                     SimulationNumber = simulationNumber,
@@ -370,7 +376,7 @@ namespace Master40.Tools.Simulation
                         ValueMin = 0,
                         ValueMax = 0,
                         IsKpi = false,
-                        KpiType = KpiType.LeadTime,
+                        KpiType = KpiType.MeanTimeToStart,
                         SimulationConfigurationId = simulationId,
                         SimulationType = simulationType,
                         SimulationNumber = simulationNumber,

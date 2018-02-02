@@ -43,7 +43,7 @@ namespace Master40.ViewComponents
                                                        //&& x.SimulationType == sim.Item2);
                 kpi.AddRange(trick17.ToList());
             }
-            var max = kpi.Max(m => m.Value);
+            
             var generateChartTask = Task.Run(() =>
             {
                 if (!kpi.Any())
@@ -92,9 +92,10 @@ namespace Master40.ViewComponents
                 //new BoxPlot{ HeigestSample=337, UpperQartile=195, Median=163, LowerQuartile= 136, LowestSample = 73, Name="Race-Truck", Color = "rgba(0,102,255," }
                 return chart;
             });
-
+            
             // create JS to Render Chart.
             var boxPlot = await generateChartTask;
+            var max = boxPlot.Max(x => x.HeigestSample);
             ViewData["BoxPlot"] = boxPlot;
             ViewData["Type"] = paramsList[1];
             ViewData["Data"] = displayData.Distinct().ToList();

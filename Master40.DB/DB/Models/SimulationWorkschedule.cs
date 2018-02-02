@@ -20,6 +20,7 @@ namespace Master40.DB.Models
         public string ProductionOrderId { get; set; }
         public int DueTime { get; set; }
         public string OrderId { get; set; }
+        public string CreatedForOrderId { get; set; }
         public int HierarchyNumber { get; set; }
         public string Parent { get; set; }
         public string ParentId { get; set; }

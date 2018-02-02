@@ -17,7 +17,7 @@
     try
     {
         holymoly = @"graph LR;
-                    System(<div style='width: 200px'><div class='floating'><img src='/images/Agents/System.svg' width='50'></div><div class='floating distance'><p><u>System Agent</u></p> Agent Count: " + @Html.Raw(SystemAgent.Count) + @"<br>Messages: " + SystemAgent.Value + @"<br>RunTime " + SystemAgent.Time + @"</div></div>)
+                    System(<div style='width: 220px'><div class='floating'><img src='/images/Agents/System.svg' width='50'></div><div class='floating distance'><p><u>System Agent</u></p> Agent Count: " + @Html.Raw(SystemAgent.Count) + @"<br>Messages: " + SystemAgent.Value + @"<br>RunTime " + SystemAgent.Time + @"</div></div>)
                     Contract(<div style='width: 200px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Contract Agent</u></p> Agent Count: " + ContractAgent.Count + @"<br>Messages: " + ContractAgent.Value + @"<br>RunTime " + ContractAgent.Time + @"</div></div>)
                     Dispo(<div style='width: 250px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Dispo Agent</u></p> Agent Count: " + DispoAgent.Count + @"<br>Messages: " + DispoAgent.Value + @"<br>RunTime " + DispoAgent.Time + @"</div></div>)
                     Dir(<div style='width: 200px'><div class='floating'><img src='/images/Agents/VirtualAgent.png' width='40'></div><div class='floating distance'><p><u>Directory Agent</u></p> Agent Count: " + DirectoryAgent.Count + @"<br>Messages: " + DirectoryAgent.Value + @"<br>RunTime " + DirectoryAgent.Time + @"</div></div>)
@@ -185,7 +185,7 @@
                                 </h4>
                             </div>
                             <div id="collapse2" class="panel-collapse collapse">
-                                <div id="" class="MessageDisplay"></div>
+                                <div id="" class="MessageDisplay" style="max-height: 300px;overflow: auto;"></div>
                             </div>
                         </div>
                     </div>

@@ -57,6 +57,7 @@ namespace Master40.Agents.Agents.Internal
                 {
                     item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + requesterAgent.Creator.AgentId.ToString() +"]" : "[]";
                     item.Parent =  requesterAgent.Creator.Name;
+                    item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + orderId + "]";
 
                    // item.OrderId = orderId;
