@@ -94,7 +94,12 @@ namespace Master40.Simulation.Simulation
             return pows;
         }
 
-
+        /// <summary>
+        /// Call this method for a single run without simulation.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="simulationId"></param>
+        /// <returns></returns>
         public async Task InitializeMrp(MrpTask task, int simulationId)
         {
             await Task.Run(async () =>
@@ -102,7 +107,6 @@ namespace Master40.Simulation.Simulation
                 _messageHub.SendToAllClients("Prepare InMemory Tables...", MessageType.info);
                 rebuildNets = new RebuildNets(_context);
                 capacityScheduling = new CapacityScheduling(_context);
-                
                 _context = InMemoryContext.CreateInMemoryContext();
                 InMemoryContext.LoadData(_evaluationContext, _context);
                 await PrepareSimulationContext();
@@ -130,34 +134,26 @@ namespace Master40.Simulation.Simulation
             });
         }
 
+        /// <summary>
+        /// Call this method for a complete central simulation.
+        /// </summary>
+        /// <param name="simulationId"></param>
+        /// <returns></returns>
         public async Task Simulate(int simulationId)
         {
             await Task.Run(async () =>
             {
-                
-                // send a Message to the Client that the Simulation has been started
-                _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
-                _context = InMemoryContext.CreateInMemoryContext();
-                InMemoryContext.LoadData(_evaluationContext, _context);
-                capacityScheduling = new CapacityScheduling(_context);
-                rebuildNets = new RebuildNets(_context);
-                await PrepareSimulationContext();
                 var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
                 simConfig.Time = 0;
-                await OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
-                _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed,simConfig.WorkTimeDeviation, simNumber);
-                var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime);
-                UpdateStockExchangesWithInitialValues(simulationId, simNumber);
-                await Recalculate(timeTable,simulationId, simNumber, new List<ProductionOrderWorkSchedule>());
-
-                //var waitingItems = CreateInitialTable();
+                var timeTable = InitializeSimulation(simulationId, simNumber, simConfig).Result;
+                //create list of items waiting to be produced
                 var waitingItems = _context.ProductionOrderWorkSchedules.Where(a =>
                     a.ProducingState == ProducingState.Created || a.ProducingState == ProducingState.Waiting).ToList();
-                CreateMachinesReady(timeTable);
-                timeTable = UpdateGoodsDelivery(timeTable,simulationId);
+                
                 //timeTable = CreateInjectionOrders(timeTable);
                 var itemCounter = 0;
+                //start the actual simulation
                 while (timeTable.Timer < simConfig.SimulationEndTime)
                 {
 
@@ -167,29 +163,50 @@ namespace Master40.Simulation.Simulation
                     _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed. Time: "+timeTable.Timer);
                     _processMrp.UpdateDemandsAndOrders(simulationId);
                     
-                    var test = _context.Stocks.Where(a => a.Current < 0);
-                    if (!test.Any()) continue;
-                    foreach (var article in test)
-                    {
-                        _messageHub.SendToAllClients("negative amount of " + article.Name + " in stock!");
-                    }
-                    
                 }
-                // Save Current Context to Database as Complext Json
-                // SaveContext();
-                //SaveCompletedContext(timeTable,simulationId,simNumber);
-                FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(),simulationId, simNumber,0);
-                _messageHub.SendToAllClients("last Item produced at: " +_context.SimulationWorkschedules.Max(a => a.End));
-                CalculateKpis.MachineSattleTime(_context,simulationId,SimulationType.Central, simNumber);
-                CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
-                RemoveSimulationWorkschedules();
-                CopyResults.Copy(_context, _evaluationContext, simulationId, simNumber, SimulationType.Central);
+
+                FinishSimulation(timeTable, simulationId, simNumber, simConfig);
                 
-                _messageHub.EndScheduler();
-                _context.Database.CloseConnection();
-                _evaluationContext.Database.CloseConnection();
             });
 
+        }
+
+        private void FinishSimulation(TimeTable<ISimulationItem> timeTable, int simulationId, int simNumber, SimulationConfiguration simConfig)
+        {
+            //copy workschedules to the simulationworkschedules which get written back to the local-db
+            FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber, 0);
+            _messageHub.SendToAllClients("last Item produced at: " + _context.SimulationWorkschedules.Max(a => a.End));
+            //calculate kpis
+            CalculateKpis.MachineSattleTime(_context, simulationId, SimulationType.Central, simNumber);
+            CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
+            RemoveSimulationWorkschedules();
+            //copy the relevant tables from the in-memory db to the local-db
+            CopyResults.Copy(_context, _evaluationContext, simulationId, simNumber, SimulationType.Central);
+
+            _messageHub.EndScheduler();
+            _context.Database.CloseConnection();
+            _evaluationContext.Database.CloseConnection();
+        }
+
+        private async Task<TimeTable<ISimulationItem>> InitializeSimulation(int simulationId, int simNumber, SimulationConfiguration simConfig)
+        {
+            _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
+            _context = InMemoryContext.CreateInMemoryContext();
+            InMemoryContext.LoadData(_evaluationContext, _context);
+            capacityScheduling = new CapacityScheduling(_context);
+            rebuildNets = new RebuildNets(_context);
+            await PrepareSimulationContext();
+            await OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
+            _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNumber);
+            var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime);
+            UpdateStockExchangesWithInitialValues(simulationId, simNumber);
+
+            //call the initial central planning
+            await Recalculate(timeTable, simulationId, simNumber, new List<ProductionOrderWorkSchedule>());
+
+            CreateMachinesReady(timeTable);
+            timeTable = UpdateGoodsDelivery(timeTable, simulationId);
+            return timeTable;
         }
 
         private void RemoveSimulationWorkschedules()
@@ -428,73 +445,18 @@ namespace Master40.Simulation.Simulation
 
         private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
         {
-            
             if (!firstRunOfTheDay)
             {
+                //go forward in time to the next event
                 timeTable = timeTable.ProcessTimeline(timeTable);
             }
-            
             firstRunOfTheDay = false;
             _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time = timeTable.Timer;
             _context.SaveChanges();
             CheckForOrderRequests(timeTable);
-            var freeMachineIds = GetFreeMachines(timeTable);
-            _messageHub.SendToAllClients("Free Machines: "+ JsonConvert.SerializeObject(freeMachineIds));
-            if (waitingItems.Any() && freeMachineIds.Any())
-            {
-                //Todo: no items fulfill AllSimulationChildrenFinished and exception at savecompletedcontext (invalidoperationexception)
-                foreach (var freeMachineId in freeMachineIds)
-                {
-                    var relevantItems = (from wI in waitingItems where wI.MachineId == freeMachineId select wI).ToList();
-                    if (!relevantItems.Any()) continue;
-                    var items = (from tT in relevantItems
-                                 where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
-                                 select tT).ToList();
-                    var item = items.First(a => a.Start == items.Min(b => b.Start));
-                    /*var test4 = timeTable.Items.OfType<PowsSimulationItem>()
-                        .Where(a => a.SimulationState != SimulationState.Finished).ToList();
-                    var test6 = waitingItems.Where(a => a.MachineId == 5 && (a.ProducingState == ProducingState.Waiting || a.ProducingState == ProducingState.Producing)).ToList();*/
-                    //check children if they are finished
-                    if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
-                        (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
-                        continue;
-
-                    var newDuration = _workTimeGenerator.GetRandomWorkTime(item.Duration);
-                    if (newDuration != item.EndSimulation - item.StartSimulation)
-                    {
-                        // set Time
-                        //if (item.SimulatedStart == 0) item.SimulatedStart = item.Start;
-                        item.EndSimulation = item.StartSimulation + newDuration;
-                        item.DurationSimulation = newDuration;
-                    }
-
-                    //add next in line for this machine
-                    if (timeTable.Timer != item.StartSimulation)
-                    {
-                        item.StartSimulation = timeTable.Timer;
-                        item.EndSimulation = item.StartSimulation + item.DurationSimulation;
-                    }
-                    _context.Update(item);
-                    _context.SaveChanges();
-                    
-                    timeTable.Items.Add(new PowsSimulationItem(_context)
-                    {
-                        End = item.EndSimulation,
-                        Start = item.StartSimulation,
-                        SimulationId = simulationId,
-                        ProductionOrderId = item.ProductionOrderId,
-                        ProductionOrderWorkScheduleId = item.Id,
-                        SimulationState = SimulationState.Waiting,
-                        Quantity = item.ProductionOrder.Quantity
-                        
-                    });
-                    waitingItems.Remove(item);
-                    item.ProducingState = ProducingState.Waiting;
-                    _context.ProductionOrderWorkSchedules.Update(item);
-                    _context.SaveChanges();
-                    timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
-                }
-            }
+            //try to put the next Workschedules on the Machines
+            SendWorkSchedulesToMachines(ref timeTable, simulationId, ref waitingItems);
+            //find out if a recalculation is necessary
             var recalc = (timeTable.RecalculateCounter + 1) * timeTable.RecalculateTimer;
             if (timeTable.Timer < recalc) return timeTable;
             await Recalculate(timeTable,simulationId,simNumber, waitingItems);
@@ -504,6 +466,66 @@ namespace Master40.Simulation.Simulation
             timeTable.RecalculateCounter++;
             firstRunOfTheDay = true;
             return timeTable;
+        }
+
+        private void SendWorkSchedulesToMachines(ref TimeTable<ISimulationItem> timeTable, int simulationId, ref List<ProductionOrderWorkSchedule> waitingItems)
+        {
+            var freeMachineIds = GetFreeMachines(timeTable);
+            _messageHub.SendToAllClients("Free Machines: " + JsonConvert.SerializeObject(freeMachineIds));
+            if (!waitingItems.Any() || !freeMachineIds.Any()) return;
+
+            //for each free Machine try to find the next Schedule and check if they are ready
+            foreach (var freeMachineId in freeMachineIds)
+            {
+                var relevantItems = (from wI in waitingItems where wI.MachineId == freeMachineId select wI).ToList();
+                if (!relevantItems.Any()) continue;
+                var items = (from tT in relevantItems
+                    where tT.StartSimulation == relevantItems.Min(a => a.StartSimulation)
+                    select tT).ToList();
+                var item = items.First(a => a.Start == items.Min(b => b.Start));
+                //check children if they are finished
+                if (!AllSimulationChildrenFinished(item, timeTable.Items) ||
+                    (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
+                    continue;
+                
+                var simItem =  PrepareItem(timeTable, item, simulationId);
+                timeTable.Items.Add(simItem);
+                waitingItems.Remove(item);
+                timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
+            }
+        }
+
+        private PowsSimulationItem PrepareItem(TimeTable<ISimulationItem> timeTable, ProductionOrderWorkSchedule item, int simulationId)
+        {
+            //variates the worktime by the amount set in the parameters of the simulation
+            var newDuration = _workTimeGenerator.GetRandomWorkTime(item.Duration);
+            if (newDuration != item.EndSimulation - item.StartSimulation)
+            {
+                item.EndSimulation = item.StartSimulation + newDuration;
+                item.DurationSimulation = newDuration;
+            }
+            //add next in line for this machine
+            if (timeTable.Timer != item.StartSimulation)
+            {
+                item.StartSimulation = timeTable.Timer;
+                item.EndSimulation = item.StartSimulation + item.DurationSimulation;
+            }
+            //generate simItem for the simulator based on the Item
+            var simItem = new PowsSimulationItem(_context)
+            {
+                End = item.EndSimulation,
+                Start = item.StartSimulation,
+                SimulationId = simulationId,
+                ProductionOrderId = item.ProductionOrderId,
+                ProductionOrderWorkScheduleId = item.Id,
+                SimulationState = SimulationState.Waiting,
+                Quantity = item.ProductionOrder.Quantity
+
+            };
+            item.ProducingState = ProducingState.Waiting;
+            _context.ProductionOrderWorkSchedules.Update(item);
+            _context.SaveChanges();
+            return simItem;
         }
 
         private void CheckForOrderRequests(TimeTable<ISimulationItem> timeTable)
