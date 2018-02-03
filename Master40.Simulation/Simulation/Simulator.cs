@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Master40.Agents;
 using Master40.BusinessLogicCentral.MRP;
@@ -115,12 +116,12 @@ namespace Master40.Simulation.Simulation
                 var simulationNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 //call initial central MRP-run
                 await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
-                if (task == MrpTask.Backward || task == MrpTask.Forward || task == MrpTask.All)
+                if (task == MrpTask.Backward || task == MrpTask.Forward || task == MrpTask.GifflerThompson)
                 {
-                    var list = _context.ProductionOrderWorkSchedules.Select(schedule => new PowsSimulationItem(_context)
+                   var list = _context.ProductionOrderWorkSchedules.Select(schedule => new PowsSimulationItem(_context)
                         {
-                            End = (task == MrpTask.Backward) ? schedule.EndBackward : schedule.EndForward,
-                            Start = (task == MrpTask.Backward) ? schedule.StartBackward : schedule.StartForward,
+                            End = (task == MrpTask.Backward) ? schedule.EndBackward : (task == MrpTask.Forward) ? schedule.EndForward : schedule.End,
+                            Start = (task == MrpTask.Backward) ? schedule.StartBackward : (task == MrpTask.Forward) ? schedule.StartForward : schedule.Start,
                             ProductionOrderId = schedule.ProductionOrderId,
                             ProductionOrderWorkScheduleId = schedule.Id,
                             SimulationId = simulationId
@@ -129,7 +130,18 @@ namespace Master40.Simulation.Simulation
                     _evaluationContext.SaveChanges();
                     FillSimulationWorkSchedules(list,simulationId,simulationNumber, task);
                 }
-                CopyResults.ExtractSimulationOrders(_context, _evaluationContext, simulationId, simulationNumber, SimulationType.BackwardPlanning);
+                
+                SimulationType simType = SimulationType.Central;
+                switch (task)
+                {
+                    case MrpTask.Forward:
+                        simType = SimulationType.ForwardPlanning;
+                        break;
+                    case MrpTask.Backward:
+                        simType = SimulationType.BackwardPlanning;
+                        break;
+                }
+                CopyResults.ExtractSimulationOrders(_context, _evaluationContext, simulationId, simulationNumber, simType);
                 _messageHub.EndScheduler();
             });
         }
@@ -174,7 +186,7 @@ namespace Master40.Simulation.Simulation
         private void FinishSimulation(TimeTable<ISimulationItem> timeTable, int simulationId, int simNumber, SimulationConfiguration simConfig)
         {
             //copy workschedules to the simulationworkschedules which get written back to the local-db
-            FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber, 0);
+            //FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber, 0);
             _messageHub.SendToAllClients("last Item produced at: " + _context.SimulationWorkschedules.Max(a => a.End));
             //calculate kpis
             CalculateKpis.MachineSattleTime(_context, simulationId, SimulationType.Central, simNumber);
@@ -340,7 +352,7 @@ namespace Master40.Simulation.Simulation
 
                     };
                     _context.Add(schedule);
-                    _evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
+                    //_evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
                 }
 
                 if (task == MrpTask.Backward || task == MrpTask.All)
