@@ -303,19 +303,19 @@ namespace Master40.DB.Data.Initializer
             {
                 Name = "Test config",
                 Lotsize = 1,
-                MaxCalculationTime = 1440, // test  // 10080, // 7 days
+                MaxCalculationTime = 120, // test  // 10080, // 7 days
                 OrderQuantity = 0,
                 Seed = 1338,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
                 Time = 0,
                 RecalculationTime = 1440,
-                SimulationEndTime = 20160,
+                SimulationEndTime = 120,
                 DecentralRuns = 0,
                 CentralRuns = 0,
-                DynamicKpiTimeSpan = 480,
-                SettlingStart = 2880,
-                WorkTimeDeviation = 0.1
+                DynamicKpiTimeSpan = 120,
+                SettlingStart = 0,
+                WorkTimeDeviation = 0
 
             };
             

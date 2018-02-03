@@ -72,7 +72,7 @@ namespace Master40.Agents
             var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig);
             var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNr);
             // Create Directory Agent,
-            var directoryAgent = new DirectoryAgent(system, "Directory", false);
+            var directoryAgent = new DirectoryAgent(system, "Directory", true);
             system.ChildAgents.Add(directoryAgent);
 
             // Create Machine Agents
@@ -80,7 +80,7 @@ namespace Master40.Agents
             {
                 system.ChildAgents.Add(new MachineAgent(creator: system, 
                                                            name: "Machine: " + machine.Name, 
-                                                          debug: false, 
+                                                          debug: true, 
                                                  directoryAgent: directoryAgent,
                                                         machine: machine,
                                               workTimeGenerator: randomWorkTime)); 
@@ -94,7 +94,7 @@ namespace Master40.Agents
             {
                 system.ChildAgents.Add(new StorageAgent(creator: system, 
                                                            name: stock.Name, 
-                                                          debug: false, 
+                                                          debug: true, 
                                                    stockElement: stock ));
             }
 

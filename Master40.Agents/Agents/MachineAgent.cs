@@ -300,8 +300,8 @@ namespace Master40.Agents.Agents
             // do Do Work in next Timestep.
             CreateAndEnqueueInstuction(methodName: InstuctionsMethods.DoWork.ToString(),
                                   objectToProcess: new InstructionSet(),
-                                      targetAgent: this,
-                                          waitFor: 1);
+                                      targetAgent: this );//,
+                                         // waitFor: 1);
             //DoWork(new InstructionSet());
         }
 

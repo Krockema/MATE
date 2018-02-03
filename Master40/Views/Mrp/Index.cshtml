@@ -128,14 +128,14 @@
         function startCapacity() {
             $(".MessageDisplayRunning").html("");
             $('#ajax-busy').show();
-            processingProxy.invoke('StartCapacityPlanning');
+            $.get('Mrp/StartCapacityPlanning');
         }
 
         // Start GF Scheduler
         function startGifflerThompson() {
             $(".MessageDisplayRunning").html("");
             $('#ajax-busy').show();
-            processingProxy.invoke('Mrp/MrpGifflerThompson');
+            $.get('Mrp/MrpGifflerThompson');
         }
 
         // Start Simulation
