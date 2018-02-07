@@ -80,7 +80,7 @@ namespace Master40.Controllers
         // GET: Machines/Create
         public IActionResult Create()
         {
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Id");
+            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name");
             return View();
         }
 
@@ -97,7 +97,7 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.MachineGroupId);
+            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.Name);
             return View(machine);
         }
 
@@ -114,7 +114,7 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.MachineGroupId);
+            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.Name);
             return View(machine);
         }
 
@@ -150,7 +150,7 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.MachineGroupId);
+            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.Name);
             return View(machine);
         }
 

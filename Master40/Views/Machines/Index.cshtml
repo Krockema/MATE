@@ -24,7 +24,7 @@
         @holymoly
     </div>
         <p>
-            <a asp-action="Create">Create New</a>
+            <a asp-action="Create"  class="btn btn-default">Create New</a>
         </p>
         <table class="table">
             <thead>
@@ -39,9 +39,9 @@
                         @Html.DisplayNameFor(model => model.Capacity)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.MachineGroup.Id)
+                        Machine Group
                     </th>
-                    <th></th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>

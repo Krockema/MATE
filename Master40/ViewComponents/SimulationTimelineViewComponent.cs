@@ -234,7 +234,8 @@ namespace Master40.ViewComponents
                     else
                     {
                         var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("M_" + pow.Machine, pow.Machine, "", 0, (GanttColors)gc);
+                        var mg = _context.MachineGroups.First(x => x.Id.ToString() == pow.Machine.ToString()).Name;
+                        var pt = CreateProjectTask("M_" + pow.Machine, mg, "", 0, (GanttColors)gc);
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }
