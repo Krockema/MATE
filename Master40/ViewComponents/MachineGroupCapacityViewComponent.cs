@@ -46,7 +46,8 @@ namespace Master40.ViewComponents
                 };
 
                 var simType = (schedulingState == 1) ? SimulationType.BackwardPlanning : SimulationType.ForwardPlanning;
-                    if (schedulingState == 3) simType = SimulationType.Central;
+                    if (schedulingState == 3 || schedulingState == 4) simType = SimulationType.Central;
+                    
 
                 // charttype
                 var schedules =

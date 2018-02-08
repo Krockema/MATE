@@ -50,8 +50,8 @@ namespace Master40.Controllers
                 //_simulator.InitializeMrp(MrpTask.All, 1)
                 _simulator.Simulate(1)
             );
-            BackgroundJob.ContinueWith(jobId, 
-                () => _messageHub.EndScheduler());
+            //BackgroundJob.ContinueWith(jobId, 
+            //    () => _messageHub.EndScheduler());
 
         }
 
@@ -66,8 +66,8 @@ namespace Master40.Controllers
                 BackgroundJob.Enqueue<ISimulator>(x =>
                             _simulator.InitializeMrp(MrpTask.Backward, 1)
                 );
-            BackgroundJob.ContinueWith(jobId,
-                () => _messageHub.EndScheduler());
+            //BackgroundJob.ContinueWith(jobId,
+            //    () => _messageHub.EndScheduler());
 
             return View("Index");
         }
@@ -81,9 +81,8 @@ namespace Master40.Controllers
                 BackgroundJob.Enqueue<ISimulator>(x =>
                         _simulator.InitializeMrp(MrpTask.Forward, 1)
                 );
-            BackgroundJob.ContinueWith(jobId,
-                () => _messageHub.EndScheduler());
-
+            //BackgroundJob.ContinueWith(jobId,
+            //    () => _messageHub.EndScheduler());
             return View("Index");
         }
 
@@ -102,6 +101,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> CapacityPlanning()
         {
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.Capacity);
+            
             await _simulator.InitializeMrp(MrpTask.Capacity,1);
 
             await Task.Yield();

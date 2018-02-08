@@ -158,9 +158,12 @@
         function loadGantt(orderId, stateId, page, type, config, simNr) {
             if (stateId == 1) {
                 type = "BackwardPlanning"
-            } else {
+            } else if (stateId == 2) {
                 type = "ForwardPlanning"
+            } else {
+                type = "Central"
             }
+
             loadCharts(stateId);
             var source = "Mrp/ReloadGantt/" + orderId + "/" + type + "/" + stateId + "/" + config + "/" + simNr + "/" + page;
             $.ajax({
