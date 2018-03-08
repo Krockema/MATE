@@ -34,10 +34,12 @@ namespace Master40.BusinessLogicCentral.MRP
         public void GifflerThompsonScheduling(int simulationId)
         {
             var notplanned = new List<ProductionOrderWorkSchedule>();
+                              // Datenbank.Collection.Methode(collection => collection.field == parameter).Field
+                                                   //.Single Return an Object instead of an Collection of that requested Object.
             var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
+                            
             //var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
-            var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.Where(a =>
-                a.ProducingState == ProducingState.Created).ToList();
+            var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.Where(a => a.ProducingState == ProducingState.Created).ToList();
             productionOrderWorkSchedules = ResetStartEnd(productionOrderWorkSchedules);
             productionOrderWorkSchedules = CalculateWorkTimeWithParents(productionOrderWorkSchedules);
 
@@ -75,8 +77,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private ProductionOrderWorkSchedule GetHighestPriority(List<ProductionOrderWorkSchedule> plannableSchedules)
         {
-            return plannableSchedules.First(a =>
-                a.ProductionOrder.Duetime == plannableSchedules.Min(b => b.ProductionOrder.Duetime));
+            return plannableSchedules.First(a => a.ProductionOrder.Duetime == plannableSchedules.Min(b => b.ProductionOrder.Duetime));
         }
 
         private List<ProductionOrderWorkSchedule> GetInitialPlannedSchedules(int simulationId)
@@ -137,10 +138,10 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             if (shortest.HierarchyNumber != shortest.ProductionOrder.ProductionOrderWorkSchedule.Min(a => a.HierarchyNumber))
             {
-                var children = _context.ProductionOrderWorkSchedules.Where(a =>
-                    a.ProductionOrderId == shortest.ProductionOrderId &&
-                    a.HierarchyNumber < shortest.HierarchyNumber).ToList();
-                return children.Max(b => b.End);
+                var children = _context.ProductionOrderWorkSchedules.Where(a => a.ProductionOrderId == shortest.ProductionOrderId &&
+                                                                                a.HierarchyNumber < shortest.HierarchyNumber)
+                                                                    .Max(b => b.End);
+                return children;
             }
             var childrenBoms = _context.ProductionOrderBoms.Where(a => a.ProductionOrderParentId == shortest.ProductionOrderId).ToList();
             var latestEnd = (from bom in childrenBoms where bom.DemandProductionOrderBoms.Any()
@@ -308,8 +309,7 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             foreach (var plannableSchedule in plannableSchedules)
             {
-                var processDueTime = plannableSchedule.ProductionOrder.Duetime -
-                                     ((int) plannableSchedule.WorkTimeWithParents - plannableSchedule.Duration);
+                var processDueTime = plannableSchedule.ProductionOrder.Duetime - ((int) plannableSchedule.WorkTimeWithParents - plannableSchedule.Duration);
                 plannableSchedule.ActivitySlack = PriorityRules.ActivitySlack(currentTime, plannableSchedule.Duration,processDueTime );
                 _context.Update(plannableSchedule);
             }
@@ -362,19 +362,16 @@ namespace Master40.BusinessLogicCentral.MRP
             return pows.AsEnumerable().Distinct().ToList();
         }
 
-        private void GetInitialPlannables(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules, 
-            List<ProductionOrderWorkSchedule> plannedSchedules, List<ProductionOrderWorkSchedule> plannableSchedules)
+        private void GetInitialPlannables(List<ProductionOrderWorkSchedule> productionOrderWorkSchedules,
+                                          List<ProductionOrderWorkSchedule> plannedSchedules,
+                                          List<ProductionOrderWorkSchedule> plannableSchedules)
         {
             plannableSchedules.AddRange(productionOrderWorkSchedules.Where(productionOrderWorkSchedule => 
                                             IsTechnologicallyAllowed(productionOrderWorkSchedule, plannedSchedules)));
         }
 
-        private List<ProductionOrderWorkSchedule> GetBomChilds(
-            ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        private List<ProductionOrderWorkSchedule> GetBomChilds(ProductionOrderWorkSchedule productionOrderWorkSchedule)
         {
-            i++;
-            Debug.WriteLine("Schleifendurchlauf: " +i);
-
             var boms = productionOrderWorkSchedule.ProductionOrder.ProductionOrderBoms;
             var bomChilds = (from bom in boms where bom.DemandProductionOrderBoms != null && bom.DemandProductionOrderBoms.Any()
                              from provider in bom.DemandProductionOrderBoms.First().DemandProvider.OfType<DemandProviderProductionOrder>()
@@ -389,8 +386,9 @@ namespace Master40.BusinessLogicCentral.MRP
         {
             var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.AsNoTracking().Where(a => a.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId);
             productionOrderWorkSchedules = productionOrderWorkSchedules.Where(mainSchedule => mainSchedule.HierarchyNumber < productionOrderWorkSchedule.HierarchyNumber);
-            if (!productionOrderWorkSchedules.Any()) return null;
-            return productionOrderWorkSchedules.Single(a => a.HierarchyNumber == productionOrderWorkSchedules.Max(b => b.HierarchyNumber));
+            return /*If*/ !productionOrderWorkSchedules.Any() ? 
+                   /* then return */ null : 
+                   /* else return */ productionOrderWorkSchedules.Single(a => a.HierarchyNumber == productionOrderWorkSchedules.Max(b => b.HierarchyNumber));
         }
 
         public void SetMachines(int simulationId)
