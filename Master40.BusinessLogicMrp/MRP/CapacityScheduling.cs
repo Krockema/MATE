@@ -6,6 +6,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Models;
+using Master40.Tools.Simulation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.BusinessLogicCentral.MRP
@@ -318,13 +319,15 @@ namespace Master40.BusinessLogicCentral.MRP
 
         private decimal GetRemainTimeFromParents(ProductionOrderWorkSchedule schedule)
         {
+            int transitionTime = Calculations.GetTransitionTimeForWorkSchedule(schedule);
+
             if (schedule == null) return 0;
             var parents = _context.GetParents(schedule);
-            if (parents == null || !parents.Any()) return schedule.Duration;
+            if (parents == null || !parents.Any()) return schedule.Duration + transitionTime;
             var maxTime = 0;
             foreach (var parent in parents)
             {
-                var time = GetRemainTimeFromParents(parent) + schedule.Duration;
+                var time = GetRemainTimeFromParents(parent) + schedule.Duration + transitionTime;
                 if (time > maxTime) maxTime = (int)time;
             }
             return maxTime;
@@ -425,7 +428,6 @@ namespace Master40.BusinessLogicCentral.MRP
                    (scheduleMg.Start > schedule.Start &&
                     scheduleMg.End < schedule.End);
         }
-       
     }
 }
 

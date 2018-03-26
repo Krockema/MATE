@@ -187,10 +187,10 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
         */
-        /*
+        
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
-        [InlineData(SimulationType.Decentral, 10)]
+        [InlineData(SimulationType.Decentral, 4)]
         //[InlineData(SimulationType.Central, 6)]
         // [InlineData(SimulationType.Central, 4)]
         // [InlineData(SimulationType.Central, 5)]
@@ -198,34 +198,34 @@ namespace Master40.XUnitTest.DBContext
         // [InlineData(SimulationType.Central, 7)]
         public async Task TestKpiCalculation(SimulationType simType, int simId)
         {
-            var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                          && x.SimulationConfigurationId == simId
-                                                                          && x.KpiType == KpiType.Timeliness)
-                .ToListAsync();
-            _productionDomainContext.Kpis.RemoveRange(toRemove);
-            _productionDomainContext.SaveChanges();
-            //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-            CalculateKpis.CalculateTimeliness(_productionDomainContext
-                                            , simId
-                                            , simType
-                                            , 1
-                                            , true
-                                            , 20160);
+             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+                                                                           && x.SimulationConfigurationId == simId
+                                                                           && x.KpiType == KpiType.Timeliness)
+                 .ToListAsync();
+             _productionDomainContext.Kpis.RemoveRange(toRemove);
+             _productionDomainContext.SaveChanges();
+             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
+             CalculateKpis.CalculateTimeliness(_productionDomainContext
+                                             , simId
+                                             , simType
+                                             , 1
+                                             , true
+                                             , 20160);
 
-            // var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-            //                                                               && x.SimulationConfigurationId == simId
-            //                                                               && x.KpiType == KpiType.LayTime)
-            //     .ToListAsync();
-            // _productionDomainContext.Kpis.RemoveRange(toRemove2);
-            // _productionDomainContext.SaveChanges();
-            // 
-            // CalculateKpis.CalculateLayTimes(_productionDomainContext
-            //     , simId
-            //     , simType
-            //     , 1
-            //     , true
-            //     , 20160);
-             
+           //  var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+           //                                                                && x.SimulationConfigurationId == simId
+           //                                                                && x.KpiType == KpiType.StockEvolution)
+           //      .ToListAsync();
+           //  _productionDomainContext.Kpis.RemoveRange(toRemove2);
+           //  _productionDomainContext.SaveChanges();
+           //  
+           //  CalculateKpis.ArticleStockEvolution(_productionDomainContext
+           //      , simId
+           //      , simType
+           //      , 1
+           //      , true
+           //      , 20160);
+           // 
 
 
             //            CalculateKpis.CalculateAllKpis(
@@ -240,7 +240,8 @@ namespace Master40.XUnitTest.DBContext
         }
 
         
-    */
+    
+    /*
         [Fact]
         public async Task TestDistribution()
         {      //Sigma² ==> Varianz
@@ -263,6 +264,8 @@ namespace Master40.XUnitTest.DBContext
             var exponentialSamples = OrderGenerator.TestExponentialDistribution(1000);
             CreateCSVFromDoubleList(exponentialSamples.ToList(), "exponential.csv");
         }
+
+    */
 
         /// <summary>
         /// Creates the CSV from a generic list.

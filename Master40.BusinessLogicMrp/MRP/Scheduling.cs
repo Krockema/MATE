@@ -3,6 +3,7 @@ using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
+using Master40.Tools.Simulation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.BusinessLogicCentral.MRP
@@ -34,6 +35,9 @@ namespace Master40.BusinessLogicCentral.MRP
             productionOrderWorkSchedules = productionOrderWorkSchedules.OrderBy(a => a.ProductionOrderId).ThenByDescending(b => b.HierarchyNumber).ToList();
             foreach (var workSchedule in productionOrderWorkSchedules)
             {
+                // set transition time relating to machine group.
+                var transitionTime = Calculations.GetTransitionTimeForWorkSchedule(workSchedule);
+
                 //Set hierarchy to something high that every workSchedule found will overwrite this value
                 var hierarchyParent = _context.GetHierarchyParent(workSchedule);
                 //if no hierarchy has been found
@@ -57,11 +61,14 @@ namespace Master40.BusinessLogicCentral.MRP
                                 (a.ProductionOrderId == workSchedule.ProductionOrderId)).StartBackward;
                     }
                 }
-                if (demand.State == State.ForwardScheduleExists)
-                    workSchedule.StartForward = workSchedule.EndForward - workSchedule.Duration;
-                else
-                    workSchedule.StartBackward = workSchedule.EndBackward - workSchedule.Duration;
-               
+                if (demand.State == State.ForwardScheduleExists) { 
+                    workSchedule.StartForward = workSchedule.EndForward - workSchedule.Duration - transitionTime;
+                    workSchedule.EndForward = workSchedule.StartForward + workSchedule.Duration;
+                } else { 
+                    workSchedule.StartBackward = workSchedule.EndBackward - workSchedule.Duration - transitionTime;
+                    workSchedule.EndBackward = workSchedule.StartBackward + workSchedule.Duration;
+                }
+
             }
             _context.ProductionOrderWorkSchedules.UpdateRange(productionOrderWorkSchedules);
 
@@ -178,9 +185,7 @@ namespace Master40.BusinessLogicCentral.MRP
                 }
             }*/
             return demandProviderProductionOrders
-                .Select(demandProviderProductionOrder => 
-                demandProviderProductionOrder.DemandRequester.DemandRequester
-                                                         ?? demandProviderProductionOrder.DemandRequester)
+                .Select(demandProviderProductionOrder => demandProviderProductionOrder.DemandRequester.DemandRequester ?? demandProviderProductionOrder.DemandRequester)
                 .Select(GetDueTime).Concat(new[] {999999}).Min();
         }
 

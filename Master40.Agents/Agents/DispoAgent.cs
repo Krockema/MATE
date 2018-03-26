@@ -4,6 +4,7 @@ using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Helper;
 using Master40.DB.Models;
+using Master40.Tools.Simulation;
 
 namespace Master40.Agents.Agents
 {
@@ -99,7 +100,7 @@ namespace Master40.Agents.Agents
 
             // set new Due Time if there is Work to do.
             if (RequestItem.Article.WorkSchedules != null)
-                item.DueTime = RequestItem.DueTime - RequestItem.Article.WorkSchedules.Sum(x => x.Duration);
+                item.DueTime = RequestItem.DueTime - RequestItem.Article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
 
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < QuantityToProduce; i++)

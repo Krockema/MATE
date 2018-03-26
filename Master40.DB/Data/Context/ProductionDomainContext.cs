@@ -305,7 +305,7 @@ namespace Master40.DB.Data.Context
                SaveChanges();
            }*/
 
-            public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, int simulationId)
+        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, int simulationId)
         {
             ProductionOrderBom bom = null;
             if (demand.GetType() == typeof(DemandProductionOrderBom))

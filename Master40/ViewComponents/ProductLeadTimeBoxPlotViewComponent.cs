@@ -20,7 +20,7 @@ namespace Master40.ViewComponents
             _simList = new List<Tuple<int, SimulationType>>();
             _context = context;
         }
-
+        
 
 
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
@@ -34,6 +34,7 @@ namespace Master40.ViewComponents
             _simList = _simList.OrderBy(x => x.Item2).ThenBy(x => x.Item1).ToList();
             var displayData = new List<Kpi>();
             var kpi = new List<Kpi>();
+            
             // charttype
             foreach (var sim in _simList)
             {
@@ -43,6 +44,8 @@ namespace Master40.ViewComponents
                                                        //&& x.SimulationType == sim.Item2);
                 kpi.AddRange(trick17.ToList());
             }
+            var maxValue = kpi.Max(x => x.Value);
+
             
             var generateChartTask = Task.Run(() =>
             {
@@ -95,11 +98,10 @@ namespace Master40.ViewComponents
             
             // create JS to Render Chart.
             var boxPlot = await generateChartTask;
-            var max = boxPlot.Max(x => x.HeigestSample);
             ViewData["BoxPlot"] = boxPlot;
             ViewData["Type"] = paramsList[1];
             ViewData["Data"] = displayData.Distinct().ToList();
-            ViewData["Max"] = Math.Ceiling(max / 100) * 100;
+            ViewData["Max"] = Math.Ceiling(maxValue / 100) * 100;
             //ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
             return View($"ProductLeadTimeBoxPlot");
         }
