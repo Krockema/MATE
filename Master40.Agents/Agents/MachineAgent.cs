@@ -108,9 +108,9 @@ namespace Master40.Agents.Agents
         private void SendProposalTo(Agent targetAgent, WorkItem workItem)
         {
             var max = 0;
-            if(Queue.Any(e => e.Priority <= workItem.Priority))
+            if(Queue.Any(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)))
             {
-                max = Queue.Where(e => e.Priority <= workItem.Priority).Max(e => e.EstimatedEnd);
+                max = Queue.Where(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)).Max(e => e.EstimatedEnd);
             }
 
             // calculat Proposal.
@@ -138,10 +138,10 @@ namespace Master40.Agents.Agents
             if (workItem == null)
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
 
-            if (Queue.Any(e => e.Priority <= workItem.Priority))
+            if (Queue.Any(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)))
             {
                 // Get item Latest End.
-                var maxItem = Queue.Where(e => e.Priority <= workItem.Priority).Max(e => e.EstimatedEnd);
+                var maxItem = Queue.Where(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)).Max(e => e.EstimatedEnd);
 
                 // check if Queuable
                 if (maxItem > workItem.EstimatedStart)
@@ -158,13 +158,13 @@ namespace Master40.Agents.Agents
             Queue.Add(workItem);
             
             // Enqued before another item?
-            var position = Queue.OrderBy(x => x.Priority).ToList().IndexOf(workItem);
-            DebugMessage("Position: " + position + " Priority:"+ workItem.Priority + " Queue length " + Queue.Count());
+            var position = Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().IndexOf(workItem);
+            DebugMessage("Position: " + position + " Priority:"+ workItem.Priority(Context.TimePeriod) + " Queue length " + Queue.Count());
 
             // reorganize Queue if an Element has ben Queued which is More Important.
             if (position + 1 < Queue.Count)
             {
-                var toRequeue = Queue.OrderBy(x => x.Priority).ToList().GetRange(position + 1, Queue.Count() - position - 1);
+                var toRequeue = Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().GetRange(position + 1, Queue.Count() - position - 1);
 
                 CallToReQueue(toRequeue);
 
@@ -186,7 +186,7 @@ namespace Master40.Agents.Agents
         {
             foreach (var reqItem in toRequeue)
             {
-                DebugMessage("-> ToRequeue " + reqItem.Priority + " Current Possition: " + Queue.OrderBy(x => x.Priority).ToList().IndexOf(reqItem) + " Id " + reqItem.Id);
+                DebugMessage("-> ToRequeue " + reqItem.Priority(Context.TimePeriod) + " Current Possition: " + Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().IndexOf(reqItem) + " Id " + reqItem.Id);
 
                 // remove item from current Queue
                 Queue.Remove(reqItem);
@@ -281,7 +281,7 @@ namespace Master40.Agents.Agents
             }
 
             // Set next Ready Element from Queue
-            var itemFromQueue = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority).FirstOrDefault();
+            var itemFromQueue = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority(Context.TimePeriod)).FirstOrDefault();
             UpdateProcessingQueue(itemFromQueue);
 
             // Set Machine State to Ready for next

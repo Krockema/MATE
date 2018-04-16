@@ -497,6 +497,7 @@ namespace Master40.Tools.Simulation
                 .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                 .Where(a =>
                         a.State == State.Finished && a.CreationTime > simConfig.SettlingStart &&
+                        a.FinishingTime <= simConfig.SimulationEndTime &&
                         a.CreationTime < simConfig.SimulationEndTime)
                     .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()
                 : context.SimulationOrders

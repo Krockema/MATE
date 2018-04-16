@@ -35,7 +35,7 @@ namespace Master40.ViewComponents
                 var simConfig = _context.SimulationConfigurations.Single(a => a.Id == Convert.ToInt32(paramsList[0]));
                 // use available hight in Chart
                 var maxY = Math.Floor((decimal)simConfig.SimulationEndTime / 1000) * 1000;
-                var maxX = 60;
+                var maxX = 100;
                 chart.Options = new LineOptions()
                 {
                     MaintainAspectRatio = false,

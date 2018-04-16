@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Models;
+using NSimulate.Instruction;
 
 namespace Master40.Agents.Agents
 {

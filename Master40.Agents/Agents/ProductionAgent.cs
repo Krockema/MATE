@@ -157,9 +157,9 @@ namespace Master40.Agents.Agents
                     DueTime = lastdue,
                     WorkSchedule = workSchedule,
                     ProductionAgent = this,
-                    Priority = PriorityRules.ActivitySlack(currentTime: (int)Context.TimePeriod, 
-                                                      processDuration: workSchedule.Duration, 
-                                                           processDue: lastdue)
+                    //Priority = PriorityRules.ActivitySlack(currentTime: (int)Context.TimePeriod, 
+                    //                                  processDuration: workSchedule.Duration, 
+                    //                                       processDue: lastdue)
                 };
                
 
@@ -198,7 +198,7 @@ namespace Master40.Agents.Agents
             var message = new WorkItemStatus
             {
                 WorkItemId = nextItem.Id,
-                CurrentPriority = nextItem.Priority,  // TODO MAY NEED TO RECALCULATE IN FUTURE
+                CurrentPriority = nextItem.Priority(Context.TimePeriod),  // TODO MAY NEED TO RECALCULATE IN FUTURE
                 Status = Status.Ready,                // TODO: MAybe need to change to an Extra Field -> bool IsReady 
             };
 

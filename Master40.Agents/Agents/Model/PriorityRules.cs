@@ -2,6 +2,8 @@
 {
     public class PriorityRules : Master40.DB.Data.Helper.PriorityRules
     {
-
+        
     }
+    
+
 }

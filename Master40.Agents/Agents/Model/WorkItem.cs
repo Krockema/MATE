@@ -14,7 +14,9 @@ namespace Master40.Agents.Agents.Model
         public int EstimatedStart { get; set; }
         public int EstimatedEnd { get; set; }
         public bool MaterialsProvided { get; set; }
-        public double Priority { get; set; }
+        //public double Priority { get; set; }
+        private double _priority;
+        public Func<long, double> PriorityRule { get; set; }
         public Status Status { get; set; }
         public bool WasSetReady { get; set; }
         public Guid MachineAgentId { get; set; }
@@ -26,7 +28,11 @@ namespace Master40.Agents.Agents.Model
         {
             Id = Guid.NewGuid();
             Proposals = new List<Proposal>();
-
+            PriorityRule = currentTime => DueTime - WorkSchedule.Duration - currentTime; 
         }
+        public double Priority() { return _priority; }
+        public double Priority(long time) {
+            _priority = PriorityRule(time);
+            return _priority; }
     }
 }

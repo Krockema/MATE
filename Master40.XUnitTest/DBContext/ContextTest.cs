@@ -190,7 +190,9 @@ namespace Master40.XUnitTest.DBContext
         
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
-        [InlineData(SimulationType.Decentral, 4)]
+        [InlineData(SimulationType.Decentral, 1)]
+        [InlineData(SimulationType.Decentral, 2)]
+        [InlineData(SimulationType.Decentral, 3)]
         //[InlineData(SimulationType.Central, 6)]
         // [InlineData(SimulationType.Central, 4)]
         // [InlineData(SimulationType.Central, 5)]

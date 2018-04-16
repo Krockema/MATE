@@ -79,10 +79,17 @@ namespace Master40.Agents.Agents
             // add To System
             this.ChildAgents.Add(ca);
 
+            // long l = contract.Order.DueTime - 1440;
+            // if (l < Context.TimePeriod)
+            // {
+            //     l = 0;
+            // }
+
             // enqueue Order
             CreateAndEnqueueInstuction(methodName: ContractAgent.InstuctionsMethods.StartOrder.ToString(),
                                   objectToProcess: contract,
                                       targetAgent: ca);
+                                      //, waitFor: l);
 
         }
 

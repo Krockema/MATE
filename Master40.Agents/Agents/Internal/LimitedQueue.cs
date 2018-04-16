@@ -27,7 +27,7 @@ namespace Master40.Agents.Agents.Internal
         {
             if(Count == 0) return null;
 
-            var item = this.OrderBy(x => x.Priority).FirstOrDefault();
+            var item = this.OrderBy(x => x.Priority()).FirstOrDefault();
             this.Remove(item);
             return item;
         }
