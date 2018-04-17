@@ -191,8 +191,8 @@ namespace Master40.XUnitTest.DBContext
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
         [InlineData(SimulationType.Decentral, 1)]
-        [InlineData(SimulationType.Decentral, 2)]
-        [InlineData(SimulationType.Decentral, 3)]
+        //[InlineData(SimulationType.Decentral, 2)]
+        //[InlineData(SimulationType.Decentral, 3)]
         //[InlineData(SimulationType.Central, 6)]
         // [InlineData(SimulationType.Central, 4)]
         // [InlineData(SimulationType.Central, 5)]
@@ -202,17 +202,17 @@ namespace Master40.XUnitTest.DBContext
         {
              var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
                                                                            && x.SimulationConfigurationId == simId
-                                                                           && x.KpiType == KpiType.Timeliness)
+                                                                           && x.KpiType == KpiType.StockEvolution)
                  .ToListAsync();
              _productionDomainContext.Kpis.RemoveRange(toRemove);
              _productionDomainContext.SaveChanges();
              //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-             CalculateKpis.CalculateTimeliness(_productionDomainContext
+             CalculateKpis.ArticleStockEvolution(_productionDomainContext
                                              , simId
                                              , simType
                                              , 1
                                              , true
-                                             , 20160);
+                                             , 130);
 
            //  var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
            //                                                                && x.SimulationConfigurationId == simId

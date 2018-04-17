@@ -108,17 +108,15 @@ namespace Master40.Agents.Agents
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
             if (requestProvidable.Quantity <= StockElement.Current)
             {
-                // Reduce Stock 
-                StockElement.Current = StockElement.Current - requestProvidable.Quantity;
-                DebugMessage("------------->> items in STOCK: " + StockElement.Current + " Items Requested " + requestProvidable.Quantity);
-
-
                 //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
                 if (requestProvidable.IsHeadDemand && requestProvidable.DueTime >= (int)Context.TimePeriod)
                     StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = requestProvidable.DueTime;
                 else
                     StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = (int)Context.TimePeriod;
 
+                // Reduce Stock 
+                StockElement.Current = StockElement.Current - requestProvidable.Quantity;
+                DebugMessage("------------->> items in STOCK: " + StockElement.Current + " Items Requested " + requestProvidable.Quantity);
 
                 // Create Callback for Production
                 CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),

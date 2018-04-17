@@ -28,7 +28,7 @@ namespace Master40.Controllers
                     {
                         case "small":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerSmall.DbInitialize(_context);
+                            MasterDBInitializerBasic.DbInitialize(_context);
                             break;
                         case "medium":
                             _context.Database.EnsureDeleted();

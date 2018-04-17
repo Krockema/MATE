@@ -175,10 +175,10 @@ namespace Master40.Tools.Simulation
             var finishedProducts = final
                 ? context.SimulationWorkschedules
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
-                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20).ToList()
+                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 10).ToList()
                 : context.SimulationWorkschedules
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a =>
-                    a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
+                    a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 10 &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
             var tts = new List<Kpi>();
@@ -201,7 +201,7 @@ namespace Master40.Tools.Simulation
                 });
             }
 
-            var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
+            var products = leadTimes.Where(a => a.Name.Equals("Tisch")).Select(x => x.Name).Distinct();
             var leadTimesBoxPlot = tts;
             //calculate Average per article
 
@@ -496,7 +496,7 @@ namespace Master40.Tools.Simulation
                 ? context.SimulationOrders
                 .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                 .Where(a =>
-                        a.State == State.Finished && a.CreationTime > simConfig.SettlingStart &&
+                        a.State == State.Finished && a.CreationTime >= simConfig.SettlingStart &&
                         a.FinishingTime <= simConfig.SimulationEndTime &&
                         a.CreationTime < simConfig.SimulationEndTime)
                     .Select(x => new {x.Name, x.FinishingTime, x.DueTime}).ToList()

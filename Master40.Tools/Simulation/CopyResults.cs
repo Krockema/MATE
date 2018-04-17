@@ -71,24 +71,14 @@ namespace Master40.Tools.Simulation
 
         private static void ExtractWorkSchedules(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
-           List<SimulationWorkschedule> sw = new List<SimulationWorkschedule>();
-           foreach (var item in inMemmoryContext.SimulationWorkschedules.ToList())
-           {
-               sw.Add(item.CopyDbPropertiesWithoutId());
-           }
-           
+            var sw = inMemmoryContext.SimulationWorkschedules.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList();
             productionDomainContext.SimulationWorkschedules.AddRange(sw);
             productionDomainContext.SaveChanges();
         }
 
         private static void ExtractStockExchanges(MasterDBContext inMemmoryContext, ProductionDomainContext productionDomainContext)
         {
-            List<StockExchange> se = new List<StockExchange>();
-            
-            foreach (var item in inMemmoryContext.StockExchanges.ToList())
-            {
-                se.Add(item.CopyDbPropertiesWithoutId());
-            }
+            var se = inMemmoryContext.StockExchanges.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList();
             productionDomainContext.StockExchanges.AddRange(se);
             productionDomainContext.SaveChanges();
         }

@@ -701,11 +701,10 @@ namespace Master40.Simulation.Simulation
                 var sim = new AgentSimulation(c, _messageHub);
                 await sim.RunSim(simulationConfigurationId, simNumber);
 
-
-                CalculateKpis.MachineSattleTime(c, simulationConfigurationId, SimulationType.Decentral, simNumber);
-
-                CalculateKpis.CalculateAllKpis(c, simulationConfigurationId, SimulationType.Decentral, simNumber, true);
                 CopyResults.Copy(c, _evaluationContext, simulationConfigurationId, simNumber, SimulationType.Decentral);
+                CalculateKpis.MachineSattleTime(_evaluationContext, simulationConfigurationId, SimulationType.Decentral, simNumber);
+
+                CalculateKpis.CalculateAllKpis(_evaluationContext, simulationConfigurationId, SimulationType.Decentral, simNumber, true);
             }
             connection.Close();
             _messageHub.EndSimulation("Simulation with Id:" + simulationConfigurationId + " Completed."
