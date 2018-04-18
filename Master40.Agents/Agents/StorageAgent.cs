@@ -42,6 +42,7 @@ namespace Master40.Agents.Agents
         {
             // Create and Return a Reservation for Article
             RequestArticle,
+            ProvideArticleAtDue,
             ResponseFromProduction,
             StockRefill,
             WithdrawlMaterial
@@ -89,23 +90,47 @@ namespace Master40.Agents.Agents
             }
 
             DebugMessage("Production Agent Finished Work: " + productionAgent.Name);
-            
+
 
             // Add the Produced item to Stock
             StockElement.Current++;
-            var stockExchange = new StockExchange {
-                    StockId = StockElement.Id,
-                    ExchangeType = ExchangeType.Insert,
-                    Quantity = 1,
-                    State = State.Finished,
-                    RequiredOnTime = (int)Context.TimePeriod,
-                    Time = (int)Context.TimePeriod
+            var stockExchange = new StockExchange
+            {
+                StockId = StockElement.Id,
+                ExchangeType = ExchangeType.Insert,
+                Quantity = 1,
+                State = State.Finished,
+                RequiredOnTime = (int)Context.TimePeriod,
+                Time = (int)Context.TimePeriod
             };
             StockElement.StockExchanges.Add(stockExchange);
 
             ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
+            if (requestProvidable.IsHeadDemand && requestProvidable.DueTime <= Context.TimePeriod)
+            {
+                CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.ProvideArticleAtDue.ToString(),
+                      objectToProcess: requestProvidable, // may needs later a more complex answer for now just remove item from stock
+                          targetAgent: this,
+                              waitFor: requestProvidable.DueTime - Context.TimePeriod);
+                return;
+            }
+            ProvideArticle(requestProvidable);
+
+        }
+
+        private void ProvideArticleAtDue(InstructionSet instructionSet)
+        {
+            var requestProvidable = instructionSet.ObjectToProcess as RequestItem;
+            if (requestProvidable == null)
+                throw new InvalidCastException(this.Name + " failed to Cast RequestItem on Instruction.ObjectToProcess");
+
+            ProvideArticle(requestProvidable);
+        }
+
+        private void ProvideArticle(RequestItem requestProvidable)
+        {
             if (requestProvidable.Quantity <= StockElement.Current)
             {
                 //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
@@ -122,7 +147,7 @@ namespace Master40.Agents.Agents
                 CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.RequestProvided.ToString(),
                                         objectToProcess: requestProvidable, // may needs later a more complex answer for now just remove item from stock
                                         targetAgent: requestProvidable.Requester); // its Source Agent becaus this message is the Answer to the Instruction set.
-                
+
                 // Remove from Requester List.
                 this.RequestedItems.Remove(requestProvidable);
 
@@ -130,7 +155,6 @@ namespace Master40.Agents.Agents
                 Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
                 ProviderList.Clear();
             }
-
         }
 
         private void StockRefill(InstructionSet instructionSet)

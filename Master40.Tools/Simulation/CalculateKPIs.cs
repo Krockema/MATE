@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
@@ -8,7 +7,6 @@ using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using MathNet.Numerics.Statistics;
-using MathNet.Numerics.Statistics.Mcmc;
 
 namespace Master40.Tools.Simulation
 {
@@ -175,10 +173,10 @@ namespace Master40.Tools.Simulation
             var finishedProducts = final
                 ? context.SimulationWorkschedules
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
-                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 10).ToList()
+                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20).ToList()
                 : context.SimulationWorkschedules
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a =>
-                    a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 10 &&
+                    a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
                     a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
             var tts = new List<Kpi>();
@@ -201,7 +199,7 @@ namespace Master40.Tools.Simulation
                 });
             }
 
-            var products = leadTimes.Where(a => a.Name.Equals("Tisch")).Select(x => x.Name).Distinct();
+            var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
             var leadTimesBoxPlot = tts;
             //calculate Average per article
 
