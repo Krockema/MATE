@@ -88,11 +88,11 @@ namespace Master40.Controllers
             var vc = ViewComponent("IdlePeriod", new List<string> { simulationId, simulationType, simNumber });
             return vc;
         }
-        [HttpGet("[Controller]/SimulationTimeline/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}/{simulationPage}")]
-        public IActionResult SimulationTimeline(string orderId, string simulationType, string state, string simulationConfigurationId, string simNumber, string simulationPage)
+        [HttpGet("[Controller]/SimulationTimeline/{orderId}/{state}/{simulationPage}/{simulationType}/{simulationConfigurationId}/{simNumber}")]
+        public IActionResult SimulationTimeline(string orderId, string state, string simulationPage, string simulationType, string simulationConfigurationId, string simNumber)
         {
             //call to Diagramm
-            var vc = ViewComponent("SimulationTimeline", new List<string> { orderId, simulationType, state, simulationConfigurationId, simNumber, simulationPage });
+            var vc = ViewComponent("SimulationTimeline", new List<string> { orderId, state, simulationPage, simulationType, simulationConfigurationId, simNumber });
             return vc;
         }
 

@@ -201,18 +201,18 @@ namespace Master40.XUnitTest.DBContext
         public async Task TestKpiCalculation(SimulationType simType, int simId)
         {
              var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                           && x.SimulationConfigurationId == simId
-                                                                           && x.KpiType == KpiType.StockEvolution)
+                                                                           && x.SimulationConfigurationId == 1
+                                                                           && x.KpiType == KpiType.LayTime)
                  .ToListAsync();
              _productionDomainContext.Kpis.RemoveRange(toRemove);
              _productionDomainContext.SaveChanges();
              //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-             CalculateKpis.ArticleStockEvolution(_productionDomainContext
-                                             , simId
+             CalculateKpis.CalculateLayTimes(_productionDomainContext
+                                             , 1
                                              , simType
                                              , 1
                                              , true
-                                             , 130);
+                                             , 20160);
 
            //  var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
            //                                                                && x.SimulationConfigurationId == simId

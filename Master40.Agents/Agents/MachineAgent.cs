@@ -281,7 +281,7 @@ namespace Master40.Agents.Agents
             }
 
             // Set next Ready Element from Queue
-            var itemFromQueue = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority(Context.TimePeriod)).FirstOrDefault();
+            var itemFromQueue = Queue.Where(x => x.Status == Status.Ready).OrderBy(x => x.Priority(Context.TimePeriod)).ThenBy(x => x.WorkSchedule.Duration).FirstOrDefault();
             UpdateProcessingQueue(itemFromQueue);
 
             // Set Machine State to Ready for next

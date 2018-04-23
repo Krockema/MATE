@@ -66,7 +66,10 @@ namespace Master40.Agents.Agents
             if (ChildAgents.Any(x => x.Status != Status.Finished)) return;
             // else
             // Call Finish
-            Debug.WriteLine("Order Finished at:" + Context.TimePeriod);
+            var intime = false;
+            if (Context.TimePeriod <= requestItem.DueTime)
+                intime = true;
+            Debug.WriteLine("Order Finished at:" + Context.TimePeriod + " InTime: " + intime);
             CreateAndEnqueueInstuction(methodName: SystemAgent.InstuctionsMethods.OrderProvided.ToString(),
                 objectToProcess: requestItem,
                 targetAgent: this.Creator);

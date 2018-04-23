@@ -108,11 +108,14 @@ namespace Master40.Agents.Agents
                 }
                 else
                 {
+                    long l = orderpart.Order.DueTime - (10*60); // 540
+                    if (l < 0) { l = 0; }
+
                     this.CreateAndEnqueueInstuction(
                         methodName: SystemAgent.InstuctionsMethods.CreateContractAgent.ToString(),
                         objectToProcess: orderpart,
                         targetAgent: this,
-                        waitFor: orderpart.Order.CreationTime
+                        waitFor: l
                     );
                 }
             }

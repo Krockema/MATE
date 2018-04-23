@@ -55,7 +55,7 @@ namespace Master40.Agents.Agents
             }
             // debug
             DebugMessage("requests from " + StockAgent.Name + " Article: " + RequestItem.Article.Name + " (" + RequestItem.Quantity + ")");
-            
+
             // Create Request 
             CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.RequestArticle.ToString(),
                                   objectToProcess: RequestItem,
@@ -84,6 +84,14 @@ namespace Master40.Agents.Agents
                 CreateAndEnqueueInstuction(methodName: Agents.SystemAgent.InstuctionsMethods.RequestArticleBom.ToString(),
                                         objectToProcess: RequestItem,
                                         targetAgent: SystemAgent);
+                // and request the Article from  stock at Due Time
+                if (RequestItem.IsHeadDemand)
+                {
+                    CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.ProvideArticleAtDue.ToString(),
+                                      objectToProcess: RequestItem, // may needs later a more complex answer for now just remove item from stock
+                                          targetAgent: StockAgent,
+                                              waitFor: RequestItem.DueTime - Context.TimePeriod);
+                }
             }
             // Not in Stock and Not ToBuild Agent has to Wait for Stock To Provide Materials
 

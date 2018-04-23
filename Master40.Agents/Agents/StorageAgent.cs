@@ -108,14 +108,10 @@ namespace Master40.Agents.Agents
             ProviderList.Add(productionAgent.AgentId);
             // Check if the most Important Request can be provided.
             var requestProvidable = RequestedItems.FirstOrDefault(x => x.DueTime == RequestedItems.Min(r => r.DueTime));
-            if (requestProvidable.IsHeadDemand && requestProvidable.DueTime <= Context.TimePeriod)
-            {
-                CreateAndEnqueueInstuction(methodName: StorageAgent.InstuctionsMethods.ProvideArticleAtDue.ToString(),
-                      objectToProcess: requestProvidable, // may needs later a more complex answer for now just remove item from stock
-                          targetAgent: this,
-                              waitFor: requestProvidable.DueTime - Context.TimePeriod);
-                return;
-            }
+            // TODO: Prove if quantity check is required.
+
+            if (requestProvidable.IsHeadDemand && requestProvidable.DueTime > Context.TimePeriod) { return; }
+            // else
             ProvideArticle(requestProvidable);
 
         }
@@ -125,8 +121,11 @@ namespace Master40.Agents.Agents
             var requestProvidable = instructionSet.ObjectToProcess as RequestItem;
             if (requestProvidable == null)
                 throw new InvalidCastException(this.Name + " failed to Cast RequestItem on Instruction.ObjectToProcess");
-
-            ProvideArticle(requestProvidable);
+            // discard request, if the item has already been provided.
+            if (this.RequestedItems.Any(r => r.Requester == requestProvidable.Requester))
+            {
+                ProvideArticle(requestProvidable);
+            }
         }
 
         private void ProvideArticle(RequestItem requestProvidable)
@@ -134,10 +133,15 @@ namespace Master40.Agents.Agents
             if (requestProvidable.Quantity <= StockElement.Current)
             {
                 //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
-                if (requestProvidable.IsHeadDemand && requestProvidable.DueTime >= (int)Context.TimePeriod)
-                    StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = requestProvidable.DueTime;
-                else
-                    StockElement.StockExchanges.Single(x => x.TrakingGuid == requestProvidable.StockExchangeId).Time = (int)Context.TimePeriod;
+
+                if (requestProvidable.IsHeadDemand)
+                    Withdraw(requestProvidable);
+
+                if (requestProvidable.ProviderList.Count == 0)
+                {
+                    requestProvidable.ProviderList = new List<Guid>(ProviderList);
+                    ProviderList.Clear();
+                }
 
                 // Reduce Stock 
                 StockElement.Current = StockElement.Current - requestProvidable.Quantity;
@@ -152,8 +156,11 @@ namespace Master40.Agents.Agents
                 this.RequestedItems.Remove(requestProvidable);
 
                 // Update Work Item with Provider For
-                Statistics.UpdateSimulationWorkSchedule(ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
-                ProviderList.Clear();
+                Statistics.UpdateSimulationWorkSchedule(requestProvidable.ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
+                //ProviderList.Clear();
+            } else
+            {
+                DebugMessage("Item will be late..............................");
             }
         }
 
@@ -283,7 +290,12 @@ namespace Master40.Agents.Agents
             {
                 throw new InvalidCastException(this.Name + " failed to Cast ProductionAgent on Instruction.ObjectToProcess");
             }
-            var item = StockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
+            Withdraw(request);
+        }
+
+        private void Withdraw(RequestItem requestItem)
+        {
+            var item = StockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == requestItem.StockExchangeId);
             if (item != null) { item.State = State.Finished; item.Time = (int)Context.TimePeriod; }
             else throw new Exception("No StockExchange found");
         }

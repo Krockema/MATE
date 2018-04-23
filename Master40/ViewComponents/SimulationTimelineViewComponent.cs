@@ -39,12 +39,13 @@ namespace Master40.ViewComponents
             //.Definitions();
             var orders = new List<int>();
             _orderId = Convert.ToInt32(paramsList[0]);
-            _schedulingState = Convert.ToInt32(paramsList[2]);
-            _simulationNumber = Convert.ToInt32(paramsList[3]);
+            _schedulingState = Convert.ToInt32(paramsList[1]);
+            _schedulingPage = Convert.ToInt32(paramsList[2]);
             _simulationConfigurationId = Convert.ToInt32(paramsList[4]);
-            _schedulingPage = Convert.ToInt32(paramsList[5]);
+            _simulationNumber = Convert.ToInt32(paramsList[5]);
+            
             var folowLinks = false;
-            switch (paramsList[1])
+            switch (paramsList[3])
             {
                 case "Decentral":
                     _simulationType = SimulationType.Decentral;
