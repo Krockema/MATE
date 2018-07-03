@@ -42,9 +42,9 @@ namespace Master40.ViewComponents
                 Responsive = true,
                 Scales = new Scales
                 {
-                    YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
-                    XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true,
-                        Ticks = new Tick{ Max = maxX, Min = 0 , Display = true }, 
+                    YAxes = new List<Scale> { new CartesianScale { Id = "first-y-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
+                    XAxes = new List<Scale> { new CartesianScale { Id = "first-x-axis", Type = "linear", Display = true,
+                        Ticks = new CartesianLinearTick{ Max = maxX, Min = 0 , Display = true }, 
                         ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },
                 },
                 Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
@@ -65,9 +65,9 @@ namespace Master40.ViewComponents
             foreach (var article in articles)
             {
                 // add zero to start
-                var articleKpis = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
+                var articleKpis = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
                 articleKpis.AddRange(kpis.Where(x => x.Name == article).OrderBy(x => x.Count)
-                    .Select(x => new LineScatterData { x = x.Count, y = x.ValueMin }).ToList());
+                    .Select(x => new LineScatterData { x = x.Count.ToString(), y = x.ValueMin.ToString() }).ToList());
 
                     var lds = new LineScatterDataset()
                     {
@@ -76,7 +76,7 @@ namespace Master40.ViewComponents
                         BorderWidth = 1,
                         Label = article,
                         ShowLine = true,
-                        SteppedLine = true,
+                        //SteppedLine = true,
                         LineTension = 0
                         , Hidden = (article.Equals("Dump-Truck") || article.Equals("Race-Truck")) ? false : true
                         ,YAxisID = "first-y-axis"

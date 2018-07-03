@@ -176,8 +176,10 @@
 
 
     });
-    var processingProxy = $.connection.hub.createHubProxy("ProcessingHub");
-
+    const processingProxy = new signalR.HubConnectionBuilder()
+        .withUrl("/MessageHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
 
     processingProxy.on("clientListener", function (mstype, simId, count, simType) {
         if (mstype == "ProcessingUpdate") {
@@ -202,11 +204,11 @@
         }
     });
 
+    processingProxy.start()
+        .done(function () { processingProxy.invoke('SystemReady') })
+        .catch(err => console.error(err.toString()));
     // Processing Hub is loaded
-    $.connection.hub.start().done(function () {
-        processingProxy.invoke('SystemReady');
-    })
-
+    
     function growlMsg(msg) {
         $.bootstrapGrowl(msg, {
             ele: 'body', // which element to append to

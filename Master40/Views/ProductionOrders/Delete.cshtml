@@ -13,7 +13,7 @@
     <h4>ProductionOrder</h4>
     <hr />
     <dl class="dl-horizontal">
-        <input type="hidden" asp-for="ProductionOrderId" />
+        <input type="hidden" asp-for="Id" />
         <dt>
             @Html.DisplayNameFor(model => model.Quantity)
         </dt>
@@ -30,7 +30,7 @@
             @Html.DisplayNameFor(model => model.Article)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Article.ArticleId)
+            @Html.DisplayFor(model => model.Article.Id)
         </dd>
     </dl>
     

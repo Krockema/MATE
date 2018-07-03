@@ -42,5 +42,23 @@ namespace Master40.DB.Models
         public string PictureUrl { get; set; }
 
 
+
+        public IEnumerable<Article> AllChildren()
+        {
+            yield return this;
+            foreach (var child in ArticleChilds)
+                if (child.ArticleChild.ArticleBoms != null)
+                {
+                    foreach (var granChild in child.ArticleChild.ArticleBoms)
+                    {
+                        foreach (var item in granChild.ArticleChild.AllChildren())
+                        {
+                            yield return item;
+                        }
+                    }
+                }
+
+        }
+
     }
 }

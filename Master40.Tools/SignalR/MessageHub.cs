@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Master40.MessageSystem.Messages;
+﻿using Master40.MessageSystem.Messages;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Infrastructure;
 using Master40.DB.Enums;
 using System;
 
@@ -10,8 +7,7 @@ namespace Master40.MessageSystem.SignalR
 {
     public interface IMessageHub
     {
-        void SendToAllClients(string msg);
-        void SendToAllClients(string msg, MessageType msgType);
+        void SendToAllClients(string msg, MessageType msgType = MessageType.info);
         string ReturnMsgBox(string msg, MessageType type);
         void EndScheduler();
         void EndSimulation(string msg, string simId, string simNumber);
@@ -20,21 +16,17 @@ namespace Master40.MessageSystem.SignalR
 
     public class MessageHub : Hub, IMessageHub
     {
-        private readonly IConnectionManager _connectionManager;
-        public MessageHub(IConnectionManager connectionManager)
+        private readonly IHubContext<MessageHub> _connectionManager;
+        public MessageHub(IHubContext<MessageHub> connectionManager)
         {
             _connectionManager = connectionManager;
         }
 
-        public void SendToAllClients(string msg)
+
+        public void SendToAllClients(string msg, MessageType msgType = MessageType.info)
         {
-            _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener(ReturnMsgBox(msg, MessageType.info));
-        }
-        public void SendToAllClients(string msg, MessageType msgType)
-        {
-            _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener(ReturnMsgBox(msg, msgType));
+            _connectionManager
+                .Clients.All.SendAsync("clientListener", ReturnMsgBox(msg, msgType));
         }
 
         public string ReturnMsgBox(string msg, MessageType type)
@@ -43,19 +35,19 @@ namespace Master40.MessageSystem.SignalR
         }
         public void EndScheduler()
         {
-            _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("MrpProcessingComplete", 1);
+            _connectionManager
+                .Clients.All.SendAsync("clientListener", "MrpProcessingComplete", 1);
         }
         public void EndSimulation(string text,string simId,string simNumber)
         {
-            _connectionManager.GetHubContext<ProcessingHub>()
-                .Clients.All.clientListener("ProcessingComplete", simId, simNumber);
+            _connectionManager
+                .Clients.All.SendAsync("clientListener", "ProcessingComplete", simId, simNumber);
         }
 
         public void ProcessingUpdate(int simId, int counter, SimulationType simType, int max)
         {
-            _connectionManager.GetHubContext<ProcessingHub>()
-               .Clients.All.clientListener("ProcessingUpdate", simId, Math.Round((double)counter / max * 100, 0).ToString(), simType.ToString() );
+            _connectionManager
+               .Clients.All.SendAsync("clientListener", "ProcessingUpdate", simId, Math.Round((double)counter / max * 100, 0).ToString(), simType.ToString() );
         }
     }
 }

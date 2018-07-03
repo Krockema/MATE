@@ -2,7 +2,6 @@
 using Master40.MessageSystem.Messages;
 using Microsoft.AspNetCore.SignalR;
 using Master40.MessageSystem.SignalR;
-using Microsoft.AspNetCore.SignalR.Infrastructure;
 
 namespace Master40.MessageSystem.SignalR
 {
@@ -21,18 +20,18 @@ namespace Master40.MessageSystem.SignalR
         
         public void SystemReady()
         {
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("SignalR Hub active.", MessageType.info));
+            Clients.All.SendAsync("Send", _hubCallback.ReturnMsgBox("SignalR Hub active.", MessageType.info));
         }
 
         public void SignalReady()
         {
-            Clients.All.clientListener("SignalReady");
+            Clients.All.SendAsync("Send", "SignalReady");
         }
 
 
         public void SystemReady2()
         {
-            Clients.All.clientListener(_hubCallback.ReturnMsgBox("SignalR Hub active Call Internal.", MessageType.info));
+            Clients.All.SendAsync("Send", _hubCallback.ReturnMsgBox("SignalR Hub active Call Internal.", MessageType.info));
         }
     }
 }

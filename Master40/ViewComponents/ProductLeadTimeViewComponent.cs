@@ -99,8 +99,8 @@ namespace Master40.ViewComponents
                     Responsive = true,
                     Legend = new Legend { Position = "bottom", Display = false },
                     Title = new Title { Text = "BoxPlot LeadTimes", Position = "top", FontSize = 24, FontStyle = "bold" , Display = true },
-                    Scales = new Scales { YAxes = new List<Scale> { new Scale { Stacked = true, Display = true, Ticks = new Tick { Max = ((int)Math.Ceiling(max / 100.0)) * 100 } } },
-                                          XAxes = new List<Scale> { new Scale { Stacked = true , Display = true} },
+                    Scales = new Scales { YAxes = new List<Scale> { new CartesianScale { Stacked = true, Display = true, Ticks = new CartesianLinearTick { Max = ((int)Math.Ceiling(max / 100.0)) * 100 } } },
+                                          XAxes = new List<Scale> { new CartesianScale { Stacked = true , Display = true} },
                     },
                     Tooltips = new ToolTip { Mode = "x", Callbacks = new Callback { Label = BoxplotCallback() } }
                 };

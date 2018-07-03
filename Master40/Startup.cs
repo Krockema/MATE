@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -11,12 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Repository;
 using Hangfire;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Initializer;
 using Master40.MessageSystem.SignalR;
-using Master40.MessageSystem.MessageReciever;
 using Master40.Simulation.Simulation;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -131,7 +128,11 @@ namespace Master40
 
             app.UseFileServer();
             app.UseStaticFiles();
-            app.UseSignalR();
+            // app.UseSignalR();
+            app.UseSignalR(router =>
+            {
+                router.MapHub<MessageHub>("/MessageHub");
+            }) ;
 
             var serverOptions = new BackgroundJobServerOptions()
             {

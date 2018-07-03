@@ -79,8 +79,8 @@ namespace Master40.ViewComponents
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() {new BarScale {Stacked = false}};
-                var yAxis = new List<Scale>() { new BarScale { Stacked = false, Ticks = new Tick{ BeginAtZero = true, Min = 0, Max = yMaxScale + 1, StepSize = 1 } } };
+                var xAxis = new List<Scale>() {new CartesianScale {Stacked = false}};
+                var yAxis = new List<Scale>() { new CartesianScale { Stacked = false, Ticks = new CartesianLinearTick{ BeginAtZero = true, Min = 0, Max = yMaxScale + 1, StepSize = 1 } } };
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options() {Scales = new Scales {XAxes = xAxis, YAxes = yAxis}, MaintainAspectRatio = false, Responsive = true };
 

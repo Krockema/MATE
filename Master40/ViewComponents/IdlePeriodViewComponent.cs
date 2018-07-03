@@ -50,14 +50,17 @@ namespace Master40.ViewComponents
                 var data = new Data { Datasets = new List<Dataset>() };
 
                 var min = new BarDataset {
+                    Type = "horizontalBar",
                     Data = new List<double>(),
                     BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
                 };
                 var avg = new BarDataset {
+                    Type = "horizontalBar",
                     Data = new List<double>(),
                     BackgroundColor = new List<string>() // { cc.Color[8], , cc.Color[1] }
                 };
                 var max = new BarDataset {
+                    Type = "horizontalBar",
                     Data = new List<double>(),
                     BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
                 };
@@ -78,12 +81,12 @@ namespace Master40.ViewComponents
                 data.Datasets.Add(max);
                 data.Labels = lables;
 
-                var xAxis = new List<Scale>() { new BarScale
+                var xAxis = new List<Scale>() { new CartesianScale
                 {
-                    Stacked = true, Display = true, Ticks = new Tick{ Max = Convert.ToInt32(maxVal), Display = true } , 
+                    Stacked = true, Display = true, Ticks = new CartesianLinearTick { Max = Convert.ToInt32(maxVal), Display = true } , 
                     Id = "first-x-axis", Type = "linear", ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 }
                 }, };
-                var yAxis = new List<Scale>() { new BarScale { Stacked = true, Display = true } }; // Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 }
+                var yAxis = new List<Scale>() { new CartesianScale { Stacked = true, Display = true } }; // Ticks = new Tick { BeginAtZero = true, Min = 0, Max = 100 }
                 //var yAxis = new List<Scale>() { new BarScale{ Ticks = new CategoryTick { Min = "0", Max  = (yMaxScale * 1.1).ToString() } } };
                 chart.Options = new Options() { Scales = new Scales { XAxes = xAxis, YAxes = yAxis }, MaintainAspectRatio = false, Responsive = true, Legend = new Legend { Display = false } };
                 chart.Data = data;
