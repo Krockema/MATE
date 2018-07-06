@@ -1,3 +1,0 @@
-Im aktuellen Projekt NuGet Konsole öffnen und folgendes ausführen:
-
-Install-Package NSimulate
