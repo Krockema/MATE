@@ -81,9 +81,9 @@ namespace Master40.DB.Data.Initializer
                     {
                         ArticleForeignKey = article.Value,
                         Name = "Stock: " + article.Key,
-                        Min = (article.Key == "Schrauben")? 50 : 0,
+                        Min = (article.Key == "Schrauben" || article.Key == "Holz 1,5m x 3,0m")? 50 : 0,
                         Max = 100,
-                        Current = (article.Key == "Schrauben")? 100 : 0
+                        Current = (article.Key == "Schrauben" || article.Key == "Holz 1,5m x 3,0m")? 100 : 0
                     }
                 };
                 context.Stocks.AddRange(stocks);

@@ -46,9 +46,46 @@ namespace Master40.Tools.Simulation
                     //create order and orderpart, duetime is creationtime + 1 day
                     context.Orders.Add(context.CreateNewOrder(productId, 1, time, time + duetime[i]));
                 }
-                context.SaveChangesAsync();
+                context.SaveChanges();
             });
         }
+
+        public static bool GenerateOrdersSyncron(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber)
+        {
+            var time = 0;
+            var samples = simConfig.OrderQuantity;
+            var seed = new Random(simConfig.Seed + simulationNumber);
+            var productIds = context.ArticleBoms.Where(b => b.ArticleParentId == null).Select(a => a.ArticleChildId)
+                .ToList();
+
+            var dist = new Exponential(rate: simConfig.OrderRate, randomSource: seed);
+            //get equal distribution from 0 to 1
+            var norml = new DiscreteUniform(0, productIds.Count() - 1, seed);
+            //get equal distribution for duetime
+            var normalDuetime = new DiscreteUniform(1160, 1600, seed); //2160,3600
+
+            double[] exponential = new double[samples]; //new Exponential(0.25, seed);
+            int[] prodVariation = new int[samples];
+            int[] duetime = new int[samples];
+            dist.Samples(exponential);
+            norml.Samples(prodVariation);
+            normalDuetime.Samples(duetime);
+            //get products by searching for articles without parents
+            for (int i = 0; i < samples; i++)
+            {
+                //define the time between each new order
+                time += (int)Math.Round(exponential[i] * 10, MidpointRounding.AwayFromZero);
+                //get which product is to be ordered
+                var productId = productIds.ElementAt(prodVariation[i]);
+
+                //create order and orderpart, duetime is creationtime + 1 day
+                context.Orders.Add(context.CreateNewOrder(productId, 1, time, time + duetime[i]));
+            }
+            context.SaveChanges();
+            return true;
+        } 
+
+
 
         public static List<double> TestUniformDistribution(int amount)
         {

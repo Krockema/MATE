@@ -71,12 +71,8 @@ namespace Master40.Agents.Agents
                 intime = true;
             Debug.WriteLine("Order Finished at:" + Context.TimePeriod + " InTime: " + intime);
             CreateAndEnqueueInstuction(methodName: SystemAgent.InstuctionsMethods.OrderProvided.ToString(),
-                objectToProcess: requestItem,
-                targetAgent: this.Creator);
+                                  objectToProcess: requestItem,
+                                      targetAgent: this.Creator);
         }
-
-
-
-
     }
 }

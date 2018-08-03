@@ -916,19 +916,21 @@ namespace Master40.DB.Data.Context
 
         public Order CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
         {
+            var olist = new List<OrderPart>();
+            olist.Add(new OrderPart
+            {
+                ArticleId = articleId,
+                IsPlanned = false,
+                Quantity = amount,
+            });
+
             var order = new Order()
             {
                 BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
                 DueTime = dueTime,
                 CreationTime = creationTime,
                 Name = Articles.Single(x => x.Id == articleId).Name,
-                OrderParts = new List<OrderPart> {new OrderPart {
-                        ArticleId = articleId,
-                        IsPlanned = false,
-                        Quantity = amount,
-                    }
-                }
-
+                OrderParts = olist
             };
             return order;
         }

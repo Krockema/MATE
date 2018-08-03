@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Master40.Agents.Agents.Internal;
-using Master40.DB.Data.Helper;
-using Master40.DB.Interfaces;
 using Master40.DB.Models;
 
 namespace Master40.Agents.Agents.Model

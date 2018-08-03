@@ -228,8 +228,8 @@ namespace Master40.Agents.Agents
             if (ProcessingQueue.CapacitiesLeft && workItem != null)
             {
                 CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.ProductionStarted.ToString(),
-                                      objectToProcess: workItem,
-                                          targetAgent: workItem.ProductionAgent);
+                                        objectToProcess: workItem,
+                                            targetAgent: workItem.ProductionAgent);
                 ProcessingQueue.Enqueue(workItem);
                 Queue.Remove(workItem);
             }

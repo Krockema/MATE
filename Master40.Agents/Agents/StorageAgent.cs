@@ -55,29 +55,29 @@ namespace Master40.Agents.Agents
         /// <param name="instructionSet"></param>
         private void RequestArticle(InstructionSet instructionSet)
         {
-            // debug
-            DebugMessage(" requests Article " + StockElement.Name + " from Stock Agent ->" + instructionSet.SourceAgent.Name);
+                // debug
+                DebugMessage(" requests Article " + StockElement.Name + " from Stock Agent ->" + instructionSet.SourceAgent.Name);
 
-            // cast Request
-            var request = instructionSet.ObjectToProcess as RequestItem;
-            if (request == null)
-                throw new InvalidCastException("Cast to Request Item Failed");
-
-
-            // try to make Reservation
-            var stockReservation = MakeReservationFor(request);
-            if (!stockReservation.IsInStock)
-            {
-                // add to Request queue if not in Stock
-                RequestedItems.Add(request);
-            }
+                // cast Request
+                var request = instructionSet.ObjectToProcess as RequestItem;
+                if (request == null)
+                    throw new InvalidCastException("Cast to Request Item Failed");
 
 
-            // Create Callback // Probably not required here
-            CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromStock.ToString(),
-                                  objectToProcess: stockReservation, // may needs later a more complex answer for now just remove item from stock
-                                      targetAgent: instructionSet.SourceAgent /*,
-                                          waitFor: request.DueTime */ );  // its Source Agent becaus this message is the Answer to the Instruction set.
+                // try to make Reservation
+                var stockReservation = MakeReservationFor(request);
+                if (!stockReservation.IsInStock)
+                {
+                    // add to Request queue if not in Stock
+                    RequestedItems.Add(request);
+                }
+
+
+                // Create Callback // Probably not required here
+                CreateAndEnqueueInstuction(methodName: DispoAgent.InstuctionsMethods.ResponseFromStock.ToString(),
+                                      objectToProcess: stockReservation, // may needs later a more complex answer for now just remove item from stock
+                                          targetAgent: instructionSet.SourceAgent /*,
+                                              waitFor: request.DueTime */ );  // its Source Agent becaus this message is the Answer to the Instruction set.
                                      
         }
 
