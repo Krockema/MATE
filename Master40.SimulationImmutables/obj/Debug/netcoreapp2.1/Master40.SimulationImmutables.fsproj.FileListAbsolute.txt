@@ -1,0 +1,9 @@
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\bin\Debug\netcoreapp2.1\Master40.SimulationImmutables.deps.json
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\bin\Debug\netcoreapp2.1\Master40.SimulationImmutables.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\bin\Debug\netcoreapp2.1\Master40.SimulationImmutables.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\bin\Debug\netcoreapp2.1\Master40.DB.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\bin\Debug\netcoreapp2.1\Master40.DB.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.fsprojAssemblyReference.cache
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.fsproj.CopyComplete
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.pdb

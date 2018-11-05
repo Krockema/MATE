@@ -1,0 +1,16 @@
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.SimulationCore.deps.json
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.SimulationCore.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.SimulationCore.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.DB.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.SimulationImmutables.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.Tools.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.SimulationImmutables.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.Tools.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\Master40.DB.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.csprojAssemblyReference.cache
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.csproj.CoreCompileInputs.cache
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.AssemblyInfoInputs.cache
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.AssemblyInfo.cs
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.csproj.CopyComplete
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.pdb
