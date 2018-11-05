@@ -20,26 +20,21 @@
                 @Html.DisplayFor(modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductionOrderChild.Article.Name)
+                @Html.DisplayFor(modelItem => item.ProductionOrderParent.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ProductionOrderParent.Article.Name)
             </td>
             <td>
-                @foreach (var ag in item.ProductionOrderChild.ProductionOrderWorkSchedule)
-                {
-                    @Html.DisplayFor(modelItem => ag.Name)
-                }
+
             </td>
 
         </tr>
-        if (item.ProductionOrderBomChild.ProductionOrderBoms != null)
+      /*  if (item.ProductionOrderBomChild.ProductionOrderBoms != null)
         {
             ViewData["level"] = level + count.ToString();
         @Html.Partial("ProductionOrderBom", item.ProductionOrderBomChild.ProductionOrderBoms, this.ViewData)
         }
+        */
     }
 }

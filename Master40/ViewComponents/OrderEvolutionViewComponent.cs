@@ -42,11 +42,11 @@ namespace Master40.ViewComponents
                     Responsive = true,
                     Scales = new Scales
                     {
-                        YAxes = new List<Scale> { new Scale { Id = "first-y-axis", Type = "linear", Display = true
-                                                , Ticks = new Tick{ Max = maxX, Min = 0 , Display = true }
+                        YAxes = new List<Scale> { new CartesianScale { Id = "first-y-axis", Type = "linear", Display = true
+                                                , Ticks = new CartesianLinearTick{ Max = maxX, Min = 0 , Display = true }
                                                 , ScaleLabel = new ScaleLabel { LabelString = "Quantity", Display = true, FontSize = 12 } } },
-                        XAxes = new List<Scale> { new Scale { Id = "first-x-axis", Type = "linear", Display = true
-                                                , Ticks = new Tick{ Max = Convert.ToInt32(maxY), Min = 0, Display = true }
+                        XAxes = new List<Scale> { new CartesianScale { Id = "first-x-axis", Type = "linear", Display = true
+                                                , Ticks = new CartesianLinearTick{ Max = Convert.ToInt32(maxY), Min = 0, Display = true }
                                                 , ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } }
                     },
                     Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
@@ -64,41 +64,41 @@ namespace Master40.ViewComponents
                 
                     var startVal = 0;
                     var ts = simConfig.DynamicKpiTimeSpan;
-                    var input = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
-                    var progress = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
-                    var output = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
+                    var input = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
+                    var progress = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
+                    var output = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
                     for (var i = ts; i < simConfig.SimulationEndTime; i = i + ts)
                     {
                             input.AddRange(kpis.Where(x => x.CreationTime >= startVal
                                                         && x.CreationTime < i)
                                 .Select(x => new { time = i , value = (decimal)x.Name.Count() })
                                 .GroupBy(g => g.time)
-                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key), y = Convert.ToDouble(n.Count()) }).ToList());
+                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
 
                             progress.AddRange(kpis.Where(x => x.CreationTime <= i
                                                       && x.FinishingTime > i)
                                 .Select(x => new { time = i, value = x.Name.Count() })
                                 .GroupBy(g => g.time)
-                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key), y = Convert.ToDouble(n.Count()) }).ToList());
+                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
 
                             output.AddRange(kpis.Where(x => x.FinishingTime >= startVal
                                                       && x.FinishingTime < i)
                                 .Select(x => new { time = i, value = x.Name.Count() })
                                 .GroupBy(g => g.time)
-                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key), y = Convert.ToDouble(n.Count()) }).ToList());
+                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
                             startVal = i;
                         }
 
                 data.Datasets.Add(new LineScatterDataset()
                 {
-                    Data = new List<LineScatterData> { new LineScatterData { x = 0, y = maxX }, new LineScatterData { x = simConfig.SettlingStart, y = maxX } },
+                    Data = new List<LineScatterData> { new LineScatterData { x = "0", y = maxX.ToString() }, new LineScatterData { x = simConfig.SettlingStart.ToString(), y = maxX.ToString() } },
                     BorderWidth = 1,
                     Label = "Settling time",
                     BackgroundColor = "rgba(0, 0, 0, 0.1)",
                     BorderColor = "rgba(0, 0, 0, 0.3)",
                     ShowLine = true,
-                    Fill = true,
-                    SteppedLine = false,
+                    Fill = "true",
+                    //SteppedLine = false,
                     LineTension = 0,
                     PointRadius = new List<int> { 0, 0 }
                 });
@@ -111,8 +111,8 @@ namespace Master40.ViewComponents
                         BackgroundColor = cc.Color[3],
                         BorderColor = cc.Color[3],
                         ShowLine = true,
-                        Fill = false,
-                        SteppedLine = false,
+                        Fill = "false",
+                        //SteppedLine = false,
                         LineTension = 0.5
                     });
                     
@@ -124,8 +124,8 @@ namespace Master40.ViewComponents
                         BackgroundColor = cc.Color[0],
                         BorderColor = cc.Color[0],
                         ShowLine = true,
-                        Fill = false,
-                        SteppedLine = false,
+                        Fill = "false",
+                        //SteppedLine = false,
                         LineTension = 0.5
                     });
                     
@@ -136,9 +136,9 @@ namespace Master40.ViewComponents
                         Label = "Output",
                         BackgroundColor = cc.Color[2],
                         BorderColor = cc.Color[2],
-                        Fill = false,
+                        Fill = "false",
                         ShowLine = true,
-                        SteppedLine = false,
+                        //SteppedLine = false,
                         LineTension = 0.5
                     });
                 

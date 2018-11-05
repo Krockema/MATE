@@ -10,8 +10,7 @@
     "globalize": "1.2.3",
     "bootstrap": "v3.3.7",
     "font-awesome": "Font-Awesome#v4.7.0",
-    "chart.js": "v2.7.0",
-    "signalr": "2.2.2"
+    "chart.js": "v2.7.0"
   },
   "ignore": [
     "**/.*",

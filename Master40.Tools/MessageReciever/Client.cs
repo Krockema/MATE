@@ -1,12 +1,12 @@
 ﻿using System;
 using Master40.MessageSystem.SignalR;
-using Microsoft.AspNetCore.SignalR.Infrastructure;
-using Microsoft.AspNet.SignalR.Client;
+
 
 namespace Master40.MessageSystem.MessageReciever
 {
     public class Client
     {
+        /*
         private readonly IConnectionManager _connectionManager;
         public Client(IConnectionManager connectionManager)
         {
@@ -47,7 +47,7 @@ namespace Master40.MessageSystem.MessageReciever
         }
 
 
-
+    */
 
     }
 }

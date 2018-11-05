@@ -3,8 +3,17 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
+    "@aspnet/signalr": "^1.0.0",
     "mermaid": "^7.1.0",
     "yarn": "^1.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

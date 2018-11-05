@@ -1,9 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Master40.DB.Data.Repository;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using Master40.DB.Models;
-using System;
 
 namespace Master40.DB.Data.Context
 {
@@ -69,12 +65,12 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<ProductionOrderWorkSchedule>()
                 .HasOne(m => m.MachineGroup)
                 .WithMany(m => m.ProductionOrderWorkSchedules)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProductionOrderWorkSchedule>()
                 .HasOne(m => m.Machine)
                 .WithMany(m => m.ProductionOrderWorkSchedules)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<DemandToProvider>()
                 .HasOne(d => d.DemandRequester)
@@ -85,32 +81,32 @@ namespace Master40.DB.Data.Context
                 .HasOne(d => d.ProductionOrder)
                 .WithMany(r => r.DemandProviderProductionOrders)
                 .HasForeignKey(fk => fk.ProductionOrderId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<DemandProviderPurchasePart>()
                 .HasOne(d => d.PurchasePart)
                 .WithMany(r => r.DemandProviderPurchaseParts)
                 .HasForeignKey(fk => fk.PurchasePartId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<DemandProviderStock>()
                 .HasOne(d => d.Stock)
                 .WithMany(r => r.DemandProviderStocks)
                 .HasForeignKey(fk => fk.StockId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<DemandStock>()
                 .HasOne(d => d.Stock)
                 .WithMany(r => r.DemandStocks)
                 .HasForeignKey(fk => fk.StockId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<DemandProductionOrderBom>()
                 .HasOne(d => d.ProductionOrderBom)
                 .WithMany(r => r.DemandProductionOrderBoms)
                 .HasForeignKey(fk => fk.ProductionOrderBomId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<DemandOrderPart>()
                 .HasOne(d => d.OrderPart)
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
-                .OnDelete(Microsoft.EntityFrameworkCore.Metadata.DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

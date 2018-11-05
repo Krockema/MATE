@@ -131,12 +131,12 @@ namespace Master40.ViewComponents
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() { new BarScale { Stacked = false, Id = "x-normal", Display = true } };
+                var xAxis = new List<Scale>() { new CartesianScale { Stacked = false, Id = "x-normal", Display = true } };
                 var yAxis = new List<Scale>()
                 {
-                    new BarScale { Stacked = false, Display = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
-                    new BarScale {
-                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display = false,
+                    new CartesianScale { Stacked = false, Display = true, Ticks = new CartesianLinearTick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
+                    new CartesianScale {
+                        Stacked = false, Ticks = new CartesianLinearTick {BeginAtZero = true, Min = 0, Max = 100}, Display = false,
                         Id = "y-diversity", ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = false, FontSize = 12 },
                     },
                 };

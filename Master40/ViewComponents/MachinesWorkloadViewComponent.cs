@@ -106,12 +106,12 @@ namespace Master40.ViewComponents
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() { new BarScale { Stacked = true, Id = "x-normal", Display = true } };
+                var xAxis = new List<Scale>() { new CartesianScale { Stacked = true, Id = "x-normal", Display = true } };
                 var yAxis = new List<Scale>() 
                 {
-                    new BarScale { Stacked = true, Display = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
-                    new BarScale {
-                        Stacked = true, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display = false,
+                    new CartesianScale { Stacked = true, Display = true, Ticks = new CartesianLinearTick { BeginAtZero = true, Min = 0, Max = 100}, Id = "y-normal" },
+                    new CartesianScale {
+                        Stacked = true, Ticks = new CartesianLinearTick {BeginAtZero = true, Min = 0, Max = 100}, Display = false,
                         Id = "y-diversity", ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = false, FontSize = 12 },
                     },
                 };
@@ -166,9 +166,9 @@ namespace Master40.ViewComponents
                 foreach (var machine in machines)
                 {
                     // add zero to start
-                    var kpis = new List<LineScatterData> { new LineScatterData { x = 0, y = 0 } };
+                    var kpis = new List<LineScatterData> { new LineScatterData {  x = "0", y = "0" } };
                     kpis.AddRange(machinesKpi.Where(x => x.Name == machine).OrderBy(x => x.Time)
-                        .Select(x => new LineScatterData { x = x.Time, y = x.Value * 100 }).ToList());
+                        .Select(x => new LineScatterData { x = x.Time.ToString() , y = (x.Value * 100).ToString() }).ToList());
 
                     var lds = new LineScatterDataset()
                     {
@@ -176,11 +176,10 @@ namespace Master40.ViewComponents
                         BorderWidth = 2,
                         Label = machine,
                         ShowLine = true,
-                        SteppedLine = false,
+                        Fill = "false",
                         BackgroundColor = cc.Color[i],
                         BorderColor = cc.Color[i++],
-                        Fill = false,
-                        //LineTension = 0
+                        LineTension = 0
                     };
                     data.Datasets.Add(lds);
 
@@ -188,14 +187,14 @@ namespace Master40.ViewComponents
 
                 data.Datasets.Add(new LineScatterDataset()
                 {
-                    Data = new List<LineScatterData> { new LineScatterData { x = 0, y = 100 }, new LineScatterData { x = Convert.ToDouble(settlingTime), y = 100 } },
+                    Data = new List<LineScatterData> { new LineScatterData { x = "0", y = "100" }, new LineScatterData { x = Convert.ToDouble(settlingTime).ToString(), y = "100" } },
                     BorderWidth = 1,
                     Label = "Settling time",
                     BackgroundColor = "rgba(0, 0, 0, 0.1)",
                     BorderColor = "rgba(0, 0, 0, 0.3)",
                     ShowLine = true,
-                    Fill = true,
-                    SteppedLine = false,
+                    //Fill = true,
+                    //SteppedLine = false,
                     LineTension = 0,
                     PointRadius = new List<int> { 0, 0}
                 });
@@ -203,12 +202,12 @@ namespace Master40.ViewComponents
                 chart.Data = data;
 
                 // Specifie xy Axis
-                var xAxis = new List<Scale>() { new RadialLinearScale { Stacked = false, Display = true } };
+                var xAxis = new List<Scale>() { new CartesianScale { Stacked = false, Display = true } };
                 var yAxis = new List<Scale>()
                 {
-                    new RadialLinearScale()
+                    new CartesianScale()
                     {
-                        Stacked = false, Ticks = new Tick {BeginAtZero = true, Min = 0, Max = 100}, Display = true,
+                        Stacked = false, Ticks = new CartesianLinearTick {BeginAtZero = true, Min = 0, Max = 100}, Display = true,
                         Id = "first-y-axis", Type = "linear" , ScaleLabel = new ScaleLabel{ LabelString = "Value in %", Display = true, FontSize = 12 },
                     }
                 };

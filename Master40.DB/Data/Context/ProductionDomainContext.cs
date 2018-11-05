@@ -152,27 +152,27 @@ namespace Master40.DB.Data.Context
 
 
 
-            public async Task<Article> GetArticleBomRecursive(Article article, int articleId)
+        public async Task<Article> GetArticleBomRecursive(Article article, int articleId)
+        {
+            article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
+                                                        .ThenInclude(w => w.WorkSchedules)
+                                                        .Where(a => a.ArticleParentId == articleId).ToList();
+
+            foreach (var item in article.ArticleChilds)
             {
-                article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
-                                                            .ThenInclude(w => w.WorkSchedules)
-                                                            .Where(a => a.ArticleParentId == articleId).ToList();
-
-                foreach (var item in article.ArticleChilds)
-                {
-                    await GetArticleBomRecursive(item.ArticleParent, item.ArticleChildId);
-                }
-                await Task.Yield();
-                return article;
-
+                await GetArticleBomRecursive(item.ArticleParent, item.ArticleChildId);
             }
+            await Task.Yield();
+            return article;
 
-            /// <summary>
-            /// returns the Production Order Work Schedules for a given Order
-            /// </summary>
-            /// <param name="orderId"></param>
-            /// <returns></returns>
-            public Task<List<ProductionOrderWorkSchedule>> GetProductionOrderWorkScheduleByOrderId(int orderId)
+        }
+
+        /// <summary>
+        /// returns the Production Order Work Schedules for a given Order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        public Task<List<ProductionOrderWorkSchedule>> GetProductionOrderWorkScheduleByOrderId(int orderId)
             {
                 return Task.Run(() =>
                 {
