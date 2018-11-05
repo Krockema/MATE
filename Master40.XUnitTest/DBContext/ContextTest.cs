@@ -190,7 +190,7 @@ namespace Master40.XUnitTest.DBContext
         
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
-        [InlineData(SimulationType.Decentral, 1)]
+        [InlineData(SimulationType.Decentral, 6)]
         //[InlineData(SimulationType.Decentral, 2)]
         //[InlineData(SimulationType.Decentral, 3)]
         //[InlineData(SimulationType.Central, 6)]
@@ -202,12 +202,12 @@ namespace Master40.XUnitTest.DBContext
         {
              var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
                                                                            && x.SimulationConfigurationId == 1
-                                                                           && x.KpiType == KpiType.LayTime)
+                                                                           && x.KpiType == KpiType.MeanTimeToStart)
                  .ToListAsync();
              _productionDomainContext.Kpis.RemoveRange(toRemove);
              _productionDomainContext.SaveChanges();
              //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-             CalculateKpis.CalculateLayTimes(_productionDomainContext
+             CalculateKpis.CalculateMeanStartTime(_productionDomainContext
                                              , 1
                                              , simType
                                              , 1

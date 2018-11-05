@@ -288,19 +288,22 @@ namespace Master40.Tools.Simulation
             var finishedProducts = final
                 ? context.SimulationWorkschedules
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
-                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20).ToList()
+                    .Where(a => a.ParentId.Equals("[]") && a.Start > simConfig.SettlingStart && a.HierarchyNumber == 20 &&
+                    a.End <= simConfig.SimulationEndTime).ToList()
                 : context.SimulationWorkschedules
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a =>
                         a.ParentId.Equals("[]") && a.Start >= time - simConfig.DynamicKpiTimeSpan && a.HierarchyNumber == 20 &&
                         a.End <= time - simConfig.DynamicKpiTimeSpan).ToList();
             var leadTimes = new List<Kpi>();
             var simulationWorkSchedules = context.SimulationWorkschedules.Where(
-                x => x.SimulationConfigurationId == simulationId
+                        x => x.SimulationConfigurationId == simulationId
                      && x.SimulationType == simulationType
                      && x.SimulationNumber == simulationNumber).ToList();
 
-            var simOrders = context.SimulationOrders.Where(
-                x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).AsNoTracking().ToList();
+            var simOrders = context.SimulationOrders.Where(x => x.SimulationConfigurationId == simulationId 
+                                                             && x.SimulationType == simulationType 
+                                                             && x.CreationTime <= time 
+                                                             && x.State == State.Finished).AsNoTracking().ToList();
 
             foreach (var product in finishedProducts)
             {
@@ -320,7 +323,7 @@ namespace Master40.Tools.Simulation
 
             }
 
-            var products = leadTimes.Where(a => a.Name.Contains("Truck")).Select(x => x.Name).Distinct();
+            var products = leadTimes.Where(a => a.Name.Contains("-Truck")).Select(x => x.Name).Distinct();
             var leadTimesBoxPlot = new List<Kpi>();
             //calculate Average per article
 
