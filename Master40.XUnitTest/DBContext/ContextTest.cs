@@ -67,7 +67,7 @@ namespace Master40.XUnitTest.DBContext
             await simulation.Simulate(1);
             Assert.Equal(true, _productionDomainContext.Kpis.Any());
         }
-
+        */
         //public DemandToProvider getRequester
         [Fact]
         public async Task AgentSimulationTestAsync()
@@ -93,13 +93,13 @@ namespace Master40.XUnitTest.DBContext
 
                 CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 
                                                     _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral),true, int.MaxValue);
-                CopyResults.Copy(c, _productionDomainContext);
+                //CopyResults.Copy(c, _productionDomainContext);
             }
             connection.Close();
 
             Assert.Equal(_productionDomainContext.Kpis.Any(), true);
         }
-
+        /*
 
         [Fact]
         public async Task MrpInMemmoryTest()
@@ -186,7 +186,7 @@ namespace Master40.XUnitTest.DBContext
             InMemoryContext.LoadData(_productionDomainContext, context);
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
-        */
+        
         
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
