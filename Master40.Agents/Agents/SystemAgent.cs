@@ -142,22 +142,36 @@ namespace Master40.Agents.Agents
         }
 
         /// <summary>
-        /// Descends agent-tree and collects all data.
+        /// Saves all collected Data to a csv file.
         /// </summary>
         private void CollectData(InstructionSet instructionSet)
         {
-            //Dictionary<string, object> childData = new Dictionary<string, object>();
-            string csv = new String("");
+            List<Dictionary<string, object>> childData = Descend(this);
 
-            System.Collections.Generic.List<Agent> rootChilds = this.ChildAgents;
-            foreach(Agent child in rootChilds)
+            String csv = new String("");
+            csv += String.Join(";", childData[0].Keys) + Environment.NewLine;
+            foreach(Dictionary<string, object> data in childData)
             {
-                //childData = childData.Concat(child.GetData()).ToDictionary(x=>x.Key, x=>x.Value);
-                csv = csv + String.Join(";", child.GetData().Values) + Environment.NewLine;
+                String datacsv = String.Join(";", data.Values);
+                csv += datacsv + Environment.NewLine;
             }
-
-            //String csv = String.Join(Environment.NewLine, childData.Select(d => d.Key + ";" + d.Value + ";"));
             System.IO.File.WriteAllText("C:\\source\\out.csv", csv);
+        }
+
+        /// <summary>
+        /// Descends agent-tree and collects all data.
+        /// </summary>
+        private List<Dictionary<string, object>> Descend(Agent agent)
+        {
+            List<Agent> childAgents = agent.ChildAgents;
+            List<Dictionary<string, object>> childData = new List<Dictionary<string, object>>();
+
+            childData.Add(agent.GetData());
+            foreach (Agent child in childAgents)
+            {
+                childData.AddRange(Descend(child));
+            }
+            return childData;
         }
     }
 }
