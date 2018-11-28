@@ -156,8 +156,8 @@ namespace Master40.Agents.Agents.Internal
                 // Create And Enqueue
                 targetAgent.InstructionQueue.Enqueue(instruction);
                 // Re-Activate Process in Context Queue if nesessary
-                if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
-                    Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
+                //if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
+                //    Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
             }
             else
             {
@@ -192,6 +192,16 @@ namespace Master40.Agents.Agents.Internal
                 SourceAgent = targetAgent,
                 WaitFor = waitFor
             });
+        }
+
+        public Dictionary<string, object> GetData()
+        {
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data.Add("AgentId", this.AgentId);
+            data.Add("AgentName", this.Name);
+            data.Add("AgentType", this.GetType());
+            data.Add("AgentStatus", this.Status);
+            return data;
         }
     }
 }

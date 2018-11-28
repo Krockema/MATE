@@ -8,6 +8,7 @@ using Master40.DB.Enums;
 using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.MessageSystem.SignalR;
+using System.Collections.Generic;
 
 namespace Master40.Agents.Agents
 {
@@ -29,6 +30,7 @@ namespace Master40.Agents.Agents
             CreateContractAgent,
             RequestArticleBom,
             OrderProvided,
+            CollectData,
         }
         //TODO: System Talk.
 
@@ -137,6 +139,25 @@ namespace Master40.Agents.Agents
             _productionDomainContext.SaveChanges();
             _messageHub.SendToAllClients("Oder No:" + order.Id + " finished at " + Context.TimePeriod);
             _messageHub.ProcessingUpdate(_simConfig.Id, orderCount++, SimulationType.Decentral, _simConfig.OrderQuantity);
+        }
+
+        /// <summary>
+        /// Descends agent-tree and collects all data.
+        /// </summary>
+        private void CollectData(InstructionSet instructionSet)
+        {
+            //Dictionary<string, object> childData = new Dictionary<string, object>();
+            string csv = new String("");
+
+            System.Collections.Generic.List<Agent> rootChilds = this.ChildAgents;
+            foreach(Agent child in rootChilds)
+            {
+                //childData = childData.Concat(child.GetData()).ToDictionary(x=>x.Key, x=>x.Value);
+                csv = csv + String.Join(";", child.GetData().Values) + Environment.NewLine;
+            }
+
+            //String csv = String.Join(Environment.NewLine, childData.Select(d => d.Key + ";" + d.Value + ";"));
+            System.IO.File.WriteAllText("C:\\source\\out.csv", csv);
         }
     }
 }
