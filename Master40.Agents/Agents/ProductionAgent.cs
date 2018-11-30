@@ -28,6 +28,7 @@ namespace Master40.Agents.Agents
 
         public enum InstuctionsMethods
         {
+            ReturnData = BaseInstuctionsMethods.ReturnData,
             Finished,
             ProductionStarted
         }

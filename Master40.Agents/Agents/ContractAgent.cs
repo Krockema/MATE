@@ -21,6 +21,7 @@ namespace Master40.Agents.Agents
 
         public enum InstuctionsMethods
         {
+            ReturnData = BaseInstuctionsMethods.ReturnData,
             // Create and Return a Reservation for Article
             StartOrder,
         }

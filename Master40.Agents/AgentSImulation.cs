@@ -104,7 +104,7 @@ namespace Master40.Agents
             await system.PrepareAgents(simConfig, simNr);
 
             // Enqueue data collection task
-            system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.CollectData.ToString(), "Test", system);
+            system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.CollectData.ToString(), "Test", system, 10000);
 
             // Return System Agent to Context
             return system;

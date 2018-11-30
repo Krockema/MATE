@@ -49,6 +49,11 @@ namespace Master40.Agents.Agents.Internal
             DebugMessage(" created by " + creatorsName + ", GUID: " + AgentId);
         }
 
+        public enum BaseInstuctionsMethods
+        {
+            ReturnData
+        }
+
         public override IEnumerator<InstructionBase> Simulate()
         {
             // while Simulation is Running
@@ -156,8 +161,8 @@ namespace Master40.Agents.Agents.Internal
                 // Create And Enqueue
                 targetAgent.InstructionQueue.Enqueue(instruction);
                 // Re-Activate Process in Context Queue if nesessary
-                //if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
-                //    Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
+                if (!Context.ProcessesRemainingThisTimePeriod.Contains(targetAgent))
+                    Context.ProcessesRemainingThisTimePeriod.Enqueue(targetAgent);
             }
             else
             {
@@ -194,14 +199,31 @@ namespace Master40.Agents.Agents.Internal
             });
         }
 
-        public Dictionary<string, object> GetData()
+        //public Dictionary<string, object> GetData()
+        //{
+        //    Dictionary<string, object> data = new Dictionary<string, object>();
+        //    data.Add("AgentId", this.AgentId);
+        //    data.Add("AgentName", this.Name);
+        //    data.Add("AgentType", this.GetType());
+        //    data.Add("AgentStatus", this.Status);
+        //    return data;
+        //}
+
+        private void ReturnData(InstructionSet instructionSet)
         {
             Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("AgentId", this.AgentId);
             data.Add("AgentName", this.Name);
             data.Add("AgentType", this.GetType());
             data.Add("AgentStatus", this.Status);
-            return data;
+            //TODO: Collect useful data
+
+            CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReceiveData.ToString(), data, instructionSet.SourceAgent);
+
+            //Tell children to return data
+            foreach(Agent child in ChildAgents)
+                //TODO: Instruction must have instructionSet.SourceAgent as SourceAgent
+                CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReceiveData.ToString(), "Test", child);
         }
     }
 }

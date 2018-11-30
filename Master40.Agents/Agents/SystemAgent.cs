@@ -18,6 +18,8 @@ namespace Master40.Agents.Agents
         private readonly IMessageHub _messageHub;
         private int orderCount = 1;
         private SimulationConfiguration _simConfig;
+        private List<Agent> allAgentsList = new List<Agent>();
+        private List<Dictionary<string, object>> allAgentsData = new List<Dictionary<string, object>>();
 
         public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext, IMessageHub messageHub, SimulationConfiguration simConfig) : base(creator, name, debug)
         {
@@ -27,10 +29,12 @@ namespace Master40.Agents.Agents
         }
         public enum InstuctionsMethods
         {
+            ReturnData=BaseInstuctionsMethods.ReturnData,
             CreateContractAgent,
             RequestArticleBom,
             OrderProvided,
             CollectData,
+            ReceiveData
         }
         //TODO: System Talk.
 
@@ -141,37 +145,54 @@ namespace Master40.Agents.Agents
             _messageHub.ProcessingUpdate(_simConfig.Id, orderCount++, SimulationType.Decentral, _simConfig.OrderQuantity);
         }
 
-        /// <summary>
-        /// Saves all collected Data to a csv file.
-        /// </summary>
+        ///// <summary>
+        ///// Saves all collected Data to a csv file.
+        ///// </summary>
+        //private void CollectData(InstructionSet instructionSet)
+        //{
+        //    List<Dictionary<string, object>> childData = Descend(this);
+
+        //    String csv = new String("");
+        //    csv += String.Join(";", childData[0].Keys) + Environment.NewLine;
+        //    foreach(Dictionary<string, object> data in childData)
+        //    {
+        //        String datacsv = String.Join(";", data.Values);
+        //        csv += datacsv + Environment.NewLine;
+        //    }
+        //    System.IO.File.WriteAllText(@"C:\source\out.csv", csv);
+        //}
+
+        ///// <summary>
+        ///// Descends agent-tree and collects all data.
+        ///// </summary>
+        //private List<Dictionary<string, object>> Descend(Agent agent)
+        //{
+        //    // TODO: Query data from agents using instructions
+        //    List<Agent> childAgents = agent.ChildAgents;
+        //    List<Dictionary<string, object>> childData = new List<Dictionary<string, object>>();
+
+        //    childData.Add(agent.GetData());
+        //    foreach (Agent child in childAgents)
+        //    {
+        //        childData.AddRange(Descend(child));
+        //    }
+        //    return childData;
+        //}
+
         private void CollectData(InstructionSet instructionSet)
         {
-            List<Dictionary<string, object>> childData = Descend(this);
+            //Gather all agents
 
-            String csv = new String("");
-            csv += String.Join(";", childData[0].Keys) + Environment.NewLine;
-            foreach(Dictionary<string, object> data in childData)
-            {
-                String datacsv = String.Join(";", data.Values);
-                csv += datacsv + Environment.NewLine;
-            }
-            System.IO.File.WriteAllText("C:\\source\\out.csv", csv);
+            //Collect data of all agents
         }
 
-        /// <summary>
-        /// Descends agent-tree and collects all data.
-        /// </summary>
-        private List<Dictionary<string, object>> Descend(Agent agent)
+        private void ReceiveData(InstructionSet instructionSet)
         {
-            List<Agent> childAgents = agent.ChildAgents;
-            List<Dictionary<string, object>> childData = new List<Dictionary<string, object>>();
+            var data = instructionSet.ObjectToProcess as Dictionary<string, object>;
+            Dictionary<string, object> agentData = data ?? throw new InvalidCastException(
+                this.Name + " failed to Cast Dictionary<string, object> on Instruction.ObjectToProcess");
 
-            childData.Add(agent.GetData());
-            foreach (Agent child in childAgents)
-            {
-                childData.AddRange(Descend(child));
-            }
-            return childData;
+            allAgentsData.Add(agentData);
         }
     }
 }
