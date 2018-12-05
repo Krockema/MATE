@@ -149,12 +149,13 @@ namespace Master40.Agents.Agents.Internal
         /// <param name="objectToProcess"></param>
         /// <param name="targetAgent"></param>
         /// <param name="waitFor"> Creates a Agent activity which will reaactivaded the agent after the specified time Period!</param>
-        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, long waitFor = 0)
+        /// <param name="sourceAgent"></param>
+        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, long waitFor = 0, Agent sourceAgent = null)
         {
             var instruction = new InstructionSet {  MethodName = methodName,
                                                     ObjectToProcess = objectToProcess,
                                                     ObjectType = objectToProcess.GetType(),
-                                                    SourceAgent = this };
+                                                    SourceAgent = sourceAgent ?? this };
 
             if (waitFor == 0)
             {
@@ -199,17 +200,7 @@ namespace Master40.Agents.Agents.Internal
             });
         }
 
-        //public Dictionary<string, object> GetData()
-        //{
-        //    Dictionary<string, object> data = new Dictionary<string, object>();
-        //    data.Add("AgentId", this.AgentId);
-        //    data.Add("AgentName", this.Name);
-        //    data.Add("AgentType", this.GetType());
-        //    data.Add("AgentStatus", this.Status);
-        //    return data;
-        //}
-
-        private void ReturnData(InstructionSet instructionSet)
+        private Dictionary<string, object> GetData()
         {
             Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("AgentId", this.AgentId);
@@ -217,13 +208,18 @@ namespace Master40.Agents.Agents.Internal
             data.Add("AgentType", this.GetType());
             data.Add("AgentStatus", this.Status);
             //TODO: Collect useful data
+            return data;
+        }
 
-            CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReceiveData.ToString(), data, instructionSet.SourceAgent);
+        protected void ReturnData(InstructionSet instructionSet)
+        {
+            CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReceiveData.ToString(), 
+                this.GetData(), instructionSet.SourceAgent);
 
             //Tell children to return data
             foreach(Agent child in ChildAgents)
-                //TODO: Instruction must have instructionSet.SourceAgent as SourceAgent
-                CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReceiveData.ToString(), "Test", child);
+                CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReturnData.ToString(), 
+                    "Test", child, sourceAgent: instructionSet.SourceAgent);
         }
     }
 }

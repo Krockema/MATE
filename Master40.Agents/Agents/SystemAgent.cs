@@ -34,6 +34,7 @@ namespace Master40.Agents.Agents
             RequestArticleBom,
             OrderProvided,
             CollectData,
+            WriteData,
             ReceiveData
         }
         //TODO: System Talk.
@@ -145,45 +146,22 @@ namespace Master40.Agents.Agents
             _messageHub.ProcessingUpdate(_simConfig.Id, orderCount++, SimulationType.Decentral, _simConfig.OrderQuantity);
         }
 
-        ///// <summary>
-        ///// Saves all collected Data to a csv file.
-        ///// </summary>
-        //private void CollectData(InstructionSet instructionSet)
-        //{
-        //    List<Dictionary<string, object>> childData = Descend(this);
-
-        //    String csv = new String("");
-        //    csv += String.Join(";", childData[0].Keys) + Environment.NewLine;
-        //    foreach(Dictionary<string, object> data in childData)
-        //    {
-        //        String datacsv = String.Join(";", data.Values);
-        //        csv += datacsv + Environment.NewLine;
-        //    }
-        //    System.IO.File.WriteAllText(@"C:\source\out.csv", csv);
-        //}
-
-        ///// <summary>
-        ///// Descends agent-tree and collects all data.
-        ///// </summary>
-        //private List<Dictionary<string, object>> Descend(Agent agent)
-        //{
-        //    // TODO: Query data from agents using instructions
-        //    List<Agent> childAgents = agent.ChildAgents;
-        //    List<Dictionary<string, object>> childData = new List<Dictionary<string, object>>();
-
-        //    childData.Add(agent.GetData());
-        //    foreach (Agent child in childAgents)
-        //    {
-        //        childData.AddRange(Descend(child));
-        //    }
-        //    return childData;
-        //}
-
         private void CollectData(InstructionSet instructionSet)
         {
-            //Gather all agents
+            // Gather own data
+            CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReturnData.ToString(), "Test", this);
 
-            //Collect data of all agents
+            //Cannot write data here since receive tasks won't be processed while this task is active 
+        }
+
+        private void WriteData(InstructionSet instructionSet)
+        {
+            // Write data to csv
+            String csv = new String("");
+            csv += String.Join(";", allAgentsData[0].Keys) + Environment.NewLine;
+            foreach (Dictionary<string, object> data in allAgentsData)
+                csv += String.Join(";", data.Values) + Environment.NewLine;
+            System.IO.File.WriteAllText(@"C:\source\out.csv", csv);
         }
 
         private void ReceiveData(InstructionSet instructionSet)
