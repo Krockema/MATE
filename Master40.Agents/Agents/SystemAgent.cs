@@ -18,7 +18,6 @@ namespace Master40.Agents.Agents
         private readonly IMessageHub _messageHub;
         private int orderCount = 1;
         private SimulationConfiguration _simConfig;
-        private List<Agent> allAgentsList = new List<Agent>();
         private List<Dictionary<string, object>> allAgentsData = new List<Dictionary<string, object>>();
 
         public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext, IMessageHub messageHub, SimulationConfiguration simConfig) : base(creator, name, debug)
@@ -29,13 +28,12 @@ namespace Master40.Agents.Agents
         }
         public enum InstuctionsMethods
         {
-            ReturnData=BaseInstuctionsMethods.ReturnData,
+            ReturnData = BaseInstuctionsMethods.ReturnData,
+            ReceiveData = BaseInstuctionsMethods.ReceiveData,
             CreateContractAgent,
             RequestArticleBom,
             OrderProvided,
-            CollectData,
-            WriteData,
-            ReceiveData
+            CollectData
         }
         //TODO: System Talk.
 
@@ -149,28 +147,30 @@ namespace Master40.Agents.Agents
         private void CollectData(InstructionSet instructionSet)
         {
             // Gather own data
-            CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReturnData.ToString(), "Test", this);
+            CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "Test", this);
 
             //Cannot write data here since receive tasks won't be processed while this task is active 
         }
 
-        private void WriteData(InstructionSet instructionSet)
+        private void WriteData(List<Dictionary<string, object>> childData)
         {
             // Write data to csv
             String csv = new String("");
-            csv += String.Join(";", allAgentsData[0].Keys) + Environment.NewLine;
-            foreach (Dictionary<string, object> data in allAgentsData)
+            csv += String.Join(";", childData[0].Keys) + Environment.NewLine;
+            foreach (Dictionary<string, object> data in childData)
                 csv += String.Join(";", data.Values) + Environment.NewLine;
             System.IO.File.WriteAllText(@"C:\source\out.csv", csv);
         }
 
-        private void ReceiveData(InstructionSet instructionSet)
+        private new void ReceiveData(InstructionSet instructionSet)
         {
-            var data = instructionSet.ObjectToProcess as Dictionary<string, object>;
-            Dictionary<string, object> agentData = data ?? throw new InvalidCastException(
-                this.Name + " failed to Cast Dictionary<string, object> on Instruction.ObjectToProcess");
+            SaveChildData(instructionSet);
 
-            allAgentsData.Add(agentData);
+            if (CheckAllChildrenResponded())
+            {
+                WriteData(allChildData);
+                allChildData = null;
+            }
         }
     }
 }

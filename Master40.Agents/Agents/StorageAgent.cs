@@ -41,6 +41,7 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             ReturnData = BaseInstuctionsMethods.ReturnData,
+            ReceiveData = BaseInstuctionsMethods.ReceiveData,
             // Create and Return a Reservation for Article
             RequestArticle,
             ProvideArticleAtDue,

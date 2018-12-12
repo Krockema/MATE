@@ -25,6 +25,7 @@ namespace Master40.Agents.Agents
         public enum InstuctionsMethods
         {
             ReturnData = BaseInstuctionsMethods.ReturnData,
+            ReceiveData = BaseInstuctionsMethods.ReceiveData,
             AddMachineToComunicationAgent,
             EnqueueWorkItem,
             ProposalFromMachine,

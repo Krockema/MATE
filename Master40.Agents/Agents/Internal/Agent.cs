@@ -30,6 +30,7 @@ namespace Master40.Agents.Agents.Internal
         public bool DebugThis { get; set; }
         internal Status Status { get; set; }
         public Queue<InstructionSet> InstructionQueue { get; set; }
+        protected List<Dictionary<string, object>> allChildData = new List<Dictionary<string, object>>();
 
         protected Agent(Agent creator, string name, bool debug)
         {
@@ -51,7 +52,8 @@ namespace Master40.Agents.Agents.Internal
 
         public enum BaseInstuctionsMethods
         {
-            ReturnData
+            ReturnData,
+            ReceiveData
         }
 
         public override IEnumerator<InstructionBase> Simulate()
@@ -150,12 +152,12 @@ namespace Master40.Agents.Agents.Internal
         /// <param name="targetAgent"></param>
         /// <param name="waitFor"> Creates a Agent activity which will reaactivaded the agent after the specified time Period!</param>
         /// <param name="sourceAgent"></param>
-        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, long waitFor = 0, Agent sourceAgent = null)
+        public void CreateAndEnqueueInstuction(string methodName, object objectToProcess, Agent targetAgent, long waitFor = 0)
         {
             var instruction = new InstructionSet {  MethodName = methodName,
                                                     ObjectToProcess = objectToProcess,
                                                     ObjectType = objectToProcess.GetType(),
-                                                    SourceAgent = sourceAgent ?? this };
+                                                    SourceAgent = this };
 
             if (waitFor == 0)
             {
@@ -200,26 +202,69 @@ namespace Master40.Agents.Agents.Internal
             });
         }
 
-        private Dictionary<string, object> GetData()
+        private List<Dictionary<string, object>> GetData()
         {
+            List<Dictionary<string, object>> dataList = new List<Dictionary<string, object>>();
             Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("AgentId", this.AgentId);
             data.Add("AgentName", this.Name);
             data.Add("AgentType", this.GetType());
             data.Add("AgentStatus", this.Status);
             //TODO: Collect useful data
-            return data;
+            dataList.Add(data);
+            return dataList;
         }
 
         protected void ReturnData(InstructionSet instructionSet)
         {
-            CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReceiveData.ToString(), 
-                this.GetData(), instructionSet.SourceAgent);
-
             //Tell children to return data
             foreach(Agent child in ChildAgents)
-                CreateAndEnqueueInstuction(Agents.SystemAgent.InstuctionsMethods.ReturnData.ToString(), 
-                    "Test", child, sourceAgent: instructionSet.SourceAgent);
+                CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "Test", child);
+
+            CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(), GetData(), instructionSet.SourceAgent);
+        }
+
+        protected void SaveChildData(InstructionSet instructionSet)
+        {
+            var data = instructionSet.ObjectToProcess as List<Dictionary<string, object>>;
+            List<Dictionary<string, object>> agentData = data ?? throw new InvalidCastException(
+                this.Name + " failed to Cast Dictionary<string, object> on Instruction.ObjectToProcess");
+
+            allChildData.AddRange(agentData);
+        }
+
+        protected Boolean CheckAllChildrenResponded()
+        {
+            bool allChildrenAnswered = true;
+            foreach (Agent child in ChildAgents)
+            {
+                bool childAnswered = false;
+                foreach (Dictionary<string, object> dict in allChildData)
+                    if (dict.ContainsValue(child.AgentId))
+                    {
+                        childAnswered = true;
+                        break;
+                    }
+                if (!childAnswered)
+                {
+                    allChildrenAnswered = false;
+                    break;
+                }
+            }
+            return allChildrenAnswered;
+        }
+
+        protected void ReceiveData(InstructionSet instructionSet)
+        {
+            SaveChildData(instructionSet);
+
+            if (CheckAllChildrenResponded())
+            {
+                CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(),
+                    allChildData, this.Creator);
+                // Delete data
+                allChildData = null;
+            }
         }
     }
 }

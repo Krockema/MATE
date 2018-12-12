@@ -105,8 +105,6 @@ namespace Master40.Agents
 
             // Enqueue data collection task
             system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.CollectData.ToString(), "Test", system, 10000);
-            // TODO: How to ensure that all data is received?
-            system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.WriteData.ToString(), "Test", system, 20000);
 
             // Return System Agent to Context
             return system;
