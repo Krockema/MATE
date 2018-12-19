@@ -10,14 +10,12 @@ namespace Master40.Agents.Agents
 {
     public class ContractAgent : Agent
     {
-        private RequestItem requestItem;
+        private RequestItem requestItem { get; set; }
 
         public ContractAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
         {
             //Instructions.Add(new Instruction{ Method = "StartOrder", ExpectedObjecType = typeof(RequestItem) });
         }
-
-
 
         public enum InstuctionsMethods
         {
