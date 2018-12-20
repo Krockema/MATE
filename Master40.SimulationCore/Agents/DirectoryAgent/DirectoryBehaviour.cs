@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.Agents
 {
     public static class DirectoryBehaviour
     {
-        public const string Ressource = "Ressource";
+        public const string RESSOURCE = "Ressource";
 
         /// <summary>
         /// Returns the Default Behaviour Set for Contract Agent.
@@ -30,7 +30,7 @@ namespace Master40.SimulationCore.Agents
             actions.Add(typeof(CreateMachineAgents), CreateMachineAgents);
             actions.Add(typeof(RequestRessourceAgent), RequestRessourceAgent);
 
-            properties.Add(Ressource, new List<RequestRessource>());
+            properties.Add(RESSOURCE, new List<RequestRessource>());
 
             return new BehaviourSet(actions, properties);
         }
@@ -43,7 +43,7 @@ namespace Master40.SimulationCore.Agents
                                             , agent.DebugThis)
                                             , ("Storage(" + stock.Name + ")").ToActorName());
 
-            var ressourceCollection = agent.Get<List<RequestRessource>>(Ressource);
+            var ressourceCollection = agent.Get<List<RequestRessource>>(RESSOURCE);
             ressourceCollection.Add(new RequestRessource(stock.Article.Name, ResourceType.Storage, storage));
             
             agent.Send(BasicInstruction.Initialize.Create(StorageBehaviour.Default(stock), storage));
@@ -60,10 +60,10 @@ namespace Master40.SimulationCore.Agents
                                             , agent.DebugThis)
                                             , ("Machine(" + machine.Name + ")").ToActorName());
 
-            var ressourceCollection = agent.Get<List<RequestRessource>>(Ressource);
+            var ressourceCollection = agent.Get<List<RequestRessource>>(RESSOURCE);
             ressourceCollection.Add(new RequestRessource(machine.Name, ResourceType.Machine, machineAgent));
 
-            agent.Send(BasicInstruction.Initialize.Create(ResourceBehaviour.Default(), machineAgent));
+            agent.Send(BasicInstruction.Initialize.Create(ResourceBehaviour.Default( ), machineAgent));
         };
 
 
@@ -94,7 +94,7 @@ namespace Master40.SimulationCore.Agents
             agent.DebugMessage(" got Called for Storage by -> " + agent.Sender.Path.Name);
 
             // find the related Comunication Agent
-            var ressourceCollection = agent.Get<List<RequestRessource>>(Ressource);
+            var ressourceCollection = agent.Get<List<RequestRessource>>(RESSOURCE);
             var ressource = ressourceCollection.First(x => x.Discriminator == discriminator);
 
             var hubInfo = new HubInformation(ressource.ResourceType

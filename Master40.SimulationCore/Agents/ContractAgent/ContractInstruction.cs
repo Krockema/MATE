@@ -8,10 +8,6 @@ namespace Master40.SimulationCore.Agents
 {
     public partial class ContractAgent
     {
-        //Posible Properties
-        public const string RequestItem = "RequestItem";
-
-
         public class Instruction { 
             public class StartOrder : SimulationMessage
             {

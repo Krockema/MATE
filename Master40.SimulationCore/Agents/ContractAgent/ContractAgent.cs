@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents
 
         protected override void Finish()
         {
-            var r = this.Get<RequestItem>(RequestItem);
+            var r = this.Get<RequestItem>(ContractBehaviour.REQUEST_ITEM);
             var childs = UntypedActor.Context.GetChildren();
             if (r.Provided && childs.Count() == 0)
             {

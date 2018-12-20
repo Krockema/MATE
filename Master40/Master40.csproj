@@ -24,7 +24,7 @@
   <ItemGroup>
     <PackageReference Include="ChartJSCore" Version="1.3.1" />
     <PackageReference Include="cldrjs" Version="0.5.0" />
-    <PackageReference Include="Hangfire" Version="1.6.20" />
+    <PackageReference Include="Hangfire" Version="1.6.21" />
     <PackageReference Include="jquery-globalize" Version="1.3.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.1.1" />
@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
     <PackageReference Include="System.Composition" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>

@@ -29,17 +29,18 @@ namespace Master40.SimulationCore.Agents
             actions.Add(typeof(StorageAgent.Instruction.RequestArticle), RequestArticle);
             actions.Add(typeof(StorageAgent.Instruction.StockRefill), StockRefill);
             actions.Add(typeof(StorageAgent.Instruction.ResponseFromProduction), ResponseFromProduction);
-            
-            
-            stockElement.StockExchanges.Add(new StockExchange
-            {
-                StockId = stockElement.Id,
-                ExchangeType = ExchangeType.Insert,
-                Quantity = stockElement.StartValue,
-                State = State.Finished,
-                RequiredOnTime = 0,
-                Time = 0
-            });
+
+            stockElement.StockExchanges = new List<StockExchange> {
+                                           // Initial Value 
+                                                new StockExchange
+                                                {
+                                                    StockId = stockElement.Id,
+                                                    ExchangeType = ExchangeType.Insert,
+                                                    Quantity = stockElement.StartValue,
+                                                    State = State.Finished,
+                                                    RequiredOnTime = 0,
+                                                    Time = 0
+                                                }};
 
             properties.Add(StockElement, stockElement);
             properties.Add(RequestedItems, new List<RequestItem>());

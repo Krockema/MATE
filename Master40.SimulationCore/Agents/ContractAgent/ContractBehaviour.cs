@@ -10,6 +10,10 @@ namespace Master40.SimulationCore.Agents
 {
     public static class ContractBehaviour
     {
+
+        //Posible Properties
+        public const string REQUEST_ITEM = "RequestItem";
+
         /// <summary>
         /// Returns the Default Behaviour Set for Contract Agent.
         /// </summary>
@@ -48,18 +52,18 @@ namespace Master40.SimulationCore.Agents
 
             agent.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + orderItem.Id + ") >");
 
-            agent.ValueStore.Add(ContractAgent.RequestItem, requestItem);
+            agent.ValueStore.Add(REQUEST_ITEM, requestItem);
         };
 
         /// <summary>
         /// TODO: Test Finish.
         /// </summary>
         /// <param name="instructionSet"></param>
-        private static Action<Agent, ISimulationMessage> Finish = (agent, message) =>
+        internal static Action<Agent, ISimulationMessage> Finish = (agent, message) =>
         {
             var item = message.Message as RequestItem;
             agent.DebugMessage("Dispo Said Done.");
-            var localItem = agent.Get<RequestItem>(ContractAgent.RequestItem);
+            var localItem = agent.Get<RequestItem>(REQUEST_ITEM);
             // try to Finish if time has come
             if (agent.CurrentTime >= item.DueTime)
             {

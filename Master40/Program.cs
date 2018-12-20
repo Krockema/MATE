@@ -17,7 +17,6 @@ namespace Master40
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
-
             host.Run();
         }
     }

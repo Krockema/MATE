@@ -51,6 +51,11 @@ namespace Master40.SimulationCore.Agents
                 }
             }
 
+            public class Inizialized : SimulationMessage
+            {
+                public Inizialized() : base (true, ActorRefs.Nobody) { }
+            }
+
             public class EndSimulation : SimulationMessage
             {
                 public static EndSimulation Create(object message, IActorRef target)

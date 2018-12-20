@@ -50,6 +50,8 @@ namespace Master40.Agents
                 
                 // run the simulation
                 await simulator.SimulateAsync(0);
+                
+                
 
                 // Debug
                 Debuglog(simulationContext: context, productionDomainContextContext: _productionDomainContext, simNr: simulationNumber, simId: simulationId);

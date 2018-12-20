@@ -11,6 +11,7 @@ namespace Master40.Agents.Agents
     {
 
         private List<WorkItem> WorkItemQueue;
+        private List<Batch> Batches;
         private List<Agent> MachineAgents;
         
         public ComunicationAgent(Agent creator, string name, bool debug, string contractType) 
@@ -19,6 +20,7 @@ namespace Master40.Agents.Agents
             ContractType = contractType;
             WorkItemQueue = new List<WorkItem>();
             MachineAgents = new List<Agent>();
+            Batches = new List<Batch>();
         }
         public string ContractType { get; set; }
 
@@ -39,6 +41,11 @@ namespace Master40.Agents.Agents
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
             }
 
+            SingleProcessing(workItem);
+        }
+
+        private void SingleProcessing(WorkItem workItem)
+        {
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
             if (!WorkItemQueue.Contains(workItem))
@@ -57,7 +64,7 @@ namespace Master40.Agents.Agents
                 workItem.MachineAgentId = Guid.Empty;
                 workItem.Proposals.Clear();
             }
-            
+
             foreach (var agent in MachineAgents)
             {
                 CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.RequestProposal.ToString(),

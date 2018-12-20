@@ -23,6 +23,6 @@ namespace Master40.SimulationCore.Agents
 
         }
 
-   
+        private int MyProperty { get; set; }
     }
 }

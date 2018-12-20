@@ -44,6 +44,14 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             actorRef : IActorRef
         }
 
+    type public RequestBatch =
+        {
+                PrioRule :  FSharpFunc<int64, double> 
+                mutable ItemPriority : double
+                RequiredSetuo : string
+        }
+
+
     type public Proposal =
         {
             PossibleSchedule : int64 

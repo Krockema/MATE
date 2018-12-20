@@ -13,37 +13,32 @@ namespace Master40.SimulationCore.Agents
     /// </summary>
     public partial class HubAgent : Agent
     {
-        private List<WorkItem> _workItemQueue { get; }
-        private List<IActorRef> _machineAgents { get; }
-        private string _skillGroup { get; } 
-
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time,string skillGroup, bool debug)
         {
             return Akka.Actor.Props.Create(() => new HubAgent(actorPaths, time, skillGroup, debug));
         }
 
-        public HubAgent(ActorPaths actorPaths, long time,string skillGroup, bool debug) : base(actorPaths, time, debug)
+        public HubAgent(ActorPaths actorPaths, long time, string skillGroup, bool debug) : base(actorPaths, time, debug)
         {
-            _skillGroup = skillGroup;
-            _workItemQueue = new List<WorkItem>();
-            _machineAgents = new List<IActorRef>();
+            var skg = this.Get<string>(HubBehaviour.SKILL_GROUP);
+            skg = skillGroup;
         }
 
-        protected override void Do(object o)
+        protected void DoNot(object o)
         {
             switch (o)
             {
-                case Instruction.EnqueueWorkItem instruction: EnqueueWorkItem(instruction.GetObjectFromMessage); break;
+                // case Instruction.EnqueueWorkItem instruction: EnqueueWorkItem(instruction.GetObjectFromMessage); break;
                 case Instruction.AddMachineToHub instruction: AddMachineToHub(instruction); break;
-                case Instruction.ProposalFromMachine instruction: ProposalFromMachine(instruction.GetObjectFromMessage); break;
-                case Instruction.SetWorkItemStatus instruction: SetWorkItemStatus(instruction.GetObjectFromMessage); break;
-                case Instruction.FinishWorkItem instruction: FinishWorkItem(instruction.GetObjectFromMessage); break;
-                case Instruction.ProductionStarted instruction: ForwardProductionStart(instruction.GetObjectfromMessage); break;
+                // case Instruction.ProposalFromMachine instruction: ProposalFromMachine(instruction.GetObjectFromMessage); break;
+                // case Instruction.SetWorkItemStatus instruction: SetWorkItemStatus(instruction.GetObjectFromMessage); break;
+                // case Instruction.FinishWorkItem instruction: FinishWorkItem(instruction.GetObjectFromMessage); break;
+                //case Instruction.ProductionStarted instruction: ForwardProductionStart(instruction.GetObjectfromMessage); break;
                 default: throw new Exception("Invalid Message Object.");
             }
         }
-
+        /*
         private void FinishWorkItem(WorkItem workItem)
         {
             
@@ -56,14 +51,15 @@ namespace Master40.SimulationCore.Agents
 
             _workItemQueue.Remove(_workItemQueue.Find(x => x.Key == workItem.Key));
         }
-
+            
         private void ForwardProductionStart(WorkItem workItem)
         {
             var temp = _workItemQueue.Single(x => x.Key == workItem.Key);
             CreateAndEnqueue(ProductionAgent.Instruction.ProductionStarted.Create(workItem.UpdatePoductionAgent(temp.ProductionAgent), temp.ProductionAgent));
 
-        }
-
+        } 
+        */
+        /*
         private void SetWorkItemStatus(ItemStatus workItemStatus)
         {
             if (workItemStatus == null)
@@ -98,7 +94,9 @@ namespace Master40.SimulationCore.Agents
             }
             _workItemQueue.Replace(workItem);
         }
+        */
 
+        /*
         private void ProposalFromMachine(Proposal proposal)
         {
             if (proposal == null)
@@ -150,7 +148,7 @@ namespace Master40.SimulationCore.Agents
                 CreateAndEnqueue(ResourceAgent.Instruction.AcknowledgeProposal.Create(workItem, acknowledgement.ResourceAgent));
             }
         }
-
+        */
         private void AddMachineToHub(Instruction.AddMachineToHub instruction)
         {
             var machine = instruction.GetObjectFromMessage;
@@ -165,6 +163,7 @@ namespace Master40.SimulationCore.Agents
 
         }
 
+        /* 
         private void EnqueueWorkItem(WorkItem workItem)
         {
             if (workItem == null)
@@ -194,5 +193,6 @@ namespace Master40.SimulationCore.Agents
                 CreateAndEnqueue(instruction: ResourceAgent.Instruction.RequestProposal.Create(workItem, agent));
             }
         }
+        */
     }
 }

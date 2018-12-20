@@ -49,6 +49,19 @@ namespace Master40.SimulationCore.Agents
                 }
                 public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
             }
+
+            public class ResponseFromHub : SimulationMessage
+            {
+                public static ResponseFromHub Create(HubInformation message, IActorRef target)
+                {
+                    return new ResponseFromHub(message, target);
+                }
+                private ResponseFromHub(object message, IActorRef target) : base(message, target)
+                {
+
+                }
+                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+            }
             public class ResponseFromSystemForBom : SimulationMessage
             {
                 public static ResponseFromSystemForBom Create(Article message, IActorRef target)

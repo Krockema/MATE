@@ -725,7 +725,10 @@ namespace Master40.DB.Data.Context
             if (demand.GetType() == typeof(DemandOrderPart))
             {
                 
-                demand = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).ThenInclude(b => b.Order).ToList().Single(a => a.Id == demand.Id);
+                demand = Demands.OfType<DemandOrderPart>()
+                                .Include(a => a.OrderPart)
+                                .ThenInclude(b => b.Order)
+                                .ToList().Single(a => a.Id == demand.Id);
                 return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
             }
             if (demand.GetType() == typeof(DemandStock)) return int.MaxValue;

@@ -18,6 +18,7 @@ namespace Master40.Agents.Agents
         public ProductionAgent(Agent creator, string name, bool debug, RequestItem requestItem) 
             : base(creator, name, debug)
         {
+            creator.ChildAgents.Add(this);
             RequestItem = requestItem;
             //RequestArtikles = new List<RequestItem>();
             ComunicationAgents = new List<ComunicationAgent>();
@@ -114,7 +115,7 @@ namespace Master40.Agents.Agents
             {
                 throw new DirectoryNotFoundException("Could not find Directory Agent.");
             }
-
+            
             // Request Comunication Agent for my Workschedules
             foreach (var machineGroupName in workSchedules.Select(x => x.MachineGroup.Name).Distinct())
             {

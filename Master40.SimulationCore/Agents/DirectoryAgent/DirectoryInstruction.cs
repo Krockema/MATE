@@ -30,6 +30,7 @@ namespace Master40.SimulationCore.Agents
                 private RequestRessourceAgent(object message, IActorRef target) : base(message, target)
                 {
                 }
+                public string GetObjectFromMessage { get => Message as string; }
             }
 
             public class CreateMachineAgents : SimulationMessage

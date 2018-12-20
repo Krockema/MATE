@@ -9,13 +9,16 @@ namespace Master40.SimulationCore.Helper
         public ActorMetaData StorageDirectory { get; private set; }
         public ActorMetaData HubDirectory { get; private set; }
         public ActorMetaData SimulationContext { get; }
+        public IActorRef SystemMailBox { get; }
+
         /// <summary>
         /// Static helper class used to define paths to fixed-name actors
         /// (helps eliminate errors when using <see cref="ActorSelection"/>)
         /// </summary>
-        public ActorPaths(IActorRef simulationContext)
+        public ActorPaths(IActorRef simulationContext, IActorRef systemMailBox)
         {
             SimulationContext = new ActorMetaData("SimulationContext", simulationContext);
+            SystemMailBox = systemMailBox;            
         }
 
         public void SetSystemAgent(IActorRef systemAgent)

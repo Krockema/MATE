@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using AkkaSim.Definitions;
+using Master40.XUnitTest.Moc;
 
 namespace Master40.XUnitTest.Agents
 {
@@ -51,6 +52,17 @@ namespace Master40.XUnitTest.Agents
             contextProbe.ExpectMsg<TestMessage>(a => (bool)a.Message == true);
         }
 
+        [Fact]
+        public async Task PruneTest()
+        {
+            var tree = new Tree();
+            var what = tree;
+            if (what == null)
+            {
+                throw new NullReferenceException();
+            }
+
+        }
 
         [Fact]
         public async Task PriorityRule()
@@ -76,39 +88,35 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public void ContractTestCreateDispoAgent()
         {
-            var testProbe = this.CreateTestProbe();
-            var storageProbe = this.CreateTestProbe();
-            var systemProbe = this.CreateTestProbe();
+            // Prepare the System Mocup
+            var testProbe = this.CreateTestProbe("ContextProbe");
+            var systemProbe = this.CreateTestProbe("SystemProbe");
+            var directoryProbe = this.CreateTestProbe("StorageDirectoryProbe");
+            var inbox = Inbox.Create(Sys);
             var simContext = Sys.ActorOf(SimulationContextMoc.Props(testProbe));
+            var agentPaths = new ActorPaths(simContext, inbox.Receiver);
+            agentPaths.SetSystemAgent(systemProbe);
+            agentPaths.SetStorageDirectory(directoryProbe);
 
-            var agentPaths = new ActorPaths(simContext);
-            agentPaths.SetSystemAgent(storageProbe);
-            agentPaths.SetStorageDirectory(storageProbe);
+
+            // create Contract Agent and inject behaviour
             var contract = Sys.ActorOf(SimulationCore.Agents.ContractAgent.Props(actorPaths: agentPaths
                                                                , time: 1
                                                                , debug: true), "Contract-Test-Agent");
+            var behave = ContractBehaviour.Default();
+            simContext.Tell(BasicInstruction.Initialize.Create(behave, contract));
 
-            //var contract = Sys.CreateActor(() => new ContractAgent(agentPaths, 1, true));
-            // OrderPart Probe
+
+            // Create a Order with custom Article
             var order = new Order() { DueTime = 0, Id = 1 };
             var orderPart = new OrderPart() { Article = new Article() { Name = "Bear" }, Quantity = 1, Id = 1, OrderId = 1, Order = order };
-
-            var behave = ContractBehaviour.Default();
-
-            simContext.Tell(BasicInstruction.Initialize.Create(behave, contract));
+            // tell teh Contract agent
             simContext.Tell(SimulationCore.Agents.ContractAgent.Instruction.StartOrder.Create(orderPart, contract));
 
-            //.ExpectMsgFrom<RegisterUser>
-            // AwaitCondition(() => testProbe.HasMessages);
-            // Within(TimeSpan.FromSeconds(5), () =>
-            // {
-            //testProbe.FishForMessage<DispoAgent.Instruction.RequestArticle>();
-            //   Console.WriteLine(((RequestItem)((DispoAgent.Instruction.RequestArticle)testProbe.LastMessage).Message).Article.Name);
-            //
-            // });
-
-
-
+            // check if Child is Created correctly and sending its fist Request to the StorageProbe
+            dynamic item = directoryProbe.ReceiveOne(TimeSpan.FromSeconds(50));
+            Assert.Equal(item.Message, "Bear");
+            
             // ExpectMsg("done", TimeSpan.FromSeconds(1));
             //
             // // the action needs to finish within 3 seconds
@@ -156,7 +164,8 @@ namespace Master40.XUnitTest.Agents
         public void DirectoryTest()
         {
             var simContext = this.CreateTestProbe();
-            var agentPaths = new ActorPaths(simContext);
+            var inbox = Inbox.Create(Sys);
+            var agentPaths = new ActorPaths(simContext, inbox.Receiver);
             var directory = Sys.ActorOf(DirectoryAgent.Props(agentPaths, 0, true), "DirectoryAgent");
 
         }
@@ -176,20 +185,18 @@ namespace Master40.XUnitTest.Agents
             // init System
             var simContext = this.CreateTestProbe();
             var simSystem = this.CreateTestProbe();
-            var agentPaths = new ActorPaths(simContext);
+            var inbox = Inbox.Create(Sys);
+            var agentPaths = new ActorPaths(simContext, inbox.Receiver);
             agentPaths.SetSystemAgent(simSystem);
             agentPaths.SetHubDirectoryAgent(this.TestActor);
 
             // init Stock 
             var stock = new Stock { Article = new Article { Name = "Bär" } };
-            var directory = Sys.ActorOf(StorageAgent.Props(agentPaths, 0, true));
-            directory.Tell(BasicInstruction.Initialize.Create(StorageBehaviour.Default(stock), this.TestActor));
+            var storageAgent = Sys.ActorOf(StorageAgent.Props(agentPaths, 0, true));
+            storageAgent.Tell(BasicInstruction.Initialize.Create(StorageBehaviour.Default(stock), this.TestActor));
 
-            AwaitCondition(() => simContext.HasMessages);
-            Within(TimeSpan.FromSeconds(5), () =>
-            {
-                simContext.ExpectMsg<DirectoryAgent.Instruction.RequestRessourceAgent>(x => x.Message == "Bär");
-            });
+            Within(TimeSpan.FromSeconds(5), () => simContext.HasMessages);
+           
         }
     }
 }

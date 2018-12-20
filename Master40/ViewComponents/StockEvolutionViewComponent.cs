@@ -42,7 +42,9 @@ namespace Master40.ViewComponents
                 Responsive = true,
                 Scales = new Scales
                 {
-                    YAxes = new List<Scale> { new CartesianScale { Id = "first-y-axis", Type = "linear", Display = true, ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 } } },
+                    YAxes = new List<Scale> { new CartesianScale { Id = "first-y-axis", Type = "linear", Display = true,
+                        ScaleLabel = new ScaleLabel{ LabelString = "Value in €", Display = true, FontSize = 12 },
+                        Ticks = new CartesianLinearTick { Min = 0, Display = true } } },
                     XAxes = new List<Scale> { new CartesianScale { Id = "first-x-axis", Type = "linear", Display = true,
                         Ticks = new CartesianLinearTick{ Max = maxX, Min = 0 , Display = true }, 
                         ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } },

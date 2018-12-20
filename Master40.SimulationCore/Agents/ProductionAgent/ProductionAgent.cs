@@ -12,12 +12,14 @@ namespace Master40.SimulationCore.Agents
 {
     public partial class ProductionAgent : Agent
     {
+        /*
         private RequestItem _requestItem;
         private List<WorkItem> _workItems { get; set; }
         private List<RequestItem> _requestItems { get; set; }
         private Dictionary<IActorRef, string> _hubAgents;
         private ElementStatus _status;
         private WorkItem _nextItem {get; set;}
+        */
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug, RequestItem item)
         {
@@ -34,7 +36,7 @@ namespace Master40.SimulationCore.Agents
             DebugMessage("Woke up. My dueTime is :" + item.DueTime);
         }
 
-        protected override void Do(object o)
+        protected override void DoNot(object o)
         {
             switch (o)
             {
@@ -48,6 +50,7 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
+        /*
         private void ProvideRequest(ItemStatus itemStatus)
         {
             var item = _requestItems.Single(x => x.Key == itemStatus.ItemId);
@@ -62,6 +65,7 @@ namespace Master40.SimulationCore.Agents
                 base.Finish();
             }
         }
+        */ 
 
         private void StartProductionAgent()
         {
@@ -111,7 +115,7 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        private void Finished(ItemStatus status)
+        internal void Finished(ItemStatus status)
         {
             // // any Not Finished do noting
             // if (ChildAgents.Any(x => x.Status != Status.Finished))
@@ -197,7 +201,7 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        private void SetWorkItemReady()
+        internal void SetWorkItemReady()
         {
             // check if there is something Ready or in Process Then just wait for their Ready Call
             if (_workItems.Count() == 0 || _workItems.Any(x => x.Status == ElementStatus.Ready || x.Status == ElementStatus.Processed))

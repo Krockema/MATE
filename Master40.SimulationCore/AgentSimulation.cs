@@ -11,6 +11,8 @@ using Master40.Tools.Simulation;
 using Microsoft.EntityFrameworkCore;
 using Akka.Actor;
 using Akka.Event;
+using static Master40.SimulationCore.Agents.SystemAgent.Instruction;
+using System;
 
 namespace Master40.SimulationCore
 {
@@ -38,17 +40,19 @@ namespace Master40.SimulationCore
         }
         public Task<AkkaSim.Simulation> InitializeSimulation(SimulationConfiguration simConfig)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 Statistics.Log = new List<string>();
                 OrderGenerator.GenerateOrdersSyncron(_DBContext, simConfig, 1); // .RunSynchronously();
                 _messageHub.SendToAllClients("Simulation starts...");
                 var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, 0);
+                
 
 
                 // #1 Init Simulation
                 _simulation = new AkkaSim.Simulation(_debug);
-                ActorPaths = new ActorPaths(_simulation.SimulationContext);
+                Inbox inbox = Inbox.Create(_simulation.ActorSystem);
+                ActorPaths = new ActorPaths(_simulation.SimulationContext, inbox.Receiver);
 
                 // #1.1 Setup DeadLetter Monitor for Debugging
                 
@@ -91,10 +95,16 @@ namespace Master40.SimulationCore
                                                             , ActorPaths.StorageDirectory.Ref);
                 }
 
+
+                Inizialized initFinished = inbox.Receive(TimeSpan.FromSeconds(15)) as Inizialized;
+                if (initFinished == null)
+                {
+                    throw new ExecutionEngineException();
+                }
+
                 return _simulation;
             });
         }
-
         public void Run()
         {
            _simulation.RunAsync().Wait();

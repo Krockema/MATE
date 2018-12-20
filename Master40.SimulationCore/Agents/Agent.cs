@@ -21,6 +21,7 @@ namespace Master40.SimulationCore.Agents
         internal Dictionary<Type, object> Behaviour { get; }
         internal new IUntypedActorContext Context => UntypedActor.Context;
         internal long CurrentTime { get => TimePeriod; }
+        internal void TryToFinish() => Finish();
         internal new IActorRef Sender { get => base.Sender; }
         internal Dictionary<string, object> ValueStore { get; }
 
@@ -62,7 +63,19 @@ namespace Master40.SimulationCore.Agents
         /// <returns></returns>
         public T Get<T>(string name)
         {
-            return (T)ValueStore.GetValueOrDefault(name, null);
+            var returns = (T)ValueStore.GetValueOrDefault(name, null);
+            if(returns == null)
+            {
+                if (typeof(T).IsValueType || typeof(T) == typeof(string))
+                {
+                    returns = default(T);
+                }
+                else
+                {
+                    returns = (T)Activator.CreateInstance(typeof(T));
+                }
+            }
+            return returns;
         }
 
         private void ExecuteMatchingBehave(object o)
@@ -152,7 +165,7 @@ namespace Master40.SimulationCore.Agents
         /// Method which is called after Agent Initialisation.
         /// </summary>
         /// <param name="o"></param>
-        protected virtual void OnInit(object o) {
+        protected virtual void OnInit(BehaviourSet o) {
 
         }
 

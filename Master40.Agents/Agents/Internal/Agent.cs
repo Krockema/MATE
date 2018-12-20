@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -21,11 +22,12 @@ namespace Master40.Agents.Agents.Internal
 
         // process State
         private bool Waiting = false;
-
+        
         // Agent Properties.
         public Guid AgentId { get; }
+        [DataType(DataType.Custom)]
         internal Agent Creator { get; set; }
-        internal List<Agent> ChildAgents { get; set; }
+        internal List<Agent> ChildAgents{ get; set; }
         public string Name { get; set; }
         public bool DebugThis { get; set; }
         internal Status Status { get; set; }

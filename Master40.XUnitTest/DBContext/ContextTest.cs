@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.Agents;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
+using Master40.Simulation.Simulation;
 using Master40.Tools.Simulation;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -47,7 +50,7 @@ namespace Master40.XUnitTest.DBContext
             _ctx.Dispose();
         }
         */
-        /*
+        
         [Fact]
         public async Task MrpTestAsync()
         {
@@ -84,14 +87,14 @@ namespace Master40.XUnitTest.DBContext
 
                 CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 
                                                     _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral),true, int.MaxValue);
-                CopyResults.Copy(c, _productionDomainContext);
+               // CopyResults.Copy(c, _productionDomainContext);
             }
             connection.Close();
 
             Assert.Equal(_productionDomainContext.Kpis.Any(), true);
         }
 
-
+        /*
         [Fact]
         public async Task MrpInMemmoryTest()
         {            

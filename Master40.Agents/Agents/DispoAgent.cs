@@ -113,10 +113,11 @@ namespace Master40.Agents.Agents
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < QuantityToProduce; i++)
             {
-                new ProductionAgent(creator: StockAgent,
+                var pa = new ProductionAgent(creator: StockAgent,
                                        name: "Production(" + RequestItem.Article.Name + ", Nr. " + i + ")",
                                       debug: DebugThis,
                                 requestItem: item);
+                ChildAgents.Add(pa);
             }
         }
 
