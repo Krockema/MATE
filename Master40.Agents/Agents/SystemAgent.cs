@@ -198,6 +198,11 @@ namespace Master40.Agents.Agents
             System.IO.File.WriteAllText(@"C:\source\agentdata\other.csv", otherCsv);
         }
 
+        private void WriteDataToGPSQLite(List<Dictionary<string, object>> childData)
+        {
+            // TODO
+        }
+
         private new void ReceiveData(InstructionSet instructionSet)
         {
             SaveChildData(instructionSet);
