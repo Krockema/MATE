@@ -1,5 +1,4 @@
 ﻿using Akka.Actor;
-using Akka.Event;
 using AkkaSim;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +6,6 @@ using Master40.SimulationImmutables;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
 using System;
-using AkkaSim.Definitions;
 using Master40.SimulationCore.MessageTypes;
 
 namespace Master40.SimulationCore.Agents
@@ -16,9 +14,17 @@ namespace Master40.SimulationCore.Agents
     public abstract class Agent : SimulationElement
     {
         public string Name { get; }
-        internal ElementStatus Status { get; private set; }
+        /// <summary>
+        /// VirtualParrent is his Principal Agent
+        /// </summary>
+        internal IActorRef VirtualParent { get; }
+        /// <summary>
+        /// Holds the last Known Status for each Child Entity
+        /// </summary>
+        internal Dictionary<IActorRef, ElementStatus> VirtualChilds { get;}
+        internal ElementStatus Status { get; set; }
         internal ActorPaths ActorPaths { get; private set; }
-        internal Dictionary<Type, object> Behaviour { get; }
+        internal IBehaviour Behaviour { get; private set; }
         internal new IUntypedActorContext Context => UntypedActor.Context;
         internal long CurrentTime { get => TimePeriod; }
         internal void TryToFinish() => Finish();
@@ -35,28 +41,31 @@ namespace Master40.SimulationCore.Agents
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
-        public Agent(ActorPaths actorPaths, long time, bool debug) 
+        public Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
             : base(actorPaths.SimulationContext.Ref, time)
         {
             DebugThis = debug;
             Name = Self.Path.Name;
             ActorPaths = actorPaths;
+            VirtualParent = principal;
             DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
-            Behaviour = new Dictionary<Type, object>();
-            ValueStore = new Dictionary<string, object>();
         }
 
         protected override void Do(object o)
         {
             switch (o)
             {
-                case BasicInstruction.Initialize i: Initialization(i.GetObjectFromMessage); break;
-                default: ExecuteMatchingBehave(o); break;
+                case BasicInstruction.Initialize i: InitializeAgent(i.GetObjectFromMessage); break;
+                case BasicInstruction.ChildRef c: AddChild(c.GetObjectFromMessage); break;
+                default:
+                    if (!Behaviour.Action(this, (ISimulationMessage)o))
+                        throw new Exception(this.Name + " is sorry, he doesnt know what to do!");
+                    break;
             }
         }
 
         /// <summary>
-        /// Returns 
+        /// Returns the requested Property, if null an empty new property is returned
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
@@ -68,7 +77,7 @@ namespace Master40.SimulationCore.Agents
             {
                 if (typeof(T).IsValueType || typeof(T) == typeof(string))
                 {
-                    returns = default(T);
+                    returns = default;
                 }
                 else
                 {
@@ -77,9 +86,15 @@ namespace Master40.SimulationCore.Agents
             }
             return returns;
         }
-
+        /// <summary>
+        /// Posible generic call to Action from Behaviour Stack
+        /// Requires Bavaiour to be a Dictionary<Type, Action<Agent, ISimulationMessage>>
+        /// </summary>
+        /// <param name="o"></param>
+        [Obsolete("This Funkction does nothing currently, Please use the single action Behaviour!")]
         private void ExecuteMatchingBehave(object o)
         {
+            /*
             Behaviour.TryGetValue(o.GetType(), out object action);
             if (action is Action<Agent, SimulationMessage>)
             {
@@ -91,24 +106,31 @@ namespace Master40.SimulationCore.Agents
                 System.Diagnostics.Debug.WriteLine(this.Name + " Failed to load matching behaviour for " + o.ToString());
                 throw new Exception("Could not find matching behaviour!");
             }
+            */
+        }
+
+        private void AddChild(IActorRef childRef)
+        {
+            VirtualChilds.Add(childRef, ElementStatus.Created);
+            OnChildAdd(childRef);
+        }
+        protected virtual void OnChildAdd(IActorRef childRef)
+        {
+            DebugMessage(this.Name + "Child Created.");            
         }
 
         /// <summary>
         /// Adding Instruction Behaviour releation to the Agent.
+        /// Could be simplified, but may required later.
         /// </summary>
         /// <param name="behaviourSet"></param>
-        private void Initialization(BehaviourSet behaviourSet)
+        private void InitializeAgent(IBehaviour behaviour)
         {
-            foreach (var action in behaviourSet.Actions) AddBehave(action.Key, action.Value);
-            foreach (var propertie in behaviourSet.Properties) ValueStore.Add(propertie.Key, propertie.Value);
-            OnInit(behaviourSet);
+            this.Behaviour = behaviour;
+            foreach (var propertie in behaviour.Properties) ValueStore.Add(propertie.Key, propertie.Value);
+            OnInit(behaviour);
         }
-
-        private void AddBehave(Type type, Action<Agent, ISimulationMessage> action)
-        {
-            this.Behaviour.Add(type, action);
-        }
-
+        
         /// <summary>
         /// Logging the debug Message to Systems.Diagnosics.Debug.WriteLine
         /// </summary>
@@ -131,6 +153,7 @@ namespace Master40.SimulationCore.Agents
         /// <param name="objectToProcess"></param>
         /// <param name="targetAgent"></param>
         /// <param name="waitFor"> Creates a Schedule Object which will pop the Message after the specified time Period!</param>
+        [Obsolete("Please use send Method")]
         public void CreateAndEnqueue(ISimulationMessage instruction, long waitFor = 0)
         {
             if (waitFor == 0)
@@ -165,7 +188,7 @@ namespace Master40.SimulationCore.Agents
         /// Method which is called after Agent Initialisation.
         /// </summary>
         /// <param name="o"></param>
-        protected virtual void OnInit(BehaviourSet o) {
+        protected virtual void OnInit(IBehaviour o) {
 
         }
 

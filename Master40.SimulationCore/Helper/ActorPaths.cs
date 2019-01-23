@@ -1,16 +1,18 @@
 ﻿using Akka.Actor;
+using Master40.SimulationCore.Agents;
 using System;
+using System.Collections.Generic;
 
 namespace Master40.SimulationCore.Helper
 {
-    public class ActorPaths 
+    public class ActorPaths
     {
         public ActorMetaData SystemAgent { get; private set; }
         public ActorMetaData StorageDirectory { get; private set; }
         public ActorMetaData HubDirectory { get; private set; }
         public ActorMetaData SimulationContext { get; }
         public IActorRef SystemMailBox { get; }
-
+        public Dictionary<GuardianType, IActorRef> Guardians { get; }
         /// <summary>
         /// Static helper class used to define paths to fixed-name actors
         /// (helps eliminate errors when using <see cref="ActorSelection"/>)
@@ -18,7 +20,8 @@ namespace Master40.SimulationCore.Helper
         public ActorPaths(IActorRef simulationContext, IActorRef systemMailBox)
         {
             SimulationContext = new ActorMetaData("SimulationContext", simulationContext);
-            SystemMailBox = systemMailBox;            
+            SystemMailBox = systemMailBox;
+            Guardians = new Dictionary<GuardianType, IActorRef>();
         }
 
         public void SetSystemAgent(IActorRef systemAgent)
@@ -36,6 +39,11 @@ namespace Master40.SimulationCore.Helper
         {
             if (SystemAgent == null) throw new Exception("Wrong Order, Please SetSystemAgent first");
             StorageDirectory = new ActorMetaData("StorageDirectory", storageAgent);
+        }
+
+        public void AddGuardian(GuardianType guardianType, IActorRef actorRef)
+        {
+            Guardians.Add(guardianType, actorRef);
         }
 
     }

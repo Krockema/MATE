@@ -7,3 +7,5 @@ C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netc
 C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.fsproj.CopyComplete
 C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.dll
 C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.AssemblyInfoInputs.cache
+C:\Users\mtko\source\repos\Master40\Master40.SimulationImmutables\obj\Debug\netcoreapp2.1\Master40.SimulationImmutables.AssemblyInfo.fs

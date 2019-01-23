@@ -56,6 +56,24 @@ namespace Master40.SimulationCore.MessageTypes
                 , providerList: new List<IActorRef>()
             );
         }
+
+        public static RequestItem ToRequestItem(this ArticleBom articleBom, RequestItem requestItem, IActorRef requester)
+        {
+            return new RequestItem(
+                key: Guid.NewGuid()
+                , dueTime: requestItem.DueTime
+                , quantity: Convert.ToInt32(articleBom.Quantity)
+                , article: articleBom.ArticleChild
+                , orderId: requestItem.OrderId
+                , isHeadDemand: true
+                , stockExchangeId: Guid.Empty
+                , storageAgent: ActorRefs.NoSender
+                , requester: requester
+                , providable: 0
+                , provided: false
+                , providerList: new List<IActorRef>()
+            );
+        }
     }
 
 

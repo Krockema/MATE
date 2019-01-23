@@ -14,5 +14,8 @@ namespace Master40.DB.Models
         public virtual ICollection<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
         [JsonIgnore]
         public virtual ICollection<Machine> Machines  { get; set; }
+
+        public virtual ICollection<MachineTool> MachineTools { get; set; }
+
     }
 }

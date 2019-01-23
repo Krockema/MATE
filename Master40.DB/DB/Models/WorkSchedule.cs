@@ -14,5 +14,7 @@ namespace Master40.DB.Models
         public int ArticleId { get; set; }
         [JsonIgnore]
         public Article Article { get; set; }
+        public int MachineToolId { get; set; }
+        public MachineTool MachineTool { get; set; }
     }
 }

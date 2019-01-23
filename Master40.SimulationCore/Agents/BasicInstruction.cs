@@ -13,20 +13,29 @@ namespace Master40.SimulationCore.Agents
     {
         public class Initialize : SimulationMessage
         {
-            public static Initialize Create(IActorRef target)
-            {
-                return new Initialize(null, target);
-            }
-            public static Initialize Create(BehaviourSet message, IActorRef target)
+            public static Initialize Create(IActorRef target, IBehaviour message = null)
             {
                 return new Initialize(message, target);
             }
             private Initialize(object message, IActorRef target) : base(message, target)
             {
             }
-
-            public BehaviourSet GetObjectFromMessage { get => Message as BehaviourSet; }
+            public IBehaviour GetObjectFromMessage { get => Message as IBehaviour; }
         }
+
+        public class ChildRef : SimulationMessage
+        {
+            public static ChildRef Create(IActorRef message, IActorRef target)
+            {
+                return new ChildRef(message, target);
+            }
+            private ChildRef(object message, IActorRef target) : base(message, target)
+            {
+            }
+            public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
+        }
+
+
         public class ResponseFromHub : SimulationMessage
         {
             public static ResponseFromHub Create(HubInformation message, IActorRef target)

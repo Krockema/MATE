@@ -11,7 +11,7 @@ using Master40.Tools.Simulation;
 using Microsoft.EntityFrameworkCore;
 using Akka.Actor;
 using Akka.Event;
-using static Master40.SimulationCore.Agents.SystemAgent.Instruction;
+using static Master40.SimulationCore.Agents.Supervisor.Instruction;
 using System;
 
 namespace Master40.SimulationCore
@@ -53,9 +53,11 @@ namespace Master40.SimulationCore
                 _simulation = new AkkaSim.Simulation(_debug);
                 Inbox inbox = Inbox.Create(_simulation.ActorSystem);
                 ActorPaths = new ActorPaths(_simulation.SimulationContext, inbox.Receiver);
+                ActorPaths.AddGuardian(GuardianType.Contract, _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "Contract"));
+                ActorPaths.AddGuardian(GuardianType.Dispo, _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "Dispo"));
+                ActorPaths.AddGuardian(GuardianType.Production, _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "Production"));
 
-                // #1.1 Setup DeadLetter Monitor for Debugging
-                
+                // #1.2 Setup DeadLetter Monitor for Debugging
                 var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
                 var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
 
@@ -63,21 +65,21 @@ namespace Master40.SimulationCore
                 _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
 
                 // #2 Create System Agent
-                ActorPaths.SetSystemAgent(_simulation.ActorSystem.ActorOf(SystemAgent.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, simConfig), "System"));
+                ActorPaths.SetSystemAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, simConfig, ActorRefs.Nobody), "System"));
 
                 // #3 Create DirectoryAgents
-                ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(DirectoryAgent.Props(ActorPaths, 0, _debug), "HubDirectory"));
-                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(DirectoryBehaviour.Default(),ActorPaths.HubDirectory.Ref));
+                ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "HubDirectory"));
+                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.HubDirectory.Ref, DirectoryBehaviour.Get()));
 
-                ActorPaths.SetStorageDirectory(_simulation.ActorSystem.ActorOf(DirectoryAgent.Props(ActorPaths, 0, _debug), "StorageDirectory"));
-                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(DirectoryBehaviour.Default(), ActorPaths.StorageDirectory.Ref));
+                ActorPaths.SetStorageDirectory(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "StorageDirectory"));
+                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, DirectoryBehaviour.Get()));
 
                 // #4 Create Machines
                 foreach (var machine in _DBContext.Machines.Include(m => m.MachineGroup).AsNoTracking())
                 {
                     var resource = new RessourceDefinition(randomWorkTime, machine, _debug);
 
-                    _simulation.SimulationContext.Tell(DirectoryAgent.Instruction
+                    _simulation.SimulationContext.Tell(Directory.Instruction
                                                                     .CreateMachineAgents
                                                                     .Create(resource, ActorPaths.HubDirectory.Ref)
                                                                 , ActorPaths.HubDirectory.Ref);
@@ -89,7 +91,7 @@ namespace Master40.SimulationCore
                                                 .Include(x => x.Article).ThenInclude(x => x.ArticleToBusinessPartners)
                                                                         .ThenInclude(x => x.BusinessPartner).AsNoTracking())
                 {
-                    _simulation.SimulationContext.Tell(DirectoryAgent.Instruction
+                    _simulation.SimulationContext.Tell(Directory.Instruction
                                                                     .CreateStorageAgents
                                                                     .Create(stock, ActorPaths.StorageDirectory.Ref)
                                                             , ActorPaths.StorageDirectory.Ref);
@@ -99,7 +101,7 @@ namespace Master40.SimulationCore
                 Inizialized initFinished = inbox.Receive(TimeSpan.FromSeconds(15)) as Inizialized;
                 if (initFinished == null)
                 {
-                    throw new ExecutionEngineException();
+                    throw new ExecutionEngineException("Something went totaly Wrong");
                 }
 
                 return _simulation;

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Master40.SimulationCore.Helper
 {
+
     /// <summary>
     /// Meta-data class. Nested/child actors can build path
     /// based on their parent(s) / position in hierarchy.

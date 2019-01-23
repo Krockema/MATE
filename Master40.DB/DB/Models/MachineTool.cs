@@ -9,5 +9,6 @@ namespace Master40.DB.Models
         [JsonIgnore]
         public Machine Machine { get; set; }
         public int SetupTime { get; set; }
+        public string Discription { get; set; }
     }
 }
