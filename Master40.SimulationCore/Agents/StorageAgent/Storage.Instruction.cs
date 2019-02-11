@@ -13,25 +13,25 @@ namespace Master40.SimulationCore.Agents
         {
             public class RequestArticle : SimulationMessage
             {
-                public static RequestArticle Create(RequestItem message, IActorRef target)
+                public static RequestArticle Create(FRequestItem message, IActorRef target)
                 {
                     return new RequestArticle(message, target);
                 }
                 private RequestArticle(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
             public class ProvideArticleAtDue : SimulationMessage
             {
-                public static ProvideArticleAtDue Create(RequestItem message, IActorRef target)
+                public static ProvideArticleAtDue Create(FRequestItem message, IActorRef target)
                 {
                     return new ProvideArticleAtDue(message, target);
                 }
                 private ProvideArticleAtDue(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
             public class StockRefill : SimulationMessage
             {
@@ -59,14 +59,14 @@ namespace Master40.SimulationCore.Agents
             
             public class ResponseFromProduction : SimulationMessage
             {
-                public static ResponseFromProduction Create(RequestItem message, IActorRef target)
+                public static ResponseFromProduction Create(FRequestItem message, IActorRef target)
                 {
                     return new ResponseFromProduction(message, target);
                 }
                 private ResponseFromProduction(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
         }
     }

@@ -1,10 +1,8 @@
 ﻿using Akka.Actor;
-using AkkaSim.Interfaces;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.MessageTypes
 {
@@ -14,6 +12,7 @@ namespace Master40.SimulationCore.MessageTypes
                           , Dictionary<string, object> properties = null
                           , object obj = null)
         {
+            ChildMaker = childMaker;
             Properties = (properties == null) ? new Dictionary<string, object>() : properties;
             Object = obj;
         }

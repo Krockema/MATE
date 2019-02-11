@@ -1,11 +1,6 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using AkkaSim.Interfaces;
-using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -38,14 +33,14 @@ namespace Master40.SimulationCore.Agents
 
         public class ResponseFromHub : SimulationMessage
         {
-            public static ResponseFromHub Create(HubInformation message, IActorRef target)
+            public static ResponseFromHub Create(FHubInformation message, IActorRef target)
             {
                 return new ResponseFromHub(message, target);
             }
             private ResponseFromHub(object message, IActorRef target) : base(message, target)
             {
             }
-            public HubInformation GetObjectFromMessage { get => Message as HubInformation; }
+            public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
         }
     }
 }

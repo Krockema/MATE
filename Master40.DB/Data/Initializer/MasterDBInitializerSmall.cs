@@ -304,7 +304,7 @@ namespace Master40.DB.Data.Initializer
                 Name = "Test config",
                 Lotsize = 1,
                 MaxCalculationTime = 120, // test  // 10080, // 7 days
-                OrderQuantity = 0,
+                OrderQuantity = 2,
                 Seed = 1338,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.25, //0.25
@@ -318,26 +318,33 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0
 
             };
-            
-            var order = new Order
-            {
-                BusinessPartnerId = businessPartner.Id,
-                CreationTime = 0,
-                Name = "BeispielOrder",
-                DueTime = 30
-            };
-            context.Add(order);
-            context.SaveChanges();
-            var orderPart = new OrderPart
-            {
-                ArticleId = 1,
-                Quantity = 1,
-                OrderId = order.Id
-            };
-            context.Add(orderPart);
-            context.SaveChanges();
+
             context.SimulationConfigurations.Add(simConfig);
             context.SaveChanges();
+
+            // for (int i = 1; i < 30; i++)
+            // {
+            // 
+            //     var order = new Order
+            //     {
+            //         BusinessPartnerId = businessPartner.Id,
+            //         CreationTime = 0,
+            //         Name = "BeispielOrder(" + i + ")",
+            //         DueTime = new Random().Next(1440)
+            //     };
+            //     context.Add(order);
+            //     context.SaveChanges();
+            //     var orderPart = new OrderPart
+            //     {
+            //         ArticleId = 1,
+            //         Quantity = 1,
+            //         OrderId = order.Id
+            //     };
+            //     context.Add(orderPart);
+            //     context.SaveChanges();
+            // 
+            // 
+            // }
         }
     }
 }

@@ -1,27 +1,26 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Agents;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Helper
 {
     public class AgentSetup
     {
-        public static AgentSetup Create(Agent agent)
+        public static AgentSetup Create(Agent agent, IBehaviour behaviour)
         {
-            return new AgentSetup(agent);
+            return new AgentSetup(agent, behaviour);
         }
-        public AgentSetup(Agent agent)
+        public AgentSetup(Agent agent, IBehaviour behaviour)
         {
             ActorPaths = agent.ActorPaths;
             Time = agent.CurrentTime;
             Principal = agent.Context.Self;
             Debug = agent.DebugThis;
+            Behaviour = behaviour;
         }
         public ActorPaths ActorPaths { get; }
         public long Time { get; }
         public IActorRef Principal { get; }
         public bool Debug { get; }
+        public IBehaviour Behaviour { get; }
     }
 }

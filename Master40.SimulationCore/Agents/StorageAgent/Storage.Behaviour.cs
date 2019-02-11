@@ -6,6 +6,8 @@ using Master40.SimulationImmutables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Master40.SimulationCore.Agents.Storage.Instruction;
+using static Master40.SimulationCore.Agents.Storage.Properties;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -33,10 +35,10 @@ namespace Master40.SimulationCore.Agents
                                                     Time = 0
                                                 }};
 
-            properties.Add(Storage.Properties.STOCK_ELEMENT, stockElement);
-            properties.Add(Storage.Properties.REQUESTED_ITEMS, new List<RequestItem>());
-            properties.Add(Storage.Properties.PROVIDER_LIST, new List<IActorRef>());
-            properties.Add(Storage.Properties.STOCK_FOR, stockElement.Article.Name);
+            properties.Add(STOCK_ELEMENT, stockElement);
+            properties.Add(REQUESTED_ITEMS, new List<FRequestItem>());
+            properties.Add(PROVIDER_LIST, new List<IActorRef>());
+            properties.Add(STOCK_FOR, stockElement.Article.Name);
 
             return new StorageBehaviour(properties);
         }
@@ -51,29 +53,32 @@ namespace Master40.SimulationCore.Agents
         {
             switch (message)
             {
-                case Storage.Instruction.RequestArticle m:
-                    RequestArticle((Storage)agent, m.GetObjectFromMessage); break;
-                case Storage.Instruction.StockRefill m:
-                    StockRefill((Storage)agent, m.GetObjectFromMessage); break;
-                case Storage.Instruction.ResponseFromProduction m:
-                    ResponseFromProduction((Storage)agent, m.GetObjectFromMessage); break;
+                case RequestArticle msg: RequestArticle((Storage)agent, msg.GetObjectFromMessage); break;
+                case StockRefill msg: StockRefill((Storage)agent, msg.GetObjectFromMessage); break;
+                case ResponseFromProduction msg: ResponseFromProduction((Storage)agent, msg.GetObjectFromMessage); break;
+                case ProvideArticleAtDue msg: ProvideArticleAtDue((Storage)agent, msg.GetObjectFromMessage); break;
+                case WithdrawlMaterial msg:
+                    var stock = agent.Get<Stock>(STOCK_ELEMENT);
+                    Withdraw((Storage)agent, msg.GetObjectFromMessage, stock);
+                    break;
                 default: return false; 
             }
             return true;
         }
 
-        private void RequestArticle(Storage agent, RequestItem requestItem)
+        private void RequestArticle(Storage agent, FRequestItem requestItem)
         {
 
             // debug
-            agent.DebugMessage(" requests Article " + agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT).Name + " from Storage Agent ->" + agent.Sender.Path.Name);
+            agent.DebugMessage(" requests Article " + agent.Get<Stock>(STOCK_ELEMENT).Name + " from Storage Agent ->" + agent.Sender.Path.Name);
 
             // try to make Reservation
-            var stockReservation = Storage.MakeReservationFor(agent, requestItem);
+            var item = requestItem.UpdateStockExchangeId(Guid.NewGuid()).UpdateDispoRequester(agent.Sender);
+            var stockReservation = agent.MakeReservationFor(agent, item);
             if (!stockReservation.IsInStock)
             {
                 // add to Request queue if not in Stock
-                agent.Get<List<RequestItem>>(Storage.Properties.REQUESTED_ITEMS).Add(requestItem);
+                agent.Get<List<FRequestItem>>(REQUESTED_ITEMS).Add(item);
             }
             // Create Callback // Probably not required here
             agent.Send(Dispo.Instruction.ResponseFromStock.Create(stockReservation, agent.Sender));
@@ -81,7 +86,7 @@ namespace Master40.SimulationCore.Agents
 
         public void StockRefill(Storage agent,Guid exchangeId)
         {
-            var stockElement = agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT);
+            var stockElement = agent.Get<Stock>(STOCK_ELEMENT);
             // TODO: Retrun Request Itme with id of Stock Exchange
             var stockExchange = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
             
@@ -93,7 +98,7 @@ namespace Master40.SimulationCore.Agents
             //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
             stockExchange.Time = (int)agent.CurrentTime;
 
-            var requestedItems = agent.Get<List<RequestItem>>(Storage.Properties.REQUESTED_ITEMS);
+            var requestedItems = agent.Get<List<FRequestItem>>(REQUESTED_ITEMS);
             // no Items to be served.
             if (!requestedItems.Any()) return;
             
@@ -103,17 +108,17 @@ namespace Master40.SimulationCore.Agents
                 var notServed = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
                 if (notServed != null) { notServed.State = State.Finished; notServed.Time = (int)agent.CurrentTime; }
                 else throw new Exception("No StockExchange found");
-                agent.Send(Dispo.Instruction.RequestProvided.Create(request, request.Requester));
+                agent.Send(Dispo.Instruction.RequestProvided.Create(request, request.DispoRequester));
                 requestedItems.Remove(request);
             }
         }
 
         //private void ResponseFromProduction(RequestItem item)
-        private void ResponseFromProduction(Storage agent, RequestItem requestItem)
+        private void ResponseFromProduction(Storage agent, FRequestItem requestItem)
         {
-            var stockElement = agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT);
-            var providerList = agent.Get<List<IActorRef>>(Storage.Properties.PROVIDER_LIST);
-            var requestedItems = agent.Get<List<RequestItem>>(Storage.Properties.REQUESTED_ITEMS);
+            var stockElement = agent.Get<Stock>(STOCK_ELEMENT);
+            var providerList = agent.Get<List<IActorRef>>(PROVIDER_LIST);
+            var requestedItems = agent.Get<List<FRequestItem>>(REQUESTED_ITEMS);
 
             if (requestItem == null)
             {
@@ -143,7 +148,69 @@ namespace Master40.SimulationCore.Agents
 
             if (requestProvidable.IsHeadDemand && requestProvidable.DueTime > agent.CurrentTime) { return; }
             // else
-            Storage.ProvideArticle(agent, requestProvidable, requestedItems);
+            ProvideArticle(agent, requestProvidable, requestedItems);
         }
+
+        private void ProvideArticleAtDue(Storage agent, FRequestItem requestItem)
+        {
+            if (requestItem == null)
+                throw new InvalidCastException(agent.Name + " failed to Cast RequestItem on Instruction.ObjectToProcess");
+            // discard request, if the item has already been provided.
+
+            var requestedItems = agent.Get<List<FRequestItem>>(REQUESTED_ITEMS);
+            var requestProvidable = requestedItems.FirstOrDefault(r => r.Key == requestItem.Key);
+            if (requestProvidable != null)
+            {
+                ProvideArticle(agent, requestProvidable, requestedItems);
+            }
+        }
+
+        private void Withdraw(Agent agent, Guid exchangeId, Stock stockElement)
+        {
+            var item = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
+            if (item != null) { item.State = State.Finished; item.Time = (int)agent.CurrentTime; }
+            else throw new Exception("No StockExchange found");
+        }
+
+        private void ProvideArticle(Agent agent, FRequestItem requestProvidable, List<FRequestItem> requestedItems)
+        {
+            var stockElement = agent.Get<Stock>(STOCK_ELEMENT);
+            if (requestProvidable.Quantity <= stockElement.Current)
+            {
+                var providerList = agent.Get<List<IActorRef>>(PROVIDER_LIST);
+                //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
+
+                if (requestProvidable.IsHeadDemand)
+                    Withdraw(agent, requestProvidable.StockExchangeId, stockElement);
+
+                if (requestProvidable.ProviderList.Count == 0)
+                {
+                    requestProvidable = requestProvidable.UpdateProviderList(new List<IActorRef>(providerList));
+                    providerList.Clear();
+                }
+
+                agent.DebugMessage("------------->> items in STOCK: " + stockElement.Current + " Items Requested " + requestProvidable.Quantity);
+                // Reduce Stock 
+                stockElement.Current = stockElement.Current - requestProvidable.Quantity;
+
+                // Remove from Requester List.
+                requestedItems.Remove(requestedItems.Single(x => x.Key == requestProvidable.Key));
+
+                requestProvidable = requestProvidable.SetProvided;
+                // Create Callback for Production
+                agent.Send(Dispo.Instruction.RequestProvided.Create(requestProvidable, requestProvidable.DispoRequester));
+
+
+                // Update Work Item with Provider For
+                // TODO
+                // Statistics.UpdateSimulationWorkSchedule(requestProvidable.ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
+                //ProviderList.Clear();
+            }
+            else
+            {
+                agent.DebugMessage("Item will be late..............................");
+            }
+        }
+
     }
 }

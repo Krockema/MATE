@@ -7,6 +7,7 @@ using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
 using System;
 using Master40.SimulationCore.MessageTypes;
+using System.Dynamic;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -21,7 +22,7 @@ namespace Master40.SimulationCore.Agents
         /// <summary>
         /// Holds the last Known Status for each Child Entity
         /// </summary>
-        internal Dictionary<IActorRef, ElementStatus> VirtualChilds { get;}
+        internal Dictionary<IActorRef, ElementStatus> VirtualChilds { get; }
         internal ElementStatus Status { get; set; }
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }
@@ -29,8 +30,8 @@ namespace Master40.SimulationCore.Agents
         internal long CurrentTime { get => TimePeriod; }
         internal void TryToFinish() => Finish();
         internal new IActorRef Sender { get => base.Sender; }
-        internal Dictionary<string, object> ValueStore { get; }
-
+        private dynamic ValueStore { get; }
+            = new ExpandoObject();
         // Diagnostic Tools
         private Stopwatch _stopwatch = new Stopwatch();
         public bool DebugThis { get; private set; }
@@ -41,6 +42,7 @@ namespace Master40.SimulationCore.Agents
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
+        /// <param name="principal">If not set, put IActorRefs.Nobody</param>
         public Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
             : base(actorPaths.SimulationContext.Ref, time)
         {
@@ -48,6 +50,7 @@ namespace Master40.SimulationCore.Agents
             Name = Self.Path.Name;
             ActorPaths = actorPaths;
             VirtualParent = principal;
+            VirtualChilds = new Dictionary<IActorRef, ElementStatus>();
             DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
@@ -70,48 +73,30 @@ namespace Master40.SimulationCore.Agents
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <returns></returns>
-        public T Get<T>(string name)
+        public T Get<T>(string propertyName)
         {
-            var returns = (T)ValueStore.GetValueOrDefault(name, null);
-            if(returns == null)
-            {
-                if (typeof(T).IsValueType || typeof(T) == typeof(string))
-                {
-                    returns = default;
-                }
-                else
-                {
-                    returns = (T)Activator.CreateInstance(typeof(T));
-                }
-            }
-            return returns;
+            var expandoDict = ValueStore as IDictionary<string, object>;
+
+            if (expandoDict.ContainsKey(propertyName))            
+                return (T)expandoDict[propertyName];
+
+            throw new Exception("Propertie not Found!");
         }
-        /// <summary>
-        /// Posible generic call to Action from Behaviour Stack
-        /// Requires Bavaiour to be a Dictionary<Type, Action<Agent, ISimulationMessage>>
-        /// </summary>
-        /// <param name="o"></param>
-        [Obsolete("This Funkction does nothing currently, Please use the single action Behaviour!")]
-        private void ExecuteMatchingBehave(object o)
+        public void Set(string propertyName, object obj)
         {
-            /*
-            Behaviour.TryGetValue(o.GetType(), out object action);
-            if (action is Action<Agent, SimulationMessage>)
-            {
-                var act = (Action<Agent, ISimulationMessage>)action;
-                act(this, o as ISimulationMessage);
-            }
+            var expandoDict = ValueStore as IDictionary<string, object>;
+
+            if (expandoDict.ContainsKey(propertyName))
+                expandoDict[propertyName] = obj;
             else
-            {
-                System.Diagnostics.Debug.WriteLine(this.Name + " Failed to load matching behaviour for " + o.ToString());
-                throw new Exception("Could not find matching behaviour!");
-            }
-            */
+                expandoDict.Add(propertyName, obj);
         }
 
         private void AddChild(IActorRef childRef)
         {
+            DebugMessage("Try to add child: " + childRef.Path.Name);
             VirtualChilds.Add(childRef, ElementStatus.Created);
+            
             OnChildAdd(childRef);
         }
         protected virtual void OnChildAdd(IActorRef childRef)
@@ -127,7 +112,14 @@ namespace Master40.SimulationCore.Agents
         private void InitializeAgent(IBehaviour behaviour)
         {
             this.Behaviour = behaviour;
-            foreach (var propertie in behaviour.Properties) ValueStore.Add(propertie.Key, propertie.Value);
+            foreach (var propertie in behaviour.Properties) ((IDictionary<string, object>)ValueStore).Add(propertie.Key, propertie.Value);
+            DebugMessage(" INITIALIZED ");
+            if (VirtualParent != ActorRefs.Nobody)
+            {
+                DebugMessage(" PARRENT INFORMED ");
+                Send(BasicInstruction.ChildRef.Create(Self, VirtualParent));
+            }
+            
             OnInit(behaviour);
         }
         
@@ -140,29 +132,9 @@ namespace Master40.SimulationCore.Agents
             if (DebugThis)
             {
                 var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
-                System.Diagnostics.Debug.WriteLine(logItem);
+                Debug.WriteLine(logItem, "AgentMessage");
                 // TODO: Replace with Logging Agent
                 // Statistics.Log.Add(logItem);
-            }
-        }
-
-        /// <summary>
-        /// Creates a Instuction Set and Sends it to the TargetAgent,
-        /// ATTENTION !! BE CAERFULL WITH WAITFOR !!
-        /// </summary>
-        /// <param name="objectToProcess"></param>
-        /// <param name="targetAgent"></param>
-        /// <param name="waitFor"> Creates a Schedule Object which will pop the Message after the specified time Period!</param>
-        [Obsolete("Please use send Method")]
-        public void CreateAndEnqueue(ISimulationMessage instruction, long waitFor = 0)
-        {
-            if (waitFor == 0)
-            {
-                _SimulationContext.Tell(message: instruction, sender: Self);
-            }
-            else
-            {
-                Schedule(delay: waitFor, message: instruction);
             }
         }
 

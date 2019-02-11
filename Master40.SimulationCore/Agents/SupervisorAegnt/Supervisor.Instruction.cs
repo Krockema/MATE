@@ -2,9 +2,6 @@
 using AkkaSim.Definitions;
 using Master40.DB.Models;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -31,14 +28,14 @@ namespace Master40.SimulationCore.Agents
             }
             public class RequestArticleBom : SimulationMessage
             {
-                public static RequestArticleBom Create(RequestItem message, IActorRef target)
+                public static RequestArticleBom Create(FRequestItem message, IActorRef target)
                 {
                     return new RequestArticleBom(message, target);
                 }
                 private RequestArticleBom(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
             public class OrderProvided : SimulationMessage
             {

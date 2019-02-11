@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Master40.DB.Data.Helper;
-using Master40.DB.Data.Initializer;
-using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+﻿using Master40.DB.Data.Helper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 

@@ -19,7 +19,7 @@ namespace Master40.SimulationCore.Agents
         {
             var properties = new Dictionary<string, object>();
 
-            properties.Add(WORK_ITEM_QUEUE, new List<WorkItem>());
+            properties.Add(WORK_ITEM_QUEUE, new List<FWorkItem>());
             properties.Add(MACHINE_AGENTS, new List<IActorRef>());
             properties.Add(SKILL_GROUP, skillGroup);
 
@@ -41,52 +41,55 @@ namespace Master40.SimulationCore.Agents
             return true;
         }
 
-        private void EnqueueWorkItem(Hub agent, WorkItem workItem)
+        private void EnqueueWorkItem(Hub agent, FWorkItem workItem)
         {
-            var workItemQueue = agent.Get<List<WorkItem>>(WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
             if (workItem == null)
             {
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
             }
 
+
+            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
+            var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
+            var localItem = workItemQueue.Find(x => x.Key == workItem.Key);
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
-            if (workItemQueue.Find(x => x.Key == workItem.Key) == null)
+            if (localItem == null)
             {
                 // Set Comunication agent.
-                workItem = workItem.UpdateHubAgent(agent.Context.Self);
+                localItem = workItem.UpdateHubAgent(agent.Context.Self);
                 // add TO queue
-                workItemQueue.Add(workItem);
+                workItemQueue.Add(localItem);
                 agent.DebugMessage("Got Item to Enqueue: " + workItem.WorkSchedule.Name + " | with status:" + workItem.Status);
             }
             else
             {
                 // reset Item.
                 agent.DebugMessage("Got Item to Requeue: " + workItem.WorkSchedule.Name + " | with status:" + workItem.Status);
-                workItem.Proposals.Clear();
+                localItem.Proposals.Clear();
             }
 
             foreach (var actorRef in machineAgents)
             {
-                agent.Send(instruction: Resource.Instruction.RequestProposal.Create(workItem, actorRef));
+                agent.Send(instruction: Resource.Instruction.RequestProposal.Create(localItem, actorRef));
             }
         }
 
-        public void ProductionStarted(Hub agent, WorkItem workItem)
+        public void ProductionStarted(Hub agent, FWorkItem workItem)
         {
-            var workItemQueue = agent.Get<List<WorkItem>>(WORK_ITEM_QUEUE);
+            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
             var temp = workItemQueue.Single(x => x.Key == workItem.Key);
+            var tempItem = workItem.UpdatePoductionAgent(temp.ProductionAgent);
             agent.Send(Production.Instruction
                                       .ProductionStarted
-                                      .Create(message: workItem.UpdatePoductionAgent(temp.ProductionAgent)
+                                      .Create(message: tempItem
                                              , target: temp.ProductionAgent));
-
+            workItemQueue.Replace(tempItem);
         }
 
-        public void FinishWorkItem(Hub agent, WorkItem workItem)
+        public void FinishWorkItem(Hub agent, FWorkItem workItem)
         {
-            var workItemQueue = agent.Get<List<WorkItem>>(WORK_ITEM_QUEUE);
+            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
 
 
             if (workItem == null)
@@ -98,9 +101,9 @@ namespace Master40.SimulationCore.Agents
             workItemQueue.Remove(workItemQueue.Find(x => x.Key == workItem.Key));
         }
 
-        public void SetWorkItemStatus(Hub agent, ItemStatus workItemStatus)
+        public void SetWorkItemStatus(Hub agent, FItemStatus workItemStatus)
         {
-            var workItemQueue = agent.Get<List<WorkItem>>(WORK_ITEM_QUEUE);
+            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
 
             if (workItemStatus == null)
             {
@@ -135,9 +138,9 @@ namespace Master40.SimulationCore.Agents
             workItemQueue.Replace(workItem);
         }
 
-        private void ProposalFromMachine(Hub agent, Proposal proposal)
+        private void ProposalFromMachine(Hub agent, FProposal proposal)
         {
-            var workItemQueue = agent.Get<List<WorkItem>>(WORK_ITEM_QUEUE);
+            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
             var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
 
             if (proposal == null)
@@ -168,12 +171,13 @@ namespace Master40.SimulationCore.Agents
                     workItem = workItem.UpdateResourceAgent(ActorRefs.NoSender)
                                        .UpdateStatus(ElementStatus.Created);
                     workItemQueue.Replace(workItem);
-                    agent.Send(Hub.Instruction.EnqueueWorkItem.Create(workItem, agent.Context.Self), proposal.PostponedFor);
+                    agent.Send(Instruction.EnqueueWorkItem.Create(workItem, agent.Context.Self), proposal.PostponedFor);
                     return;
                 }
                 else // updateStatus
                 {
-                    workItem = workItem.UpdateStatus(workItem.WasSetReady ? ElementStatus.Ready : ElementStatus.InQueue);
+                    
+                    workItem = workItem.UpdateStatus(workItem.WasSetReady? ElementStatus.Ready : ElementStatus.InQueue);
                 }
 
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
@@ -188,8 +192,8 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-
-        private void AddMachineToHub(Hub agent, HubInformation hubInformation)
+        
+        private void AddMachineToHub(Hub agent, FHubInformation hubInformation)
         {
             var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
             if (hubInformation == null)

@@ -1,12 +1,5 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Hub.Instruction;
-using static Master40.SimulationCore.Agents.Hub.Properties;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -23,8 +16,8 @@ namespace Master40.SimulationCore.Agents
 
         public Hub(ActorPaths actorPaths, long time, string skillGroup, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
-            var skg = this.Get<string>(SKILL_GROUP);
-            skg = skillGroup;
+            DebugMessage("I'm Alive:" + Context.Self.Path);
+            this.Do(BasicInstruction.Initialize.Create(Self, HubBehaviour.Get(skillGroup)));
         }
     }
 }

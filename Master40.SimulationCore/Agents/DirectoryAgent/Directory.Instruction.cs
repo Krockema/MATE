@@ -11,14 +11,14 @@ namespace Master40.SimulationCore.Agents
         {
             public class CreateHubAgent : SimulationMessage
             {
-                public static CreateHubAgent Create(HubInformation message, IActorRef target)
+                public static CreateHubAgent Create(FHubInformation message, IActorRef target)
                 {
                     return new CreateHubAgent(message, target);
                 }
                 private CreateHubAgent(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public HubInformation GetObjectFromMessage { get => Message as HubInformation; }
+                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
             }
 
             public class RequestRessourceAgent : SimulationMessage
@@ -33,16 +33,28 @@ namespace Master40.SimulationCore.Agents
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
+            public class RegisterResources : SimulationMessage
+            {
+                public static RegisterResources Create(string descriminator, IActorRef target)
+                {
+                    return new RegisterResources(descriminator, target);
+                }
+                private RegisterResources(object message, IActorRef target) : base(message, target)
+                {
+                }
+                public string GetObjectFromMessage { get => Message as string; }
+            }
+
             public class CreateMachineAgents : SimulationMessage
             {
-                public static CreateMachineAgents Create(RessourceDefinition message, IActorRef target)
+                public static CreateMachineAgents Create(FRessourceDefinition message, IActorRef target)
                 {
                     return new CreateMachineAgents(message, target);
                 }
                 private CreateMachineAgents(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public RessourceDefinition GetObjectFromMessage { get => Message as RessourceDefinition; }
+                public FRessourceDefinition GetObjectFromMessage { get => Message as FRessourceDefinition; }
             }
             public class CreateStorageAgents : SimulationMessage
             {

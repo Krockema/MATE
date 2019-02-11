@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Master40.Agents;
+﻿using Master40.Agents;
 using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
@@ -18,6 +12,10 @@ using Master40.Tools.Simulation;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Master40.Simulation.Simulation
 {
@@ -30,7 +28,7 @@ namespace Master40.Simulation.Simulation
 
     public class Simulator : ISimulator
     {
-        private int i;
+        private int i { get; set; }
 
         private readonly ProductionDomainContext _evaluationContext;
         private ProductionDomainContext _context;
@@ -291,7 +289,9 @@ namespace Master40.Simulation.Simulation
                 provider = _context.Demands.OfType<DemandProviderProductionOrder>().Single(a => a.Id == provider.Id);
                 if (provider.ProductionOrder.DemandProviderProductionOrders.Any(a => a.Id != provider.Id))
                 {
+                    
                     _context.Demands.Remove(_context.Demands.Single(a => a.Id == provider.Id));
+
                     var po = _context.ProductionOrders.Single(a => a.Id == provider.ProductionOrderId);
                     po.DemandProviderProductionOrders.Remove(provider);
                     _context.Update(po);

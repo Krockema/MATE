@@ -28,7 +28,7 @@ namespace Master40.SimulationCore.Agents
         private void CreateChild(Agent agent, AgentSetup setup)
         {
             var childRef = agent.Behaviour.ChildMaker(agent.Context, setup);
-            agent.Send(BasicInstruction.ChildRef.Create(childRef, agent.Sender));
+            agent.Send(BasicInstruction.Initialize.Create(childRef, setup.Behaviour));
         }
 
         

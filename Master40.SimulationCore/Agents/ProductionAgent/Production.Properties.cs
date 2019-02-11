@@ -14,6 +14,7 @@ namespace Master40.SimulationCore.Agents
             public const string HUB_AGENTS = "HubAgents";
             public const string ELEMENT_STATUS = "ElementStatus";
             public const string NEXT_WORK_ITEM = "NextWorkItem";
+            public const string CHILD_WORKITEMS = "ChildWorkItems";
         }
     }
 }

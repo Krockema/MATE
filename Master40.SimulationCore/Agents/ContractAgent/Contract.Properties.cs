@@ -2,7 +2,7 @@
 {
     public partial class Contract
     {
-        public static class Properties
+        internal class Properties
         {
             public const string REQUEST_ITEM = "RequestedItem";
         }

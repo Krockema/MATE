@@ -14,3 +14,5 @@ C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp
 C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.csproj.CopyComplete
 C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.dll
 C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\obj\Debug\netcoreapp2.1\Master40.SimulationCore.pdb
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\AkkaSim.dll
+C:\Users\mtko\source\repos\Master40\Master40.SimulationCore\bin\Debug\netcoreapp2.1\AkkaSim.pdb

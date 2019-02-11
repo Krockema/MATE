@@ -13,50 +13,50 @@ namespace Master40.SimulationCore.Agents
         {
             public class SetHubAgent : SimulationMessage
             {
-                public static SetHubAgent Create(HubInformation message, IActorRef target)
+                public static SetHubAgent Create(FHubInformation message, IActorRef target)
                 {
                     return new SetHubAgent(message, target);
                 }
                 private SetHubAgent(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public HubInformation GetObjectFromMessage { get => Message as HubInformation; }
+                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
             }
 
             public class RequestProposal : SimulationMessage
             {
-                public static RequestProposal Create(WorkItem message, IActorRef target)
+                public static RequestProposal Create(FWorkItem message, IActorRef target)
                 {
                     return new RequestProposal(message, target);
                 }
                 private RequestProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public WorkItem GetObjectFromMessage { get => Message as WorkItem; }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
 
             public class AcknowledgeProposal : SimulationMessage
             {
-                public static AcknowledgeProposal Create(WorkItem message, IActorRef target)
+                public static AcknowledgeProposal Create(FWorkItem message, IActorRef target)
                 {
                     return new AcknowledgeProposal(message, target);
                 }
                 private AcknowledgeProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public WorkItem GetObjectFromMessage { get => Message as WorkItem; }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
 
             public class StartWorkWith : SimulationMessage
             {
-                public static StartWorkWith Create(ItemStatus message, IActorRef target)
+                public static StartWorkWith Create(FItemStatus message, IActorRef target)
                 {
                     return new StartWorkWith(message, target);
                 }
                 private StartWorkWith(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public ItemStatus GetObjectFromMessage { get => Message as ItemStatus; }
+                public FItemStatus GetObjectFromMessage { get => Message as FItemStatus; }
             }
 
             public class DoWork : SimulationMessage
@@ -72,14 +72,14 @@ namespace Master40.SimulationCore.Agents
 
             public class FinishWork : SimulationMessage
             {
-                public static FinishWork Create(WorkItem message, IActorRef target)
+                public static FinishWork Create(FWorkItem message, IActorRef target)
                 {
                     return new FinishWork(message, target);
                 }
                 private FinishWork(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public WorkItem GetObjectFromMessage { get => Message as WorkItem; }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
         }
     }

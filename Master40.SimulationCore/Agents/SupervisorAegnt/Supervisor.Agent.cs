@@ -21,6 +21,7 @@ namespace Master40.SimulationCore.Agents
         private SimulationConfiguration _simConfig;
         private int orderCount = 0;
         private Dictionary<int, Article> _cache = new Dictionary<int, Article>();
+        private Queue<OrderPart> _orderQueue = new Queue<OrderPart>();
 
 
         // public Constructor
@@ -48,14 +49,14 @@ namespace Master40.SimulationCore.Agents
             _messageHub = messageHub;
             _simConfig = simConfig;
             Send(Instruction.PopOrder.Create("Pop", ActorPaths.SystemAgent.Ref), 1);
-            Send(Instruction.EndSimulation.Create(null, ActorPaths.SystemAgent.Ref), 21000);
         }
 
         protected override void Do(object o)
         {
             switch (o)
             {
-                case Instruction.CreateContractAgent instruction: CreateContractAgent(instruction); break;
+                case BasicInstruction.ChildRef instruction: OnChildAdd(instruction.GetObjectFromMessage); break;
+                case Instruction.CreateContractAgent instruction: CreateContractAgent(instruction.GetObjectFromMessage); break;
                 case Instruction.RequestArticleBom instruction: RequestArticleBom(instruction.GetObjectFromMessage); break;
                 case Instruction.OrderProvided instruction: OrderProvided(instruction); break;
                 case Instruction.EndSimulation instruction: End(); break;
@@ -65,19 +66,32 @@ namespace Master40.SimulationCore.Agents
             
         }
 
-        private void CreateContractAgent(Instruction.CreateContractAgent instruction)
+        private void CreateContractAgent(OrderPart orderPart)
         {
-            var orderPart = instruction.Message as OrderPart;
-            var contract = UntypedActor.Context.ActorOf(props: Contract.Props(actorPaths: ActorPaths
-                                                                     , time: TimePeriod
-                                                                     , debug: true)
-                                           ,name: "Contract(" + orderPart.Id + ")");
+            _orderQueue.Enqueue(orderPart);
+            DebugMessage(" Creating Contract Agent");
+            var agentSetup = AgentSetup.Create(this, ContractBehaviour.Get());
+            var instruction = Guardian.Instruction
+                                      .CreateChild
+                                      .Create(agentSetup, ActorPaths.Guardians
+                                                                    .Single(x => x.Key == GuardianType.Contract)
+                                                                    .Value);
 
-            // Start Order
-            Send(Contract.Instruction.StartOrder.Create(orderPart, contract));
+            Send(instruction);
         }
 
-        private void RequestArticleBom(RequestItem requestItem)
+        /// <summary>
+        /// After a child has been ordered from Guardian a ChildRef will be returned by the responsible child
+        /// it has been allready added to this.VirtualChilds at this Point
+        /// </summary>
+        /// <param name="childRef"></param>
+        protected override void OnChildAdd(IActorRef childRef)
+        {
+            VirtualChilds.Add(childRef, ElementStatus.Created);
+            Send(Contract.Instruction.StartOrder.Create(_orderQueue.Dequeue(), childRef));
+        }
+
+        private void RequestArticleBom(FRequestItem requestItem)
         {
             //  Check 0 ref
             if (requestItem == null)
@@ -86,7 +100,7 @@ namespace Master40.SimulationCore.Agents
             }
 
             // debug
-            DebugMessage(" Request details for article: " + requestItem.Article.Name);
+            DebugMessage(" Request details for article: " + requestItem.Article.Name + " from  " + Sender.Path);
 
             // get BOM from Context
             _cache.TryGetValue(requestItem.Article.Id, out Article article);
@@ -107,7 +121,7 @@ namespace Master40.SimulationCore.Agents
 
         private void OrderProvided(Instruction.OrderProvided instruction)
         {
-            if (!(instruction.Message is RequestItem requestItem))
+            if (!(instruction.Message is FRequestItem requestItem))
             {
                 throw new InvalidCastException(this.Name + " Cast to RequestItem Failed");
             }
@@ -125,7 +139,7 @@ namespace Master40.SimulationCore.Agents
         private void End()
         {
             DebugMessage("End Sim");
-            CoordinatedShutdown.Get(UntypedActor.Context.System).Run();
+            CoordinatedShutdown.Get(UntypedActor.Context.System).Run(null, "") ;
         }
 
         protected override void Finish()
@@ -140,6 +154,8 @@ namespace Master40.SimulationCore.Agents
         {
             foreach (var orderpart in _productionDomainContext.OrderParts
                                                                 .Include(x => x.Article)
+                                                                    .ThenInclude(x => x.ArticleBoms)
+                                                                        .ThenInclude(x => x.ArticleChild)
                                                                 .Include(x => x.Order)
                                                                 .AsNoTracking())
             {
@@ -151,10 +167,12 @@ namespace Master40.SimulationCore.Agents
                 {
                     long period = orderpart.Order.DueTime - (10 * 60); // 540
                     if (period < 0) { period = 0; }
-                    Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self), waitFor: period);
+                    Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self)
+                           , waitFor: period);
                 }
             }
-            _messageHub.SendToAllClients("Agent-System ready for Work");
+            //_messageHub.SendToAllClients("Agent-System ready for Work");
+            DebugMessage("Agent-System ready for Work");
         }
     }
 }

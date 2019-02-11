@@ -15,6 +15,10 @@ namespace Master40.SimulationCore.Agents
     {
         public DispoBehaviour(Dictionary<string, object> properties) : base(null, properties) { }
 
+        public class ActorRef
+        {
+            public IActorRef Ref { get; set; }
+        }
 
 
         public static DispoBehaviour Get()
@@ -45,40 +49,39 @@ namespace Master40.SimulationCore.Agents
             return true;
         }
 
-        private void RequestArticle(Dispo agent, RequestItem requestItem)
+        private void RequestArticle(Dispo agent, FRequestItem requestItem)
         {
-            var hubInformation = new HubInformation(ResourceType.Dispo, requestItem.Article.Name, ActorRefs.Nobody);
+            var hubInformation = new FHubInformation(ResourceType.Dispo, requestItem.Article.Name, ActorRefs.Nobody);
             // get Related Storage Agent
             agent.Send(Directory.Instruction
                                      .RequestRessourceAgent
                                      .Create(descriminator: requestItem.Article.Name
                                             , target: agent.ActorPaths.StorageDirectory.Ref));
             // Save Request Item.
-            agent.ValueStore.Add(REQUEST_ITEM, requestItem);
+            agent.Set(REQUEST_ITEM, requestItem);
         }
 
-        private void ResponseFromStock(Dispo agent, StockReservation reservation)
+        private void ResponseFromStock(Dispo agent, FStockReservation reservation)
         {
-            var quantityToProduce = agent.Get<decimal>(QUANTITY_TO_PRODUCE);
-            var requestItem = agent.Get<RequestItem>(REQUEST_ITEM);
+            var requestItem = agent.Get<FRequestItem>(REQUEST_ITEM);
 
             if (reservation == null)
             {
                 throw new InvalidCastException("Could not Cast Stockreservation on Item.");
             }
 
-            var _quantityToProduce = requestItem.Quantity - reservation.Quantity;
+            var quantityToProduce = requestItem.Quantity - reservation.Quantity;
+            agent.Set(QUANTITY_TO_PRODUCE, quantityToProduce);
             // TODO -> Logic
-            agent.DebugMessage("Returned with " + _quantityToProduce + " " + requestItem.Article.Name + " Reserved!");
+            agent.DebugMessage("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!");
 
             // check If is In Stock
             if (reservation.IsInStock == true)
             {
-                requestItem = requestItem.SetProvided;
+                agent.Set(REQUEST_ITEM, requestItem.SetProvided);
                 agent.Send(Production.Instruction
-                                .ProvideRequest.Create(message: new ItemStatus(requestItem.Key, ElementStatus.Finished, 1)
-                                                , target: agent.Context.Parent));
-                agent.ShutdownAgent();
+                                .ProvideRequest.Create(message: new FItemStatus(requestItem.Key, ElementStatus.Finished, 1)
+                                                , target: agent.VirtualParent));
                 return;
             }
 
@@ -90,81 +93,85 @@ namespace Master40.SimulationCore.Agents
                 // and request the Article from  stock at Due Time
                 if (requestItem.IsHeadDemand)
                 {
+                    agent.DebugMessage("Agent Id: " + agent.Key + "Request From Stroage at due : " + (requestItem.DueTime - agent.CurrentTime));
+
                     var stockAgent = agent.Get<IActorRef>(STORAGE_AGENT_REF);
                     agent.Send(instruction: Storage.Instruction.ProvideArticleAtDue.Create(requestItem, stockAgent)
-                                       , waitFor: requestItem.DueTime - agent.CurrentTime);
+                                 , waitFor: requestItem.DueTime - agent.CurrentTime);
                 }
             }
             // Not in Stock and Not ToBuild Agent has to Wait for Stock To Provide Materials
         }
 
-        private void ResponseFromHub(Dispo agent, HubInformation hubInfo)
+        private void ResponseFromHub(Dispo agent, FHubInformation hubInfo)
         {
             var stockAgent = agent.Get<IActorRef>(STORAGE_AGENT_REF);
-            var requestItem = agent.Get<RequestItem>(REQUEST_ITEM);
-            if ((stockAgent = hubInfo.Ref) == null || requestItem == null)
-            {
-                throw new ArgumentNullException($"No storage agent found for {1}", requestItem.Article.Name);
-            }
+                        
+            //    agent.Get<IActorRef>(STORAGE_AGENT_REF);
+            var requestItem = agent.Get<FRequestItem>(REQUEST_ITEM);
+            agent.Set(STORAGE_AGENT_REF, hubInfo.Ref);
             // debug
-            agent.DebugMessage("Aquired stock Agent: " + stockAgent.Path.Name + " from " + agent.Sender.Path.Name);
-
+            agent.DebugMessage("Aquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + agent.Sender.Path.Name);
+            requestItem = requestItem.UpdateStorageAgent(hubInfo.Ref);
+            agent.Set(REQUEST_ITEM, requestItem);
             // Create Request 
-            agent.Send(Storage.Instruction.RequestArticle.Create(requestItem, stockAgent));
+            agent.Send(Storage.Instruction.RequestArticle.Create(requestItem, hubInfo.Ref));
+            
         }
 
         private void ResponseFromSystemForBom(Dispo agent, Article article)
         {
             // Update 
-            var requestItem = agent.Get<RequestItem>(REQUEST_ITEM);
+            var requestItem = agent.Get<FRequestItem>(REQUEST_ITEM);
             var stockAgent = agent.Get<IActorRef>(STORAGE_AGENT_REF);
-            var quantityToProduce = agent.Get<decimal>(QUANTITY_TO_PRODUCE);
+            var quantityToProduce = agent.Get<int>(QUANTITY_TO_PRODUCE);
             long dueTime = requestItem.DueTime;
 
-            if (requestItem.Article.WorkSchedules != null)
-                dueTime = requestItem.DueTime - requestItem.Article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
+            if (article.WorkSchedules != null)
+                dueTime = requestItem.DueTime - article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
 
 
-            RequestItem newItem = requestItem.UpdateOrderAndDue(requestItem.OrderId, dueTime, stockAgent)
-                                           .UpdateArticle(article);
+            FRequestItem newItem = requestItem.UpdateOrderAndDue(requestItem.OrderId, dueTime, stockAgent)
+                                             .UpdateArticle(article);
+            agent.Set(REQUEST_ITEM, newItem);
 
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < quantityToProduce; i++)
             {
-                var agentSetup = AgentSetup.Create(agent);
+                var agentSetup = AgentSetup.Create(agent, ProductionBehaviour.Get());
                 var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
-
-                //var prodAgent = agent.Context.ActorOf(props: ProductionAgent.Props(agent.ActorPaths, agent.CurrentTime, agent.DebugThis, newItem),
-                //                name: ("Production(" + newItem.Article.Name + "_Nr." + i + ")").ToActorName());
-                //agent.Send(BasicInstruction.Initialize.Create(prodAgent));
+                agent.Send(instruction);
             }
         }
 
-
-        private void RequestProvided(Dispo agent, RequestItem requestItem)
+        private void RequestProvided(Dispo agent, FRequestItem requestItem)
         {
             agent.DebugMessage("Request Provided from " + agent.Sender);
+            requestItem = requestItem.SetProvided;
+            agent.Set(REQUEST_ITEM, requestItem.SetProvided);
+
             if (requestItem.IsHeadDemand)
             {
-                agent.Send(Contract.Instruction.Finish.Create(requestItem, agent.Context.Parent));
+                agent.Send(Contract.Instruction.Finish.Create(requestItem, agent.VirtualParent));
             }
             else
             {
                 agent.Send(Production.Instruction
-                                     .ProvideRequest.Create(message: new ItemStatus(requestItem.Key, ElementStatus.Finished, 2)
-                                                           , target: agent.Context.Parent));
+                                     .ProvideRequest
+                                     .Create(message: new FItemStatus(requestItem.Key, ElementStatus.Finished, 0)
+                                            , target: agent.VirtualParent));
             }
-            requestItem = requestItem.SetProvided;
-            agent.ShutdownAgent();
         }
 
         private void WithdrawMaterial(Dispo agent)
         {
-            var requestItem = agent.Get<RequestItem>(REQUEST_ITEM);
+            var requestItem = agent.Get<FRequestItem>(REQUEST_ITEM);
             var stockAgent = agent.Get<IActorRef>(STORAGE_AGENT_REF);
             agent.Send(Storage.Instruction
-                              .WithdrawlMaterial.Create(message: requestItem.StockExchangeId
+                              .WithdrawlMaterial
+                              .Create(message: requestItem.StockExchangeId
                                                        , target: stockAgent));
+            agent.ShutdownAgent();
         }
     }
 }

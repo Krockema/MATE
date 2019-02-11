@@ -28,11 +28,11 @@ namespace Master40.SimulationCore.Agents
                 {
                 }
 
-                public static ISimulationMessage Create(RequestItem requestItem, IActorRef target)
+                public static ISimulationMessage Create(FRequestItem requestItem, IActorRef target)
                 {
                     return new Finish(requestItem, target);
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
 
             }
         }

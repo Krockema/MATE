@@ -145,7 +145,7 @@ namespace Master40.XUnitTest.Agents
             var simContext = new SimulationCore.AgentSimulation(true, _ctx, new Moc.MessageHub());
             var simConfig = _ctx.SimulationConfigurations.FirstOrDefault();
             simConfig.OrderQuantity = 0;
-            var simulation = await simContext.InitializeSimulation(simConfig);
+            var simulation = await simContext.InitializeSimulation(simConfig, new SimulationConfig(false, 480));
 
             // simulation.ActorSystem.EventStream.Subscribe(testProbe, typeof(DirectoryAgent.Instruction.CreateMachineAgents));
 
@@ -175,7 +175,7 @@ namespace Master40.XUnitTest.Agents
         {
             var simContext = new SimulationCore.AgentSimulation(true, _ctx, new Moc.MessageHub());
             var simConfig = _ctx.SimulationConfigurations.First();
-            simContext.InitializeSimulation(simConfig).Wait();
+            simContext.InitializeSimulation(simConfig, new SimulationConfig(false, 480)).Wait();
             simContext.Run();
         }
 

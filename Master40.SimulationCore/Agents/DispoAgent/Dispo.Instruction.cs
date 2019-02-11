@@ -15,19 +15,19 @@ namespace Master40.SimulationCore.Agents
         {
             public class RequestArticle : SimulationMessage
             {
-                public static RequestArticle Create(RequestItem message, IActorRef target)
+                public static RequestArticle Create(FRequestItem message, IActorRef target)
                 {
                     return new RequestArticle(message, target);
                 }
                 private RequestArticle(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
 
             public class ResponseFromStock : SimulationMessage
             {
-                public static ResponseFromStock Create(StockReservation message, IActorRef target)
+                public static ResponseFromStock Create(FStockReservation message, IActorRef target)
                 {
                     return new ResponseFromStock(message, target);
                 }
@@ -35,11 +35,11 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public StockReservation GetObjectFromMessage { get => this.Message as StockReservation; }
+                public FStockReservation GetObjectFromMessage { get => this.Message as FStockReservation; }
             }
             public class RequestProvided : SimulationMessage
             {
-                public static RequestProvided Create(RequestItem message, IActorRef target)
+                public static RequestProvided Create(FRequestItem message, IActorRef target)
                 {
                     return new RequestProvided(message, target);
                 }
@@ -47,7 +47,7 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public RequestItem GetObjectFromMessage { get => Message as RequestItem; }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
 
             public class ResponseFromSystemForBom : SimulationMessage

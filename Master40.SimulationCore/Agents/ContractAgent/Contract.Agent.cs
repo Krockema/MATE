@@ -11,7 +11,8 @@ namespace Master40.SimulationCore.Agents
         internal void TryFinialize() { Finish(); }
         /// <summary>
         /// Returns the (Dispo)Guardian for child creation
-        /// Systemhirachie
+        /// Systemhirachie:
+        /// Supervisor
         /// '->Contract
         /// '--->Dispo
         /// '----->Production
@@ -23,24 +24,24 @@ namespace Master40.SimulationCore.Agents
             return Akka.Actor.Props.Create(() => new Contract(actorPaths, time, debug));   
         }
         
-        private Contract(ActorPaths actorPaths, long time, bool debug) 
+        public Contract(ActorPaths actorPaths, long time, bool debug) 
             : base(actorPaths, time, debug, actorPaths.SystemAgent.Ref)
         {
-            
+            DebugMessage("I'm Alive:" + Context.Self.Path);
         }
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var requestItem = Get<RequestItem>(Properties.REQUEST_ITEM);
+            var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
             this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
             this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.OrderId + ") >");
         }
 
         protected override void Finish()
         {
-            var r = this.Get<RequestItem>(Properties.REQUEST_ITEM);
-            var childs = UntypedActor.Context.GetChildren();
-            if (r.Provided && childs.Count() == 0)
+            
+            var r = this.Get<FRequestItem>(Properties.REQUEST_ITEM);
+            if (r.Provided && VirtualChilds.Count() == 0)
             {
                 base.Finish();
             }

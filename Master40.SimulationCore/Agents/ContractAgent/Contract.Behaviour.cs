@@ -3,6 +3,7 @@ using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using System.Collections.Generic;
+using static Master40.SimulationCore.Agents.Contract.Properties;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -26,6 +27,7 @@ namespace Master40.SimulationCore.Agents
             switch (message)
             {
                 case Contract.Instruction.StartOrder m: StartOrder((Contract)agent, m.GetObjectFromMessage); break;
+                case Contract.Instruction.Finish msg: Finish((Contract)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -40,28 +42,30 @@ namespace Master40.SimulationCore.Agents
         {
 
             // Tell Guadian to create Dispo Agent
-            var agentSetup = AgentSetup.Create(agent);
+            var agentSetup = AgentSetup.Create(agent, DispoBehaviour.Get());
             var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
             agent.Send(instruction);
             // init
             // create Request Item
-            RequestItem requestItem = orderItem.ToRequestItem(requester: agent.Context.Self);
+            FRequestItem requestItem = orderItem.ToRequestItem(requester: agent.Context.Self);
             // Send Request
-            agent.ValueStore.Add(Contract.Properties.REQUEST_ITEM, requestItem);
+            agent.Set(Contract.Properties.REQUEST_ITEM, requestItem);
         }
 
         /// <summary>
         /// TODO: Test Finish.
         /// </summary>
         /// <param name="instructionSet"></param>
-        public void Finish(Contract agent, RequestItem item)
+        public void Finish(Contract agent, FRequestItem item)
         {
             agent.DebugMessage("Dispo Said Done.");
-            var localItem = agent.Get<RequestItem>(Contract.Properties.REQUEST_ITEM);
+            var localItem = agent.Get<FRequestItem>(REQUEST_ITEM);
+            agent.Set(REQUEST_ITEM, item);
             // try to Finish if time has come
             if (agent.CurrentTime >= item.DueTime)
             {
                 agent.Send(Supervisor.Instruction.OrderProvided.Create(item, agent.ActorPaths.SystemAgent.Ref));
+                agent.VirtualChilds.Remove(agent.Sender);
                 agent.TryFinialize();
             }
         }

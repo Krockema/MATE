@@ -24,71 +24,15 @@ namespace Master40.SimulationCore.Agents
             
         }
 
-        internal static void ProvideArticleAtDue(Agent agent, RequestItem requestItem)
+        protected override void OnInit(IBehaviour o)
         {
-            if (requestItem == null)
-                throw new InvalidCastException(agent.Name + " failed to Cast RequestItem on Instruction.ObjectToProcess");
-            // discard request, if the item has already been provided.
-
-            var requestedItems = agent.Get<List<RequestItem>>(Properties.REQUESTED_ITEMS);
-            var requestProvidable = requestedItems.FirstOrDefault(r => r.Requester == requestItem.Requester);
-            if (requestProvidable != null)
-            {
-                Storage.ProvideArticle(agent, requestProvidable, requestedItems);
-            }
+            o.Properties.TryGetValue(Properties.STOCK_ELEMENT, out object stock);
+            DebugMessage("Current: " + ((Stock)stock).Current);
         }
 
-        internal static void ProvideArticle(Agent agent, RequestItem requestProvidable, List<RequestItem> requestedItems)
+       
+        internal FStockReservation MakeReservationFor(Agent agent, FRequestItem request)
         {
-            var stockElement = agent.Get<Stock>(Properties.STOCK_ELEMENT);
-            if (requestProvidable.Quantity <= stockElement.Current)
-            {
-                var providerList = agent.Get<List<IActorRef>>(Properties.PROVIDER_LIST);
-                //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
-
-                if (requestProvidable.IsHeadDemand)
-                    Withdraw(agent, requestProvidable.StockExchangeId);
-
-                if (requestProvidable.ProviderList.Count == 0)
-                {
-                    requestProvidable = requestProvidable.UpdateProviderList(new List<IActorRef>(providerList));
-                    providerList.Clear();
-                }
-
-                agent.DebugMessage("------------->> items in STOCK: " + stockElement.Current + " Items Requested " + requestProvidable.Quantity);
-                // Reduce Stock 
-                stockElement.Current = stockElement.Current - requestProvidable.Quantity;
-
-                // Remove from Requester List.
-                requestedItems.Remove(requestedItems.Single(x => x.Key == requestProvidable.Key));
-                
-                requestProvidable = requestProvidable.SetProvided;
-                // Create Callback for Production
-                agent.Send(Dispo.Instruction.RequestProvided.Create(requestProvidable, requestProvidable.Requester));
-
-
-                // Update Work Item with Provider For
-                // TODO
-                // Statistics.UpdateSimulationWorkSchedule(requestProvidable.ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
-                //ProviderList.Clear();
-            }
-            else
-            {
-                agent.DebugMessage("Item will be late..............................");
-            }
-        }
-
-        internal static void Withdraw(Agent agent, Guid exchangeId)
-        {
-            var stockElement = agent.Get<Stock>(Properties.STOCK_ELEMENT);
-            var item = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
-            if (item != null) { item.State = State.Finished; item.Time = (int)agent.CurrentTime; }
-            else throw new Exception("No StockExchange found");
-        }
-
-        internal static StockReservation MakeReservationFor(Agent agent, RequestItem request)
-        {
-            request = request.UpdateStockExchangeId(Guid.NewGuid());
             var inStock = false;
             var quantity = 0;
 
@@ -107,7 +51,7 @@ namespace Master40.SimulationCore.Agents
             var min = ((stockElement.Current - withdrawl - request.Quantity) < stockElement.Min);
             if (min && stockElement.Article.ToPurchase && !purchaseOpen)
             {
-                Storage.CreatePurchase(agent, stockElement);
+                CreatePurchase(agent, stockElement);
                 purchaseOpen = true;
                 agent.DebugMessage(" Created purchase for " + stockElement.Article.Name);
             }
@@ -120,7 +64,7 @@ namespace Master40.SimulationCore.Agents
                 stockElement.Current -= request.Quantity;
             }
 
-            var stockReservation = new StockReservation(quantity, purchaseOpen, inStock, request.DueTime);
+            var stockReservation = new FStockReservation(quantity, purchaseOpen, inStock, request.DueTime);
 
 
             //Create Reservation
@@ -139,7 +83,7 @@ namespace Master40.SimulationCore.Agents
             return stockReservation;
         }
 
-        internal static void CreatePurchase(Agent agent, Stock stockElement)
+        internal void CreatePurchase(Agent agent, Stock stockElement)
         {
 
             var time = stockElement.Article

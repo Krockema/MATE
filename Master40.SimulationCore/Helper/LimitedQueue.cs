@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Master40.SimulationCore.Helper
 {
-    public class LimitedQueue<TWorkItem> : List<WorkItem>
+    public class LimitedQueue<TWorkItem> : List<FWorkItem>
     {
         public int Limit { get; set; }
         public bool CapacitiesLeft => (Limit > this.Count) ? true : false;
@@ -14,7 +14,7 @@ namespace Master40.SimulationCore.Helper
             Limit = limit;
         }
 
-        public void Enqueue(WorkItem item)
+        public void Enqueue(FWorkItem item)
         {
             if (Limit > this.Count)
                 base.Add(item);
@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Helper
                 throw new Exception("Queue Limit Exeeds");
         }
 
-        public WorkItem Dequeue()
+        public FWorkItem Dequeue()
         {
             if (Count == 0) return null;
 

@@ -98,8 +98,10 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <returns></returns>
         public IDemandToProvider GetDemand(OrderPart orderPart)
         {
-            var demandOrderParts =
-                        _context.Demands.OfType<DemandOrderPart>().Include(a => a.DemandProvider).Where(a => a.OrderPartId == orderPart.Id).ToList();
+            var demandOrderParts = _context.Demands.OfType<DemandOrderPart>()
+                                           .Include(a => a.DemandProvider)
+                                           .Where(a => a.OrderPartId == orderPart.Id)
+                                           .ToList();
             IDemandToProvider demand;
             if (demandOrderParts.Any())
                 demand = demandOrderParts.First();
@@ -227,7 +229,9 @@ namespace Master40.BusinessLogicCentral.MRP
         private bool CheckNeedForward(IDemandToProvider demand, int simulationId)
         {
             var pows = new List<ProductionOrderWorkSchedule>();
-            return demand.GetType() == typeof(DemandStock) || _context.GetWorkSchedulesFromDemand(demand, ref pows).Any(a => a.StartBackward < _context.SimulationConfigurations.Single(b => b.Id == simulationId).Time);
+            return demand.GetType() == typeof(DemandStock) 
+                                    || _context.GetWorkSchedulesFromDemand(demand, ref pows)
+                                                                    .Any(a => a.StartBackward < _context.SimulationConfigurations.Single(b => b.Id == simulationId).Time);
         }
 
         public void ExecutePlanning(IDemandToProvider demand, MrpTask task, int simulationId)

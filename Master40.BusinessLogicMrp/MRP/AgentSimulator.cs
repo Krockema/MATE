@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Master40.Agents;
-using Master40.Agents.Agents;
+﻿using Master40.Agents;
 using Master40.Agents.Agents.Internal;
 using Master40.Agents.Agents.Model;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Master40.BusinessLogicCentral.MRP
 {
@@ -35,11 +32,19 @@ namespace Master40.BusinessLogicCentral.MRP
 
             var itemlist = from val in Agent.AgentStatistics
                 group val by new { val.AgentType } into grouped
-                select new { Agent = grouped.First().AgentType, ProcessingTime = grouped.Sum(x => x.ProcessingTime), Count = grouped.Count().ToString() };
+                select new {
+                    Agent = grouped.First().AgentType
+                    , ProcessingTime = grouped.Sum(x => x.ProcessingTime)
+                    , Count = grouped.Count().ToString()
+                };
 
             foreach (var item in itemlist)
             {
-                _messageHub.SendToAllClients(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) + "): " + item.Agent + " -> Runtime: " + item.ProcessingTime + " Milliseconds with " + item.Count + " Instructions Processed", MessageType.warning);
+                _messageHub.SendToAllClients(" Agent (" + Agent.AgentCounter.Count(x => x == item.Agent) + "): " + item.Agent 
+                                                        + " -> Runtime: " + item.ProcessingTime 
+                                                        + " Milliseconds with " + item.Count 
+                                                        + " Instructions Processed"
+                                                        , MessageType.warning);
             }
 
             //var jobs = itemlist.Count(x => x.)

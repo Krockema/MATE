@@ -1,19 +1,16 @@
 ﻿using Akka.Actor;
-using AkkaSim.Interfaces;
-using Master40.DB.Models;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using static Master40.SimulationCore.Agents.Resource.Properties;
 using static Master40.SimulationCore.Agents.Resource;
+using static Master40.SimulationCore.Agents.Resource.Properties;
 
 namespace Master40.SimulationCore.Agents
 {
-    
+
 
     public class ResourceBehaviour : Behaviour
     {
@@ -26,8 +23,8 @@ namespace Master40.SimulationCore.Agents
             var processingQueueSize = 1;
             properties.Add(QUEUE_LENGTH, 45); // plaing forecast
             properties.Add(PROGRESS_QUEUE_SIZE, processingQueueSize); // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
-            properties.Add(QUEUE, new List<WorkItem>());
-            properties.Add(PROCESSING_QUEUE, new LimitedQueue<WorkItem>(processingQueueSize));
+            properties.Add(QUEUE, new List<FWorkItem>());
+            properties.Add(PROCESSING_QUEUE, new LimitedQueue<FWorkItem>(processingQueueSize));
             properties.Add(ITEMS_IN_PROGRESS, false);
 
             return new ResourceBehaviour(properties);
@@ -49,15 +46,12 @@ namespace Master40.SimulationCore.Agents
             return true;
         }
 
-        public void StartWorkWith(Resource agent, ItemStatus workItemStatus)
+        public void StartWorkWith(Resource agent, FItemStatus workItemStatus)
         {
-            var Queue = agent.Get<List<WorkItem>>(QUEUE);
-
             if (workItemStatus == null)
-            {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
-            }
-
+            
+            var Queue = agent.Get<List<FWorkItem>>(QUEUE);
             // update Status
             var workItem = Queue.FirstOrDefault(x => x.Key == workItemStatus.ItemId);
 
@@ -76,7 +70,7 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        private void RequestProposal(Resource agent, WorkItem workItem)
+        private void RequestProposal(Resource agent, FWorkItem workItem)
         {
             if (workItem == null)
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
@@ -88,12 +82,9 @@ namespace Master40.SimulationCore.Agents
             agent.SendProposalTo(workItem);
         }
 
-        public void AcknowledgeProposal(Resource agent, WorkItem workItem)
+        public void AcknowledgeProposal(Resource agent, FWorkItem workItem)
         {
-            if (workItem == null)
-                throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
-
-            var queue = agent.Get<List<WorkItem>>(QUEUE);
+            var queue = agent.Get<List<FWorkItem>>(QUEUE);
             if (queue.Any(e => e.Priority(agent.CurrentTime) <= workItem.Priority(agent.CurrentTime)))
             {
                 // Get item Latest End.
@@ -137,14 +128,14 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        private void FinishWork(Resource agent, WorkItem workItem)
+        private void FinishWork(Resource agent, FWorkItem workItem)
         {
             var itemsInProgress = agent.Get<bool>(ITEMS_IN_PROGRESS);
             if (workItem == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
-            var Queue = agent.Get<List<WorkItem>>(QUEUE);
+            var Queue = agent.Get<List<FWorkItem>>(QUEUE);
 
             // Set next Ready Element from Queue
             var itemFromQueue = Queue.Where(x => x.Status == ElementStatus.Ready)
@@ -179,7 +170,7 @@ namespace Master40.SimulationCore.Agents
                 throw new ArgumentException("Could not Cast Communication ActorRef from Instruction");
 
             // Save to Value Store
-            agent.ValueStore.Add(HUB_AGENT_REF, hubAgent);
+            agent.Set(HUB_AGENT_REF, hubAgent);
             // Debug Message
             agent.DebugMessage("Successfull Registred Service at : " + _hub.Path.Name);
         }

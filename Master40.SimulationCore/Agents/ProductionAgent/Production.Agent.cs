@@ -29,16 +29,27 @@ namespace Master40.SimulationCore.Agents
 
         public Production(ActorPaths actorPaths, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
-            DebugMessage("Woke up.");
+            DebugMessage("I'm Alive:" + Context.Self.Path);
+            //this.Send(BasicInstruction.Initialize.Create(this.Context.Self, ProductionBehaviour.Get()));
+        }
+        protected override void OnChildAdd(IActorRef childRef)
+        {
+            var childItems = Get<Queue<FRequestItem>>(CHILD_WORKITEMS);
+            var requesteditems = Get<List<FRequestItem>>(REQUESTED_ITEMS);
+            var requestItem = childItems.Dequeue();
+            requesteditems.Add(requestItem);
+            this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
+            this.DebugMessage("Production<" + requestItem.Article.Name + "(OrderId: " + requestItem.OrderId + ") >");
         }
 
-        internal void Finished(ItemStatus status)
+
+        internal void Finished(FItemStatus status)
         {
             // // any Not Finished do noting
             // if (ChildAgents.Any(x => x.Status != Status.Finished))
             //     return;
-            var workItems = Get<List<WorkItem>>(WORK_ITEMS);
-            var requestItem = Get<RequestItem>(REQUESTED_ITEMS);
+            var workItems = Get<List<FWorkItem>>(WORK_ITEMS);
+            var requestItem = Get<FRequestItem>(REQUEST_ITEM);
             var hubAgents = Get<Dictionary<IActorRef, string>>(HUB_AGENTS);
             // Return from Production as WorkItemStatus
             if (status != null)
@@ -81,14 +92,16 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        internal void CreateWorkItemsFromRequestItem(bool firstItemToBuild, RequestItem requestItem)
+        internal void CreateWorkItemsFromRequestItem(bool firstItemToBuild, FRequestItem requestItem)
         {
-            var workItems =  Get<List<WorkItem>>(WORK_ITEMS);
+
+            var workItems =  Get<List<FWorkItem>>(WORK_ITEMS);
             var lastDue = requestItem.DueTime;
             foreach (var workSchedule in requestItem.Article.WorkSchedules.OrderBy(x => x.HierarchyNumber))
             {
                 var n = workSchedule.ToWorkItem(dueTime: lastDue
-                                                    , status: firstItemToBuild ? ElementStatus.Ready : ElementStatus.Created
+                                                    //, status: firstItemToBuild ? ElementStatus.Ready : ElementStatus.Created
+                                                    , status: ElementStatus.Created
                                                     , time: TimePeriod
                                                     , productionAgent: Self);
 
@@ -103,7 +116,7 @@ namespace Master40.SimulationCore.Agents
 
         internal void SetWorkItemReady()
         {
-            var workItems = Get<List<WorkItem>>(WORK_ITEMS);
+            var workItems = Get<List<FWorkItem>>(WORK_ITEMS);
             var hubAgents = Get<Dictionary<IActorRef, string>>(HUB_AGENTS);
             // check if there is something Ready or in Process Then just wait for their Ready Call
             if (workItems.Count() == 0 || workItems.Any(x => x.Status == ElementStatus.Ready || x.Status == ElementStatus.Processed))
@@ -131,13 +144,13 @@ namespace Master40.SimulationCore.Agents
             SendWorkItemStatusMsg(hubAgent, nextItem);
         }
 
-        private void SendWorkItemStatusMsg(KeyValuePair<IActorRef, string> hubAgent, WorkItem nextItem)
+        private void SendWorkItemStatusMsg(KeyValuePair<IActorRef, string> hubAgent, FWorkItem nextItem)
         {
             DebugMessage("Set next WorkItem Ready from Status " + nextItem.Status + " Time " + TimePeriod);
 
 
             // create StatusMsg
-            var message = new ItemStatus(
+            var message = new FItemStatus(
                 itemId: nextItem.Key,
                 currentPriority: nextItem.Priority(TimePeriod),
                 status: ElementStatus.Ready
@@ -145,16 +158,16 @@ namespace Master40.SimulationCore.Agents
 
             // tell Item in Queue to set it ready.
             Send(instruction: Hub.Instruction.SetWorkItemStatus.Create(message, hubAgent.Key));
-            nextItem = null;
             // ,waitFor: 1); // Start Production during the next time period
+            Set(NEXT_WORK_ITEM, null);
         }
 
         protected override void Finish()
         {
-            var requestItem = this.Get<RequestItem>(REQUEST_ITEM);
-            var workItems = this.Get<List<RequestItem>>(WORK_ITEMS);
+            var requestItem = this.Get<FRequestItem>(REQUEST_ITEM);
+            var workItems = this.Get<List<FRequestItem>>(WORK_ITEMS);
             // Correct?
-            if (requestItem.Provided && Context.GetChildren().Count() == 0 && workItems.All(x => x.Provided == true))
+            if (requestItem.Provided && VirtualChilds.Count() == 0 && workItems.All(x => x.Provided == true))
             {
                 base.Finish();
             }

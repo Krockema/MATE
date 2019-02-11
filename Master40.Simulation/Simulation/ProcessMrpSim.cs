@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Master40.BusinessLogicCentral.MRP;
+﻿using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Context;
 using Master40.MessageSystem.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Master40.Simulation.Simulation
 {

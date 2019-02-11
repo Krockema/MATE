@@ -13,7 +13,7 @@ namespace Master40.SimulationCore.Agents
         {
             public class AddMachineToHub: SimulationMessage
             {
-                public static AddMachineToHub Create(HubInformation message, IActorRef target)
+                public static AddMachineToHub Create(FHubInformation message, IActorRef target)
                 {
                     return new AddMachineToHub(message, target);
                 }
@@ -21,12 +21,12 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public HubInformation GetObjectFromMessage { get => Message as HubInformation; }
+                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
             }
 
             public class ProductionStarted : SimulationMessage
             {
-                public static ProductionStarted Create(WorkItem message, IActorRef target)
+                public static ProductionStarted Create(FWorkItem message, IActorRef target)
                 {
                     return new ProductionStarted(message, target);
                 }
@@ -34,12 +34,12 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public WorkItem GetObjectfromMessage { get => Message as WorkItem; }
+                public FWorkItem GetObjectfromMessage { get => Message as FWorkItem; }
             }
 
             public class EnqueueWorkItem : SimulationMessage
             {
-                public static EnqueueWorkItem Create(WorkItem message, IActorRef target)
+                public static EnqueueWorkItem Create(FWorkItem message, IActorRef target)
                 {
                     return new EnqueueWorkItem(message, target);
                 }
@@ -47,12 +47,12 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public WorkItem GetObjectFromMessage { get => Message as WorkItem; }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
 
             public class ProposalFromMachine : SimulationMessage
             {
-                public static ProposalFromMachine Create(Proposal message, IActorRef target)
+                public static ProposalFromMachine Create(FProposal message, IActorRef target)
                 {
                     return new ProposalFromMachine(message, target);
                 }
@@ -60,12 +60,12 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public Proposal GetObjectFromMessage { get => Message as Proposal; }
+                public FProposal GetObjectFromMessage { get => Message as FProposal; }
             }
 
             public class SetWorkItemStatus : SimulationMessage
             {
-                public static SetWorkItemStatus Create(ItemStatus message, IActorRef target)
+                public static SetWorkItemStatus Create(FItemStatus message, IActorRef target)
                 {
                     return new SetWorkItemStatus(message, target);
                 }
@@ -73,12 +73,12 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public ItemStatus GetObjectFromMessage { get => Message as ItemStatus; }
+                public FItemStatus GetObjectFromMessage { get => Message as FItemStatus; }
             }
 
             public class FinishWorkItem : SimulationMessage
             {
-                public static FinishWorkItem Create(WorkItem message, IActorRef target)
+                public static FinishWorkItem Create(FWorkItem message, IActorRef target)
                 {
                     return new FinishWorkItem(message, target);
                 }
@@ -86,7 +86,7 @@ namespace Master40.SimulationCore.Agents
                 {
 
                 }
-                public WorkItem GetObjectFromMessage { get => Message as WorkItem; }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
 
         }

@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.MessageTypes
         /// <param name="dueTime"></param>
         /// <param name="prio"></param>
         /// <returns></returns>
-        public static WorkItem ToWorkItem(this WorkSchedule workSchedule, long dueTime, ElementStatus status, IActorRef productionAgent, long time)
+        public static FWorkItem ToWorkItem(this WorkSchedule workSchedule, long dueTime, ElementStatus status, IActorRef productionAgent, long time)
         {
             var prioRule = Extension.CreateFunc(
                 // Lamda zur Func.
@@ -23,7 +23,7 @@ namespace Master40.SimulationCore.MessageTypes
                 // ENDE
                 );
 
-            return new WorkItem(key: Guid.NewGuid()
+            return new FWorkItem(key: Guid.NewGuid()
                                 , dueTime: dueTime
                                 , estimatedStart: 0
                                 , estimatedEnd: 0
@@ -36,12 +36,12 @@ namespace Master40.SimulationCore.MessageTypes
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , workSchedule: workSchedule
-                                , proposals: new List<Proposal>());
+                                , proposals: new List<FProposal>());
         }
 
-        public static RequestItem ToRequestItem(this OrderPart orderPart, IActorRef requester)
+        public static FRequestItem ToRequestItem(this OrderPart orderPart, IActorRef requester)
         {
-            return new RequestItem(
+            return new FRequestItem(
                 key: Guid.NewGuid()
                 , dueTime: orderPart.Order.DueTime
                 , quantity: orderPart.Quantity
@@ -50,25 +50,27 @@ namespace Master40.SimulationCore.MessageTypes
                 , isHeadDemand: true
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
-                , requester: requester
+                , originRequester: requester
+                , dispoRequester: ActorRefs.Nobody
                 , providable: 0
                 , provided: false
                 , providerList: new List<IActorRef>()
             );
         }
 
-        public static RequestItem ToRequestItem(this ArticleBom articleBom, RequestItem requestItem, IActorRef requester)
+        public static FRequestItem ToRequestItem(this ArticleBom articleBom, FRequestItem requestItem, IActorRef requester)
         {
-            return new RequestItem(
+            return new FRequestItem(
                 key: Guid.NewGuid()
                 , dueTime: requestItem.DueTime
                 , quantity: Convert.ToInt32(articleBom.Quantity)
                 , article: articleBom.ArticleChild
                 , orderId: requestItem.OrderId
-                , isHeadDemand: true
+                , isHeadDemand: false
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
-                , requester: requester
+                , originRequester: requester
+                , dispoRequester: ActorRefs.Nobody
                 , providable: 0
                 , provided: false
                 , providerList: new List<IActorRef>()

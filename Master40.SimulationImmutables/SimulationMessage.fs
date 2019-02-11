@@ -5,21 +5,21 @@ open Master40.DB.Models
 open Akka.Actor
 
 type public ElementStatus = Created=0 | Ready=1 | InQueue=2 | Processed=3 | Finished=4
-type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Production=4
-
+type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Production=4 | Hub=5
 //module Message = 
 
     type public IKey = 
         abstract member Key : Guid with get
     
-    type public RequestItem =         
+    type public FRequestItem =         
         {   Key : Guid
             Article : Article
             StockExchangeId : Guid
             StorageAgent: IActorRef
             Quantity : int
             DueTime : int64
-            Requester : IActorRef
+            OriginRequester : IActorRef
+            DispoRequester : IActorRef
             ProviderList : System.Collections.Generic.List<IActorRef> 
             OrderId : int
             Providable : int 
@@ -28,7 +28,8 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             interface IKey with 
                 member this.Key with get() = this.Key
         
-            member this.UpdateRequester r = { this with Requester = r }
+            member this.UpdateOriginRequester r = { this with OriginRequester = r }
+            member this.UpdateDispoRequester r = { this with DispoRequester = r }
             member this.UpdateOrderAndDue id due storage = { this with OrderId = id; DueTime = due; StorageAgent = storage }
             member this.UpdateArticle article = { this with Article = article }
             member this.UpdateStorageAgent s = { this with StorageAgent = s }
@@ -37,14 +38,14 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             member this.SetProvided = { this with Provided = true }
 
 
-    type public RequestRessource =
+    type public FRequestRessource =
         {
             Discriminator : string
             ResourceType : ResourceType
             actorRef : IActorRef
         }
 
-    type public RequestBatch =
+    type public FRequestBatch =
         {
                 PrioRule :  FSharpFunc<int64, double> 
                 mutable ItemPriority : double
@@ -52,7 +53,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         }
 
 
-    type public Proposal =
+    type public FProposal =
         {
             PossibleSchedule : int64 
             Postponed : bool 
@@ -61,7 +62,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             WorkItemId : Guid
         }
 
-    type public StockReservation =
+    type public FStockReservation =
         {
             Quantity : int
             IsPurchsed : bool
@@ -69,14 +70,14 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             DueTime : int64
         }
        
-    type public HubInformation = 
+    type public FHubInformation = 
         {
             FromType : ResourceType
             RequiredFor : string
             Ref : IActorRef
         } with member this.UpdateRef r = { this with Ref = r }
         
-    type public WorkItem =
+    type public FWorkItem =
         { Key : Guid
           DueTime : int64 
           EstimatedStart : int64 
@@ -92,7 +93,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
           ProductionAgent : IActorRef
           HubAgent : IActorRef
           WorkSchedule : WorkSchedule
-          Proposals : System.Collections.Generic.List<Proposal> 
+          Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with 
                 member this.Key  with get() = this.Key
         // Returns new Object with Updated Due
@@ -101,7 +102,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         member this.UpdateStatus s = { this with Status = s }
         member this.UpdateMaterialsProvided m = { this with MaterialsProvided = m }
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }
-        member this.UpdateResourceAgent r = { this with ProductionAgent = r }
+        member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }
         member this.SetReady = { this with Status = ElementStatus.Ready; WasSetReady = true }
         member this.UpdateEstimations estimatedStart resourceAgent = { this with EstimatedEnd = estimatedStart +  (int64)this.WorkSchedule.Duration;
@@ -115,14 +116,14 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
 
 
 
-    type public ItemStatus =
+    type public FItemStatus =
         {
             ItemId : Guid 
             Status : ElementStatus
             CurrentPriority : double 
         }
 
-    type public RessourceDefinition = {
+    type public FRessourceDefinition = {
         WorkTimeGenerator : obj
         Resource : obj
         Debug : bool

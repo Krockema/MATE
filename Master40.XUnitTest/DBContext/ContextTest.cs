@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Master40.Agents;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
+using Master40.DB.Models;
 using Master40.Simulation.Simulation;
 using Master40.Tools.Simulation;
 using Microsoft.Data.Sqlite;
@@ -39,6 +40,29 @@ namespace Master40.XUnitTest.DBContext
             //_productionDomainContext.Database.EnsureCreated();
             //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
+        }
+
+        public static SimulationConfiguration TestConfiguration()
+        {
+            return new SimulationConfiguration
+            {
+                Name = "Test config",
+                Lotsize = 1,
+                MaxCalculationTime = 480, // test  // 10080, // 7 days
+                OrderQuantity = 550,
+                Seed = 1338,
+                ConsecutiveRuns = 1,
+                OrderRate = 0.25, //0.25
+                Time = 0,
+                RecalculationTime = 1440,
+                SimulationEndTime = 21000,
+                DecentralRuns = 0,
+                CentralRuns = 0,
+                DynamicKpiTimeSpan = 480,
+                SettlingStart = 0,
+                WorkTimeDeviation = 0.2
+
+            };
         }
 
         /// <summary>

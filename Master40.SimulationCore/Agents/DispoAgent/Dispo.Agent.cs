@@ -25,15 +25,22 @@ namespace Master40.SimulationCore.Agents
         {
             return Akka.Actor.Props.Create(() => new Dispo(actorPaths, time, debug, principal));
         }
-        private Dispo(ActorPaths actorPaths, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
+        public Dispo(ActorPaths actorPaths, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
-            System.Diagnostics.Debug.WriteLine("I'm Alive - DispoAgent");
-            this.Send(BasicInstruction.Initialize.Create(this.Context.Self, DispoBehaviour.Get()));
+            DebugMessage("I'm Alive: " + Context.Self.Path);
+            //this.Do(BasicInstruction.Initialize.Create(Self, DispoBehaviour.Get()));
         }
 
         protected override void OnInit(IBehaviour o)
         {
-            this.Send(BasicInstruction.ChildRef.Create(this.Self, this.VirtualParent));
+
+        }
+
+        protected override void OnChildAdd(IActorRef childRef)
+        {
+            var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
+            this.Send(Production.Instruction.StartProduction.Create(requestItem, Sender));
+            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.OrderId + ") > ProductionStart has been send.");
         }
 
         internal void ShutdownAgent()
@@ -44,7 +51,7 @@ namespace Master40.SimulationCore.Agents
         protected override void Finish()
         {
             var children = this.Context.GetChildren();
-            if (this.Get<RequestItem>(Properties.REQUEST_ITEM).Provided == true && children.Count() == 0)
+            if (this.Get<FRequestItem>(Properties.REQUEST_ITEM).Provided == true && children.Count() == 0)
             {
                 base.Finish();
             }

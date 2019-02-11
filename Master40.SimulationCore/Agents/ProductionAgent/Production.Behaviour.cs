@@ -15,18 +15,19 @@ namespace Master40.SimulationCore.Agents
 {
     public class ProductionBehaviour : Behaviour
     {
-        private ProductionBehaviour(Dictionary<string, object> properties) { }
+        private ProductionBehaviour(Dictionary<string, object> properties) : base(null, properties) { }
 
         public static ProductionBehaviour Get()
         {
             var properties = new Dictionary<string, object>();
 
-            properties.Add(REQUEST_ITEM, new object()); // RequestItem
-            properties.Add(WORK_ITEMS, new List<WorkItem>());
-            properties.Add(REQUESTED_ITEMS, new List<RequestItem>());
+            //properties.Add(REQUEST_ITEM, new object()); // RequestItem
+            properties.Add(WORK_ITEMS, new List<FWorkItem>());
+            properties.Add(REQUESTED_ITEMS, new List<FRequestItem>());
             properties.Add(HUB_AGENTS, new Dictionary<IActorRef, string>());
             properties.Add(ELEMENT_STATUS, ElementStatus.Created);
             properties.Add(NEXT_WORK_ITEM, new object());
+            properties.Add(CHILD_WORKITEMS, new Queue<FRequestItem>()); 
 
             return new ProductionBehaviour(properties);
         }
@@ -36,7 +37,7 @@ namespace Master40.SimulationCore.Agents
             switch (message)
             {
                 case Instruction.StartProduction i: StartProductionAgent((Production)agent, i.GetObjectFromMessage); break;
-                case Instruction.SetHubAgent s: SetHubAgent((Production)agent, s.GetObjectFromMessage); break;
+                case BasicInstruction.ResponseFromHub s: SetHubAgent((Production)agent, s.GetObjectFromMessage); break;
                 case Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
                 case Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
                 case Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
@@ -45,12 +46,11 @@ namespace Master40.SimulationCore.Agents
             }
             return true;
         }
-        private void StartProductionAgent(Production agent, RequestItem requestItem)
+        private void StartProductionAgent(Production agent, FRequestItem requestItem)
         {
-            
             var firstToEnqueue = false;
             // check for Children
-            if (!requestItem.Article.ArticleBoms.Any())
+            if (requestItem.Article.ArticleBoms.Any())
             {
                 agent.DebugMessage("Last leave in Bom");
                 firstToEnqueue = true;
@@ -65,31 +65,24 @@ namespace Master40.SimulationCore.Agents
                 agent.CreateWorkItemsFromRequestItem(firstItemToBuild: firstToEnqueue, requestItem);
             }
 
+            var childItems = agent.Get<Queue<FRequestItem>>(CHILD_WORKITEMS);
             // Create Dispo Agents for Childs.
             foreach (var articleBom in requestItem.Article.ArticleBoms)
             {
-                
-                var item = articleBom.ToRequestItem(requestItem, agent.Context.Self);
+                childItems.Enqueue(articleBom.ToRequestItem(requestItem, agent.Context.Self));
 
                 // create Dispo Agents for to Provide Required Articles
-                var agentSetup = AgentSetup.Create(agent);
+                var agentSetup = AgentSetup.Create(agent, DispoBehaviour.Get());
                 var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
-                // ToDo: 
-
-                // var dispoAgent = new Dispo(creator: this,
-                //                                 system: ((StorageAgent)Creator).Creator,
-                //                                 name: RequestItem.Article.Name + " Child of(" + this.Name + ")",
-                //                                 debug: DebugThis,
-                //                                 requestItem: item);
-                //RequestMaterials.Add(item);
-                // add TO Context to process them this time Period.
+                agent.Send(instruction);
             }
+            agent.Set(REQUEST_ITEM, requestItem);
         }
 
-        private void SetHubAgent(Production agent, HubInformation hub)
+        private void SetHubAgent(Production agent, FHubInformation hub)
         {
             var hubAgents = agent.Get<Dictionary<IActorRef, string>>(HUB_AGENTS);
-            var workItems = agent.Get<List<WorkItem>>(NEXT_WORK_ITEM);
+            var workItems = agent.Get<List<FWorkItem>>(WORK_ITEMS);
             // Enque my Element at Comunication Agent
             if (hub == null)
             {
@@ -105,7 +98,7 @@ namespace Master40.SimulationCore.Agents
                 agent.Send(Hub.Instruction.EnqueueWorkItem.Create(workItem, hub.Ref));
             }
         }
-        private void ProductionStarted(Production agent, WorkItem workItem)
+        private void ProductionStarted(Production agent, FWorkItem workItem)
         {
             var status = agent.Get<ElementStatus>(ELEMENT_STATUS);
             if (status != workItem.Status)
@@ -123,10 +116,10 @@ namespace Master40.SimulationCore.Agents
 
         }
 
-        private void ProvideRequest(Production agent, ItemStatus itemStatus)
+        private void ProvideRequest(Production agent, FItemStatus itemStatus)
         {
-            var requestedItems = agent.Get<List<RequestItem>>(REQUESTED_ITEMS);
-            var workItems = agent.Get<List<WorkItem>>(WORK_ITEMS);
+            var requestedItems = agent.Get<List<FRequestItem>>(REQUESTED_ITEMS);
+            var workItems = agent.Get<List<FWorkItem>>(WORK_ITEMS);
             var requestItem = requestedItems.Single(x => x.Key == itemStatus.ItemId);
             var status = agent.Get<ElementStatus>(ELEMENT_STATUS);
 
@@ -143,7 +136,7 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        private void FinishWorkItem(Production agent, WorkItem workItem )
+        private void FinishWorkItem(Production agent, FWorkItem workItem )
         {
             if (workItem == null)
             {
@@ -153,7 +146,7 @@ namespace Master40.SimulationCore.Agents
 
             // Shortcut:
             //CreateAndEnqueue
-            agent.Finished(new ItemStatus(workItem.Key
+            agent.Finished(new FItemStatus(workItem.Key
                                     , workItem.Status
                                     , workItem.ItemPriority));
         }       
