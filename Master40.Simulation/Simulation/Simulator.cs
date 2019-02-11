@@ -113,7 +113,7 @@ namespace Master40.Simulation.Simulation
                 await OrderGenerator.GenerateOrders(_context, simConfig, simulationId);
                 var simulationNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
                 //call initial central MRP-run
-                await _processMrp.CreateAndProcessOrderDemand(task, _context, simulationId, _evaluationContext);
+                await _processMrp.CreateAndProcessOrderDemand(task, _context, simConfig, _evaluationContext);
                 if (task == MrpTask.Backward || task == MrpTask.Forward || task == MrpTask.GifflerThompson)
                 {
                    var list = _context.ProductionOrderWorkSchedules.Select(schedule => new PowsSimulationItem(_context)
@@ -126,7 +126,7 @@ namespace Master40.Simulation.Simulation
                         })
                         .ToList();
                     _evaluationContext.SaveChanges();
-                    FillSimulationWorkSchedules(list,simulationId,simulationNumber, task);
+                    FillSimulationWorkSchedules(list,simConfig,simulationNumber, task);
                 }
                 
                 SimulationType simType = SimulationType.Central;
@@ -149,14 +149,14 @@ namespace Master40.Simulation.Simulation
         /// </summary>
         /// <param name="simulationId"></param>
         /// <returns></returns>
-        public async Task Simulate(int simulationId)
+        public async Task Simulate(int simId)
         {
             await Task.Run(async () =>
             {
-                var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Central);
-                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
+                var simConfig = _context.SimulationConfigurations.Single(x => x.Id == simId);
+                var simNumber = _context.GetSimulationNumber(simConfig.Id, SimulationType.Central);
                 simConfig.Time = 0;
-                var timeTable = InitializeSimulation(simulationId, simNumber, simConfig).Result;
+                var timeTable = InitializeSimulation(simNumber, simConfig).Result;
                 //create list of items waiting to be produced
                 var waitingItems = _context.ProductionOrderWorkSchedules.Where(a =>
                     a.ProducingState == ProducingState.Created || a.ProducingState == ProducingState.Waiting).ToList();
@@ -167,38 +167,38 @@ namespace Master40.Simulation.Simulation
                 while (timeTable.Timer < simConfig.SimulationEndTime)
                 {
 
-                    timeTable = await ProcessTimeline(timeTable, waitingItems, simulationId, simNumber);
+                    timeTable = await ProcessTimeline(timeTable, waitingItems, simConfig, simNumber);
                     if (itemCounter == timeTable.Items.Count) continue;
                     itemCounter = timeTable.Items.Count;
                     _messageHub.SendToAllClients(itemCounter + "/" + (timeTable.Items.Count + waitingItems.Count) + " items processed. Time: "+timeTable.Timer);
-                    _processMrp.UpdateDemandsAndOrders(simulationId);
+                    _processMrp.UpdateDemandsAndOrders(simConfig);
                     
                 }
 
-                FinishSimulation(timeTable, simulationId, simNumber, simConfig);
+                FinishSimulation(timeTable, simNumber, simConfig);
                 
             });
 
         }
 
-        private void FinishSimulation(TimeTable<ISimulationItem> timeTable, int simulationId, int simNumber, SimulationConfiguration simConfig)
+        private void FinishSimulation(TimeTable<ISimulationItem> timeTable, int simNumber, SimulationConfiguration simConfig)
         {
             //copy workschedules to the simulationworkschedules which get written back to the local-db
             //FillSimulationWorkSchedules(timeTable.Items.OfType<PowsSimulationItem>().ToList(), simulationId, simNumber, 0);
             _messageHub.SendToAllClients("last Item produced at: " + _context.SimulationWorkschedules.Max(a => a.End));
             //calculate kpis
-            CalculateKpis.MachineSattleTime(_context, simulationId, SimulationType.Central, simNumber);
-            CalculateKpis.CalculateAllKpis(_context, simulationId, SimulationType.Central, simNumber, true, simConfig.Time);
+            CalculateKpis.MachineSattleTime(_context, simConfig, SimulationType.Central, simNumber);
+            CalculateKpis.CalculateAllKpis(_context, simConfig.Id, SimulationType.Central, simNumber, true, simConfig.Time);
             RemoveSimulationWorkschedules();
             //copy the relevant tables from the in-memory db to the local-db
-            CopyResults.Copy(_context, _evaluationContext, simulationId, simNumber, SimulationType.Central);
+            CopyResults.Copy(_context, _evaluationContext, simConfig.Id, simNumber, SimulationType.Central);
 
             _messageHub.EndScheduler();
             _context.Database.CloseConnection();
             _evaluationContext.Database.CloseConnection();
         }
 
-        private async Task<TimeTable<ISimulationItem>> InitializeSimulation(int simulationId, int simNumber, SimulationConfiguration simConfig)
+        private async Task<TimeTable<ISimulationItem>> InitializeSimulation(int simNumber, SimulationConfiguration simConfig)
         {
             _messageHub.SendToAllClients("Start Simulation...", MessageType.info);
             _context = InMemoryContext.CreateInMemoryContext();
@@ -209,13 +209,13 @@ namespace Master40.Simulation.Simulation
             await OrderGenerator.GenerateOrders(_context, simConfig, simNumber);
             _workTimeGenerator = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNumber);
             var timeTable = new TimeTable<ISimulationItem>(simConfig.RecalculationTime);
-            UpdateStockExchangesWithInitialValues(simulationId, simNumber);
+            UpdateStockExchangesWithInitialValues(simConfig, simNumber);
 
             //call the initial central planning
-            await Recalculate(timeTable, simulationId, simNumber, new List<ProductionOrderWorkSchedule>());
+            await Recalculate(timeTable, simConfig, simNumber, new List<ProductionOrderWorkSchedule>());
 
             CreateMachinesReady(timeTable);
-            timeTable = UpdateGoodsDelivery(timeTable, simulationId);
+            timeTable = UpdateGoodsDelivery(timeTable, simConfig);
             return timeTable;
         }
 
@@ -237,7 +237,7 @@ namespace Master40.Simulation.Simulation
             _context.SaveChanges();
         }
 
-        private void UpdateStockExchangesWithInitialValues(int simulationId, int simulationNumber)
+        private void UpdateStockExchangesWithInitialValues(SimulationConfiguration simConfig, int simulationNumber)
         {
             foreach (var stock in _context.Stocks.Where(a => a.Current > 0))
             {
@@ -249,28 +249,28 @@ namespace Master40.Simulation.Simulation
                     Time = 0,
                     State = State.Finished,
                     SimulationType = SimulationType.Central,
-                    SimulationConfigurationId = simulationId,
+                    SimulationConfigurationId = simConfig.Id,
                     SimulationNumber = simulationNumber
                 });
             }
             _context.SaveChanges();
         }
 
-        private void SaveCompletedContext(TimeTable<ISimulationItem> timetable,int simulationId, int simulationNumber)
+        private void SaveCompletedContext(TimeTable<ISimulationItem> timetable, SimulationConfiguration simConfig, int simulationNumber)
         {                  
             var finishedOrders = _context.Orders.Where(a => a.State == State.Finished).Include(a => a.OrderParts).ThenInclude(b => b.DemandOrderParts);
             var counterPows = _context.ProductionOrderWorkSchedules.Count();
             var counter = (from order in finishedOrders.ToList()
                            from orderPart in order.OrderParts.ToList()
                            from dop in orderPart.DemandOrderParts.ToList()
-                            select CopyDemandsAndPows(dop, timetable, simulationId, simulationNumber)).Sum();
+                            select CopyDemandsAndPows(dop, timetable, simConfig, simulationNumber)).Sum();
             _messageHub.SendToAllClients(counterPows + " Pows -> now " + _context.ProductionOrderWorkSchedules.Count());
             _messageHub.SendToAllClients(counter+" simPows deleted, now there are "+timetable.Items.Count+" left");
             
         }
 
 
-        private int CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, int simulationId, int simulationNumber)
+        private int CopyDemandsAndPows(IDemandToProvider dop, TimeTable<ISimulationItem> timetable, SimulationConfiguration simConfig, int simulationNumber)
         {
             var providerlist = dop.DemandProvider.OfType<DemandProviderProductionOrder>().ToList();
             var counter = 0;
@@ -281,7 +281,7 @@ namespace Master40.Simulation.Simulation
                 {
                     foreach (var dpob in pob.DemandProductionOrderBoms.ToList())
                     {
-                        CopyDemandsAndPows(dpob, timetable,simulationId,simulationNumber);
+                        CopyDemandsAndPows(dpob, timetable, simConfig, simulationNumber);
                     }
                     if (!pob.DemandProductionOrderBoms.Any())
                         _context.ProductionOrderBoms.Remove(pob);
@@ -309,7 +309,7 @@ namespace Master40.Simulation.Simulation
                         timetable.Items.Remove(itemList.First());
                         counter++;
                     }
-                    FillSimulationWorkSchedules(items, simulationId, simulationNumber, 0);
+                    FillSimulationWorkSchedules(items, simConfig, simulationNumber, 0);
 
                     _context.ProductionOrders.Remove(provider.ProductionOrder);
                     _context.Demands.Remove(provider);
@@ -321,7 +321,7 @@ namespace Master40.Simulation.Simulation
             return counter;
         }
 
-        private void FillSimulationWorkSchedules(List<PowsSimulationItem> items, int simulationId, int simulationNumber, MrpTask task)
+        private void FillSimulationWorkSchedules(List<PowsSimulationItem> items, SimulationConfiguration simConfig, int simulationNumber, MrpTask task)
         {
             foreach (var item in items)
             {
@@ -343,13 +343,11 @@ namespace Master40.Simulation.Simulation
                         Machine = pows.MachineId == null ? null : _context.Machines.Single(a => a.Id == pows.MachineId).Name,
                         Start = pows.StartSimulation,
                         OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                        SimulationConfigurationId = simulationId,
+                        SimulationConfigurationId = simConfig.Id,
                         WorkScheduleId = pows.Id.ToString(),
                         WorkScheduleName = pows.Name,
                         SimulationType = SimulationType.Central,
                         SimulationNumber = simulationNumber,
-                        
-
                     };
                     _context.Add(schedule);
                     //_evaluationContext.Add(schedule.CopyDbPropertiesWithoutId());
@@ -367,7 +365,7 @@ namespace Master40.Simulation.Simulation
                         HierarchyNumber = pows.HierarchyNumber,
                         Start = pows.StartBackward,
                         OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                        SimulationConfigurationId = simulationId,
+                        SimulationConfigurationId = simConfig.Id,
                         WorkScheduleId = pows.Id.ToString(),
                         WorkScheduleName = pows.Name,
                         SimulationType = SimulationType.BackwardPlanning,
@@ -390,7 +388,7 @@ namespace Master40.Simulation.Simulation
                         HierarchyNumber = pows.HierarchyNumber,
                         Start = pows.StartForward,
                         OrderId = JsonConvert.SerializeObject(_context.GetOrderIdsFromProductionOrder(po)),
-                        SimulationConfigurationId = simulationId,
+                        SimulationConfigurationId = simConfig.Id,
                         WorkScheduleId = pows.Id.ToString(),
                         WorkScheduleName = pows.Name,
                         SimulationType = SimulationType.ForwardPlanning,
@@ -407,7 +405,7 @@ namespace Master40.Simulation.Simulation
             _evaluationContext.SaveChanges();
         }
 
-        private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, int simulationId)
+        private TimeTable<ISimulationItem> UpdateGoodsDelivery(TimeTable<ISimulationItem> timeTable, SimulationConfiguration simConfig)
         {
             var purchaseParts = _context.PurchaseParts.Include(a => a.Purchase).Where(a =>
                 a.State != State.Finished &&
@@ -416,16 +414,16 @@ namespace Master40.Simulation.Simulation
             foreach (var purchasePart in purchaseParts)
             {
                 // insert into timetable with rnd-duetime
-                timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart,simulationId));
+                timeTable.Items.Add(CreateNewPurchaseSimulationItem(purchasePart, simConfig));
             }
             return timeTable;
         }
 
-        private ISimulationItem CreateNewPurchaseSimulationItem(PurchasePart purchasePart, int simulationId)
+        private ISimulationItem CreateNewPurchaseSimulationItem(PurchasePart purchasePart, SimulationConfiguration simConfig)
         {
             return new PurchaseSimulationItem(_context)
             {
-                Start = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time,
+                Start = simConfig.Time,
                 End = purchasePart.Purchase.DueTime,
                 PurchaseId = purchasePart.PurchaseId,
                 PurchasePartId = purchasePart.Id
@@ -455,7 +453,7 @@ namespace Master40.Simulation.Simulation
             }
         }
 
-        private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, int simulationId, int simNumber)
+        private async Task<TimeTable<ISimulationItem>> ProcessTimeline(TimeTable<ISimulationItem> timeTable, List<ProductionOrderWorkSchedule> waitingItems, SimulationConfiguration simConfig, int simNumber)
         {
             if (!firstRunOfTheDay)
             {
@@ -463,24 +461,23 @@ namespace Master40.Simulation.Simulation
                 timeTable = timeTable.ProcessTimeline(timeTable);
             }
             firstRunOfTheDay = false;
-            _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time = timeTable.Timer;
-            _context.SaveChanges();
+            simConfig.Time = timeTable.Timer;
             CheckForOrderRequests(timeTable);
             //try to put the next Workschedules on the Machines
-            SendWorkSchedulesToMachines(ref timeTable, simulationId, ref waitingItems);
+            SendWorkSchedulesToMachines(ref timeTable, simConfig, ref waitingItems);
             //find out if a recalculation is necessary
             var recalc = (timeTable.RecalculateCounter + 1) * timeTable.RecalculateTimer;
             if (timeTable.Timer < recalc) return timeTable;
-            await Recalculate(timeTable,simulationId,simNumber, waitingItems);
+            await Recalculate(timeTable, simConfig ,simNumber, waitingItems);
             timeTable.Items.RemoveAll(a => a.SimulationState == SimulationState.Finished);
             UpdateWaitingItems(timeTable, waitingItems);
-            UpdateGoodsDelivery(timeTable,simulationId);
+            UpdateGoodsDelivery(timeTable,simConfig);
             timeTable.RecalculateCounter++;
             firstRunOfTheDay = true;
             return timeTable;
         }
 
-        private void SendWorkSchedulesToMachines(ref TimeTable<ISimulationItem> timeTable, int simulationId, ref List<ProductionOrderWorkSchedule> waitingItems)
+        private void SendWorkSchedulesToMachines(ref TimeTable<ISimulationItem> timeTable, SimulationConfiguration simConfig, ref List<ProductionOrderWorkSchedule> waitingItems)
         {
             var freeMachineIds = GetFreeMachines(timeTable);
             _messageHub.SendToAllClients("Free Machines: " + JsonConvert.SerializeObject(freeMachineIds));
@@ -500,14 +497,14 @@ namespace Master40.Simulation.Simulation
                     (SimulationHierarchyChildrenFinished(item, timeTable.Items) == null && !ItemsInStock(item)))
                     continue;
                 
-                var simItem =  PrepareItem(timeTable, item, simulationId);
+                var simItem =  PrepareItem(timeTable, item, simConfig);
                 timeTable.Items.Add(simItem);
                 waitingItems.Remove(item);
                 timeTable.ListMachineStatus.Single(a => a.MachineId == freeMachineId).Free = false;
             }
         }
 
-        private PowsSimulationItem PrepareItem(TimeTable<ISimulationItem> timeTable, ProductionOrderWorkSchedule item, int simulationId)
+        private PowsSimulationItem PrepareItem(TimeTable<ISimulationItem> timeTable, ProductionOrderWorkSchedule item, SimulationConfiguration simConfig)
         {
             //variates the worktime by the amount set in the parameters of the simulation
             var newDuration = _workTimeGenerator.GetRandomWorkTime(item.Duration);
@@ -527,7 +524,7 @@ namespace Master40.Simulation.Simulation
             {
                 End = item.EndSimulation,
                 Start = item.StartSimulation,
-                SimulationId = simulationId,
+                SimulationId = simConfig.Id,
                 ProductionOrderId = item.ProductionOrderId,
                 ProductionOrderWorkScheduleId = item.Id,
                 SimulationState = SimulationState.Waiting,
@@ -631,10 +628,9 @@ namespace Master40.Simulation.Simulation
         }
 
 
-        private async Task Recalculate(TimeTable<ISimulationItem> timetable,int simulationId,int simNumber, List<ProductionOrderWorkSchedule> waitingItems)
+        private async Task Recalculate(TimeTable<ISimulationItem> timetable, SimulationConfiguration simConfig,int simNumber, List<ProductionOrderWorkSchedule> waitingItems)
         {
             
-            var simConfig = _context.SimulationConfigurations.Single(a => a.Id == simulationId);
             /*
             var filestream = System.IO.File.Create("D://stocks.csv");
             var sw = new System.IO.StreamWriter(filestream);
@@ -652,8 +648,8 @@ namespace Master40.Simulation.Simulation
             sw.Dispose();
             */
             //SaveCompletedContext(timetable,simulationId,simNumber);
-            FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().Where(a => a.SimulationState == SimulationState.Finished).ToList(), simulationId, simNumber,0);
-            _processMrp.UpdateDemandsAndOrders(simulationId);
+            FillSimulationWorkSchedules(timetable.Items.OfType<PowsSimulationItem>().Where(a => a.SimulationState == SimulationState.Finished).ToList(), simConfig, simNumber,0);
+            _processMrp.UpdateDemandsAndOrders(simConfig);
             var time = simConfig.Time;
             var maxAllowedTime = simConfig.Time + simConfig.MaxCalculationTime;
             var orderParts = _context.OrderParts.Include(a => a.Order).Where(a => a.IsPlanned == false
@@ -667,13 +663,13 @@ namespace Master40.Simulation.Simulation
                 var demand = _processMrp.GetDemand(orderPart);
                 //run the requirements planning and backward/forward termination algorithm
                 if (demand.State != State.Created) continue;
-                _processMrp.ExecutePlanning(demand, MrpTask.All, simulationId);
+                _processMrp.ExecutePlanning(demand, MrpTask.All, simConfig);
                 orderPart.IsPlanned = true;
             }
             //_messageHub.SendToAllClients("before Rebuild");
             //rebuildNets.Rebuild(simulationId, _evaluationContext);
             _messageHub.SendToAllClients("before GT");
-            capacityScheduling.GifflerThompsonScheduling(simulationId);
+            capacityScheduling.GifflerThompsonScheduling(simConfig);
             _messageHub.SendToAllClients("finished GT");
             //await _processMrp.CreateAndProcessOrderDemand(MrpTask.All,_context,simulationId,_evaluationContext);
 
@@ -701,7 +697,8 @@ namespace Master40.Simulation.Simulation
                 await sim.RunSim(simulationConfigurationId, simNumber);
 
                 CopyResults.Copy(c, _evaluationContext, simulationConfigurationId, simNumber, SimulationType.Decentral);
-                CalculateKpis.MachineSattleTime(_evaluationContext, simulationConfigurationId, SimulationType.Decentral, simNumber);
+                var simConfig =  _evaluationContext.SimulationConfigurations.Single(x => x.Id == simulationConfigurationId);
+                CalculateKpis.MachineSattleTime(_evaluationContext, simConfig, SimulationType.Decentral, simNumber);
 
                 CalculateKpis.CalculateAllKpis(_evaluationContext, simulationConfigurationId, SimulationType.Decentral, simNumber, true);
             }

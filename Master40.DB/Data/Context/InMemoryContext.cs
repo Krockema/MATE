@@ -1,4 +1,6 @@
-﻿using Master40.DB.Data.Helper;
+﻿using EfCore.InMemoryHelpers;
+using EntityFrameworkCore.Cacheable;
+using Master40.DB.Data.Helper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,8 +38,24 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<WorkSchedule>().Property(p => p.Id).ValueGeneratedNever();
         }
         */
-
         public static ProductionDomainContext CreateInMemoryContext()
+        {
+            // In-memory database only exists while the connection is open
+            var options = new DbContextOptionsBuilder<MasterDBContext>();
+            options.UseSecondLevelCache();
+
+            InMemoryContext _inMemmoryContext = InMemoryContextBuilder.Build<InMemoryContext>(options);
+
+            _inMemmoryContext.Database.EnsureCreated();
+
+            return _inMemmoryContext;
+        }
+
+
+
+
+
+        public static ProductionDomainContext CreateInMemoryContext_Old()
         {
             // In-memory database only exists while the connection is open
             var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = ":memory:"};
@@ -46,6 +64,7 @@ namespace Master40.DB.Data.Context
             // create OptionsBuilder with InMemmory Context
             var builder = new DbContextOptionsBuilder<MasterDBContext>();
             builder.UseSqlite(connection);
+            //builder.UseSecondLevelCache();
             var c = new ProductionDomainContext(builder.Options);
 
             c.Database.OpenConnection();

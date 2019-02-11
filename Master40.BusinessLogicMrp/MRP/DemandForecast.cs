@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EntityFrameworkCore.Cacheable;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.Models;
@@ -10,7 +11,7 @@ namespace Master40.BusinessLogicCentral.MRP
 {
     public interface IDemandForecast
     {
-        List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, int simulationId);
+        List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, SimulationConfiguration simulationConfiguration);
     }
 
 
@@ -32,7 +33,7 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <param name="task"></param>
         /// <param name="simulationId"></param>
         /// <returns>ProductionOrder to fulfill the demand, ProductionOrder is null if there was enough in stock</returns>
-        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, int simulationId)
+        public List<ProductionOrder> NetRequirement(IDemandToProvider demand, MrpTask task, SimulationConfiguration simConfig)
         {
             //Todo: search for available POs
             var stock = _context.Stocks.Include(a => a.DemandStocks)
@@ -40,15 +41,15 @@ namespace Master40.BusinessLogicCentral.MRP
             var plannedStock = _context.GetPlannedStock(stock,demand);
             var productionOrders = new List<ProductionOrder>();
             var stockProvider = _context.TryCreateStockReservation(demand);
-            var time = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
+            var time = simConfig.Time;
             //if the article has no children it has to be purchased
-            var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).ToList();
+            var children = _context.ArticleBoms.Where(a => a.ArticleParentId == demand.ArticleId).Cacheable(TimeSpan.FromSeconds(1200)).ToList();
             if (children.Any())
             {
                 //if the plannedStock is below zero, articles have to be produced for its negative amount 
                 if (plannedStock < 0)
                 {
-                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
+                    var fittingProductionOrders = _context.CheckForProductionOrders(demand,-plannedStock, simConfig.Time);
                     var amount = -plannedStock;
                     if (fittingProductionOrders != null)
                     {
@@ -65,13 +66,13 @@ namespace Master40.BusinessLogicCentral.MRP
                     }
                     if (amount > 0)
                     {
-                        var pos = _context.CreateChildProductionOrders(demand, amount, simulationId);
+                        var pos = _context.CreateChildProductionOrders(demand, amount, simConfig);
                         productionOrders.AddRange(pos);
                     }
                 }
             }
             else if (plannedStock < stock.Min)
-                _context.CreatePurchaseDemand(demand, stock.Max-stock.Min, _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time);
+                _context.CreatePurchaseDemand(demand, stock.Max-stock.Min, simConfig.Time);
             if (stock.Min <= 0 || plannedStock >= stock.Min || demand.GetType() == typeof(DemandStock))
                 return productionOrders;
             
@@ -82,7 +83,7 @@ namespace Master40.BusinessLogicCentral.MRP
 
             var demandStock = plannedStock < 0 ? _context.CreateStockDemand(demand, stock, stock.Min) : _context.CreateStockDemand(demand, stock, stock.Min - plannedStock);
             //call processMrp to plan and schedule the stockDemand
-            _processMrp.RunRequirementsAndTermination(demandStock, task, simulationId);
+            _processMrp.RunRequirementsAndTermination(demandStock, task, simConfig);
             return productionOrders;
         }
 

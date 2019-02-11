@@ -13,10 +13,10 @@ namespace Master40.BusinessLogicCentral.MRP
 {
    public interface ICapacityScheduling
     {
-        void GifflerThompsonScheduling(int simulationId);
-        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int simulationId);
+        void GifflerThompsonScheduling(SimulationConfiguration simConfig);
+        List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(SimulationConfiguration simulationConfiguration);
         bool CapacityLevelingCheck(List<MachineGroupProductionOrderWorkSchedule> machineList);
-        void SetMachines(int simulationId);
+        void SetMachines(SimulationConfiguration simulationConfiguration);
     }
 
     public class CapacityScheduling : ICapacityScheduling
@@ -32,12 +32,12 @@ namespace Master40.BusinessLogicCentral.MRP
         /// <summary>
         /// An algorithm for capacity-leveling. Writes Start/End in ProductionOrderWorkSchedule.
         /// </summary>
-        public void GifflerThompsonScheduling(int simulationId)
+        public void GifflerThompsonScheduling(SimulationConfiguration simConfig)
         {
             var notplanned = new List<ProductionOrderWorkSchedule>();
                               // Datenbank.Collection.Methode(collection => collection.field == parameter).Field
                                                    //.Single Return an Object instead of an Collection of that requested Object.
-            var currentTime = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
+            var currentTime = simConfig.Time;
                             
             //var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
             var productionOrderWorkSchedules = _context.ProductionOrderWorkSchedules.Where(a => a.ProducingState == ProducingState.Created).ToList();
@@ -81,9 +81,9 @@ namespace Master40.BusinessLogicCentral.MRP
             return plannableSchedules.First(a => a.ProductionOrder.Duetime == plannableSchedules.Min(b => b.ProductionOrder.Duetime));
         }
 
-        private List<ProductionOrderWorkSchedule> GetInitialPlannedSchedules(int simulationId)
+        private List<ProductionOrderWorkSchedule> GetInitialPlannedSchedules(int time)
         {
-            var timer = _context.SimulationConfigurations.Single(a => a.Id == simulationId).Time;
+            var timer = time;
             return timer == 0 ? null : _context.ProductionOrderWorkSchedules.Where(a => a.Start <= timer && a.End - a.Start == a.Duration).ToList();
         }
         
@@ -179,10 +179,10 @@ namespace Master40.BusinessLogicCentral.MRP
         /// Calculates Capacities needed to use backward/forward termination
         /// </summary>
         /// <returns>capacity-plan</returns>
-        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(int simulationId)
+        public List<MachineGroupProductionOrderWorkSchedule> CapacityRequirementsPlanning(SimulationConfiguration simConfig)
         {   
             //Stack for every hour and machinegroup
-            var productionOrderWorkSchedules = GetProductionSchedules(simulationId);
+            var productionOrderWorkSchedules = GetProductionSchedules(simConfig);
             var machineList = new List<MachineGroupProductionOrderWorkSchedule>();
 
             foreach (var productionOrderWorkSchedule in productionOrderWorkSchedules)
@@ -333,7 +333,7 @@ namespace Master40.BusinessLogicCentral.MRP
             return maxTime;
         }
 
-        private List<ProductionOrderWorkSchedule> GetProductionSchedules(int simulationId)
+        private List<ProductionOrderWorkSchedule> GetProductionSchedules(SimulationConfiguration simConfig)
         {
             var demandProvider = _context.Demands.OfType<DemandProviderProductionOrder>()
                 .Include(a => a.DemandRequester)
@@ -394,10 +394,10 @@ namespace Master40.BusinessLogicCentral.MRP
                    /* else return */ productionOrderWorkSchedules.Single(a => a.HierarchyNumber == productionOrderWorkSchedules.Max(b => b.HierarchyNumber));
         }
 
-        public void SetMachines(int simulationId)
+        public void SetMachines(SimulationConfiguration simConfig)
         {  
             //gets called when plan is fitting to capacities
-            var schedules = GetProductionSchedules(simulationId);
+            var schedules = GetProductionSchedules(simConfig);
             foreach (var schedule in schedules)
             {
                 var machines = _context.Machines.Where(a => a.MachineGroupId == schedule.MachineGroupId).ToList();

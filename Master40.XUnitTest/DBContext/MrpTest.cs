@@ -9,16 +9,16 @@ namespace Master40.XUnitTest.DBContext
 {
     public class MrpTest
     {
-        public async Task CreateAndProcessOrderDemandAll(ProcessMrp processMrp)
-        {
-            await processMrp.CreateAndProcessOrderDemand(MrpTask.All,null,0, null);
-        }
-
-        public async Task CreateAndProcessOrderForward(ProcessMrp processMrp)
-        {
-            await processMrp.CreateAndProcessOrderDemand(MrpTask.Backward,null,0, null);
-            await processMrp.CreateAndProcessOrderDemand(MrpTask.Forward,null,0, null);
-        }
+       //  public async Task CreateAndProcessOrderDemandAll(ProcessMrp processMrp)
+       //  {
+       //      await processMrp.CreateAndProcessOrderDemand(MrpTask.All,null,0, null);
+       //  }
+       // 
+       //  public async Task CreateAndProcessOrderForward(ProcessMrp processMrp)
+       //  {
+       //      await processMrp.CreateAndProcessOrderDemand(MrpTask.Backward,null,0, null);
+       //      await processMrp.CreateAndProcessOrderDemand(MrpTask.Forward,null,0, null);
+       //  }
     }
 
 

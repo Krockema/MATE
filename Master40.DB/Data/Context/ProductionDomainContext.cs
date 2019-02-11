@@ -303,7 +303,7 @@ namespace Master40.DB.Data.Context
                SaveChanges();
            }*/
 
-        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, int simulationId)
+        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, SimulationConfiguration simConfig)
         {
             ProductionOrderBom bom = null;
             if (demand.GetType() == typeof(DemandProductionOrderBom))
@@ -311,7 +311,7 @@ namespace Master40.DB.Data.Context
                 bom = ProductionOrderBoms.FirstOrDefault(a => a.Id == ((DemandProductionOrderBom) demand).ProductionOrderBomId);
             }
             
-            var lotsize = SimulationConfigurations.Single(a => a.Id == simulationId).Lotsize;
+            var lotsize = simConfig.Lotsize;
             var productionOrders = new List<ProductionOrder>();
             /*decimal bomQuantity;
             if (bom != null)
@@ -323,7 +323,7 @@ namespace Master40.DB.Data.Context
             */
             while (amount > 0)// || bomQuantity > 0)
             {
-                var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand),simulationId);
+                var productionOrder = CreateProductionOrder(demand,GetDueTimeByOrder(demand),simConfig);
                 if (amount > 0)
                 {
                     var demandProviderProductionOrder = CreateDemandProviderProductionOrder(demand, productionOrder,
@@ -361,12 +361,12 @@ namespace Master40.DB.Data.Context
             return demandStock;
         }
 
-        public ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime, int simulationId)
+        public ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime, SimulationConfiguration simulationConfiguration)
         {
             var productionOrder = new ProductionOrder()
             {
                 ArticleId = demand.Article.Id,
-                Quantity = SimulationConfigurations.Single(a => a.Id == simulationId).Lotsize,
+                Quantity = simulationConfiguration.Lotsize,
                 Duetime = duetime
             };
             
@@ -529,9 +529,8 @@ namespace Master40.DB.Data.Context
                 pob.DemandProductionOrderBoms = new List<DemandProductionOrderBom>();
             pob.DemandProductionOrderBoms.Add(demand);
             demand.ProductionOrderBomId = pob.Id;
-            Update(demand);
-            Update(pob);
-            SaveChanges();
+            // Update(demand);
+            // Update(pob);            
         }
 
         public void AssignProviderToDemand(IDemandToProvider demand, DemandToProvider provider)
@@ -542,10 +541,10 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }
 
-        public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder, int simulationId)
+        public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder, SimulationConfiguration simConfig)
         {
             if (parentProductionOrder == null) return null;
-            var lotsize = SimulationConfigurations.Single(a => a.Id == simulationId).Lotsize;
+            var lotsize = simConfig.Lotsize;
             var quantity = demand.Quantity > lotsize ? lotsize : demand.Quantity;
             var pob = new ProductionOrderBom()
             {
@@ -553,9 +552,9 @@ namespace Master40.DB.Data.Context
                 ProductionOrderParentId = parentProductionOrder.Id
             };
             Add(pob);
-            SaveChanges();
             if (demand.GetType() == typeof(DemandProductionOrderBom))
                 AssignDemandProviderToProductionOrderBom((DemandProductionOrderBom)demand, pob);
+            SaveChanges();
             return pob;
         }
         
@@ -906,7 +905,7 @@ namespace Master40.DB.Data.Context
             }
             return changedRequester;
         }
-
+        
 
         public int GetSimulationNumber(int simulationConfigurationId, SimulationType simType)
         {

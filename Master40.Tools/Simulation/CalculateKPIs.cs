@@ -651,14 +651,13 @@ namespace Master40.Tools.Simulation
         /// <param name="simulationId"></param>
         /// <param name="simulationType"></param>
         /// <param name="simulationNumber"></param>
-        public static void MachineSattleTime(ProductionDomainContext context, int simulationId,
+        public static void MachineSattleTime(ProductionDomainContext context, SimulationConfiguration simConfig,
             SimulationType simulationType, int simulationNumber)
         {
-            var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
             var ts = simConfig.DynamicKpiTimeSpan;
             for (var i = ts; i < simConfig.SimulationEndTime; i = i + ts)
             {
-                CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, false, i);
+                CalculateMachineUtilization(context, simConfig.Id, simulationType, simulationNumber, false, i);
             }
         }
 

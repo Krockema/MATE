@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EfCore.InMemoryHelpers;
 using Master40.Agents;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.Simulation.Simulation;
@@ -15,30 +17,36 @@ namespace Master40.XUnitTest.DBContext
 {
     public class ContextTest
     {
-        ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-            .UseInMemoryDatabase(databaseName: "InMemoryDB")
-            .Options);
+         ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+             .UseInMemoryDatabase(databaseName: "InMemoryDB")
+             .Options);
 
-        InMemoryContext _inMemmoryContext = new InMemoryContext(new DbContextOptionsBuilder<MasterDBContext>()
-            .UseInMemoryDatabase(databaseName: "InMemoryDB")
-            .Options);
 
-        MasterDBContext _masterDBContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
-            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .Options);
+        // InMemoryContext _inMemmoryContext = new InMemoryContext(new DbContextOptionsBuilder<MasterDBContext>()
+        //     .UseInMemoryDatabase(databaseName: "InMemoryDB")
+        //     .Options);
 
-        ProductionDomainContext _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .Options);
+        InMemoryContext _inMemmoryContext = InMemoryContextBuilder.Build<InMemoryContext>(new DbContextOptionsBuilder<MasterDBContext>());
+
+
+
+        // MasterDBContext _masterDBContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+        //     .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+        //     .Options);
+        // 
+        // ProductionDomainContext _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+        //     .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+        //     .Options);
 
         public ContextTest()
         {
-            //_ctx.Database.EnsureDeleted();
-            //MasterDBInitializerLarge.DbInitialize(_ctx);
+            _ctx.Database.EnsureDeleted();
+            _ctx.Database.EnsureCreated();
+            MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
-            //_productionDomainContext.Database.EnsureDeleted();
-            //_productionDomainContext.Database.EnsureCreated();
-            //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+            // _productionDomainContext.Database.EnsureDeleted();
+            // _productionDomainContext.Database.EnsureCreated();
+            // MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
         }
 
@@ -74,7 +82,7 @@ namespace Master40.XUnitTest.DBContext
             _ctx.Dispose();
         }
         */
-        
+        /*
         [Fact]
         public async Task MrpTestAsync()
         {
@@ -83,9 +91,9 @@ namespace Master40.XUnitTest.DBContext
             var msgHub = new Moc.MessageHub();
             var simulation = new Simulator(imc, msgHub);
             await simulation.Simulate(1);
-            Assert.Equal(true, _productionDomainContext.Kpis.Any());
+            Assert.True(_productionDomainContext.Kpis.Any());
         }
-
+        
         //public DemandToProvider getRequester
         [Fact]
         public async Task AgentSimulationTestAsync()
@@ -117,18 +125,19 @@ namespace Master40.XUnitTest.DBContext
 
             Assert.Equal(_productionDomainContext.Kpis.Any(), true);
         }
+        */
 
-        /*
         [Fact]
         public async Task MrpInMemmoryTest()
         {            
             var msgHub = new Moc.MessageHub();
-            var simulation = new Simulator(_productionDomainContext, msgHub);
-            await simulation.Simulate(1);
-            Assert.Equal(true, _productionDomainContext.Kpis.Any());
+            var simulation = new Simulator(_ctx, msgHub);
+
+            await simulation.Simulate(3);
+            Assert.True(_ctx.Kpis.Any());
         }
 
-
+        /*
         [Fact]
         public async Task MrpGifflerTest()
         {
@@ -205,7 +214,7 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
         */
-        
+        /*
         [Theory]
         //[InlineData(SimulationType.Decentral, 5)]
         [InlineData(SimulationType.Decentral, 1)]
@@ -259,7 +268,7 @@ namespace Master40.XUnitTest.DBContext
 
         }
 
-        
+        */
     
     /*
         [Fact]
