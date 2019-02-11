@@ -5,6 +5,7 @@ namespace Master40.DB.Models
 {
     public class Purchase : BaseEntity
     {
+        public const string BUSINESSPARTNER_FKEY = "BusinessPartner";
         public string Name { get; set; }
         public int DueTime { get; set; }
         public int BusinessPartnerId { get; set; }

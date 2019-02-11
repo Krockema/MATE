@@ -7,6 +7,7 @@ namespace Master40.DB.Models
 {
     public class StockExchange : BaseEntity
     {
+        public const string STOCK_FEKY = "Stock";
         public int StockId { get; set; }
         public Guid TrakingGuid { get; set; }
         public int SimulationConfigurationId { get; set; }

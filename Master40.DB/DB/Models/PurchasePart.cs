@@ -6,6 +6,8 @@ namespace Master40.DB.Models
 {
     public class PurchasePart : BaseEntity
     {
+        public const string ARTICLE_FKEY = "Article";
+        public const string PURCHASE_FKEY = "Purchase";
         public int PurchaseId { get; set; }
         [JsonIgnore]
         public Purchase Purchase { get; set; }

@@ -5,6 +5,8 @@ namespace Master40.DB.Models
 {
     public class ArticleToBusinessPartner : BaseEntity
     {
+        public const string BUSINESSPARTNER_FKEY = "BusinessPartner";
+        
         public int ArticleId { get; set; }
         public int BusinessPartnerId { get; set; }
         [JsonIgnore]

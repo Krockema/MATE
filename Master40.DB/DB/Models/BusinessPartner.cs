@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Master40.DB.Models;
 using Newtonsoft.Json;
 
 namespace Master40.DB.Models

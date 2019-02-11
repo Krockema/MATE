@@ -6,6 +6,8 @@ namespace Master40.DB.Models
 {
     public class OrderPart : BaseEntity
     {
+        public const string ORDER_FKEY = "Order";
+        public const string ARTICLE_FKEY = "Article";
         public int OrderId { get; set; }
         [JsonIgnore]
         public Order Order { get; set; }
@@ -28,4 +30,5 @@ namespace Master40.DB.Models
     }
 
 }
+
 

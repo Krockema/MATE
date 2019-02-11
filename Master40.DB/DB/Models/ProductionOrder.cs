@@ -6,6 +6,7 @@ namespace Master40.DB.Models
 {
     public class ProductionOrder : BaseEntity
     {
+        public const string ARTICLE_FKEY = "Article";
         public int ArticleId { get; set; }
         [JsonIgnore]
         public Article Article { get; set; }

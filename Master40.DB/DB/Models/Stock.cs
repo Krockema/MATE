@@ -5,6 +5,7 @@ namespace Master40.DB.Models
 {
     public class Stock : BaseEntity
     {
+        public const string ARTICLE_FKEY = "ArticleForeignKey";
         public string Name { get; set; }
         public decimal Max { get; set; }
         public decimal Min { get; set; }

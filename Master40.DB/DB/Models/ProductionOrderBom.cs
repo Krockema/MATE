@@ -6,6 +6,7 @@ namespace Master40.DB.Models
 {
     public class ProductionOrderBom : BaseEntity
     {
+        public static string PRODUCTIONORDERPARRENT_FKEY = "ProductionOrderParentId";
         public int ProductionOrderParentId { get; set; }
         [JsonIgnore]
         public ProductionOrder ProductionOrderParent { get; set; }

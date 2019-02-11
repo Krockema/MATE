@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Master40.DB.Models;
+using Newtonsoft.Json;
 
 namespace Master40.DB.Data.Context
 {
@@ -7,8 +8,9 @@ namespace Master40.DB.Data.Context
     {
         private DbContextOptions<ProductionDomainContext> options;
 
-        public MasterDBContext(DbContextOptions<MasterDBContext> options) : base(options) { }
-
+        public MasterDBContext(DbContextOptions<MasterDBContext> options, bool inMemmory = false) : base(options) { }
+        [JsonIgnore]
+        public bool InMemory { get; internal set; }
 
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleBom> ArticleBoms { get; set; }
@@ -37,6 +39,7 @@ namespace Master40.DB.Data.Context
         public DbSet<SimulationWorkschedule> SimulationWorkschedules { get; set; }
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public DbSet<Kpi> Kpis { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()

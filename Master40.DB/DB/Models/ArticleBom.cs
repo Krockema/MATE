@@ -4,6 +4,8 @@ namespace Master40.DB.Models
 {
     public class ArticleBom : BaseEntity
     {
+        public const string ARTICLECHILD_FKEY = "ArticleChild";
+        public const string ARTICLEPARENT_FKEY = "ArticleParent";
 
         public int? ArticleParentId { get; set; }
         [JsonIgnore]
