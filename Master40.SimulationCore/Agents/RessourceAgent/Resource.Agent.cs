@@ -57,8 +57,7 @@ namespace Master40.SimulationCore.Agents
 
         internal void DoWork()
         {
-            var inProgress = Get<bool>(ITEMS_IN_PROGRESS);
-            if (inProgress)
+            if (Get<bool>(ITEMS_IN_PROGRESS))
             {
                 DebugMessage("Im still working....");
                 return; // still working
@@ -78,7 +77,7 @@ namespace Master40.SimulationCore.Agents
             }
 
             DebugMessage("Start with " + item.WorkSchedule.Name);
-            inProgress = true;
+            Set(ITEMS_IN_PROGRESS, true);
             item = item.UpdateStatus(ElementStatus.Processed);
 
 
@@ -89,6 +88,8 @@ namespace Master40.SimulationCore.Agents
             //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
 
             // TODO !
+            var pub = new UpdateSimulationWork(item.Key.ToString(), duration - 1, (int)this.TimePeriod, this.Name);
+            this.Context.System.EventStream.Publish(pub);
             // Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
 
             // get item = ready and lowest priority

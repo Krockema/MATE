@@ -3,7 +3,6 @@ using Master40.DB.Models;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Master40.SimulationCore.Agents.Production.Properties;
@@ -110,6 +109,9 @@ namespace Master40.SimulationCore.Agents
                 firstItemToBuild = false;
                 workItems.Add(n);
                 // ToDO; 
+                var pub = new CreateSimulationWork(n, requestItem.OrderId.ToString(), requestItem.IsHeadDemand);
+                this.Context.System.EventStream.Publish(pub);
+
                 //Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId.ToString(), RequestItem.IsHeadDemand);
             }
         }

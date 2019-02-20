@@ -15,6 +15,7 @@ namespace Master40.DB.Repository
         void Remove(TEntity entity, string fKey);
         void RemoveRange(IEnumerable<TEntity> entities, string fKey);
         int Count(Func<TEntity, bool> predicate);
+        List<T> OfType<T>();
         int Count();
 
     }

@@ -56,7 +56,6 @@ namespace Master40.SimulationCore.Agents
                 agent.DebugMessage(" Created purchase for " + stockElement.Article.Name);
             }
 
-            //if ((StockElement.Current + insert - withdrawl - request.Quantity) < 0)
             if ((stockElement.Current - withdrawl - request.Quantity) > 0)
             {
                 inStock = true;
@@ -104,6 +103,14 @@ namespace Master40.SimulationCore.Agents
             stockElement.StockExchanges.Add(stockExchange);
             // TODO needs logic if more Kreditors are Added.
             agent.Send(Instruction.StockRefill.Create(stockExchange.TrakingGuid, agent.Context.Self), time);
+        }
+
+        internal void LogValueChange(Agent agent, Article article, double value)
+        {
+            var pub = new UpdateStockValues(article.Name
+                                            , value
+                                            , article.ToPurchase ? "Raw" : "Product");
+            agent.Context.System.EventStream.Publish(pub);
         }
     }
 }

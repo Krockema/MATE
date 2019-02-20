@@ -144,5 +144,10 @@ namespace Master40.DB.Repository
         {
             throw new NotImplementedException();
         }
+
+        public List<T> OfType<T>()
+        {
+            return ((List<T>)this.Where(x => x.GetType() == typeof(T)));
+        }
     }
 }

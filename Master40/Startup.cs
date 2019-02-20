@@ -16,6 +16,7 @@ using Master40.DB.Data.Initializer;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Master40
 {
@@ -39,9 +40,9 @@ namespace Master40
             // Add Database Context
             //services.AddDbContext<InMemmoryContext>(options =>
             //    options.UseInMemoryDatabase("InMemmoryContext"));
-
-            services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            
+            services.AddDbContext<MasterDBContext>
+                (options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -112,6 +113,13 @@ namespace Master40
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(options.Value);
             GlobalConfiguration.Configuration.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
+
+            #region Hangfire 
+            GlobalConfiguration.Configuration.UseSqlServerStorage(Configuration.GetConnectionString("Hangfire"));
+
+            app.UseHangfireDashboard();
+            app.UseHangfireServer();
+            #endregion
 
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();

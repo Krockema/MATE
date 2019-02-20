@@ -130,11 +130,11 @@ namespace Master40.SimulationCore.Agents
 
         private void FinishWork(Resource agent, FWorkItem workItem)
         {
-            var itemsInProgress = agent.Get<bool>(ITEMS_IN_PROGRESS);
             if (workItem == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
+            var itemsInProgress = agent.Get<bool>(ITEMS_IN_PROGRESS);
             var Queue = agent.Get<List<FWorkItem>>(QUEUE);
 
             // Set next Ready Element from Queue
@@ -145,7 +145,7 @@ namespace Master40.SimulationCore.Agents
             agent.UpdateProcessingQueue(itemFromQueue);
 
             // Set Machine State to Ready for next
-            itemsInProgress = false;
+            agent.Set(ITEMS_IN_PROGRESS, false);
             agent.DebugMessage("Finished Work with " + workItem.WorkSchedule.Name + " take next...");
 
             workItem = workItem.UpdateStatus(ElementStatus.Finished);

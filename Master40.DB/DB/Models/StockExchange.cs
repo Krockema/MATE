@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Master40.DB.Enums;
+﻿using Master40.DB.Enums;
+using System;
 
 namespace Master40.DB.Models
 {

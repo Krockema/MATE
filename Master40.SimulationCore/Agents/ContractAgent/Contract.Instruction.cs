@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Agents
         public class Instruction { 
             public class StartOrder : SimulationMessage
             {
-                private StartOrder(object message, IActorRef target, Priority priority = Priority.Medium) : base(message, target, priority)
+                private StartOrder(object message, IActorRef target, Priority priority = Priority.Medium) : base(message, target, false, priority)
                 {
                 }
 
@@ -24,7 +24,7 @@ namespace Master40.SimulationCore.Agents
 
             public class Finish : SimulationMessage
             {
-                private Finish(object message, IActorRef target, Priority priority = Priority.Medium) : base(message, target, priority)
+                private Finish(object message, IActorRef target, Priority priority = Priority.Medium) : base(message, target, false, priority)
                 {
                 }
 

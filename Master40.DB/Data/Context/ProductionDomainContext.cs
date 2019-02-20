@@ -251,12 +251,12 @@ namespace Master40.DB.Data.Context
                 {
                     var productionOrders = ProductionOrders
                         .Include(x => x.ProductionOrderWorkSchedule)
-                        .ThenInclude(x => x.MachineGroup)
+                            .ThenInclude(x => x.MachineGroup)
                         .Include(x => x.ProductionOrderWorkSchedule)
-                        .ThenInclude(x => x.Machine)
+                            .ThenInclude(x => x.Machine)
                         .Include(x => x.ProductionOrderBoms)
-                        .ThenInclude(x => x.DemandProductionOrderBoms)
-                        .ThenInclude(x => x.DemandProvider)
+                            .ThenInclude(x => x.DemandProductionOrderBoms)
+                                .ThenInclude(x => x.DemandProvider)
                         .FirstOrDefault(x => x.Id == item.ProductionOrderId);
 
                     productionOrderWorkSchedule.AddRange(productionOrders.ProductionOrderWorkSchedule);
@@ -953,7 +953,8 @@ namespace Master40.DB.Data.Context
             }
 
             var children = new List<SimulationWorkschedule>();
-            children = schedules.Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType).Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
+            children = schedules.Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
+                                .Where(a => a.ParentId.Equals(simulationWorkschedule.ProductionOrderId.ToString())).ToList();
             
             if (!children.Any()) return simulationWorkschedule.Start;
             var startTimes = children.Select(child => GetEarliestStart(kpiContext, child, simulationType, simulationId, schedules)).ToList();

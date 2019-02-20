@@ -6,6 +6,7 @@ namespace Master40.DB.Models
     public class Machine : BaseEntity
     {
         public static string MACHINEGROUP_FKEY = "MachineGroup";
+
         public string Name { get; set; }
         public int Count { get; set; }
         public int MachineGroupId { get; set; }

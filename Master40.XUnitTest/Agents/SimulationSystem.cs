@@ -1,10 +1,12 @@
-﻿using Akka.TestKit.Xunit;
+﻿using Akka.Actor;
+using Akka.TestKit.Xunit;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.SimulationCore;
 using Master40.XUnitTest.DBContext;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -46,8 +48,10 @@ namespace Master40.XUnitTest.Agents
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                
-                AgentSimulation.Continuation(simModelConfig.Inbox, simulation);
+                AgentSimulation.Continuation(simModelConfig.Inbox
+                                            , simulation
+                                            , new List<IActorRef> { simContext.StorageCollector
+                                                                    , simContext.WorkCollector });
                 await sim;
             }
             

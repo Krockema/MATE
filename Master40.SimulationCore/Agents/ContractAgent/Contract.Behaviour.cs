@@ -49,7 +49,7 @@ namespace Master40.SimulationCore.Agents
             // create Request Item
             FRequestItem requestItem = orderItem.ToRequestItem(requester: agent.Context.Self);
             // Send Request
-            agent.Set(Contract.Properties.REQUEST_ITEM, requestItem);
+            agent.Set(REQUEST_ITEM, requestItem);
         }
 
         /// <summary>

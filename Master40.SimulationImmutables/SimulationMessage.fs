@@ -3,6 +3,7 @@ namespace Master40.SimulationImmutables
 open System
 open Master40.DB.Models
 open Akka.Actor
+open System.Linq
 
 type public ElementStatus = Created=0 | Ready=1 | InQueue=2 | Processed=3 | Finished=4
 type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Production=4 | Hub=5
@@ -112,10 +113,6 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
                // member this.Priority(currentTime) = (double)(this.DueTime - this.WorkSchedule.Duration - currentTime)
                // member this.Priority(currentTime : int, setUp : StockReservation) = (double)(this.DueTime - this.WorkSchedule.Duration - currentTime - (int)setUp.DueTime)
 
-
-
-
-
     type public FItemStatus =
         {
             ItemId : Guid 
@@ -127,6 +124,35 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         WorkTimeGenerator : obj
         Resource : obj
         Debug : bool
+    }
+
+
+    type public CreateSimulationWork = {
+        WorkItem : FWorkItem
+        OrderId : string
+        IsHeadDemand : bool
+    }
+
+    type public UpdateSimulationWork = {
+        WorkScheduleId : string
+        Duration : int64
+        Start : int64
+        Machine : string
+    }
+    
+    type public UpdateSimulationWorkProvider = {
+        ProductionAgents : System.Collections.Generic.List<IActorRef>
+        RequestAgentId : string
+        RequestAgentName : string
+        IsHeadDemand : bool
+        OrderId : int
+        
+    }
+
+    type public UpdateStockValues = {
+        StockName : string
+        NewValue : double
+        ArticleType : string
     }
     
     // let Priority (wi:WorkItem) currentTime = wi.PrioRule(currentTime)

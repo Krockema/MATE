@@ -93,6 +93,10 @@ namespace Master40.SimulationCore.Agents
             // stock Income 
             agent.DebugMessage(" income " + stockElement.Article.Name + " quantity " + stockExchange.Quantity + " added to Stock");
             stockElement.Current += stockExchange.Quantity;
+            agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
+
+
+
             // change element State to Finish
             stockExchange.State = State.Finished;
             //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
@@ -113,6 +117,7 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
+
         //private void ResponseFromProduction(RequestItem item)
         private void ResponseFromProduction(Storage agent, FRequestItem requestItem)
         {
@@ -130,6 +135,9 @@ namespace Master40.SimulationCore.Agents
 
             // Add the Produced item to Stock
             stockElement.Current++;
+            agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
+
+
             var stockExchange = new StockExchange
             {
                 StockId = stockElement.Id,
@@ -165,24 +173,28 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        private void Withdraw(Agent agent, Guid exchangeId, Stock stockElement)
+        private void Withdraw(Storage agent, Guid exchangeId, Stock stockElement)
         {
             var item = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
-            if (item != null) { item.State = State.Finished; item.Time = (int)agent.CurrentTime; }
-            else throw new Exception("No StockExchange found");
+            if (item == null) throw new Exception("No StockExchange found");
+            agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
+
+            item.State = State.Finished;
+            item.Time = (int)agent.CurrentTime;
         }
 
-        private void ProvideArticle(Agent agent, FRequestItem requestProvidable, List<FRequestItem> requestedItems)
+        private void ProvideArticle(Storage agent, FRequestItem requestProvidable, List<FRequestItem> requestedItems)
         {
             var stockElement = agent.Get<Stock>(STOCK_ELEMENT);
             if (requestProvidable.Quantity <= stockElement.Current)
             {
                 var providerList = agent.Get<List<IActorRef>>(PROVIDER_LIST);
                 //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
-
-                if (requestProvidable.IsHeadDemand)
+                var withdrawn = false;
+                if (requestProvidable.IsHeadDemand) {
+                    withdrawn = true;
                     Withdraw(agent, requestProvidable.StockExchangeId, stockElement);
-
+                }
                 if (requestProvidable.ProviderList.Count == 0)
                 {
                     requestProvidable = requestProvidable.UpdateProviderList(new List<IActorRef>(providerList));
@@ -191,8 +203,11 @@ namespace Master40.SimulationCore.Agents
 
                 agent.DebugMessage("------------->> items in STOCK: " + stockElement.Current + " Items Requested " + requestProvidable.Quantity);
                 // Reduce Stock 
-                stockElement.Current = stockElement.Current - requestProvidable.Quantity;
-
+                if (!withdrawn)
+                {
+                    stockElement.Current = stockElement.Current - requestProvidable.Quantity;
+                    agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
+                }
                 // Remove from Requester List.
                 requestedItems.Remove(requestedItems.Single(x => x.Key == requestProvidable.Key));
 
@@ -203,14 +218,22 @@ namespace Master40.SimulationCore.Agents
 
                 // Update Work Item with Provider For
                 // TODO
+                
+                var pub = new UpdateSimulationWorkProvider(requestProvidable.ProviderList
+                                                        , requestProvidable.DispoRequester.Path.Uid.ToString()
+                                                        , requestProvidable.DispoRequester.Path.Name
+                                                        , requestProvidable.IsHeadDemand
+                                                        , requestProvidable.OrderId);
+                agent.Context.System.EventStream.Publish(pub);
+
+
                 // Statistics.UpdateSimulationWorkSchedule(requestProvidable.ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
-                //ProviderList.Clear();
+                // ProviderList.Clear();
             }
             else
             {
                 agent.DebugMessage("Item will be late..............................");
             }
         }
-
     }
 }

@@ -76,7 +76,7 @@ namespace Master40.SimulationCore.Agents
             agent.DebugMessage("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!");
 
             // check If is In Stock
-            if (reservation.IsInStock == true)
+            if (reservation.IsInStock == true && !requestItem.IsHeadDemand)
             {
                 agent.Set(REQUEST_ITEM, requestItem.SetProvided);
                 agent.Send(Production.Instruction
