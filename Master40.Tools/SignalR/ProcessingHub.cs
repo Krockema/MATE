@@ -1,7 +1,5 @@
-﻿using System;
-using Master40.MessageSystem.Messages;
+﻿using Master40.MessageSystem.Messages;
 using Microsoft.AspNetCore.SignalR;
-using Master40.MessageSystem.SignalR;
 
 namespace Master40.MessageSystem.SignalR
 {

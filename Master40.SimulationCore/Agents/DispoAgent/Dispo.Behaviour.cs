@@ -64,7 +64,7 @@ namespace Master40.SimulationCore.Agents
         private void ResponseFromStock(Dispo agent, FStockReservation reservation)
         {
             var requestItem = agent.Get<FRequestItem>(REQUEST_ITEM);
-
+            requestItem = requestItem.UpdateStockExchangeId(reservation.TrackingId);
             if (reservation == null)
             {
                 throw new InvalidCastException("Could not Cast Stockreservation on Item.");
@@ -76,12 +76,22 @@ namespace Master40.SimulationCore.Agents
             agent.DebugMessage("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!");
 
             // check If is In Stock
-            if (reservation.IsInStock == true && !requestItem.IsHeadDemand)
+            if (reservation.IsInStock == true)
             {
-                agent.Set(REQUEST_ITEM, requestItem.SetProvided);
-                agent.Send(Production.Instruction
-                                .ProvideRequest.Create(message: new FItemStatus(requestItem.Key, ElementStatus.Finished, 1)
+                agent.Set(REQUEST_ITEM, requestItem.SetProvided.UpdateFinishedAt(agent.CurrentTime));
+                if (requestItem.IsHeadDemand)
+                {
+                    agent.Send(Contract.Instruction
+                                       .Finish.Create(requestItem
+                                                    , agent.VirtualParent
+                                                    , false));
+                } else { 
+                    agent.Send(Production.Instruction
+                                         .ProvideRequest
+                                         .Create(message: new FItemStatus(requestItem.Key
+                                                                        , ElementStatus.Finished, 1)
                                                 , target: agent.VirtualParent));
+                }
                 return;
             }
 
@@ -100,6 +110,7 @@ namespace Master40.SimulationCore.Agents
                                  , waitFor: requestItem.DueTime - agent.CurrentTime);
                 }
             }
+            agent.Set(REQUEST_ITEM, requestItem);
             // Not in Stock and Not ToBuild Agent has to Wait for Stock To Provide Materials
         }
 
@@ -147,12 +158,13 @@ namespace Master40.SimulationCore.Agents
         private void RequestProvided(Dispo agent, FRequestItem requestItem)
         {
             agent.DebugMessage("Request Provided from " + agent.Sender);
-            requestItem = requestItem.SetProvided;
-            agent.Set(REQUEST_ITEM, requestItem.SetProvided);
+            requestItem = requestItem.SetProvided.UpdateFinishedAt(agent.CurrentTime);
+            
+            agent.Set(REQUEST_ITEM, requestItem);
 
             if (requestItem.IsHeadDemand)
             {
-                agent.Send(Contract.Instruction.Finish.Create(requestItem, agent.VirtualParent));
+                agent.Send(Contract.Instruction.Finish.Create(requestItem, agent.VirtualParent, false));
             }
             else
             {
@@ -170,7 +182,7 @@ namespace Master40.SimulationCore.Agents
             agent.Send(Storage.Instruction
                               .WithdrawlMaterial
                               .Create(message: requestItem.StockExchangeId
-                                                       , target: stockAgent));
+                                     , target: stockAgent));
             agent.ShutdownAgent();
         }
     }

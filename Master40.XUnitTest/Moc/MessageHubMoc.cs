@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using Master40.DB.Data.Helper;
-using Master40.DB.Enums;
+﻿using Master40.DB.Enums;
 using Master40.MessageSystem.Messages;
 using Master40.MessageSystem.SignalR;
+using System.Diagnostics;
 
 namespace Master40.XUnitTest.Moc
 {
@@ -16,6 +15,11 @@ namespace Master40.XUnitTest.Moc
         public void SendToAllClients(string msg, MessageType msgType)
         {
             Debug.WriteLine(msg);
+        }
+
+        public void SendToClient(string listener, string msg, MessageType msgType)
+        {
+            Debug.WriteLine(msg, listener);
         }
 
         public string ReturnMsgBox(string msg, MessageType type)

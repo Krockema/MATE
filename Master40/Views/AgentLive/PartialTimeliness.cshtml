@@ -1,0 +1,63 @@
+﻿@{ 
+}
+
+<div style="float:left; margin-top: 5px; margin-bottom: 5px;">
+    <div class="chartContainer">
+        <div class="chartLayerTimeliness" style="margin-top: 20px">
+
+            <!--div id="js-legend" class="chart-legend"><div-->
+
+            <canvas id="TimelinessElement" height="280" width="200"></canvas>
+        </div>
+    </div>
+</div>
+    <style>
+        Timeliness > canvas {
+            width: 200px;
+            height: 300px;
+        }
+    </style>
+    <script>
+        var TimelinessElement = document.getElementById("TimelinessElement");
+        var TimelinessChart = new Chart(TimelinessElement, {
+            "type": "bar"
+            , "data": {
+                "datasets": [{
+                    "type": "bar"
+                    , "backgroundColor": ["rgba(0, 0, 0, 0.0)"]
+                    , "data": [0.0]
+                }
+                , {
+                "type": "bar"
+                    , "backgroundColor": ["rgba(125, 180, 86, 0.6)"]
+                    , "data": [95.0] }
+                , {
+                    "type": "bar"
+                    , "backgroundColor": ["rgba(227, 76, 87, 0.6)"]
+                    , "data": [5.0]
+                }],// "labels": ["Timeliness"]
+            }, "options": {
+                "responsive": true, "maintainAspectRatio": false, "legend": { "display": false }
+                , "scales": {
+                    "yAxes": [{
+                        "type": "linear", "id": "first-x-axis"
+                        , "scaleLabel": { "display": true, "labelString": "Timeliness", "fontSize": 12 }
+                        , "ticks": { "max": 100.0, "display": true }
+                        , "display": true, "stacked": true
+                    }], "xAxes": [{ "display": true, "stacked": true }]
+                }
+            }
+        }
+        );;
+
+        processingProxy.on("Timeliness", function (msg) {
+            console.log("Timeliness :" + msg);
+
+            TimelinessChart.data.datasets[1].data = [msg];
+            TimelinessChart.data.datasets[2].data = [100 - msg];
+            TimelinessChart.update();
+        });
+    </script>
+
+
+

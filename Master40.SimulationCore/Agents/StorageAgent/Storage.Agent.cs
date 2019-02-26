@@ -63,7 +63,7 @@ namespace Master40.SimulationCore.Agents
                 stockElement.Current -= request.Quantity;
             }
 
-            var stockReservation = new FStockReservation(quantity, purchaseOpen, inStock, request.DueTime);
+            var stockReservation = new FStockReservation(quantity, purchaseOpen, inStock, request.DueTime, request.StockExchangeId);
 
 
             //Create Reservation
@@ -109,7 +109,7 @@ namespace Master40.SimulationCore.Agents
         {
             var pub = new UpdateStockValues(article.Name
                                             , value
-                                            , article.ToPurchase ? "Raw" : "Product");
+                                            , article.ArticleType.Name);
             agent.Context.System.EventStream.Publish(pub);
         }
     }

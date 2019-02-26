@@ -1,8 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim;
+using Master40.DB.Data.Context;
 using Master40.MessageSystem.SignalR;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +12,8 @@ namespace Master40.SimulationCore.Agents
     {
         internal long Time => this._Time;
         private ICollectorBehaviour Behaviour;
-
+        internal IMessageHub messageHub { get; }
+        internal MasterDBContext DBContext;
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -23,6 +24,7 @@ namespace Master40.SimulationCore.Agents
         public Collector(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
+            , MasterDBContext dBContext
             , long time
             , bool debug
             , List<Type> streamTypes)
@@ -30,16 +32,19 @@ namespace Master40.SimulationCore.Agents
         {
             Console.WriteLine("I'm alive: " + Self.Path.ToStringWithAddress());
             Behaviour = collectorBehaviour;
+            messageHub = msgHub;
+            DBContext = dBContext;
         }
 
         public static Props Props(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
+            , MasterDBContext dBContext
             , long time
             , bool debug
             , List<Type> streamTypes)
         {
-            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, time, debug, streamTypes));
+            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, time, debug, streamTypes));
         }
 
         protected override void EventHandle(object o)

@@ -75,6 +75,11 @@ namespace Master40.DB.Data.Context
                 .WithMany(m => m.ProductionOrderWorkSchedules)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<WorkSchedule>()
+                .HasOne(m => m.MachineTool)
+                .WithMany(m => m.WorkSchedules)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<DemandToProvider>()
                 .HasOne(d => d.DemandRequester)
                 .WithMany(r => r.DemandProvider)

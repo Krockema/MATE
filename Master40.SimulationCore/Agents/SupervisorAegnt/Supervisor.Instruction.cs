@@ -43,7 +43,7 @@ namespace Master40.SimulationCore.Agents
                 {
                     return new OrderProvided(message, target);
                 }
-                private OrderProvided(object message, IActorRef target) : base(message, target)
+                private OrderProvided(object message, IActorRef target) : base(message, target, true)
                 {
                 }
             }

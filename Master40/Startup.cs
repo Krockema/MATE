@@ -16,7 +16,7 @@ using Master40.DB.Data.Initializer;
 using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 using Swashbuckle.AspNetCore.Swagger;
-using Microsoft.AspNetCore.Mvc;
+using Master40.BusinessLogicCentral.Simulator;
 
 namespace Master40
 {
@@ -65,6 +65,7 @@ namespace Master40
             //services.AddSingleton<IProcessMrp, ProcessMrpSim>();
             services.AddSingleton<IRebuildNets, RebuildNets>();
             services.AddSingleton<AgentSimulator>();
+            services.AddSingleton<AgentCore>();
             // services.AddSingleton<Client>();
 
             // Register the Swagger generator, defining one or more Swagger documents

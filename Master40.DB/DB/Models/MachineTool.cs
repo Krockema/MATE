@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Master40.DB.Models
 {
@@ -9,6 +10,8 @@ namespace Master40.DB.Models
         public string Name { get; set; }
         [JsonIgnore]
         public Machine Machine { get; set; }
+
+        public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
         public int SetupTime { get; set; }
         public string Discription { get; set; }
     }

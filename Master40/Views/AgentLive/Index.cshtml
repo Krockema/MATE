@@ -1,0 +1,211 @@
+@model IEnumerable<Master40.DB.Models.Machine>
+
+@{
+    ViewBag.Title = "Agent Basic";
+
+    Layout = "_Layout";
+}
+
+<style>
+</style>
+<script>
+    const processingProxy = new signalR.HubConnectionBuilder()
+        .withUrl("/MessageHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+</script>
+
+<div class="container-fluid">
+    <div class="row">
+         <div class="col-md-9 col-sm-9">
+            <div class="container-fluid">
+                <div class="row">
+                    <h2>Agent System</h2>
+                    <div class="col-md-10 col-sm-10">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    Machine Workload
+                                </h4>
+                            </div>
+                            <div style="text-align: center">
+                                @foreach (var section in Model)
+                                {
+                                    @await Html.PartialAsync("~/Views/AgentLive/PartialMachine.cshtml", section)
+                                }
+                            </div>
+                            <div>
+                                @await Html.PartialAsync("~/Views/AgentLive/PartialTotalWorkLoad.cshtml")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-2">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    Timeliness
+                                </h4>
+                            </div>
+                            <div>
+                                @await Html.PartialAsync("~/Views/AgentLive/PartialTimeliness.cshtml")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    Work in Progress
+                                </h4>
+                            </div>
+                            <div style="text-align: center">
+                                @await Html.PartialAsync("~/Views/AgentLive/PartialContract.cshtml")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    Throughput Times
+                                </h4>
+                                <div style="text-align: center">
+                                    @await Html.PartialAsync("~/Views/AgentLive/PartialThroughput.cshtml")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                Storage Value in Euro
+                            </h4>
+                            <div style="text-align: center">
+                                @await Html.PartialAsync("~/Views/AgentLive/PartialStock.cshtml")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-3">
+            <div class="container-fluid">
+                <div class="row">
+                        <h2>Control Panel </h2>
+                        <p>
+                            Container to Release the Force
+                        </p>
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Processing Options</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <p><a class="btn btn-default btn-block" href="#" onclick="startAgents()">Run All</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">For Debugging Only</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p><a class="btn btn-default btn-block" href="~/AgentSimulation/Run">Start Agents</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    <h2>Messages</h2>
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse2" data-parent="#accordion">Messages</a>
+                                </h4>
+                            </div>
+                            <div id="collapse2" class="panel-collapse collapse in">
+                                <div id="" class="MessageDisplay" style="max-height: 600px;overflow: auto;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    processingProxy.on("clientListener", function (msg) {
+        if (msg == "ProcessingComplete") {
+            $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+        } else if (msg == "SignalReady") {
+            $('#ajax-busy').hide();
+        } else if (msg == "ProcessingUpdate" || msg == "MrpProcessingComplete") {
+            // do nothing
+        } else {
+            $(".MessageDisplay").prepend(msg);
+            $(".MessageDisplayRunning").prepend(msg);
+        }
+    });
+
+    // Processing Hub is loaded
+    processingProxy.start()
+        .then(function () { processingProxy.invoke('SystemReady') })
+        .catch(err => console.error(err.toString()));
+
+
+    // Start Agents
+    function startAgents() {
+        $(".MessageDisplayRunning").html("");
+        //$('#ajax-busy').show();
+        $.get("AgentLive/RunAsync");
+    }
+
+    $(document).ready(function () {
+        // Block Interactions
+        $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing System</div>');
+        //$('#ajax-busy').show();
+        // make make use of full size and hide overflow
+        $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
+    });
+
+    function loadCharts(machine) {
+        $.ajax({
+            url: "AgentSimulation/MachineWorkload/" + machine,
+            async: true,
+            context: document.body,
+            beforeSend: function () {
+                $('#ajax-busy').show();
+            },
+            success: function (msg) {
+                $(".MessageDisplayRunning").html("");
+                $('#ajax-busy').hide();
+            },
+            error: function () {
+                $(document).ajaxError(function (xhr, ajaxOptions, thrownError) {
+                    alert('status: ' +
+                        ajaxOptions.status +
+                        '-' +
+                        ajaxOptions.statusText +
+                        ' \n' +
+                        'error:\n' +
+                        ajaxOptions.responseText);
+                });
+            }
+        }).done(function (data) {
+            $('#mwl_' + machine.replace(" ", "")).html(data);
+        });
+    }
+</script>

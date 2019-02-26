@@ -55,6 +55,7 @@ namespace Master40.SimulationCore.MessageTypes
                 , providable: 0
                 , provided: false
                 , providerList: new List<IActorRef>()
+                , finishedAt: 0
             );
         }
 
@@ -74,6 +75,7 @@ namespace Master40.SimulationCore.MessageTypes
                 , providable: 0
                 , provided: false
                 , providerList: new List<IActorRef>()
+                , finishedAt: 0
             );
         }
     }

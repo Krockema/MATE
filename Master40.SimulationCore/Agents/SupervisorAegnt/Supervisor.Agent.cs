@@ -88,7 +88,7 @@ namespace Master40.SimulationCore.Agents
         protected override void OnChildAdd(IActorRef childRef)
         {
             VirtualChilds.Add(childRef, ElementStatus.Created);
-            Send(Contract.Instruction.StartOrder.Create(_orderQueue.Dequeue(), childRef));
+            Send(Contract.Instruction.StartOrder.Create(_orderQueue.Dequeue(), childRef, true));
         }
 
         private void RequestArticleBom(FRequestItem requestItem)
@@ -132,7 +132,6 @@ namespace Master40.SimulationCore.Agents
             order.FinishingTime = (int)this.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
-            _messageHub.SendToAllClients("Oder No:" + order.Id + " finished at " + TimePeriod);
             _messageHub.ProcessingUpdate(_simConfig.Id, ++orderCount, SimulationType.Decentral, _simConfig.OrderQuantity);
         }
 

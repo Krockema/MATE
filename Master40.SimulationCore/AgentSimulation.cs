@@ -28,6 +28,8 @@ namespace Master40.SimulationCore
         public ActorPaths ActorPaths { get; private set; }
         public IActorRef WorkCollector { get; private set; }
         public IActorRef StorageCollector { get; private set; }
+        public IActorRef ContractCollector { get; private set; }
+
 
         /// <summary>
         /// Prepare Simulation Environment
@@ -41,7 +43,7 @@ namespace Master40.SimulationCore
         }
         public Task<AkkaSim.Simulation> InitializeSimulation(SimulationConfiguration simConfig, SimulationConfig contextConfig)
         {
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 OrderGenerator.GenerateOrdersSyncron(_DBContext, simConfig, 1); // .RunSynchronously();
                 _messageHub.SendToAllClients("Initializing Simulation...");
@@ -52,17 +54,24 @@ namespace Master40.SimulationCore
                 ActorPaths = new ActorPaths(_simulation.SimulationContext, contextConfig.Inbox.Receiver);
                 // Create DataCollector
                 WorkCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsWorkSchedule.Get()
-                                                        , null, 0, false
+                                                        , _messageHub, _DBContext, 0, false
                                                         , new List<System.Type> { typeof(CreateSimulationWork),
                                                                                   typeof(UpdateSimulationWork),
                                                                                   typeof(UpdateSimulationWorkProvider),
                                                                                   typeof(UpdateLiveFeed)}));
                 StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
-                                                        , null, 0, false
+                                                        , _messageHub, _DBContext, 0, false
                                                         , new List<System.Type> { typeof(UpdateStockValues),
                                                                                   typeof(UpdateLiveFeed)}));
-            // Create Guardians and Inject Childcreators
-            var contractGuard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "ContractGuard");
+                ContractCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsContracts.Get()
+                                                        , _messageHub, _DBContext, 0, false
+                                                        , new List<System.Type> { typeof(Contract.Instruction.StartOrder),
+                                                                                  typeof(Supervisor.Instruction.OrderProvided),
+                                                                                  typeof(UpdateStockValues),
+                                                                                  typeof(UpdateLiveFeed)}));
+
+                // Create Guardians and Inject Childcreators
+                var contractGuard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "ContractGuard");
                 var contractBehaveiour = GuardianBehaviour.Get(CreatorOptions.ContractCreator);
                 _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(contractGuard, contractBehaveiour));
 
@@ -79,11 +88,11 @@ namespace Master40.SimulationCore
                 ActorPaths.AddGuardian(GuardianType.Production, productionGuard);
 
                 // #1.2 Setup DeadLetter Monitor for Debugging
-                var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
-                var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
+                //var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
+                //var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
 
                 // subscribe to the event stream for messages of type "DeadLetter"
-                _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
+                // _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
 
                 // #2 Create System Agent
                 ActorPaths.SetSystemAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, simConfig, ActorRefs.Nobody), "Supervisor"));
@@ -110,7 +119,8 @@ namespace Master40.SimulationCore
                 foreach (var stock in _DBContext.Stocks
                                                 .Include(x => x.StockExchanges)
                                                 .Include(x => x.Article).ThenInclude(x => x.ArticleToBusinessPartners)
-                                                                        .ThenInclude(x => x.BusinessPartner).AsNoTracking())
+                                                                        .ThenInclude(x => x.BusinessPartner).AsNoTracking()
+                                                .Include(x => x.Article).ThenInclude(x => x.ArticleType))
                 {
                     _simulation.SimulationContext.Tell(Directory.Instruction
                                                                 .CreateStorageAgents
@@ -142,13 +152,18 @@ namespace Master40.SimulationCore
                     System.Diagnostics.Debug.WriteLine("AKKA:STOP AGENT SYSTEM", "AKKA-System:");
                     foreach (var item in collectors)
                     {
-                        var waitFor = item.Ask(UpdateLiveFeed.Create(true, inbox.Receiver),System.TimeSpan.FromHours(1)).Result;
+                        var waitFor = item.Ask(UpdateLiveFeed.Create(false, inbox.Receiver),System.TimeSpan.FromHours(1)).Result;
                     }
                     sim.Continue();
                     Continuation(inbox, sim, collectors);
                     break;
                 case SimulationMessage.SimulationState.Finished:
+
                     System.Diagnostics.Debug.WriteLine("SHUTDOWN AGENT SYSTEM", "AKKA-System:");
+                    foreach (var item in collectors)
+                    {
+                        var waitFor = item.Ask(UpdateLiveFeed.Create(true, inbox.Receiver), System.TimeSpan.FromHours(1)).Result;
+                    }
                     sim.ActorSystem.Terminate();
                     break;
                 default:

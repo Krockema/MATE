@@ -11,6 +11,7 @@ using static Master40.SimulationCore.Agents.Collector.Instruction;
 using Newtonsoft.Json;
 using System.Reflection;
 using Master40.DB.Data.Helper;
+using Akka.Util.Internal;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -36,27 +37,32 @@ namespace Master40.SimulationCore.Agents
                 case CreateSimulationWork m: CreateSimulationWorkSchedule((Collector)simulationMonitor,m); break;
                 case UpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
                 case UpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
-                case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
+                case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void Collect(Collector agent, object message)
+        private void UpdateFeed(Collector agent, bool logToDB)
         {
-            //agent.ActorPaths.
-        }
-
-        private void UpdateFeed(Collector agent)
-        {
+            // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
+            // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             MachineUtilisation(agent);
-            ThroughPut();
+            ThroughPut(agent);
             lastIntervalStart = agent.Time;
+            if (logToDB)
+            {
+                
+                agent.DBContext.SimulationWorkschedules.AddRange(simulationWorkschedules);
+                agent.DBContext.SaveChanges();
+            }
             agent.Context.Sender.Tell(true, agent.Context.Self);
+
         }
 
-        private void ThroughPut()
+        private void ThroughPut(Collector agent)
         {
+            
             var art = from a in simulationWorkschedules
                       where a.ParentId == "[]"
                           && a.CreatedForOrderId != null
@@ -81,10 +87,8 @@ namespace Master40.SimulationCore.Agents
                    join l in leadTime on a.Order equals l.OrderID
                    select new
                    {
-                       a.Article
-                        ,
-                       a.Order
-                        ,
+                       a.Article,
+                       a.Order,
                        l.Dlz
                    };
 
@@ -93,29 +97,39 @@ namespace Master40.SimulationCore.Agents
                         select new
                         {
                             agregat.Key,
-                            DLZ = agregat.Average(x => x.Dlz),
-                            Min = agregat.Min(x => x.Dlz),
-                            Max = agregat.Max(x => x.Dlz)
+                            List = agregat.Select(x => x.Dlz).ToList()
                         };
 
             foreach (var item in group)
             {
-                Debug.WriteLine("Article : " + item.Key + " DLZ (min/avg/max) => " + item.Min + "/" + item.DLZ + "/" + item.Max + ")");
+                var thoughput = JsonConvert.SerializeObject(new { group });
+                agent.messageHub.SendToClient("Throughput",  thoughput);
             }
+
+            var v2 = simulationWorkschedules.Where(a => (a.Article == "Dump-Truck"
+                                                   || a.Article == "Race-Truck")
+                                                   && a.HierarchyNumber == 20
+                                                   && a.End == 0)
+                                                ;
+            agent.messageHub.SendToClient("ContractsV2", JsonConvert.SerializeObject(new { Time = agent.Time, Processing = v2.Count().ToString() }));
+
+
+
         }
 
         private void MachineUtilisation(Collector agent)
         {
             double divisor = agent.Time - lastIntervalStart;
-            Debug.WriteLine("(" + agent.Time + ") Update Feed from DataCollection", "Collector.Work");
-            Debug.WriteLine("(" + agent.Time + ") Time since last Update: " + divisor + " ", "Collector.Work");
+            agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from DataCollection");
+            agent.messageHub.SendToAllClients("(" + agent.Time + ") Time since last Update: " + divisor + "min");
 
-            simulationWorkschedules.WriteCSV( @"C:\Users\mtko\source\output.csv");
+            //simulationWorkschedules.WriteCSV( @"C:\Users\mtko\source\output.csv");
 
 
             var lower_borders = from sw in simulationWorkschedules
                                 where sw.Start < lastIntervalStart
                                    && sw.End > lastIntervalStart
+                                   && sw.Machine != null
                                 select new
                                 {
                                     M = sw.Machine,
@@ -126,6 +140,7 @@ namespace Master40.SimulationCore.Agents
             var upper_borders = from sw in simulationWorkschedules
                                 where sw.Start < agent.Time
                                    && sw.End > agent.Time
+                                   && sw.Machine != null
                                 select new
                                 {
                                     M = sw.Machine,
@@ -137,6 +152,7 @@ namespace Master40.SimulationCore.Agents
             var from_work = from sw in simulationWorkschedules
                             where sw.Start >= lastIntervalStart 
                                && sw.End <= agent.Time
+                               && sw.Machine != null
                             group sw by sw.Machine into mg
                             select new
                             {
@@ -159,11 +175,17 @@ namespace Master40.SimulationCore.Agents
             foreach (var item in final.OrderBy(x => x.M))
             {
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "work");
+                agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", "") , Math.Round(item.W / divisor, 3).ToString().Replace(",","."));
             }
 
-
-            //  Kontrolle
+            var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString().Replace(",", ".");
+            if (totalLoad == "NaN")
+            {
+                totalLoad = "0";
+            }
+            agent.messageHub.SendToClient("TotalWork", JsonConvert.SerializeObject(new { Time = agent.Time, Load = totalLoad }));
+            
+            // Kontrolle
             var from_work2 = from sw in tuples
                              group sw by sw.Item1 into mg
                              select new

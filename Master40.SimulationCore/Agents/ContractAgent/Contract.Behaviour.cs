@@ -60,7 +60,9 @@ namespace Master40.SimulationCore.Agents
         {
             agent.DebugMessage("Dispo Said Done.");
             var localItem = agent.Get<FRequestItem>(REQUEST_ITEM);
+            item = item.UpdateFinishedAt(agent.CurrentTime);
             agent.Set(REQUEST_ITEM, item);
+            
             // try to Finish if time has come
             if (agent.CurrentTime >= item.DueTime)
             {

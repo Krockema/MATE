@@ -54,6 +54,5 @@ namespace Master40.BusinessLogicCentral.MRP
             _messageHub.EndScheduler();
         }
 
-
     }
 }

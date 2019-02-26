@@ -11,26 +11,26 @@ namespace Master40.SimulationCore.Agents
         public class Instruction { 
             public class StartOrder : SimulationMessage
             {
-                private StartOrder(object message, IActorRef target, Priority priority = Priority.Medium) : base(message, target, false, priority)
+                private StartOrder(object message, IActorRef target, bool logThis, Priority priority = Priority.Medium) : base(message, target, logThis, priority)
                 {
                 }
 
-                public static ISimulationMessage Create(OrderPart message, IActorRef target)
+                public static ISimulationMessage Create(OrderPart message, IActorRef target, bool logThis = false)
                 {
-                    return new StartOrder(message, target);
+                    return new StartOrder(message, target, logThis);
                 }
                 public OrderPart GetObjectFromMessage { get => Message as OrderPart; }
             }
 
             public class Finish : SimulationMessage
             {
-                private Finish(object message, IActorRef target, Priority priority = Priority.Medium) : base(message, target, false, priority)
+                private Finish(object message, IActorRef target, bool logThis, Priority priority = Priority.Medium) : base(message, target, logThis, priority)
                 {
                 }
 
-                public static ISimulationMessage Create(FRequestItem requestItem, IActorRef target)
+                public static ISimulationMessage Create(FRequestItem requestItem, IActorRef target, bool logThis)
                 {
-                    return new Finish(requestItem, target);
+                    return new Finish(requestItem, target, logThis);
                 }
                 public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
 

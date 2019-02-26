@@ -18,6 +18,12 @@ namespace Master40.XUnitTest.Agents
         ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                                                             .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                             .Options);
+
+        ProductionDomainContext _masterDBContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+            .Options);
+
+
         public SimulationSystem()
         {
             _ctx.Database.EnsureDeleted();
@@ -32,7 +38,7 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
-            var simContext = new AgentSimulation(false, _ctx, new Moc.MessageHub());
+            var simContext = new AgentSimulation(true, _ctx, new Moc.MessageHub());
             var simConfig = ContextTest.TestConfiguration();
             // simConfig.OrderQuantity = 0;
             var simModelConfig = new SimulationConfig(false, 480);
@@ -56,6 +62,13 @@ namespace Master40.XUnitTest.Agents
             }
             
             Assert.True(simWasReady);
+        }
+
+        [Fact]
+        public async Task MachineUtil()
+        {
+            var simConfig = _masterDBContext.SimulationConfigurations.Single(x => x.Id == 1);
+            Tools.Simulation.CalculateKpis.MachineSattleTime(_masterDBContext, simConfig, DB.Enums.SimulationType.Decentral, 0);
         }
     }
 }

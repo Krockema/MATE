@@ -25,10 +25,12 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             OrderId : int
             Providable : int 
             Provided : bool
-            IsHeadDemand : bool } 
+            IsHeadDemand : bool 
+            FinishedAt : int64 } 
             interface IKey with 
                 member this.Key with get() = this.Key
         
+            member this.UpdateFinishedAt f = { this with FinishedAt = f }
             member this.UpdateOriginRequester r = { this with OriginRequester = r }
             member this.UpdateDispoRequester r = { this with DispoRequester = r }
             member this.UpdateOrderAndDue id due storage = { this with OrderId = id; DueTime = due; StorageAgent = storage }
@@ -69,6 +71,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             IsPurchsed : bool
             IsInStock : bool
             DueTime : int64
+            TrackingId : Guid
         }
        
     type public FHubInformation = 
@@ -154,7 +157,6 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         NewValue : double
         ArticleType : string
     }
-    
     // let Priority (wi:WorkItem) currentTime = wi.PrioRule(currentTime)
     //
     //type WorkItem with member this.Prio = priorityCall this

@@ -4,6 +4,7 @@ using Master40.SimulationImmutables;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using static Master40.SimulationCore.Agents.Collector.Instruction;
 
 namespace Master40.SimulationCore.Agents
@@ -11,9 +12,9 @@ namespace Master40.SimulationCore.Agents
     public class CollectorAnalyticsStorage : Behaviour, ICollectorBehaviour
     {
         private CollectorAnalyticsStorage() : base() {
-            CurrentStockValues = new Dictionary<string, double>();
+            CurrentStockValues = new Dictionary<string, UpdateStockValues>();
         }
-        private Dictionary<string, double> CurrentStockValues;
+        private Dictionary<string, UpdateStockValues> CurrentStockValues;
         private long lastIntervalStart = 0;
 
 
@@ -37,11 +38,27 @@ namespace Master40.SimulationCore.Agents
 
         private void UpdateFeed(Collector agent)
         {
-            Debug.WriteLine("(" + agent.Time + ") Update Feed from Storage", "Collector.Storage");
-            foreach (var item in CurrentStockValues)
+            
+            agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from Storage");
+            var groupedByType = from sw in CurrentStockValues
+                                group sw by sw.Value.ArticleType into grouped
+                                select new
+                                {
+                                    GroupName = grouped.Key,
+                                    Value = grouped.Sum(x => x.Value.NewValue),
+                                    Time = agent.Time
+                                };
+
+            foreach (var item in groupedByType)
             {
-                Debug.WriteLine(item.Key + ": " + item.Value, "Collector.Storage");
+                agent.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
             }
+
+
+            // foreach (var item in CurrentStockValues)
+            // {
+            //     agent.messageHub.SendToAllClients(item.Key + ": " + item.Value.NewValue);
+            // }
 
 
             lastIntervalStart = agent.Time;
@@ -54,7 +71,7 @@ namespace Master40.SimulationCore.Agents
             if (CurrentStockValues.ContainsKey(values.StockName))
                 CurrentStockValues.Remove(values.StockName);
 
-            CurrentStockValues.Add(values.StockName, values.NewValue);
+            CurrentStockValues.Add(values.StockName, values);
         }
     }
 }
