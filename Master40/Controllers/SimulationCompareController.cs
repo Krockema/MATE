@@ -1,15 +1,7 @@
-﻿using System;
+﻿using Master40.DB.Data.Context;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Hangfire;
-using Master40.BusinessLogicCentral.MRP;
-using Master40.DB.Data.Context;
-using Master40.DB.Enums;
-using Master40.MessageSystem.MessageReciever;
-using Master40.MessageSystem.SignalR;
-using Master40.Simulation.Simulation;
 
 namespace Master40.Controllers
 {

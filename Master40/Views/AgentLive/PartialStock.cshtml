@@ -116,7 +116,7 @@
             });
 
         processingProxy.on("Storage", function (msg) {
-            console.log("Storage : " + msg);
+            // console.log("Storage : " + msg);
             var serialized = JSON.parse(msg);
 
             switch (serialized.GroupName) {

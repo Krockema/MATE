@@ -17,11 +17,11 @@ namespace Master40.Tools.Simulation
         {
             return Task.Run(() =>
             {
-                GenerateOrdersSyncron(context, simConfig, simulationNumber);
+                GenerateOrdersSyncron(context, simConfig, simulationNumber, false);
             });
         }
 
-        public static bool GenerateOrdersSyncron(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber)
+        public static bool GenerateOrdersSyncron(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber, bool debug)
         {
             var time = 0;
             var samples = simConfig.OrderQuantity;
@@ -52,6 +52,8 @@ namespace Master40.Tools.Simulation
                 var productId = productIds.ElementAt(prodVariation[i]);
 
                 //create order and orderpart, duetime is creationtime + 1 day
+
+                System.Diagnostics.Debug.WriteLineIf(debug, "Product(" + productId + ")" + ";" + time + ";" + (time + duetime[i]));
                 context.Orders.Add(context.CreateNewOrder(productId, 1, time, time + duetime[i]));
             }
             context.SaveChanges();

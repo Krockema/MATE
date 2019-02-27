@@ -89,13 +89,13 @@ namespace Master40.SimulationCore.Agents
 
         public void FinishWorkItem(Hub agent, FWorkItem workItem)
         {
-            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
-
-
             if (workItem == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
+
+            var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
+
             agent.DebugMessage("Machine called " + workItem.WorkSchedule.Name + " finished.");
             agent.Send(Production.Instruction.FinishWorkItem.Create(workItem, workItem.ProductionAgent));
             workItemQueue.Remove(workItemQueue.Find(x => x.Key == workItem.Key));

@@ -134,7 +134,6 @@ namespace Master40.SimulationCore.Agents
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
-            var itemsInProgress = agent.Get<bool>(ITEMS_IN_PROGRESS);
             var Queue = agent.Get<List<FWorkItem>>(QUEUE);
 
             // Set next Ready Element from Queue

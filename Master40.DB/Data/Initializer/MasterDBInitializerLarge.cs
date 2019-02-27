@@ -45,9 +45,9 @@ namespace Master40.DB.Data.Initializer
             
             var machines = new Machine[] {
                 new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
+                //new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
                 new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills },
-                new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
+                //new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
                 new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit}
             };
             context.Machines.AddRange(machines);

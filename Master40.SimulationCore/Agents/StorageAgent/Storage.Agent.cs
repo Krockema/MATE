@@ -4,7 +4,6 @@ using Master40.DB.Models;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationImmutables;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Master40.SimulationCore.Agents
@@ -45,28 +44,27 @@ namespace Master40.SimulationCore.Agents
                                             x.ExchangeType == ExchangeType.Withdrawal)
                                 .Sum(x => x.Quantity);
             // Element is NOT in Stock
-            // Create Order if Required.
+            // Create Purchase if Required.
             var purchaseOpen = stockElement.StockExchanges
                 .Any(x => x.State != State.Finished && x.ExchangeType == ExchangeType.Insert);
-            var min = ((stockElement.Current - withdrawl - request.Quantity) < stockElement.Min);
-            if (min && stockElement.Article.ToPurchase && !purchaseOpen)
+            var required = ((stockElement.Current - withdrawl - request.Quantity));
+            if (required < stockElement.Min && stockElement.Article.ToPurchase && !purchaseOpen)
             {
                 CreatePurchase(agent, stockElement);
                 purchaseOpen = true;
                 agent.DebugMessage(" Created purchase for " + stockElement.Article.Name);
             }
 
-            if ((stockElement.Current - withdrawl - request.Quantity) > 0)
+            // Create Reservation Item
+            if (required > 0)
             {
                 inStock = true;
                 quantity = request.Quantity;
                 stockElement.Current -= request.Quantity;
             }
-
             var stockReservation = new FStockReservation(quantity, purchaseOpen, inStock, request.DueTime, request.StockExchangeId);
 
-
-            //Create Reservation
+            //Create Stockexchange for Reservation
             stockElement.StockExchanges.Add(
                 new StockExchange
                 {

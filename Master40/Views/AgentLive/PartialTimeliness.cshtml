@@ -2,19 +2,26 @@
 }
 
 <div style="float:left; margin-top: 5px; margin-bottom: 5px;">
-    <div class="chartContainer">
+    <div class="chartContainerTimeliness">
         <div class="chartLayerTimeliness" style="margin-top: 20px">
 
             <!--div id="js-legend" class="chart-legend"><div-->
 
-            <canvas id="TimelinessElement" height="280" width="200"></canvas>
+            <canvas id="TimelinessElement" height="250" width="200"></canvas>
         </div>
     </div>
 </div>
     <style>
         Timeliness > canvas {
+            width: 250px;
+            height: 250px;
+        }
+        chartContainerTimeliness {
+            position: relative;
             width: 200px;
-            height: 300px;
+            margin-left: 20px;
+            margin-right: 20px;
+            height: 250px;
         }
     </style>
     <script>
@@ -22,20 +29,24 @@
         var TimelinessChart = new Chart(TimelinessElement, {
             "type": "bar"
             , "data": {
-                "datasets": [{
+                "datasets": [
+                //{
+                //    "type": "bar"
+                //    , "backgroundColor": ["rgba(0, 0, 0, 0.0)"]
+                //    , "data": [0.0]
+                //}
+                //,
+                {
                     "type": "bar"
-                    , "backgroundColor": ["rgba(0, 0, 0, 0.0)"]
-                    , "data": [0.0]
-                }
-                , {
-                "type": "bar"
+                    , "label" : "in time"
                     , "backgroundColor": ["rgba(125, 180, 86, 0.6)"]
                     , "data": [95.0] }
                 , {
                     "type": "bar"
+                    ,"label": "to late"
                     , "backgroundColor": ["rgba(227, 76, 87, 0.6)"]
                     , "data": [5.0]
-                }],// "labels": ["Timeliness"]
+                }], "labels": ["in time", "to late"]
             }, "options": {
                 "responsive": true, "maintainAspectRatio": false, "legend": { "display": false }
                 , "scales": {
@@ -43,18 +54,18 @@
                         "type": "linear", "id": "first-x-axis"
                         , "scaleLabel": { "display": true, "labelString": "Timeliness", "fontSize": 12 }
                         , "ticks": { "max": 100.0, "display": true }
-                        , "display": true, "stacked": true
-                    }], "xAxes": [{ "display": true, "stacked": true }]
+                        , "display": true, "stacked": false
+                    }], "xAxes": [{ "display": true, "stacked": false }]
                 }
             }
         }
         );;
 
         processingProxy.on("Timeliness", function (msg) {
-            console.log("Timeliness :" + msg);
+            // console.log("Timeliness :" + msg);
 
-            TimelinessChart.data.datasets[1].data = [msg];
-            TimelinessChart.data.datasets[2].data = [100 - msg];
+            TimelinessChart.data.datasets[0].data = [msg];
+            TimelinessChart.data.datasets[1].data = [100 - msg];
             TimelinessChart.update();
         });
     </script>

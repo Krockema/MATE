@@ -25,11 +25,12 @@ namespace Master40.Controllers
             return View(await masterDBContext.ToListAsync());
         }
 
-        [HttpGet("[Controller]/RunAsync")]
-        public async void RunAsync()
+        [HttpGet("[Controller]/RunAsync/{simId}")]
+        public async void RunAsync(int simId)
         {
+            if (simId == 0) return;
             // using Default Test Values.
-            await _agentSimulator.RunAkkaSimulation(1,1);
+            await _agentSimulator.RunAkkaSimulation(simId);
         }
 
         [HttpGet("[Controller]/ReloadGantt/{orderId}/{stateId}")]

@@ -4,6 +4,7 @@ using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.SimulationCore;
+using Master40.Tools.Simulation;
 using Master40.XUnitTest.DBContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -29,16 +30,24 @@ namespace Master40.XUnitTest.Agents
             _ctx.Database.EnsureDeleted();
             _ctx.Database.EnsureCreated();
             //MasterDBInitializerMedium.DbInitialize(_ctx);
-            MasterDBInitializerSmall.DbInitialize(_ctx);
+            // MasterDBInitializerBasic.DbInitialize(_ctx);
+            MasterDBInitializerLarge.DbInitialize(_ctx);
             //_productionDomainContext.Database.EnsureDeleted();
             //_productionDomainContext.Database.EnsureCreated();
             //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
         }
 
         [Fact]
+        public async Task OrderDistribution()
+        {
+            OrderGenerator.GenerateOrdersSyncron(_ctx, ContextTest.TestConfiguration(), 1, true); // .RunSynchronously();
+        }
+
+
+        [Fact]
         public async Task SystemTestAsync()
         {
-            var simContext = new AgentSimulation(true, _ctx, new Moc.MessageHub());
+            var simContext = new AgentSimulation(false, _ctx, new Moc.MessageHub());
             var simConfig = ContextTest.TestConfiguration();
             // simConfig.OrderQuantity = 0;
             var simModelConfig = new SimulationConfig(false, 480);

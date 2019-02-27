@@ -164,7 +164,7 @@ namespace Master40.SimulationCore.Agents
                 }
                 else
                 {
-                    long period = orderpart.Order.DueTime - (10 * 60); // 540
+                    long period = orderpart.Order.DueTime - (960); // 1 Tag un 1 Schich
                     if (period < 0) { period = 0; }
                     Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self)
                            , waitFor: period);

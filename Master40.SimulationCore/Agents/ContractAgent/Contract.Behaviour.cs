@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents
         public void Finish(Contract agent, FRequestItem item)
         {
             agent.DebugMessage("Dispo Said Done.");
-            var localItem = agent.Get<FRequestItem>(REQUEST_ITEM);
+            //var localItem = agent.Get<FRequestItem>(REQUEST_ITEM);
             item = item.UpdateFinishedAt(agent.CurrentTime);
             agent.Set(REQUEST_ITEM, item);
             

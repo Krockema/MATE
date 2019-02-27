@@ -74,7 +74,7 @@
             });
 
         processingProxy.on("TotalWork", function (msg) {
-            console.log("TotalWork : " + msg);
+            // console.log("TotalWork : " + msg);
             var serialized = JSON.parse(msg);
             TotalWorkLoadChart.data.datasets[0].data.push({ x: serialized.Time, y: serialized.Load });
            

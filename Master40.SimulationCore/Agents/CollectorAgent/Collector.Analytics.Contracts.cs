@@ -15,6 +15,7 @@ namespace Master40.SimulationCore.Agents
         private int newOrderParts = 0;
         private int finishedOrderParts = 0;
         private int openOrderParts = 0;
+        private int totalOrders = 0;
 
         private double inTime = 0;
         private double toLate = 0;
@@ -45,16 +46,20 @@ namespace Master40.SimulationCore.Agents
             var message = m.Message as FRequestItem;
             if (message.DueTime >= message.FinishedAt)
             {
-                agent.messageHub.SendToAllClients("Oder No:" + message.OrderId  + " finished in time at " + agent.Time
-                                                , MessageSystem.Messages.MessageType.success);
+                // agent.messageHub.SendToAllClients("Oder No:" + message.OrderId  + " finished in time at " + agent.Time
+                //                                 , MessageSystem.Messages.MessageType.success);
+
+                agent.messageHub.SendToClient("orderListener", totalOrders.ToString());
                 inTime++;
             }else
             {
-                agent.messageHub.SendToAllClients("Oder No:" + message.OrderId + " finished to late at " + agent.Time
-                                                , MessageSystem.Messages.MessageType.warning);
+                // agent.messageHub.SendToAllClients("Oder No:" + message.OrderId + " finished to late at " + agent.Time
+                //                                 , MessageSystem.Messages.MessageType.warning);
                 toLate++;
             }
-
+            openOrderParts--;
+            finishedOrderParts++;
+            totalOrders++;
         }
 
         private void Collect(Collector agent, object message)

@@ -45,9 +45,19 @@ namespace Master40.DB.Data.Initializer
             var machines = new Machine[] {
                 new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
                 new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=1, Name="Saw 3", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=1, Name="Saw 4", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=1, Name="Saw 5", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=1, Name="Saw 6", Count = 1, MachineGroup = cutting },
                 new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills },
+                new Machine{Capacity=1, Name="Drill 2", Count = 1, MachineGroup = drills },
+                new Machine{Capacity=1, Name="Drill 3", Count = 1, MachineGroup = drills },
                 new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
-                new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit}
+                new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=1, Name="AssemblyUnit 3", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=1, Name="AssemblyUnit 4", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=1, Name="AssemblyUnit 5", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=1, Name="AssemblyUnit 6", Count=1, MachineGroup = assemblyUnit}
             };
             context.Machines.AddRange(machines);
             context.SaveChanges();
@@ -299,27 +309,42 @@ namespace Master40.DB.Data.Initializer
             context.ArticleToBusinessPartners.AddRange(artToBusinessPartner);
             context.SaveChanges();
 
-            var simConfig = new SimulationConfiguration
-            {
-                Name = "Test config",
-                Lotsize = 1,
-                MaxCalculationTime = 120, // test  // 10080, // 7 days
-                OrderQuantity = 2,
-                Seed = 1338,
-                ConsecutiveRuns = 1,
-                OrderRate = 0.25, //0.25
-                Time = 0,
-                RecalculationTime = 1440,
-                SimulationEndTime = 120,
-                DecentralRuns = 0,
-                CentralRuns = 0,
-                DynamicKpiTimeSpan = 120,
-                SettlingStart = 0,
-                WorkTimeDeviation = 0
-
+            var simConfig = new SimulationConfiguration[] {
+                                new SimulationConfiguration {
+                                        Name = "Test config",
+                                        Lotsize = 1,
+                                        MaxCalculationTime = 480, // test  // 10080, // 7 days
+                                        OrderQuantity = 550,
+                                        Seed = 1338,
+                                        ConsecutiveRuns = 1,
+                                        OrderRate = 0.25, //0.25
+                                        Time = 0,
+                                        RecalculationTime = 1440,
+                                        SimulationEndTime = 21000,
+                                        DecentralRuns = 0,
+                                        CentralRuns = 0,
+                                        DynamicKpiTimeSpan = 480,
+                                        SettlingStart = 0,
+                                        WorkTimeDeviation = 0 },
+                                new SimulationConfiguration {
+                                        Name = "Test config 2",
+                                        Lotsize = 1,
+                                        MaxCalculationTime = 480, // test  // 10080, // 7 days
+                                        OrderQuantity = 1200,
+                                        Seed = 1338,
+                                        ConsecutiveRuns = 1,
+                                        OrderRate = 0.7, //0.25
+                                        Time = 0,
+                                        RecalculationTime = 1440,
+                                        SimulationEndTime = 21000,
+                                        DecentralRuns = 0,
+                                        CentralRuns = 0,
+                                        DynamicKpiTimeSpan = 480,
+                                        SettlingStart = 0,
+                                        WorkTimeDeviation = 0 },
             };
 
-            context.SimulationConfigurations.Add(simConfig);
+            context.SimulationConfigurations.AddRange(simConfig);
             context.SaveChanges();
 
             // for (int i = 1; i < 30; i++)

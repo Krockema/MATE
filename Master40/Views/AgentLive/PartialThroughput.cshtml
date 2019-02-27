@@ -79,7 +79,7 @@
        
 
         processingProxy.on("Throughput", function (msg) {
-            console.log("Throughput : " + msg);
+            // console.log("Throughput : " + msg);
             var serialized = JSON.parse(msg);
             for (item of serialized.group) {
                 switch (item.Key) {

@@ -14,26 +14,14 @@
 
                 <!--div id="js-legend" class="chart-legend"><div-->
 
-                <canvas id="@name" height="100" width="100"></canvas>
+                <canvas id="@name"></canvas>
             </div>
         </div>
-        <div style="text-align:center;">Machine : @Model.Name</div>
+        <div style="text-align:center;">@Model.Name</div>
 
     </div>
     <style>
-        .chartContainer {
-            position: relative;
-            width: 150px;
-            margin-left: 20px;
-            margin-right: 20px;
 
-            height: 150px;
-        }
-
-        chartLayer > canvas {
-            width: 250px;
-            height: 150px;
-        }
 
         .chartLayer, textLayer {
             position: absolute;
@@ -46,9 +34,7 @@
         .textLayer {
             z-index: -10;
             color: #666;
-            font: bold 20px Helvetica;
             display: flex;
-            padding-top: 80px;
             justify-content: center; /* align horizontal */
             align-items: center; /* align vertical */
         }
@@ -71,7 +57,7 @@
             );
 
         processingProxy.on("@name", function (msg) {
-            console.log("@name :" + msg);
+            // console.log("@name :" + msg);
             msg = msg * 100;
             document.getElementsByClassName("@name")[0].innerHTML = Math.round(msg) + " %";
             

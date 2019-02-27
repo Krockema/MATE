@@ -42,7 +42,7 @@
 
 
         processingProxy.on("Contracts", function (msg) {
-            console.log("Contracts : " + msg);
+            //console.log("Contracts : " + msg);
             var serialized = JSON.parse(msg);
             
             ContractChartCtx.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Input }); 
@@ -52,7 +52,7 @@
             ContractChartCtx.update();
         });
         processingProxy.on("ContractsV2", function (msg) {
-            console.log("Contracts : " + msg);
+            //console.log("Contracts : " + msg);
             var serialized = JSON.parse(msg);
             ContractChartCtx.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Processing });
             ContractChartCtx.update();

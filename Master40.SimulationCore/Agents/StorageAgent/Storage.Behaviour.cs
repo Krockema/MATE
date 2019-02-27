@@ -80,11 +80,11 @@ namespace Master40.SimulationCore.Agents
                 // add to Request queue if not in Stock
                 agent.Get<List<FRequestItem>>(REQUESTED_ITEMS).Add(item);
             }
-            // Create Callback // Probably not required here
+            // Create Callback
             agent.Send(Dispo.Instruction.ResponseFromStock.Create(stockReservation, agent.Sender));
         }
 
-        public void StockRefill(Storage agent,Guid exchangeId)
+        public void StockRefill(Storage agent, Guid exchangeId)
         {
             var stockElement = agent.Get<Stock>(STOCK_ELEMENT);
             // TODO: Retrun Request Itme with id of Stock Exchange
@@ -110,8 +110,11 @@ namespace Master40.SimulationCore.Agents
             foreach (var request in requestedItems.OrderBy(x => x.DueTime).ToList()) // .Where( x => x.DueTime <= Context.TimePeriod))
             {
                 var notServed = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == request.StockExchangeId);
-                if (notServed != null) { notServed.State = State.Finished; notServed.Time = (int)agent.CurrentTime; }
-                else throw new Exception("No StockExchange found");
+                if (notServed == null) throw new Exception("No StockExchange found");
+
+                notServed.State = State.Finished;
+                notServed.Time = (int)agent.CurrentTime; 
+                 
                 agent.Send(Dispo.Instruction.RequestProvided.Create(request, request.DispoRequester));
                 requestedItems.Remove(request);
             }
@@ -190,11 +193,13 @@ namespace Master40.SimulationCore.Agents
             {
                 var providerList = agent.Get<List<IActorRef>>(PROVIDER_LIST);
                 //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
-                var withdrawn = false;
+                
                 if (requestProvidable.IsHeadDemand) {
-                    withdrawn = true;
                     Withdraw(agent, requestProvidable.StockExchangeId, stockElement);
+                } else {
+                     agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
                 }
+
                 if (requestProvidable.ProviderList.Count == 0)
                 {
                     requestProvidable = requestProvidable.UpdateProviderList(new List<IActorRef>(providerList));
@@ -203,11 +208,8 @@ namespace Master40.SimulationCore.Agents
 
                 agent.DebugMessage("------------->> items in STOCK: " + stockElement.Current + " Items Requested " + requestProvidable.Quantity);
                 // Reduce Stock 
-                if (!withdrawn)
-                {
-                    stockElement.Current = stockElement.Current - requestProvidable.Quantity;
-                    agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
-                }
+                stockElement.Current = stockElement.Current - requestProvidable.Quantity;
+                
                 // Remove from Requester List.
                 requestedItems.Remove(requestedItems.Single(x => x.Key == requestProvidable.Key));
 
