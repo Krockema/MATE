@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using MathNet.Numerics.Distributions;
 
 namespace Master40.Tools.Simulation
@@ -26,10 +24,6 @@ namespace Master40.Tools.Simulation
             {
                 newDuration = (int)Math.Round(duration * _distribution.Sample(), MidpointRounding.AwayFromZero);
                 if (newDuration <= 3 * duration) break;
-            }
-            if (duration != newDuration)
-            {
-                var a = 1;
             }
             return newDuration > 0 ? newDuration : 0;
         }

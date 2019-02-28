@@ -67,7 +67,6 @@ namespace Master40.SimulationCore
                                                         , _messageHub, _DBContext, 0, false
                                                         , new List<Type> { typeof(Contract.Instruction.StartOrder),
                                                                                   typeof(Supervisor.Instruction.OrderProvided),
-                                                                                  typeof(UpdateStockValues),
                                                                                   typeof(UpdateLiveFeed)}));
 
                 // Create Guardians and Inject Childcreators

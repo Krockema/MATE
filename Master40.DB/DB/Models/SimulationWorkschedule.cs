@@ -1,5 +1,6 @@
 ﻿using Master40.DB.Enums;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Master40.DB.Models
 {
@@ -24,6 +25,9 @@ namespace Master40.DB.Models
         public int HierarchyNumber { get; set; }
         public string Parent { get; set; }
         public string ParentId { get; set; }
+        
+        [NotMapped]
+        public string ArticleType { get; set; }
 
 
     }

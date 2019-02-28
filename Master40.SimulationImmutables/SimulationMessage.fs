@@ -134,6 +134,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         WorkItem : FWorkItem
         OrderId : string
         IsHeadDemand : bool
+        ArticleType : string
     }
 
     type public UpdateSimulationWork = {

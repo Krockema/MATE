@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static AkkaSim.Definitions.SimulationMessage;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -49,6 +50,7 @@ namespace Master40.SimulationCore.Agents
             _messageHub = messageHub;
             _simConfig = simConfig;
             Send(Instruction.PopOrder.Create("Pop", ActorPaths.SystemAgent.Ref), 1);
+            Send(Instruction.EndSimulation.Create(true, Self), _simConfig.SimulationEndTime);
         }
 
         protected override void Do(object o)
@@ -138,7 +140,7 @@ namespace Master40.SimulationCore.Agents
         private void End()
         {
             DebugMessage("End Sim");
-            CoordinatedShutdown.Get(UntypedActor.Context.System).Run(null, "") ;
+            _SimulationContext.Tell(SimulationState.Finished);
         }
 
         protected override void Finish()
@@ -164,7 +166,7 @@ namespace Master40.SimulationCore.Agents
                 }
                 else
                 {
-                    long period = orderpart.Order.DueTime - (960); // 1 Tag un 1 Schich
+                    long period = orderpart.Order.DueTime - (_simConfig.Time); // 1 Tag un 1 Schich
                     if (period < 0) { period = 0; }
                     Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self)
                            , waitFor: period);

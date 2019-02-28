@@ -9,6 +9,11 @@
 
             <canvas id="TimelinessElement" height="250" width="200"></canvas>
         </div>
+        <div class="text-center">
+            <span id="valueTimeliness">
+                In time: 95 %
+             </span>
+        </div>
     </div>
 </div>
     <style>
@@ -53,7 +58,7 @@
                     "yAxes": [{
                         "type": "linear", "id": "first-x-axis"
                         , "scaleLabel": { "display": true, "labelString": "Timeliness", "fontSize": 12 }
-                        , "ticks": { "max": 100.0, "display": true }
+                        , "ticks": { "max": 100.0, "min": 0, "display": true }
                         , "display": true, "stacked": false
                     }], "xAxes": [{ "display": true, "stacked": false }]
                 }
@@ -67,6 +72,9 @@
             TimelinessChart.data.datasets[0].data = [msg];
             TimelinessChart.data.datasets[1].data = [100 - msg];
             TimelinessChart.update();
+            var val = Math.round(msg*100)/100;
+            $("#valueTimeliness").replaceWith("<span id='valueTimeliness'>In time: " + val + " %</span>");
+            
         });
     </script>
 

@@ -32,7 +32,6 @@ namespace Master40.SimulationCore.Agents
         {
             switch (message)
             {
-                case UpdateStockValues m: FinishOrder((Collector)simulationMonitor, m); break;
                 case Contract.Instruction.StartOrder m: AddOrder((Collector)simulationMonitor, m); break;
                 case Supervisor.Instruction.OrderProvided m: ProvideOrder((Collector)simulationMonitor, m); break;
                 case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
@@ -96,14 +95,5 @@ namespace Master40.SimulationCore.Agents
             openOrderParts++;
             newOrderParts++;
         }
-
-        private void FinishOrder(Collector agent, UpdateStockValues m)
-        {
-            if(m.ArticleType == "Product") { 
-                openOrderParts--;
-                finishedOrderParts++;
-            }
-        }
-
     }
 }

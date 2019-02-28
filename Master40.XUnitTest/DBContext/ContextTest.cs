@@ -60,10 +60,10 @@ namespace Master40.XUnitTest.DBContext
                 OrderQuantity = 550,
                 Seed = 1338,
                 ConsecutiveRuns = 1,
-                OrderRate = 1, //0.25
+                OrderRate = 0,25, //0.25
                 Time = 0,
                 RecalculationTime = 1440,
-                SimulationEndTime = 21000,
+                SimulationEndTime = 120,
                 DecentralRuns = 0,
                 CentralRuns = 0,
                 DynamicKpiTimeSpan = 480,

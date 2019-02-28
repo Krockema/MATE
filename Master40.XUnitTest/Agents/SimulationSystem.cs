@@ -30,8 +30,8 @@ namespace Master40.XUnitTest.Agents
             _ctx.Database.EnsureDeleted();
             _ctx.Database.EnsureCreated();
             //MasterDBInitializerMedium.DbInitialize(_ctx);
-            // MasterDBInitializerBasic.DbInitialize(_ctx);
-            MasterDBInitializerLarge.DbInitialize(_ctx);
+            MasterDBInitializerSmall.DbInitialize(_ctx);
+            // MasterDBInitializerLarge.DbInitialize(_ctx);
             //_productionDomainContext.Database.EnsureDeleted();
             //_productionDomainContext.Database.EnsureCreated();
             //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
@@ -47,7 +47,7 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
-            var simContext = new AgentSimulation(false, _ctx, new Moc.MessageHub());
+            var simContext = new AgentSimulation(true, _ctx, new Moc.MessageHub());
             var simConfig = ContextTest.TestConfiguration();
             // simConfig.OrderQuantity = 0;
             var simModelConfig = new SimulationConfig(false, 480);
@@ -77,7 +77,7 @@ namespace Master40.XUnitTest.Agents
         public async Task MachineUtil()
         {
             var simConfig = _masterDBContext.SimulationConfigurations.Single(x => x.Id == 1);
-            Tools.Simulation.CalculateKpis.MachineSattleTime(_masterDBContext, simConfig, DB.Enums.SimulationType.Decentral, 0);
+            CalculateKpis.MachineSattleTime(_masterDBContext, simConfig, DB.Enums.SimulationType.Decentral, 0);
         }
     }
 }

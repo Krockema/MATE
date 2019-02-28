@@ -23,7 +23,8 @@ namespace Master40.DB.Data.Initializer
             {
                 new ArticleType {Name = "Assembly"},
                 new ArticleType {Name = "Material"},
-                new ArticleType {Name = "Consumable"}
+                new ArticleType {Name = "Consumable"},
+                new ArticleType {Name = "Product"}
             };
 
             context.ArticleTypes.AddRange(articleTypes);
@@ -74,8 +75,8 @@ namespace Master40.DB.Data.Initializer
             var articles = new Article[]
             {
                 // Final Product
-                new Article{Name="Dump-Truck",  ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
-                new Article{Name="Race-Truck",  ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/06_Race-Truck_final.jpg"},
+                new Article{Name="Dump-Truck",  ArticleTypeId = articleTypes.Single( s => s.Name == "Product").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
+                new Article{Name="Race-Truck",  ArticleTypeId = articleTypes.Single( s => s.Name == "Product").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/06_Race-Truck_final.jpg"},
                 new Article{Name="Skeleton",ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id,  CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00, ToPurchase = false, ToBuild = true, PictureUrl ="/images/Product/01_Bodenplatte.jpg"},
                 new Article{Name="Truck-Bed", ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00, ToPurchase = false, ToBuild = true,  PictureUrl ="/images/Product/03_Ladefläche.jpg"},
                 new Article{Name="Chassis Type: Dump", ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 15.00, ToPurchase = false, ToBuild = true,  PictureUrl ="/images/Product/02_Gehäuse.jpg"},
@@ -317,7 +318,7 @@ namespace Master40.DB.Data.Initializer
                                         OrderQuantity = 550,
                                         Seed = 1338,
                                         ConsecutiveRuns = 1,
-                                        OrderRate = 0.25, //0.25
+                                        OrderRate = 0.025, //0.25
                                         Time = 0,
                                         RecalculationTime = 1440,
                                         SimulationEndTime = 21000,
@@ -333,7 +334,7 @@ namespace Master40.DB.Data.Initializer
                                         OrderQuantity = 1200,
                                         Seed = 1338,
                                         ConsecutiveRuns = 1,
-                                        OrderRate = 0.7, //0.25
+                                        OrderRate = 0.06, //0.25
                                         Time = 0,
                                         RecalculationTime = 1440,
                                         SimulationEndTime = 21000,

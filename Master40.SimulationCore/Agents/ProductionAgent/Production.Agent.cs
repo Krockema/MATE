@@ -109,7 +109,7 @@ namespace Master40.SimulationCore.Agents
                 firstItemToBuild = false;
                 workItems.Add(n);
                 // ToDO; 
-                var pub = new CreateSimulationWork(n, requestItem.OrderId.ToString(), requestItem.IsHeadDemand);
+                var pub = new CreateSimulationWork(n, requestItem.OrderId.ToString(), requestItem.IsHeadDemand, requestItem.Article.ArticleType.Name);
                 this.Context.System.EventStream.Publish(pub);
 
                 //Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId.ToString(), RequestItem.IsHeadDemand);

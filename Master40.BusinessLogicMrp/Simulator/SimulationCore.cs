@@ -3,6 +3,7 @@ using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
+using Master40.DB.Models;
 using Master40.MessageSystem.SignalR;
 using Master40.SimulationCore;
 using Microsoft.EntityFrameworkCore;
@@ -25,9 +26,9 @@ namespace Master40.BusinessLogicCentral.Simulator
             _messageHub = messageHub;
         }
 
-        public async Task RunAkkaSimulation(int simulationId)
+        public async Task RunAkkaSimulation(SimulationConfiguration simConfig)
         {
-            _messageHub.SendToAllClients("Prepare in Memory model from DB for Simulation: " + simulationId, MessageSystem.Messages.MessageType.info);
+            _messageHub.SendToAllClients("Prepare in Memory model from DB for Simulation: " + simConfig.Id, MessageSystem.Messages.MessageType.info);
             //In-memory database only exists while the connection is open
             var _inMemory = InMemoryContext.CreateInMemoryContext();
             // InMemoryContext.LoadData(_context, _inMemory);
@@ -35,9 +36,7 @@ namespace Master40.BusinessLogicCentral.Simulator
             PrepareModel(_context, _inMemory);
 
 
-            var simNumber = _context.GetSimulationNumber(simulationId, SimulationType.Decentral);
-            var simConfig = _context.SimulationConfigurations.Single(x => x.Id == simulationId);
-
+            var simNumber = _context.GetSimulationNumber(simConfig.Id, SimulationType.Decentral);
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageSystem.Messages.MessageType.info);
             _agentSimulation = new AgentSimulation(false, _inMemory, _messageHub);
@@ -79,6 +78,16 @@ namespace Master40.BusinessLogicCentral.Simulator
             _messageHub.EndSimulation("Simulation with Id:" + _context + " Completed."
                                             , _context.ToString()
                                             , simNumber.ToString());
+        }
+
+        public SimulationConfiguration UpdateSettings(int simId, int orderAmount, double arivalRate, int estimatedThroughputTime)
+        {
+            var simConfig = _context.SimulationConfigurations.AsNoTracking().Single(x => x.Id == simId);
+            simConfig.OrderQuantity = orderAmount;
+            simConfig.OrderRate = arivalRate;
+            // TODO: Create an own Field for it in the model
+            simConfig.Time = estimatedThroughputTime;
+            return simConfig;
         }
 
         private void PrepareModel(ProductionDomainContext context, ProductionDomainContext inMemory)

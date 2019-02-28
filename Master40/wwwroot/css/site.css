@@ -167,6 +167,7 @@ textarea {
 
 .bs-callout-warning {
     border-left-color: #aa6708;
+    background-color: #fff3cd;
 }
 
     .bs-callout-warning h4 {
@@ -175,8 +176,18 @@ textarea {
 
 .bs-callout-info {
     border-left-color: #1b809e;
+    background-color: #d1ecf1;
 }
 
     .bs-callout-info h4 {
         color: #1b809e;
+    }
+
+.bs-callout-success {
+    border-left-color: #155724;
+    background-color: #d6e9c6;
+}
+
+    .bs-callout-success h4 {
+        color: #155724;
     }

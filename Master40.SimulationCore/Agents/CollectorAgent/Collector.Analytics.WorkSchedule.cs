@@ -64,7 +64,7 @@ namespace Master40.SimulationCore.Agents
         {
             
             var art = from a in simulationWorkschedules
-                      where a.ParentId == "[]"
+                      where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
                           && a.Time >= lastIntervalStart
                       group a by new { a.Article, a.OrderId } into arti
@@ -106,11 +106,9 @@ namespace Master40.SimulationCore.Agents
                 agent.messageHub.SendToClient("Throughput",  thoughput);
             }
 
-            var v2 = simulationWorkschedules.Where(a => (a.Article == "Dump-Truck"
-                                                   || a.Article == "Race-Truck")
+            var v2 = simulationWorkschedules.Where(a => a.ArticleType == "Product"
                                                    && a.HierarchyNumber == 20
-                                                   && a.End == 0)
-                                                ;
+                                                   && a.End == 0);
             agent.messageHub.SendToClient("ContractsV2", JsonConvert.SerializeObject(new { Time = agent.Time, Processing = v2.Count().ToString() }));
 
 
@@ -174,31 +172,30 @@ namespace Master40.SimulationCore.Agents
 
             foreach (var item in final.OrderBy(x => x.M))
             {
+                var nan = Math.Round(item.W / divisor, 3).ToString().Replace(",", ".");
+                if (nan == "NaN") nan = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", "") , Math.Round(item.W / divisor, 3).ToString().Replace(",","."));
+                agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", ""), nan);
             }
 
             var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString().Replace(",", ".");
-            if (totalLoad == "NaN")
-            {
-                totalLoad = "0";
-            }
+            if (totalLoad == "NaN")  totalLoad = "0";
             agent.messageHub.SendToClient("TotalWork", JsonConvert.SerializeObject(new { Time = agent.Time, Load = totalLoad }));
             
-            // Kontrolle
-            var from_work2 = from sw in tuples
-                             group sw by sw.Item1 into mg
-                             select new
-                             {
-                                 M = mg.Key,
-                                 W = (double)(mg.Sum(x => x.Item2))
-                             };
-            
-            foreach (var item in from_work2.OrderBy(x => x.M))
-            {
-                Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "intern");
-            }
-            tuples.Clear();
+            // // Kontrolle
+            // var from_work2 = from sw in tuples
+            //                  group sw by sw.Item1 into mg
+            //                  select new
+            //                  {
+            //                      M = mg.Key,
+            //                      W = (double)(mg.Sum(x => x.Item2))
+            //                  };
+            // 
+            // foreach (var item in from_work2.OrderBy(x => x.M))
+            // {
+            //     Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "intern");
+            // }
+            // tuples.Clear();
         }
 
         private void CreateSimulationWorkSchedule(Collector agent, CreateSimulationWork cws)
@@ -217,7 +214,8 @@ namespace Master40.SimulationCore.Agents
                 ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid.ToString() + "]",
                 Parent = cws.IsHeadDemand.ToString(),
                 ParentId = "[]",
-                Time = (int)(agent.Time)
+                Time = (int)(agent.Time),
+                ArticleType = cws.ArticleType
             };
             simulationWorkschedules.Add(sws);
         }

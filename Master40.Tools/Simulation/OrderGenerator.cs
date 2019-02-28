@@ -47,7 +47,7 @@ namespace Master40.Tools.Simulation
             for (int i = 0; i < samples; i++)
             {
                 //define the time between each new order
-                time += (int)Math.Round(exponential[i] * 10, MidpointRounding.AwayFromZero);
+                time += (int)Math.Round(exponential[i], MidpointRounding.AwayFromZero);
                 //get which product is to be ordered
                 var productId = productIds.ElementAt(prodVariation[i]);
 

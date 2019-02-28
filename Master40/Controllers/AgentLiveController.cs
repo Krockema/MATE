@@ -25,12 +25,13 @@ namespace Master40.Controllers
             return View(await masterDBContext.ToListAsync());
         }
 
-        [HttpGet("[Controller]/RunAsync/{simId}")]
-        public async void RunAsync(int simId)
+        [HttpGet("[Controller]/RunAsync/{simId}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
+        public async void RunAsync(int simId, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
             if (simId == 0) return;
             // using Default Test Values.
-            await _agentSimulator.RunAkkaSimulation(simId);
+            var simConfig = _agentSimulator.UpdateSettings(simId, orderAmount, arivalRate, estimatedThroughputTime);
+            await _agentSimulator.RunAkkaSimulation(simConfig);
         }
 
         [HttpGet("[Controller]/ReloadGantt/{orderId}/{stateId}")]
