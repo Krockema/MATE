@@ -24,6 +24,10 @@
                 type: "scatter"
                 , data: {
                     datasets: [{
+                        "data": [{ "x": 0.0, "y": 100.0 }, { "x": 2880.0, "y": 100.0 }]
+                        , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
+                    },
+                        {
                         data: [{ "x": 0.0, "y": 0.0 }]
                         , type: "line"
                         , lineTension: 0.5
@@ -35,7 +39,7 @@
                         , label: "Total Workload"
                         , yAxisID: "first-y-axis"
                     }]
-                    , labels: ["All Machines"]
+                    , labels: ["Settling time","All Machines"]
                 },
                 options: {
                     responsive: true
@@ -76,7 +80,7 @@
         processingProxy.on("TotalWork", function (msg) {
             // console.log("TotalWork : " + msg);
             var serialized = JSON.parse(msg);
-            TotalWorkLoadChart.data.datasets[0].data.push({ x: serialized.Time, y: serialized.Load });
+            TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Load });
            
             TotalWorkLoadChart.update();
         });

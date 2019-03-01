@@ -60,6 +60,7 @@
             //console.log("@name :" + msg);
 
             msg = msg * 100;
+            if (isNaN(msg)) return;
           
             document.getElementsByClassName("@name")[0].innerHTML = Math.round(msg) + " %";
             (Workload_@name).data.datasets[0].data = [msg, 100 - msg];

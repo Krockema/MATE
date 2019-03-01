@@ -11,7 +11,7 @@
     </div>
 
     <script>
-
+        var plotMax = 50;
         var ContractElement = document.getElementById("ContractChart");
         var ContractChartCtx = new Chart(ContractElement,
             {
@@ -46,18 +46,32 @@
             var serialized = JSON.parse(msg);
             
             ContractChartCtx.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Input }); 
-            
             ContractChartCtx.data.datasets[3].data.push({ x: serialized.Time, y: serialized.Output });
+
+            MaxPlotHight(serialized.Input);
+            MaxPlotHight(serialized.Output);
 
             ContractChartCtx.update();
         });
         processingProxy.on("ContractsV2", function (msg) {
             //console.log("Contracts : " + msg);
             var serialized = JSON.parse(msg);
+
+            MaxPlotHight(serialized.Processing);
+
             ContractChartCtx.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Processing });
             ContractChartCtx.update();
         });
-        
+
+        function MaxPlotHight(value) {
+            
+            if (plotMax <= value) {
+                var currentMax = Math.ceil((Number(value) + 1) / 10) * 10;
+                ContractChartCtx.data.datasets[0].data = [{ "x": 0.0, "y": currentMax }, { "x": 2880.0, "y": currentMax }];
+                plotMax = currentMax;
+            }
+        }
+
     </script>
 
 
