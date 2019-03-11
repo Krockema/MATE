@@ -103,7 +103,7 @@ namespace Master40.Agents
 
             await system.PrepareAgents(simConfig, simNr);
 
-            // Enqueue data collection task
+            // Enqueue data collection task for Ganttplan
             system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.CollectData.ToString(), "Test", system, 10000);
 
             // Return System Agent to Context

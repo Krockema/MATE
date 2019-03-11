@@ -15,6 +15,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Master40.DB.GanttplanDB.Models;
 
 namespace Master40.XUnitTest.DBContext
 {
@@ -36,6 +37,10 @@ namespace Master40.XUnitTest.DBContext
             .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
 
+        GPSzenarioContext _gpSzenarioContext = new GPSzenarioContext(new DbContextOptionsBuilder<GPSzenarioContext>()
+            .UseSqlite("Filename=C:\\source\\repo\\Master-4.0\\Master40.DB\\GanttplanDB\\GPSzenario.gpsx")
+            .Options);
+
         public ContextTest()
         {
             //_ctx.Database.EnsureDeleted();
@@ -45,6 +50,18 @@ namespace Master40.XUnitTest.DBContext
             //_productionDomainContext.Database.EnsureCreated();
             //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
+        }
+
+        [Fact]
+        public void GPContextTest()
+        {
+            _gpSzenarioContext.Database.EnsureCreated();
+
+            foreach (Config conf in _gpSzenarioContext.Config)
+            {
+                Debug.WriteLine(conf.PropertyName + ": " + conf.Value + "\n");
+                Assert.NotEmpty(conf.PropertyName);
+            }
         }
 
         /// <summary>

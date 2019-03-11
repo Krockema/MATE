@@ -201,6 +201,15 @@ namespace Master40.Agents.Agents
         private void WriteDataToGPSQLite(List<Dictionary<string, object>> childData)
         {
             // TODO
+
+            // Connect to DB
+            GPSzenarioContext _gpSzenarioContext = new GPSzenarioContext(new DbContextOptionsBuilder<GPSzenarioContext>()
+                .UseSqlite("Filename=C:\\source\\repo\\Master-4.0\\Master40.DB\\GanttplanDB\\GPSzenario.gpsx")
+                .Options);
+
+            _gpSzenarioContext.Database.EnsureCreated();
+
+
         }
 
         private new void ReceiveData(InstructionSet instructionSet)
