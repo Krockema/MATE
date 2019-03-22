@@ -40,6 +40,7 @@ namespace Master40.SimulationCore.Agents
                 case Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 case Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
                 case Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
+                case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 case Instruction.FinishWork msg: FinishWork((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -70,6 +71,10 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
+        /// <summary>
+        /// Is Called from Comunication Agent to get an Proposal when the item with a given priority can be scheduled.
+        /// </summary>
+        /// <param name="instructionSet"></param>
         private void RequestProposal(Resource agent, FWorkItem workItem)
         {
             if (workItem == null)
@@ -82,6 +87,10 @@ namespace Master40.SimulationCore.Agents
             agent.SendProposalTo(workItem);
         }
 
+        /// <summary>
+        /// is Called if The Proposal is accepted by Comunication Agent
+        /// </summary>
+        /// <param name="instructionSet"></param>
         public void AcknowledgeProposal(Resource agent, FWorkItem workItem)
         {
             var queue = agent.Get<List<FWorkItem>>(QUEUE);
@@ -112,7 +121,7 @@ namespace Master40.SimulationCore.Agents
             {
                 var toRequeue = queue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().GetRange(position + 1, queue.Count() - position - 1);
 
-                agent.CallToReQueue(toRequeue);
+                agent.CallToReQueue(queue, toRequeue);
 
                 agent.DebugMessage("New Queue length = " + queue.Count);
             }
@@ -154,11 +163,15 @@ namespace Master40.SimulationCore.Agents
 
 
             // Reorganize List
-            agent.CallToReQueue(Queue.Where(x => x.Status == ElementStatus.Created || x.Status == ElementStatus.InQueue).ToList());
+            agent.CallToReQueue(Queue, Queue.Where(x => x.Status == ElementStatus.Created || x.Status == ElementStatus.InQueue).ToList());
             // do Do Work in next Timestep.
             agent.Send(Instruction.DoWork.Create(null, agent.Context.Self));
         }
 
+
+        /// <summary>
+        /// Register the Machine in the System on Startup and Save the Hub agent.
+        /// </summary>
         private void SetHubAgent(Resource agent, IActorRef hubAgent)
         {
             // save Cast to expected object
@@ -173,5 +186,36 @@ namespace Master40.SimulationCore.Agents
             // Debug Message
             agent.DebugMessage("Successfull Registred Service at : " + _hub.Path.Name);
         }
+
+        private void BreakDown(Resource agent, FBreakDown breakDwon)
+        {
+            if (breakDwon.IsBroken)
+            {
+                Break(agent, breakDwon);
+            } else
+            {
+                RecoverFromBreakDown(agent);
+            }
+
+        }
+
+        private void Break(Resource agent, FBreakDown breakdown)
+        {
+            agent.Set(BROKEN, breakdown.IsBroken);
+            // requeue all
+            var queue = agent.Get<List<FWorkItem>>(QUEUE);
+            var Processing = agent.Get<LimitedQueue<FWorkItem>>(PROCESSING_QUEUE);
+            agent.CallToReQueue(Processing, new List<FWorkItem>(Processing));
+            agent.CallToReQueue(queue, new List<FWorkItem>(queue));
+            // set Self Recovery
+            agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakdown.SetIsBroken(false), agent.Context.Self), 1440);
+        }
+
+        private void RecoverFromBreakDown(Resource agent)
+        {
+            agent.Set(BROKEN, false);
+            agent.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, agent.Name, agent.Context.Self), agent.VirtualParent, true));
+        }
+
     }
 }

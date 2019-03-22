@@ -37,9 +37,18 @@ namespace Master40.SimulationCore.Agents
                 case Instruction.CreateStorageAgents msg: CreateStorageAgents((Directory)agent, msg.GetObjectFromMessage); break;
                 case Instruction.CreateMachineAgents msg: CreateMachineAgents((Directory)agent, msg.GetObjectFromMessage); break;
                 case Instruction.RequestRessourceAgent msg: RequestRessourceAgent((Directory)agent, msg.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown((Directory)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void ResourceBrakeDown(Directory agent, FBreakDown breakDown)
+        {
+            var hubAgents = agent.Get<List<FRequestRessource>>(RESSOURCE);
+            var hub = hubAgents.Single(x => x.Discriminator == breakDown.MachineGroup && x.ResourceType == ResourceType.Hub);
+            agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, hub.actorRef));
+            System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Machine, "Directory");
         }
 
         public void CreateStorageAgents(Directory agent, Stock stock)

@@ -46,19 +46,19 @@ namespace Master40.DB.Data.Initializer
             var machines = new Machine[] {
                 new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
                 new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Saw 3", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Saw 4", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Saw 5", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Saw 6", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=0, Name="Saw 3", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=0, Name="Saw 4", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=0, Name="Saw 5", Count = 1, MachineGroup = cutting },
+                new Machine{Capacity=0, Name="Saw 6", Count = 1, MachineGroup = cutting },
                 new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills },
-                new Machine{Capacity=1, Name="Drill 2", Count = 1, MachineGroup = drills },
-                new Machine{Capacity=1, Name="Drill 3", Count = 1, MachineGroup = drills },
+                new Machine{Capacity=0, Name="Drill 2", Count = 1, MachineGroup = drills },
+                new Machine{Capacity=0, Name="Drill 3", Count = 1, MachineGroup = drills },
                 new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
                 new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit},
-                new Machine{Capacity=1, Name="AssemblyUnit 3", Count=1, MachineGroup = assemblyUnit},
-                new Machine{Capacity=1, Name="AssemblyUnit 4", Count=1, MachineGroup = assemblyUnit},
-                new Machine{Capacity=1, Name="AssemblyUnit 5", Count=1, MachineGroup = assemblyUnit},
-                new Machine{Capacity=1, Name="AssemblyUnit 6", Count=1, MachineGroup = assemblyUnit}
+                new Machine{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroup = assemblyUnit},
+                new Machine{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroup = assemblyUnit}
             };
             context.Machines.AddRange(machines);
             context.SaveChanges();

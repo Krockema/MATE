@@ -1,9 +1,6 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -13,11 +10,11 @@ namespace Master40.SimulationCore.Agents
         {
             public class AddMachineToHub: SimulationMessage
             {
-                public static AddMachineToHub Create(FHubInformation message, IActorRef target)
+                public static AddMachineToHub Create(FHubInformation message, IActorRef target, bool logThis = false)
                 {
-                    return new AddMachineToHub(message, target);
+                    return new AddMachineToHub(message, target, logThis);
                 }
-                private AddMachineToHub(object message, IActorRef target) : base(message, target)
+                private AddMachineToHub(object message, IActorRef target, bool logThis) : base(message, target, logThis)
                 {
 
                 }
@@ -88,7 +85,6 @@ namespace Master40.SimulationCore.Agents
                 }
                 public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
-
         }
     }
 }

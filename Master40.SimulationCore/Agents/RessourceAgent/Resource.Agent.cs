@@ -23,9 +23,11 @@ namespace Master40.SimulationCore.Agents
             this.Set(MACHINE, machine);
             this.Set(WORK_TIME_GENERATOR, workTimeGenerator);
             this.Set(HUB_AGENT_REF, principal);
-            this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.MachineGroup.Name, this.Self), principal));
+            //this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.MachineGroup.Name, this.Self), principal));
+            this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, this.Name, this.Self), principal));
         }
 
+        
         internal void UpdateProcessingQueue(FWorkItem workItem)
         {
             var processingQueue = Get<LimitedQueue<FWorkItem>>(PROCESSING_QUEUE);
@@ -40,9 +42,8 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        internal void CallToReQueue(List<FWorkItem> toRequeue)
+        internal void CallToReQueue(List<FWorkItem> queue, List<FWorkItem> toRequeue)
         {
-            var queue = Get<List<FWorkItem>>(QUEUE);
             foreach (var reqItem in toRequeue)
             {
                 DebugMessage("-> ToRequeue " + reqItem.Priority(TimePeriod) + " Current Possition: " + queue.OrderBy(x => x.Priority(TimePeriod)).ToList().IndexOf(reqItem) + " Id " + reqItem.Key);
@@ -55,6 +56,9 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
+        /// <summary>
+        /// Starts the next WorkItem
+        /// </summary>
         internal void DoWork()
         {
             if (Get<bool>(ITEMS_IN_PROGRESS))
@@ -96,6 +100,10 @@ namespace Master40.SimulationCore.Agents
             Send(Instruction.FinishWork.Create(item, Context.Self), duration);
         }
 
+        /// <summary>
+        /// Send Proposal to Comunication Client
+        /// </summary>
+        /// <param name="workItem"></param>
         internal void SendProposalTo(FWorkItem workItem)
         {
             long max = 0;

@@ -58,7 +58,9 @@ namespace Master40.SimulationCore
                                                         , new List<Type> { typeof(CreateSimulationWork),
                                                                                   typeof(UpdateSimulationWork),
                                                                                   typeof(UpdateSimulationWorkProvider),
-                                                                                  typeof(UpdateLiveFeed)}));
+                                                                                  typeof(UpdateLiveFeed),
+                                                                                  typeof(Hub.Instruction.AddMachineToHub),
+                                                                                  typeof(BasicInstruction.ResourceBrakeDown)}));
                 StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
                                                         , _messageHub, _DBContext, 0, false
                                                         , new List<Type> { typeof(UpdateStockValues),

@@ -7,26 +7,28 @@
 
             <!--div id="js-legend" class="chart-legend"><div-->
 
-            <canvas id="TimelinessElement" height="250" width="200"></canvas>
+            <canvas id="TimelinessElement" style="height: 280px"></canvas>
         </div>
         <div class="text-center">
-            <span id="valueTimeliness">
-                In time: 95 %
-             </span>
+            <b>
+                <span id="valueTimeliness">
+                    In time: 95 %
+                </span>
+            </b>
         </div>
     </div>
 </div>
     <style>
-        Timeliness > canvas {
-            width: 250px;
-            height: 250px;
+        .chartLayerTimeliness > canvas {
+            width: 100px;
+            height: 280px;
         }
-        chartContainerTimeliness {
+        .chartContainerTimeliness {
             position: relative;
             width: 200px;
+            height: 300px;
             margin-left: 20px;
             margin-right: 20px;
-            height: 250px;
         }
     </style>
     <script>

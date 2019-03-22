@@ -158,6 +158,13 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         NewValue : double
         ArticleType : string
     }
+
+    type public FBreakDown = {
+        Machine : string
+        MachineGroup : string
+        IsBroken : bool
+        Duration : int64
+    } with member this.SetIsBroken s = { this with IsBroken = s }
     // let Priority (wi:WorkItem) currentTime = wi.PrioRule(currentTime)
     //
     //type WorkItem with member this.Prio = priorityCall this

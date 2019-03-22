@@ -47,5 +47,11 @@ namespace Master40.Controllers
             //call to ReloadGantt Diagramm
             return ViewComponent("MachineWorkload", new { machine });
         }
+
+        [HttpGet("[Controller]/MachineBreakdown/{Machine}")]
+        public void MachineBreakdown(string machine)
+        {
+            _agentSimulator.ResourceBreakDwon(machine);
+        }
     }
 }

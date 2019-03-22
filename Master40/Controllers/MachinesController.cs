@@ -188,5 +188,33 @@ namespace Master40.Controllers
         {
             return _context.Machines.Any(e => e.Id == id);
         }
+
+
+        [HttpGet("[Controller]/Setup/{setup}")]
+        public async Task<IActionResult> Setup(string setup)
+        {
+
+            _context.Machines.RemoveRange(_context.Machines.Where(x => x.Capacity == 0).ToList());
+            if (setup == "Large")
+            {
+                var machines = new Machine[] {
+                    new Machine{Capacity=0, Name="Saw 3", Count = 1, MachineGroupId = 1 },
+                    new Machine{Capacity=0, Name="Saw 4", Count = 1, MachineGroupId = 1 },
+                    new Machine{Capacity=0, Name="Saw 5", Count = 1, MachineGroupId = 1 },
+                    new Machine{Capacity=0, Name="Saw 6", Count = 1, MachineGroupId = 1 },
+                    new Machine{Capacity=0, Name="Drill 2", Count = 1, MachineGroupId = 2 },
+                    new Machine{Capacity=0, Name="Drill 3", Count = 1, MachineGroupId = 2 },
+                    new Machine{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroupId = 3 },
+                    new Machine{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroupId = 3 },
+                    new Machine{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroupId = 3 },
+                    new Machine{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroupId = 3 }
+                };
+                _context.Machines.AddRange(machines);
+
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
     }
 }

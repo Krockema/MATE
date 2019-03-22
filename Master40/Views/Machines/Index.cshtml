@@ -8,7 +8,7 @@
 
 <link href="~/css/mermaid.css" rel="stylesheet" />
 <style>
-    #mermaidChart0 .node>rect {
+    #mermaidChart0 .node > rect {
         height: 60px;
     }
 </style>
@@ -19,53 +19,55 @@
     });
 
 </script>
-    <h2>Index</h2>
-    <div class="mermaid">
-        @holymoly
-    </div>
-        <p>
-            <a asp-action="Create"  class="btn btn-default">Create New</a>
-        </p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Count)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Capacity)
-                    </th>
-                    <th>
-                        Machine Group
-                    </th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-            {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Count)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Capacity)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.MachineGroup.Name)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<h2>Index </h2>
+<p>
+    <a asp-action="Create" class="btn btn-default">Create New</a> 
+    | <a asp-action="Setup" asp-route-id="Small" class="btn btn-default">small Setup</a> 
+    | <a asp-action="Setup" asp-route-id="Large" class="btn btn-default">large Setup</a>
+</p>
+<div class="mermaid">
+    @holymoly
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Count)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Capacity)
+            </th>
+            <th>
+                Machine Group
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Count)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Capacity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MachineGroup.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

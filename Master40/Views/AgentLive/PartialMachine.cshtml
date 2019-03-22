@@ -5,39 +5,24 @@
     var percent = "0 %";
 }
 
-    <div style="float:left; margin-top: 5px; margin-bottom: 5px;">
-        <div class="chartContainer">
-            <div class="textLayer @name">
-                @percent
-            </div>
-            <div class="chartLayer">
-
-                <!--div id="js-legend" class="chart-legend"><div-->
-
-                <canvas id="@name"></canvas>
-            </div>
+<div style="float:left; margin: 5px; min-width: 100px ">
+    <div class="chartContainer">
+        <div class="textLayer @name">
+            <span class="@name">@percent</span>
         </div>
-        <div style="text-align:center;">@Model.Name</div>
+        <div class="chartLayer online" id="chartContainer_@name">
 
+            <!--div id="js-legend" class="chart-legend"><div-->
+
+            <canvas id="@name"></canvas>
+        </div>
     </div>
+    <div style="text-align:center;" class="machineText">@Model.Name  <button class="btn btn-xs" type="button" onclick="breakDown('@name')"><i class="glyphicon glyphicon-fire"></i></button> </div>
+
+
+</div>
     <style>
 
-
-        .chartLayer, textLayer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
-
-        .textLayer {
-            z-index: -10;
-            color: #666;
-            display: flex;
-            justify-content: center; /* align horizontal */
-            align-items: center; /* align vertical */
-        }
     </style>
     <script>
         var @name = document.getElementById("@Model.Name.Replace(" ", "")");
@@ -60,11 +45,22 @@
             //console.log("@name :" + msg);
 
             msg = msg * 100;
-            if (isNaN(msg)) return;
+            if (isNaN(msg)) msg=0;
           
             document.getElementsByClassName("@name")[0].innerHTML = Math.round(msg) + " %";
             (Workload_@name).data.datasets[0].data = [msg, 100 - msg];
             (Workload_@name).update();
+        });
+
+        processingProxy.on("Machine(@name)_State", function (msg) {
+            console.log("@name :" + msg);
+            if (msg === 'offline') {
+                document.getElementById("chartContainer_@name").className =
+                    document.getElementById("chartContainer_@name").className.replace('online', 'offline');
+            } else {
+                document.getElementById("chartContainer_@name").className =
+                    document.getElementById("chartContainer_@name").className.replace('offline', 'online');
+            }
         });
     </script>
 

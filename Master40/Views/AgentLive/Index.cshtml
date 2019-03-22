@@ -7,6 +7,38 @@
 }
 
 <style>
+    .chartLayer.offline {
+        color: #a94442;
+        background-color: rgba(169, 68, 68, .2);
+        border-radius: 4px;
+        border: solid 1px #ebccd1;
+        -webkit-box-shadow: 0 1px 1px rgba(169, 68, 68, .8);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+    .chartLayer.online {
+        border-radius: 4px;
+        border: solid 1px rgba(125, 180, 86, 0.4);
+        background-color: rgba(125, 180, 86, 0.05);
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .chartLayer, textLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+
+    .textLayer {
+        z-index: -10;
+        color: #666;
+        display: flex;
+        justify-content: center; /* align horizontal */
+        align-items: center; /* align vertical */
+    }
+    
 </style>
 <script>
     const processingProxy = new signalR.HubConnectionBuilder()
@@ -46,7 +78,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-10 col-sm-10">
+                    <div class="col-md-9 col-sm-9">
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
@@ -61,24 +93,29 @@
                                         var fontSize = 20;
                                         if (Model.Count() > 6)
                                         {
-                                            containerSize = 100;
-                                            textPadding = 55;
-                                            fontSize = 12;
+                                            containerSize = 75;
+                                            textPadding = 35;
+                                            fontSize = 10;
                                         }
                                         @Html.Raw(@"<style>
                                                         .chartContainer {
                                                             position: relative;
+                                                            background-color: transparent;
                                                             width: " + containerSize + @"px;
                                                             height: "+ containerSize + @"px;
-                                                            margin-left: 20px;
-                                                            margin-right: 20px;
+                                                            margin-left: 5px;
+                                                            margin-right: 5px;
+                                                            margin-bottom: 5px;
+                                                        }
+                                                        .machineText {
+                                                            font: " + fontSize + @"px Helvetica;
                                                         }
                                                         .textLayer {
                                                             padding-top: " + textPadding + @"px;
                                                             font: bold "+ fontSize + @"px Helvetica;
                                                         </style>")
                                     }
-                                    @foreach (var section in Model)
+                                    @foreach (var section in Model.OrderBy(x => x.MachineGroup.Stage))
                                     {
                                         @await Html.PartialAsync("~/Views/AgentLive/PartialMachine.cshtml", section)
                                     }
@@ -89,7 +126,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-2 col-sm-2">
+                    <div class="col-md-3 col-sm-3">
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
@@ -163,8 +200,8 @@
                                     <div class="panel-body">
                                         <div class="panel-body">
                                             <div class="form-group row" style="">
-                                                <label class="col-sm-4 col-form-label">Sim.Config</label>
-                                                <select class="form-control col-md-8 pull-right" id="simNumber">
+                                                <label class="col-sm-6 col-form-label">Sim.Config</label>
+                                                <select class="form-control col-md-6 pull-right" id="simNumber" style="max-width: 100px; margin-right: 15px;">
                                                     <option selected>Choose...</option>
                                                     <option value="1">1</option>
                                                     <option value="2">2</option>
@@ -290,6 +327,10 @@
         
 
         $.get("AgentLive/RunAsync/" + simNr + "/orderAmount/" + orderAmount + "/arivalRate/" + arivalRate + "/estimatedThroughputTime/" + estimatedThroughputTime );
+    }
+
+    function breakDown(machine) {
+        $.get("AgentLive/MachineBreakdown/" + machine);
     }
 
     $(document).ready(function () {

@@ -37,7 +37,7 @@ namespace Master40.ViewComponents
                 {
                     new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "Configuration", LinkUrl = "SimulationConfigurations",  MenuOrder = 5, ParentMenuItemId = 12, Action="Index", Symbol="fa-wrench"},
                     new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "MRP", LinkUrl = "Mrp",  MenuOrder = 6, ParentMenuItemId = 12, Action="Index", Symbol="fa-magic"},
-                    new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "Agent Based", LinkUrl = "AgentSimulation",  MenuOrder = 7, ParentMenuItemId = 12, Action="Index", Symbol="fa-ravelry"}
+                    new MenuItem{MenuItemId = 13, MenuId = 1, MenuText = "Agent Based", LinkUrl = "AgentLive",  MenuOrder = 7, ParentMenuItemId = 12, Action="Index", Symbol="fa-ravelry"}
                 }
             });
 

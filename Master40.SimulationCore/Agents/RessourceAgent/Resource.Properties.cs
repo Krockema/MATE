@@ -16,6 +16,7 @@ namespace Master40.SimulationCore.Agents
             public const string ITEMS_IN_PROGRESS = "ItemInProgress"; // bool
             public const string WORK_TIME_GENERATOR = "WorkTimeGenerator"; // WorkTimeGenerator
             public const string HUB_AGENT_REF = "HubAgentRef"; // IActorRef
+            public const string BROKEN = "BREAKDOWN";
         }
     }
 }

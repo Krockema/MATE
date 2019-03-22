@@ -1,11 +1,9 @@
 ﻿using Akka.Actor;
-using AkkaSim.Interfaces;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using static Master40.SimulationCore.Agents.Hub;
 using static Master40.SimulationCore.Agents.Hub.Properties;
 
@@ -20,7 +18,7 @@ namespace Master40.SimulationCore.Agents
             var properties = new Dictionary<string, object>();
 
             properties.Add(WORK_ITEM_QUEUE, new List<FWorkItem>());
-            properties.Add(MACHINE_AGENTS, new List<IActorRef>());
+            properties.Add(MACHINE_AGENTS, new Dictionary<IActorRef, string>());
             properties.Add(SKILL_GROUP, skillGroup);
 
             return new HubBehaviour(properties);
@@ -36,9 +34,20 @@ namespace Master40.SimulationCore.Agents
                 case Instruction.ProposalFromMachine msg: ProposalFromMachine((Hub)agent, msg.GetObjectFromMessage); break;
                 case Instruction.SetWorkItemStatus msg: SetWorkItemStatus((Hub)agent, msg.GetObjectFromMessage); break;
                 case Instruction.AddMachineToHub msg: AddMachineToHub((Hub)agent, msg.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown((Hub)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void ResourceBreakDown(Hub agent, FBreakDown breakDown)
+        {
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(MACHINE_AGENTS);
+            var brockenMachine = machineAgents.Single(x => breakDown.Machine == x.Value).Key;
+            machineAgents.Remove(brockenMachine);
+            agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, brockenMachine, true), 45);
+
+            System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Machine, "Hub");
         }
 
         private void EnqueueWorkItem(Hub agent, FWorkItem workItem)
@@ -50,7 +59,7 @@ namespace Master40.SimulationCore.Agents
 
 
             var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(MACHINE_AGENTS);
             var localItem = workItemQueue.Find(x => x.Key == workItem.Key);
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
@@ -71,7 +80,7 @@ namespace Master40.SimulationCore.Agents
 
             foreach (var actorRef in machineAgents)
             {
-                agent.Send(instruction: Resource.Instruction.RequestProposal.Create(localItem, actorRef));
+                agent.Send(instruction: Resource.Instruction.RequestProposal.Create(localItem, actorRef.Key));
             }
         }
 
@@ -141,7 +150,7 @@ namespace Master40.SimulationCore.Agents
         private void ProposalFromMachine(Hub agent, FProposal proposal)
         {
             var workItemQueue = agent.Get<List<FWorkItem>>(WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(MACHINE_AGENTS);
 
             if (proposal == null)
             {
@@ -195,16 +204,15 @@ namespace Master40.SimulationCore.Agents
         
         private void AddMachineToHub(Hub agent, FHubInformation hubInformation)
         {
-            var machineAgents = agent.Get<List<IActorRef>>(MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(MACHINE_AGENTS);
             if (hubInformation == null)
             {
                 throw new InvalidCastException("Could not Cast MachineAgent on InstructionSet.ObjectToProcess - From:" + agent.Sender.Path.Name);
             }
             // Add Machine to Pool
-            machineAgents.Add(hubInformation.Ref);
+            machineAgents.Add(hubInformation.Ref, hubInformation.RequiredFor);
             // Added Machine Agent To Machine Pool
             agent.DebugMessage("Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);
-
         }
     }
 }

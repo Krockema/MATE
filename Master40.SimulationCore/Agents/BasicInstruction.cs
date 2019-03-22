@@ -42,5 +42,17 @@ namespace Master40.SimulationCore.Agents
             }
             public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
         }
+
+        public class ResourceBrakeDown : SimulationMessage
+        {
+            public static ResourceBrakeDown Create(FBreakDown message, IActorRef target, bool logThis = false)
+            {
+                return new ResourceBrakeDown(message, target, logThis);
+            }
+            private ResourceBrakeDown(object message, IActorRef target, bool logThis) : base(message, target, logThis)
+            {
+            }
+            public FBreakDown GetObjectFromMessage { get => Message as FBreakDown; }
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace Master40.SimulationCore.Agents
         private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
         private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
+        private List<string> machines = new List<string>();
 
         public static CollectorAnalyticsWorkSchedule Get()
         {
@@ -38,13 +39,30 @@ namespace Master40.SimulationCore.Agents
                 case UpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
                 case UpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
                 case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case Hub.Instruction.AddMachineToHub m: RecoverFromBreak((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown m: BreakDwn((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
+        private void BreakDwn(Collector agent, FBreakDown item)
+        {
+            agent.messageHub.SendToClient(item.Machine + "_State", "offline");
+        }
+
+        private void RecoverFromBreak(Collector agent, FHubInformation item)
+        {
+            agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
+        }
+
         private void UpdateFeed(Collector agent, bool logToDB)
         {
+            if (machines.Count == 0)
+            {
+                machines.AddRange(agent.DBContext.Machines.Select(x => "Machine(" + x.Name.Replace(" ", "") + ")"));
+            }
+
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             MachineUtilisation(agent);
@@ -67,15 +85,15 @@ namespace Master40.SimulationCore.Agents
                       where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
                           && a.Time >= lastIntervalStart
-                      group a by new { a.Article, a.OrderId } into arti
+                      group a by new { a.Article, a.CreatedForOrderId } into arti
                       select new
                       {
                           Article = arti.Key.Article,
-                          Order = arti.Key.OrderId
+                          Order = arti.Key.CreatedForOrderId
                       };
 
             var leadTime = from lt in simulationWorkschedules
-                           group lt by lt.OrderId into so
+                           group lt by lt.CreatedForOrderId into so
                            select new
                            {
                                OrderID = so.Key,
@@ -158,7 +176,8 @@ namespace Master40.SimulationCore.Agents
                                 C = mg.Count(),
                                 W = (long)mg.Sum(x => x.End - x.Start)
                             };
-            var merge = from_work.Union(lower_borders).Union(upper_borders).ToList();
+            var machineList = machines.Select(x => new { M = x, C = 0, W = (long)0 });
+            var merge = from_work.Union(lower_borders).Union(upper_borders).Union(machineList).ToList();
 
             var final = from m in merge
                         group m by m.M into mg
@@ -169,6 +188,8 @@ namespace Master40.SimulationCore.Agents
                             W = mg.Sum(x => x.W)
                         };
 
+
+            
 
             foreach (var item in final.OrderBy(x => x.M))
             {

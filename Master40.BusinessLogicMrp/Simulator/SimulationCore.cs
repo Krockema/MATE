@@ -6,6 +6,7 @@ using Master40.DB.Enums;
 using Master40.DB.Models;
 using Master40.MessageSystem.SignalR;
 using Master40.SimulationCore;
+using Master40.SimulationCore.Agents;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace Master40.BusinessLogicCentral.Simulator
         private readonly ProductionDomainContext _context;
         private AgentSimulation _agentSimulation;
         private IMessageHub _messageHub;
+        private IActorRef SimulationContext;
         public AgentCore(ProductionDomainContext context, IMessageHub messageHub)
         {
             _context = context;
@@ -40,10 +42,10 @@ namespace Master40.BusinessLogicCentral.Simulator
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageSystem.Messages.MessageType.info);
             _agentSimulation = new AgentSimulation(false, _inMemory, _messageHub);
-
+            
             var simModelConfig = new SimulationConfig(false, simConfig.DynamicKpiTimeSpan);
             var simulation = await _agentSimulation.InitializeSimulation(simConfig, simModelConfig);
-
+            SimulationContext = simulation.SimulationContext;
             if (simulation.IsReady())
             {
                 _messageHub.SendToAllClients("Start Simulation ...", MessageSystem.Messages.MessageType.info);
@@ -96,6 +98,13 @@ namespace Master40.BusinessLogicCentral.Simulator
             inMemory.SaveChanges();
             inMemory.AddRange(_context.Machines.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList());
             inMemory.SaveChanges();
+        }
+
+        public void ResourceBreakDwon(string name)
+        {
+            var machineGroup = _context.Machines.Include(x => x.MachineGroup).Single(x => x.Name.Replace(" ", "") == name).MachineGroup.Name;
+            SimulationContext.Tell(BasicInstruction.ResourceBrakeDown.Create(message: new SimulationImmutables.FBreakDown("Machine(" + name + ")", machineGroup, true, 0),
+                                                                              target: _agentSimulation.ActorPaths.HubDirectory.Ref));
         }
     }
 }
