@@ -34,5 +34,6 @@ namespace Master40.Agents.Agents.Model
         public double Priority(long time) {
             _priority = PriorityRule(time);
             return _priority; }
+        public double Pheromone { get; set; } //von Malte: Pheromone des acknowledgements
     }
 }

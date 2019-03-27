@@ -12,6 +12,7 @@ namespace Master40.DB.Enums
         StockEvolution,
         LayTime,
         AgentStatistics,
-        MeanTimeToStart
+        MeanTimeToStart,
+        PheromoneHistory //von Malte: neuer Pheromone-KPI Typ
     }
 }

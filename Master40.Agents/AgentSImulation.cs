@@ -74,8 +74,9 @@ namespace Master40.Agents
 
             var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig);
             var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNr);
+            var randomAntNumber = new Random(1337); //von Malte: Zufallszahlengenerator für Ant Simulation
             // Create Directory Agent,
-            var directoryAgent = new DirectoryAgent(system, "Directory", false);
+            var directoryAgent = new DirectoryAgent(system, "Directory", false, randomAntNumber); //von Malte: randomAntNumber an DirectoryAgent übergeben
             system.ChildAgents.Add(directoryAgent);
 
             // Create Machine Agents
@@ -86,7 +87,8 @@ namespace Master40.Agents
                                                           debug: false, 
                                                  directoryAgent: directoryAgent,
                                                         machine: machine,
-                                              workTimeGenerator: randomWorkTime)); 
+                                              workTimeGenerator: randomWorkTime,
+                                                          speed: machine.Speed)); // von Malte: speed hinzugefügt
             }
 
             // Create Stock Agents

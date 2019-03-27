@@ -1,0 +1,49 @@
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    string raw = "Chart Rendering Failed";
+    string type = ViewData["Type"].ToString();
+    if (chart != null)
+    {
+        raw = chart.CreateChartCode("PheromoneChart_" + type);
+        // buxfix in ChartJS Core
+        raw = raw.Replace("\"false\"", "false").Replace("yAxesID", "yAxisID");
+    }
+
+}
+<style>
+    .chartWrapper {
+        position: relative;
+    }
+
+        .chartWrapper > canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+        }
+
+    .chartAreaWrapper {
+        overflow-x: auto;
+        position: relative;
+        width: 100%;
+    }
+
+    .chartAreaWrapper2 {
+        position: relative;
+        height: 200px;
+    }
+</style>
+<div class="row">
+        <div class="col-md-12">
+            <div class="chartWrapper">
+                <div class="chartAreaWrapper">
+                    <div class="chartAreaWrapper2">
+                        <canvas id="PheromoneChart_@type" height="300" width="0"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+<script>
+    @Html.Raw(raw);
+</script>

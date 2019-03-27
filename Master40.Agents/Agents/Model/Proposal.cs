@@ -9,5 +9,6 @@ namespace Master40.Agents.Agents.Model
         public int PostponedFor { get; set; }
         public Guid AgentId { get; set; }
         public Guid WorkItemId { get; set; }
+        public double Pheromone { get; set; } //von Malte: Pheromone Attribut im Proposal
     }
 }

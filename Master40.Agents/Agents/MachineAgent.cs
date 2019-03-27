@@ -27,6 +27,8 @@ namespace Master40.Agents.Agents
         private int QueueLength { get; }
         private bool ItemsInProgess { get; set; }
         private WorkTimeGenerator WorkTimeGenerator { get; }
+        private int Speed { get; } //von Malte: Attribut Speed hinzugefügt
+        private double Pheromone { get; set; } //von Malte: Attribut pheromone hinzugefügt
 
         public enum InstuctionsMethods
         {
@@ -35,10 +37,11 @@ namespace Master40.Agents.Agents
             AcknowledgeProposal,
             StartWorkWith,
             DoWork,
-            FinishWork
+            FinishWork,
+            PheromoneUpdate //von Malte: muss hier mit rein, damit die Funktion von Comm-Agent aufgerufen werden kann
         }
 
-        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine, WorkTimeGenerator workTimeGenerator) : base(creator, name, debug)
+        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine, WorkTimeGenerator workTimeGenerator, int speed) : base(creator, name, debug)
         {
             _directoryAgent = directoryAgent;
             ProgressQueueSize = 1; // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
@@ -48,7 +51,10 @@ namespace Master40.Agents.Agents
             WorkTimeGenerator = workTimeGenerator;
             ItemsInProgess = false;
             RegisterService();
-            QueueLength = 45; // plaing forecast
+            //QueueLength = 45; // plaing forecast //von Malte: übergangen
+            QueueLength = int.MaxValue; //von Malte: QueueLength sehr groß, Workaround um Queue Begrenzung zu umgehen
+            Speed = speed; //von Malte: Speed beim initialisieren festlegen
+            Pheromone = 1.0; //von Malte: Pheromone mit 1 initialisieren
         }
 
 
@@ -108,9 +114,13 @@ namespace Master40.Agents.Agents
         private void SendProposalTo(Agent targetAgent, WorkItem workItem)
         {
             var max = 0;
-            if(Queue.Any(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)))
+            //if(Queue.Any(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod))) //von Malte: Priority
+            //{
+            //    max = Queue.Where(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)).Max(e => e.EstimatedEnd); //von Malte: Priority
+            //}
+            if (Queue.Any()) //von Malte: FIFO
             {
-                max = Queue.Where(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)).Max(e => e.EstimatedEnd);
+                max = Queue[Queue.Count-1].EstimatedEnd; //von Malte: FIFO
             }
 
             // calculat Proposal.
@@ -120,7 +130,8 @@ namespace Master40.Agents.Agents
                 WorkItemId = workItem.Id,
                 Postponed = (max > QueueLength && workItem.Status != Status.Ready), // bool to postpone the item for later, exept it is already Ready
                 PostponedFor = QueueLength,
-                PossibleSchedule = max
+                PossibleSchedule = max,
+                Pheromone = Pheromone //von Malte: aktuelle Pheromone der Maschine mit in das Proposal für den Comm-Agent
             };
             // callback 
             CreateAndEnqueueInstuction(methodName: ComunicationAgent.InstuctionsMethods.ProposalFromMachine.ToString(),
@@ -141,7 +152,8 @@ namespace Master40.Agents.Agents
             if (Queue.Any(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)))
             {
                 // Get item Latest End.
-                var maxItem = Queue.Where(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)).Max(e => e.EstimatedEnd);
+                //var maxItem = Queue.Where(e => e.Priority(Context.TimePeriod) <= workItem.Priority(Context.TimePeriod)).Max(e => e.EstimatedEnd); //von Malte: Priority
+                var maxItem = Queue[Queue.Count - 1].EstimatedEnd; //von Malte: FIFO
 
                 // check if Queuable
                 if (maxItem > workItem.EstimatedStart)
@@ -157,19 +169,20 @@ namespace Master40.Agents.Agents
             DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.WorkSchedule.Name);
             Queue.Add(workItem);
             
-            // Enqued before another item?
-            var position = Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().IndexOf(workItem);
-            DebugMessage("Position: " + position + " Priority:"+ workItem.Priority(Context.TimePeriod) + " Queue length " + Queue.Count());
+            //von Malte: bei FIFO unwichtig
+            //// Enqued before another item?
+            //var position = Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().IndexOf(workItem);
+            //DebugMessage("Position: " + position + " Priority:"+ workItem.Priority(Context.TimePeriod) + " Queue length " + Queue.Count());
 
-            // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < Queue.Count)
-            {
-                var toRequeue = Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().GetRange(position + 1, Queue.Count() - position - 1);
+            //// reorganize Queue if an Element has ben Queued which is More Important.
+            //if (position + 1 < Queue.Count)
+            //{
+            //    var toRequeue = Queue.OrderBy(x => x.Priority(Context.TimePeriod)).ToList().GetRange(position + 1, Queue.Count() - position - 1);
 
-                CallToReQueue(toRequeue);
+            //    CallToReQueue(toRequeue);
 
-                DebugMessage("New Queue length = " + Queue.Count);
-            }
+            //    DebugMessage("New Queue length = " + Queue.Count);
+            //}
 
 
             if (workItem.Status == Status.Ready)
@@ -260,10 +273,10 @@ namespace Master40.Agents.Agents
 
 
             // TODO: Roll delay here
-            var duration = WorkTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration);
+            var duration = WorkTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration)/Speed; //von Malte: duration durch Speed geteilt
 
             //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
-            Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
+            Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, item.Pheromone, this.Machine); //von Malte: WorkItem.Pheromone mit übergeben
             
             // get item = ready and lowest priority
             CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.FinishWork.ToString(),
@@ -296,7 +309,7 @@ namespace Master40.Agents.Agents
                                       targetAgent: item.ComunicationAgent);
 
             // Reorganize List
-            CallToReQueue(Queue.Where(x => x.Status == Status.Created || x.Status == Status.InQueue).ToList());
+            //CallToReQueue(Queue.Where(x => x.Status == Status.Created || x.Status == Status.InQueue).ToList());
             // do Do Work in next Timestep.
             CreateAndEnqueueInstuction(methodName: InstuctionsMethods.DoWork.ToString(),
                                   objectToProcess: new InstructionSet(),
@@ -305,5 +318,11 @@ namespace Master40.Agents.Agents
             //DoWork(new InstructionSet());
         }
 
+        //von Malte: Pheromon-Update Funktion hinzufügen, die Comm-Agent aufrufen kann
+        private void PheromoneUpdate(InstructionSet instructionSet)
+        {
+            double evaporation = (double)instructionSet.ObjectToProcess;
+            Pheromone = (Pheromone * evaporation) + Speed;
+        }
     }
 }

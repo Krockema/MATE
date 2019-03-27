@@ -177,7 +177,7 @@ namespace Master40.XUnitTest.DBContext
             Assert.Equal(true, inMem.Database.GetDbConnection().State == ConnectionState.Open);
 
         }
-
+        */
         // HardDatabase To InMemory
         [Fact]
         public async Task CopyContext()
@@ -186,11 +186,11 @@ namespace Master40.XUnitTest.DBContext
             InMemoryContext.LoadData(_productionDomainContext, context);
             Assert.Equal(1, context.SimulationConfigurations.Count());
         }
-        */
         
-        [Theory]
+        
+        //[Theory]
         //[InlineData(SimulationType.Decentral, 5)]
-        [InlineData(SimulationType.Decentral, 6)]
+        //[InlineData(SimulationType.Decentral, 6)]
         //[InlineData(SimulationType.Decentral, 2)]
         //[InlineData(SimulationType.Decentral, 3)]
         //[InlineData(SimulationType.Central, 6)]
@@ -198,48 +198,48 @@ namespace Master40.XUnitTest.DBContext
         // [InlineData(SimulationType.Central, 5)]
         // [InlineData(SimulationType.Central, 6)]
         // [InlineData(SimulationType.Central, 7)]
-        public async Task TestKpiCalculation(SimulationType simType, int simId)
-        {
-             var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-                                                                           && x.SimulationConfigurationId == 1
-                                                                           && x.KpiType == KpiType.MeanTimeToStart)
-                 .ToListAsync();
-             _productionDomainContext.Kpis.RemoveRange(toRemove);
-             _productionDomainContext.SaveChanges();
-             //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
-             CalculateKpis.CalculateMeanStartTime(_productionDomainContext
-                                             , 1
-                                             , simType
-                                             , 1
-                                             , true
-                                             , 20160);
-
-           //  var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
-           //                                                                && x.SimulationConfigurationId == simId
-           //                                                                && x.KpiType == KpiType.StockEvolution)
-           //      .ToListAsync();
-           //  _productionDomainContext.Kpis.RemoveRange(toRemove2);
-           //  _productionDomainContext.SaveChanges();
-           //  
-           //  CalculateKpis.ArticleStockEvolution(_productionDomainContext
-           //      , simId
-           //      , simType
-           //      , 1
-           //      , true
-           //      , 20160);
-           // 
-
-
-            //            CalculateKpis.CalculateAllKpis(
-            //CalculateKpis.CalculateMachineUtilization(
-            //context: _productionDomainContext,
-            //    simulationId: 1,
-            //    simulationType: simType,
-            //    simulationNumber: 1,
-            //    final: true,
-            //    time: 20000);
-
-        }
+        // public async Task TestKpiCalculation(SimulationType simType, int simId)
+        //{
+        //    var toRemove = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+        //                                                                   && x.SimulationConfigurationId == 1
+        //                                                                   && x.KpiType == KpiType.MeanTimeToStart)
+        //         .ToListAsync();
+        //     _productionDomainContext.Kpis.RemoveRange(toRemove);
+        //     _productionDomainContext.SaveChanges();
+        //     //var simConfig = _productionDomainContext.SimulationConfigurations.Where(x => x.Id == 1);
+        //     CalculateKpis.CalculateMeanStartTime(_productionDomainContext
+        //                                     , 1
+        //                                     , simType
+        //                                     , 1
+        //                                     , true
+        //                                     , 20160);
+        //
+        //   //  var toRemove2 = await _productionDomainContext.Kpis.Where(x => x.SimulationType == simType
+        //   //                                                                && x.SimulationConfigurationId == simId
+        //   //                                                                && x.KpiType == KpiType.StockEvolution)
+        //   //      .ToListAsync();
+        //   //  _productionDomainContext.Kpis.RemoveRange(toRemove2);
+        //   //  _productionDomainContext.SaveChanges();
+        //   //  
+        //   //  CalculateKpis.ArticleStockEvolution(_productionDomainContext
+        //   //      , simId
+        //   //      , simType
+        //   //      , 1
+        //   //      , true
+        //   //      , 20160);
+        //   // 
+        //
+        //
+        //    //            CalculateKpis.CalculateAllKpis(
+        //    //CalculateKpis.CalculateMachineUtilization(
+        //    //context: _productionDomainContext,
+        //    //    simulationId: 1,
+        //    //    simulationType: simType,
+        //    //    simulationNumber: 1,
+        //    //    final: true,
+        //    //    time: 20000);
+        //
+        //}
 
         
     

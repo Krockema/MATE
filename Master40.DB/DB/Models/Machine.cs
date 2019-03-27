@@ -15,5 +15,6 @@ namespace Master40.DB.Models
         public virtual ICollection<MachineTool> MachineTools { get; set; }
         [JsonIgnore]
         public virtual ICollection<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
+        public int Speed { get; set; } //von Malte: Attribut Speed hinzugefügt
     }
 }

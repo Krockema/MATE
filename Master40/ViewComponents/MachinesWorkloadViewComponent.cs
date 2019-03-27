@@ -65,8 +65,8 @@ namespace Master40.ViewComponents
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && x.IsKpi
                                                         && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
-                                           .OrderByDescending(g => g.Name)
-                    .ToList();
+                                                     .OrderBy(g => g.Name).ToList();
+
                 var data = new Data {Labels = machines.Select(n => n.Name).ToList()};
 
                 // create Dataset for each Lable
@@ -154,7 +154,8 @@ namespace Master40.ViewComponents
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && !x.IsKpi
                                                         && !x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
-                    .ToList();
+                                                     .OrderBy(g => g.Name).ToList();
+
                 var settlingTime = _context.SimulationConfigurations.First(x => x.Id == Convert.ToInt32(paramsList[0])).SettlingStart;
                 var machines = machinesKpi.Select(n => n.Name).Distinct().ToList();
                 var data = new Data { Labels = machines };

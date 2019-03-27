@@ -43,11 +43,11 @@ namespace Master40.DB.Data.Initializer
             var assemblyUnit = new MachineGroup {Name = "AssemblyUnits", Stage=3, ImageUrl= "/images/Production/assemblys.svg" };
             
             var machines = new Machine[] {
-                new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
-                new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills },
-                new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
-                new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit}
+                new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting, Speed = 1}, //von Malte: Speed hinzugefügt
+                new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting, Speed = 2}, //von Malte: Speed hinzugefügt
+                new Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills, Speed = 1}, //von Malte: Speed hinzugefügt
+                new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit, Speed = 1}, //von Malte: Speed hinzugefügt
+                new Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit, Speed = 2} //von Malte: Speed hinzugefügt
             };
             context.Machines.AddRange(machines);
             context.SaveChanges();

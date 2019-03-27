@@ -1,13 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Master40.Agents.Agents.Internal;
 
 namespace Master40.Agents.Agents
 {
     public class DirectoryAgent : Agent
     {
-        public DirectoryAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
+        private Random randomAntNumber; //von Malte: Directory braucht RandomAntNumber, um den wiederum an Comm-Agents zu geben bei Initialisierung
+
+        public DirectoryAgent(Agent creator, string name, bool debug, Random randomAntNumber) : base(creator, name, debug)
         {
             //Instructions.Add(new Instruction {Method = "GetOrCreateComunicationAgentForType", ExpectedObjecType = typeof(string) });       
+            this.randomAntNumber = randomAntNumber; //randomAntNumber zwischenspeichern für Comm-Agents
         }
         public enum InstuctionsMethods
         {
@@ -31,7 +35,8 @@ namespace Master40.Agents.Agents
                 comunicationAgent = new ComunicationAgent(creator: this,
                                                              name: "Comunication ->" + objects.ObjectToProcess, 
                                                             debug: this.DebugThis, 
-                                                     contractType: objects.ObjectToProcess.ToString());
+                                                     contractType: objects.ObjectToProcess.ToString(),
+                                                  randomAntNumber: this.randomAntNumber); //von Malte: randomAntNumber an Comm-Agents übergeben beim erstellen
 
                 // add Agent Reference.
                 ChildAgents.Add(comunicationAgent);

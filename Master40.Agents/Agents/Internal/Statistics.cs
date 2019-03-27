@@ -29,11 +29,12 @@ namespace Master40.Agents.Agents.Internal
         }
 
 
-        public static void UpdateSimulationWorkSchedule(string workScheduleId, int start, int duration, Machine machine)
+        public static void UpdateSimulationWorkSchedule(string workScheduleId, int start, int duration, double pheromone, Machine machine) //von Malte: weiterer Parameter pheromone
         {
             var edit = AgentSimulation.SimulationWorkschedules.FirstOrDefault(x => x.WorkScheduleId.Equals(workScheduleId));
             edit.Start = start;
             edit.End = start + duration + 1; // to have Time Points instead of Time Periods
+            edit.Pheromone = pheromone; //von Malte: WorkItem.Pheromone im SimulationWorkschedule speichern für DB Auswertung
             edit.Machine = machine.Name;
         }
 

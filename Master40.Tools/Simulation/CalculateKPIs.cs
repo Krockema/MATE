@@ -29,7 +29,53 @@ namespace Master40.Tools.Simulation
             CalculateTimeliness(context,simulationId,  simulationType,  simulationNumber, final, time);
             ArticleStockEvolution(context, simulationId, simulationType, simulationNumber, final, time);
             CalculateLayTimes(context, simulationId, simulationType, simulationNumber, final, time);
+            CalculatePheromoneHistory(context, simulationId, simulationType, simulationNumber, final, time); //von Malte: KPI-Funktion mit aufrufen lassen
         }
+
+        //von Malte: KPIs der Pheromone über die Zeit
+        public static void CalculatePheromoneHistory(ProductionDomainContext context, int simulationId,
+            SimulationType simulationType, int simulationNumber, bool final, int time)
+        {
+            var simConfig = context.SimulationConfigurations.Single(a => a.Id == simulationId);
+
+            //get working time
+            var content = final
+                ? context.SimulationWorkschedules.Where(a => a.Start >= simConfig.SettlingStart
+                                                                && a.End <= simConfig.SimulationEndTime
+                                                                && a.End >= simConfig.SettlingStart
+                                                                && a.SimulationNumber == simulationNumber
+                                                                && a.SimulationType == simulationType
+                                                                && a.SimulationConfigurationId == simulationId)
+                    .Select(x => new {x.Pheromone, x.Machine}).Distinct().ToList()
+                : context.SimulationWorkschedules.Where(a => a.Start >= time - simConfig.DynamicKpiTimeSpan
+                                                                && a.End <= time
+                                                                && a.SimulationNumber == simulationNumber
+                                                                && a.SimulationType == simulationType
+                                                                && a.SimulationConfigurationId == simulationId)
+                    .Select(x => new {x.Pheromone, x.Machine}).Distinct().ToList();
+                
+            //get SimulationTime
+            var simulationTime = final
+                ? simConfig.SimulationEndTime - simConfig.SettlingStart
+                : simConfig.DynamicKpiTimeSpan;
+
+            var kpis = content.GroupBy(x => x.Machine).Select(g => new Kpi()
+            {
+                Value = Math.Round((double) (g.Sum(x => x.Pheromone)) / g.Count(), 2),
+                Name = g.Key,
+                IsKpi = final,
+                KpiType = KpiType.PheromoneHistory,
+                SimulationConfigurationId = simulationId,
+                SimulationType = simulationType,
+                SimulationNumber = simulationNumber,
+                Time = time,
+                IsFinal = final
+            }).ToList();
+
+            context.Kpis.AddRange(kpis);
+            context.SaveChanges();
+        }
+        //von Malte: Ende der Funktion
 
         public static void CalculateLayTimes(ProductionDomainContext context, int simulationId,
             SimulationType simulationType, int simulationNumber, bool final, int time)
@@ -662,6 +708,7 @@ namespace Master40.Tools.Simulation
             for (var i = ts; i < simConfig.SimulationEndTime; i = i + ts)
             {
                 CalculateMachineUtilization(context, simulationId, simulationType, simulationNumber, false, i);
+                CalculatePheromoneHistory(context, simulationId, simulationType, simulationNumber, false, i);
             }
         }
 

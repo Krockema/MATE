@@ -24,7 +24,6 @@ namespace Master40.DB.Models
         public int HierarchyNumber { get; set; }
         public string Parent { get; set; }
         public string ParentId { get; set; }
-
-
+        public double Pheromone { get; set; } //von Malte: Pheromone vom acknowledgement der Machine
     }
 }

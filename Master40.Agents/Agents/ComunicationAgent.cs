@@ -12,13 +12,17 @@ namespace Master40.Agents.Agents
 
         private List<WorkItem> WorkItemQueue;
         private List<Agent> MachineAgents;
+        private double evaporationsfaktor; //von Malte: Attribut für Evaporation
+        private Random randomAntNumber; //von Malte: Feld zum Speichern der Klasse
         
-        public ComunicationAgent(Agent creator, string name, bool debug, string contractType) 
+        public ComunicationAgent(Agent creator, string name, bool debug, string contractType, Random randomAntNumber) 
             : base(creator, name, debug)
         {
             ContractType = contractType;
             WorkItemQueue = new List<WorkItem>();
             MachineAgents = new List<Agent>();
+            evaporationsfaktor = 0.1; //von Malte: Evaporationsfaktor initialisieren, 90% Evaporation
+            this.randomAntNumber = randomAntNumber; //von Malte: randomAntNumber zur Verwendung gespeichert
         }
         public string ContractType { get; set; }
 
@@ -150,14 +154,37 @@ namespace Master40.Agents.Agents
                     return;
                 }
 
-                // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Where(y => y.Postponed == false)
-                                                                                                            .Min(p => p.PossibleSchedule)
-                                                                 && x.Postponed == false);
+                //von Malte: alte Auswahl auf Basis des Proposals
+                //// aknowledge Machine -> therefore get Machine -> send aknowledgement
+                //var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Where(y => y.Postponed == false)
+                //                                                                                            .Min(p => p.PossibleSchedule)
+                //                                                 && x.Postponed == false);
 
-                
+                //von Malte: neue Auswahl auf Basis der Pheromone
+                double r = randomAntNumber.NextDouble();
+                double pheromoneSumAll = 0D;
+                double pheromoneSumToHere = 0D;
+                var acknowledgement = new Proposal();
+
+                foreach (Proposal i in workItem.Proposals)
+                {
+                    pheromoneSumAll += i.Pheromone;
+                }
+
+                foreach (Proposal i in workItem.Proposals)
+                {
+                    pheromoneSumToHere += i.Pheromone;
+                    if (pheromoneSumToHere / pheromoneSumAll >= r)
+                    {
+                        acknowledgement = i;
+                        break;
+                    }
+                }
+                //von Malte: Ende der Auswahl auf Basis der Pheromone
+
                 workItem.MachineAgentId = acknowledgement.AgentId;
                 workItem.EstimatedEnd = acknowledgement.PossibleSchedule + workItem.WorkSchedule.Duration;
+                workItem.Pheromone = acknowledgement.Pheromone; //von Malte: Pheromone im WorkItem speichern für spätere Speicherung in der Datenbank zur Auswertung
                 
                 // set Proposal Start for Machine to Reque if time slot is closed.
                 workItem.EstimatedStart = acknowledgement.PossibleSchedule;
@@ -186,6 +213,11 @@ namespace Master40.Agents.Agents
             CreateAndEnqueueInstuction(methodName: ProductionAgent.InstuctionsMethods.Finished.ToString(),
                                   objectToProcess: status,
                                       targetAgent: workItem.ProductionAgent);
+
+            //von Malte: PheromoneUpdate vom passenden MachineAgent aufrufen
+            CreateAndEnqueueInstuction(methodName: MachineAgent.InstuctionsMethods.PheromoneUpdate.ToString(),
+                                  objectToProcess: evaporationsfaktor,
+                                      targetAgent: instructionSet.SourceAgent);
         }
 
 

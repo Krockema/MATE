@@ -44,6 +44,14 @@ namespace Master40.Controllers
             return ViewComponent("MachinesWorkLoad", new List<string> { simulationId, simulationType, simNumber, overTime });
         }
 
+        //von Malte: neu hinzugefügt für weiteren Chart
+        [HttpGet("[Controller]/MachinePheromone/{simulationId}/{simulationType}/{simNumber}")]
+        public IActionResult MachinePheromone(string simulationId, string simulationType, string simNumber)
+        {
+            //call to Diagramm
+            var vc = ViewComponent("MachinePheromone", new List<string> { simulationId, simulationType, simNumber});
+            return vc;
+        }
 
         [HttpGet("[Controller]/Timeliness/{simulationId}/{simulationType}/{simNumber}")]
         public IActionResult OrderTimeliness(string simulationId, string simulationType, string simNumber)
