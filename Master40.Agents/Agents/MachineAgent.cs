@@ -27,8 +27,10 @@ namespace Master40.Agents.Agents
         private int QueueLength { get; }
         private bool ItemsInProgess { get; set; }
         private WorkTimeGenerator WorkTimeGenerator { get; }
-        private int Speed { get; } //von Malte: Attribut Speed hinzugefügt
+        private double Speed { get; set; } //von Malte: Attribut Speed hinzugefügt, war mal int-Variable, aber kleinere Veränderungen des Werts erfordern double
+        private double OriginalSpeed { get; set; } //von Malte: bei Veränderung den Ursprungsspeed merken 
         private double Pheromone { get; set; } //von Malte: Attribut pheromone hinzugefügt
+        private int CountSinceLastUpspeed { get; set; }
 
         public enum InstuctionsMethods
         {
@@ -54,7 +56,9 @@ namespace Master40.Agents.Agents
             //QueueLength = 45; // plaing forecast //von Malte: übergangen
             QueueLength = int.MaxValue; //von Malte: QueueLength sehr groß, Workaround um Queue Begrenzung zu umgehen
             Speed = speed; //von Malte: Speed beim initialisieren festlegen
+            OriginalSpeed = speed; //von Malte: OriginalSpeed anfänglich festlegen
             Pheromone = 1.0; //von Malte: Pheromone mit 1 initialisieren
+            CountSinceLastUpspeed = 0;
         }
 
 
@@ -273,7 +277,7 @@ namespace Master40.Agents.Agents
 
 
             // TODO: Roll delay here
-            var duration = WorkTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration)/Speed; //von Malte: duration durch Speed geteilt
+            var duration = (int)(WorkTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration)/Speed); //von Malte: duration durch Speed geteilt, Duration bleibt int, Kommastellen der duration werden einfach abgeschnitten
 
             //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
             Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, item.Pheromone, this.Machine); //von Malte: WorkItem.Pheromone mit übergeben
@@ -318,11 +322,28 @@ namespace Master40.Agents.Agents
             //DoWork(new InstructionSet());
         }
 
+        //von Malte: Funktion, um den Speed der Maschine während der Produktion leicht zu verändern
+        //bildet ab, das schnell Maschine mit der Zeit langsamer wird bis eine gedachte Wartung wieder hohen Speed "setzt"
+        //private void SpeedChange()
+        //{
+        //    if (Speed > 1.0) { Speed -= 0.01; }
+        //    else { Speed = OriginalSpeed; }
+        //}
+        //bildet eine Art Schichtwechsel ab, schneller, erfahrener Mitarbeiter macht Pause; langsamer, neuer Mitarbeiter übernimmt; und umgekehrt
+        private void SpeedChange()
+        {
+            if(CountSinceLastUpspeed < 100) { CountSinceLastUpspeed++; }
+            else if(CountSinceLastUpspeed == 100) { Speed = 1; CountSinceLastUpspeed++; }
+            else if(CountSinceLastUpspeed < 200) { CountSinceLastUpspeed++; }
+            else { Speed = OriginalSpeed; CountSinceLastUpspeed = 0; }
+        }
+
         //von Malte: Pheromon-Update Funktion hinzufügen, die Comm-Agent aufrufen kann
         private void PheromoneUpdate(InstructionSet instructionSet)
         {
             double evaporation = (double)instructionSet.ObjectToProcess;
-            Pheromone = (Pheromone * evaporation) + Speed;
+            { Pheromone = (Pheromone * evaporation) + Speed; }
+            SpeedChange(); //von Malte: Speedchange-Funktion nach jeder Bearbeitung einmal ausführen
         }
     }
 }
