@@ -498,6 +498,27 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.4
 
             });
+            //von Malte: für eine genauere Abtastrate der KPIs
+            simConfigs.Add(new SimulationConfiguration()
+            {
+                //simconfigId = 11
+                Name = "decentral dev 0 KpiTimeSpan 240",
+                Lotsize = 1,
+                MaxCalculationTime = 1440,
+                OrderQuantity = 600,
+                Seed = 1340,
+                ConsecutiveRuns = 1,
+                OrderRate = 0.25,
+                Time = 0,
+                RecalculationTime = 1440,
+                SimulationEndTime = 20160,
+                DecentralRuns = 0,
+                CentralRuns = 0,
+                DynamicKpiTimeSpan = 240,
+                SettlingStart = 2880,
+                WorkTimeDeviation = 0.0
+
+            });
 
             context.SimulationConfigurations.AddRange(simConfigs);
             context.SaveChanges();

@@ -322,21 +322,33 @@ namespace Master40.Agents.Agents
             //DoWork(new InstructionSet());
         }
 
-        //von Malte: Funktion, um den Speed der Maschine während der Produktion leicht zu verändern
+        //von Malte: Speedchange-Funktion, um den Speed der Maschine während der Produktion leicht zu verändern
+
+        //bildet eine Art Schichtwechsel ab, schneller, erfahrener Mitarbeiter macht Pause; langsamer, neuer Mitarbeiter übernimmt; und umgekehrt
+        private void SpeedChange()
+        {
+            if (CountSinceLastUpspeed < 100) { CountSinceLastUpspeed++; }
+            else if (CountSinceLastUpspeed == 100) { Speed = 1; CountSinceLastUpspeed++; }
+            else if (CountSinceLastUpspeed < 200) { CountSinceLastUpspeed++; }
+            else { Speed = OriginalSpeed; CountSinceLastUpspeed = 0; }
+        }
+
         //bildet ab, das schnell Maschine mit der Zeit langsamer wird bis eine gedachte Wartung wieder hohen Speed "setzt"
         //private void SpeedChange()
         //{
         //    if (Speed > 1.0) { Speed -= 0.01; }
         //    else { Speed = OriginalSpeed; }
         //}
-        //bildet eine Art Schichtwechsel ab, schneller, erfahrener Mitarbeiter macht Pause; langsamer, neuer Mitarbeiter übernimmt; und umgekehrt
-        private void SpeedChange()
-        {
-            if(CountSinceLastUpspeed < 100) { CountSinceLastUpspeed++; }
-            else if(CountSinceLastUpspeed == 100) { Speed = 1; CountSinceLastUpspeed++; }
-            else if(CountSinceLastUpspeed < 200) { CountSinceLastUpspeed++; }
-            else { Speed = OriginalSpeed; CountSinceLastUpspeed = 0; }
-        }
+
+        //bildet langsames hochfahren von Maschinen und schlagartiges bremsen der maschine ab
+        //private void SpeedChange()
+        //{
+        //    if (Speed >= OriginalSpeed) { Speed = 1; }
+        //    else { Speed += 0.01; }
+        //}
+
+        //von Malte: SpeedChange-Funktionen Ende
+
 
         //von Malte: Pheromon-Update Funktion hinzufügen, die Comm-Agent aufrufen kann
         private void PheromoneUpdate(InstructionSet instructionSet)
