@@ -144,6 +144,12 @@ namespace Master40.DB.Data.Context
                 target.SimulationConfigurations.Add(item.CopyProperties());
             }
             target.SaveChanges();
+
+            foreach (var item in source.Mappings)
+            {
+                target.Mappings.Add(item.CopyProperties());
+            }
+            target.SaveChanges();
         }
 
         public static void SaveData(ProductionDomainContext source, ProductionDomainContext target)

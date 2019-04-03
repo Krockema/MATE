@@ -263,6 +263,7 @@ namespace Master40.Agents.Agents.Internal
             foreach(Agent child in ChildAgents)
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "Test", child);
 
+            //TODO: Move into ReceiveData?
             CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(), GetData(), instructionSet.SourceAgent);
         }
 

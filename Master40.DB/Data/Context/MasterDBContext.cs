@@ -37,6 +37,7 @@ namespace Master40.DB.Data.Context
         public DbSet<SimulationWorkschedule> SimulationWorkschedules { get; set; }
         public DbSet<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }
         public DbSet<Kpi> Kpis { get; set; }
+        public DbSet<Mapping> Mappings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Article>()
@@ -107,7 +108,7 @@ namespace Master40.DB.Data.Context
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
                 .OnDelete(DeleteBehavior.Restrict);
-
+            modelBuilder.Entity<Mapping>();
         }
     }
 }

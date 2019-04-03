@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Master40.DB.GanttplanDB.Models;
+using Master40.DB.Models;
 
 namespace Master40.XUnitTest.DBContext
 {
@@ -61,6 +62,18 @@ namespace Master40.XUnitTest.DBContext
             {
                 Debug.WriteLine(conf.PropertyName + ": " + conf.Value + "\n");
                 Assert.NotEmpty(conf.PropertyName);
+            }
+        }
+
+        [Fact]
+        public void TransformationTest()
+        {
+            _masterDBContext.Database.EnsureDeleted();
+            MasterDBInitializerBasic.DbInitialize(_masterDBContext);
+
+            foreach(Mapping map in _masterDBContext.Mappings)
+            {
+                Debug.WriteLine(map.From + " -> " + map.To);
             }
         }
 
