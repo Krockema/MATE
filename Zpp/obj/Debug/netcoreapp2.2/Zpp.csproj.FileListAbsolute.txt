@@ -1,0 +1,11 @@
+/home/psc/git/Master-4.0/Zpp/bin/Debug/netcoreapp2.2/Zpp.deps.json
+/home/psc/git/Master-4.0/Zpp/bin/Debug/netcoreapp2.2/Zpp.runtimeconfig.json
+/home/psc/git/Master-4.0/Zpp/bin/Debug/netcoreapp2.2/Zpp.runtimeconfig.dev.json
+/home/psc/git/Master-4.0/Zpp/bin/Debug/netcoreapp2.2/Zpp.dll
+/home/psc/git/Master-4.0/Zpp/bin/Debug/netcoreapp2.2/Zpp.pdb
+/home/psc/git/Master-4.0/Zpp/obj/Debug/netcoreapp2.2/Zpp.csprojAssemblyReference.cache
+/home/psc/git/Master-4.0/Zpp/obj/Debug/netcoreapp2.2/Zpp.csproj.CoreCompileInputs.cache
+/home/psc/git/Master-4.0/Zpp/obj/Debug/netcoreapp2.2/Zpp.AssemblyInfoInputs.cache
+/home/psc/git/Master-4.0/Zpp/obj/Debug/netcoreapp2.2/Zpp.AssemblyInfo.cs
+/home/psc/git/Master-4.0/Zpp/obj/Debug/netcoreapp2.2/Zpp.dll
+/home/psc/git/Master-4.0/Zpp/obj/Debug/netcoreapp2.2/Zpp.pdb
