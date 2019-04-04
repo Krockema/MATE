@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Master40.DB.GanttplanDB.Models;
 using Master40.DB.Models;
+using Master40.DB.DataTransformation;
 
 namespace Master40.XUnitTest.DBContext
 {
@@ -70,11 +71,11 @@ namespace Master40.XUnitTest.DBContext
         {
             _masterDBContext.Database.EnsureDeleted();
             MasterDBInitializerBasic.DbInitialize(_masterDBContext);
+            _masterDBContext.Database.EnsureCreated();
+            _gpSzenarioContext.Database.EnsureCreated();
 
-            foreach(Mapping map in _masterDBContext.Mappings)
-            {
-                Debug.WriteLine(map.From + " -> " + map.To);
-            }
+            DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
+            helper.TransformMasterToGp();
         }
 
         /// <summary>

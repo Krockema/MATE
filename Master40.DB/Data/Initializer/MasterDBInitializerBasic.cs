@@ -198,10 +198,10 @@ namespace Master40.DB.Data.Initializer
             };
             context.Add(orderPart2);
             context.SaveChanges();
-            var mapping1 = new Mapping { From = "Articles.Id", To = "material.material_id" };
+            var mapping1 = new Mapping { From = "Articles.Id", To = "Material.MaterialId" };
             context.Add(mapping1);
             context.SaveChanges();
-            var mapping2 = new Mapping { From = "Articles.Name", To = "material.name" };
+            var mapping2 = new Mapping { From = "Articles.Name", To = "Material.Name" };
             context.Add(mapping2);
             context.SaveChanges();
 
