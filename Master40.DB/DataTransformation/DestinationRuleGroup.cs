@@ -5,11 +5,11 @@ using Master40.DB.Models;
 
 namespace Master40.DB.DataTransformation
 {
-    public class TransformationRuleGroup
+    public class DestinationRuleGroup
     {
         public List<Mapping> Rules { get; } = new List<Mapping>();
 
-        public TransformationRuleGroup()
+        public DestinationRuleGroup()
         {
         }
 

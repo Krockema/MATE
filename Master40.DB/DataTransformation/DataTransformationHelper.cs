@@ -13,7 +13,7 @@ namespace Master40.DB.DataTransformation
     {
         private MasterDBContext MasterContext;
         private GPSzenarioContext GpContext;
-        private Dictionary<string, TransformationRuleGroup> RuleGroupsDict = new Dictionary<string, TransformationRuleGroup>();
+        private Dictionary<string, SourceRuleGroup> SourceRuleGroups = new Dictionary<string, SourceRuleGroup>();
 
         public DataTransformationHelper(MasterDBContext masterContext, GPSzenarioContext gpContext)
         {
@@ -28,54 +28,71 @@ namespace Master40.DB.DataTransformation
 
         private void GroupRules()
         {
-            // TODO: Evtl nach Source und Destination table sortieren?
+            Dictionary<string, DestinationRuleGroup> tmpRuleGroup = new Dictionary<string, DestinationRuleGroup>();
+            
+            // Group source tables
             foreach(Mapping mapping in MasterContext.Mappings)
             {
                 string sourceTabName = mapping.From.Split(".")[0];
-                if (!RuleGroupsDict.ContainsKey(sourceTabName))
-                    RuleGroupsDict[sourceTabName] = new TransformationRuleGroup();
+                if (!tmpRuleGroup.ContainsKey(sourceTabName))
+                    tmpRuleGroup[sourceTabName] = new DestinationRuleGroup();
 
-                RuleGroupsDict[sourceTabName].AddRule(mapping);
+                tmpRuleGroup[sourceTabName].AddRule(mapping);
             }
-        }
 
-        public bool TransformMasterToGp()
-        {
-            foreach(KeyValuePair<string, TransformationRuleGroup> group in RuleGroupsDict)
+            // Group destination tables
+            foreach(KeyValuePair<string, DestinationRuleGroup> srcGroup in tmpRuleGroup)
             {
-                // Locate source table
-                Type sourceType = MasterContext.GetType();
-                PropertyInfo sourceProp = sourceType.GetProperty(group.Key.Split('.')[0]);
-                dynamic sourceTable = sourceProp.GetValue(MasterContext);
-
-                foreach (object tupel in sourceTable)
+                SourceRuleGroup srcRuleGroup = new SourceRuleGroup();
+                foreach(Mapping rule in srcGroup.Value.Rules)
                 {
-                    foreach(Mapping rule in group.Value.Rules)
-                    {
-                        // Get source data
-                        Type tupelType = tupel.GetType();
-                        PropertyInfo tupelProp = tupelType.GetProperty(rule.From.Split('.')[1]);
-                        object data = tupelProp.GetValue(tupel);
+                    string destTabName = rule.To.Split(".")[0];
+                    if (!srcRuleGroup.RuleGroups.ContainsKey(destTabName))
+                        srcRuleGroup.RuleGroups[destTabName] = new DestinationRuleGroup();
+                    srcRuleGroup.RuleGroups[destTabName].AddRule(rule);
 
-                        // Locate destination table
-                        Type destinationType = GpContext.GetType();
-                        PropertyInfo destinationProp = destinationType.GetProperty(rule.To.Split('.')[0]);
-                        dynamic destinationTable = destinationProp.GetValue(GpContext);
-
-                        // TODO: Funktioniert nicht, speichert ein Property und übernimmt dann ganzes Objekt -> doppelt gruppieren siehe GroupRules()
-                        // TODO: Dynamisch machen
-                        // TODO: Prüfen, ob Eintrag mit ID schon vorhanden
-                        Material mat = new Material();
-                        Type destTupelType = mat.GetType();
-                        PropertyInfo destProp = destTupelType.GetProperty(rule.To.Split('.')[1]);
-                        destProp.SetValue(mat, data.ToString());
-                        //destinationTable.Add(mat);
-                    }
                 }
+                SourceRuleGroups[srcGroup.Key] = srcRuleGroup;
             }
-            GpContext.SaveChanges();
-            return true;
         }
+
+        //public bool TransformMasterToGp()
+        //{
+        //    foreach(KeyValuePair<string, TransformationRuleGroup> group in RuleGroupsDict)
+        //    {
+        //        // Locate source table
+        //        Type sourceType = MasterContext.GetType();
+        //        PropertyInfo sourceProp = sourceType.GetProperty(group.Key.Split('.')[0]);
+        //        dynamic sourceTable = sourceProp.GetValue(MasterContext);
+
+        //        foreach (object tupel in sourceTable)
+        //        {
+        //            foreach(Mapping rule in group.Value.Rules)
+        //            {
+        //                // Get source data
+        //                Type tupelType = tupel.GetType();
+        //                PropertyInfo tupelProp = tupelType.GetProperty(rule.From.Split('.')[1]);
+        //                object data = tupelProp.GetValue(tupel);
+
+        //                // Locate destination table
+        //                Type destinationType = GpContext.GetType();
+        //                PropertyInfo destinationProp = destinationType.GetProperty(rule.To.Split('.')[0]);
+        //                dynamic destinationTable = destinationProp.GetValue(GpContext);
+
+        //                // TODO: Funktioniert nicht, speichert ein Property und übernimmt dann ganzes Objekt -> doppelt gruppieren siehe GroupRules()
+        //                // TODO: Dynamisch machen
+        //                // TODO: Prüfen, ob Eintrag mit ID schon vorhanden
+        //                Material mat = new Material();
+        //                Type destTupelType = mat.GetType();
+        //                PropertyInfo destProp = destTupelType.GetProperty(rule.To.Split('.')[1]);
+        //                destProp.SetValue(mat, data.ToString());
+        //                //destinationTable.Add(mat);
+        //            }
+        //        }
+        //    }
+        //    GpContext.SaveChanges();
+        //    return true;
+        //}
 
         public bool TransformGpToMaster()
         {
