@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Reflection;
 
 namespace Master40.DB.DataTransformation
 {
@@ -10,8 +9,8 @@ namespace Master40.DB.DataTransformation
         string Destination { get; }
         public TransformationRule(string source, string destination)
         {
-            this.Source = source;
-            this.Destination = destination;
+            Source = source;
+            Destination = destination;
         }
     }
 }

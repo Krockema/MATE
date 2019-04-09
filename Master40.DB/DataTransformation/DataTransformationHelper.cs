@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using Master40.DB.DataTransformation;
 using Master40.DB.Data.Context;
 using Master40.DB.Models;
 using System;
+using System.Linq;
 using System.Reflection;
-using Master40.DB.GanttplanDB.Models;
 
 namespace Master40.DB.DataTransformation
 {
@@ -56,43 +55,77 @@ namespace Master40.DB.DataTransformation
             }
         }
 
-        //public bool TransformMasterToGp()
-        //{
-        //    foreach(KeyValuePair<string, TransformationRuleGroup> group in RuleGroupsDict)
-        //    {
-        //        // Locate source table
-        //        Type sourceType = MasterContext.GetType();
-        //        PropertyInfo sourceProp = sourceType.GetProperty(group.Key.Split('.')[0]);
-        //        dynamic sourceTable = sourceProp.GetValue(MasterContext);
+        private IEnumerable<string> _getPrimaryKeys(DbContext context, Type objectType)
+        {
+            return context.Model.FindEntityType(objectType).FindPrimaryKey().Properties.Select(x => x.Name);
+        }
 
-        //        foreach (object tupel in sourceTable)
-        //        {
-        //            foreach(Mapping rule in group.Value.Rules)
-        //            {
-        //                // Get source data
-        //                Type tupelType = tupel.GetType();
-        //                PropertyInfo tupelProp = tupelType.GetProperty(rule.From.Split('.')[1]);
-        //                object data = tupelProp.GetValue(tupel);
+        public bool TransformMasterToGp()
+        {
+            foreach (KeyValuePair<string, SourceRuleGroup> srcGroup in SourceRuleGroups)
+            {
+                // Locate source table
+                Type sourceType = MasterContext.GetType();
+                PropertyInfo sourceProp = sourceType.GetProperty(srcGroup.Key);
+                dynamic sourceTable = sourceProp.GetValue(MasterContext);
 
-        //                // Locate destination table
-        //                Type destinationType = GpContext.GetType();
-        //                PropertyInfo destinationProp = destinationType.GetProperty(rule.To.Split('.')[0]);
-        //                dynamic destinationTable = destinationProp.GetValue(GpContext);
+                foreach (object srcTuple in sourceTable)
+                {
+                    foreach(KeyValuePair<string, DestinationRuleGroup> destGroup in srcGroup.Value.RuleGroups)
+                    {
+                        // Dictionary<DestinationPropName, SourceData> 
+                        Dictionary<string, object> tupleData = new Dictionary<string, object>();
 
-        //                // TODO: Funktioniert nicht, speichert ein Property und übernimmt dann ganzes Objekt -> doppelt gruppieren siehe GroupRules()
-        //                // TODO: Dynamisch machen
-        //                // TODO: Prüfen, ob Eintrag mit ID schon vorhanden
-        //                Material mat = new Material();
-        //                Type destTupelType = mat.GetType();
-        //                PropertyInfo destProp = destTupelType.GetProperty(rule.To.Split('.')[1]);
-        //                destProp.SetValue(mat, data.ToString());
-        //                //destinationTable.Add(mat);
-        //            }
-        //        }
-        //    }
-        //    GpContext.SaveChanges();
-        //    return true;
-        //}
+                        // Read source data
+                        foreach (Mapping rule in destGroup.Value.Rules)
+                        {
+                            Type tupleType = srcTuple.GetType();
+                            PropertyInfo tupelProp = tupleType.GetProperty(rule.From.Split('.')[1]);
+                            // TODO: Umwandlungsoperation ausführen
+                            tupleData[rule.To.Split('.')[1]] = tupelProp.GetValue(srcTuple);
+                        }
+
+                        // Locate destination table
+                        Type destType = GpContext.GetType();
+                        PropertyInfo destProp = destType.GetProperty(destGroup.Key);
+                        dynamic destTable = destProp.GetValue(GpContext);
+                        Type destDataObjectType = destProp.PropertyType.GetTypeInfo().GenericTypeArguments[0];
+                        object destDataObject = null;
+                        
+                        IEnumerable<string> primaryKeys = _getPrimaryKeys(GpContext, destDataObjectType);
+
+                        // Search or create destination object based on primary keys
+                        foreach(object destTuple in destTable)
+                        {
+                            bool equals = true;
+                            // Compare primary key(s)
+                            foreach(string keyName in primaryKeys)
+                            {
+                                if(tupleData[keyName] != destDataObjectType.GetProperty(keyName).GetValue(destTuple))
+                                {
+                                    equals = false;
+                                    break;
+                                }
+                            }
+                            if(equals)
+                            {
+                                destDataObject = destTuple;
+                                break;
+                            }
+                        }
+                        if (destDataObject == null)
+                            destDataObject = Activator.CreateInstance(destDataObjectType);
+
+                        // Copy data
+                        foreach(KeyValuePair<string, object> data in tupleData)
+                            destDataObjectType.GetProperty(data.Key).SetValue(destDataObject, data.Value);
+                        destTable.Add(destDataObject);
+                    }
+                }
+            }
+            //GpContext.SaveChanges();
+            return true;
+        }
 
         public bool TransformGpToMaster()
         {

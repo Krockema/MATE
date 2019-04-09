@@ -18,6 +18,7 @@ using Xunit;
 using Master40.DB.GanttplanDB.Models;
 using Master40.DB.Models;
 using Master40.DB.DataTransformation;
+using System.Reflection;
 
 namespace Master40.XUnitTest.DBContext
 {
@@ -69,13 +70,13 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public void TransformationTest()
         {
-            //_masterDBContext.Database.EnsureDeleted();
-            //MasterDBInitializerBasic.DbInitialize(_masterDBContext);
+            _masterDBContext.Database.EnsureDeleted();
+            MasterDBInitializerBasic.DbInitialize(_masterDBContext);
             _masterDBContext.Database.EnsureCreated();
             _gpSzenarioContext.Database.EnsureCreated();
 
             DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
-            //helper.TransformMasterToGp();
+            helper.TransformMasterToGp();
         }
 
         /// <summary>
