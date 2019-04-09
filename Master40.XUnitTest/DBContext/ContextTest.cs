@@ -34,9 +34,9 @@ namespace Master40.XUnitTest.DBContext
         //     .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
         //     .Options);
         // 
-        // ProductionDomainContext _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-        //     .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
-        //     .Options);
+         ProductionDomainContext _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+             .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+             .Options);
 
         public ContextTest()
         {
@@ -82,7 +82,7 @@ namespace Master40.XUnitTest.DBContext
             _ctx.Dispose();
         }
         */
-        /*
+        
         [Fact]
         public async Task MrpTestAsync()
         {
@@ -93,7 +93,7 @@ namespace Master40.XUnitTest.DBContext
             await simulation.Simulate(1);
             Assert.True(_productionDomainContext.Kpis.Any());
         }
-        
+        /*
         //public DemandToProvider getRequester
         [Fact]
         public async Task AgentSimulationTestAsync()
@@ -273,7 +273,7 @@ namespace Master40.XUnitTest.DBContext
     /*
         [Fact]
         public async Task TestDistribution()
-        {      //Sigma² ==> Varianz
+        {      //Sigmaï¿½ ==> Varianz
                //Sigma  ==> Standardabweichung
                //Erwartungswert ==> 
 

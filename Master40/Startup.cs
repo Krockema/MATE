@@ -17,6 +17,7 @@ using Master40.MessageSystem.SignalR;
 using Master40.Simulation.Simulation;
 using Swashbuckle.AspNetCore.Swagger;
 using Master40.BusinessLogicCentral.Simulator;
+using System;
 
 namespace Master40
 {
@@ -44,6 +45,7 @@ namespace Master40
             services.AddDbContext<MasterDBContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            Console.WriteLine(Configuration.GetConnectionString("DefaultConnection"));
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
