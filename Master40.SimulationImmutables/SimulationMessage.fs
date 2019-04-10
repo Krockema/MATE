@@ -1,7 +1,7 @@
 namespace Master40.SimulationImmutables
 
 open System
-open Master40.DB.Models
+open Master40.DB.DataModel
 open Akka.Actor
 open System.Linq
 

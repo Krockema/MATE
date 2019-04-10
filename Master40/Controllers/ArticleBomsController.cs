@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -32,7 +32,7 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles.Include(w => w.WorkSchedules)
-                .Where(a => a.Id == 1 || a.Id == 24).ToList();
+                .Where(x => x.ArticleTypeId == 4 /* Equals("Product") */).ToList();
 
             var articleList = new List<Article>();
             foreach (var item in masterDBContext)

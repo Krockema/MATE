@@ -1,19 +1,15 @@
-﻿using AkkaSim;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AkkaSim;
+using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Master40.DB.Models;
+using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Collector.Instruction;
 using Newtonsoft.Json;
-using System.Reflection;
-using Master40.DB.Data.Helper;
-using Akka.Util.Internal;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsWorkSchedule : Behaviour, ICollectorBehaviour
     {
@@ -38,7 +34,7 @@ namespace Master40.SimulationCore.Agents
                 case CreateSimulationWork m: CreateSimulationWorkSchedule((Collector)simulationMonitor,m); break;
                 case UpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
                 case UpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
-                case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 case Hub.Instruction.AddMachineToHub m: RecoverFromBreak((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 default: return false;
@@ -85,15 +81,15 @@ namespace Master40.SimulationCore.Agents
                       where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
                           && a.Time >= lastIntervalStart
-                      group a by new { a.Article, a.CreatedForOrderId } into arti
+                      group a by new { a.Article, a.OrderId } into arti
                       select new
                       {
                           Article = arti.Key.Article,
-                          Order = arti.Key.CreatedForOrderId
+                          OrderId = arti.Key.OrderId
                       };
 
             var leadTime = from lt in simulationWorkschedules
-                           group lt by lt.CreatedForOrderId into so
+                           group lt by lt.OrderId into so
                            select new
                            {
                                OrderID = so.Key,
@@ -102,11 +98,11 @@ namespace Master40.SimulationCore.Agents
 
             var innerJoinQuery =
                    from a in art
-                   join l in leadTime on a.Order equals l.OrderID
+                   join l in leadTime on a.OrderId equals l.OrderID
                    select new
                    {
                        a.Article,
-                       a.Order,
+                       a.OrderId,
                        l.Dlz
                    };
 

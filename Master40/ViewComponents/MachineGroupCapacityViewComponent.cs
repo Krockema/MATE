@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using ChartJSCore.Models.Bar;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.Extensions;
 

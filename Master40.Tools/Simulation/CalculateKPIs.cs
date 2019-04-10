@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using MathNet.Numerics.Statistics;
 

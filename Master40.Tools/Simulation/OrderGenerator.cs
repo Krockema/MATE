@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using Master40.DB.Data.Context;
 using System.Linq;
 using Master40.DB.Interfaces;
-using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using MathNet.Numerics.Random;
 using MathNet.Numerics.Distributions;
 using System.Threading.Tasks;
+using Master40.DB.DataModel;
 
 namespace Master40.Tools.Simulation
 {

@@ -5,22 +5,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
-using Master40.DB.Models;
-using Master40.Simulation.Simulation;
 using Master40.Tools.Simulation;
 using System.Collections.Generic;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
     public class SimulationConfigurationsController : Controller
     {
         private readonly MasterDBContext _context;
-        private readonly ISimulator _simulator;
+        
 
-        public SimulationConfigurationsController(MasterDBContext context, ISimulator simulator)
+        public SimulationConfigurationsController(MasterDBContext context)
         {
             _context = context;
-            _simulator = simulator;
         }
 
         // GET: SimulationConfigurations
@@ -160,19 +158,19 @@ namespace Master40.Controllers
         {
             var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
             string run = "";
-            for (int i = 0; i < runs; i++)
-            {
-                if (run == "")
-                { // initial Run.
-                    run = BackgroundJob.Enqueue<ISimulator>(
-                        x => _simulator.Simulate(simulationId));
-                } // consecutive Runs 
-                else
-                {
-                    run = BackgroundJob.ContinueWith<ISimulator>(run,
-                        x => _simulator.Simulate(simulationId));
-                }
-            }
+            //  for (int i = 0; i < runs; i++)
+            //  {
+                 // if (run == "")
+                 // { // initial Run.
+                 //     run = BackgroundJob.Enqueue<ISimulator>(
+                 //         x => _simulator.Simulate(simulationId));
+                 // } // consecutive Runs 
+                 // else
+                 // {
+                 //     run = BackgroundJob.ContinueWith<ISimulator>(run,
+                 //         x => _simulator.Simulate(simulationId));
+                 // }
+            // }
         }
 
 
@@ -181,19 +179,19 @@ namespace Master40.Controllers
         {
             var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
             string run = "";
-            for (int i = 0; i < runs; i++)
-            {
-                if (run == "")
-                { // initial Run.
-                    run = BackgroundJob.Enqueue<ISimulator>(
-                          x => _simulator.AgentSimulatioAsync(simulationId));
-                } // consecutive Runs 
-                else
-                {
-                   run =  BackgroundJob.ContinueWith<ISimulator>(run ,
-                          x => _simulator.AgentSimulatioAsync(simulationId));
-                }
-            }
+            // for (int i = 0; i < runs; i++)
+            // {
+            //     if (run == "")
+            //     { // initial Run.
+            //         run = BackgroundJob.Enqueue<ISimulator>(
+            //               x => _simulator.AgentSimulatioAsync(simulationId));
+            //     } // consecutive Runs 
+            //     else
+            //     {
+            //        run =  BackgroundJob.ContinueWith<ISimulator>(run ,
+            //               x => _simulator.AgentSimulatioAsync(simulationId));
+            //     }
+            // }
         }
 
         [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}")]

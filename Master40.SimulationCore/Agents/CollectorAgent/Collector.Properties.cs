@@ -1,4 +1,4 @@
-﻿namespace Master40.SimulationCore.Agents
+﻿namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public partial class Collector
     {

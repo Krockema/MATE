@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
+using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 
 namespace Master40.SimulationCore.Agents

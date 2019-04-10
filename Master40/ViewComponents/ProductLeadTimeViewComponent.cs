@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Master40.Extensions;
 using Master40.DB.Enums;
-using Master40.DB.Models;
 
 namespace Master40.ViewComponents
 {

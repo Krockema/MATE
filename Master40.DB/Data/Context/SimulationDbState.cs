@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Master40.DB.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Master40.DB.DataModel;
 
-namespace Master40.Simulation.Simulation
+namespace Master40.DB.Data.Context
 {
     public class SimulationDbState
     {

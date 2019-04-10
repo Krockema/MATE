@@ -1,12 +1,12 @@
-﻿using AkkaSim;
-using Master40.DB.Models;
+﻿using System;
+using AkkaSim;
+using Master40.SimulationCore.Agents.ContractAgent;
+using Master40.SimulationCore.Agents.SupervisorAegnt;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using Newtonsoft.Json;
-using System;
-using static Master40.SimulationCore.Agents.Collector.Instruction;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsContracts : Behaviour, ICollectorBehaviour
     {
@@ -34,7 +34,7 @@ namespace Master40.SimulationCore.Agents
             {
                 case Contract.Instruction.StartOrder m: AddOrder((Collector)simulationMonitor, m); break;
                 case Supervisor.Instruction.OrderProvided m: ProvideOrder((Collector)simulationMonitor, m); break;
-                case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
                 default: return false;
             }
             return true;

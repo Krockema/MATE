@@ -1,7 +1,7 @@
-﻿using Master40.MessageSystem.Messages;
+﻿using Master40.Tools.Messages;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Master40.MessageSystem.SignalR
+namespace Master40.Tools.SignalR
 {
     public class ProcessingHub : Hub
     {

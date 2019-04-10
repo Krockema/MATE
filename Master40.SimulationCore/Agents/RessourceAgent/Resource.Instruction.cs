@@ -1,11 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.Ressource
 {
     public partial class Resource
     {

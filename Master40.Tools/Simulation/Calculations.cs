@@ -1,7 +1,7 @@
-﻿using Master40.DB.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Master40.DB.DataModel;
 
 namespace Master40.Tools.Simulation
 {

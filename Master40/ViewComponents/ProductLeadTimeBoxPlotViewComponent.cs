@@ -7,7 +7,7 @@ using Master40.DB.Data.Context;
 using Master40.Extensions;
 using Master40.DB.Enums;
 using Master40.DB.Data.Helper;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.ViewComponents
 {

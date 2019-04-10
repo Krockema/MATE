@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.HubAgent
 {
     /// <summary>
     /// Alternative Namen; ResourceAllocation, RessourceGroup, Mediator, Coordinator, Hub

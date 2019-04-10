@@ -1,10 +1,10 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using AkkaSim.Interfaces;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.ContractAgent
 {
     public partial class Contract
     {

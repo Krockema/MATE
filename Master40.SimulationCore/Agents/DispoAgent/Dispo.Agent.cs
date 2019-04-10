@@ -1,10 +1,12 @@
-﻿using Akka.Actor;
+﻿using System.Linq;
+using Akka.Actor;
+using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System.Linq;
 
-
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.DispoAgent
 {
     /// <summary>
     /// --------- General sequence

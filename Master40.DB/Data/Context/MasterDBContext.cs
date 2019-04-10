@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Master40.DB.Models;
+﻿using Master40.DB.DataModel;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace Master40.DB.Data.Context

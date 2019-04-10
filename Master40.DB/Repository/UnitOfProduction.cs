@@ -1,10 +1,10 @@
 ﻿using Master40.DB.Data.Context;
 using Master40.DB.Enums;
-using Master40.DB.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Master40.DB.DataModel;
 
 namespace Master40.DB.Repository
 {

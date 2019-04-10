@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Enums;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Repository
 {

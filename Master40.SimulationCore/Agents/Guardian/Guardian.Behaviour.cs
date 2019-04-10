@@ -1,10 +1,9 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
-using System;
-using static Master40.SimulationCore.Agents.Guardian;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.Guardian
 {
     public class GuardianBehaviour : Behaviour
     {
@@ -19,7 +18,7 @@ namespace Master40.SimulationCore.Agents
         {
             switch (message)
             {
-                case Instruction.CreateChild m: CreateChild(agent, m.GetObjectFromMessage); break;
+                case Guardian.Instruction.CreateChild m: CreateChild(agent, m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;

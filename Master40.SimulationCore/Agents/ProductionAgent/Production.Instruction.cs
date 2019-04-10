@@ -2,7 +2,7 @@
 using AkkaSim.Definitions;
 using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.ProductionAgent
 {
     public partial class Production
     {

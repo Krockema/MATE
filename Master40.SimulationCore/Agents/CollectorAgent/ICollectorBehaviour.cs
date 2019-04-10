@@ -1,6 +1,6 @@
 ﻿using AkkaSim;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public interface ICollectorBehaviour
     {

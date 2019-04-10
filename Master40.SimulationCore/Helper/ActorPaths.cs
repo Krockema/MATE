@@ -2,6 +2,7 @@
 using Master40.SimulationCore.Agents;
 using System;
 using System.Collections.Generic;
+using Master40.SimulationCore.Agents.Guardian;
 
 namespace Master40.SimulationCore.Helper
 {

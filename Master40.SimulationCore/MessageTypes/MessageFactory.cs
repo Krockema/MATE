@@ -1,9 +1,9 @@
 ﻿using Master40.SimulationImmutables;
 using System;
 using Master40.FunctionConverter;
-using Master40.DB.Models;
 using Akka.Actor;
 using System.Collections.Generic;
+using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore.MessageTypes
 {

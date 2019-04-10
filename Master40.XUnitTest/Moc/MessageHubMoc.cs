@@ -1,7 +1,7 @@
 ﻿using Master40.DB.Enums;
-using Master40.MessageSystem.Messages;
-using Master40.MessageSystem.SignalR;
 using System.Diagnostics;
+using Master40.Tools.Messages;
+using Master40.Tools.SignalR;
 
 namespace Master40.XUnitTest.Moc
 {

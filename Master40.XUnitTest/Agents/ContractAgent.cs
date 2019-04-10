@@ -3,7 +3,6 @@ using Akka.TestKit.Xunit;
 using AkkaSim.Interfaces;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.Models;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
@@ -15,6 +14,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using AkkaSim.Definitions;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.ContractAgent;
+using Master40.SimulationCore.Agents.DirectoryAgent;
+using Master40.SimulationCore.Agents.StorageAgent;
+using Master40.SimulationCore.Agents.SupervisorAegnt;
 using Master40.XUnitTest.Moc;
 
 namespace Master40.XUnitTest.Agents
@@ -111,7 +115,7 @@ namespace Master40.XUnitTest.Agents
             var order = new Order() { DueTime = 0, Id = 1 };
             var orderPart = new OrderPart() { Article = new Article() { Name = "Bear" }, Quantity = 1, Id = 1, OrderId = 1, Order = order };
             // tell teh Contract agent
-            simContext.Tell(SimulationCore.Agents.Contract.Instruction.StartOrder.Create(orderPart, contract));
+            simContext.Tell(Contract.Instruction.StartOrder.Create(orderPart, contract));
 
             // check if Child is Created correctly and sending its fist Request to the StorageProbe
             dynamic item = directoryProbe.ReceiveOne(TimeSpan.FromSeconds(50));

@@ -1,8 +1,6 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
-using Master40.MessageSystem.SignalR;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Reporting;
@@ -12,7 +10,16 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static Master40.SimulationCore.Agents.Collector.Instruction;
+using AkkaSim;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.CollectorAgent;
+using Master40.SimulationCore.Agents.ContractAgent;
+using Master40.SimulationCore.Agents.DirectoryAgent;
+using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.SupervisorAegnt;
+using Master40.Tools.SignalR;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore
 {

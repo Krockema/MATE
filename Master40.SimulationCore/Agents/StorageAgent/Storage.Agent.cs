@@ -1,12 +1,13 @@
-﻿using Akka.Actor;
-using Master40.DB.Enums;
-using Master40.DB.Models;
-using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
-using System;
+﻿using System;
 using System.Linq;
+using Akka.Actor;
+using Master40.DB.DataModel;
+using Master40.DB.Enums;
+using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.StorageAgent
 {
     public partial class Storage : Agent
     {

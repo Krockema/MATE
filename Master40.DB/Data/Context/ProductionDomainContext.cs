@@ -1,13 +1,13 @@
 ﻿using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
-using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Context
 {

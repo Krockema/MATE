@@ -1,9 +1,9 @@
-﻿using Master40.MessageSystem.Messages;
-using Microsoft.AspNetCore.SignalR;
+﻿using System;
 using Master40.DB.Enums;
-using System;
+using Master40.Tools.Messages;
+using Microsoft.AspNetCore.SignalR;
 
-namespace Master40.MessageSystem.SignalR
+namespace Master40.Tools.SignalR
 {
     public class MessageHub : Hub, IMessageHub
     {

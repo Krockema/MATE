@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Master40.SimulationCore.Agents
+﻿namespace Master40.SimulationCore.Agents.DispoAgent
 {
     public partial class Dispo
     {

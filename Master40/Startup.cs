@@ -11,12 +11,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
 using Hangfire;
-using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Initializer;
-using Master40.MessageSystem.SignalR;
-using Master40.Simulation.Simulation;
+using Master40.Simulation;
+using Master40.Tools.SignalR;
 using Swashbuckle.AspNetCore.Swagger;
-using Master40.BusinessLogicCentral.Simulator;
 
 namespace Master40
 {
@@ -58,13 +56,8 @@ namespace Master40
                 options.UseSqlServerStorage(Configuration.GetConnectionString("Hangfire")));
 
             services.AddSingleton<IMessageHub, MessageHub>();
-            services.AddSingleton<IScheduling, Scheduling>();
-            services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
-            services.AddSingleton<IProcessMrp, ProcessMrp>();
-            services.AddSingleton<ISimulator, Simulator>();
+            
             //services.AddSingleton<IProcessMrp, ProcessMrpSim>();
-            services.AddSingleton<IRebuildNets, RebuildNets>();
-            services.AddSingleton<AgentSimulator>();
             services.AddSingleton<AgentCore>();
             // services.AddSingleton<Client>();
 

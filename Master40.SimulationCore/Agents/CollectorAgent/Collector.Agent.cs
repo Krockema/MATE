@@ -1,12 +1,12 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Generic;
+using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
-using Master40.MessageSystem.SignalR;
 using Master40.SimulationCore.Helper;
-using System;
-using System.Collections.Generic;
+using Master40.Tools.SignalR;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public partial class Collector : SimulationMonitor
     {

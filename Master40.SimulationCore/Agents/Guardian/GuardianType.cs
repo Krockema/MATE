@@ -1,4 +1,4 @@
-﻿namespace Master40.SimulationCore.Agents
+﻿namespace Master40.SimulationCore.Agents.Guardian
 {
     public enum GuardianType
     {
