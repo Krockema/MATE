@@ -8,7 +8,11 @@
     <ItemGroup>
       <PackageReference Include="NLog" Version="4.6.2" />
     </ItemGroup>
-
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
       <ProjectReference Include="..\Master40.XUnitTest\Master40.XUnitTest.csproj" />
