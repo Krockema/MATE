@@ -11,6 +11,6 @@ namespace Master40.DB.Interfaces
         int Start { get; set; }
         int End { get; set; }
         int ProductionOrderId { get; set; }
-        ProductionOrder ProductionOrder { get; set; }
+        T_ProductionOrder ProductionOrder { get; set; }
     }
 }

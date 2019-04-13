@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         /// </summary>
         /// <param agent="ContractAgent"></param>
         /// <param startOrder="ISimulationMessage"></param>
-        public void StartOrder(Contract agent, OrderPart orderItem)
+        public void StartOrder(Contract agent, T_CustomerOrderPart orderItem)
         {
 
             // Tell Guadian to create Dispo Agent

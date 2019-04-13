@@ -45,6 +45,9 @@ namespace Master40
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<ResultContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ResultConnection")));
+
             services.AddDbContext<ProductionDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -96,13 +99,14 @@ namespace Master40
                             , ILoggerFactory loggerFactory
                             , HangfireDBContext hangfireContext
                             , MasterDBContext context
+                            , ResultContext contextResults
                             , ProductionDomainContext productionDomainContext)
         {
-            Task.Run((() => { 
+
                 //MasterDBInitializerLarge.DbInitialize(context);
-                MasterDBInitializerLarge.DbInitialize(context);
-                }
-            ));
+            MasterDBInitializerLarge.DbInitialize(context);
+            ResultDBInitializerBasic.DbInitialize(contextResults);
+
             HangfireDBInitializer.DbInitialize(hangfireContext);
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(options.Value);

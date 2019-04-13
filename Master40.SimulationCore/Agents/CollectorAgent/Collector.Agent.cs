@@ -14,6 +14,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private ICollectorBehaviour Behaviour;
         internal IMessageHub messageHub { get; }
         internal MasterDBContext DBContext;
+        internal ResultContext DBResults;
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -25,6 +26,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
+            , ResultContext dBResults
             , long time
             , bool debug
             , List<Type> streamTypes)
@@ -40,11 +42,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
+            , ResultContext dBResults
             , long time
             , bool debug
             , List<Type> streamTypes)
         {
-            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, time, debug, streamTypes));
+            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, dBResults, time, debug, streamTypes));
         }
 
         protected override void EventHandle(object o)

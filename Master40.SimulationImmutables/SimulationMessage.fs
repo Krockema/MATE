@@ -14,7 +14,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
     
     type public FRequestItem =         
         {   Key : Guid
-            Article : Article
+            Article : M_Article
             StockExchangeId : Guid
             StorageAgent: IActorRef
             Quantity : int
@@ -96,7 +96,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
           ResourceAgent : IActorRef
           ProductionAgent : IActorRef
           HubAgent : IActorRef
-          WorkSchedule : WorkSchedule
+          WorkSchedule : M_Operation
           Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with 
                 member this.Key  with get() = this.Key

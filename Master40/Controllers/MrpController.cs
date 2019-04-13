@@ -1,20 +1,13 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Hangfire;
-using Master40.DB.Data.Context;
-using Master40.DB.Enums;
-using Master40.Tools.SignalR;
 
 namespace Master40.Controllers
 {
     public class MrpController : Controller
     {
-        private readonly IMessageHub _messageHub;
         //private readonly Client _client;
-        public MrpController(IMessageHub messageHub)
+        public MrpController()
         {
-            _messageHub = messageHub;
             //_client = client;
         }
         public IActionResult Index()

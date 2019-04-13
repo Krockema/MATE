@@ -2,13 +2,14 @@
 using System;
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 
 namespace Master40.DB.Repository
 {
     public interface IUnitOfWork
     {
         bool InMemory { get; }
-        IRepository<ProductionOrder> ProductionOrders { get; }
+        IRepository<T_ProductionOrder> ProductionOrders { get; }
         
         void Save();
     }
@@ -28,28 +29,28 @@ namespace Master40.DB.Repository
                 _dbContext.Database.EnsureCreated();
             }
 
-            ProductionOrders = new Repository<ProductionOrder>(dbContext, this);
-            Articles = new Repository<Article>(dbContext, this);
-            ArticleBoms = new Repository<ArticleBom>(dbContext, this);
-            ArticleTypes = new Repository<ArticleType>(dbContext, this);
-            ArticleToBusinessPartners = new Repository<ArticleToBusinessPartner>(dbContext, this);
-            BusinessPartners = new Repository<BusinessPartner>(dbContext, this);
-            Demands = new Repository<DemandToProvider>(dbContext, this);
-            Machines = new Repository<Machine>(dbContext, this);
-            MachineGroups = new Repository<MachineGroup>(dbContext, this);
-            MachineTools = new Repository<MachineTool>(dbContext, this);
+            ProductionOrders = new Repository<T_ProductionOrder>(dbContext, this);
+            Articles = new Repository<M_Article>(dbContext, this);
+            ArticleBoms = new Repository<M_ArticleBom>(dbContext, this);
+            ArticleTypes = new Repository<M_ArticleType>(dbContext, this);
+            ArticleToBusinessPartners = new Repository<M_ArticleToBusinessPartner>(dbContext, this);
+            BusinessPartners = new Repository<M_BusinessPartner>(dbContext, this);
+            Demands = new Repository<T_DemandToProvider>(dbContext, this);
+            Machines = new Repository<M_Machine>(dbContext, this);
+            MachineGroups = new Repository<M_MachineGroup>(dbContext, this);
+            MachineTools = new Repository<M_MachineTool>(dbContext, this);
             SimulationOrders = new Repository<SimulationOrder>(dbContext, this);
-            Orders = new Repository<Order>(dbContext, this);
-            OrderParts = new Repository<OrderPart>(dbContext, this);
-            Purchases = new Repository<Purchase>(dbContext, this);
-            ProductionOrders = new Repository<ProductionOrder>(dbContext, this);
-            ProductionOrderBoms = new Repository<ProductionOrderBom>(dbContext, this);
-            ProductionOrderWorkSchedules = new Repository<ProductionOrderWorkSchedule>(dbContext, this);
-            PurchaseParts = new Repository<PurchasePart>(dbContext, this);
-            Stocks = new Repository<Stock>(dbContext, this);
-            StockExchanges = new Repository<StockExchange>(dbContext, this);
-            Units = new Repository<Unit>(dbContext, this);
-            WorkSchedules = new Repository<WorkSchedule>(dbContext, this);
+            Orders = new Repository<T_CustomerOrder>(dbContext, this);
+            OrderParts = new Repository<T_CustomerOrderPart>(dbContext, this);
+            Purchases = new Repository<T_PurchaseOrder>(dbContext, this);
+            ProductionOrders = new Repository<T_ProductionOrder>(dbContext, this);
+            ProductionOrderBoms = new Repository<T_ProductionOrderBom>(dbContext, this);
+            ProductionOrderWorkSchedules = new Repository<T_ProductionOrderOperation>(dbContext, this);
+            PurchaseParts = new Repository<T_PurchaseOrderPart>(dbContext, this);
+            Stocks = new Repository<M_Stock>(dbContext, this);
+            StockExchanges = new Repository<T_StockExchange>(dbContext, this);
+            Units = new Repository<M_Unit>(dbContext, this);
+            WorkSchedules = new Repository<M_Operation>(dbContext, this);
             SimulationConfigurations = new Repository<SimulationConfiguration>(dbContext, this);
             SimulationWorkschedules = new Repository<SimulationWorkschedule>(dbContext, this);
             DemandProductionOrderBoms = new Repository<DemandProductionOrderBom>(dbContext, this);
@@ -63,29 +64,29 @@ namespace Master40.DB.Repository
             // if (ProductionOrders.Count() == 0)
             //     InitalizeDb.BasicSeed(this);
         }
-        public IRepository<Article> Articles { get; set; }
-        public IRepository<ArticleBom> ArticleBoms { get; set; }
-        public IRepository<ArticleType> ArticleTypes { get; set; }
-        public IRepository<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
-        public IRepository<BusinessPartner> BusinessPartners { get; set; }
-        public IRepository<DemandToProvider> Demands { get; set; }
+        public IRepository<M_Article> Articles { get; set; }
+        public IRepository<M_ArticleBom> ArticleBoms { get; set; }
+        public IRepository<M_ArticleType> ArticleTypes { get; set; }
+        public IRepository<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
+        public IRepository<M_BusinessPartner> BusinessPartners { get; set; }
+        public IRepository<T_DemandToProvider> Demands { get; set; }
                
         //publiIRepositoryet<DemandToProvider> DemandToProvider { get; set; }
-        public IRepository<Machine> Machines { get; set; }
-        public IRepository<MachineGroup> MachineGroups { get; set; }
-        public IRepository<MachineTool> MachineTools { get; set; }
+        public IRepository<M_Machine> Machines { get; set; }
+        public IRepository<M_MachineGroup> MachineGroups { get; set; }
+        public IRepository<M_MachineTool> MachineTools { get; set; }
         public IRepository<SimulationOrder> SimulationOrders { get; set; }
-        public IRepository<Order> Orders { get; set; }
-        public IRepository<OrderPart> OrderParts { get; set; }
-        public IRepository<Purchase> Purchases { get; set; }
-        public IRepository<ProductionOrder> ProductionOrders { get; set; }
-        public IRepository<ProductionOrderBom> ProductionOrderBoms { get; set; }
-        public IRepository<ProductionOrderWorkSchedule> ProductionOrderWorkSchedules { get; set; }
-        public IRepository<PurchasePart> PurchaseParts { get; set; }
-        public IRepository<Stock> Stocks { get; set; }
-        public IRepository<StockExchange> StockExchanges { get; set; }
-        public IRepository<Unit> Units { get; set; }
-        public IRepository<WorkSchedule> WorkSchedules { get; set; }
+        public IRepository<T_CustomerOrder> Orders { get; set; }
+        public IRepository<T_CustomerOrderPart> OrderParts { get; set; }
+        public IRepository<T_PurchaseOrder> Purchases { get; set; }
+        public IRepository<T_ProductionOrder> ProductionOrders { get; set; }
+        public IRepository<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
+        public IRepository<T_ProductionOrderOperation> ProductionOrderWorkSchedules { get; set; }
+        public IRepository<T_PurchaseOrderPart> PurchaseParts { get; set; }
+        public IRepository<M_Stock> Stocks { get; set; }
+        public IRepository<T_StockExchange> StockExchanges { get; set; }
+        public IRepository<M_Unit> Units { get; set; }
+        public IRepository<M_Operation> WorkSchedules { get; set; }
         public IRepository<SimulationConfiguration> SimulationConfigurations { get; set; }
         public IRepository<SimulationWorkschedule> SimulationWorkschedules { get; set; }
         public IRepository<DemandProductionOrderBom> DemandProductionOrderBoms { get; set; }

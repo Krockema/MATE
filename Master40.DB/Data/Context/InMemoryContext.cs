@@ -117,9 +117,9 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.WorkSchedules)
+            foreach (var item in source.Operations)
             {
-                target.WorkSchedules.Add(item.CopyProperties());
+                target.Operations.Add(item.CopyProperties());
             }
             target.SaveChanges();
 
@@ -141,26 +141,20 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.Orders)
+            foreach (var item in source.CustomerOrders)
             {
-                target.Orders.Add(item.CopyProperties());
+                target.CustomerOrders.Add(item.CopyProperties());
             }
             target.SaveChanges();
             
-            foreach (var item in source.OrderParts)
+            foreach (var item in source.CustomerOrderParts)
             {
-                target.OrderParts.Add(item.CopyProperties());
-            }
-            target.SaveChanges();
-
-            foreach (var item in source.SimulationConfigurations)
-            {
-                target.SimulationConfigurations.Add(item.CopyProperties());
+                target.CustomerOrderParts.Add(item.CopyProperties());
             }
             target.SaveChanges();
         }
 
-        public static void SaveData(ProductionDomainContext source, ProductionDomainContext target)
+        public static void SaveData(ResultContext source, ResultContext target)
         {
             foreach (var item in source.Kpis)
             {
@@ -168,9 +162,9 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.SimulationWorkschedules)
+            foreach (var item in source.SimulationOperations)
             {
-                target.SimulationWorkschedules.Add(item.CopyProperties());
+                target.SimulationOperations.Add(item.CopyProperties());
             }
             target.SaveChanges();
 
@@ -180,8 +174,5 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
         }
-
-
-
     }
 }

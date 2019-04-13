@@ -58,7 +58,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             // get Related Storage Agent
             agent.Send(Directory.Instruction
                                      .RequestRessourceAgent
-                                     .Create(descriminator: requestItem.Article.Name
+                                     .Create(descriminator: (string)requestItem.Article.Name
                                             , target: agent.ActorPaths.StorageDirectory.Ref));
             // Save Request Item.
             agent.Set(Dispo.Properties.REQUEST_ITEM, requestItem);
@@ -76,7 +76,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             var quantityToProduce = requestItem.Quantity - reservation.Quantity;
             agent.Set(Dispo.Properties.QUANTITY_TO_PRODUCE, quantityToProduce);
             // TODO -> Logic
-            agent.DebugMessage("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!");
+            agent.DebugMessage((string)("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!"));
 
             // check If is In Stock
             if (reservation.IsInStock == true)
@@ -133,7 +133,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             
         }
 
-        private void ResponseFromSystemForBom(Dispo agent, Article article)
+        private void ResponseFromSystemForBom(Dispo agent, M_Article article)
         {
             // Update 
             var requestItem = agent.Get<FRequestItem>(Dispo.Properties.REQUEST_ITEM);

@@ -89,7 +89,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Count,MachineGroupId,Capacity,Id")] Machine machine)
+        public async Task<IActionResult> Create([Bind("Name,Count,MachineGroupId,Capacity,Id")] M_Machine machine)
         {
             if (ModelState.IsValid)
             {
@@ -123,7 +123,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Count,MachineGroupId,Capacity,Id")] Machine machine)
+        public async Task<IActionResult> Edit(int id, [Bind("Name,Count,MachineGroupId,Capacity,Id")] M_Machine machine)
         {
             if (id != machine.Id)
             {
@@ -197,17 +197,17 @@ namespace Master40.Controllers
             _context.Machines.RemoveRange(_context.Machines.Where(x => x.Capacity == 0).ToList());
             if (setup == "Large")
             {
-                var machines = new Machine[] {
-                    new Machine{Capacity=0, Name="Saw 3", Count = 1, MachineGroupId = 1 },
-                    new Machine{Capacity=0, Name="Saw 4", Count = 1, MachineGroupId = 1 },
-                    new Machine{Capacity=0, Name="Saw 5", Count = 1, MachineGroupId = 1 },
-                    new Machine{Capacity=0, Name="Saw 6", Count = 1, MachineGroupId = 1 },
-                    new Machine{Capacity=0, Name="Drill 2", Count = 1, MachineGroupId = 2 },
-                    new Machine{Capacity=0, Name="Drill 3", Count = 1, MachineGroupId = 2 },
-                    new Machine{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroupId = 3 },
-                    new Machine{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroupId = 3 },
-                    new Machine{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroupId = 3 },
-                    new Machine{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroupId = 3 }
+                var machines = new M_Machine[] {
+                    new M_Machine{Capacity=0, Name="Saw 3", Count = 1, MachineGroupId = 1 },
+                    new M_Machine{Capacity=0, Name="Saw 4", Count = 1, MachineGroupId = 1 },
+                    new M_Machine{Capacity=0, Name="Saw 5", Count = 1, MachineGroupId = 1 },
+                    new M_Machine{Capacity=0, Name="Saw 6", Count = 1, MachineGroupId = 1 },
+                    new M_Machine{Capacity=0, Name="Drill 2", Count = 1, MachineGroupId = 2 },
+                    new M_Machine{Capacity=0, Name="Drill 3", Count = 1, MachineGroupId = 2 },
+                    new M_Machine{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroupId = 3 },
+                    new M_Machine{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroupId = 3 },
+                    new M_Machine{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroupId = 3 },
+                    new M_Machine{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroupId = 3 }
                 };
                 _context.Machines.AddRange(machines);
 

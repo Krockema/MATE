@@ -12,40 +12,40 @@ namespace Master40.DB.Data.Repository
     { 
         public OrderDomain(DbContextOptions<OrderDomainContext> options) : base(options) 
         {
-            Orders = base.Set<Order>();
-            OrderParts = base.Set<OrderPart>();
-            BusinessPartners = base.Set<BusinessPartner>();
-            Articles = base.Set<Article>();
-            Stocks = base.Set<Stock>();
-            Units = base.Set<Unit>();
-            ArticleTypes = base.Set<ArticleType>();
+            Orders = base.Set<T_CustomerOrder>();
+            OrderParts = base.Set<T_CustomerOrderPart>();
+            BusinessPartners = base.Set<M_BusinessPartner>();
+            Articles = base.Set<M_Article>();
+            Stocks = base.Set<M_Stock>();
+            Units = base.Set<M_Unit>();
+            ArticleTypes = base.Set<M_ArticleType>();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<ArticleBom>();
-            modelBuilder.Ignore<WorkSchedule>();
-            modelBuilder.Ignore<ProductionOrder>();
-            modelBuilder.Ignore<DemandToProvider>();
+            modelBuilder.Ignore<M_ArticleBom>();
+            modelBuilder.Ignore<M_Operation>();
+            modelBuilder.Ignore<T_ProductionOrder>();
+            modelBuilder.Ignore<T_DemandToProvider>();
             modelBuilder.Ignore<DemandOrderPart>();
-            modelBuilder.Ignore<Purchase>();
+            modelBuilder.Ignore<T_PurchaseOrder>();
 
-            modelBuilder.Entity<Article>()
+            modelBuilder.Entity<M_Article>()
                 .HasOne(a => a.Stock)
                 .WithOne(s => s.Article)
-                .HasForeignKey<Stock>(b => b.ArticleForeignKey);
+                .HasForeignKey<M_Stock>(b => b.ArticleForeignKey);
 
-            modelBuilder.Entity<ArticleToBusinessPartner>()
+            modelBuilder.Entity<M_ArticleToBusinessPartner>()
                 .HasAlternateKey(x => new { x.ArticleId, x.BusinessPartnerId });
 
         }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderPart> OrderParts { get; set; }
-        public DbSet<BusinessPartner> BusinessPartners { get; set; }
-        public DbSet<Article> Articles { get; set; }
-        public DbSet<Stock> Stocks { get; set; }
-        public DbSet<Unit> Units { get; set; }
-        public DbSet<ArticleType> ArticleTypes { get; set; }
+        public DbSet<T_CustomerOrder> Orders { get; set; }
+        public DbSet<T_CustomerOrderPart> OrderParts { get; set; }
+        public DbSet<M_BusinessPartner> BusinessPartners { get; set; }
+        public DbSet<M_Article> Articles { get; set; }
+        public DbSet<M_Stock> Stocks { get; set; }
+        public DbSet<M_Unit> Units { get; set; }
+        public DbSet<M_ArticleType> ArticleTypes { get; set; }
         
     }
 }

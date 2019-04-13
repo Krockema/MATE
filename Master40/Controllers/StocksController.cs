@@ -55,7 +55,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StockId,Name,Max,Min,Current,ArticleForeignKey")] Stock stock)
+        public async Task<IActionResult> Create([Bind("StockId,Name,Max,Min,Current,ArticleForeignKey")] M_Stock stock)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StockId,Name,Max,Min,Current,ArticleForeignKey")] Stock stock)
+        public async Task<IActionResult> Edit(int id, [Bind("StockId,Name,Max,Min,Current,ArticleForeignKey")] M_Stock stock)
         {
             if (id != stock.Id)
             {

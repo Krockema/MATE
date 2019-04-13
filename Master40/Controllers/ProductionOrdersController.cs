@@ -55,7 +55,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductionOrderId,ArticleId,Quantity,Name")] ProductionOrder productionOrder)
+        public async Task<IActionResult> Create([Bind("ProductionOrderId,ArticleId,Quantity,Name")] T_ProductionOrder productionOrder)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +89,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductionOrderId,ArticleId,Quantity,Name")] ProductionOrder productionOrder)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductionOrderId,ArticleId,Quantity,Name")] T_ProductionOrder productionOrder)
         {
             if (id != productionOrder.Id)
             {

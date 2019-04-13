@@ -3,15 +3,14 @@ using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.Reporting;
 using Master40.SimulationImmutables;
-using Master40.Tools.Simulation;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AkkaSim;
 using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.CollectorAgent;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DirectoryAgent;
@@ -31,6 +30,7 @@ namespace Master40.SimulationCore
         private readonly IMessageHub _messageHub;
         private readonly bool _debug;
         private readonly ProductionDomainContext _DBContext;
+        private readonly ResultContext _DBResults;
         private AkkaSim.Simulation _simulation;
         public ActorPaths ActorPaths { get; private set; }
         public IActorRef WorkCollector { get; private set; }
@@ -42,9 +42,10 @@ namespace Master40.SimulationCore
         /// Prepare Simulation Environment
         /// </summary>
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
-        public AgentSimulation(bool debug, ProductionDomainContext DBContext, IMessageHub messageHub)
+        public AgentSimulation(bool debug, ProductionDomainContext DBContext, ResultContext RBResults , IMessageHub messageHub)
         {
             _DBContext = DBContext;
+            _DBResults = RBResults;
             _messageHub = messageHub;
             _debug = debug;
         }
@@ -61,7 +62,7 @@ namespace Master40.SimulationCore
                 ActorPaths = new ActorPaths(_simulation.SimulationContext, contextConfig.Inbox.Receiver);
                 // Create DataCollector
                 WorkCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsWorkSchedule.Get()
-                                                        , _messageHub, _DBContext, 0, false
+                                                        , _messageHub, _DBContext, _DBResults, 0, false
                                                         , new List<Type> { typeof(CreateSimulationWork),
                                                                                   typeof(UpdateSimulationWork),
                                                                                   typeof(UpdateSimulationWorkProvider),
@@ -69,11 +70,11 @@ namespace Master40.SimulationCore
                                                                                   typeof(Hub.Instruction.AddMachineToHub),
                                                                                   typeof(BasicInstruction.ResourceBrakeDown)}));
                 StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
-                                                        , _messageHub, _DBContext, 0, false
+                                                        , _messageHub, _DBContext, _DBResults, 0, false
                                                         , new List<Type> { typeof(UpdateStockValues),
                                                                                   typeof(UpdateLiveFeed)}));
                 ContractCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsContracts.Get()
-                                                        , _messageHub, _DBContext, 0, false
+                                                        , _messageHub, _DBContext, _DBResults, 0, false
                                                         , new List<Type> { typeof(Contract.Instruction.StartOrder),
                                                                                   typeof(Supervisor.Instruction.OrderProvided),
                                                                                   typeof(UpdateLiveFeed)}));

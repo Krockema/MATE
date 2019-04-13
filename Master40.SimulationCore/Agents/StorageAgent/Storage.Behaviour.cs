@@ -17,14 +17,14 @@ namespace Master40.SimulationCore.Agents.StorageAgent
         /// Returns the Default Behaviour Set for Contract Agent.
         /// </summary>
         /// <returns></returns>
-        public static StorageBehaviour Get(Stock stockElement)
+        public static StorageBehaviour Get(M_Stock stockElement)
         {
             var properties = new Dictionary<string, object>();
                 
 
-            stockElement.StockExchanges = new List<StockExchange> {
+            stockElement.StockExchanges = new List<T_StockExchange> {
                                            // Initial Value 
-                                                new StockExchange
+                                                new T_StockExchange
                                                 {
                                                     StockId = stockElement.Id,
                                                     ExchangeType = ExchangeType.Insert,
@@ -57,7 +57,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
                 case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction((Storage)agent, msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue((Storage)agent, msg.GetObjectFromMessage); break;
                 case Storage.Instruction.WithdrawlMaterial msg:
-                    var stock = agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT);
+                    var stock = agent.Get<M_Stock>(Storage.Properties.STOCK_ELEMENT);
                     Withdraw((Storage)agent, msg.GetObjectFromMessage, stock);
                     break;
                 default: return false; 
@@ -69,7 +69,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
         {
 
             // debug
-            agent.DebugMessage(" requests Article " + agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT).Name + " from Storage Agent ->" + agent.Sender.Path.Name);
+            agent.DebugMessage(" requests Article " + agent.Get<M_Stock>(Storage.Properties.STOCK_ELEMENT).Name + " from Storage Agent ->" + agent.Sender.Path.Name);
 
             // try to make Reservation
             var item = requestItem.UpdateStockExchangeId(Guid.NewGuid()).UpdateDispoRequester(agent.Sender);
@@ -85,7 +85,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
 
         public void StockRefill(Storage agent, Guid exchangeId)
         {
-            var stockElement = agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT);
+            var stockElement = agent.Get<M_Stock>(Storage.Properties.STOCK_ELEMENT);
             // TODO: Retrun Request Itme with id of Stock Exchange
             var stockExchange = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
             
@@ -123,7 +123,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
         //private void ResponseFromProduction(RequestItem item)
         private void ResponseFromProduction(Storage agent, FRequestItem requestItem)
         {
-            var stockElement = agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT);
+            var stockElement = agent.Get<M_Stock>(Storage.Properties.STOCK_ELEMENT);
             var providerList = agent.Get<List<IActorRef>>(Storage.Properties.PROVIDER_LIST);
             var requestedItems = agent.Get<List<FRequestItem>>(Storage.Properties.REQUESTED_ITEMS);
 
@@ -140,7 +140,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             agent.LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
 
 
-            var stockExchange = new StockExchange
+            var stockExchange = new T_StockExchange
             {
                 StockId = stockElement.Id,
                 ExchangeType = ExchangeType.Insert,
@@ -175,7 +175,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             }
         }
 
-        private void Withdraw(Storage agent, Guid exchangeId, Stock stockElement)
+        private void Withdraw(Storage agent, Guid exchangeId, M_Stock stockElement)
         {
             var item = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
             if (item == null) throw new Exception("No StockExchange found");
@@ -187,7 +187,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
 
         private void ProvideArticle(Storage agent, FRequestItem requestProvidable, List<FRequestItem> requestedItems)
         {
-            var stockElement = agent.Get<Stock>(Storage.Properties.STOCK_ELEMENT);
+            var stockElement = agent.Get<M_Stock>(Storage.Properties.STOCK_ELEMENT);
             if (requestProvidable.Quantity <= stockElement.Current)
             {
                 var providerList = agent.Get<List<IActorRef>>(Storage.Properties.PROVIDER_LIST);

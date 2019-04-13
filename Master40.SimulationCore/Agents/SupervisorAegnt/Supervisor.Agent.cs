@@ -6,6 +6,7 @@ using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
@@ -22,8 +23,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
         private IMessageHub _messageHub;
         private SimulationConfiguration _simConfig;
         private int orderCount = 0;
-        private Dictionary<int, Article> _cache = new Dictionary<int, Article>();
-        private Queue<OrderPart> _orderQueue = new Queue<OrderPart>();
+        private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
+        private Queue<T_CustomerOrderPart> _orderQueue = new Queue<T_CustomerOrderPart>();
 
 
         // public Constructor
@@ -69,7 +70,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             
         }
 
-        private void CreateContractAgent(OrderPart orderPart)
+        private void CreateContractAgent(T_CustomerOrderPart orderPart)
         {
             _orderQueue.Enqueue(orderPart);
             DebugMessage(" Creating Contract Agent");
@@ -106,7 +107,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             DebugMessage(" Request details for article: " + requestItem.Article.Name + " from  " + Sender.Path);
 
             // get BOM from Context
-            _cache.TryGetValue(requestItem.Article.Id, out Article article);
+            _cache.TryGetValue((int)requestItem.Article.Id, out M_Article article);
 
             if (article == null)
             {
@@ -114,8 +115,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                                                         .Include(x => x.WorkSchedules)
                                                         .ThenInclude(x => x.MachineGroup)
                                                         .Include(x => x.ArticleBoms)
-                                                        .ThenInclude(x => x.ArticleChild), x => x.Id == requestItem.Article.Id);
-                _cache.Add(requestItem.Article.Id, article);
+                                                        .ThenInclude(x => x.ArticleChild), (System.Linq.Expressions.Expression<Func<M_Article, bool>>)(x => x.Id == requestItem.Article.Id));
+                _cache.Add((int)requestItem.Article.Id, article);
             }
             // calback with po.bom
             Send(Dispo.Instruction.ResponseFromSystemForBom.Create(article, Sender));                        
@@ -128,13 +129,13 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                 throw new InvalidCastException(this.Name + " Cast to RequestItem Failed");
             }
 
-            var order = _productionDomainContext.Orders
+            var order = _productionDomainContext.CustomerOrders
                 .Include(x => x.OrderParts)
-                .Single(x => x.Id == _productionDomainContext.OrderParts.Single(s => s.Id == requestItem.OrderId).OrderId);
+                .Single(x => x.Id == _productionDomainContext.CustomerOrderParts.Single(s => s.Id == requestItem.OrderId).OrderId);
             order.FinishingTime = (int)this.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
-            _messageHub.ProcessingUpdate(_simConfig.Id, ++orderCount, SimulationType.Decentral, _simConfig.OrderQuantity);
+            _messageHub.ProcessingUpdate(_simConfig.Id, ++orderCount, SimulationType.Decentral.ToString(), _simConfig.OrderQuantity);
         }
 
         private void End()
@@ -153,7 +154,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
 
         private void PopOrder()
         {
-            foreach (var orderpart in _productionDomainContext.OrderParts
+            foreach (var orderpart in _productionDomainContext.CustomerOrderParts
                                                                 .Include(x => x.Article)
                                                                     .ThenInclude(x => x.ArticleBoms)
                                                                         .ThenInclude(x => x.ArticleChild)

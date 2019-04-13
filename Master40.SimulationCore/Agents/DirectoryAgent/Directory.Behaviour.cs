@@ -3,12 +3,10 @@ using System.Linq;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.Ressource;
-using Master40.SimulationCore.Agents.Ressource;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using Master40.Tools.Simulation;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
@@ -51,7 +49,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Machine, "Directory");
         }
 
-        public void CreateStorageAgents(Directory agent, Stock stock)
+        public void CreateStorageAgents(Directory agent, M_Stock stock)
         {
             var storage = agent.Context.ActorOf(Storage.Props(agent.ActorPaths
                                             , agent.CurrentTime
@@ -68,7 +66,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
         public void CreateMachineAgents(Directory agent, FRessourceDefinition ressource)
         {
-            var machine = ressource.Resource as Machine;
+            var machine = ressource.Resource as M_Machine;
 
             // Create Hub If Required
             var hubAgents = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);

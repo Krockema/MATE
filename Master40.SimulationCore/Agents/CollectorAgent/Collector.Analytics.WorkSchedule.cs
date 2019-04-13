@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using AkkaSim;
-using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
@@ -52,7 +53,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }
 
-        private void UpdateFeed(Collector agent, bool logToDB)
+        private void UpdateFeed(Collector agent, bool logToDb)
         {
             if (machines.Count == 0)
             {
@@ -61,14 +62,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
-            MachineUtilisation(agent);
+            MachineUtilization(agent);
             ThroughPut(agent);
             lastIntervalStart = agent.Time;
-            if (logToDB)
+            if (logToDb)
             {
                 
-                agent.DBContext.SimulationWorkschedules.AddRange(simulationWorkschedules);
-                agent.DBContext.SaveChanges();
+                agent.DBResults.SimulationOperations.AddRange(simulationWorkschedules);
+                agent.DBResults.SaveChanges();
             }
             agent.Context.Sender.Tell(true, agent.Context.Self);
 
@@ -129,7 +130,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         }
 
-        private void MachineUtilisation(Collector agent)
+        private void MachineUtilization(Collector agent)
         {
             double divisor = agent.Time - lastIntervalStart;
             agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from DataCollection");
@@ -189,7 +190,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             foreach (var item in final.OrderBy(x => x.M))
             {
-                var nan = Math.Round(item.W / divisor, 3).ToString().Replace(",", ".");
+                var nan = Math.Round(item.W / divisor, 3).ToString("##.###");
                 if (nan == "NaN") nan = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
                 agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", ""), nan);

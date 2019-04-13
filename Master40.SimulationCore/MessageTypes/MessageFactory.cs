@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.MessageTypes
         /// <param name="dueTime"></param>
         /// <param name="prio"></param>
         /// <returns></returns>
-        public static FWorkItem ToWorkItem(this WorkSchedule workSchedule, long dueTime, ElementStatus status, IActorRef productionAgent, long time)
+        public static FWorkItem ToWorkItem(this M_Operation workSchedule, long dueTime, ElementStatus status, IActorRef productionAgent, long time)
         {
             var prioRule = Extension.CreateFunc(
                 // Lamda zur Func.
@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.MessageTypes
                                 , proposals: new List<FProposal>());
         }
 
-        public static FRequestItem ToRequestItem(this OrderPart orderPart, IActorRef requester)
+        public static FRequestItem ToRequestItem(this T_CustomerOrderPart orderPart, IActorRef requester)
         {
             return new FRequestItem(
                 key: Guid.NewGuid()
@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.MessageTypes
             );
         }
 
-        public static FRequestItem ToRequestItem(this ArticleBom articleBom, FRequestItem requestItem, IActorRef requester)
+        public static FRequestItem ToRequestItem(this M_ArticleBom articleBom, FRequestItem requestItem, IActorRef requester)
         {
             return new FRequestItem(
                 key: Guid.NewGuid()

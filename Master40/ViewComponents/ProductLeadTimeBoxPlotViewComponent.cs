@@ -8,14 +8,15 @@ using Master40.Extensions;
 using Master40.DB.Enums;
 using Master40.DB.Data.Helper;
 using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 
 namespace Master40.ViewComponents
 {
     public partial class ProductLeadTimeBoxPlotViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
         private List<Tuple<int, SimulationType>> _simList;
-        public ProductLeadTimeBoxPlotViewComponent(ProductionDomainContext context)
+        public ProductLeadTimeBoxPlotViewComponent(ResultContext context)
         {
             _simList = new List<Tuple<int, SimulationType>>();
             _context = context;

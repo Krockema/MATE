@@ -1,5 +1,4 @@
 ﻿using System;
-using Master40.DB.Enums;
 using Master40.Tools.Messages;
 using Microsoft.AspNetCore.SignalR;
 
@@ -35,7 +34,7 @@ namespace Master40.Tools.SignalR
             this._hubContext.Clients.All.SendAsync("clientListener", "ProcessingComplete", simId, simNumber);
         }
 
-        public void ProcessingUpdate(int simId, int counter, SimulationType simType, int max)
+        public void ProcessingUpdate(int simId, int counter, string simType, int max)
         {
             this._hubContext.Clients.All.SendAsync("clientListener", "ProcessingUpdate", simId, Math.Round((double)counter / max * 100, 0).ToString(), simType.ToString() );
         }

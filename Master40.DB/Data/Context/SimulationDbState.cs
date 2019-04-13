@@ -5,28 +5,26 @@ namespace Master40.DB.Data.Context
 {
     public class SimulationDbState
     {
-        public List<Article> Articles { get; set; }
-        public List<ArticleBom> ArticleBoms { get; set; }
-        public List<ArticleType> ArticleTypes { get; set; }
-        public List<ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
-        public List<BusinessPartner> BusinessPartners { get; set; }
-        public List<DemandToProvider> Demands { get; set; }
+        public List<M_Article> Articles { get; set; }
+        public List<M_ArticleBom> ArticleBoms { get; set; }
+        public List<M_ArticleType> ArticleTypes { get; set; }
+        public List<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
+        public List<M_BusinessPartner> BusinessPartners { get; set; }
+        public List<T_DemandToProvider> Demands { get; set; }
         //public IQueryable<DemandToProvider> DemandToProvider { get; set; }
-        public List<Machine> Machines { get; set; }
-        public List<MachineGroup> MachineGroups { get; set; }
-        public List<MachineTool> MachineTools { get; set; }
-        public List<WorkSchedule> WorkSchedules { get; set; }
-        public List<Order> Orders { get; set; }
-        public List<OrderPart> OrderParts { get; set; }
-        public List<Purchase> Purchases { get; set; }
-        public List<ProductionOrder> ProductionOrders { get; set; }
-        public List<ProductionOrderBom> ProductionOrderBoms { get; set; }
-        public List<ProductionOrderWorkSchedule> ProductionOrderWorkSchedule { get; set; }
-        public List<PurchasePart> PurchaseParts { get; set; }
-        public List<Stock> Stocks { get; set; }
-        public List<StockExchange> StockExchanges { get; set; }
-        public List<Unit> Units { get; set; }
-        public List<Kpi> Kpi { get; set; }
-        public List<SimulationConfiguration> SimulationConfigurations { get; set; }
+        public List<M_Machine> Machines { get; set; }
+        public List<M_MachineGroup> MachineGroups { get; set; }
+        public List<M_MachineTool> MachineTools { get; set; }
+        public List<M_Operation> WorkSchedules { get; set; }
+        public List<T_CustomerOrder> Orders { get; set; }
+        public List<T_CustomerOrderPart> OrderParts { get; set; }
+        public List<T_PurchaseOrder> Purchases { get; set; }
+        public List<T_ProductionOrder> ProductionOrders { get; set; }
+        public List<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
+        public List<T_ProductionOrderOperation> ProductionOrderWorkSchedule { get; set; }
+        public List<T_PurchaseOrderPart> PurchaseParts { get; set; }
+        public List<M_Stock> Stocks { get; set; }
+        public List<T_StockExchange> StockExchanges { get; set; }
+        public List<M_Unit> Units { get; set; }
     }
 }

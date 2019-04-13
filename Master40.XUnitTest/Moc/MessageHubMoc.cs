@@ -38,7 +38,7 @@ namespace Master40.XUnitTest.Moc
             Debug.WriteLine(msg);
         }
 
-        public void ProcessingUpdate(int simId, int timer, SimulationType simType, int max)
+        public void ProcessingUpdate(int simId, int timer, string simType, int max)
         {
             //Do nothing 
         }

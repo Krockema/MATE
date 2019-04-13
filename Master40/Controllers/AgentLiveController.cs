@@ -51,7 +51,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MachineBreakdown/{Machine}")]
         public void MachineBreakdown(string machine)
         {
-            _agentSimulator.ResourceBreakDwon(machine);
+            _agentSimulator.ResourceBreakDown(machine);
         }
     }
 }

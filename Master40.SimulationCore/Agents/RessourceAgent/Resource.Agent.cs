@@ -5,7 +5,6 @@ using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationImmutables;
-using Master40.Tools.Simulation;
 
 namespace Master40.SimulationCore.Agents.Ressource
 {
@@ -13,12 +12,12 @@ namespace Master40.SimulationCore.Agents.Ressource
     public partial class Resource : Agent
     {
         // public Constructor
-        public static Props Props(ActorPaths actorPaths,Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths,M_Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal)
         {
             return Akka.Actor.Props.Create(() => new Resource(actorPaths, machine, workTimeGenerator, time, debug, principal));
         }
 
-        public Resource(ActorPaths actorPaths, Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
+        public Resource(ActorPaths actorPaths, M_Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
             this.Set(Properties.MACHINE, machine);
             this.Set(Properties.WORK_TIME_GENERATOR, workTimeGenerator);

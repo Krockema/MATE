@@ -7,6 +7,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Agents;
 using Master40.Tools.Messages;
@@ -19,12 +20,14 @@ namespace Master40.Simulation
     {
 
         private readonly ProductionDomainContext _context;
+        private readonly ResultContext _resultContext;
         private AgentSimulation _agentSimulation;
         private IMessageHub _messageHub;
         private IActorRef SimulationContext;
-        public AgentCore(ProductionDomainContext context, IMessageHub messageHub)
+        public AgentCore(ProductionDomainContext context, ResultContext resultContext, IMessageHub messageHub)
         {
             _context = context;
+            _resultContext = resultContext;
             _messageHub = messageHub;
         }
 
@@ -38,10 +41,10 @@ namespace Master40.Simulation
             PrepareModel(_context, _inMemory);
 
 
-            var simNumber = _context.GetSimulationNumber(simConfig.Id, SimulationType.Decentral);
+            var simNumber = _resultContext.GetSimulationNumber(simConfig.Id, SimulationType.Decentral);
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
-            _agentSimulation = new AgentSimulation(false, _inMemory, _messageHub);
+            _agentSimulation = new AgentSimulation(false, _inMemory, _resultContext, _messageHub);
             
             var simModelConfig = new SimulationConfig(false, simConfig.DynamicKpiTimeSpan);
             var simulation = await _agentSimulation.InitializeSimulation(simConfig, simModelConfig);
@@ -84,7 +87,7 @@ namespace Master40.Simulation
 
         public SimulationConfiguration UpdateSettings(int simId, int orderAmount, double arivalRate, int estimatedThroughputTime)
         {
-            var simConfig = _context.SimulationConfigurations.AsNoTracking().Single(x => x.Id == simId);
+            var simConfig = _resultContext.SimulationConfigurations.AsNoTracking().Single(x => x.Id == simId);
             simConfig.OrderQuantity = orderAmount;
             simConfig.OrderRate = arivalRate;
             // TODO: Create an own Field for it in the model
@@ -100,7 +103,7 @@ namespace Master40.Simulation
             inMemory.SaveChanges();
         }
 
-        public void ResourceBreakDwon(string name)
+        public void ResourceBreakDown(string name)
         {
             var machineGroup = _context.Machines.Include(x => x.MachineGroup).Single(x => x.Name.Replace(" ", "") == name).MachineGroup.Name;
             SimulationContext.Tell(BasicInstruction.ResourceBrakeDown.Create(message: new SimulationImmutables.FBreakDown("Machine(" + name + ")", machineGroup, true, 0),

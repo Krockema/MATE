@@ -48,7 +48,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
         {
             var firstToEnqueue = false;
             // check for Children
-            if (Enumerable.Any<ArticleBom>(requestItem.Article.ArticleBoms))
+            if (Enumerable.Any<M_ArticleBom>(requestItem.Article.ArticleBoms))
             {
                 agent.DebugMessage("Last leave in Bom");
                 firstToEnqueue = true;

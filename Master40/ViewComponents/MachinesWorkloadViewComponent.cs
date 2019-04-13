@@ -14,10 +14,12 @@ namespace Master40.ViewComponents
     public partial class MachinesWorkLoadViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
+        private readonly ResultContext _resultContext;
 
-        public MachinesWorkLoadViewComponent(ProductionDomainContext context)
+        public MachinesWorkLoadViewComponent(ProductionDomainContext context, ResultContext resultContext)
         {
             _context = context;
+            _resultContext = resultContext;
         }
 
 
@@ -42,7 +44,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_resultContext.SimulationOperations.Any())
                 {
                     return null;
                 }
@@ -60,7 +62,7 @@ namespace Master40.ViewComponents
 
                 // use available hight in Chart
                 // use available hight in Chart
-                var machines = _context.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                var machines = _resultContext.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                         && x.SimulationType == simType
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && x.IsKpi
@@ -134,7 +136,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_resultContext.SimulationOperations.Any())
                 {
                     return null;
                 }
@@ -149,13 +151,13 @@ namespace Master40.ViewComponents
                 var cc = new ChartColor();
                 // use available hight in Chart
                 // use available hight in Chart
-                var machinesKpi = _context.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                var machinesKpi = _resultContext.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                         && x.SimulationType == simType
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && !x.IsKpi
                                                         && !x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
                     .ToList();
-                var settlingTime = _context.SimulationConfigurations.First(x => x.Id == Convert.ToInt32(paramsList[0])).SettlingStart;
+                var settlingTime = _resultContext.SimulationConfigurations.First(x => x.Id == Convert.ToInt32(paramsList[0])).SettlingStart;
                 var machines = machinesKpi.Select(n => n.Name).Distinct().ToList();
                 var data = new Data { Labels = machines };
 

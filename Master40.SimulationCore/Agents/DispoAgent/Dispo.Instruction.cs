@@ -52,14 +52,14 @@ namespace Master40.SimulationCore.Agents.DispoAgent
 
             public class ResponseFromSystemForBom : SimulationMessage
             {
-                public static ResponseFromSystemForBom Create(Article message, IActorRef target)
+                public static ResponseFromSystemForBom Create(M_Article message, IActorRef target)
                 {
                     return new ResponseFromSystemForBom(message, target);
                 }
                 private ResponseFromSystemForBom(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public Article GetObjectFromMessage { get => Message as Article; }
+                public M_Article GetObjectFromMessage { get => Message as M_Article; }
             }
             public class WithdrawMaterialsFromStock : SimulationMessage
             {

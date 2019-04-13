@@ -17,9 +17,9 @@ namespace Master40.DB.Repository
 
         #region ProcessMRP
 
-        public List<ProductionOrderWorkSchedule> GetParents(ProductionOrderWorkSchedule schedule)
+        public List<T_ProductionOrderOperation> GetParents(T_ProductionOrderOperation schedule)
         {
-            var parents = new List<ProductionOrderWorkSchedule>();
+            var parents = new List<T_ProductionOrderOperation>();
             if (schedule == null) return parents;
             var parent = GetHierarchyParent(schedule);
             if (parent != null)
@@ -30,10 +30,10 @@ namespace Master40.DB.Repository
             var bomParents =  GetBomParents(schedule);
             return bomParents ?? parents;
         }
-        public static ProductionOrderWorkSchedule GetHierarchyParent(ProductionOrderWorkSchedule pows)
+        public static T_ProductionOrderOperation GetHierarchyParent(T_ProductionOrderOperation pows)
         {
 
-            ProductionOrderWorkSchedule hierarchyParent = null;
+            T_ProductionOrderOperation hierarchyParent = null;
             var hierarchyParentNumber = int.MaxValue;
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
@@ -47,17 +47,17 @@ namespace Master40.DB.Repository
             return hierarchyParent;
         }
 
-        public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
+        public List<T_ProductionOrderOperation> GetBomParents(T_ProductionOrderOperation plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
             if (provider == null || provider.Any(dppo => dppo.DemandRequester == null))
-                return new List<ProductionOrderWorkSchedule>();
+                return new List<T_ProductionOrderOperation>();
             var requester = (from demandProviderProductionOrder in provider
                              select demandProviderProductionOrder.DemandRequester into req
                              select req).ToList();
 
 
-            var pows = new List<ProductionOrderWorkSchedule>();
+            var pows = new List<T_ProductionOrderOperation>();
             foreach (var singleRequester in requester)
             {
                 if (singleRequester.GetType() == typeof(DemandOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
@@ -76,7 +76,7 @@ namespace Master40.DB.Repository
 
         #region DemandForecast
 
-        public decimal GetPlannedStock(Stock stock, IDemandToProvider demand)
+        public decimal GetPlannedStock(M_Stock stock, IDemandToProvider demand)
         {
             var amountReserved = GetReserved(demand.ArticleId);
             var amountBought = 0;
@@ -150,7 +150,7 @@ namespace Master40.DB.Repository
             demand.DemandRequester = dps;
             article.DemandToProviders.Add(dps);
             stock.DemandProviderStocks.Add(dps);
-            dps.DemandRequester = demand as DemandToProvider;
+            dps.DemandRequester = demand as T_DemandToProvider;
 
             Save();
             return dps;

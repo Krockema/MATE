@@ -51,7 +51,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BusinessPartnerId,Name,Debitor,Kreditor")] BusinessPartner businessPartner)
+        public async Task<IActionResult> Create([Bind("BusinessPartnerId,Name,Debitor,Kreditor")] M_BusinessPartner businessPartner)
         {
             if (ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BusinessPartnerId,Name,Debitor,Kreditor")] BusinessPartner businessPartner)
+        public async Task<IActionResult> Edit(int id, [Bind("BusinessPartnerId,Name,Debitor,Kreditor")] M_BusinessPartner businessPartner)
         {
             if (id != businessPartner.Id)
             {

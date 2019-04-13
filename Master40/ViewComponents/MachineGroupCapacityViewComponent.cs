@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
-using ChartJSCore.Models.Bar;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Microsoft.EntityFrameworkCore;
+using Master40.DB.ReportingModel;
 using Master40.Extensions;
 
 namespace Master40.ViewComponents
@@ -17,10 +15,13 @@ namespace Master40.ViewComponents
     public partial class MachineGroupCapacityViewComponent : ViewComponent
     {
         private readonly ProductionDomainContext _context;
+        private readonly ResultContext _resultContext;
 
-        public MachineGroupCapacityViewComponent(ProductionDomainContext context)
+
+        public MachineGroupCapacityViewComponent(ProductionDomainContext context, ResultContext resultContext)
         {
             _context = context;
+            _resultContext = resultContext;
         }
 
 
@@ -51,7 +52,7 @@ namespace Master40.ViewComponents
 
                 // charttype
                 var schedules =
-                    _context.SimulationWorkschedules.Where(
+                    _resultContext.SimulationOperations.Where(
                         x => x.SimulationConfigurationId == 1 && x.SimulationNumber == 1 && x.SimulationType == simType).ToList();
 
                 // no data no Gant.

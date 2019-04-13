@@ -82,7 +82,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
         }
     
 
-        internal void RequestHubAgentFor(ICollection<WorkSchedule> workSchedules)
+        internal void RequestHubAgentFor(ICollection<M_Operation> workSchedules)
         {
             // Request Comunication Agent for my Workschedules
             var machineGroups = workSchedules.Select(x => x.MachineGroup.Name).Distinct().ToList();
@@ -100,7 +100,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
 
             var workItems =  Get<List<FWorkItem>>(Properties.WORK_ITEMS);
             var lastDue = requestItem.DueTime;
-            foreach (var workSchedule in Enumerable.OrderBy<WorkSchedule, int>(requestItem.Article.WorkSchedules, x => x.HierarchyNumber))
+            foreach (var workSchedule in Enumerable.OrderBy<M_Operation, int>(requestItem.Article.WorkSchedules, x => x.HierarchyNumber))
             {
                 var n = workSchedule.ToWorkItem(dueTime: lastDue
                                                     //, status: firstItemToBuild ? ElementStatus.Ready : ElementStatus.Created
@@ -145,7 +145,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             nextItem = nextItem.SetReady;
 
             if (hubAgents.Count == 0) return;
-            var hubAgent = hubAgents.Single(x => x.Value == nextItem.WorkSchedule.MachineGroup.Name);
+            var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.WorkSchedule.MachineGroup.Name);
 
             SendWorkItemStatusMsg(hubAgent, nextItem);
         }

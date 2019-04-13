@@ -11,9 +11,9 @@ namespace Master40.ViewComponents
 {
     public partial class TotalMachineWorkloadViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
 
-        public TotalMachineWorkloadViewComponent(ProductionDomainContext context)
+        public TotalMachineWorkloadViewComponent(ResultContext context)
         {
             _context = context;
         }
@@ -25,7 +25,7 @@ namespace Master40.ViewComponents
             var generateChartTask = Task.Run(() =>
             {
 
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_context.SimulationOperations.Any())
                 {
                     return null;
                 }
@@ -42,9 +42,9 @@ namespace Master40.ViewComponents
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
 
-                var endSum = _context.SimulationWorkschedules.Where(x => x.Machine == machine).Sum(x => x.End);
-                var startSum = _context.SimulationWorkschedules.Where(x => x.Machine == machine).Sum(x => x.Start);
-                var max = _context.SimulationWorkschedules.Max(x => x.End);
+                var endSum = _context.SimulationOperations.Where(x => x.Machine == machine).Sum(x => x.End);
+                var startSum = _context.SimulationOperations.Where(x => x.Machine == machine).Sum(x => x.Start);
+                var max = _context.SimulationOperations.Max(x => x.End);
                 var work = endSum - startSum;
                 var wait = max - work;
                 data.Datasets.Add( new PieDataset{ Data = new List<double>{ work, wait },

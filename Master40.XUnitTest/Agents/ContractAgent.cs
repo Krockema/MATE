@@ -28,12 +28,19 @@ namespace Master40.XUnitTest.Agents
         ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                                                                     .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                                     .Options);
+
+        ResultContext _resultContext = new ResultContext(new DbContextOptionsBuilder<ResultContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryResults")
+            .Options);
+
+
         public ContractAgent()
         {
 
 
             //_ctx.Database.EnsureDeleted();
             MasterDBInitializerSmall.DbInitialize(_ctx);
+            ResultDBInitializerBasic.DbInitialize(_resultContext);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
             //_productionDomainContext.Database.EnsureDeleted();
             //_productionDomainContext.Database.EnsureCreated();
@@ -75,7 +82,7 @@ namespace Master40.XUnitTest.Agents
             {
                 var probe = this.CreateTestProbe();
 
-                var wi = MessageFactory.ToWorkItem(new WorkSchedule() { Duration = 5 }, 15, ElementStatus.Created, probe, 0);
+                var wi = MessageFactory.ToWorkItem(new M_Operation() { Duration = 5 }, 15, ElementStatus.Created, probe, 0);
 
                 var w1 = wi.Priority(10);
                 var w2 = wi.GetPriority(10);
@@ -112,8 +119,8 @@ namespace Master40.XUnitTest.Agents
 
 
             // Create a Order with custom Article
-            var order = new Order() { DueTime = 0, Id = 1 };
-            var orderPart = new OrderPart() { Article = new Article() { Name = "Bear" }, Quantity = 1, Id = 1, OrderId = 1, Order = order };
+            var order = new T_CustomerOrder() { DueTime = 0, Id = 1 };
+            var orderPart = new T_CustomerOrderPart() { Article = new M_Article() { Name = "Bear" }, Quantity = 1, Id = 1, OrderId = 1, Order = order };
             // tell teh Contract agent
             simContext.Tell(Contract.Instruction.StartOrder.Create(orderPart, contract));
 
@@ -146,8 +153,8 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async void InitialisationAsync()
         {
-            var simContext = new SimulationCore.AgentSimulation(true, _ctx, new Moc.MessageHub());
-            var simConfig = _ctx.SimulationConfigurations.FirstOrDefault();
+            var simContext = new SimulationCore.AgentSimulation(true, _ctx, _resultContext, new Moc.MessageHub());
+            var simConfig = _resultContext.SimulationConfigurations.FirstOrDefault();
             simConfig.OrderQuantity = 0;
             var simulation = await simContext.InitializeSimulation(simConfig, new SimulationConfig(false, 480));
 
@@ -155,7 +162,7 @@ namespace Master40.XUnitTest.Agents
 
             await Task.Delay(5000);
             // 
-            var orderParts = _ctx.OrderParts.Single(x => x.Id == 1);
+            var orderParts = _ctx.CustomerOrderParts.Single(x => x.Id == 1);
 
             var contract = Supervisor.Instruction.CreateContractAgent.Create(orderParts, simContext.ActorPaths.SystemAgent.Ref);
             simulation.SimulationContext.Tell(contract, ActorRefs.NoSender);
@@ -177,8 +184,8 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task DispoArticleRequestFromStorage()
         {
-            var simContext = new SimulationCore.AgentSimulation(true, _ctx, new Moc.MessageHub());
-            var simConfig = _ctx.SimulationConfigurations.First();
+            var simContext = new SimulationCore.AgentSimulation(true, _ctx, _resultContext, new Moc.MessageHub());
+            var simConfig = _resultContext.SimulationConfigurations.First();
             simContext.InitializeSimulation(simConfig, new SimulationConfig(false, 480)).Wait();
             simContext.Run();
         }
@@ -195,7 +202,7 @@ namespace Master40.XUnitTest.Agents
             agentPaths.SetHubDirectoryAgent(this.TestActor);
 
             // init Stock 
-            var stock = new Stock { Article = new Article { Name = "Bär" } };
+            var stock = new M_Stock { Article = new M_Article { Name = "Bär" } };
             var storageAgent = Sys.ActorOf(Storage.Props(agentPaths, 0, true, simSystem));
             storageAgent.Tell(BasicInstruction.Initialize.Create(this.TestActor, StorageBehaviour.Get(stock)));
 

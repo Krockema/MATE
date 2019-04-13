@@ -8,15 +8,16 @@ using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.Extensions;
 using Master40.DB.Enums;
+using Master40.DB.ReportingModel;
 
 namespace Master40.ViewComponents
 {
     public partial class ProductLeadTimeViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
         private List<Tuple<int, SimulationType>> _simList;
 
-        public ProductLeadTimeViewComponent(ProductionDomainContext context)
+        public ProductLeadTimeViewComponent(ResultContext context)
         {
             _simList = new List<Tuple<int, SimulationType>>();
             _context = context;
@@ -81,7 +82,7 @@ namespace Master40.ViewComponents
 
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_context.SimulationOperations.Any())
                 {
                     return null;
                 }

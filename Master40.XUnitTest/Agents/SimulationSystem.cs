@@ -4,12 +4,12 @@ using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.SimulationCore;
-using Master40.Tools.Simulation;
 using Master40.XUnitTest.DBContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.SimulationCore.Helper;
 using Xunit;
 
 namespace Master40.XUnitTest.Agents
@@ -24,6 +24,9 @@ namespace Master40.XUnitTest.Agents
             .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
 
+        ResultContext _ctxResult = new ResultContext(new DbContextOptionsBuilder<ResultContext>()
+            .UseInMemoryDatabase(databaseName: "InMemoryResults")
+            .Options);
 
         public SimulationSystem()
         {
@@ -47,7 +50,7 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
-            var simContext = new AgentSimulation(true, _ctx, new Moc.MessageHub());
+            var simContext = new AgentSimulation(true, _ctx, _ctxResult, new  Moc.MessageHub());
             var simConfig = ContextTest.TestConfiguration();
             // simConfig.OrderQuantity = 0;
             var simModelConfig = new SimulationConfig(false, 480);
@@ -76,8 +79,8 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task MachineUtil()
         {
-            var simConfig = _masterDBContext.SimulationConfigurations.Single(x => x.Id == 1);
-            CalculateKpis.MachineSattleTime(_masterDBContext, simConfig, DB.Enums.SimulationType.Decentral, 0);
+            var simConfig = _ctxResult.SimulationConfigurations.Single(x => x.Id == 1);
+            CalculateKpis.MachineSattleTime(_masterDBContext,_ctxResult, simConfig, DB.Enums.SimulationType.Decentral, 0);
         }
     }
 }

@@ -3,12 +3,9 @@ using EfCore.InMemoryHelpers;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Akka.Event;
 using Master40.DB.DataModel;
-using Master40.Tools.Simulation;
+using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Helper;
 using Xunit;
 
 namespace Master40.XUnitTest.DBContext
@@ -98,9 +95,6 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public void TestContext()
         {
-            ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                .Options);
             OrderGenerator.GenerateOrdersSyncron(_ctx, ContextTest.TestConfiguration(), 1, true); // .RunSynchronously();
             Console.WriteLine("Orders created.");
         }

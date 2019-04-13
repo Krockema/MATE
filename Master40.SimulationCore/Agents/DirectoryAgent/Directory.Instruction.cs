@@ -58,14 +58,14 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             }
             public class CreateStorageAgents : SimulationMessage
             {
-                public static CreateStorageAgents Create(Stock message, IActorRef target)
+                public static CreateStorageAgents Create(M_Stock message, IActorRef target)
                 {
                     return new CreateStorageAgents(message, target);
                 }
                 private CreateStorageAgents(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public Stock GetObjectFromMessage { get => Message as Stock; }
+                public M_Stock GetObjectFromMessage { get => Message as M_Stock; }
             }
         }
     }
