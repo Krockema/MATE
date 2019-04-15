@@ -41,7 +41,7 @@
             );
 
         processingProxy.on("@name", function (msg) {
-            //console.log("@name :" + msg);
+            console.log("@name :" + msg);
 
             msg = msg * 100;
             if (isNaN(msg)) msg=0;

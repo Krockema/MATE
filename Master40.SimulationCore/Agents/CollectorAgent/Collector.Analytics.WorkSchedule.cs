@@ -20,6 +20,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
         private List<string> machines = new List<string>();
+        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB");
 
         public static CollectorAnalyticsWorkSchedule Get()
         {
@@ -190,13 +191,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             foreach (var item in final.OrderBy(x => x.M))
             {
-                var nan = Math.Round(item.W / divisor, 3).ToString("##.###");
+                var nan = Math.Round(item.W / divisor, 3).ToString(_cultureInfo);
                 if (nan == "NaN") nan = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
                 agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", ""), nan);
             }
 
-            var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString().Replace(",", ".");
+            var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString(_cultureInfo);
             if (totalLoad == "NaN")  totalLoad = "0";
             agent.messageHub.SendToClient("TotalWork", JsonConvert.SerializeObject(new { Time = agent.Time, Load = totalLoad }));
             

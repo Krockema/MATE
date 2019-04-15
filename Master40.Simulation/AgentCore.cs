@@ -67,7 +67,7 @@ namespace Master40.Simulation
                 // var ws = _inMemory.SimulationWorkschedules.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList();
                 // _context.SimulationWorkschedules.AddRange(ws);
                     
-                _context.SaveChanges();
+                // _context.SaveChanges();
             }
             _messageHub.EndScheduler();
 

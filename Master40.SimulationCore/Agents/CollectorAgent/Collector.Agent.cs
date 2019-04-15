@@ -36,6 +36,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
             DBContext = dBContext;
+            DBResults = dBResults;
         }
 
         public static Props Props(ActorPaths actorPaths

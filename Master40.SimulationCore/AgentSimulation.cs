@@ -64,20 +64,20 @@ namespace Master40.SimulationCore
                 WorkCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsWorkSchedule.Get()
                                                         , _messageHub, _DBContext, _DBResults, 0, false
                                                         , new List<Type> { typeof(CreateSimulationWork),
-                                                                                  typeof(UpdateSimulationWork),
-                                                                                  typeof(UpdateSimulationWorkProvider),
-                                                                                  typeof(UpdateLiveFeed),
-                                                                                  typeof(Hub.Instruction.AddMachineToHub),
-                                                                                  typeof(BasicInstruction.ResourceBrakeDown)}));
+                                                                           typeof(UpdateSimulationWork),
+                                                                           typeof(UpdateSimulationWorkProvider),
+                                                                           typeof(UpdateLiveFeed),
+                                                                           typeof(Hub.Instruction.AddMachineToHub),
+                                                                           typeof(BasicInstruction.ResourceBrakeDown)}));
                 StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
                                                         , _messageHub, _DBContext, _DBResults, 0, false
                                                         , new List<Type> { typeof(UpdateStockValues),
-                                                                                  typeof(UpdateLiveFeed)}));
+                                                                           typeof(UpdateLiveFeed)}));
                 ContractCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsContracts.Get()
                                                         , _messageHub, _DBContext, _DBResults, 0, false
                                                         , new List<Type> { typeof(Contract.Instruction.StartOrder),
-                                                                                  typeof(Supervisor.Instruction.OrderProvided),
-                                                                                  typeof(UpdateLiveFeed)}));
+                                                                           typeof(Supervisor.Instruction.OrderProvided),
+                                                                           typeof(UpdateLiveFeed)}));
 
                 // Create Guardians and Inject Childcreators
                 var contractGuard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "ContractGuard");

@@ -12,12 +12,12 @@ namespace Master40.DB.Data.Initializer
         {
             context.Database.EnsureCreated();
 
-
             // Look for any Entrys.
             if (context.Articles.Any())
             {
                 return;   // DB has been seeded
             }
+
             // Article Types
             var articleTypes = new M_ArticleType[]
             {
@@ -45,9 +45,9 @@ namespace Master40.DB.Data.Initializer
             
             var machines = new M_Machine[] {
                 new M_Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
-                //new Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
+                new M_Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
                 new M_Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills },
-                //new Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
+                new M_Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
                 new M_Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit}
             };
             context.Machines.AddRange(machines);
