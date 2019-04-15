@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Master40.DB.Enums;
 
 namespace Master40.DB.Data.Initializer
@@ -19,38 +19,38 @@ namespace Master40.DB.Data.Initializer
                 return;   // DB has been seeded
             }
             // Article Types
-            var articleTypes = new ArticleType[]
+            var articleTypes = new M_ArticleType[]
             {
-                new ArticleType {Name = "Assembly"},
-                new ArticleType {Name = "Material"},
-                new ArticleType {Name = "Consumable"},
-                new ArticleType {Name = "Product"}
+                new M_ArticleType {Name = "Assembly"},
+                new M_ArticleType {Name = "Material"},
+                new M_ArticleType {Name = "Consumable"},
+                new M_ArticleType {Name = "Product"}
             };
             context.ArticleTypes.AddRange(articleTypes);
             context.SaveChanges();
 
             // Units
-            var units = new Unit[]
+            var units = new M_Unit[]
             {
-                new Unit {Name = "Kilo"},
-                new Unit {Name = "Litre"},
-                new Unit {Name = "Pieces"}
+                new M_Unit {Name = "Kilo"},
+                new M_Unit {Name = "Litre"},
+                new M_Unit {Name = "Pieces"}
             };
             context.Units.AddRange(units);
             context.SaveChanges();
 
 
-            var machineGroup = new MachineGroup { Name = "All", Stage = 1, ImageUrl = "/images/Production/saw.svg" };
+            var machineGroup = new M_MachineGroup { Name = "All", Stage = 1, ImageUrl = "/images/Production/saw.svg" };
             
-            var machines = new Machine[] {
-                new Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = machineGroup },
+            var machines = new M_Machine[] {
+                new M_Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = machineGroup },
             };
             context.Machines.AddRange(machines);
             context.SaveChanges();
 
-            var machineTools = new MachineTool[]
+            var machineTools = new M_MachineTool[]
             {
-                new MachineTool{MachineId=machines.Single(m => m.Name == "Saw 1").Id, SetupTime=1, Name="Saw blade"},
+                new M_MachineTool{MachineId=machines.Single(m => m.Name == "Saw 1").Id, SetupTime=1, Name="Saw blade"},
             };
             context.MachineTools.AddRange(machineTools);
             context.SaveChanges();
@@ -115,13 +115,13 @@ namespace Master40.DB.Data.Initializer
             // context.SaveChanges();
 
             // Articles
-            var articles = new Article[]
+            var articles = new M_Article[]
             {
                 // new Article{Name="Tisch",  ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 45.00, ToBuild = true, ToPurchase = false },
-                new Article{Name="Tisch-Platte",ArticleTypeId = articleTypes.Single( s => s.Name == "Product").Id, DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 10.00, ToBuild = true, ToPurchase = false,  },
+                new M_Article{Name="Tisch-Platte",ArticleTypeId = articleTypes.Single( s => s.Name == "Product").Id, DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 10.00, ToBuild = true, ToPurchase = false,  },
                 // new Article{Name="Tisch-Bein",ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 5.00, ToBuild = true, ToPurchase = false },
-                new Article{Name="Holz 1,5m x 3,0m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1, ToBuild = false, ToPurchase = true  },
-                new Article{Name="Schrauben", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod = 3, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1, ToBuild = false, ToPurchase = true },
+                new M_Article{Name="Holz 1,5m x 3,0m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1, ToBuild = false, ToPurchase = true  },
+                new M_Article{Name="Schrauben", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod = 3, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 1, ToBuild = false, ToPurchase = true },
             };
             context.Articles.AddRange(articles);
             context.SaveChanges();
@@ -135,9 +135,9 @@ namespace Master40.DB.Data.Initializer
             // create Stock Entrys for each Article
             foreach (var article in DBArticles)
             {
-                var stocks = new Stock[]
+                var stocks = new M_Stock[]
                 {
-                    new Stock
+                    new M_Stock
                     {
                         ArticleForeignKey = article.Value,
                         Name = "Stock: " + article.Key,
@@ -150,15 +150,15 @@ namespace Master40.DB.Data.Initializer
                 context.SaveChanges();
             }
 
-            var articleBom = new List<ArticleBom>
+            var articleBom = new List<M_ArticleBom>
             {
                 // Tisch
                 //new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch" },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Tisch-Platte", Quantity=1, /* ArticleParentId = articles.Single(a => a.Name == "Tisch").Id */ },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Tisch-Platte", Quantity=1, /* ArticleParentId = articles.Single(a => a.Name == "Tisch").Id */ },
                 // new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Tisch-Bein", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id },
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Schrauben").Id, Name = "Schrauben", Quantity=8, ArticleParentId = articles.Single(a => a.Name == "Tisch-Platte").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Schrauben").Id, Name = "Schrauben", Quantity=8, ArticleParentId = articles.Single(a => a.Name == "Tisch-Platte").Id },
                 // Tisch-Platte
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holz 1,5m x 3,0m").Id, Name = "Holz 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tisch-Platte").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holz 1,5m x 3,0m").Id, Name = "Holz 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tisch-Platte").Id },
                 // Tisch-Bein
                 // new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holz 1,5m x 3,0m").Id, Name = "Holz 1,5m x 3,0m", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Tisch-Bein").Id },
 
@@ -166,68 +166,42 @@ namespace Master40.DB.Data.Initializer
             context.ArticleBoms.AddRange(articleBom);
             context.SaveChanges();
 
-            var workSchedule = new WorkSchedule[]
+            var workSchedule = new M_Operation[]
             {
                 // Tisch 
                 //new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch Montage", Duration=100, MachineGroupId=machines.Single(n=> n.Name=="Machine Montage").MachineGroupId, HierarchyNumber = 10, MachineToolId = machineTools.Single(a => a.Name == "Montage").Id },
                  
                 // Tisch Platte
-                new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Zuschneiden", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10, MachineToolId = machineTools.Single(a => a.Name == "Saw blade").Id },
+                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Zuschneiden", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10, MachineToolId = machineTools.Single(a => a.Name == "Saw blade").Id },
                 // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Löcher vorbohren", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Machine Allrounder").MachineGroupId, HierarchyNumber = 20, MachineToolId=machineTools.Single(a => a.Name == "Drillhead1").Id },
                 // Tisch Beine 
                 // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Zuschneiden", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Machine Allrounder").MachineGroupId, HierarchyNumber = 10, MachineToolId=machineTools.Single(a => a.Name == "Saw1").Id },
                 // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Löcher vorbohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Machine Allrounder").MachineGroupId, HierarchyNumber = 20, MachineToolId=machineTools.Single(a => a.Name == "Drillhead1").Id },
             };
 
-            context.WorkSchedules.AddRange(workSchedule);
+            context.Operations.AddRange(workSchedule);
             context.SaveChanges();
 
 
             //create Businesspartner
-            var buisnessPartnerList = new List<BusinessPartner>();
-            buisnessPartnerList.Add(new BusinessPartner() { Debitor = true, Kreditor = false, Name = "Toys'R'us Spielwarenabteilung" });
-            buisnessPartnerList.Add(new BusinessPartner() { Debitor = false, Kreditor = true, Name = "Material Großhandel" });
-            foreach (BusinessPartner b in buisnessPartnerList)
+            var buisnessPartnerList = new List<M_BusinessPartner>();
+            buisnessPartnerList.Add(new M_BusinessPartner() { Debitor = true, Kreditor = false, Name = "Toys'R'us Spielwarenabteilung" });
+            buisnessPartnerList.Add(new M_BusinessPartner() { Debitor = false, Kreditor = true, Name = "Material Großhandel" });
+            foreach (M_BusinessPartner b in buisnessPartnerList)
             {
                 context.BusinessPartners.Add(b);
             }
             context.SaveChanges();
 
-            var artToBusinessPartner = new ArticleToBusinessPartner[]
+            var artToBusinessPartner = new M_ArticleToBusinessPartner[]
             {
-                new ArticleToBusinessPartner{ BusinessPartnerId = buisnessPartnerList[1].Id, ArticleId = articles.Single(x => x.Name == "Holz 1,5m x 3,0m").Id, PackSize = 1, Price = 1, DueTime = 2 },
-                new ArticleToBusinessPartner{ BusinessPartnerId = buisnessPartnerList[1].Id, ArticleId = articles.Single(x => x.Name == "Schrauben").Id, PackSize = 25, Price = 2, DueTime = 2 },
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = buisnessPartnerList[1].Id, ArticleId = articles.Single(x => x.Name == "Holz 1,5m x 3,0m").Id, PackSize = 1, Price = 1, DueTime = 2 },
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = buisnessPartnerList[1].Id, ArticleId = articles.Single(x => x.Name == "Schrauben").Id, PackSize = 25, Price = 2, DueTime = 2 },
             };
             context.ArticleToBusinessPartners.AddRange(artToBusinessPartner);
             context.SaveChanges();
 
-            // Sim Config
-            var simConfig = new SimulationConfiguration
-            {
-                Name = "Test config",
-                //LotsizeType = LotsizeType.LotsizeStatic, //not active
-                Lotsize = 5, //not active 
-                MaxCalculationTime = 120, // test  // 10080, // 7 days
-                OrderQuantity = 550,
-                Seed = 1338,
-                ConsecutiveRuns = 1,
-                OrderRate = 0.25, //0.25
-                Time = 0,
-                RecalculationTime = 1440,
-                SimulationEndTime = 2500,
-                DecentralRuns = 0,
-                CentralRuns = 0,
-                DynamicKpiTimeSpan = 120,
-                SettlingStart = 0,
-                WorkTimeDeviation = 0.0 //deviation for Workschedule from 0 - 1 with, with 0.2 = 20%
-
-            };
-
-            context.SimulationConfigurations.Add(simConfig);
-            context.SaveChanges();
-
-
-            var order = new Order
+            var order = new T_CustomerOrder
             {
                 BusinessPartnerId = buisnessPartnerList[0].Id,
                 CreationTime = 0,
@@ -236,7 +210,7 @@ namespace Master40.DB.Data.Initializer
             };
             context.Add(order);
             context.SaveChanges();
-            var orderPart = new OrderPart
+            var orderPart = new T_CustomerOrderPart
             {
                 ArticleId = 1,
                 Quantity = 1,
@@ -244,7 +218,7 @@ namespace Master40.DB.Data.Initializer
             };
             context.Add(orderPart);
             context.SaveChanges();
-            var order2 = new Order
+            var order2 = new T_CustomerOrder
             {
                 BusinessPartnerId = buisnessPartnerList[0].Id,
                 CreationTime = 0,
@@ -253,7 +227,7 @@ namespace Master40.DB.Data.Initializer
             };
             context.Add(order2);
             context.SaveChanges();
-            var orderPart2 = new OrderPart
+            var orderPart2 = new T_CustomerOrderPart
             {
                 ArticleId = 1,
                 Quantity = 1,

@@ -1,8 +1,4 @@
-﻿using System;
-using Master40.MessageSystem.SignalR;
-
-
-namespace Master40.MessageSystem.MessageReciever
+﻿namespace Master40.Tools.MessageReciever
 {
     public class Client
     {

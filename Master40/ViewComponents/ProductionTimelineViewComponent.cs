@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.ViewComponents
@@ -32,7 +32,7 @@ namespace Master40.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(List<int> paramsList)
         {
 
-            if (!_context.ProductionOrderWorkSchedules.Any())
+            if (!_context.ProductionOrderOperations.Any())
             {
                 return View("ProductionTimeline", _ganttContext);
             }
@@ -45,16 +45,16 @@ namespace Master40.ViewComponents
                 // If Order is not selected.
                 if (_orderId == -1)
                 {   // for all Orders
-                    orders = _context?.OrderParts.Select(x => x.Id).ToList();
+                    orders = _context?.CustomerOrderParts.Select(x => x.Id).ToList();
                 }
                 else
                 {  // for the specified Order
-                    orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
+                    orders = _context?.CustomerOrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
                 }
 
             await GetSchedulesForOrderListAsync(orders);
             // Fill Select Fields
-            var orderSelection = new SelectList(_context.Orders, "Id", "Name", _orderId);
+            var orderSelection = new SelectList(_context.CustomerOrders, "Id", "Name", _orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
             ViewData["SchedulingState"] = SchedulingState(_schedulingState);
 
@@ -72,13 +72,13 @@ namespace Master40.ViewComponents
 
                 //var pows = await _context.GetProductionOrderBomRecursive(_context.ProductionOrders.FirstOrDefault(x => x.ArticleId == 1), 1);
                 // get the corresponding Order Parts to Order
-                var demands = _context.Demands.OfType<DemandOrderPart>()
+                var demands = _context.DemandToProviders.OfType<DemandOrderPart>()
                     .Include(x => x.OrderPart)
                     .Include(x => x.DemandProvider)
                     .Where(o => o.OrderPart.OrderId == orderPart)
                     .ToList();
 
-                var pows = new List<ProductionOrderWorkSchedule>();
+                var pows = new List<T_ProductionOrderOperation>();
                 foreach (var demand in demands)
                 {
                     var data = _context.GetWorkSchedulesFromDemand(demand, ref pows);
@@ -124,7 +124,7 @@ namespace Master40.ViewComponents
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.
         /// -- Headline for one Project
         /// </summary>
-        private GanttTask GetOrCreateTimeline(ProductionOrderWorkSchedule pow,int orderId)
+        private GanttTask GetOrCreateTimeline(T_ProductionOrderOperation pow,int orderId)
         {
             IEnumerable<GanttTask> project;
             // get Timeline
@@ -170,7 +170,7 @@ namespace Master40.ViewComponents
                     else
                     {
                         var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("O" + orderId, _context.Orders.FirstOrDefault(x => x.Id == orderId).Name, "", 0, (GanttColors)gc);
+                        var pt = CreateProjectTask("O" + orderId, _context.CustomerOrders.FirstOrDefault(x => x.Id == orderId).Name, "", 0, (GanttColors)gc);
                         _ganttContext.Tasks.Add(pt);
                         return pt;
                     }
@@ -181,7 +181,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Defines start and end for the ganttchart based on the Scheduling State
         /// </summary>
-        private void DefineStartEnd(ref long start, ref long end, ProductionOrderWorkSchedule item)
+        private void DefineStartEnd(ref long start, ref long end, T_ProductionOrderOperation item)
         {
             switch (_schedulingState)
             {
@@ -203,7 +203,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Creates new TimelineItem with a label depending on the schedulingState
         /// </summary>
-        public GanttTask CreateGanttTask(ProductionOrderWorkSchedule item, long start, long end, GanttColors gc, string parent)
+        public GanttTask CreateGanttTask(T_ProductionOrderOperation item, long start, long end, GanttColors gc, string parent)
         {
             var gantTask = new GanttTask()
             {
@@ -240,9 +240,9 @@ namespace Master40.ViewComponents
         private SelectList SchedulingState(int selectedItem)
         {
             var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
-            if (_context.ProductionOrderWorkSchedules.Any())
+            if (_context.ProductionOrderOperations.Any())
             {
-                if (_context.ProductionOrderWorkSchedules.Max(x => x.StartForward) != 0)
+                if (_context.ProductionOrderOperations.Max(x => x.StartForward) != 0)
                     itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
             }
             itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });

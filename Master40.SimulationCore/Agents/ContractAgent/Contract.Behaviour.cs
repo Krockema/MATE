@@ -1,11 +1,12 @@
-﻿using Master40.DB.Models;
+﻿using System.Collections.Generic;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.DispoAgent;
+using Master40.SimulationCore.Agents.SupervisorAegnt;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System.Collections.Generic;
-using static Master40.SimulationCore.Agents.Contract.Properties;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.ContractAgent
 {
     public class ContractBehaviour : Behaviour
     {
@@ -38,18 +39,18 @@ namespace Master40.SimulationCore.Agents
         /// </summary>
         /// <param agent="ContractAgent"></param>
         /// <param startOrder="ISimulationMessage"></param>
-        public void StartOrder(Contract agent, OrderPart orderItem)
+        public void StartOrder(Contract agent, T_CustomerOrderPart orderItem)
         {
 
             // Tell Guadian to create Dispo Agent
             var agentSetup = AgentSetup.Create(agent, DispoBehaviour.Get());
-            var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
+            var instruction = Guardian.Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
             agent.Send(instruction);
             // init
             // create Request Item
             FRequestItem requestItem = orderItem.ToRequestItem(requester: agent.Context.Self);
             // Send Request
-            agent.Set(REQUEST_ITEM, requestItem);
+            agent.Set(Contract.Properties.REQUEST_ITEM, requestItem);
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace Master40.SimulationCore.Agents
             agent.DebugMessage("Dispo Said Done.");
             //var localItem = agent.Get<FRequestItem>(REQUEST_ITEM);
             item = item.UpdateFinishedAt(agent.CurrentTime);
-            agent.Set(REQUEST_ITEM, item);
+            agent.Set(Contract.Properties.REQUEST_ITEM, item);
             
             // try to Finish if time has come
             if (agent.CurrentTime >= item.DueTime)

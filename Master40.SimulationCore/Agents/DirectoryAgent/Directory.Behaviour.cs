@@ -1,16 +1,14 @@
-﻿using Master40.DB.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.Ressource;
+using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using Master40.Tools.Simulation;
-using System.Collections.Generic;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Directory.Properties;
-using static Master40.SimulationCore.Agents.Directory;
-using Akka.Actor;
-using System;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
     public class DirectoryBehaviour : Behaviour
     {
@@ -24,7 +22,7 @@ namespace Master40.SimulationCore.Agents
         {
             var properties = new Dictionary<string, object>
             {
-                { RESSOURCE, new List<FRequestRessource>() },
+                { Directory.Properties.RESSOURCE, new List<FRequestRessource>() },
                 
             };
             return new DirectoryBehaviour(properties);
@@ -34,9 +32,9 @@ namespace Master40.SimulationCore.Agents
         {
             switch (message)
             {
-                case Instruction.CreateStorageAgents msg: CreateStorageAgents((Directory)agent, msg.GetObjectFromMessage); break;
-                case Instruction.CreateMachineAgents msg: CreateMachineAgents((Directory)agent, msg.GetObjectFromMessage); break;
-                case Instruction.RequestRessourceAgent msg: RequestRessourceAgent((Directory)agent, msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents((Directory)agent, msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents((Directory)agent, msg.GetObjectFromMessage); break;
+                case Directory.Instruction.RequestRessourceAgent msg: RequestRessourceAgent((Directory)agent, msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown((Directory)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -45,13 +43,13 @@ namespace Master40.SimulationCore.Agents
 
         private void ResourceBrakeDown(Directory agent, FBreakDown breakDown)
         {
-            var hubAgents = agent.Get<List<FRequestRessource>>(RESSOURCE);
+            var hubAgents = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);
             var hub = hubAgents.Single(x => x.Discriminator == breakDown.MachineGroup && x.ResourceType == ResourceType.Hub);
             agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, hub.actorRef));
             System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Machine, "Directory");
         }
 
-        public void CreateStorageAgents(Directory agent, Stock stock)
+        public void CreateStorageAgents(Directory agent, M_Stock stock)
         {
             var storage = agent.Context.ActorOf(Storage.Props(agent.ActorPaths
                                             , agent.CurrentTime
@@ -59,7 +57,7 @@ namespace Master40.SimulationCore.Agents
                                             , agent.Context.Self)
                                             , ("Storage(" + stock.Name + ")").ToActorName());
 
-            var ressourceCollection = agent.Get<List<FRequestRessource>>(RESSOURCE);
+            var ressourceCollection = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);
             ressourceCollection.Add(new FRequestRessource(stock.Article.Name, ResourceType.Storage, storage));
             
             agent.Send(BasicInstruction.Initialize.Create(storage, StorageBehaviour.Get(stock)));
@@ -68,10 +66,10 @@ namespace Master40.SimulationCore.Agents
 
         public void CreateMachineAgents(Directory agent, FRessourceDefinition ressource)
         {
-            var machine = ressource.Resource as Machine;
+            var machine = ressource.Resource as M_Machine;
 
             // Create Hub If Required
-            var hubAgents = agent.Get<List<FRequestRessource>>(RESSOURCE);
+            var hubAgents = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);
             var hub = hubAgents.FirstOrDefault(x => x.Discriminator == machine.MachineGroup.Name && x.ResourceType == ResourceType.Hub);
             if (hub == null)
             {
@@ -123,7 +121,7 @@ namespace Master40.SimulationCore.Agents
             agent.DebugMessage(" got Called for Storage by -> " + agent.Sender.Path.Name);
 
             // find the related Comunication Agent
-            var ressourceCollection = agent.Get<List<FRequestRessource>>(RESSOURCE);
+            var ressourceCollection = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);
             var ressource = ressourceCollection.First(x => x.Discriminator == descriminator);
 
             var hubInfo = new FHubInformation(ressource.ResourceType

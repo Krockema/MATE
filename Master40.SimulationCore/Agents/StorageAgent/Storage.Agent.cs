@@ -1,12 +1,13 @@
-﻿using Akka.Actor;
-using Master40.DB.Enums;
-using Master40.DB.Models;
-using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
-using System;
+﻿using System;
 using System.Linq;
+using Akka.Actor;
+using Master40.DB.DataModel;
+using Master40.DB.Enums;
+using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.StorageAgent
 {
     public partial class Storage : Agent
     {
@@ -26,7 +27,7 @@ namespace Master40.SimulationCore.Agents
         protected override void OnInit(IBehaviour o)
         {
             o.Properties.TryGetValue(Properties.STOCK_ELEMENT, out object stock);
-            DebugMessage("Current: " + ((Stock)stock).Current);
+            DebugMessage("Current: " + ((M_Stock)stock).Current);
         }
 
        
@@ -37,7 +38,7 @@ namespace Master40.SimulationCore.Agents
 
 
             //StockReservation stockReservation = new StockReservation { DueTime = request.DueTime };
-            var stockElement = agent.Get<Stock>(Properties.STOCK_ELEMENT);
+            var stockElement = agent.Get<M_Stock>(Properties.STOCK_ELEMENT);
             var withdrawl = stockElement.StockExchanges
                                 .Where(x => x.RequiredOnTime <= request.DueTime &&
                                             x.State != State.Finished &&
@@ -66,7 +67,7 @@ namespace Master40.SimulationCore.Agents
 
             //Create Stockexchange for Reservation
             stockElement.StockExchanges.Add(
-                new StockExchange
+                new T_StockExchange
                 {
                     TrakingGuid = request.StockExchangeId,
                     StockId = stockElement.Id,
@@ -80,14 +81,14 @@ namespace Master40.SimulationCore.Agents
             return stockReservation;
         }
 
-        internal void CreatePurchase(Agent agent, Stock stockElement)
+        internal void CreatePurchase(Agent agent, M_Stock stockElement)
         {
 
             var time = stockElement.Article
                                     .ArticleToBusinessPartners
                                     .Single(x => x.BusinessPartner.Kreditor)
                                     .DueTime;
-            var stockExchange = new StockExchange
+            var stockExchange = new T_StockExchange
             {
                 StockId = stockElement.Id,
                 ExchangeType = ExchangeType.Insert,
@@ -103,7 +104,7 @@ namespace Master40.SimulationCore.Agents
             agent.Send(Instruction.StockRefill.Create(stockExchange.TrakingGuid, agent.Context.Self), time);
         }
 
-        internal void LogValueChange(Agent agent, Article article, double value)
+        internal void LogValueChange(Agent agent, M_Article article, double value)
         {
             var pub = new UpdateStockValues(article.Name
                                             , value

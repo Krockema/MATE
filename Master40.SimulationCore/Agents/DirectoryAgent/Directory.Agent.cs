@@ -1,10 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
     public partial class Directory : Agent
     {

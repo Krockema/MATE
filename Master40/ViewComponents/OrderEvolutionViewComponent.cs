@@ -12,9 +12,9 @@ namespace Master40.ViewComponents
 {
     public class OrderEvolutionViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
 
-        public OrderEvolutionViewComponent(ProductionDomainContext context)
+        public OrderEvolutionViewComponent(ResultContext context)
         {
             _context = context;
         }
@@ -23,7 +23,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_context.SimulationOperations.Any())
                 {
                     return null;
                 }

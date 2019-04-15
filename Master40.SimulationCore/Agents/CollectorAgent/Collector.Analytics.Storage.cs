@@ -1,13 +1,11 @@
-﻿using AkkaSim;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AkkaSim;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Collector.Instruction;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsStorage : Behaviour, ICollectorBehaviour
     {
@@ -30,7 +28,7 @@ namespace Master40.SimulationCore.Agents
             switch (message)
             {
                 case UpdateStockValues m: UpdateStock((Collector)simulationMonitor, m); break;
-                case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
                 default: return false;
             }
             return true;

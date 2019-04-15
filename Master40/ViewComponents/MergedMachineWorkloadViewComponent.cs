@@ -8,16 +8,17 @@ using Master40.DB.Data.Context;
 using Master40.Extensions;
 using Master40.DB.Enums;
 using ChartJSCore.Models.Bar;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 
 namespace Master40.ViewComponents
 {
     public partial class MergedMachineWorkloadViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
         private List<Tuple<int, SimulationType>> _simList;
         
-        public MergedMachineWorkloadViewComponent(ProductionDomainContext context)
+        public MergedMachineWorkloadViewComponent(ResultContext context)
         {
             _context = context;
             _simList = new List<Tuple<int, SimulationType>>();
@@ -55,7 +56,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_context.SimulationOperations.Any())
                 {
                     return null;
                 }

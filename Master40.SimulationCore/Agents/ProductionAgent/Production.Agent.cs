@@ -1,13 +1,17 @@
-﻿using Akka.Actor;
-using Master40.DB.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Akka.Actor;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.DirectoryAgent;
+using Master40.SimulationCore.Agents.DispoAgent;
+using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System.Collections.Generic;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Production.Properties;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.ProductionAgent
 {
     public partial class Production : Agent
     {
@@ -33,8 +37,8 @@ namespace Master40.SimulationCore.Agents
         }
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var childItems = Get<Queue<FRequestItem>>(CHILD_WORKITEMS);
-            var requesteditems = Get<List<FRequestItem>>(REQUESTED_ITEMS);
+            var childItems = Get<Queue<FRequestItem>>(Properties.CHILD_WORKITEMS);
+            var requesteditems = Get<List<FRequestItem>>(Properties.REQUESTED_ITEMS);
             var requestItem = childItems.Dequeue();
             requesteditems.Add(requestItem);
             this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
@@ -47,9 +51,9 @@ namespace Master40.SimulationCore.Agents
             // // any Not Finished do noting
             // if (ChildAgents.Any(x => x.Status != Status.Finished))
             //     return;
-            var workItems = Get<List<FWorkItem>>(WORK_ITEMS);
-            var requestItem = Get<FRequestItem>(REQUEST_ITEM);
-            var hubAgents = Get<Dictionary<IActorRef, string>>(HUB_AGENTS);
+            var workItems = Get<List<FWorkItem>>(Properties.WORK_ITEMS);
+            var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
+            var hubAgents = Get<Dictionary<IActorRef, string>>(Properties.HUB_AGENTS);
             // Return from Production as WorkItemStatus
             if (status != null)
             {
@@ -78,7 +82,7 @@ namespace Master40.SimulationCore.Agents
         }
     
 
-        internal void RequestHubAgentFor(ICollection<WorkSchedule> workSchedules)
+        internal void RequestHubAgentFor(ICollection<M_Operation> workSchedules)
         {
             // Request Comunication Agent for my Workschedules
             var machineGroups = workSchedules.Select(x => x.MachineGroup.Name).Distinct().ToList();
@@ -94,9 +98,9 @@ namespace Master40.SimulationCore.Agents
         internal void CreateWorkItemsFromRequestItem(bool firstItemToBuild, FRequestItem requestItem)
         {
 
-            var workItems =  Get<List<FWorkItem>>(WORK_ITEMS);
+            var workItems =  Get<List<FWorkItem>>(Properties.WORK_ITEMS);
             var lastDue = requestItem.DueTime;
-            foreach (var workSchedule in requestItem.Article.WorkSchedules.OrderBy(x => x.HierarchyNumber))
+            foreach (var workSchedule in Enumerable.OrderBy<M_Operation, int>(requestItem.Article.WorkSchedules, x => x.HierarchyNumber))
             {
                 var n = workSchedule.ToWorkItem(dueTime: lastDue
                                                     //, status: firstItemToBuild ? ElementStatus.Ready : ElementStatus.Created
@@ -118,8 +122,8 @@ namespace Master40.SimulationCore.Agents
 
         internal void SetWorkItemReady()
         {
-            var workItems = Get<List<FWorkItem>>(WORK_ITEMS);
-            var hubAgents = Get<Dictionary<IActorRef, string>>(HUB_AGENTS);
+            var workItems = Get<List<FWorkItem>>(Properties.WORK_ITEMS);
+            var hubAgents = Get<Dictionary<IActorRef, string>>(Properties.HUB_AGENTS);
             // check if there is something Ready or in Process Then just wait for their Ready Call
             if (workItems.Count() == 0 || workItems.Any(x => x.Status == ElementStatus.Ready || x.Status == ElementStatus.Processed))
             {
@@ -131,7 +135,7 @@ namespace Master40.SimulationCore.Agents
             // get next ready WorkItem
             // TODO Return Queing Status ? or Move method to Machine
             var nextItem = workItems.Where(x => x.Status == ElementStatus.InQueue || x.Status == ElementStatus.Created)
-                                    .OrderBy(x => x.WorkSchedule.HierarchyNumber)
+                                    .OrderBy<FWorkItem, int>(x => x.WorkSchedule.HierarchyNumber)
                                     .FirstOrDefault();
             if (nextItem == null)
             {
@@ -141,7 +145,7 @@ namespace Master40.SimulationCore.Agents
             nextItem = nextItem.SetReady;
 
             if (hubAgents.Count == 0) return;
-            var hubAgent = hubAgents.Single(x => x.Value == nextItem.WorkSchedule.MachineGroup.Name);
+            var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.WorkSchedule.MachineGroup.Name);
 
             SendWorkItemStatusMsg(hubAgent, nextItem);
         }
@@ -161,13 +165,13 @@ namespace Master40.SimulationCore.Agents
             // tell Item in Queue to set it ready.
             Send(instruction: Hub.Instruction.SetWorkItemStatus.Create(message, hubAgent.Key));
             // ,waitFor: 1); // Start Production during the next time period
-            Set(NEXT_WORK_ITEM, null);
+            Set(Properties.NEXT_WORK_ITEM, null);
         }
 
         protected override void Finish()
         {
-            var requestItem = this.Get<FRequestItem>(REQUEST_ITEM);
-            var workItems = this.Get<List<FRequestItem>>(WORK_ITEMS);
+            var requestItem = this.Get<FRequestItem>(Properties.REQUEST_ITEM);
+            var workItems = this.Get<List<FRequestItem>>(Properties.WORK_ITEMS);
             // Correct?
             if (requestItem.Provided && VirtualChilds.Count() == 0 && workItems.All(x => x.Provided == true))
             {

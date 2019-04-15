@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -51,7 +51,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BusinessPartnerId,Name,Debitor,Kreditor")] BusinessPartner businessPartner)
+        public async Task<IActionResult> Create([Bind("BusinessPartnerId,Name,Debitor,Kreditor")] M_BusinessPartner businessPartner)
         {
             if (ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BusinessPartnerId,Name,Debitor,Kreditor")] BusinessPartner businessPartner)
+        public async Task<IActionResult> Edit(int id, [Bind("BusinessPartnerId,Name,Debitor,Kreditor")] M_BusinessPartner businessPartner)
         {
             if (id != businessPartner.Id)
             {

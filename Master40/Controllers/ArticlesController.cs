@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -57,7 +57,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] Article article)
+        public async Task<IActionResult> Create([Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] M_Article article)
         {
             if (ModelState.IsValid)
             {
@@ -93,7 +93,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] Article article)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Name,UnitId,ArticleTypeId,Price,DeliveryPeriod,CreationDate")] M_Article article)
         {
             if (id != article.Id)
             {

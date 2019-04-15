@@ -11,13 +11,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Master40.DB.Data.Context;
 using Hangfire;
-using Master40.BusinessLogicCentral.MRP;
 using Master40.DB.Data.Initializer;
-using Master40.MessageSystem.SignalR;
-using Master40.Simulation.Simulation;
+using Master40.Simulation;
+using Master40.Tools.SignalR;
 using Swashbuckle.AspNetCore.Swagger;
-using Master40.BusinessLogicCentral.Simulator;
-using System;
 
 namespace Master40
 {
@@ -45,9 +42,11 @@ namespace Master40
             services.AddDbContext<MasterDBContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            Console.WriteLine(Configuration.GetConnectionString("DefaultConnection"));
             services.AddDbContext<OrderDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<ResultContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ResultConnection")));
 
             services.AddDbContext<ProductionDomainContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -60,13 +59,8 @@ namespace Master40
                 options.UseSqlServerStorage(Configuration.GetConnectionString("Hangfire")));
 
             services.AddSingleton<IMessageHub, MessageHub>();
-            services.AddSingleton<IScheduling, Scheduling>();
-            services.AddSingleton<ICapacityScheduling, CapacityScheduling>();
-            services.AddSingleton<IProcessMrp, ProcessMrp>();
-            services.AddSingleton<ISimulator, Simulator>();
+            
             //services.AddSingleton<IProcessMrp, ProcessMrpSim>();
-            services.AddSingleton<IRebuildNets, RebuildNets>();
-            services.AddSingleton<AgentSimulator>();
             services.AddSingleton<AgentCore>();
             // services.AddSingleton<Client>();
 
@@ -105,13 +99,14 @@ namespace Master40
                             , ILoggerFactory loggerFactory
                             , HangfireDBContext hangfireContext
                             , MasterDBContext context
+                            , ResultContext contextResults
                             , ProductionDomainContext productionDomainContext)
         {
-            Task.Run((() => { 
+
                 //MasterDBInitializerLarge.DbInitialize(context);
-                MasterDBInitializerLarge.DbInitialize(context);
-                }
-            ));
+            MasterDBInitializerLarge.DbInitialize(context);
+            ResultDBInitializerBasic.DbInitialize(contextResults);
+
             HangfireDBInitializer.DbInitialize(hangfireContext);
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(options.Value);

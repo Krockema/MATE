@@ -1,5 +1,4 @@
-﻿@using Master40.DB.Models
-@model Master40.DB.Models.Machine
+﻿@model Master40.DB.DataModel.M_Machine
 @{ 
     var name = Model.Name.Replace(" ", "");
     var percent = "0 %";
@@ -42,7 +41,7 @@
             );
 
         processingProxy.on("@name", function (msg) {
-            //console.log("@name :" + msg);
+            console.log("@name :" + msg);
 
             msg = msg * 100;
             if (isNaN(msg)) msg=0;

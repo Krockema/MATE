@@ -1,12 +1,12 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Generic;
+using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
-using Master40.MessageSystem.SignalR;
 using Master40.SimulationCore.Helper;
-using System;
-using System.Collections.Generic;
+using Master40.Tools.SignalR;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public partial class Collector : SimulationMonitor
     {
@@ -14,6 +14,7 @@ namespace Master40.SimulationCore.Agents
         private ICollectorBehaviour Behaviour;
         internal IMessageHub messageHub { get; }
         internal MasterDBContext DBContext;
+        internal ResultContext DBResults;
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -25,6 +26,7 @@ namespace Master40.SimulationCore.Agents
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
+            , ResultContext dBResults
             , long time
             , bool debug
             , List<Type> streamTypes)
@@ -34,17 +36,19 @@ namespace Master40.SimulationCore.Agents
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
             DBContext = dBContext;
+            DBResults = dBResults;
         }
 
         public static Props Props(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
+            , ResultContext dBResults
             , long time
             , bool debug
             , List<Type> streamTypes)
         {
-            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, time, debug, streamTypes));
+            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, dBResults, time, debug, streamTypes));
         }
 
         protected override void EventHandle(object o)

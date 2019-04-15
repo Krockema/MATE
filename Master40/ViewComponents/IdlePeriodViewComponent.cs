@@ -6,16 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Enums;
-using ChartJSCore.Models.Bar;
 using Master40.Extensions;
 
 namespace Master40.ViewComponents
 {
     public class IdlePeriodViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
 
-        public IdlePeriodViewComponent(ProductionDomainContext context)
+        public IdlePeriodViewComponent(ResultContext context)
         {
             _context = context;
         }
@@ -36,7 +35,7 @@ namespace Master40.ViewComponents
 
             var generateChartTask = Task.Run(() =>
             {
-                if (!_context.SimulationWorkschedules.Any())
+                if (!_context.SimulationOperations.Any())
                 {
                     return null;
                 }

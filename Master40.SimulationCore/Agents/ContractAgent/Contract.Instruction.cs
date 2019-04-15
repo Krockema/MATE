@@ -1,10 +1,10 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using AkkaSim.Interfaces;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.ContractAgent
 {
     public partial class Contract
     {
@@ -15,11 +15,11 @@ namespace Master40.SimulationCore.Agents
                 {
                 }
 
-                public static ISimulationMessage Create(OrderPart message, IActorRef target, bool logThis = false)
+                public static ISimulationMessage Create(T_CustomerOrderPart message, IActorRef target, bool logThis = false)
                 {
                     return new StartOrder(message, target, logThis);
                 }
-                public OrderPart GetObjectFromMessage { get => Message as OrderPart; }
+                public T_CustomerOrderPart GetObjectFromMessage { get => Message as T_CustomerOrderPart; }
             }
 
             public class Finish : SimulationMessage

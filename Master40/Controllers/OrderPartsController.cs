@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -61,7 +61,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("OrderParts/Create/{OrderId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] OrderPart orderPart)
+        public async Task<IActionResult> Create([Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] T_CustomerOrderPart orderPart)
         {
             if (ModelState.IsValid)
             {
@@ -99,7 +99,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] OrderPart orderPart)
+        public async Task<IActionResult> Edit(int id, [Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] T_CustomerOrderPart orderPart)
         {
             if (id != orderPart.Id)
             {

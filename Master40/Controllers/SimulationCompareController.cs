@@ -7,9 +7,9 @@ namespace Master40.Controllers
 {
     public class SimulationCompareController : Controller
     {
-        private readonly MasterDBContext _context;
+        private readonly ResultContext _context;
 
-        public SimulationCompareController(MasterDBContext context)
+        public SimulationCompareController(ResultContext context)
         {
             _context = context;
         }

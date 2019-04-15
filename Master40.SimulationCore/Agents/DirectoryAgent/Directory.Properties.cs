@@ -1,4 +1,4 @@
-﻿namespace Master40.SimulationCore.Agents
+﻿namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
     public partial class Directory
     {

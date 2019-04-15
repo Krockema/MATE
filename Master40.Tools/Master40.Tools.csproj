@@ -14,8 +14,4 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.0.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
-  </ItemGroup>
-
 </Project>

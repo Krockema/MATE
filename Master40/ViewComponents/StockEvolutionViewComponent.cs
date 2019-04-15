@@ -11,9 +11,9 @@ namespace Master40.ViewComponents
 {
     public class StockEvolutionViewComponent : ViewComponent
     {
-        private readonly ProductionDomainContext _context;
+        private readonly ResultContext _context;
 
-        public StockEvolutionViewComponent(ProductionDomainContext context)
+        public StockEvolutionViewComponent(ResultContext context)
         {
             _context = context;
         }
@@ -22,7 +22,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(() =>
             {
-            if (!_context.SimulationWorkschedules.Any())
+            if (!_context.SimulationOperations.Any())
             {
                 return null;
             }

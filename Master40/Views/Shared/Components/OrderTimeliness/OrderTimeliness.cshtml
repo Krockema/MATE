@@ -1,9 +1,11 @@
+@using Master40.DB.DataModel
+@using Master40.DB.ReportingModel
 @{
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
     string percentage = ViewData["Percentage"].ToString() + " %";
-    var kpis = (List<Master40.DB.Models.Kpi>)ViewData["Data"];
+    var kpis = (List<Kpi>)ViewData["Data"];
     if (chart != null) {
         raw = chart.CreateChartCode("OrderTimeliness_"+type);
     }

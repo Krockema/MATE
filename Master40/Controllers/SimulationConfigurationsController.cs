@@ -1,32 +1,29 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
-using Master40.DB.Models;
-using Master40.Simulation.Simulation;
-using Master40.Tools.Simulation;
 using System.Collections.Generic;
+using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 
 namespace Master40.Controllers
 {
     public class SimulationConfigurationsController : Controller
     {
         private readonly MasterDBContext _context;
-        private readonly ISimulator _simulator;
+        private readonly ResultContext _resultContext;
 
-        public SimulationConfigurationsController(MasterDBContext context, ISimulator simulator)
+        public SimulationConfigurationsController(MasterDBContext context, ResultContext resultContext)
         {
             _context = context;
-            _simulator = simulator;
+            _resultContext = resultContext;
         }
 
         // GET: SimulationConfigurations
         public async Task<IActionResult> Index()
         {
-            return View(await _context.SimulationConfigurations.ToListAsync());
+            return View(await _resultContext.SimulationConfigurations.ToListAsync());
         }
 
         // GET: SimulationConfigurations/Details/5
@@ -37,7 +34,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var simulationConfiguration = await _context.SimulationConfigurations
+            var simulationConfiguration = await _resultContext.SimulationConfigurations
                 .SingleOrDefaultAsync(m => m.Id == id);
 
             if (simulationConfiguration == null)
@@ -78,7 +75,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var simulationConfiguration = await _context.SimulationConfigurations.SingleOrDefaultAsync(m => m.Id == id);
+            var simulationConfiguration = await _resultContext.SimulationConfigurations.SingleOrDefaultAsync(m => m.Id == id);
             if (simulationConfiguration == null)
             {
                 return NotFound();
@@ -129,7 +126,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var simulationConfiguration = await _context.SimulationConfigurations
+            var simulationConfiguration = await _resultContext.SimulationConfigurations
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (simulationConfiguration == null)
             {
@@ -144,56 +141,56 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var simulationConfiguration = await _context.SimulationConfigurations.SingleOrDefaultAsync(m => m.Id == id);
-            _context.SimulationConfigurations.Remove(simulationConfiguration);
+            var simulationConfiguration = await _resultContext.SimulationConfigurations.SingleOrDefaultAsync(m => m.Id == id);
+            _resultContext.SimulationConfigurations.Remove(simulationConfiguration);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         private bool SimulationConfigurationExists(int id)
         {
-            return _context.SimulationConfigurations.Any(e => e.Id == id);
+            return _resultContext.SimulationConfigurations.Any(e => e.Id == id);
         }
 
         [HttpGet("[Controller]/Central/{simulationId}")]
         public void Central(int simulationId)
         {
-            var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
+            var runs = _resultContext.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
             string run = "";
-            for (int i = 0; i < runs; i++)
-            {
-                if (run == "")
-                { // initial Run.
-                    run = BackgroundJob.Enqueue<ISimulator>(
-                        x => _simulator.Simulate(simulationId));
-                } // consecutive Runs 
-                else
-                {
-                    run = BackgroundJob.ContinueWith<ISimulator>(run,
-                        x => _simulator.Simulate(simulationId));
-                }
-            }
+            //  for (int i = 0; i < runs; i++)
+            //  {
+                 // if (run == "")
+                 // { // initial Run.
+                 //     run = BackgroundJob.Enqueue<ISimulator>(
+                 //         x => _simulator.Simulate(simulationId));
+                 // } // consecutive Runs 
+                 // else
+                 // {
+                 //     run = BackgroundJob.ContinueWith<ISimulator>(run,
+                 //         x => _simulator.Simulate(simulationId));
+                 // }
+            // }
         }
 
 
         [HttpGet("[Controller]/Decentral/{simulationId}")]
         public void Decentral(int simulationId)
         {
-            var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
+            var runs = _resultContext.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
             string run = "";
-            for (int i = 0; i < runs; i++)
-            {
-                if (run == "")
-                { // initial Run.
-                    run = BackgroundJob.Enqueue<ISimulator>(
-                          x => _simulator.AgentSimulatioAsync(simulationId));
-                } // consecutive Runs 
-                else
-                {
-                   run =  BackgroundJob.ContinueWith<ISimulator>(run ,
-                          x => _simulator.AgentSimulatioAsync(simulationId));
-                }
-            }
+            // for (int i = 0; i < runs; i++)
+            // {
+            //     if (run == "")
+            //     { // initial Run.
+            //         run = BackgroundJob.Enqueue<ISimulator>(
+            //               x => _simulator.AgentSimulatioAsync(simulationId));
+            //     } // consecutive Runs 
+            //     else
+            //     {
+            //        run =  BackgroundJob.ContinueWith<ISimulator>(run ,
+            //               x => _simulator.AgentSimulatioAsync(simulationId));
+            //     }
+            // }
         }
 
         [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}")]

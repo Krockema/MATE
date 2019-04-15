@@ -1,9 +1,8 @@
 ﻿using Akka.Actor;
-using Master40.SimulationCore.Agents;
-using Master40.SimulationCore.Helper;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Master40.SimulationCore.Agents.ContractAgent;
+using Master40.SimulationCore.Agents.DispoAgent;
+using Master40.SimulationCore.Agents.ProductionAgent;
 
 namespace Master40.SimulationCore.Helper
 {

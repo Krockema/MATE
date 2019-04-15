@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -32,9 +32,9 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles.Include(w => w.WorkSchedules)
-                .Where(a => a.Id == 1 || a.Id == 24).ToList();
+                .Where(x => x.ArticleTypeId == 4 /* Equals("Product") */).ToList();
 
-            var articleList = new List<Article>();
+            var articleList = new List<M_Article>();
             foreach (var item in masterDBContext)
             {
                 var article = await _context.GetArticleBomRecursive(item, item.Id);
@@ -76,7 +76,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
+        public async Task<IActionResult> Create([Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] M_ArticleBom articleBom)
         {
             if (ModelState.IsValid)
             {
@@ -112,7 +112,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] M_ArticleBom articleBom)
         {
             if (id != articleBom.Id)
             {

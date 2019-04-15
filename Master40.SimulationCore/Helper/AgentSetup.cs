@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Agents;
+using Master40.SimulationCore.MessageTypes;
 
 namespace Master40.SimulationCore.Helper
 {

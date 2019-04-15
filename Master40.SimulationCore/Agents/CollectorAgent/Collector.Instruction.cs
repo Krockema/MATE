@@ -1,8 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public partial class Collector
     {

@@ -1,28 +1,27 @@
-﻿using Akka.Actor;
-using Master40.DB.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Akka.Actor;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationImmutables;
-using Master40.Tools.Simulation;
-using System.Collections.Generic;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Resource.Properties;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.Ressource
 {
     // Alt: CapacityAgent, ProducerAgent, PotencialFactorAgent, SchedulingAgent, 
     public partial class Resource : Agent
     {
         // public Constructor
-        public static Props Props(ActorPaths actorPaths,Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths,M_Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal)
         {
             return Akka.Actor.Props.Create(() => new Resource(actorPaths, machine, workTimeGenerator, time, debug, principal));
         }
 
-        public Resource(ActorPaths actorPaths, Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
+        public Resource(ActorPaths actorPaths, M_Machine machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
-            this.Set(MACHINE, machine);
-            this.Set(WORK_TIME_GENERATOR, workTimeGenerator);
-            this.Set(HUB_AGENT_REF, principal);
+            this.Set(Properties.MACHINE, machine);
+            this.Set(Properties.WORK_TIME_GENERATOR, workTimeGenerator);
+            this.Set(Properties.HUB_AGENT_REF, principal);
             //this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.MachineGroup.Name, this.Self), principal));
             this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, this.Name, this.Self), principal));
         }
@@ -30,9 +29,9 @@ namespace Master40.SimulationCore.Agents
         
         internal void UpdateProcessingQueue(FWorkItem workItem)
         {
-            var processingQueue = Get<LimitedQueue<FWorkItem>>(PROCESSING_QUEUE);
-            var queue = Get<List<FWorkItem>>(QUEUE);
-            var hub = Get<IActorRef>(HUB_AGENT_REF);
+            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
+            var queue = Get<List<FWorkItem>>(Properties.QUEUE);
+            var hub = Get<IActorRef>(Properties.HUB_AGENT_REF);
             if (processingQueue.CapacitiesLeft && workItem != null)
             {
                 if (workItem.WorkSchedule.HierarchyNumber == 10)
@@ -61,14 +60,14 @@ namespace Master40.SimulationCore.Agents
         /// </summary>
         internal void DoWork()
         {
-            if (Get<bool>(ITEMS_IN_PROGRESS))
+            if (Get<bool>(Properties.ITEMS_IN_PROGRESS))
             {
                 DebugMessage("Im still working....");
                 return; // still working
             }
 
             // Dequeue
-            var processingQueue = Get<LimitedQueue<FWorkItem>>(PROCESSING_QUEUE);
+            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
             var item = processingQueue.Dequeue();
 
 
@@ -81,12 +80,12 @@ namespace Master40.SimulationCore.Agents
             }
 
             DebugMessage("Start with " + item.WorkSchedule.Name);
-            Set(ITEMS_IN_PROGRESS, true);
+            Set(Properties.ITEMS_IN_PROGRESS, true);
             item = item.UpdateStatus(ElementStatus.Processed);
 
 
             // TODO: Roll delay here
-            var workTimeGenerator = Get<WorkTimeGenerator>(WORK_TIME_GENERATOR);
+            var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
             var duration = workTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration);
 
             //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
@@ -107,8 +106,8 @@ namespace Master40.SimulationCore.Agents
         internal void SendProposalTo(FWorkItem workItem)
         {
             long max = 0;
-            var queue = this.Get<List<FWorkItem>>(QUEUE);
-            var queueLength = this.Get<int>(QUEUE_LENGTH);
+            var queue = this.Get<List<FWorkItem>>(Properties.QUEUE);
+            var queueLength = this.Get<int>(Properties.QUEUE_LENGTH);
 
             if (queue.Any(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)))
             {

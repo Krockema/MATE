@@ -1,11 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.SimulationCore.Helper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.Guardian
 {
     public partial class Guardian
     {

@@ -1,10 +1,12 @@
+@using Master40.DB.DataModel
+@using Master40.DB.ReportingModel
 @{
     ViewBag.Title = "Product Lead Times";
     Layout = "_Layout";
     ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
     string raw = "Chart Rendering Failed";
     string type = ViewData["Type"].ToString();
-    var kpis = (List<Master40.DB.Models.Kpi>)ViewData["Data"];
+    var kpis = (List<Kpi>)ViewData["Data"];
     if (chart != null) {
         raw = chart.CreateChartCode("ProductLeadTime_" + type);
         // bug fix Chart Js Core

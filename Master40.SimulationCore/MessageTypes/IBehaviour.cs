@@ -1,10 +1,10 @@
-﻿using Akka.Actor;
-using Master40.SimulationCore.Helper;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Akka.Actor;
+using Master40.SimulationCore.Agents;
+using Master40.SimulationCore.Helper;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.MessageTypes
 {
     public interface IBehaviour
     {

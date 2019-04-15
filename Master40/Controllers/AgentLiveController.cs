@@ -1,10 +1,10 @@
-using Master40.BusinessLogicCentral.Simulator;
 using Master40.DB.Data.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.Simulation;
 
 namespace Master40.Controllers
 {
@@ -51,7 +51,7 @@ namespace Master40.Controllers
         [HttpGet("[Controller]/MachineBreakdown/{Machine}")]
         public void MachineBreakdown(string machine)
         {
-            _agentSimulator.ResourceBreakDwon(machine);
+            _agentSimulator.ResourceBreakDown(machine);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
@@ -10,7 +10,7 @@ namespace Master40.DB.Data.Context
         public SchedulingDomainContext(DbContextOptions<MasterDBContext> options) : base(options)
         { }
 
-        public IQueryable<Article> ById(int id)
+        public IQueryable<M_Article> ById(int id)
         {
             return Articles.Include(x => x.ArticleType)
                 .Include(x => x.Unit)

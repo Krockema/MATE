@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.Guardian
 {
     /// <summary>
     /// Guardian Action is an Supervising Actor to Create Child Actors on Command and Controll their LifeCycle

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
@@ -11,7 +11,7 @@ namespace Master40.DB.Data.Context
 
 
         //complex Querys
-        public IQueryable<Order> GetAllOrders
+        public IQueryable<T_CustomerOrder> GetAllOrders
         {
             get
             {
@@ -22,17 +22,17 @@ namespace Master40.DB.Data.Context
             }
         }
 
-        public IQueryable<Order> ById(int id) => Orders.Include(x => x.OrderParts)
+        public IQueryable<T_CustomerOrder> ById(int id) => Orders.Include(x => x.OrderParts)
             .Include(x => x.BusinessPartner)
             .Where(x => x.BusinessPartner.Debitor)
             .Where(x => x.Id == id);
 
-        public IQueryable<Article> GetSellableArticles => Articles.Include(x => x.ArticleType)
+        public IQueryable<M_Article> GetSellableArticles => Articles.Include(x => x.ArticleType)
                 .Where(t => t.ArticleType.Name == "Assembly")
                 .AsNoTracking();
         
 
-        public IQueryable<Article> GetPuchaseableArticles => Articles.Include(x => x.ArticleType)
+        public IQueryable<M_Article> GetPuchaseableArticles => Articles.Include(x => x.ArticleType)
                     .Where(t => t.ArticleType.Name == "Material")
                     .AsNoTracking();
             

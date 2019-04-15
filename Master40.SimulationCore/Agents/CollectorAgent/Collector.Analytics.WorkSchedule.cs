@@ -1,19 +1,16 @@
-﻿using AkkaSim;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using AkkaSim;
 using Master40.DB.Enums;
-using Master40.DB.Models;
+using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using static Master40.SimulationCore.Agents.Collector.Instruction;
 using Newtonsoft.Json;
-using System.Reflection;
-using Master40.DB.Data.Helper;
-using Akka.Util.Internal;
 
-namespace Master40.SimulationCore.Agents
+namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsWorkSchedule : Behaviour, ICollectorBehaviour
     {
@@ -23,6 +20,7 @@ namespace Master40.SimulationCore.Agents
         private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
         private List<string> machines = new List<string>();
+        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB");
 
         public static CollectorAnalyticsWorkSchedule Get()
         {
@@ -38,7 +36,7 @@ namespace Master40.SimulationCore.Agents
                 case CreateSimulationWork m: CreateSimulationWorkSchedule((Collector)simulationMonitor,m); break;
                 case UpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
                 case UpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
-                case UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 case Hub.Instruction.AddMachineToHub m: RecoverFromBreak((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 default: return false;
@@ -56,7 +54,7 @@ namespace Master40.SimulationCore.Agents
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }
 
-        private void UpdateFeed(Collector agent, bool logToDB)
+        private void UpdateFeed(Collector agent, bool logToDb)
         {
             if (machines.Count == 0)
             {
@@ -65,14 +63,14 @@ namespace Master40.SimulationCore.Agents
 
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
-            MachineUtilisation(agent);
+            MachineUtilization(agent);
             ThroughPut(agent);
             lastIntervalStart = agent.Time;
-            if (logToDB)
+            if (logToDb)
             {
                 
-                agent.DBContext.SimulationWorkschedules.AddRange(simulationWorkschedules);
-                agent.DBContext.SaveChanges();
+                agent.DBResults.SimulationOperations.AddRange(simulationWorkschedules);
+                agent.DBResults.SaveChanges();
             }
             agent.Context.Sender.Tell(true, agent.Context.Self);
 
@@ -85,15 +83,15 @@ namespace Master40.SimulationCore.Agents
                       where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
                           && a.Time >= lastIntervalStart
-                      group a by new { a.Article, a.CreatedForOrderId } into arti
+                      group a by new { a.Article, a.OrderId } into arti
                       select new
                       {
                           Article = arti.Key.Article,
-                          Order = arti.Key.CreatedForOrderId
+                          OrderId = arti.Key.OrderId
                       };
 
             var leadTime = from lt in simulationWorkschedules
-                           group lt by lt.CreatedForOrderId into so
+                           group lt by lt.OrderId into so
                            select new
                            {
                                OrderID = so.Key,
@@ -102,11 +100,11 @@ namespace Master40.SimulationCore.Agents
 
             var innerJoinQuery =
                    from a in art
-                   join l in leadTime on a.Order equals l.OrderID
+                   join l in leadTime on a.OrderId equals l.OrderID
                    select new
                    {
                        a.Article,
-                       a.Order,
+                       a.OrderId,
                        l.Dlz
                    };
 
@@ -133,7 +131,7 @@ namespace Master40.SimulationCore.Agents
 
         }
 
-        private void MachineUtilisation(Collector agent)
+        private void MachineUtilization(Collector agent)
         {
             double divisor = agent.Time - lastIntervalStart;
             agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from DataCollection");
@@ -193,13 +191,13 @@ namespace Master40.SimulationCore.Agents
 
             foreach (var item in final.OrderBy(x => x.M))
             {
-                var nan = Math.Round(item.W / divisor, 3).ToString().Replace(",", ".");
+                var nan = Math.Round(item.W / divisor, 3).ToString(_cultureInfo);
                 if (nan == "NaN") nan = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
                 agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", ""), nan);
             }
 
-            var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString().Replace(",", ".");
+            var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString(_cultureInfo);
             if (totalLoad == "NaN")  totalLoad = "0";
             agent.messageHub.SendToClient("TotalWork", JsonConvert.SerializeObject(new { Time = agent.Time, Load = totalLoad }));
             

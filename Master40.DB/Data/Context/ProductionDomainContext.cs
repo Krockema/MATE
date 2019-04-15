@@ -1,13 +1,14 @@
 ﻿using Master40.DB.Data.Helper;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
-using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 
 namespace Master40.DB.Data.Context
 {
@@ -15,22 +16,22 @@ namespace Master40.DB.Data.Context
     {
         public ProductionDomainContext(DbContextOptions<MasterDBContext> options) : base(options) { }
         
-        public Order OrderById(int id)
+        public T_CustomerOrder OrderById(int id)
         {
-            return Orders.FirstOrDefault(x => x.Id == id);
+            return CustomerOrders.FirstOrDefault(x => x.Id == id);
         }
         /// <summary>
         /// Receives the prior items to a given ProductionOrderWorkSchedule
         /// </summary>
         /// <param name="productionOrderWorkSchedule"></param>
         /// <returns>List<ProductionOrderWorkSchedule></returns>
-        public Task<List<ProductionOrderWorkSchedule>> GetFollowerProductionOrderWorkSchedules(ProductionOrderWorkSchedule productionOrderWorkSchedule)
+        public Task<List<T_ProductionOrderOperation>> GetFollowerProductionOrderWorkSchedules(T_ProductionOrderOperation productionOrderWorkSchedule)
         {
             var rs = Task.Run(() =>
             {
-                var priorItems = new List<ProductionOrderWorkSchedule>();
+                var priorItems = new List<T_ProductionOrderOperation>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
-                var maxHierarchy = ProductionOrderWorkSchedules.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
+                var maxHierarchy = ProductionOrderOperations.Where(x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId)
                                                     .Max(x => x.HierarchyNumber);
 
                 if (maxHierarchy == productionOrderWorkSchedule.HierarchyNumber)
@@ -43,7 +44,7 @@ namespace Master40.DB.Data.Context
                 {
                     // get Previous Workschedule
                     var previousPows =
-                        ProductionOrderWorkSchedules.Where(
+                        ProductionOrderOperations.Where(
                                 x => x.ProductionOrderId == productionOrderWorkSchedule.ProductionOrderId
                                      && x.HierarchyNumber > productionOrderWorkSchedule.HierarchyNumber)
                             .OrderBy(x => x.HierarchyNumber).FirstOrDefault();
@@ -88,9 +89,9 @@ namespace Master40.DB.Data.Context
             return rs;
         }
 
-        public List<ProductionOrderWorkSchedule> GetParents(ProductionOrderWorkSchedule schedule)
+        public List<T_ProductionOrderOperation> GetParents(T_ProductionOrderOperation schedule)
         {
-            var parents = new List<ProductionOrderWorkSchedule>();
+            var parents = new List<T_ProductionOrderOperation>();
             if (schedule == null) return parents;
             var parent = GetHierarchyParent(schedule);
             if (parent != null)
@@ -102,10 +103,10 @@ namespace Master40.DB.Data.Context
             return bomParents ?? parents;
         }
 
-        public ProductionOrderWorkSchedule GetHierarchyParent(ProductionOrderWorkSchedule pows)
+        public T_ProductionOrderOperation GetHierarchyParent(T_ProductionOrderOperation pows)
         {
 
-            ProductionOrderWorkSchedule hierarchyParent = null;
+            T_ProductionOrderOperation hierarchyParent = null;
             var hierarchyParentNumber = int.MaxValue;
             //find next higher element
             foreach (var mainSchedule in pows.ProductionOrder.ProductionOrderWorkSchedule)
@@ -119,21 +120,21 @@ namespace Master40.DB.Data.Context
             return hierarchyParent;
         }
 
-        public List<ProductionOrderWorkSchedule> GetBomParents(ProductionOrderWorkSchedule plannedSchedule)
+        public List<T_ProductionOrderOperation> GetBomParents(T_ProductionOrderOperation plannedSchedule)
         {
             var provider = plannedSchedule.ProductionOrder.DemandProviderProductionOrders;
             if (provider == null || provider.ToList().Any(dppo => dppo.DemandRequester == null))
-                return new List<ProductionOrderWorkSchedule>();
+                return new List<T_ProductionOrderOperation>();
             var requester =  (from demandProviderProductionOrder in provider
                     select demandProviderProductionOrder.DemandRequester into req
                     select req).ToList();
             
 
-            var pows = new List<ProductionOrderWorkSchedule>();
+            var pows = new List<T_ProductionOrderOperation>();
             foreach (var singleRequester in requester)
             {
                 if (singleRequester.GetType() == typeof(DemandOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
-                var demand = Demands.OfType<DemandProductionOrderBom>().Include(a => a.ProductionOrderBom)
+                var demand = DemandToProviders.OfType<DemandProductionOrderBom>().Include(a => a.ProductionOrderBom)
                     .ThenInclude(b => b.ProductionOrderParent).ThenInclude(c => c.ProductionOrderWorkSchedule)
                     .Single(a => a.Id == singleRequester.Id);
                 var schedules = demand.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule;
@@ -150,7 +151,7 @@ namespace Master40.DB.Data.Context
 
 
 
-        public async Task<Article> GetArticleBomRecursive(Article article, int articleId)
+        public async Task<M_Article> GetArticleBomRecursive(M_Article article, int articleId)
         {
             article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
                                                         .ThenInclude(w => w.WorkSchedules)
@@ -170,33 +171,33 @@ namespace Master40.DB.Data.Context
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        public Task<List<ProductionOrderWorkSchedule>> GetProductionOrderWorkScheduleByOrderId(int orderId)
+        public Task<List<T_ProductionOrderOperation>> GetProductionOrderWorkScheduleByOrderId(int orderId)
             {
                 return Task.Run(() =>
                 {
                     // get the corresponding Order Parts to Order
-                    var demands = Demands.OfType<DemandOrderPart>()
+                    var demands = DemandToProviders.OfType<DemandOrderPart>()
                         .Include(x => x.OrderPart)
                         .Where(o => o.OrderPart.OrderId == orderId)
                         .ToList();
 
                     // ReSharper Linq
-                    var demandboms = demands.SelectMany(demand => Demands.OfType<DemandProductionOrderBom>()
+                    var demandboms = demands.SelectMany(demand => DemandToProviders.OfType<DemandProductionOrderBom>()
                         .Where(a => a.DemandRequesterId == demand.Id)).ToList();
 
                     // get Demand Providers for this Order
                     var demandProviders = new List<DemandProviderProductionOrder>();
-                    foreach (var order in (Demands.OfType<DemandProviderProductionOrder>()
+                    foreach (var order in (DemandToProviders.OfType<DemandProviderProductionOrder>()
                         .Join(demands, c => c.DemandRequesterId, d => ((IDemandToProvider)d).Id, (c, d) => c)))
                     {
                         demandProviders.Add(order);
                     }
 
-                    var demandBomProviders = (Demands.OfType<DemandProviderProductionOrder>()
+                    var demandBomProviders = (DemandToProviders.OfType<DemandProviderProductionOrder>()
                         .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
 
                     // get ProductionOrderWorkSchedule for 
-                    var pows = ProductionOrderWorkSchedules.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
+                    var pows = ProductionOrderOperations.Include(x => x.ProductionOrder).Include(x => x.Machine).Include(x => x.MachineGroup).AsNoTracking();
                     var powDetails = pows.Join(demandProviders, p => p.ProductionOrderId, dp => dp.ProductionOrderId,
                         (p, dp) => p).ToList();
 
@@ -214,7 +215,7 @@ namespace Master40.DB.Data.Context
             /// </summary>
             /// <param name="po"></param>
             /// <returns></returns>
-            public List<int> GetOrderIdsFromProductionOrder(ProductionOrder po)
+            public List<int> GetOrderIdsFromProductionOrder(T_ProductionOrder po)
             {
                 po = ProductionOrders.Include(a => a.DemandProviderProductionOrders).ThenInclude(b => b.DemandRequester).Single(a => a.Id == po.Id);
                 var ids = new List<int>();
@@ -231,7 +232,7 @@ namespace Master40.DB.Data.Context
                     }
                     else if (singleRequester.GetType() == typeof(DemandOrderPart))
                     {
-                        var dop = Demands.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
+                        var dop = DemandToProviders.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
                         ids.Add(dop.OrderPart.OrderId);
                     }
 
@@ -245,7 +246,7 @@ namespace Master40.DB.Data.Context
             /// <param name="demandRequester"></param>
             /// <param name="productionOrderWorkSchedule"></param>
             /// <returns>List of ProductionOrderWorkSchedules - Attention May Include Dupes Through Complex Backlinks !</returns>
-            public List<ProductionOrderWorkSchedule> GetWorkSchedulesFromDemand(IDemandToProvider demandRequester, ref List<ProductionOrderWorkSchedule> productionOrderWorkSchedule)
+            public List<T_ProductionOrderOperation> GetWorkSchedulesFromDemand(IDemandToProvider demandRequester, ref List<T_ProductionOrderOperation> productionOrderWorkSchedule)
             {
                 foreach (var item in demandRequester.DemandProvider.OfType<DemandProviderProductionOrder>())
                 {
@@ -303,16 +304,16 @@ namespace Master40.DB.Data.Context
                SaveChanges();
            }*/
 
-        public List<ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, SimulationConfiguration simConfig)
+        public List<T_ProductionOrder> CreateChildProductionOrders(IDemandToProvider demand, decimal amount, SimulationConfiguration simConfig)
         {
-            ProductionOrderBom bom = null;
+            T_ProductionOrderBom bom = null;
             if (demand.GetType() == typeof(DemandProductionOrderBom))
             {
                 bom = ProductionOrderBoms.FirstOrDefault(a => a.Id == ((DemandProductionOrderBom) demand).ProductionOrderBomId);
             }
             
             var lotsize = simConfig.Lotsize;
-            var productionOrders = new List<ProductionOrder>();
+            var productionOrders = new List<T_ProductionOrder>();
             /*decimal bomQuantity;
             if (bom != null)
                 bomQuantity = ArticleBoms.AsNoTracking().Single(a => a.ArticleChildId == demand.ArticleId &&
@@ -333,7 +334,7 @@ namespace Master40.DB.Data.Context
                     if (bom != null)
                     {
                         demandProviderProductionOrder.DemandRequesterId = demand.Id;
-                        Demands.Update(demandProviderProductionOrder);
+                        DemandToProviders.Update(demandProviderProductionOrder);
                     }
                 }
                 SaveChanges();
@@ -345,7 +346,7 @@ namespace Master40.DB.Data.Context
             return productionOrders;
         }
 
-        public DemandStock CreateStockDemand(IDemandToProvider demand, Stock stock, decimal amount)
+        public DemandStock CreateStockDemand(IDemandToProvider demand, M_Stock stock, decimal amount)
         {
             var demandStock = new DemandStock()
             {
@@ -353,17 +354,17 @@ namespace Master40.DB.Data.Context
                 Article = demand.Article,
                 ArticleId = demand.ArticleId,
                 State = State.Created,
-                DemandProvider = new List<DemandToProvider>(),
+                DemandProvider = new List<T_DemandToProvider>(),
                 StockId = stock.Id,
             };
-            Demands.Add(demandStock);
+            DemandToProviders.Add(demandStock);
             SaveChanges();
             return demandStock;
         }
 
-        public ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime, SimulationConfiguration simulationConfiguration)
+        public T_ProductionOrder CreateProductionOrder(IDemandToProvider demand, int duetime, SimulationConfiguration simulationConfiguration)
         {
-            var productionOrder = new ProductionOrder()
+            var productionOrder = new T_ProductionOrder()
             {
                 ArticleId = demand.Article.Id,
                 Quantity = simulationConfiguration.Lotsize,
@@ -375,17 +376,17 @@ namespace Master40.DB.Data.Context
             return productionOrder;
         }
 
-        public decimal GetPlannedStock(Stock stock, IDemandToProvider demand)
+        public decimal GetPlannedStock(M_Stock stock, IDemandToProvider demand)
         {
             var amountReserved = GetReserved(demand.ArticleId);
             var amountBought = 0;
-            var articlesBought = PurchaseParts.Where(a => a.ArticleId == demand.ArticleId && a.State != State.Finished);
+            var articlesBought = PurchaseOrderParts.Where(a => a.ArticleId == demand.ArticleId && a.State != State.Finished);
             foreach (var articleBought in articlesBought)
             {
                 amountBought += articleBought.Quantity;
             }
             //just produced articles have a reason and parents they got produced for so they cannot be reserved by another requester
-            var amountJustProduced = Demands.OfType<DemandProductionOrderBom>()
+            var amountJustProduced = DemandToProviders.OfType<DemandProductionOrderBom>()
                 .Where(a => (a.State != State.Finished || a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(b => b.ProducingState == ProducingState.Created || b.ProducingState == ProducingState.Waiting))
                             && a.ArticleId == demand.ArticleId
                             && a.DemandProvider.Any()
@@ -396,7 +397,7 @@ namespace Master40.DB.Data.Context
             return plannedStock;
         }
 
-        public DemandProviderProductionOrder CreateDemandProviderProductionOrder(IDemandToProvider demand, ProductionOrder productionOrder, decimal amount)
+        public DemandProviderProductionOrder CreateDemandProviderProductionOrder(IDemandToProvider demand, T_ProductionOrder productionOrder, decimal amount)
         {
             var demandProviderProductionOrder = new DemandProviderProductionOrder()
             {
@@ -406,7 +407,7 @@ namespace Master40.DB.Data.Context
                 ProductionOrderId = productionOrder.Id,
                 DemandRequesterId = demand.Id
             };
-            Demands.Add(demandProviderProductionOrder);
+            DemandToProviders.Add(demandProviderProductionOrder);
             if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<DemandProviderProductionOrder>();
             productionOrder.DemandProviderProductionOrders.Add(demandProviderProductionOrder);
             SaveChanges();
@@ -426,10 +427,10 @@ namespace Master40.DB.Data.Context
                     DemandRequesterId = demand.Id,
                     State = State.Created,
                 };
-                Demands.Add(providerPurchasePart);
+                DemandToProviders.Add(providerPurchasePart);
 
                 CreatePurchase(demand, amount, providerPurchasePart,time);
-                Demands.Update(providerPurchasePart);
+                DemandToProviders.Update(providerPurchasePart);
             }
             else
             {
@@ -441,7 +442,7 @@ namespace Master40.DB.Data.Context
                     State = State.Created,
                     StockId = Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId).Id
                 };
-                Demands.Add(providerStock);
+                DemandToProviders.Add(providerStock);
             }
             SaveChanges();
         }
@@ -449,27 +450,27 @@ namespace Master40.DB.Data.Context
         public void CreatePurchase(IDemandToProvider demand, decimal amount, DemandProviderPurchasePart demandProviderPurchasePart, int time)
         {
             var articleToPurchase = ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
-            var purchase = new Purchase()
+            var purchase = new T_PurchaseOrder()
             {
                 BusinessPartnerId = articleToPurchase.BusinessPartnerId,
                 DueTime = articleToPurchase.DueTime + time
             };
             //amount to be purchased has to be raised to fit the packsize
             amount = Math.Floor(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
-            var purchasePart = new PurchasePart()
+            var purchasePart = new T_PurchaseOrderPart()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = (int)amount,
                 DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>() { demandProviderPurchasePart },
                 PurchaseId = purchase.Id
             };
-            purchase.PurchaseParts = new List<PurchasePart>()
+            purchase.PurchaseParts = new List<T_PurchaseOrderPart>()
             {
                 purchasePart
             };
 
-            Purchases.Add(purchase);
-            PurchaseParts.Add(purchasePart);
+            PurchaseOrders.Add(purchase);
+            PurchaseOrderParts.Add(purchasePart);
             SaveChanges();
         }
 
@@ -495,7 +496,7 @@ namespace Master40.DB.Data.Context
             SaveChanges();
             return dps;
         }
-        public DemandProviderProductionOrder CreateProviderProductionOrder(IDemandToProvider demand, ProductionOrder productionOrder, decimal amount)
+        public DemandProviderProductionOrder CreateProviderProductionOrder(IDemandToProvider demand, T_ProductionOrder productionOrder, decimal amount)
         {
             var dppo = new DemandProviderProductionOrder()
             {
@@ -508,7 +509,7 @@ namespace Master40.DB.Data.Context
             SaveChanges();
             return dppo;
         }
-        public DemandProviderPurchasePart CreateDemandProviderPurchasePart(IDemandToProvider demand, PurchasePart purchase, decimal amount)
+        public DemandProviderPurchasePart CreateDemandProviderPurchasePart(IDemandToProvider demand, T_PurchaseOrderPart purchase, decimal amount)
         {
             var dppp = new DemandProviderPurchasePart()
             {
@@ -523,7 +524,7 @@ namespace Master40.DB.Data.Context
         }
 
 
-        public void AssignDemandProviderToProductionOrderBom(DemandProductionOrderBom demand, ProductionOrderBom pob)
+        public void AssignDemandProviderToProductionOrderBom(DemandProductionOrderBom demand, T_ProductionOrderBom pob)
         {
             if (pob.DemandProductionOrderBoms == null)
                 pob.DemandProductionOrderBoms = new List<DemandProductionOrderBom>();
@@ -533,20 +534,20 @@ namespace Master40.DB.Data.Context
             // Update(pob);            
         }
 
-        public void AssignProviderToDemand(IDemandToProvider demand, DemandToProvider provider)
+        public void AssignProviderToDemand(IDemandToProvider demand, T_DemandToProvider provider)
         {
-            if (demand.DemandProvider == null) demand.DemandProvider = new List<DemandToProvider>();
+            if (demand.DemandProvider == null) demand.DemandProvider = new List<T_DemandToProvider>();
             demand.DemandProvider.Add(provider);
             Update(demand);
             SaveChanges();
         }
 
-        public ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, ProductionOrder parentProductionOrder, SimulationConfiguration simConfig)
+        public T_ProductionOrderBom TryCreateProductionOrderBoms(IDemandToProvider demand, T_ProductionOrder parentProductionOrder, SimulationConfiguration simConfig)
         {
             if (parentProductionOrder == null) return null;
             var lotsize = simConfig.Lotsize;
             var quantity = demand.Quantity > lotsize ? lotsize : demand.Quantity;
-            var pob = new ProductionOrderBom()
+            var pob = new T_ProductionOrderBom()
             {
                 Quantity = quantity,
                 ProductionOrderParentId = parentProductionOrder.Id
@@ -558,7 +559,7 @@ namespace Master40.DB.Data.Context
             return pob;
         }
         
-        public void AssignPurchaseToDemandProvider(PurchasePart purchasePart, DemandProviderPurchasePart provider, int quantity)
+        public void AssignPurchaseToDemandProvider(T_PurchaseOrderPart purchasePart, DemandProviderPurchasePart provider, int quantity)
         {
             provider.PurchasePartId = purchasePart.Id;
             provider.Quantity = quantity;
@@ -567,10 +568,10 @@ namespace Master40.DB.Data.Context
         }
 
        
-        public PurchasePart CreatePurchase(IDemandToProvider demand, decimal amount)
+        public T_PurchaseOrderPart CreatePurchase(IDemandToProvider demand, decimal amount)
         {
             var articleToPurchase = ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
-            var purchase = new Purchase()
+            var purchase = new T_PurchaseOrder()
             {
                 BusinessPartnerId = articleToPurchase.BusinessPartnerId,
                 DueTime = articleToPurchase.DueTime,
@@ -578,7 +579,7 @@ namespace Master40.DB.Data.Context
             };
             //amount to be purchased has to be raised to fit the packsize
             amount = Math.Ceiling(amount / articleToPurchase.PackSize) * articleToPurchase.PackSize;
-            var purchasePart = new PurchasePart()
+            var purchasePart = new T_PurchaseOrderPart()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = (int)amount,
@@ -586,25 +587,25 @@ namespace Master40.DB.Data.Context
                 PurchaseId = purchase.Id,
                 
             };
-            purchase.PurchaseParts = new List<PurchasePart>()
+            purchase.PurchaseParts = new List<T_PurchaseOrderPart>()
             {
                 purchasePart
             };
-            Purchases.Add(purchase);
-            PurchaseParts.Add(purchasePart);
+            PurchaseOrders.Add(purchase);
+            PurchaseOrderParts.Add(purchasePart);
             SaveChanges();
             return purchasePart;
         }
 
-        public int GetAvailableAmountFromProductionOrder(ProductionOrder productionOrder)
+        public int GetAvailableAmountFromProductionOrder(T_ProductionOrder productionOrder)
         {
             if (productionOrder.DemandProviderProductionOrders == null) return (int) productionOrder.Quantity;
             return (int)productionOrder.Quantity - productionOrder.DemandProviderProductionOrders.Sum(provider => (int)provider.Quantity);
         }
 
-        public ProductionOrder GetEarliestProductionOrder(List<ProductionOrder> productionOrders)
+        public T_ProductionOrder GetEarliestProductionOrder(List<T_ProductionOrder> productionOrders)
         {
-            ProductionOrder earliestProductionOrder = null;
+            T_ProductionOrder earliestProductionOrder = null;
             foreach (var productionOrder in productionOrders)
             {
                 var po = ProductionOrders.Include(a => a.ProductionOrderWorkSchedule).Single(a => a.Id == productionOrder.Id);
@@ -621,7 +622,7 @@ namespace Master40.DB.Data.Context
             var stock = Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId);
             var stockReservations = GetReserved(demand.ArticleId);
             var bought = GetAmountBought(demand.ArticleId);
-            var justProduced = Demands.OfType<DemandProductionOrderBom>()
+            var justProduced = DemandToProviders.OfType<DemandProductionOrderBom>()
                 .Where(a => (a.State != State.Finished || a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(b => b.ProducingState == ProducingState.Created || b.ProducingState == ProducingState.Waiting))
                             && a.ArticleId == demand.ArticleId
                             && a.DemandProvider.Any()
@@ -638,7 +639,7 @@ namespace Master40.DB.Data.Context
 
         public decimal GetAmountBought(int articleId)
         {
-            var purchaseParts = PurchaseParts.Where(a => a.ArticleId == articleId && a.State != State.Finished);
+            var purchaseParts = PurchaseOrderParts.Where(a => a.ArticleId == articleId && a.State != State.Finished);
             var purchasedAmount = 0;
             foreach (var purchasePart in purchaseParts)
                 purchasedAmount += purchasePart.Quantity;
@@ -647,7 +648,7 @@ namespace Master40.DB.Data.Context
 
         public decimal GetReserved(int articleId)
         {
-            var demands = Demands.OfType<DemandProviderStock>()
+            var demands = DemandToProviders.OfType<DemandProviderStock>()
                 .Where(a => a.State != State.Finished && a.ArticleId == articleId).Sum(a => a.Quantity);
             return demands;
         }
@@ -660,12 +661,12 @@ namespace Master40.DB.Data.Context
                 ArticleId = articleId,
                 State = State.Created,
             };
-            DemandProductionOrderBoms.Add(dpob);
+            DemandToProviders.Add(dpob);
             SaveChanges();
             return dpob;
         }
 
-        public void AssignProductionOrderToDemandProvider(ProductionOrder productionOrder, DemandProviderProductionOrder provider)
+        public void AssignProductionOrderToDemandProvider(T_ProductionOrder productionOrder, DemandProviderProductionOrder provider)
         {
             if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<DemandProviderProductionOrder>();
             if (!productionOrder.DemandProviderProductionOrders.Contains(provider))
@@ -679,10 +680,10 @@ namespace Master40.DB.Data.Context
             return ArticleBoms.Any(a => a.ArticleParentId == demand.ArticleId);
         }
         
-        public List<ProductionOrder> CheckForProductionOrders(IDemandToProvider demand, decimal amount, int timer)
+        public List<T_ProductionOrder> CheckForProductionOrders(IDemandToProvider demand, decimal amount, int timer)
         {
-            var possibleProductionOrders = new List<ProductionOrder>();
-            var perfectFittingProductionOrders = new List<ProductionOrder>();
+            var possibleProductionOrders = new List<T_ProductionOrder>();
+            var perfectFittingProductionOrders = new List<T_ProductionOrder>();
             var pos = ProductionOrders.Include(b => b.ProductionOrderWorkSchedule)
                                     .Include(a => a.DemandProviderProductionOrders)
                                     .Where(a => a.ArticleId == demand.ArticleId 
@@ -697,8 +698,8 @@ namespace Master40.DB.Data.Context
             }
             if (!possibleProductionOrders.Any()) return null;
             if (perfectFittingProductionOrders.Any())
-                return new List<ProductionOrder>() {GetEarliestProductionOrder(perfectFittingProductionOrders)};
-            var list = new List<ProductionOrder>();
+                return new List<T_ProductionOrder>() {GetEarliestProductionOrder(perfectFittingProductionOrders)};
+            var list = new List<T_ProductionOrder>();
             while (amount > 0 && possibleProductionOrders.Any())
             {
                 list.Add(GetEarliestProductionOrder(possibleProductionOrders));
@@ -708,7 +709,7 @@ namespace Master40.DB.Data.Context
             return list;
         }
 
-        private int? GetLatestEndFromProductionOrder(ProductionOrder po)
+        private int? GetLatestEndFromProductionOrder(T_ProductionOrder po)
         {
             if (po.ProductionOrderWorkSchedule == null || !po.ProductionOrderWorkSchedule.Any()) return null;
             var maxEnd = po.ProductionOrderWorkSchedule.Max(a => a.End);
@@ -722,7 +723,7 @@ namespace Master40.DB.Data.Context
             if (demand.GetType() == typeof(DemandOrderPart))
             {
                 
-                demand = Demands.OfType<DemandOrderPart>()
+                demand = DemandToProviders.OfType<DemandOrderPart>()
                                 .Include(a => a.OrderPart)
                                 .ThenInclude(b => b.Order)
                                 .ToList().Single(a => a.Id == demand.Id);
@@ -732,7 +733,7 @@ namespace Master40.DB.Data.Context
             if (demand.GetType() != typeof(DemandProductionOrderBom)) return int.MaxValue;
             {
                 demand =
-                    Demands.AsNoTracking().OfType<DemandProductionOrderBom>()
+                    DemandToProviders.AsNoTracking().OfType<DemandProductionOrderBom>()
                         .Include(a => a.ProductionOrderBom)
                         .ThenInclude(b => b.ProductionOrderParent)
                         .Single(c => c.Id == demand.Id);
@@ -745,11 +746,11 @@ namespace Master40.DB.Data.Context
         /// Creates Demand Provider for Production oder and DemandRequests for childs
         /// </summary>
         /// <returns></returns>
-        public ProductionOrder CopyArticleToProductionOrder(int articleId, decimal quantity, int demandRequesterId)
+        public T_ProductionOrder CopyArticleToProductionOrder(int articleId, decimal quantity, int demandRequesterId)
         {
             var article = Articles.Include(a => a.ArticleBoms).ThenInclude(c => c.ArticleChild).Single(a => a.Id == articleId);
 
-            var mainProductionOrder = new ProductionOrder
+            var mainProductionOrder = new T_ProductionOrder
             {
                 ArticleId = article.Id,
                 Name = "Prod. Auftrag: " + article.Name,
@@ -767,7 +768,7 @@ namespace Master40.DB.Data.Context
                 ArticleId = article.Id,
                 DemandRequesterId = demandRequesterId,
             };
-            Demands.Add(demandProvider);
+            DemandToProviders.Add(demandProvider);
 
             SaveChanges();
 
@@ -804,24 +805,24 @@ namespace Master40.DB.Data.Context
         }*/
 
 
-        public void CreateProductionOrderWorkSchedules(ProductionOrder productionOrder)
+        public void CreateProductionOrderWorkSchedules(T_ProductionOrder productionOrder)
         {
-            var abstractWorkSchedules = WorkSchedules.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
+            var abstractWorkSchedules = Operations.Where(a => a.ArticleId == productionOrder.ArticleId).ToList();
             foreach (var abstractWorkSchedule in abstractWorkSchedules)
             {
                 //add specific workSchedule
-                var workSchedule = new ProductionOrderWorkSchedule();
+                var workSchedule = new T_ProductionOrderOperation();
                 abstractWorkSchedule.CopyPropertiesTo<IWorkSchedule>(workSchedule);
                 workSchedule.ProductionOrderId = productionOrder.Id;
                 workSchedule.MachineId = null;
                 workSchedule.ProducingState = ProducingState.Created;
                 workSchedule.Duration *= (int)productionOrder.Quantity;
-                ProductionOrderWorkSchedules.Add(workSchedule);
+                ProductionOrderOperations.Add(workSchedule);
                 SaveChanges();
             }
         }
 
-        public IDemandToProvider CreateDemandOrderPart(OrderPart orderPart)
+        public IDemandToProvider CreateDemandOrderPart(T_CustomerOrderPart orderPart)
         {
             var demand = new DemandOrderPart()
             {
@@ -830,10 +831,10 @@ namespace Master40.DB.Data.Context
                 Article = orderPart.Article,
                 ArticleId = orderPart.ArticleId,
                 OrderPart = orderPart,
-                DemandProvider = new List<DemandToProvider>(),
+                DemandProvider = new List<T_DemandToProvider>(),
                 State = State.Created
             };
-            Demands.Add(demand);
+            DemandToProviders.Add(demand);
             SaveChanges();
             return demand;
         }
@@ -841,7 +842,7 @@ namespace Master40.DB.Data.Context
         public List<IDemandToProvider> UpdateStateDemandProviderPurchaseParts()
         {
             var changedDemands = new List<IDemandToProvider>();
-            var provider = Demands.OfType<DemandProviderPurchasePart>().Include(a => a.PurchasePart).ThenInclude(b => b.Purchase).Where(a => a.State != State.Finished).ToList();
+            var provider = DemandToProviders.OfType<DemandProviderPurchasePart>().Include(a => a.PurchasePart).ThenInclude(b => b.Purchase).Where(a => a.State != State.Finished).ToList();
             foreach (var singleProvider in provider)
             {
                 if (singleProvider.PurchasePart.State != State.Finished) continue;
@@ -853,7 +854,7 @@ namespace Master40.DB.Data.Context
             return changedDemands;
         }
 
-        public bool TryUpdateStockProvider(DemandToProvider requester)
+        public bool TryUpdateStockProvider(T_DemandToProvider requester)
         {
             var unfinishedProvider = (from dp in requester.DemandProvider
                                       where dp.State != State.Finished
@@ -872,7 +873,7 @@ namespace Master40.DB.Data.Context
             var changedRequester = new List<IDemandToProvider>();
             foreach (var singleProvider in provider)
             {
-                var prov = Demands.Include(a => a.DemandRequester).ThenInclude(b => b.DemandProvider).Single(a => a.Id == singleProvider.Id);
+                var prov = DemandToProviders.Include(a => a.DemandRequester).ThenInclude(b => b.DemandProvider).Single(a => a.Id == singleProvider.Id);
                 if (prov.DemandRequester.DemandProvider.Any(a => a.State != State.Finished))
                 {
                     if (!TryUpdateStockProvider(prov.DemandRequester))
@@ -881,7 +882,7 @@ namespace Master40.DB.Data.Context
                 //check for PO then set ready if it has started and taken out the articles from the stock
                 if (prov.DemandRequester.GetType() == typeof(DemandProductionOrderBom))
                 {
-                    var dpob = Demands.OfType<DemandProductionOrderBom>().Single(a => a.Id == prov.DemandRequester.Id);
+                    var dpob = DemandToProviders.OfType<DemandProductionOrderBom>().Single(a => a.Id == prov.DemandRequester.Id);
                     if (dpob.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.All(a => a.ProducingState == ProducingState.Created))
                         continue;
                 }
@@ -891,12 +892,12 @@ namespace Master40.DB.Data.Context
                 SaveChanges();
                 changedRequester.Add(prov.DemandRequester);
             }
-            var test = Demands.OfType<DemandProductionOrderBom>().Where(a => a.State != State.Finished);
+            var test = DemandToProviders.OfType<DemandProductionOrderBom>().Where(a => a.State != State.Finished);
             var test2 = test.Where(a => a.DemandProvider.All(b => b.State == State.Finished));
             Debug.WriteLine(test2.Count() +" items waiting to be concluded");
             Debug.WriteLine(test2.Count(a => a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.First().Name == "Wedding"));
             
-            var dpobs = Demands.OfType<DemandProductionOrderBom>().Where(a => a.State!=State.Finished 
+            var dpobs = DemandToProviders.OfType<DemandProductionOrderBom>().Where(a => a.State!=State.Finished 
                                                                                     && a.ProductionOrderBom.ProductionOrderParent.ProductionOrderWorkSchedule.Any(c => c.ProducingState!=ProducingState.Created));
             foreach (var dpob in dpobs)
             {
@@ -905,26 +906,18 @@ namespace Master40.DB.Data.Context
             }
             return changedRequester;
         }
-        
 
-        public int GetSimulationNumber(int simulationConfigurationId, SimulationType simType)
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
         {
-            var anySim = SimulationWorkschedules
-                .Where(x => x.SimulationType == simType && x.SimulationConfigurationId == simulationConfigurationId);
-            return anySim.Any() ? anySim.Max(x => x.SimulationNumber)+1 : 1;
-        }
-
-        public Order CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
-        {
-            var olist = new List<OrderPart>();
-            olist.Add(new OrderPart
+            var olist = new List<T_CustomerOrderPart>();
+            olist.Add(new T_CustomerOrderPart
             {
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
             });
 
-            var order = new Order()
+            var order = new T_CustomerOrder()
             {
                 BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
                 DueTime = dueTime,
@@ -937,12 +930,12 @@ namespace Master40.DB.Data.Context
 
 
 
-        public int GetEarliestStart(ProductionDomainContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationWorkschedule> schedules = null)
+        public int GetEarliestStart(ResultContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationWorkschedule> schedules = null)
         {
             if (simulationType == SimulationType.Central)
             {
                 var orderId = simulationWorkschedule.OrderId.Replace("[", "").Replace("]", "");
-                var start = kpiContext.SimulationWorkschedules
+                var start = kpiContext.SimulationOperations
                     .Where(x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                     .Where(a =>
                     a.OrderId.Equals("[" + orderId.ToString() + ",")
