@@ -57,11 +57,11 @@ namespace Master40.XUnitTest.DBContext
                 Name = "Test config",
                 Lotsize = 1,
                 MaxCalculationTime = 480, // test  // 10080, // 7 days
-                OrderQuantity = 550,
+                OrderQuantity = 100,
                 Seed = 1338,
                 ConsecutiveRuns = 1,
                 OrderRate = 0.025, //0.25
-                Time = 600,
+                Time = 0,
                 RecalculationTime = 1440,
                 SimulationEndTime = 20160,
                 DecentralRuns = 0,
