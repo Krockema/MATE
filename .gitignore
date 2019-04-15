@@ -322,3 +322,5 @@ paket-files/
 /Master40.SimulationImmutables/bin/*
 Zpp/bin/
 Zpp/obj/
+Master40.BusinessLogicMrp/bin/
+Master40.BusinessLogicMrp/obj/
