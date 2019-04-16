@@ -5,6 +5,7 @@ using Master40.DB.Models;
 using System;
 using System.Linq;
 using System.Reflection;
+using Master40.DB.DataTransformation.Conversions;
 
 namespace Master40.DB.DataTransformation
 {
@@ -67,6 +68,7 @@ namespace Master40.DB.DataTransformation
                 // Locate source table
                 Type sourceType = MasterContext.GetType();
                 PropertyInfo sourceProp = sourceType.GetProperty(srcGroup.Key);
+                // TODO: sourceTable and destTable are InternalDbSet which should not be used
                 dynamic sourceTable = sourceProp.GetValue(MasterContext);
 
                 foreach (object srcTuple in sourceTable)
@@ -81,8 +83,7 @@ namespace Master40.DB.DataTransformation
                         {
                             Type tupleType = srcTuple.GetType();
                             PropertyInfo tupelProp = tupleType.GetProperty(rule.From.Split('.')[1]);
-                            // TODO: Umwandlungsoperation ausführen
-                            tupleData[rule.To.Split('.')[1]] = tupelProp.GetValue(srcTuple);
+                            tupleData[rule.To.Split('.')[1]] = Conversion.DoConvert(rule.ConversionFunc, tupelProp.GetValue(srcTuple));
                         }
 
                         // Locate destination table
