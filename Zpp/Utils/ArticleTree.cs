@@ -16,7 +16,6 @@ namespace Zpp.Utils
         {
             rootArticleId = article.Id;
             buildArticleTree(article);
-            
         }
         
         /**
@@ -24,11 +23,14 @@ namespace Zpp.Utils
          */
         private void buildArticleTree(M_Article article)
         {
-            _adjacencyList[article.Id] = new List<M_Article>();
-            foreach (M_ArticleBom articleBom in article.ArticleBoms)
+            _adjacencyList.Add(article.Id, new List<M_Article>());
+            if (article.ArticleBoms != null )
             {
-                _adjacencyList[article.Id].Add(articleBom.ArticleChild);
-                buildArticleTree(articleBom.ArticleChild);
+                foreach (M_ArticleBom articleBom in article.ArticleBoms)
+                {
+                    _adjacencyList[article.Id].Add(articleBom.ArticleChild);
+                    buildArticleTree(articleBom.ArticleChild);
+                }
             }
         }
 
