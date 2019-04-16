@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.Models;
-using Master40.Tools.Simulation;
 using Master40.XUnitTest.DBContext;
-using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using System.Runtime.InteropServices;
 using Dapper;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Helper;
+using Zpp.Utils;
 
 
 namespace Zpp.Simulation
@@ -19,8 +19,7 @@ namespace Zpp.Simulation
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-        private static readonly bool IS_WINDOWS = System.Runtime.InteropServices.RuntimeInformation
-            .IsOSPlatform(OSPlatform.Windows);
+        
         private ProductionDomainContext _productionDomainContext;
         
         
@@ -30,43 +29,31 @@ namespace Zpp.Simulation
         private readonly ProductionManager.ProductionManager  _productionManager = new ProductionManager.ProductionManager();
         private readonly PurchaseManager.PurchaseManager  _purchaseManager = new PurchaseManager.PurchaseManager();
 
+        private readonly bool _resetDb = false;
+        
         public Simulation()
         {
             LOGGER.Info("Starting preparation for the ZPP simulation.");
 
-            InitDb();
+            InitDb(_resetDb);
             InitModules();
         }
 
-        private void InitDb()
+        private void InitDb(bool resetDb)
         {
             // If better sim performance is needed: InMemory
             // ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             // .UseInMemoryDatabase(databaseName: "InMemoryDB")
             // .Options); // InMemoryDB
 
-            
-            if (IS_WINDOWS)
-            {
-                // Windows
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                    .UseSqlServer(
-                        "Server=(localdb)\\mssqllocaldb;Database=Zpp;Trusted_Connection=True;MultipleActiveResultSets=true")
-                    .Options);
-            }
-            else
-            {
-                // With Sql Server for Mac/Linux
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                    .UseSqlServer(
-                        "Server=localhost,1433;Database=Zpp;MultipleActiveResultSets=true;User ID=SA;Password=123*Start#")
-                    .Options);
-            }
 
-            _productionDomainContext.Database.EnsureCreated();
-            if (!_productionDomainContext.Orders.Any())
+            _productionDomainContext = Dbms.getDbContext();
+
+            
+            if (resetDb || !_productionDomainContext.CustomerOrders.Any())
             {
                 _productionDomainContext.Database.EnsureDeleted();
+                _productionDomainContext.Database.EnsureCreated();
 
                 // using the same dataset as in krockert's master theses presentation 
                 MasterDBInitializerSmall.DbInitialize(_productionDomainContext);
@@ -86,11 +73,11 @@ namespace Zpp.Simulation
             LOGGER.Info("Starting: ZPP simulation.");
             
             // reading orders from db
-            List<Order> orders = _productionDomainContext.Orders.AsList();
+            List<T_CustomerOrder> CustomerOrders = _productionDomainContext.CustomerOrders.AsList();
             
             // TODO: here should be a MasterDBInitializerSmall (how to via akkaSim?)
-            String sql = "Select * from dbo.Orders where CreationTime=(select min(CreationTime) from dbo.Orders)";
-            _orderManager.order(_productionDomainContext.Orders.FromSql(sql).AsList().ElementAt(0));
+            String sql = "Select * from dbo.T_CustomerOrder where CreationTime=(select min(CreationTime) from dbo.T_CustomerOrder)";
+            _orderManager.Order(_productionDomainContext.CustomerOrders.FromSql(sql).AsList());
             
             LOGGER.Info("Finished: ZPP simulation.");
         }
