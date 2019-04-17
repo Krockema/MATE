@@ -14,11 +14,15 @@ namespace Zpp.Utils
         
         // int is the id of an article
         private readonly Dictionary<int, List<M_Article>> _adjacencyList = new Dictionary<int, List<M_Article>>() ;
-        private int? rootArticleId = null;
+        private readonly int _rootArticleId;
+
+        // getter/setter
+        public Dictionary<int, List<M_Article>> AdjacencyList => _adjacencyList;
+        public int? RootArticleId => _rootArticleId;
 
         public ArticleTree(int articleId, ProductionDomainContext _productionDomainContext)
         {
-            rootArticleId = articleId;
+            _rootArticleId = articleId;
             this._productionDomainContext = _productionDomainContext;
             buildArticleTree(articleId);
         }
@@ -50,7 +54,7 @@ namespace Zpp.Utils
          */
         public override string ToString()
         {
-            String mystring = "The ArticleTree of Article " + rootArticleId.ToString() + Environment.NewLine;
+            String mystring = "The ArticleTree of Article " + _rootArticleId.ToString() + Environment.NewLine;
             foreach (int articleId in _adjacencyList.Keys)
             {
                 if (!_adjacencyList[articleId].Any())
@@ -62,13 +66,12 @@ namespace Zpp.Utils
                 {
                     mystring += article.Id + ", ";
                 }
-
+ 
                 mystring = mystring.Substring(0, mystring.Length-2);
                 mystring += Environment.NewLine;
             }
 
             return mystring;
         }
-
     }
 }

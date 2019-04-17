@@ -25,7 +25,27 @@ namespace Zpp.Test
         {
             
             ArticleTree articleTree = new ArticleTree(1, ProductionDomainContext );
-            // TODO: check that every row contains all childIds
+            
+            Dictionary<int, int[]> expectedAdjacencyList = new Dictionary<int, int[]>()
+            {
+                { 1, new int[] { 23, 26, 21, 22, 5, 3, 25, 4, 2 } },
+                { 10, new int[] {7} },
+                { 14, new int[] {7} },
+                { 15, new int[] {7} },
+                { 16, new int[] {7} },
+                { 17, new int[] {6} },
+                { 18, new int[] {6} },
+                { 21, new int[] {4, 2, 5, 17, 18} },
+                { 22, new int[] {16, 15, 14, 13, 4, 2, 5, 3} },
+                { 23, new int[] {5, 10, 3, 11, 9, 8} },
+                
+            }; 
+            Dictionary<int, int[]> actualAdjacencyList = new Dictionary<int, int[]>();
+            foreach (int articleId in expectedAdjacencyList.Keys)
+            {
+                actualAdjacencyList[articleId] = articleTree.AdjacencyList[articleId].Select(x => x.Id).ToArray();
+            }
+            Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
         }
     }
 }
