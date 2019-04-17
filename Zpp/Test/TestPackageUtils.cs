@@ -23,12 +23,8 @@ namespace Zpp.Test
         [Fact]
         public void testArticleTree()
         {
-            var sql = "Select * from dbo.M_Article;";
-            TestOutputHelper.WriteLine(sql);
-            List<M_Article> articles = ProductionDomainContext.Articles.FromSql(sql).AsList();
-            M_Article article = articles[0];
-            ArticleTree articleTree = new ArticleTree(article );
             
+            ArticleTree articleTree = new ArticleTree(1, ProductionDomainContext );
             TestOutputHelper.WriteLine(articleTree.ToString());
             TestOutputHelper.WriteLine(articleTree.ToString());
         }
