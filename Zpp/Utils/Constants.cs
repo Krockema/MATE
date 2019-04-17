@@ -3,11 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace Zpp.Utils
 {
-    public class Constants
+    public static class Constants
     {
-        // forbid instantiation
-        private Constants(){}
-        
+       
         public static readonly bool IsWindows = RuntimeInformation
             .IsOSPlatform(OSPlatform.Windows);
 

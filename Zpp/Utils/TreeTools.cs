@@ -4,30 +4,16 @@ using Master40.DB.DataModel;
 
 namespace Zpp.Utils
 {
-    public class TreeTools<Node>
+    public static class TreeTools<Node>
     {
-        /*
-                Input: A graph G and a vertex v of G
-            
-                Output: All vertices reachable from v labeled as discovered 
-                
-            1    procedure DFS-iterative(G,v):
-            2      let S be a stack
-            3      S.push(v)
-            4      while S is not empty
-            5          v = S.pop()
-            6          if v is not labeled as discovered:
-            7              label v as discovered
-            8              for all edges from v to w in G.adjacentEdges(v) do 
-            9                  S.push(w)
-         */
-        
+        // 
         // TODO: This must be revisited under following aspect: a article node can be existing multiple times in tree,
-        // it must be ensured, that every multiple object have its own instance
+        // it must be ensured, that every multiple existing object have its own instance
+        ///
         /// <summary>
-        /// 
+        ///     A depth-first-search (DFS) traversal of given tree
         /// </summary>
-        /// <param name="tree"></param>
+        /// <param name="tree">to traverse</param>
         /// <returns>
         ///    The List of the traversed nodes in exact order
         /// </returns>
@@ -43,8 +29,15 @@ namespace Zpp.Utils
             {
                 Node poppedNode = stack.Pop();
                 traversed.Add(poppedNode);
+                
+                // init dict if node not yet exists
+                if (! discovered.ContainsKey(poppedNode) )
+                {
+                    discovered[poppedNode] = false;
+                } 
+                
                 // if node is not discovered
-                if (! discovered.ContainsKey(poppedNode) || ! discovered[poppedNode] )
+                if (! discovered[poppedNode] )
                 {
                     discovered[poppedNode] = true;
                     foreach (Node node in tree.getChildNodes(poppedNode))

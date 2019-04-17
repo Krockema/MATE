@@ -3,11 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Zpp.Utils
 {
-    public class Dbms
+    public static class Dbms
     {
-        // forbid instantiation
-        private Dbms(){}
-        
+      
         public static ProductionDomainContext getDbContext()
         {
          ProductionDomainContext _productionDomainContext;
