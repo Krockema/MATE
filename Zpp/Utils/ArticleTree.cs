@@ -7,24 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Zpp.Utils
 {
-    public class ArticleTree
+    public class ArticleTree : ITree<M_Article>
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         private readonly ProductionDomainContext _productionDomainContext;
         
         // int is the id of an article
         private readonly Dictionary<int, List<M_Article>> _adjacencyList = new Dictionary<int, List<M_Article>>() ;
-        private readonly int _rootArticleId;
+        private readonly M_Article _rootArticle;
 
-        // getter/setter
-        public Dictionary<int, List<M_Article>> AdjacencyList => _adjacencyList;
-        public int? RootArticleId => _rootArticleId;
+        // interface impl
+        public List<M_Article> getChildNodes(M_Article node)  => _adjacencyList[node.Id];
+        public M_Article getRootNode() => _rootArticle;
 
-        public ArticleTree(int articleId, ProductionDomainContext _productionDomainContext)
+        public ArticleTree(M_Article article, ProductionDomainContext _productionDomainContext)
         {
-            _rootArticleId = articleId;
+            _rootArticle = article;
             this._productionDomainContext = _productionDomainContext;
-            buildArticleTree(articleId);
+            buildArticleTree(article.Id);
         }
         
         /**
@@ -54,7 +54,7 @@ namespace Zpp.Utils
          */
         public override string ToString()
         {
-            String mystring = "The ArticleTree of Article " + _rootArticleId.ToString() + Environment.NewLine;
+            String mystring = "The ArticleTree of Article " + _rootArticle.ToString() + Environment.NewLine;
             foreach (int articleId in _adjacencyList.Keys)
             {
                 if (!_adjacencyList[articleId].Any())

@@ -24,7 +24,8 @@ namespace Zpp.Test
         public void testArticleTree()
         {
             
-            ArticleTree articleTree = new ArticleTree(1, ProductionDomainContext );
+            M_Article rootArticle = ProductionDomainContext.Articles.Single(x => x.Id == 1);
+            ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext );
             
             Dictionary<int, int[]> expectedAdjacencyList = new Dictionary<int, int[]>()
             {
@@ -43,9 +44,19 @@ namespace Zpp.Test
             Dictionary<int, int[]> actualAdjacencyList = new Dictionary<int, int[]>();
             foreach (int articleId in expectedAdjacencyList.Keys)
             {
-                actualAdjacencyList[articleId] = articleTree.AdjacencyList[articleId].Select(x => x.Id).ToArray();
+                M_Article article = ProductionDomainContext.Articles.Single(x => x.Id == articleId);
+                actualAdjacencyList[articleId] = articleTree.getChildNodes(article).Select(x => x.Id).ToArray();
             }
             Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
+        }
+
+        [Fact]
+        public void testTreeToolTraverseTree()
+        {
+            M_Article rootArticle = ProductionDomainContext.Articles.Single(x => x.Id == 1);
+            ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext );
+            List<M_Article> traversedNodes = TreeTools<M_Article>.traverseDepthFirst(articleTree);
+            Assert.Equal(1, 1);
         }
     }
 }
