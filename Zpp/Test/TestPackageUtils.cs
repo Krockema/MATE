@@ -25,8 +25,7 @@ namespace Zpp.Test
         {
             
             ArticleTree articleTree = new ArticleTree(1, ProductionDomainContext );
-            TestOutputHelper.WriteLine(articleTree.ToString());
-            TestOutputHelper.WriteLine(articleTree.ToString());
+            // TODO: check that every row contains all childIds
         }
     }
 }

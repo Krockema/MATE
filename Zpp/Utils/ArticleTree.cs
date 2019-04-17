@@ -45,6 +45,9 @@ namespace Zpp.Utils
             }
         }
 
+        /**
+         * prints the articleTree in following format (adjacencyList): parentId: child1, child2, ...
+         */
         public override string ToString()
         {
             String mystring = "The ArticleTree of Article " + rootArticleId.ToString() + Environment.NewLine;
@@ -54,10 +57,10 @@ namespace Zpp.Utils
                 {
                     continue;
                 }
-                mystring += "Childs of article " +articleId + ":";
+                mystring += articleId + ": ";
                 foreach (M_Article article in _adjacencyList[articleId])
                 {
-                    mystring += article.Id + ": " + article.Name + ", ";
+                    mystring += article.Id + ", ";
                 }
 
                 mystring = mystring.Substring(0, mystring.Length-2);
