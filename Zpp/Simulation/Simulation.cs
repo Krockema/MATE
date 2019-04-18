@@ -24,7 +24,7 @@ namespace Zpp.Simulation
         
         
         // MRP modules
-        private readonly OrderManager.OrderManager  _orderManager = new OrderManager.OrderManager();
+        private readonly OrderManager.OrderManager  _orderManager;
         private readonly StockManager.StockManager  _stockManager = new StockManager.StockManager();
         private readonly ProductionManager.ProductionManager  _productionManager = new ProductionManager.ProductionManager();
         private readonly PurchaseManager.PurchaseManager  _purchaseManager = new PurchaseManager.PurchaseManager();
@@ -37,6 +37,8 @@ namespace Zpp.Simulation
 
             InitDb(_resetDb);
             InitModules();
+
+            _orderManager = new OrderManager.OrderManager(_productionDomainContext);
         }
 
         private void InitDb(bool resetDb)
