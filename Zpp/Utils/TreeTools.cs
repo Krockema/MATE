@@ -5,7 +5,7 @@ using Master40.DB.DataModel;
 
 namespace Zpp.Utils
 {
-    public static class TreeTools<Node>
+    public static class TreeTools<TNode>
     {
         // 
         // TODO 1: This must be revisited under following aspect: a article node can be existing multiple times in tree,
@@ -19,17 +19,17 @@ namespace Zpp.Utils
         /// <returns>
         ///    The List of the traversed nodes in exact order
         /// </returns>
-        public static List<Node> traverseDepthFirst(ITree<Node> tree, Action<Node> action)
+        public static List<TNode> traverseDepthFirst(ITree<TNode> tree, Action<TNode> action)
         {
-            var stack = new Stack<Node>();
+            var stack = new Stack<TNode>();
             
-            Dictionary<Node, bool> discovered = new Dictionary<Node, bool>();
-            List<Node> traversed = new List<Node>();
+            Dictionary<TNode, bool> discovered = new Dictionary<TNode, bool>();
+            List<TNode> traversed = new List<TNode>();
             
             stack.Push(tree.getRootNode());
             while (stack.Any())
             {
-                Node poppedNode = stack.Pop();
+                TNode poppedNode = stack.Pop();
                 traversed.Add(poppedNode);
                 
                 // init dict if node not yet exists
@@ -44,13 +44,38 @@ namespace Zpp.Utils
                     discovered[poppedNode] = true;
                     action(poppedNode);
                     
-                    foreach (Node node in tree.getChildNodes(poppedNode))
+                    foreach (TNode node in tree.getChildNodes(poppedNode))
                     {
                         stack.Push(node);
                     }
                 }
             }
             return traversed;
+        }
+
+        /**
+         * prints the articleTree in following format (adjacencyList): parentId: child1, child2, ...
+         */
+        public static string AdjacencyListToString(Dictionary<int, IEnumerable<TNode>> adjacencyList)
+        {
+            string myString = "";
+            foreach (int rowId in adjacencyList.Keys)
+            {
+                if (!adjacencyList[rowId].Any())
+                {
+                    continue;
+                }
+                myString += rowId + ": ";
+                foreach (TNode node in adjacencyList[rowId])
+                {
+                    myString += node.ToString() + ", ";
+                }
+ 
+                myString = myString.Substring(0, myString.Length-2);
+                myString += Environment.NewLine;
+            }
+
+            return myString;
         }
     }
 }

@@ -17,7 +17,16 @@ namespace Zpp.Utils
         private readonly M_Article _rootArticle;
 
         // interface impl
-        public List<M_Article> getChildNodes(M_Article node)  => _adjacencyList[node.Id];
+        public List<M_Article> getChildNodes(M_Article node)
+        {
+            if (_adjacencyList.ContainsKey(node.Id))
+            {
+                return _adjacencyList[node.Id];    
+            }
+            return null;
+
+        }
+
         public M_Article getRootNode() => _rootArticle;
 
         public ArticleTree(M_Article article, ProductionDomainContext _productionDomainContext)
@@ -54,24 +63,9 @@ namespace Zpp.Utils
          */
         public override string ToString()
         {
-            String mystring = "The ArticleTree of Article " + _rootArticle.ToString() + Environment.NewLine;
-            foreach (int articleId in _adjacencyList.Keys)
-            {
-                if (!_adjacencyList[articleId].Any())
-                {
-                    continue;
-                }
-                mystring += articleId + ": ";
-                foreach (M_Article article in _adjacencyList[articleId])
-                {
-                    mystring += article.Id + ", ";
-                }
- 
-                mystring = mystring.Substring(0, mystring.Length-2);
-                mystring += Environment.NewLine;
-            }
-
-            return mystring;
+            String mystring = "The ArticleTree of Article " + _rootArticle + Environment.NewLine;
+            
+            return mystring + TreeTools<M_Article>.AdjacencyListToString(_adjacencyList);
         }
     }
 }
