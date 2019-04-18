@@ -58,7 +58,7 @@ namespace Zpp.Test
             ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext );
             List<M_Article> traversedNodes = TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++;});
             List<int> traversedArticleIds = traversedNodes.Select(x => x.Id).AsList();
-
+            System.Diagnostics.Debug.WriteLine("Test");
             Assert.Equal(traversedArticleIds, new int[]{1, 2, 4, 25, 3, 5, 22, 3, 5, 2, 4, 13, 14, 7, 15, 7, 16, 7, 21, 18, 6, 17, 6, 5, 2, 4, 26, 23, 8, 9, 11, 3, 10, 7, 5});
         }
     }

@@ -11,7 +11,7 @@ namespace Zpp.Test
     {
         protected readonly ProductionDomainContext ProductionDomainContext;
         protected readonly ITestOutputHelper TestOutputHelper;
-        private readonly bool resetDb = false; // TODO: At the end this must be set to true
+        private readonly bool resetDb = true; // TODO: At the end this must be set to true
         
         // @before
         public AbstractTest(ITestOutputHelper testOutputHelper)

@@ -9,8 +9,18 @@ namespace Zpp.Utils
         public static ProductionDomainContext getDbContext()
         {
          ProductionDomainContext _productionDomainContext;
+
+         // EF inMemory
+         // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+         /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+             .UseInMemoryDatabase(databaseName: "InMemoryDB")
+             .Options);*/
+         
+         // sqlite
+         _productionDomainContext = InMemoryContext.CreateInMemoryContext();
             
-            if (Constants.IsWindows)
+         
+         /*if (Constants.IsWindows)
             {
                 // Windows
                 _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
@@ -25,7 +35,7 @@ namespace Zpp.Utils
                     .UseSqlServer(
                         Constants.DbConnectionZppUnix)
                     .Options);
-            }
+            }*/
 
             return _productionDomainContext;
         }
