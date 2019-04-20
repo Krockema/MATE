@@ -9,6 +9,6 @@ namespace Zpp.Utils
         List< Node<TEntity>> GetChildNodes( Node<TEntity> node);
         Node<TEntity> GetRootNode();
 
-        AdjacencyList< Node<TEntity>> GetAdjacencyList();
+        AdjacencyList<TEntity> GetAdjacencyList();
     }
 }

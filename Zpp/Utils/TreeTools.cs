@@ -50,6 +50,31 @@ namespace Zpp.Utils
             }
             return traversed;
         }
+        
+        /**
+         * prints the articleTree in following format (adjacencyList): parentId: child1, child2, ...
+         */
+        public static string AdjacencyListToString(IDictionary<TEntity, List<TEntity>> _adjacencyList)
+        {
+            string myString = "";
+            foreach (TEntity rowId in _adjacencyList.Keys)
+            {
+                if (!_adjacencyList[rowId].Any())
+                {
+                    continue;
+                }
+                myString += rowId + ": ";
+                foreach (TEntity node in _adjacencyList[rowId])
+                {
+                    myString += node + ", ";
+                }
+ 
+                myString = myString.Substring(0, myString.Length-2);
+                myString += Environment.NewLine;
+            }
+
+            return myString;
+        }
 
 
     }

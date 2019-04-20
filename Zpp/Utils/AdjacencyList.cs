@@ -36,24 +36,7 @@ namespace Zpp.Utils
          */
         public override string ToString()
         {
-            string myString = "";
-            foreach (Node<TEntity> rowId in _adjacencyList.Keys)
-            {
-                if (!_adjacencyList[rowId].Any())
-                {
-                    continue;
-                }
-                myString += rowId + ": ";
-                foreach (Node<TEntity> node in _adjacencyList[rowId])
-                {
-                    myString += node.ToString() + ", ";
-                }
- 
-                myString = myString.Substring(0, myString.Length-2);
-                myString += Environment.NewLine;
-            }
-
-            return myString;
+            return TreeTools<Node<TEntity>>.AdjacencyListToString(_adjacencyList);
         }
     }
 }
