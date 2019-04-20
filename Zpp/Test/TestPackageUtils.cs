@@ -28,7 +28,7 @@ namespace Zpp.Test
             M_Article rootArticle = ProductionDomainContext.Articles.Single(x => x.Id == 1);
             ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext );
             
-            Dictionary<int, int[]> expectedAdjacencyList = new Dictionary<int, int[]>()
+            AdjacencyList<int, int> expectedAdjacencyList = new AdjacencyList<int, int>(new Dictionary<int, int[]>()
             {
                 { 1, new int[] { 23, 26, 21, 22, 5, 3, 25, 4, 2 } },
                 { 10, new int[] {7} },
@@ -41,22 +41,15 @@ namespace Zpp.Test
                 { 22, new int[] {16, 15, 14, 13, 4, 2, 5, 3} },
                 { 23, new int[] {5, 10, 3, 11, 9, 8} },
                 
-            }; 
-            Dictionary<int, int[]> actualAdjacencyList = new Dictionary<int, int[]>();
-            foreach (int articleId in expectedAdjacencyList.Keys)
-            {
-                M_Article article = ProductionDomainContext.Articles.Single(x => x.Id == articleId);
-                List<M_Article> childNodes = articleTree.getChildNodes(article);
-                if (childNodes != null)
-                {
-                    actualAdjacencyList[articleId] = childNodes.Select(x => x.Id).ToArray();
-                }
-            }
+            }); 
+            expectedAdjacencyList.sort();
+
+            AdjacencyList<int, int> actualAdjacencyList = articleTree.getAdjacencyListWithArticleIds();
             
-            System.Diagnostics.Debug.WriteLine("Expected: " + new AdjacencyList<int, int>(expectedAdjacencyList));
+            System.Diagnostics.Debug.WriteLine("Expected: " + expectedAdjacencyList);
             System.Diagnostics.Debug.WriteLine("Actual: " + articleTree);
             
-            Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
+            Assert.Equal(expectedAdjacencyList.getAsSortedDictionary(), actualAdjacencyList.getAsSortedDictionary());
         }
 
         [Fact]
@@ -72,7 +65,7 @@ namespace Zpp.Test
             int counter = 0;
             M_Article rootArticle = ProductionDomainContext.Articles.Single(x => x.Id == 1);
             ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext );
-            List<M_Article> traversedNodes = TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++;});
+            List<M_Article> traversedNodes = TreeTools<int, M_Article>.traverseDepthFirst(articleTree, node => { counter++;});
             List<int> traversedArticleIds = traversedNodes.Select(x => x.Id).AsList();
             
             System.Diagnostics.Debug.WriteLine("Expected: " + string.Join(",", expectedTraversePath));

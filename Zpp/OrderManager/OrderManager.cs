@@ -28,8 +28,8 @@ namespace Zpp.OrderManager
             LOGGER.Info("Starting: with Order " + order.Id);
 
             M_Article rootArticle = order.OrderParts.ElementAt(0).Article;
-            ITree<M_Article> articleTree = new ArticleTree(rootArticle,_productionDomainContext);
-            TreeTools<M_Article>.traverseDepthFirst(articleTree, node=>{});
+            // ITree<M_Article> articleTree = new ArticleTree(rootArticle,_productionDomainContext);
+            // TreeTools<M_Article>.traverseDepthFirst(articleTree, node=>{});
         }
         
 

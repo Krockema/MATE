@@ -4,9 +4,11 @@ using Zpp.Utils;
 
 namespace Zpp.Utils
 {
-    public interface ITree<T>
+    public interface ITree<TEntity>
     {
-        List<T> getChildNodes(T node);
-        T getRootNode();
+        List< Node<TEntity>> GetChildNodes( Node<TEntity> node);
+        Node<TEntity> GetRootNode();
+
+        AdjacencyList< Node<TEntity>> GetAdjacencyList();
     }
 }
