@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
     <AssemblyName>Master40</AssemblyName>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>

@@ -61,5 +61,10 @@ namespace Master40.DB.DataModel
 
         }
 
+        public override string ToString()
+        {
+            return Id.ToString();
+        }
+
     }
 }

@@ -320,3 +320,7 @@ paket-files/
 /Master40.SimulationCore/obj/*
 /Master40.SimulationImmutables/obj/*
 /Master40.SimulationImmutables/bin/*
+Zpp/bin/
+Zpp/obj/
+Master40.BusinessLogicMrp/bin/
+Master40.BusinessLogicMrp/obj/
