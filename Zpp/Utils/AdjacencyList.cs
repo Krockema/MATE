@@ -8,25 +8,25 @@ namespace Zpp.Utils
      * This is a wrapper for a generic dict representing an adjacencyList,
      * since methods with generic dict parameter are not working e.g. Dictionary<int, IEnumerable<TNode>
      */
-    public class AdjacencyList<TNode>
+    public class AdjacencyList<TEntity>
     {
-        private readonly Dictionary<TNode, List<TNode>> _adjacencyList;
+        private readonly Dictionary<Node<TEntity>, List<Node<TEntity>>> _adjacencyList;
 
-        public AdjacencyList(Dictionary<TNode, TNode[]> dictionary)
+        public AdjacencyList(Dictionary<Node<TEntity>, Node<TEntity>[]> dictionary)
         {
-            _adjacencyList = new Dictionary<TNode, List<TNode>>();
-            foreach (TNode key in dictionary.Keys)
+            _adjacencyList = new Dictionary<Node<TEntity>, List<Node<TEntity>>>();
+            foreach (Node<TEntity> key in dictionary.Keys)
             {
-                _adjacencyList.Add(key, new List<TNode>(dictionary[key]));
+                _adjacencyList.Add(key, new List<Node<TEntity>>(dictionary[key]));
             }
         }
         
-        public AdjacencyList(Dictionary<TNode, List<TNode>> dictionary)
+        public AdjacencyList(Dictionary<Node<TEntity>, List<Node<TEntity>>> dictionary)
         {
-            _adjacencyList = new Dictionary<TNode, List<TNode>>(dictionary);
+            _adjacencyList = new Dictionary<Node<TEntity>, List<Node<TEntity>>>(dictionary);
         }
 
-        public Dictionary<TNode, List<TNode>> getAsDictionary()
+        public Dictionary<Node<TEntity>, List<Node<TEntity>>> getAsDictionary()
         {
             return _adjacencyList;
         }
@@ -37,14 +37,14 @@ namespace Zpp.Utils
         public override string ToString()
         {
             string myString = "";
-            foreach (TNode rowId in _adjacencyList.Keys)
+            foreach (Node<TEntity> rowId in _adjacencyList.Keys)
             {
                 if (!_adjacencyList[rowId].Any())
                 {
                     continue;
                 }
                 myString += rowId + ": ";
-                foreach (TNode node in _adjacencyList[rowId])
+                foreach (Node<TEntity> node in _adjacencyList[rowId])
                 {
                     myString += node.ToString() + ", ";
                 }
