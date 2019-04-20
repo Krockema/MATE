@@ -65,7 +65,7 @@ namespace Zpp.Utils
         {
             String mystring = "The ArticleTree of Article " + _rootArticle + Environment.NewLine;
             
-            return mystring + TreeTools<M_Article>.AdjacencyListToString(_adjacencyList);
+            return mystring + new AdjacencyList<int, M_Article>(_adjacencyList);
         }
     }
 }

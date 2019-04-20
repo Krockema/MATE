@@ -53,7 +53,7 @@ namespace Zpp.Test
                 }
             }
             
-            System.Diagnostics.Debug.WriteLine("Expected: " + TreeTools<int>.AdjacencyListToString(expectedAdjacencyList));
+            System.Diagnostics.Debug.WriteLine("Expected: " + new AdjacencyList<int, int>(expectedAdjacencyList));
             System.Diagnostics.Debug.WriteLine("Actual: " + articleTree);
             
             Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
