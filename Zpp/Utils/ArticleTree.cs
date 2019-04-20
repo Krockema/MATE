@@ -19,9 +19,9 @@ namespace Zpp.Utils
         // interface impl
         public List<Node<M_Article>> GetChildNodes(Node<M_Article> node)
         {
-            if (_adjacencyList.getAsDictionary().ContainsKey(node))
+            if (_adjacencyList.getAsDictionary().ContainsKey(node.Entity.Id))
             {
-                return _adjacencyList.getAsDictionary()[node];
+                return _adjacencyList.getAsDictionary()[node.Entity.Id];
             }
 
             return null;
@@ -38,15 +38,15 @@ namespace Zpp.Utils
             SortedDictionary<int, List<int>> adjacencyListWithArticleIds = new SortedDictionary<int, List<int>>();
 
 
-            foreach (Node<M_Article> articleNode in _adjacencyList.getAsDictionary().Keys)
+            foreach (int articleId in _adjacencyList.getAsDictionary().Keys)
             {
-                if (_adjacencyList.getAsDictionary()[articleNode] != null)
+                if (_adjacencyList.getAsDictionary()[articleId] != null)
                 {
-                    if (!adjacencyListWithArticleIds.ContainsKey(articleNode.Entity.Id))
+                    if (!adjacencyListWithArticleIds.ContainsKey(articleId))
                     {
-                        adjacencyListWithArticleIds.Add(articleNode.Entity.Id, new List<int>());
+                        adjacencyListWithArticleIds.Add(articleId, new List<int>());
                     }
-                    adjacencyListWithArticleIds[articleNode.Entity.Id] = _adjacencyList.getAsDictionary()[articleNode].Select(x => x.Entity.Id).ToList();
+                    adjacencyListWithArticleIds[articleId] = _adjacencyList.getAsDictionary()[articleId].Select(x => x.Entity.Id).ToList();
                 }
 
                 /*M_Article article = _productionDomainContext.Articles.Single(x => x.Id == articleId);
@@ -67,8 +67,8 @@ namespace Zpp.Utils
                .Single(x => x.Id == articleBom.Id);
             _rootArticle = new Node<M_Article>(queriedArticleBom.Id, queriedArticleBom.ArticleChild);
             this._productionDomainContext = _productionDomainContext;
-            Dictionary<Node<M_Article>, List<Node<M_Article>>> builtArticleTree = buildArticleTree(_rootArticle, 
-                new Dictionary<Node<M_Article>, List<Node<M_Article>>>());
+            Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(_rootArticle, 
+                new Dictionary<int, List<Node<M_Article>>>());
             _adjacencyList = new AdjacencyList<M_Article>(builtArticleTree);
         }
 
@@ -81,23 +81,23 @@ namespace Zpp.Utils
         /// <param name="articleId">root article node id</param>
         /// <param name="AdjacencyList">Always null at the begin of the recursion</param>
         /// <returns></returns>
-        private Dictionary<Node<M_Article>, List<Node<M_Article>>> buildArticleTree(Node<M_Article> givenArticle,
-            Dictionary<Node<M_Article>, List<Node<M_Article>>> AdjacencyList)
+        private Dictionary<int, List<Node<M_Article>>> buildArticleTree(Node<M_Article> givenArticle,
+            Dictionary<int, List<Node<M_Article>>> AdjacencyList)
         {
-
-            if (!AdjacencyList.ContainsKey(givenArticle))
-            {
-                AdjacencyList.Add(givenArticle, new List<Node<M_Article>>());
-            }
 
             M_Article readArticle = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
                 .ThenInclude(m => m.ArticleChild).Single(x => x.Id == givenArticle.Entity.Id);
-            if (readArticle.ArticleBoms != null)
+            if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
+                if (!AdjacencyList.ContainsKey(givenArticle.Entity.Id))
+                {
+                    AdjacencyList.Add(givenArticle.Entity.Id, new List<Node<M_Article>>());
+                }
+                
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
                     Node<M_Article> createdArticleNode = new Node<M_Article>(articleBom.Id, articleBom.ArticleChild);
-                    AdjacencyList[givenArticle].Add(createdArticleNode);
+                    AdjacencyList[givenArticle.Entity.Id].Add(createdArticleNode);
                     buildArticleTree(createdArticleNode, AdjacencyList);
                 }
             }

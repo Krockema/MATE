@@ -10,23 +10,23 @@ namespace Zpp.Utils
      */
     public class AdjacencyList<TEntity>
     {
-        private readonly Dictionary<Node<TEntity>, List<Node<TEntity>>> _adjacencyList;
+        private readonly Dictionary<int, List<Node<TEntity>>> _adjacencyList;
 
-        public AdjacencyList(Dictionary<Node<TEntity>, Node<TEntity>[]> dictionary)
+        public AdjacencyList(Dictionary<int, Node<TEntity>[]> dictionary)
         {
-            _adjacencyList = new Dictionary<Node<TEntity>, List<Node<TEntity>>>();
-            foreach (Node<TEntity> key in dictionary.Keys)
+            _adjacencyList = new Dictionary<int, List<Node<TEntity>>>();
+            foreach (int key in dictionary.Keys)
             {
                 _adjacencyList.Add(key, new List<Node<TEntity>>(dictionary[key]));
             }
         }
         
-        public AdjacencyList(Dictionary<Node<TEntity>, List<Node<TEntity>>> dictionary)
+        public AdjacencyList(Dictionary<int, List<Node<TEntity>>> dictionary)
         {
-            _adjacencyList = new Dictionary<Node<TEntity>, List<Node<TEntity>>>(dictionary);
+            _adjacencyList = new Dictionary<int, List<Node<TEntity>>>(dictionary);
         }
 
-        public Dictionary<Node<TEntity>, List<Node<TEntity>>> getAsDictionary()
+        public Dictionary<int, List<Node<TEntity>>> getAsDictionary()
         {
             return _adjacencyList;
         }

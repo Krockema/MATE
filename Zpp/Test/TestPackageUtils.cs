@@ -56,8 +56,26 @@ namespace Zpp.Test
             
             System.Diagnostics.Debug.WriteLine("Expected: " + Environment.NewLine + TreeTools<int>.AdjacencyListToString(expectedAdjacencyList));
             System.Diagnostics.Debug.WriteLine("Actual: " + Environment.NewLine + TreeTools<int>.AdjacencyListToString(actualAdjacencyList));
-            
-            Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
+            if (Constants.IsWindows)
+            {
+                Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
+            }
+            else
+            {
+                List<int> countsExpected = new List<int>();
+                List<int> countsActual = new List<int>();
+                foreach (int key in expectedAdjacencyList.Keys)
+                {
+                    countsExpected.Add(expectedAdjacencyList[key].Count());
+                }
+                foreach (int key in actualAdjacencyList.Keys)
+                {
+                    countsActual.Add(actualAdjacencyList[key].Count());
+                }
+                countsExpected.Sort();
+                countsActual.Sort();
+                Assert.Equal(countsExpected, countsActual);
+            }
         }
 
         [Fact]

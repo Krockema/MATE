@@ -54,10 +54,10 @@ namespace Zpp.Utils
         /**
          * prints the articleTree in following format (adjacencyList): parentId: child1, child2, ...
          */
-        public static string AdjacencyListToString(IDictionary<TEntity, List<TEntity>> _adjacencyList)
+        public static string AdjacencyListToString(IDictionary<int, List<TEntity>> _adjacencyList)
         {
             string myString = "";
-            foreach (TEntity rowId in _adjacencyList.Keys)
+            foreach (int rowId in _adjacencyList.Keys)
             {
                 if (!_adjacencyList[rowId].Any())
                 {
