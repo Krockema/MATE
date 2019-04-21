@@ -62,6 +62,7 @@ namespace Zpp.Test
             }
             else
             {
+                // ids are not constant, compare only sizeOf
                 List<int> countsExpected = new List<int>();
                 List<int> countsActual = new List<int>();
                 foreach (int key in expectedAdjacencyList.Keys)
@@ -105,7 +106,9 @@ namespace Zpp.Test
             System.Diagnostics.Debug.WriteLine("Expected: " + string.Join(",", expectedTraversePath));
             System.Diagnostics.Debug.WriteLine("Actual: " + string.Join(",", traversedArticleIds));
             
+            // order is not constant, compare only sizeOf
             Assert.Equal(expectedTraversePath.Count(), traversedArticleIds.Count() );
+            Assert.Equal(expectedTraversePath.Count(), counter);
         }
     }
 }
