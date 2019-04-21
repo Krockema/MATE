@@ -41,11 +41,15 @@ namespace Zpp.Utils
                 {
                     discovered[poppedNode] = true;
                     action(poppedNode);
-                    
-                    foreach (Node<TEntity> node in tree.GetChildNodes(poppedNode))
+
+                    if (tree.GetChildNodes(poppedNode) != null)
                     {
-                        stack.Push(node);
+                        foreach (Node<TEntity> node in tree.GetChildNodes(poppedNode))
+                        {
+                            stack.Push(node);
+                        }
                     }
+                    
                 }
             }
             return traversed;

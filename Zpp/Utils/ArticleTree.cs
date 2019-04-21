@@ -65,7 +65,7 @@ namespace Zpp.Utils
         {
             M_ArticleBom queriedArticleBom = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild)
                .Single(x => x.Id == articleBom.Id);
-            _rootArticle = new Node<M_Article>(queriedArticleBom.Id, queriedArticleBom.ArticleChild);
+            _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id, queriedArticleBom.Id, queriedArticleBom.ArticleChild);
             this._productionDomainContext = _productionDomainContext;
             Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(_rootArticle, 
                 new Dictionary<int, List<Node<M_Article>>>());
@@ -96,7 +96,7 @@ namespace Zpp.Utils
                 
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
-                    Node<M_Article> createdArticleNode = new Node<M_Article>(articleBom.Id, articleBom.ArticleChild);
+                    Node<M_Article> createdArticleNode = new Node<M_Article>(articleBom.ArticleChildId, articleBom.Id, articleBom.ArticleChild);
                     AdjacencyList[givenArticle.Entity.Id].Add(createdArticleNode);
                     buildArticleTree(createdArticleNode, AdjacencyList);
                 }

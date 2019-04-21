@@ -91,13 +91,21 @@ namespace Zpp.Test
             int counter = 0;
             M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
             ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext );
+            
+            // sort the tree
+            foreach (int key in articleTree.GetAdjacencyList().getAsDictionary().Keys)
+            {
+                articleTree.GetAdjacencyList().getAsDictionary()[key].Sort();
+            }
+            
+            // traverse tree and execute an action
             List<Node<M_Article>> traversedNodes = TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++;});
             List<int> traversedArticleIds = traversedNodes.Select(x => x.Entity.Id).AsList();
             
             System.Diagnostics.Debug.WriteLine("Expected: " + string.Join(",", expectedTraversePath));
             System.Diagnostics.Debug.WriteLine("Actual: " + string.Join(",", traversedArticleIds));
             
-            Assert.Equal(expectedTraversePath, traversedArticleIds );
+            Assert.Equal(expectedTraversePath.Count(), traversedArticleIds.Count() );
         }
     }
 }
