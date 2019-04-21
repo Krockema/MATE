@@ -13,5 +13,6 @@ namespace Zpp.Utils
 
         public static readonly String DbConnectionZppUnix =
             "Server=localhost,1433;Database=Zpp;MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
+        
     }
 }

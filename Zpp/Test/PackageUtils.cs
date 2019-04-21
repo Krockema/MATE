@@ -11,12 +11,8 @@ using Zpp.Utils;
 
 namespace Zpp.Test
 {
-    public class TestPackageUtils : AbstractTest
+    public class PackageUtils : AbstractTest
     {
-// @before
-        public TestPackageUtils(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-        {
-        }
 
         [Fact]
         public void testArticleTree()

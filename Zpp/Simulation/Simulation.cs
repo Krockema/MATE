@@ -68,7 +68,7 @@ namespace Zpp.Simulation
                 LOGGER.Info("master data created.");
                 OrderGenerator.GenerateOrdersSyncron(_productionDomainContext,
                     ContextTest.TestConfiguration(), 1,
-                    true); // .RunSynchronously();
+                    true);
                 LOGGER.Info("Orders created.");
             }
         }

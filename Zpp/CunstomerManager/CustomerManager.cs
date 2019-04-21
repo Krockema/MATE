@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore.Internal;
+using Zpp.ModelExtensions;
 using Zpp.Utils;
+using Zpp.MrpRun;
 
 
 namespace Zpp.CustomerManager
@@ -31,7 +33,27 @@ namespace Zpp.CustomerManager
             M_Article rootArticle = order.OrderParts.ElementAt(0).Article;
             ITree<M_Article> articleTree =
                 new ArticleTree(rootArticle, _productionDomainContext);
-            // TreeTools<M_Article>.traverseDepthFirst(articleTree, node=>{});
+            TreeTools<M_Article>.traverseDepthFirst(articleTree, MrpRunAction);
         }
+
+        private void MrpRunAction(Node<M_Article> articleNode)
+        {
+            switch (articleNode.Entity.ArticleType.Name)
+            {
+                case ArticleType.ASSEMBLY: MrpRun.Assembly(articleNode);
+                    break;
+                case ArticleType.CONSUMABLE: MrpRun.Consumable(articleNode);
+                    break;
+                case ArticleType.MATERIAL: MrpRun.Material(articleNode);
+                    break;
+                case ArticleType.PRODUCT: MrpRun.Product(articleNode);
+                    break;
+                default:
+                    LOGGER.Error("Default case of switch articleType should not happen.");
+                    break;
+            }
+        }
+
+
     }
 }

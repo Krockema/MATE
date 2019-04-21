@@ -10,15 +10,11 @@ namespace Zpp.Test
     public abstract class AbstractTest : IDisposable
     {
         protected readonly ProductionDomainContext ProductionDomainContext;
-        protected readonly ITestOutputHelper TestOutputHelper;
         private readonly bool resetDb = true; // TODO: At the end this must be set to true
 
         // @before
-        public AbstractTest(ITestOutputHelper testOutputHelper)
+        public AbstractTest()
         {
-            // for console outputs in the debug view, usage:  TestOutputHelper.WriteLine("Bla")
-            TestOutputHelper = testOutputHelper;
-
             ProductionDomainContext = Dbms.getDbContext();
 
             if (resetDb)
