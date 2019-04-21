@@ -25,7 +25,6 @@ namespace Zpp.Utils
             }
 
             return null;
-
         }
 
         public Node<M_Article> GetRootNode() => _rootArticle;
@@ -35,7 +34,8 @@ namespace Zpp.Utils
         public SortedDictionary<int, List<int>> getAdjacencyListWithArticleIds()
         {
             // as a hack the first entry in each list contains the parentId
-            SortedDictionary<int, List<int>> adjacencyListWithArticleIds = new SortedDictionary<int, List<int>>();
+            SortedDictionary<int, List<int>> adjacencyListWithArticleIds =
+                new SortedDictionary<int, List<int>>();
 
 
             foreach (int articleId in _adjacencyList.getAsDictionary().Keys)
@@ -46,7 +46,10 @@ namespace Zpp.Utils
                     {
                         adjacencyListWithArticleIds.Add(articleId, new List<int>());
                     }
-                    adjacencyListWithArticleIds[articleId] = _adjacencyList.getAsDictionary()[articleId].Select(x => x.Entity.Id).ToList();
+
+                    adjacencyListWithArticleIds[articleId] =
+                        _adjacencyList.getAsDictionary()[articleId].Select(x => x.Entity.Id)
+                            .ToList();
                 }
 
                 /*M_Article article = _productionDomainContext.Articles.Single(x => x.Id == articleId);
@@ -61,13 +64,32 @@ namespace Zpp.Utils
             return adjacencyListWithArticleIds;
         }
 
-        public ArticleTree(M_ArticleBom articleBom, ProductionDomainContext _productionDomainContext)
+        public ArticleTree(M_ArticleBom articleBom,
+            ProductionDomainContext _productionDomainContext)
         {
-            M_ArticleBom queriedArticleBom = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild)
-               .Single(x => x.Id == articleBom.Id);
-            _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id, queriedArticleBom.Id, queriedArticleBom.ArticleChild);
+            M_ArticleBom queriedArticleBom = _productionDomainContext.ArticleBoms
+                .Include(m => m.ArticleChild)
+                .Single(x => x.Id == articleBom.Id);
+            _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id,
+                queriedArticleBom.Id,
+                queriedArticleBom.ArticleChild);
             this._productionDomainContext = _productionDomainContext;
-            Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(_rootArticle, 
+            Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(
+                _rootArticle,
+                new Dictionary<int, List<Node<M_Article>>>());
+            _adjacencyList = new AdjacencyList<M_Article>(builtArticleTree);
+        }
+
+        public ArticleTree(M_Article article, ProductionDomainContext _productionDomainContext)
+        {
+            M_Article queriedArticle = _productionDomainContext.Articles
+                .Single(x => x.Id == article.Id);
+            _rootArticle = new Node<M_Article>(queriedArticle.Id,
+                queriedArticle.Id,
+                queriedArticle);
+            this._productionDomainContext = _productionDomainContext;
+            Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(
+                _rootArticle,
                 new Dictionary<int, List<Node<M_Article>>>());
             _adjacencyList = new AdjacencyList<M_Article>(builtArticleTree);
         }
@@ -81,11 +103,12 @@ namespace Zpp.Utils
         /// <param name="articleId">root article node id</param>
         /// <param name="AdjacencyList">Always null at the begin of the recursion</param>
         /// <returns></returns>
-        private Dictionary<int, List<Node<M_Article>>> buildArticleTree(Node<M_Article> givenArticle,
+        private Dictionary<int, List<Node<M_Article>>> buildArticleTree(
+            Node<M_Article> givenArticle,
             Dictionary<int, List<Node<M_Article>>> AdjacencyList)
         {
-
-            M_Article readArticle = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
+            M_Article readArticle = _productionDomainContext.Articles
+                .Include(m => m.ArticleBoms)
                 .ThenInclude(m => m.ArticleChild).Single(x => x.Id == givenArticle.Entity.Id);
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
@@ -93,10 +116,13 @@ namespace Zpp.Utils
                 {
                     AdjacencyList.Add(givenArticle.Entity.Id, new List<Node<M_Article>>());
                 }
-                
+
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
-                    Node<M_Article> createdArticleNode = new Node<M_Article>(articleBom.ArticleChildId, articleBom.Id, articleBom.ArticleChild);
+                    Node<M_Article> createdArticleNode = new Node<M_Article>(
+                        articleBom.ArticleChildId,
+                        articleBom.Id,
+                        articleBom.ArticleChild);
                     AdjacencyList[givenArticle.Entity.Id].Add(createdArticleNode);
                     buildArticleTree(createdArticleNode, AdjacencyList);
                 }
@@ -110,7 +136,8 @@ namespace Zpp.Utils
          */
         public override string ToString()
         {
-            String mystring = "The ArticleTree of Article " + _rootArticle + Environment.NewLine;
+            String mystring =
+                "The ArticleTree of Article " + _rootArticle + Environment.NewLine;
 
             return mystring + _adjacencyList;
         }

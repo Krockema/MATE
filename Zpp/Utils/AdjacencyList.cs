@@ -20,7 +20,7 @@ namespace Zpp.Utils
                 _adjacencyList.Add(key, new List<Node<TEntity>>(dictionary[key]));
             }
         }
-        
+
         public AdjacencyList(Dictionary<int, List<Node<TEntity>>> dictionary)
         {
             _adjacencyList = new Dictionary<int, List<Node<TEntity>>>(dictionary);
@@ -30,7 +30,7 @@ namespace Zpp.Utils
         {
             return _adjacencyList;
         }
-        
+
         /**
          * prints the articleTree in following format (adjacencyList): parentId: child1, child2, ...
          */

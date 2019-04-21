@@ -24,19 +24,17 @@ namespace Zpp.Utils
         public int Id => _id;
 
         public TNode Entity => _entity;
-        
+
         public override string ToString()
         {
             return _bomId.ToString();
         }
-        
+
         public int CompareTo(Node<TNode> that)
         {
-            if (this._id >  that.Id) return -1;
+            if (this._id > that.Id) return -1;
             if (this._id == that.Id) return 0;
             return 1;
         }
     }
-    
-    
 }

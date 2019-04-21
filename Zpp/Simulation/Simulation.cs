@@ -19,18 +19,24 @@ namespace Zpp.Simulation
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-        
+
         private ProductionDomainContext _productionDomainContext;
-        
-        
+
+
         // MRP modules
-        private readonly OrderManager.OrderManager  _orderManager;
-        private readonly StockManager.StockManager  _stockManager = new StockManager.StockManager();
-        private readonly ProductionManager.ProductionManager  _productionManager = new ProductionManager.ProductionManager();
-        private readonly PurchaseManager.PurchaseManager  _purchaseManager = new PurchaseManager.PurchaseManager();
+        private readonly CustomerManager.CustomerManager _customerManager;
+
+        private readonly StockManager.StockManager _stockManager =
+            new StockManager.StockManager();
+
+        private readonly ProductionManager.ProductionManager _productionManager =
+            new ProductionManager.ProductionManager();
+
+        private readonly PurchaseManager.PurchaseManager _purchaseManager =
+            new PurchaseManager.PurchaseManager();
 
         private readonly bool _resetDb = false;
-        
+
         public Simulation()
         {
             LOGGER.Info("Starting preparation for the ZPP simulation.");
@@ -38,7 +44,7 @@ namespace Zpp.Simulation
             InitDb(_resetDb);
             InitModules();
 
-            _orderManager = new OrderManager.OrderManager(_productionDomainContext);
+            _customerManager = new CustomerManager.CustomerManager(_productionDomainContext);
         }
 
         private void InitDb(bool resetDb)
@@ -51,7 +57,7 @@ namespace Zpp.Simulation
 
             _productionDomainContext = Dbms.getDbContext();
 
-            
+
             if (resetDb || !_productionDomainContext.CustomerOrders.Any())
             {
                 _productionDomainContext.Database.EnsureDeleted();
@@ -60,7 +66,8 @@ namespace Zpp.Simulation
                 // using the same dataset as in krockert's master theses presentation 
                 MasterDBInitializerSmall.DbInitialize(_productionDomainContext);
                 LOGGER.Info("master data created.");
-                OrderGenerator.GenerateOrdersSyncron(_productionDomainContext, ContextTest.TestConfiguration(), 1,
+                OrderGenerator.GenerateOrdersSyncron(_productionDomainContext,
+                    ContextTest.TestConfiguration(), 1,
                     true); // .RunSynchronously();
                 LOGGER.Info("Orders created.");
             }
@@ -73,14 +80,16 @@ namespace Zpp.Simulation
         public void Start()
         {
             LOGGER.Info("Starting: ZPP simulation.");
-            
+
             // reading orders from db
-            List<T_CustomerOrder> CustomerOrders = _productionDomainContext.CustomerOrders.AsList();
-            
+            List<T_CustomerOrder> CustomerOrders =
+                _productionDomainContext.CustomerOrders.AsList();
+
             // TODO: here should be a MasterDBInitializerSmall (how to via akkaSim?)
-            String sql = "Select * from dbo.T_CustomerOrder where CreationTime=(select min(CreationTime) from dbo.T_CustomerOrder)";
-            _orderManager.Order(_productionDomainContext.CustomerOrders.FromSql(sql).AsList());
-            
+            String sql =
+                "Select * from dbo.T_CustomerOrder where CreationTime=(select min(CreationTime) from dbo.T_CustomerOrder)";
+            _customerManager.Order(_productionDomainContext.CustomerOrders.FromSql(sql).AsList());
+
             LOGGER.Info("Finished: ZPP simulation.");
         }
     }

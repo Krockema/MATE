@@ -10,14 +10,15 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Zpp.Utils;
 
 
-namespace Zpp.OrderManager
+namespace Zpp.CustomerManager
 {
-    public class OrderManager
+    public class CustomerManager
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly ProductionDomainContext _productionDomainContext;
-        public OrderManager(ProductionDomainContext productionDomainContext)
+
+        public CustomerManager(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
         }
@@ -28,13 +29,9 @@ namespace Zpp.OrderManager
             LOGGER.Info("Starting: with Order " + order.Id);
 
             M_Article rootArticle = order.OrderParts.ElementAt(0).Article;
-            // ITree<M_Article> articleTree = new ArticleTree(rootArticle,_productionDomainContext);
+            ITree<M_Article> articleTree =
+                new ArticleTree(rootArticle, _productionDomainContext);
             // TreeTools<M_Article>.traverseDepthFirst(articleTree, node=>{});
         }
-        
-
-        
-        
-        
     }
 }

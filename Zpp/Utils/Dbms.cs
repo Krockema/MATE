@@ -5,25 +5,25 @@ namespace Zpp.Utils
 {
     public static class Dbms
     {
-      
         public static ProductionDomainContext getDbContext()
         {
-         ProductionDomainContext _productionDomainContext;
+            ProductionDomainContext _productionDomainContext;
 
-         // EF inMemory
-         // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
-         /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-             .UseInMemoryDatabase(databaseName: "InMemoryDB")
-             .Options);*/
-         
-         
+            // EF inMemory
+            // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+            /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDB")
+                .Options);*/
+
+
             if (Constants.IsWindows)
             {
                 // Windows
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                    .UseSqlServer(
-                        Constants.DbConnectionZppWindows)
-                    .Options);
+                _productionDomainContext = new ProductionDomainContext(
+                    new DbContextOptionsBuilder<MasterDBContext>()
+                        .UseSqlServer(
+                            Constants.DbConnectionZppWindows)
+                        .Options);
             }
             else
             {
@@ -32,7 +32,7 @@ namespace Zpp.Utils
                     .UseSqlServer(
                         Constants.DbConnectionZppUnix)
                     .Options);*/
-                
+
                 // sqlite
                 _productionDomainContext = InMemoryContext.CreateInMemoryContext();
             }
