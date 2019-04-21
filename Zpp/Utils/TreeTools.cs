@@ -5,12 +5,10 @@ using Master40.DB.DataModel;
 
 namespace Zpp.Utils
 {
-    public static class TreeTools<TNode>
+    public static class TreeTools<TEntity>
     {
         // 
-        // TODO 1: This must be revisited under following aspect: a article node can be existing multiple times in tree,
-        // it must be ensured, that every multiple existing object have its own instance
-        // TODO 2: Switch this to iterative depth search (with dfs limit default set to max depth of given truck examples)
+        // TODO: Switch this to iterative depth search (with dfs limit default set to max depth of given truck examples)
         ///
         /// <summary>
         ///     A depth-first-search (DFS) traversal of given tree
@@ -19,17 +17,17 @@ namespace Zpp.Utils
         /// <returns>
         ///    The List of the traversed nodes in exact order
         /// </returns>
-        public static List<TNode> traverseDepthFirst(ITree<TNode> tree, Action<TNode> action)
+        public static List<Node<TEntity>> traverseDepthFirst(ITree<TEntity> tree, Action<Node<TEntity>> action)
         {
-            var stack = new Stack<TNode>();
+            var stack = new Stack<Node<TEntity>>();
             
-            Dictionary<TNode, bool> discovered = new Dictionary<TNode, bool>();
-            List<TNode> traversed = new List<TNode>();
+            Dictionary<Node<TEntity>, bool> discovered = new Dictionary<Node<TEntity>, bool>();
+            List<Node<TEntity>> traversed = new List<Node<TEntity>>();
             
-            stack.Push(tree.getRootNode());
+            stack.Push(tree.GetRootNode());
             while (stack.Any())
             {
-                TNode poppedNode = stack.Pop();
+                Node<TEntity> poppedNode = stack.Pop();
                 traversed.Add(poppedNode);
                 
                 // init dict if node not yet exists
@@ -44,7 +42,7 @@ namespace Zpp.Utils
                     discovered[poppedNode] = true;
                     action(poppedNode);
                     
-                    foreach (TNode node in tree.getChildNodes(poppedNode))
+                    foreach (Node<TEntity> node in tree.GetChildNodes(poppedNode))
                     {
                         stack.Push(node);
                     }
@@ -52,23 +50,23 @@ namespace Zpp.Utils
             }
             return traversed;
         }
-
+        
         /**
          * prints the articleTree in following format (adjacencyList): parentId: child1, child2, ...
          */
-        public static string AdjacencyListToString(Dictionary<int, IEnumerable<TNode>> adjacencyList)
+        public static string AdjacencyListToString(IDictionary<int, List<TEntity>> _adjacencyList)
         {
             string myString = "";
-            foreach (int rowId in adjacencyList.Keys)
+            foreach (int rowId in _adjacencyList.Keys)
             {
-                if (!adjacencyList[rowId].Any())
+                if (!_adjacencyList[rowId].Any())
                 {
                     continue;
                 }
                 myString += rowId + ": ";
-                foreach (TNode node in adjacencyList[rowId])
+                foreach (TEntity node in _adjacencyList[rowId])
                 {
-                    myString += node.ToString() + ", ";
+                    myString += node + ", ";
                 }
  
                 myString = myString.Substring(0, myString.Length-2);
@@ -77,5 +75,7 @@ namespace Zpp.Utils
 
             return myString;
         }
+
+
     }
 }
