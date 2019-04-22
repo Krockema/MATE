@@ -4,8 +4,12 @@ dist: bionic
 dotnet: 2.2
 
 install:
-- dotnet restore
+  - dotnet restore
 
 script:
-- dotnet build
-- dotnet test Zpp/Zpp.csproj
+  - dotnet build
+  - dotnet test Zpp/Zpp.csproj
+
+notifications:
+  email:
+    - 18259965+pascalschumann@users.noreply.github.com
