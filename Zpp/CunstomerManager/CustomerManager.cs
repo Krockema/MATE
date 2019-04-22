@@ -9,7 +9,6 @@ using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore.Internal;
 using Zpp.ModelExtensions;
 using Zpp.Utils;
-using Zpp.MrpRun;
 
 
 namespace Zpp.CustomerManager
@@ -40,13 +39,13 @@ namespace Zpp.CustomerManager
         {
             switch (articleNode.Entity.ArticleType.Name)
             {
-                case ArticleType.ASSEMBLY: MrpRun.Assembly(articleNode);
+                case ArticleType.ASSEMBLY: MrpRun.MrpRun.Assembly(articleNode);
                     break;
-                case ArticleType.CONSUMABLE: MrpRun.Consumable(articleNode);
+                case ArticleType.CONSUMABLE:  MrpRun.MrpRun.Consumable(articleNode);
                     break;
-                case ArticleType.MATERIAL: MrpRun.Material(articleNode);
+                case ArticleType.MATERIAL:  MrpRun.MrpRun.Material(articleNode);
                     break;
-                case ArticleType.PRODUCT: MrpRun.Product(articleNode);
+                case ArticleType.PRODUCT:  MrpRun.MrpRun.Product(articleNode);
                     break;
                 default:
                     LOGGER.Error("Default case of switch articleType should not happen.");

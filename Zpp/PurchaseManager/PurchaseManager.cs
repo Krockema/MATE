@@ -1,4 +1,4 @@
-namespace Zpp.PurchaseManager
+namespace Zpp
 {
     public class PurchaseManager
     {

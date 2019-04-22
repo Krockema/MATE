@@ -1,4 +1,4 @@
-namespace Zpp.ProductionManager
+namespace Zpp
 {
     public class ProductionManager
     {
