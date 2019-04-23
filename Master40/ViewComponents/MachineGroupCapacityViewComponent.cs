@@ -42,7 +42,7 @@ namespace Master40.ViewComponents
 
                 var chart = new Chart
                 {
-                    Type = "bar",
+                    Type = Enums.ChartType.Bar,
                     Options = new Options {MaintainAspectRatio = true}
                 };
 

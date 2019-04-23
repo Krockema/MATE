@@ -17,10 +17,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private CollectorAnalyticsWorkSchedule() : base() { }
 
         private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
-        private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
+        //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
+        private List<UpdateSimulationWork> _updatedSimulationWork = new List<UpdateSimulationWork>();
         private List<string> machines = new List<string>();
-        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB");
+        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
 
         public static CollectorAnalyticsWorkSchedule Get()
         {
@@ -68,7 +69,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             lastIntervalStart = agent.Time;
             if (logToDb)
             {
-                
                 agent.DBResults.SimulationOperations.AddRange(simulationWorkschedules);
                 agent.DBResults.SaveChanges();
             }
@@ -86,8 +86,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                       group a by new { a.Article, a.OrderId } into arti
                       select new
                       {
-                          Article = arti.Key.Article,
-                          OrderId = arti.Key.OrderId
+                          arti.Key.Article,
+                          arti.Key.OrderId
                       };
 
             var leadTime = from lt in simulationWorkschedules
@@ -230,12 +230,24 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationConfigurationId = -1,
                 OrderId = "[" + cws.OrderId + "]",
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
-                ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid.ToString() + "]",
+                ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
                 Parent = cws.IsHeadDemand.ToString(),
                 ParentId = "[]",
                 Time = (int)(agent.Time),
                 ArticleType = cws.ArticleType
             };
+
+            var edit = _updatedSimulationWork.FirstOrDefault(x => x.WorkScheduleId.Equals(ws.Key.ToString()));
+            if (edit != null)
+            {
+                sws.Start = (int)edit.Start;
+                sws.End = (int)(edit.Start + edit.Duration + 1);
+                sws.Machine = edit.Machine;
+                _updatedSimulationWork.Remove(edit);
+            }
+
+
+
             simulationWorkschedules.Add(sws);
         }
 
@@ -244,11 +256,16 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
 
             var edit = simulationWorkschedules.FirstOrDefault(x => x.WorkScheduleId.Equals(uws.WorkScheduleId));
-            edit.Start = (int)uws.Start;
-            edit.End = (int)(uws.Start + uws.Duration + 1); // to have Time Points instead of Time Periods
-            edit.Machine = uws.Machine;
+            if (edit != null)
+            {
+                edit.Start = (int)uws.Start;
+                edit.End = (int)(uws.Start + uws.Duration + 1); // to have Time Points instead of Time Periods
+                edit.Machine = uws.Machine;
+                return;
+            }
+            _updatedSimulationWork.Add(uws);
 
-            tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
+            //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
 
         private void UpdateSimulationId(Collector agent, int simulationId, SimulationType simluationType, int simNumber)

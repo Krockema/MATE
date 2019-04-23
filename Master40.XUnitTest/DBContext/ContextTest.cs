@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using EfCore.InMemoryHelpers;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -97,6 +99,39 @@ namespace Master40.XUnitTest.DBContext
         {
             OrderGenerator.GenerateOrdersSyncron(_ctx, ContextTest.TestConfiguration(), 1, true); // .RunSynchronously();
             Console.WriteLine("Orders created.");
+        }
+
+        [Fact]
+        public void TableTest()
+        {
+            var art = new M_Article {Name = "New"};
+            _ctx.Add(art);
+
+
+
+
+            // var dbsets = _ctx.GetType().GetProperties().Where(x => x.DeclaringType == typeof(MasterDBContext)).ToList();
+            // foreach (var dbset in dbsets)
+            // {
+            //     if (dbset.Name != "InMemory")
+            //     {
+            //         dynamic setValue = _ctx.GetType().GetMember(dbset.Name).GetValue(0);
+            //     // dynamic propValue = dbset.GetValue(_ctx);
+            //     // Type type = Type.GetType("Master40.DB.DataModel.M_Article", "");
+            //     // 
+            //     // var listType = typeof(List<>);
+            //     // var constructedListType = listType.MakeGenericType(Type.GetType(dbset.Name));
+            //     // var instance = Activator.CreateInstance(constructedListType);
+            //     // 
+            //     // var tolist = typeof(Enumerable).GetMethod("ToList");
+            //     // 
+            //     // 
+            //     // tolist = tolist.MakeGenericMethod(type);
+            //     // var ret = tolist.Invoke(type, propValue);
+            //         return;
+            //     }
+            // }
+
         }
 
     }

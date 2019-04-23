@@ -33,7 +33,7 @@ namespace Master40.ViewComponents
                Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "pie";
+                chart.Type = Enums.ChartType.Pie;
 
                 // use available hight in Chart
                 chart.Options = new Options { MaintainAspectRatio = true};

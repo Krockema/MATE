@@ -91,7 +91,7 @@ namespace Master40.ViewComponents
                 Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "bar";
+                chart.Type = Enums.ChartType.Bar;
 
                 // use available hight in Chart
                 chart.Options = new Options()

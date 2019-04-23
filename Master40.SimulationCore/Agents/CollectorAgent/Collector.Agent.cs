@@ -55,19 +55,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             Behaviour.EventHandle(this, o);
         }
-
-
-        protected override void PreStart()
-        {
-            base.PreStart();
-        
-            //this.Set(Properties.SIMULATION_WORK_ITEMS, new List<SimulationWorkschedule>());
-            //this.Set(Properties.WORKTIME_CURRENT_SPAN, new List<Tuple<string, long>>());
-            
-            // already Handled in Constructor
-            //Context.System.EventStream.Subscribe(Self, typeof(SimulationImmutables.CreateSimulationWork));
-        }
-
-        
+       
     }
 }

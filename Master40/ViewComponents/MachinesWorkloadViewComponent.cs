@@ -55,7 +55,7 @@ namespace Master40.ViewComponents
 
                 Chart chart = new Chart
                 {
-                    Type = "bar"                             
+                    Type = Enums.ChartType.Bar                         
                 };
 
                 // charttype
@@ -145,7 +145,7 @@ namespace Master40.ViewComponents
                     ? SimulationType.Decentral
                     : SimulationType.Central;
 
-                Chart chart = new Chart { Type = "scatter" };
+                Chart chart = new Chart { Type = Enums.ChartType.Scatter };
 
                 // charttype
                 var cc = new ChartColor();
