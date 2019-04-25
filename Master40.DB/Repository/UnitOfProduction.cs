@@ -60,7 +60,7 @@ namespace Master40.DB.Repository
             var pows = new List<T_ProductionOrderOperation>();
             foreach (var singleRequester in requester)
             {
-                if (singleRequester.GetType() == typeof(DemandOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
+                if (singleRequester.GetType() == typeof(DemandCustomerOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
                 var demand = this.Demands.OfType<DemandProductionOrderBom>()
                     // .Include(a => a.ProductionOrderBom)
                     // .ThenInclude(b => b.ProductionOrderParent).ThenInclude(c => c.ProductionOrderWorkSchedule)
@@ -99,12 +99,12 @@ namespace Master40.DB.Repository
 
         public decimal GetReserved(int articleId)
         {
-            var demands = Demands.OfType<DemandProviderStock>()
+            var demands = Demands.OfType<ProviderStock>()
                 .Where(a => a.State != State.Finished && a.ArticleId == articleId).Sum(a => a.Quantity);
             return demands;
         }
 
-        public DemandProviderStock TryCreateStockReservation(IDemandToProvider demand)
+        public ProviderStock TryCreateStockReservation(IDemandToProvider demand)
         {
             var stock = Stocks.ToList().Single(a => a.ArticleForeignKey == demand.ArticleId);
             var stockReservations = GetReserved(demand.ArticleId);
@@ -133,11 +133,11 @@ namespace Master40.DB.Repository
             return purchasedAmount;
         }
 
-        public DemandProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
+        public ProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
         {
             var stock = Stocks.ToList().Single(a => a.ArticleForeignKey == demand.ArticleId);
             var article = Articles.ToList().Single(a => a.Id == demand.ArticleId);
-            var dps = new DemandProviderStock()
+            var dps = new ProviderStock()
             {
                 ArticleId = demand.ArticleId,
                 Article = article,

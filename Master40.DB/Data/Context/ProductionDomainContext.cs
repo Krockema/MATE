@@ -133,7 +133,7 @@ namespace Master40.DB.Data.Context
             var pows = new List<T_ProductionOrderOperation>();
             foreach (var singleRequester in requester)
             {
-                if (singleRequester.GetType() == typeof(DemandOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
+                if (singleRequester.GetType() == typeof(DemandCustomerOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
                 var demand = DemandToProviders.OfType<DemandProductionOrderBom>().Include(a => a.ProductionOrderBom)
                     .ThenInclude(b => b.ProductionOrderParent).ThenInclude(c => c.ProductionOrderWorkSchedule)
                     .Single(a => a.Id == singleRequester.Id);
@@ -176,7 +176,7 @@ namespace Master40.DB.Data.Context
                 return Task.Run(() =>
                 {
                     // get the corresponding Order Parts to Order
-                    var demands = DemandToProviders.OfType<DemandOrderPart>()
+                    var demands = DemandToProviders.OfType<DemandCustomerOrderPart>()
                         .Include(x => x.OrderPart)
                         .Where(o => o.OrderPart.OrderId == orderId)
                         .ToList();
@@ -186,14 +186,14 @@ namespace Master40.DB.Data.Context
                         .Where(a => a.DemandRequesterId == demand.Id)).ToList();
 
                     // get Demand Providers for this Order
-                    var demandProviders = new List<DemandProviderProductionOrder>();
-                    foreach (var order in (DemandToProviders.OfType<DemandProviderProductionOrder>()
+                    var demandProviders = new List<ProviderProductionOrder>();
+                    foreach (var order in (DemandToProviders.OfType<ProviderProductionOrder>()
                         .Join(demands, c => c.DemandRequesterId, d => ((IDemandToProvider)d).Id, (c, d) => c)))
                     {
                         demandProviders.Add(order);
                     }
 
-                    var demandBomProviders = (DemandToProviders.OfType<DemandProviderProductionOrder>()
+                    var demandBomProviders = (DemandToProviders.OfType<ProviderProductionOrder>()
                         .Join(demandboms, c => c.DemandRequesterId, d => d.Id, (c, d) => c)).ToList();
 
                     // get ProductionOrderWorkSchedule for 
@@ -230,9 +230,9 @@ namespace Master40.DB.Data.Context
                         ids.AddRange(GetOrderIdsFromProductionOrder(
                             ((DemandProductionOrderBom) singleRequester).ProductionOrderBom.ProductionOrderParent));
                     }
-                    else if (singleRequester.GetType() == typeof(DemandOrderPart))
+                    else if (singleRequester.GetType() == typeof(DemandCustomerOrderPart))
                     {
-                        var dop = DemandToProviders.OfType<DemandOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
+                        var dop = DemandToProviders.OfType<DemandCustomerOrderPart>().Include(a => a.OrderPart).Single(a => a.Id == singleRequester.Id);
                         ids.Add(dop.OrderPart.OrderId);
                     }
 
@@ -248,7 +248,7 @@ namespace Master40.DB.Data.Context
             /// <returns>List of ProductionOrderWorkSchedules - Attention May Include Dupes Through Complex Backlinks !</returns>
             public List<T_ProductionOrderOperation> GetWorkSchedulesFromDemand(IDemandToProvider demandRequester, ref List<T_ProductionOrderOperation> productionOrderWorkSchedule)
             {
-                foreach (var item in demandRequester.DemandProvider.OfType<DemandProviderProductionOrder>())
+                foreach (var item in demandRequester.DemandProvider.OfType<ProviderProductionOrder>())
                 {
                     var productionOrders = ProductionOrders
                         .Include(x => x.ProductionOrderWorkSchedule)
@@ -397,9 +397,9 @@ namespace Master40.DB.Data.Context
             return plannedStock;
         }
 
-        public DemandProviderProductionOrder CreateDemandProviderProductionOrder(IDemandToProvider demand, T_ProductionOrder productionOrder, decimal amount)
+        public ProviderProductionOrder CreateDemandProviderProductionOrder(IDemandToProvider demand, T_ProductionOrder productionOrder, decimal amount)
         {
-            var demandProviderProductionOrder = new DemandProviderProductionOrder()
+            var demandProviderProductionOrder = new ProviderProductionOrder()
             {
                 Quantity = amount,
                 Article = demand.Article,
@@ -408,7 +408,7 @@ namespace Master40.DB.Data.Context
                 DemandRequesterId = demand.Id
             };
             DemandToProviders.Add(demandProviderProductionOrder);
-            if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<DemandProviderProductionOrder>();
+            if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<ProviderProductionOrder>();
             productionOrder.DemandProviderProductionOrders.Add(demandProviderProductionOrder);
             SaveChanges();
 
@@ -420,7 +420,7 @@ namespace Master40.DB.Data.Context
         {
             if (NeedToRefill(demand, amount))
             {
-                var providerPurchasePart = new DemandProviderPurchasePart()
+                var providerPurchasePart = new ProviderPurchasePart()
                 {
                     Quantity = amount,
                     ArticleId = demand.ArticleId,
@@ -434,7 +434,7 @@ namespace Master40.DB.Data.Context
             }
             else
             {
-                var providerStock = new DemandProviderStock()
+                var providerStock = new ProviderStock()
                 {
                     Quantity = amount,
                     ArticleId = demand.ArticleId,
@@ -447,7 +447,7 @@ namespace Master40.DB.Data.Context
             SaveChanges();
         }
 
-        public void CreatePurchase(IDemandToProvider demand, decimal amount, DemandProviderPurchasePart demandProviderPurchasePart, int time)
+        public void CreatePurchase(IDemandToProvider demand, decimal amount, ProviderPurchasePart providerPurchasePart, int time)
         {
             var articleToPurchase = ArticleToBusinessPartners.Single(a => a.ArticleId == demand.ArticleId);
             var purchase = new T_PurchaseOrder()
@@ -461,7 +461,7 @@ namespace Master40.DB.Data.Context
             {
                 ArticleId = demand.ArticleId,
                 Quantity = (int)amount,
-                DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>() { demandProviderPurchasePart },
+                DemandProviderPurchaseParts = new List<ProviderPurchasePart>() { providerPurchasePart },
                 PurchaseId = purchase.Id
             };
             purchase.PurchaseParts = new List<T_PurchaseOrderPart>()
@@ -482,9 +482,9 @@ namespace Master40.DB.Data.Context
             return (purchasedAmount - neededAmount - amount < stockMin);
         }
 
-        public DemandProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
+        public ProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
         {
-            var dps = new DemandProviderStock()
+            var dps = new ProviderStock()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
@@ -496,9 +496,9 @@ namespace Master40.DB.Data.Context
             SaveChanges();
             return dps;
         }
-        public DemandProviderProductionOrder CreateProviderProductionOrder(IDemandToProvider demand, T_ProductionOrder productionOrder, decimal amount)
+        public ProviderProductionOrder CreateProviderProductionOrder(IDemandToProvider demand, T_ProductionOrder productionOrder, decimal amount)
         {
-            var dppo = new DemandProviderProductionOrder()
+            var dppo = new ProviderProductionOrder()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
@@ -509,9 +509,9 @@ namespace Master40.DB.Data.Context
             SaveChanges();
             return dppo;
         }
-        public DemandProviderPurchasePart CreateDemandProviderPurchasePart(IDemandToProvider demand, T_PurchaseOrderPart purchase, decimal amount)
+        public ProviderPurchasePart CreateDemandProviderPurchasePart(IDemandToProvider demand, T_PurchaseOrderPart purchase, decimal amount)
         {
-            var dppp = new DemandProviderPurchasePart()
+            var dppp = new ProviderPurchasePart()
             {
                 ArticleId = demand.ArticleId,
                 Quantity = amount,
@@ -559,7 +559,7 @@ namespace Master40.DB.Data.Context
             return pob;
         }
         
-        public void AssignPurchaseToDemandProvider(T_PurchaseOrderPart purchasePart, DemandProviderPurchasePart provider, int quantity)
+        public void AssignPurchaseToDemandProvider(T_PurchaseOrderPart purchasePart, ProviderPurchasePart provider, int quantity)
         {
             provider.PurchasePartId = purchasePart.Id;
             provider.Quantity = quantity;
@@ -583,7 +583,7 @@ namespace Master40.DB.Data.Context
             {
                 ArticleId = demand.ArticleId,
                 Quantity = (int)amount,
-                DemandProviderPurchaseParts = new List<DemandProviderPurchasePart>(),
+                DemandProviderPurchaseParts = new List<ProviderPurchasePart>(),
                 PurchaseId = purchase.Id,
                 
             };
@@ -617,7 +617,7 @@ namespace Master40.DB.Data.Context
             return earliestProductionOrder;
         }
 
-        public DemandProviderStock TryCreateStockReservation(IDemandToProvider demand)
+        public ProviderStock TryCreateStockReservation(IDemandToProvider demand)
         {
             var stock = Stocks.Single(a => a.ArticleForeignKey == demand.ArticleId);
             var stockReservations = GetReserved(demand.ArticleId);
@@ -648,7 +648,7 @@ namespace Master40.DB.Data.Context
 
         public decimal GetReserved(int articleId)
         {
-            var demands = DemandToProviders.OfType<DemandProviderStock>()
+            var demands = DemandToProviders.OfType<ProviderStock>()
                 .Where(a => a.State != State.Finished && a.ArticleId == articleId).Sum(a => a.Quantity);
             return demands;
         }
@@ -666,9 +666,9 @@ namespace Master40.DB.Data.Context
             return dpob;
         }
 
-        public void AssignProductionOrderToDemandProvider(T_ProductionOrder productionOrder, DemandProviderProductionOrder provider)
+        public void AssignProductionOrderToDemandProvider(T_ProductionOrder productionOrder, ProviderProductionOrder provider)
         {
-            if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<DemandProviderProductionOrder>();
+            if (productionOrder.DemandProviderProductionOrders == null) productionOrder.DemandProviderProductionOrders = new List<ProviderProductionOrder>();
             if (!productionOrder.DemandProviderProductionOrders.Contains(provider))
                 productionOrder.DemandProviderProductionOrders.Add(provider);
             Update(provider);
@@ -720,14 +720,14 @@ namespace Master40.DB.Data.Context
         public int GetDueTimeByOrder(IDemandToProvider demand)
         {
             
-            if (demand.GetType() == typeof(DemandOrderPart))
+            if (demand.GetType() == typeof(DemandCustomerOrderPart))
             {
                 
-                demand = DemandToProviders.OfType<DemandOrderPart>()
+                demand = DemandToProviders.OfType<DemandCustomerOrderPart>()
                                 .Include(a => a.OrderPart)
                                 .ThenInclude(b => b.Order)
                                 .ToList().Single(a => a.Id == demand.Id);
-                return ((DemandOrderPart) demand).OrderPart.Order.DueTime;
+                return ((DemandCustomerOrderPart) demand).OrderPart.Order.DueTime;
             }
             if (demand.GetType() == typeof(DemandStock)) return int.MaxValue;
             if (demand.GetType() != typeof(DemandProductionOrderBom)) return int.MaxValue;
@@ -761,7 +761,7 @@ namespace Master40.DB.Data.Context
             CreateProductionOrderWorkSchedules(mainProductionOrder);
 
            
-            var demandProvider = new DemandProviderProductionOrder()
+            var demandProvider = new ProviderProductionOrder()
             {
                 ProductionOrderId = mainProductionOrder.Id,
                 Quantity = quantity,
@@ -824,7 +824,7 @@ namespace Master40.DB.Data.Context
 
         public IDemandToProvider CreateDemandOrderPart(T_CustomerOrderPart orderPart)
         {
-            var demand = new DemandOrderPart()
+            var demand = new DemandCustomerOrderPart()
             {
                 OrderPartId = orderPart.Id,
                 Quantity = orderPart.Quantity,
@@ -842,7 +842,7 @@ namespace Master40.DB.Data.Context
         public List<IDemandToProvider> UpdateStateDemandProviderPurchaseParts()
         {
             var changedDemands = new List<IDemandToProvider>();
-            var provider = DemandToProviders.OfType<DemandProviderPurchasePart>().Include(a => a.PurchasePart).ThenInclude(b => b.Purchase).Where(a => a.State != State.Finished).ToList();
+            var provider = DemandToProviders.OfType<ProviderPurchasePart>().Include(a => a.PurchasePart).ThenInclude(b => b.Purchase).Where(a => a.State != State.Finished).ToList();
             foreach (var singleProvider in provider)
             {
                 if (singleProvider.PurchasePart.State != State.Finished) continue;
@@ -859,7 +859,7 @@ namespace Master40.DB.Data.Context
             var unfinishedProvider = (from dp in requester.DemandProvider
                                       where dp.State != State.Finished
                                       select dp).ToList();
-            if (unfinishedProvider.Any(d => d.GetType() != typeof(DemandProviderStock)))
+            if (unfinishedProvider.Any(d => d.GetType() != typeof(ProviderStock)))
                 return false;
             foreach (var provider in unfinishedProvider)
             {

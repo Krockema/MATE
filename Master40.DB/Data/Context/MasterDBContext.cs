@@ -135,17 +135,17 @@ namespace Master40.DB.Data.Context
                 .WithMany(r => r.DemandProvider)
                 .HasForeignKey(fk => fk.DemandRequesterId);
 
-            modelBuilder.Entity<DemandProviderProductionOrder>()
+            modelBuilder.Entity<ProviderProductionOrder>()
                 .HasOne(d => d.ProductionOrder)
                 .WithMany(r => r.DemandProviderProductionOrders)
                 .HasForeignKey(fk => fk.ProductionOrderId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandProviderPurchasePart>()
+            modelBuilder.Entity<ProviderPurchasePart>()
                 .HasOne(d => d.PurchasePart)
                 .WithMany(r => r.DemandProviderPurchaseParts)
                 .HasForeignKey(fk => fk.PurchasePartId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandProviderStock>()
+            modelBuilder.Entity<ProviderStock>()
                 .HasOne(d => d.Stock)
                 .WithMany(r => r.DemandProviderStocks)
                 .HasForeignKey(fk => fk.StockId)
@@ -160,7 +160,7 @@ namespace Master40.DB.Data.Context
                 .WithMany(r => r.DemandProductionOrderBoms)
                 .HasForeignKey(fk => fk.ProductionOrderBomId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandOrderPart>()
+            modelBuilder.Entity<DemandCustomerOrderPart>()
                 .HasOne(d => d.OrderPart)
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
