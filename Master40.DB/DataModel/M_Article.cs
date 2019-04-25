@@ -35,7 +35,7 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrder> ProductionOrders { get; set; }
         [JsonIgnore]
-        public virtual ICollection<T_DemandToProvider> DemandToProviders { get; set; }
+        public virtual ICollection<T_Demand> DemandToProviders { get; set; }
         [JsonIgnore]
         public virtual ICollection<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set;}
         public bool ToPurchase { get; set; }

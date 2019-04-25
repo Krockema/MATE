@@ -16,7 +16,7 @@ namespace Master40.DB.DataModel
         public M_Article Article { get; set; }
         public int Quantity { get; set; }
         [JsonIgnore]
-        public virtual ICollection<DemandOrderPart> DemandOrderParts { get; set; }
+        public virtual ICollection<DemandCustomerOrderPart> DemandOrderParts { get; set; }
         public bool IsPlanned { get; set; }
         public State State { get; set; }
         

@@ -10,7 +10,7 @@ namespace Master40.DB.Data.Context
         public List<M_ArticleType> ArticleTypes { get; set; }
         public List<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public List<M_BusinessPartner> BusinessPartners { get; set; }
-        public List<T_DemandToProvider> Demands { get; set; }
+        public List<T_Demand> Demands { get; set; }
         //public IQueryable<DemandToProvider> DemandToProvider { get; set; }
         public List<M_Machine> Machines { get; set; }
         public List<M_MachineGroup> MachineGroups { get; set; }

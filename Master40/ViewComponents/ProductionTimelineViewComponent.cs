@@ -72,7 +72,7 @@ namespace Master40.ViewComponents
 
                 //var pows = await _context.GetProductionOrderBomRecursive(_context.ProductionOrders.FirstOrDefault(x => x.ArticleId == 1), 1);
                 // get the corresponding Order Parts to Order
-                var demands = _context.DemandToProviders.OfType<DemandOrderPart>()
+                var demands = _context.DemandToProviders.OfType<DemandCustomerOrderPart>()
                     .Include(x => x.OrderPart)
                     .Include(x => x.DemandProvider)
                     .Where(o => o.OrderPart.OrderId == orderPart)
