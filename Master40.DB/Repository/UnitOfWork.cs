@@ -35,7 +35,7 @@ namespace Master40.DB.Repository
             ArticleTypes = new Repository<M_ArticleType>(dbContext, this);
             ArticleToBusinessPartners = new Repository<M_ArticleToBusinessPartner>(dbContext, this);
             BusinessPartners = new Repository<M_BusinessPartner>(dbContext, this);
-            Demands = new Repository<T_Demand>(dbContext, this);
+            Demands = new Repository<T_DemandToProvider>(dbContext, this);
             Machines = new Repository<M_Machine>(dbContext, this);
             MachineGroups = new Repository<M_MachineGroup>(dbContext, this);
             MachineTools = new Repository<M_MachineTool>(dbContext, this);
@@ -69,7 +69,7 @@ namespace Master40.DB.Repository
         public IRepository<M_ArticleType> ArticleTypes { get; set; }
         public IRepository<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public IRepository<M_BusinessPartner> BusinessPartners { get; set; }
-        public IRepository<T_Demand> Demands { get; set; }
+        public IRepository<T_DemandToProvider> Demands { get; set; }
                
         //publiIRepositoryet<DemandToProvider> DemandToProvider { get; set; }
         public IRepository<M_Machine> Machines { get; set; }

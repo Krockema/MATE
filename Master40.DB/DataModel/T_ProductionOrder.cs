@@ -17,7 +17,7 @@ namespace Master40.DB.DataModel
         public string Name { get; set; }
         public int Duetime { get; set; }
         [JsonIgnore]
-        public virtual ICollection<ProviderProductionOrder> DemandProviderProductionOrders { get; set; }
+        public virtual ICollection<DemandProviderProductionOrder> DemandProviderProductionOrders { get; set; }
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderWorkSchedule { get; set; }
     }

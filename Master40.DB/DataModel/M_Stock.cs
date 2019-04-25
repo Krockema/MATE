@@ -19,6 +19,6 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public virtual ICollection<DemandStock> DemandStocks { get; set; }
         [JsonIgnore]
-        public virtual ICollection<ProviderStock> DemandProviderStocks { get; set; }
+        public virtual ICollection<DemandProviderStock> DemandProviderStocks { get; set; }
     }
 }

@@ -26,8 +26,8 @@ namespace Master40.DB.Data.Repository
             modelBuilder.Ignore<M_ArticleBom>();
             modelBuilder.Ignore<M_Operation>();
             modelBuilder.Ignore<T_ProductionOrder>();
-            modelBuilder.Ignore<T_Demand>();
-            modelBuilder.Ignore<DemandCustomerOrderPart>();
+            modelBuilder.Ignore<T_DemandToProvider>();
+            modelBuilder.Ignore<DemandOrderPart>();
             modelBuilder.Ignore<T_PurchaseOrder>();
 
             modelBuilder.Entity<M_Article>()

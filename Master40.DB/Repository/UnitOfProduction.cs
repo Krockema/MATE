@@ -60,7 +60,7 @@ namespace Master40.DB.Repository
             var pows = new List<T_ProductionOrderOperation>();
             foreach (var singleRequester in requester)
             {
-                if (singleRequester.GetType() == typeof(DemandCustomerOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
+                if (singleRequester.GetType() == typeof(DemandOrderPart) || singleRequester.GetType() == typeof(DemandStock)) return null;
                 var demand = this.Demands.OfType<DemandProductionOrderBom>()
                     // .Include(a => a.ProductionOrderBom)
                     // .ThenInclude(b => b.ProductionOrderParent).ThenInclude(c => c.ProductionOrderWorkSchedule)
@@ -99,12 +99,12 @@ namespace Master40.DB.Repository
 
         public decimal GetReserved(int articleId)
         {
-            var demands = Demands.OfType<ProviderStock>()
+            var demands = Demands.OfType<DemandProviderStock>()
                 .Where(a => a.State != State.Finished && a.ArticleId == articleId).Sum(a => a.Quantity);
             return demands;
         }
 
-        public ProviderStock TryCreateStockReservation(IDemandToProvider demand)
+        public DemandProviderStock TryCreateStockReservation(IDemandToProvider demand)
         {
             var stock = Stocks.ToList().Single(a => a.ArticleForeignKey == demand.ArticleId);
             var stockReservations = GetReserved(demand.ArticleId);
@@ -133,11 +133,11 @@ namespace Master40.DB.Repository
             return purchasedAmount;
         }
 
-        public ProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
+        public DemandProviderStock CreateDemandProviderStock(IDemandToProvider demand, decimal amount)
         {
             var stock = Stocks.ToList().Single(a => a.ArticleForeignKey == demand.ArticleId);
             var article = Articles.ToList().Single(a => a.Id == demand.ArticleId);
-            var dps = new ProviderStock()
+            var dps = new DemandProviderStock()
             {
                 ArticleId = demand.ArticleId,
                 Article = article,
@@ -150,7 +150,7 @@ namespace Master40.DB.Repository
             demand.DemandRequester = dps;
             article.DemandToProviders.Add(dps);
             stock.DemandProviderStocks.Add(dps);
-            dps.DemandRequester = demand as T_Demand;
+            dps.DemandRequester = demand as T_DemandToProvider;
 
             Save();
             return dps;

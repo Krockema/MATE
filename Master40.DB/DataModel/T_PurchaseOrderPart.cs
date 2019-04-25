@@ -16,7 +16,7 @@ namespace Master40.DB.DataModel
         public M_Article Article { get; set; }
         public int Quantity { get; set; }
         [JsonIgnore]
-        public virtual ICollection<ProviderPurchasePart> DemandProviderPurchaseParts { get; set; }
+        public virtual ICollection<DemandProviderPurchasePart> DemandProviderPurchaseParts { get; set; }
         public State State { get; set; }
     }
 }
