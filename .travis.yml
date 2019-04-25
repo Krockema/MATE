@@ -4,12 +4,8 @@ dist: bionic
 dotnet: 2.2
 
 install:
-  - dotnet restore
+- dotnet restore
 
 script:
-  - dotnet build
-  - dotnet test Zpp/Zpp.csproj
-
-notifications:
-  email:
-    - s74027@htw-dresden.de
+- dotnet build
+- dotnet test Zpp/Zpp.csproj
