@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.DB.Data.Repository;
-using Master40.DB.DataModel;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using System.Threading.Tasks;
 
 namespace Master40.Controllers
 {
@@ -36,7 +32,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
+            var order = await _context.CustomerOrders
                 .Include(o => o.BusinessPartner)
                 .Include(op => op.OrderParts)
                     .ThenInclude(a => a.Article)
@@ -83,7 +79,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders.SingleOrDefaultAsync(m => m.Id == id);
+            var order = await _context.CustomerOrders.SingleOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
@@ -136,7 +132,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
+            var order = await _context.CustomerOrders
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
@@ -152,14 +148,14 @@ namespace Master40.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var order = await _context.ById(id).SingleAsync();
-            _context.Orders.Remove(order);
+            _context.CustomerOrders.Remove(order);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         private bool OrderExists(int id)
         {
-            return _context.Orders.Any(e => e.Id == id);
+            return _context.CustomerOrders.Any(e => e.Id == id);
         }
     }
 }

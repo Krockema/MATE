@@ -27,10 +27,10 @@ namespace Master40.XUnitTest.DBContext
 
 
 
-        // MasterDBContext _masterDBContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
-        //     .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
-        //     .Options);
-        // 
+        MasterDBContext _masterDBContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+            .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
+            .Options);
+        
         // ProductionDomainContext _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
         //     .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
         //     .Options);
@@ -46,6 +46,21 @@ namespace Master40.XUnitTest.DBContext
             // MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
         }
+
+        //[Fact]
+        public void DBCreationTest()
+        {
+            _masterDBContext.Database.EnsureDeleted();
+            _masterDBContext.Database.EnsureCreated();
+            MasterDBInitializerSmall.DbInitialize(_masterDBContext);
+            //MasterDBInitializerSmall.DbInitialize(_ctx);
+            // _productionDomainContext.Database.EnsureDeleted();
+            // _productionDomainContext.Database.EnsureCreated();
+            // MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+
+        }
+
+
 
         public static SimulationConfiguration TestConfiguration()
         {

@@ -7,7 +7,6 @@ namespace Master40.DB.DataModel
 {
     public class T_CustomerOrder : BaseEntity, IOrder
     {
-        public const string BUSINESSPARTNER_FKEY = "BusinessPartner";
         public string Name { get; set; }
         public int DueTime { get; set; }
         public int CreationTime { get; set; }

@@ -1,6 +1,5 @@
 ﻿using Master40.DB.Data;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
