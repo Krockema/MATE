@@ -186,8 +186,8 @@ namespace Master40.DB.Data.Initializer
             var articleBom = new List<M_ArticleBom>
             {
                 // Final Products 
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck" },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Race-Truck" },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck", },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Race-Truck", },
                 // Bom For DumpTruck
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "User Manual").Id, Name = "User Manual", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },

@@ -54,13 +54,21 @@ namespace Master40.DB.Data.Context
                 .ToTable("M_ArticleBom")
                 .HasOne(pt => pt.ArticleParent)
                 .WithMany(p => p.ArticleBoms)
-                .HasForeignKey(pt => pt.ArticleParentId);
+                .HasForeignKey(pt => pt.ArticleParentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<M_ArticleBom>()
                 .ToTable("M_ArticleBom")
                 .HasOne(pt => pt.ArticleChild)
                 .WithMany(t => t.ArticleChilds)
                 .HasForeignKey(pt => pt.ArticleChildId);
+
+            modelBuilder.Entity<M_ArticleBom>()
+                .ToTable("M_ArticleBom")
+                .HasOne(pt => pt.Operation)
+                .WithMany(t => t.ArticleBoms)
+                .HasForeignKey(pt => pt.OperationId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<M_Operation>()
                 .ToTable("M_Operation")
@@ -118,6 +126,13 @@ namespace Master40.DB.Data.Context
                 .HasOne(p => p.ProductionOrderParent)
                 .WithMany(b => b.ProductionOrderBoms)
                 .HasForeignKey(fk => fk.ProductionOrderParentId);
+
+            modelBuilder.Entity<T_ProductionOrderBom>()
+                .ToTable("T_ProductionOrderBom")
+                .HasOne(p => p.ProductionOrderOperation)
+                .WithMany(b => b.ProductionOrderBoms)
+                .HasForeignKey(fk => fk.ProductionOrderOperationId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             modelBuilder.Entity<T_ProductionOrderOperation>()
                 .ToTable("T_ProductionOrderOperation")

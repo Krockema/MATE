@@ -6,7 +6,6 @@ namespace Master40.DB.DataModel
 {
     public class T_StockExchange : BaseEntity, IStockExchange, IDemand, IProvider
     {
-        public const string STOCK_FEKY = "Stock";
         public int StockId { get; set; }
         public Guid TrakingGuid { get; set; }
         public int SimulationConfigurationId { get; set; }

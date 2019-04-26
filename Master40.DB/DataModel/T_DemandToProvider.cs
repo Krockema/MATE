@@ -1,14 +1,7 @@
-﻿namespace Master40.DB.DataModel
-{
-    public interface IDemandToProvider
-    {
-        int Id { get; set; }
-        int DemandId { get; set; }
-        T_Demand Demand { get; set; }
-        int ProviderId { get; set; }
-        T_Provider Provider { get; set; }
-    }
+﻿using Master40.DB.Interfaces;
 
+namespace Master40.DB.DataModel
+{
     /// <summary>
     /// derived Class for Damand to DemandProvider
     /// To Access a specific Demand use:

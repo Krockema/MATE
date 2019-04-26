@@ -15,5 +15,7 @@ namespace Master40.DB.DataModel
         public State State { get; set; }
         public int DemandID { get; set; }
         public T_Demand Demand { get; set; }
+        public int? ProductionOrderOperationId { get; set; }
+        public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
     }
 }
