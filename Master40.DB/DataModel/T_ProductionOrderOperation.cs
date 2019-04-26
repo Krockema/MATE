@@ -6,12 +6,6 @@ namespace Master40.DB.DataModel
 {
     public class T_ProductionOrderOperation : BaseEntity, IWorkSchedule, ISimulationProductionOrderWorkSchedule
     {
-        public static string MACHINETOOL_FKEY = "MachineTool";
-        public static string MACHINEGROUP_FKEY = "MachineGroup";
-        public static string MACHINE_FKEY = "Machine";
-        public static string PRODUCTIONORDER_FKEY = "ProductionOrder";
-        
-
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }

@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.DB.Data.Repository;
-using Master40.DB.DataModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Master40.Controllers
 {
@@ -23,7 +20,7 @@ namespace Master40.Controllers
         // GET: OrderParts
         public async Task<IActionResult> Index()
         {
-            var orderDomainContext = _context.OrderParts.Include(o => o.Article).Include(o => o.Order);
+            var orderDomainContext = _context.CustomerOrderParts.Include(o => o.Article).Include(o => o.Order);
             return View(await orderDomainContext.ToListAsync());
         }
 
@@ -35,7 +32,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var orderPart = await _context.OrderParts
+            var orderPart = await _context.CustomerOrderParts
                 .Include(o => o.Article)
                 .Include(o => o.Order)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -52,7 +49,7 @@ namespace Master40.Controllers
         public IActionResult Create(string orderId)
         {
             ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name");
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderId);
+            ViewData["OrderId"] = new SelectList(_context.CustomerOrders, "Id", "Name", orderId);
             return PartialView();
         }
 
@@ -72,7 +69,7 @@ namespace Master40.Controllers
                 return View("../Orders/Index", orders);
             }
             ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
+            ViewData["OrderId"] = new SelectList(_context.CustomerOrders, "Id", "Name", orderPart.OrderId);
             return PartialView("Create", orderPart);
         }
 
@@ -84,13 +81,13 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var orderPart = await _context.OrderParts.SingleOrDefaultAsync(m => m.Id == id);
+            var orderPart = await _context.CustomerOrderParts.SingleOrDefaultAsync(m => m.Id == id);
             if (orderPart == null)
             {
                 return NotFound();
             }
             ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
+            ViewData["OrderId"] = new SelectList(_context.CustomerOrders, "Id", "Name", orderPart.OrderId);
             return PartialView("Edit", orderPart);
         }
 
@@ -129,7 +126,7 @@ namespace Master40.Controllers
                 return View("../Orders/Index", await _context.GetAllOrders.ToListAsync());
             }
             ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
+            ViewData["OrderId"] = new SelectList(_context.CustomerOrders, "Id", "Name", orderPart.OrderId);
             return PartialView("Details", orderPart);
         }
 
@@ -141,7 +138,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var orderPart = await _context.OrderParts
+            var orderPart = await _context.CustomerOrderParts
                 .Include(o => o.Article)
                 .Include(o => o.Order)
                 .SingleOrDefaultAsync(m => m.Id == id);
@@ -158,8 +155,8 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var orderPart = await _context.OrderParts.SingleOrDefaultAsync(m => m.Id == id);
-            _context.OrderParts.Remove(orderPart);
+            var orderPart = await _context.CustomerOrderParts.SingleOrDefaultAsync(m => m.Id == id);
+            _context.CustomerOrderParts.Remove(orderPart);
             await _context.SaveChangesAsync();
             // return to Index
             ViewData["OrderId"] = orderPart.OrderId;
@@ -168,7 +165,7 @@ namespace Master40.Controllers
 
         private bool OrderPartExists(int id)
         {
-            return _context.OrderParts.Any(e => e.Id == id);
+            return _context.CustomerOrderParts.Any(e => e.Id == id);
         }
     }
 }

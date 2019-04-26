@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using Master40.DB.Enums;
+using Master40.DB.Interfaces;
 using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
 {
-    public class T_CustomerOrderPart : BaseEntity
+    public class T_CustomerOrderPart : BaseEntity, IDemand
     {
-        public const string ORDER_FKEY = "Order";
-        public const string ARTICLE_FKEY = "Article";
         public int OrderId { get; set; }
         [JsonIgnore]
         public T_CustomerOrder Order { get; set; }
@@ -16,7 +15,6 @@ namespace Master40.DB.DataModel
         public M_Article Article { get; set; }
         public int Quantity { get; set; }
         [JsonIgnore]
-        public virtual ICollection<DemandCustomerOrderPart> DemandOrderParts { get; set; }
         public bool IsPlanned { get; set; }
         public State State { get; set; }
         
@@ -27,6 +25,8 @@ namespace Master40.DB.DataModel
         [NotMapped]
         public string Source { get; private set; }
         */
+        public int DemandID { get; set; }
+        public T_Demand Demand { get; set; }
     }
 
 }
