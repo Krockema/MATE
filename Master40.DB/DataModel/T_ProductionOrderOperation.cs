@@ -1,4 +1,6 @@
-﻿using Master40.DB.Enums;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Newtonsoft.Json;
 
@@ -6,12 +8,6 @@ namespace Master40.DB.DataModel
 {
     public class T_ProductionOrderOperation : BaseEntity, IWorkSchedule, ISimulationProductionOrderWorkSchedule
     {
-        public static string MACHINETOOL_FKEY = "MachineTool";
-        public static string MACHINEGROUP_FKEY = "MachineGroup";
-        public static string MACHINE_FKEY = "Machine";
-        public static string PRODUCTIONORDER_FKEY = "ProductionOrder";
-        
-
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
@@ -39,5 +35,6 @@ namespace Master40.DB.DataModel
         public int EndSimulation { get; set; }
         public int DurationSimulation { get; set; }
         public ProducingState ProducingState { get; set; }
+        public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
     }
 }

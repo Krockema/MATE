@@ -33,7 +33,7 @@ namespace Master40.ViewComponents
             Chart chart = new Chart();
             
             // charttype
-            chart.Type = "scatter";
+            chart.Type = Enums.ChartType.Scatter;
 
             // use available hight in Chart
             chart.Options = new LineOptions()

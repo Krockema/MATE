@@ -2,7 +2,7 @@
 
 @foreach (var item in Model)
 {
-    @if (item.Children != null && item.Children.Count > 0)
+    if (item.Children != null && item.Children.Count > 0)
      {
          <li data-toggle="collapse" data-target="#Menu-@item.MenuId@item.MenuItemId" class="collapsed">
              <a href="#"><i class="fa @item.Symbol fa-2x"></i> <span class="nav-text"> @item.MenuText </span>  <span class="arrow"></span></a>
