@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Master40.DB.Interfaces;
 using Zpp.ModelExtensions;
 using Zpp.Utils;
 
@@ -11,11 +12,13 @@ namespace Zpp
         
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
         
-        public static void runMrp(List<Demand> demands)
+        public static void runMrp()
         {
-            IDemandToProviderManager demandToProviderManager = null;
+            DemandToProviderManager demandToProviderManager = new DemandToProviderManager();
+            List<IDemand> demands = null;
+                
             demandToProviderManager.orderByUrgency(demands);
-            foreach (Demand demand in demands)
+            foreach (IDemand demand in demands)
             {
                 
             }

@@ -81,14 +81,7 @@ namespace Zpp.Simulation
         {
             LOGGER.Info("Starting: ZPP simulation.");
 
-            // reading orders from db
-            List<T_CustomerOrder> CustomerOrders =
-                _productionDomainContext.CustomerOrders.AsList();
-
-            // TODO: here should be a MasterDBInitializerSmall (how to via akkaSim?)
-            String sql =
-                "Select * from dbo.T_CustomerOrder where CreationTime=(select min(CreationTime) from dbo.T_CustomerOrder)";
-            _customerManager.Order(_productionDomainContext.CustomerOrders.FromSql(sql).AsList());
+            // TODO
 
             LOGGER.Info("Finished: ZPP simulation.");
         }

@@ -37,20 +37,7 @@ namespace Zpp.CustomerManager
 
         private void MrpRunAction(Node<M_Article> articleNode)
         {
-            switch (articleNode.Entity.ArticleType.Name)
-            {
-                case ArticleType.ASSEMBLY: MrpRun.MrpRun.Assembly(articleNode);
-                    break;
-                case ArticleType.CONSUMABLE:  MrpRun.MrpRun.Consumable(articleNode);
-                    break;
-                case ArticleType.MATERIAL:  MrpRun.MrpRun.Material(articleNode);
-                    break;
-                case ArticleType.PRODUCT:  MrpRun.MrpRun.Product(articleNode);
-                    break;
-                default:
-                    LOGGER.Error("Default case of switch articleType should not happen.");
-                    break;
-            }
+            // TODO
         }
 
 

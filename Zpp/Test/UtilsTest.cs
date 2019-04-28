@@ -11,7 +11,7 @@ using Zpp.Utils;
 
 namespace Zpp.Test
 {
-    public class PackageUtils : AbstractTest
+    public class UtilsTest : AbstractTest
     {
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Zpp.Test
             // traverse tree and execute an action
             List<Node<M_Article>> traversedNodes =
                 TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++; });
-            List<int> actualTraversePath = traversedNodes.Select(x => x.Entity.Id).AsList();
+            List<int> actualTraversePath = traversedNodes.Select(x => x.Entity.Id).ToList();
 
             System.Diagnostics.Debug.WriteLine(
                 "Expected: " + string.Join(",", expectedTraversePath));
