@@ -11,11 +11,11 @@ namespace Zpp
         
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
         
-        public static void runMrp(List<IDemand> demands)
+        public static void runMrp(List<Demand> demands)
         {
-            IDemandManager demandManager = null;
-            demandManager.orderByUrgency(demands);
-            for (IDemand demand in demands)
+            IDemandToProviderManager demandToProviderManager = null;
+            demandToProviderManager.orderByUrgency(demands);
+            foreach (Demand demand in demands)
             {
                 
             }
