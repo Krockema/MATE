@@ -40,7 +40,7 @@ namespace Master40.ViewComponents
                Chart chart = new Chart();
 
                 // charttype
-                chart.Type = "doughnut";
+                chart.Type = Enums.ChartType.Doughnut;
 
                 // use available hight in Chart
                 chart.Options = new PieOptions { MaintainAspectRatio = false , Responsive = true 

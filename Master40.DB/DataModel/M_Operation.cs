@@ -1,4 +1,6 @@
-﻿using Master40.DB.Interfaces;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Master40.DB.Interfaces;
 using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
@@ -16,5 +18,6 @@ namespace Master40.DB.DataModel
         public M_Article Article { get; set; }
         public int MachineToolId { get; set; }
         public M_MachineTool MachineTool { get; set; }
+        public  ICollection<M_ArticleBom> ArticleBoms { get; set; }
     }
 }

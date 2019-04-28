@@ -33,6 +33,8 @@ namespace Master40.DB.Data.Context
         public DbSet<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
         public DbSet<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
         public DbSet<T_StockExchange> StockExchanges { get; set; }
+        public DbSet<T_Demand> Demands { get; set; }
+        public DbSet<T_Provider> Providers { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,13 +54,21 @@ namespace Master40.DB.Data.Context
                 .ToTable("M_ArticleBom")
                 .HasOne(pt => pt.ArticleParent)
                 .WithMany(p => p.ArticleBoms)
-                .HasForeignKey(pt => pt.ArticleParentId);
+                .HasForeignKey(pt => pt.ArticleParentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<M_ArticleBom>()
                 .ToTable("M_ArticleBom")
                 .HasOne(pt => pt.ArticleChild)
                 .WithMany(t => t.ArticleChilds)
                 .HasForeignKey(pt => pt.ArticleChildId);
+
+            modelBuilder.Entity<M_ArticleBom>()
+                .ToTable("M_ArticleBom")
+                .HasOne(pt => pt.Operation)
+                .WithMany(t => t.ArticleBoms)
+                .HasForeignKey(pt => pt.OperationId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<M_Operation>()
                 .ToTable("M_Operation")
@@ -116,6 +126,13 @@ namespace Master40.DB.Data.Context
                 .HasOne(p => p.ProductionOrderParent)
                 .WithMany(b => b.ProductionOrderBoms)
                 .HasForeignKey(fk => fk.ProductionOrderParentId);
+
+            modelBuilder.Entity<T_ProductionOrderBom>()
+                .ToTable("T_ProductionOrderBom")
+                .HasOne(p => p.ProductionOrderOperation)
+                .WithMany(b => b.ProductionOrderBoms)
+                .HasForeignKey(fk => fk.ProductionOrderOperationId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             modelBuilder.Entity<T_ProductionOrderOperation>()
                 .ToTable("T_ProductionOrderOperation")
@@ -129,43 +146,12 @@ namespace Master40.DB.Data.Context
                 .WithMany(m => m.ProductionOrderWorkSchedules)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<T_Demand>()
+                .ToTable("T_Demand");
+            modelBuilder.Entity<T_Provider>()
+                .ToTable("T_Provider");
             modelBuilder.Entity<T_DemandToProvider>()
-                .ToTable("T_DemandToProvider")
-                .HasOne(d => d.DemandRequester)
-                .WithMany(r => r.DemandProvider)
-                .HasForeignKey(fk => fk.DemandRequesterId);
-
-            modelBuilder.Entity<DemandProviderProductionOrder>()
-                .HasOne(d => d.ProductionOrder)
-                .WithMany(r => r.DemandProviderProductionOrders)
-                .HasForeignKey(fk => fk.ProductionOrderId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandProviderPurchasePart>()
-                .HasOne(d => d.PurchasePart)
-                .WithMany(r => r.DemandProviderPurchaseParts)
-                .HasForeignKey(fk => fk.PurchasePartId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandProviderStock>()
-                .HasOne(d => d.Stock)
-                .WithMany(r => r.DemandProviderStocks)
-                .HasForeignKey(fk => fk.StockId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandStock>()
-                .HasOne(d => d.Stock)
-                .WithMany(r => r.DemandStocks)
-                .HasForeignKey(fk => fk.StockId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandProductionOrderBom>()
-                .HasOne(d => d.ProductionOrderBom)
-                .WithMany(r => r.DemandProductionOrderBoms)
-                .HasForeignKey(fk => fk.ProductionOrderBomId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<DemandOrderPart>()
-                .HasOne(d => d.OrderPart)
-                .WithMany(r => r.DemandOrderParts)
-                .HasForeignKey(fk => fk.OrderPartId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+                .ToTable("T_DemandToProvider");
         }
     }
 }

@@ -44,22 +44,22 @@ namespace Master40.ViewComponents
                 var lables = new List<string>();
                 var cc = new ChartColor();
                 // charttype
-                chart.Type = "horizontalBar";
+                chart.Type = Enums.ChartType.HorizontalBar;
 
                 var data = new Data { Datasets = new List<Dataset>() };
 
                 var min = new BarDataset {
-                    Type = "horizontalBar",
+                    Type = Enums.ChartType.HorizontalBar,
                     Data = new List<double>(),
                     BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
                 };
                 var avg = new BarDataset {
-                    Type = "horizontalBar",
+                    Type = Enums.ChartType.HorizontalBar,
                     Data = new List<double>(),
                     BackgroundColor = new List<string>() // { cc.Color[8], , cc.Color[1] }
                 };
                 var max = new BarDataset {
-                    Type = "horizontalBar",
+                    Type = Enums.ChartType.HorizontalBar,
                     Data = new List<double>(),
                     BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
                 };

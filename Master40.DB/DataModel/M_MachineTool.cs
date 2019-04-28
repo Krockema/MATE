@@ -5,7 +5,6 @@ namespace Master40.DB.DataModel
 {
     public class M_MachineTool : BaseEntity
     {
-        public const string MACHINE_FKEY = "Machine";
         public int MachineId { get; set; }
         public string Name { get; set; }
         [JsonIgnore]

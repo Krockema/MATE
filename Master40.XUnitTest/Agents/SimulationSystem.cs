@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Akka.TestKit.Xunit;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
@@ -82,5 +83,13 @@ namespace Master40.XUnitTest.Agents
             var simConfig = _ctxResult.SimulationConfigurations.Single(x => x.Id == 1);
             CalculateKpis.MachineSattleTime(_masterDBContext,_ctxResult, simConfig, DB.Enums.SimulationType.Decentral, 0);
         }
+
+        [Fact]
+        public async Task ConsoleTest()
+        {
+            Console.WriteLine("System Console", "Programm");
+            System.Diagnostics.Debug.WriteLine("System Diagnostic", "System");
+        }
+
     }
 }

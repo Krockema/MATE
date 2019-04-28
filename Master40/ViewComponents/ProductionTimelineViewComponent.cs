@@ -52,7 +52,6 @@ namespace Master40.ViewComponents
                     orders = _context?.CustomerOrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
                 }
 
-            await GetSchedulesForOrderListAsync(orders);
             // Fill Select Fields
             var orderSelection = new SelectList(_context.CustomerOrders, "Id", "Name", _orderId);
             ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
@@ -62,63 +61,6 @@ namespace Master40.ViewComponents
             return View("ProductionTimeline", _ganttContext);
         }
         
-        /// <summary>
-        /// Get All Relevant Production Work Schedules an dpass them for each Order To 
-        /// </summary>
-        private async Task GetSchedulesForOrderListAsync(IEnumerable<int> ordersParts)
-        {
-            foreach (var orderPart in ordersParts)
-            {
-
-                //var pows = await _context.GetProductionOrderBomRecursive(_context.ProductionOrders.FirstOrDefault(x => x.ArticleId == 1), 1);
-                // get the corresponding Order Parts to Order
-                var demands = _context.DemandToProviders.OfType<DemandOrderPart>()
-                    .Include(x => x.OrderPart)
-                    .Include(x => x.DemandProvider)
-                    .Where(o => o.OrderPart.OrderId == orderPart)
-                    .ToList();
-
-                var pows = new List<T_ProductionOrderOperation>();
-                foreach (var demand in demands)
-                {
-                    var data = _context.GetWorkSchedulesFromDemand(demand, ref pows);
-                }
-                
-               
-                foreach (var pow in pows)
-                {
-                    // check if head element is Created,
-                    GanttTask timeline = GetOrCreateTimeline(pow, orderPart);
-                    long start = 0, end = 0;
-                    DefineStartEnd(ref start, ref end, pow);
-                    // Add Item To Timeline
-                    _ganttContext.Tasks.Add(
-                        CreateGanttTask(
-                            pow,
-                            start,
-                            end,
-                            timeline.color,
-                            timeline.id
-                            )
-                    );
-                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow);
-                    if (!c.Any()) continue;
-                    // create Links for this pow
-                    foreach (var link in c)
-                    {
-                        _ganttContext.Links.Add(
-                            new GanttLink
-                            {   
-                                id = Guid.NewGuid().ToString(),
-                                type = LinkType.finish_to_start,
-                                source = pow.Id.ToString(),
-                                target = link.Id.ToString()
-                            }
-                        );
-                    } // end foreach link
-                } // emd pows
-            } // end foreach Order
-        }
 
         /// <summary>
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.

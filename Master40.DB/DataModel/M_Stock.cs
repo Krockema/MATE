@@ -5,7 +5,6 @@ namespace Master40.DB.DataModel
 {
     public class M_Stock : BaseEntity
     {
-        public const string ARTICLE_FKEY = "ArticleForeignKey";
         public string Name { get; set; }
         public decimal Max { get; set; }
         public decimal Min { get; set; }
@@ -16,9 +15,5 @@ namespace Master40.DB.DataModel
         public ICollection<T_StockExchange> StockExchanges { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<DemandStock> DemandStocks { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<DemandProviderStock> DemandProviderStocks { get; set; }
     }
 }

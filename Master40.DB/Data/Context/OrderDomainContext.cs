@@ -1,13 +1,12 @@
 ﻿using System.Linq;
-using Master40.DB.Data.Repository;
 using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
 {
-    public class OrderDomainContext : OrderDomain
+    public class OrderDomainContext : MasterDBContext
     {
-        public OrderDomainContext(DbContextOptions<OrderDomainContext> options) : base(options) { }
+        public OrderDomainContext(DbContextOptions<MasterDBContext> options) : base(options) { }
 
 
         //complex Querys
@@ -15,14 +14,14 @@ namespace Master40.DB.Data.Context
         {
             get
             {
-                return Orders.Include(x => x.OrderParts)
+                return CustomerOrders.Include(x => x.OrderParts)
                                 .Include(x => x.BusinessPartner)
                                 .Where(x => x.BusinessPartner.Debitor)
                                 .AsNoTracking();
             }
         }
 
-        public IQueryable<T_CustomerOrder> ById(int id) => Orders.Include(x => x.OrderParts)
+        public IQueryable<T_CustomerOrder> ById(int id) => CustomerOrders.Include(x => x.OrderParts)
             .Include(x => x.BusinessPartner)
             .Where(x => x.BusinessPartner.Debitor)
             .Where(x => x.Id == id);

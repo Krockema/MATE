@@ -5,8 +5,6 @@ namespace Master40.DB.DataModel
 {
     public class M_Machine : BaseEntity
     {
-        public static string MACHINEGROUP_FKEY = "MachineGroup";
-
         public string Name { get; set; }
         public int Count { get; set; }
         public int MachineGroupId { get; set; }

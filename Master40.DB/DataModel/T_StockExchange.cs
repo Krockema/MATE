@@ -4,9 +4,8 @@ using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
 {
-    public class T_StockExchange : BaseEntity, IStockExchange
+    public class T_StockExchange : BaseEntity, IStockExchange, IDemand, IProvider
     {
-        public const string STOCK_FEKY = "Stock";
         public int StockId { get; set; }
         public Guid TrakingGuid { get; set; }
         public int SimulationConfigurationId { get; set; }
@@ -18,6 +17,10 @@ namespace Master40.DB.DataModel
         public decimal Quantity { get; set; }
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
-        
+
+        public int DemandID { get; set; }
+        public T_Demand Demand { get; set; }
+        public int ProviderId { get; set; }
+        public T_Provider Provider { get; set; }
     }
 }
