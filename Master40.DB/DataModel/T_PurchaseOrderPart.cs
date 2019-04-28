@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
 {
-    public class T_PurchaseOrderPart : BaseEntity, IDemand
+    public class T_PurchaseOrderPart : BaseEntity, IDemand, IProvider
     {
         public int PurchaseId { get; set; }
         [JsonIgnore]
@@ -19,9 +19,17 @@ namespace Master40.DB.DataModel
         public int DemandID { get; set; }
         public T_Demand Demand { get; set; }
         
-        public int getDueTime()
+        public int ProviderId { get; set; }
+        public T_Provider Provider { get; set; }
+        
+        public int GetDueTime()
         {
             return PurchaseOrder.DueTime;
+        }
+
+        public int GetAvailabilityTime()
+        {
+            return GetDueTime();
         }
     }
 }

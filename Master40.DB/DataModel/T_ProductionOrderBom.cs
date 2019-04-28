@@ -18,7 +18,7 @@ namespace Master40.DB.DataModel
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
 
-        public int getDueTime()
+        public int GetDueTime()
         {
             return ProductionOrderParent.DueTime;
         }

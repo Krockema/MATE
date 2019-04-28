@@ -8,6 +8,6 @@ namespace Master40.DB.Interfaces
         int DemandID { get; set; }
         T_Demand Demand { get; set; }
 
-        int getDueTime();
+        int GetDueTime();
     }
 }

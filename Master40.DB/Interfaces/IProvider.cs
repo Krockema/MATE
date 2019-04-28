@@ -8,6 +8,6 @@ namespace Master40.DB.Interfaces
         int ProviderId { get; set; }
         T_Provider Provider { get; set; }
         
-        int getAvailabilityTime();
+        int GetAvailabilityTime();
     }
 }
