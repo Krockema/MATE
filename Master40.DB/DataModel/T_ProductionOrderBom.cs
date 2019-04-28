@@ -22,5 +22,10 @@ namespace Master40.DB.DataModel
         {
             return ProductionOrderParent.DueTime;
         }
+        
+        public M_Article GetArticle()
+        {
+            return ProductionOrderParent.Article;
+        }
     }
 }
