@@ -321,3 +321,8 @@ paket-files/
 /Master40.SimulationImmutables/obj/*
 /Master40.SimulationImmutables/bin/*
 *.pyperf
+Zpp/bin/
+Zpp/obj/
+Master40.BusinessLogicMrp/bin/
+Master40.BusinessLogicMrp/obj/
+

@@ -17,6 +17,7 @@ using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.SupervisorAegnt;
+using Master40.SimulationCore.Reporting;
 using Master40.Tools.SignalR;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
