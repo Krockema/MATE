@@ -5,9 +5,9 @@ namespace Zpp
 {
     public class DemandToProviderManager
     {
-        public List<IDemand> orderByUrgency(List<IDemand> demands)
+        public void orderByUrgency(List<IDemand> demands)
         {
-            return demands;
+            demands.Sort((x,y)=> x.getDueTime().CompareTo(y.getDueTime()));
         }
     }
 }

@@ -14,9 +14,9 @@ namespace Zpp.Test
         }
 
         [Fact]
-        public void testBomExplosion()
+        public void testMrpRun()
         {
-            // TODO
+            MrpRun.runMrp(ProductionDomainContext);
         }
     }
 }

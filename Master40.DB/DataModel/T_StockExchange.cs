@@ -22,5 +22,10 @@ namespace Master40.DB.DataModel
         public T_Demand Demand { get; set; }
         public int ProviderId { get; set; }
         public T_Provider Provider { get; set; }
+        
+        public int getDueTime()
+        {
+            return RequiredOnTime;
+        }
     }
 }

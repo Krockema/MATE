@@ -20,7 +20,7 @@ namespace Master40.Controllers
         // GET: OrderParts
         public async Task<IActionResult> Index()
         {
-            var orderDomainContext = _context.CustomerOrderParts.Include(o => o.Article).Include(o => o.Order);
+            var orderDomainContext = _context.CustomerOrderParts.Include(o => o.Article).Include(o => o.CustomerOrder);
             return View(await orderDomainContext.ToListAsync());
         }
 
@@ -34,7 +34,7 @@ namespace Master40.Controllers
 
             var orderPart = await _context.CustomerOrderParts
                 .Include(o => o.Article)
-                .Include(o => o.Order)
+                .Include(o => o.CustomerOrder)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (orderPart == null)
             {
@@ -140,7 +140,7 @@ namespace Master40.Controllers
 
             var orderPart = await _context.CustomerOrderParts
                 .Include(o => o.Article)
-                .Include(o => o.Order)
+                .Include(o => o.CustomerOrder)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (orderPart == null)
             {

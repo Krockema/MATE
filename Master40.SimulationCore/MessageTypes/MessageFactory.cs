@@ -43,7 +43,7 @@ namespace Master40.SimulationCore.MessageTypes
         {
             return new FRequestItem(
                 key: Guid.NewGuid()
-                , dueTime: orderPart.Order.DueTime
+                , dueTime: orderPart.CustomerOrder.DueTime
                 , quantity: orderPart.Quantity
                 , article: orderPart.Article
                 , orderId: orderPart.Id

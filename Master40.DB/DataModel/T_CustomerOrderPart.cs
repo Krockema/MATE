@@ -9,7 +9,7 @@ namespace Master40.DB.DataModel
     {
         public int OrderId { get; set; }
         [JsonIgnore]
-        public T_CustomerOrder Order { get; set; }
+        public T_CustomerOrder CustomerOrder { get; set; }
         public int ArticleId { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }
@@ -27,6 +27,11 @@ namespace Master40.DB.DataModel
         */
         public int DemandID { get; set; }
         public T_Demand Demand { get; set; }
+        
+        public int getDueTime()
+        {
+            return CustomerOrder.DueTime;
+        }
     }
 
 }
