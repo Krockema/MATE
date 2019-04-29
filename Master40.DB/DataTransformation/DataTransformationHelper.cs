@@ -81,9 +81,18 @@ namespace Master40.DB.DataTransformation
                         // Read source data
                         foreach (Mapping rule in destGroup.Value.Rules)
                         {
-                            Type tupleType = srcTuple.GetType();
-                            PropertyInfo tupelProp = tupleType.GetProperty(rule.From.Split('.')[1]);
-                            tupleData[rule.To.Split('.')[1]] = Conversion.DoConvert(rule.ConversionFunc, tupelProp.GetValue(srcTuple));
+                            if (rule.IsAgentData)
+                            {
+                                // Agent to DB Rule
+                                // TODO
+                            }
+                            else
+                            {
+                                // DB to DB Rule
+                                Type tupleType = srcTuple.GetType();
+                                PropertyInfo tupelProp = tupleType.GetProperty(rule.From.Split('.')[1]);
+                                tupleData[rule.To.Split('.')[1]] = Conversion.DoConvert(rule.ConversionFunc, tupelProp.GetValue(srcTuple));
+                            }
                         }
 
                         // Locate destination table
@@ -120,7 +129,8 @@ namespace Master40.DB.DataTransformation
                         // Copy data
                         foreach(KeyValuePair<string, object> data in tupleData)
                             destDataObjectType.GetProperty(data.Key).SetValue(destDataObject, data.Value);
-                        destTable.Add(destDataObject);
+
+                        GpContext.Add(destDataObject);
                     }
                 }
             }

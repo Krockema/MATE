@@ -131,8 +131,8 @@ namespace Master40.XUnitTest.DBContext
 
             Assert.Equal(_productionDomainContext.Kpis.Any(), true);
         }
+        
         /*
-
         [Fact]
         public async Task MrpInMemmoryTest()
         {            

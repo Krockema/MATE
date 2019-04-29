@@ -129,25 +129,9 @@ namespace Master40.Simulation.Simulation
                     Demands = sourceContext.Demands.ToList()
                 };
             return targetContext;
-            /*
-var dbsets = _sourceContext.GetType().GetProperties().Where(x => x.DeclaringType == typeof(MasterDBContext)).ToList();
-foreach (var dbset in dbsets)
-{
-    dynamic propValue = dbset.GetValue(_sourceContext);
-    Type type =  Type.GetType("Master40.DB.DB.Models.Article");
-
-    var listType = typeof(List<>);
-    var constructedListType = listType.MakeGenericType(Type.GetType(dbset.Name));
-    var instance = Activator.CreateInstance(constructedListType);
-
-    var tolist = typeof(Enumerable).GetMethod("ToList");
+            
 
 
-    tolist = tolist.MakeGenericMethod(type);
-    var ret = tolist.Invoke(type, propValue);
-
-}
-*/
             // Units
 
             //_targetContext.SaveChanges();
