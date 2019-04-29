@@ -27,13 +27,6 @@ namespace Master40.DB.DataModel
                 return iDemand;
             }
             
-            iDemand = productionDomainContext.PurchaseOrderParts.Single(x =>
-                x.Id == t_demand.Id);
-            if (iDemand != null)
-            {
-                return iDemand;
-            }
-            
             iDemand = productionDomainContext.StockExchanges.Single(x =>
                 x.Id == t_demand.Id);
             if (iDemand != null)

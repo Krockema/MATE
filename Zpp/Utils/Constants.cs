@@ -12,7 +12,7 @@ namespace Zpp.Utils
             "Server=(localdb)\\mssqllocaldb;Database=Zpp;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         public static readonly String DbConnectionZppUnix =
-            "Server=localhost,1433;Database=Zpp;MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
+            "Server=localhost,1433;Database=zpp;MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
         
     }
 }
