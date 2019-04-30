@@ -51,9 +51,7 @@ namespace Master40.SimulationCore.Helper
                 var productId = productIds.ElementAt(prodVariation[i]);
 
                 //create order and orderpart, duetime is creationtime + 1 day
-
                 System.Diagnostics.Debug.WriteLineIf(debug, "Product(" + productId + ")" + ";" + time + ";" + (time + duetime[i]));
-                context.Add(new T_Demand());
                 context.CustomerOrders.Add(context.CreateNewOrder(productId, 1, time, time + duetime[i]));
             }
             context.SaveChanges();

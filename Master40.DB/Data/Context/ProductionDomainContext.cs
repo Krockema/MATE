@@ -57,6 +57,7 @@ namespace Master40.DB.Data.Context
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
+                Demand = new T_Demand()
             });
 
             var order = new T_CustomerOrder()
