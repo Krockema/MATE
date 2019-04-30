@@ -224,7 +224,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
                                                         , requestProvidable.DispoRequester.Path.Uid.ToString()
                                                         , requestProvidable.DispoRequester.Path.Name
                                                         , requestProvidable.IsHeadDemand
-                                                        , requestProvidable.OrderId);
+                                                        , requestProvidable.CustomerOrderId);
                 agent.Context.System.EventStream.Publish(pub);
 
 

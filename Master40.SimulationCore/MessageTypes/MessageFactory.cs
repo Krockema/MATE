@@ -43,10 +43,10 @@ namespace Master40.SimulationCore.MessageTypes
         {
             return new FRequestItem(
                 key: Guid.NewGuid()
-                , dueTime: orderPart.Order.DueTime
+                , dueTime: orderPart.CustomerOrder.DueTime
                 , quantity: orderPart.Quantity
                 , article: orderPart.Article
-                , orderId: orderPart.Id
+                , customerOrderId: orderPart.Id
                 , isHeadDemand: true
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
@@ -66,7 +66,7 @@ namespace Master40.SimulationCore.MessageTypes
                 , dueTime: requestItem.DueTime
                 , quantity: Convert.ToInt32(articleBom.Quantity)
                 , article: articleBom.ArticleChild
-                , orderId: requestItem.OrderId
+                , customerOrderId: requestItem.CustomerOrderId
                 , isHeadDemand: false
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender

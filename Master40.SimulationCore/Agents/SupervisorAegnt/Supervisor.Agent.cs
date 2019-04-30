@@ -130,8 +130,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             }
 
             var order = _productionDomainContext.CustomerOrders
-                .Include(x => x.OrderParts)
-                .Single(x => x.Id == _productionDomainContext.CustomerOrderParts.Single(s => s.Id == requestItem.OrderId).OrderId);
+                .Include(x => x.CustomerOrderParts)
+                .Single(x => x.Id == _productionDomainContext.CustomerOrderParts.Single(s => s.Id == requestItem.CustomerOrderId).CustomerOrderId);
             order.FinishingTime = (int)this.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
@@ -158,16 +158,16 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                                                                 .Include(x => x.Article)
                                                                     .ThenInclude(x => x.ArticleBoms)
                                                                         .ThenInclude(x => x.ArticleChild)
-                                                                .Include(x => x.Order)
+                                                                .Include(x => x.CustomerOrder)
                                                                 .AsNoTracking())
             {
-                if (orderpart.Order.CreationTime == 0)
+                if (orderpart.CustomerOrder.CreationTime == 0)
                 {
                     Send(Instruction.CreateContractAgent.Create(orderpart, Self));
                 }
                 else
                 {
-                    long period = orderpart.Order.DueTime - (_simConfig.Time); // 1 Tag un 1 Schich
+                    long period = orderpart.CustomerOrder.DueTime - (_simConfig.Time); // 1 Tag un 1 Schich
                     if (period < 0) { period = 0; }
                     Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self)
                            , waitFor: period);
