@@ -13,11 +13,12 @@ namespace Zpp.Test
 {
     public class UtilsTest : AbstractTest
     {
-
+        private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
+        
         [Fact]
         public void testArticleTree()
         {
-            System.Diagnostics.Debug.WriteLine("Starting: testArticleTree");
+            LOGGER.Debug("Starting: testArticleTree");
 
             M_ArticleBom rootArticle =
                 ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
@@ -50,10 +51,10 @@ namespace Zpp.Test
                 actualAdjacencyList[key].Sort();
             }
 
-            System.Diagnostics.Debug.WriteLine("Expected: " + Environment.NewLine +
+            LOGGER.Debug("Expected: " + Environment.NewLine +
                                                TreeTools<int>.AdjacencyListToString(
                                                    expectedAdjacencyList));
-            System.Diagnostics.Debug.WriteLine("Actual: " + Environment.NewLine +
+            LOGGER.Debug("Actual: " + Environment.NewLine +
                                                TreeTools<int>.AdjacencyListToString(
                                                    actualAdjacencyList));
             if (Constants.IsWindows)
@@ -84,7 +85,7 @@ namespace Zpp.Test
         [Fact]
         public void testTreeToolTraverseTree()
         {
-            System.Diagnostics.Debug.WriteLine("Starting: testTreeToolTraverseTree");
+            LOGGER.Debug("Starting: testTreeToolTraverseTree");
 
             int[] expectedTraversePath = new int[]
             {
@@ -109,9 +110,9 @@ namespace Zpp.Test
                 TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++; });
             List<int> actualTraversePath = traversedNodes.Select(x => x.Entity.Id).ToList();
 
-            System.Diagnostics.Debug.WriteLine(
+            LOGGER.Debug(
                 "Expected: " + string.Join(",", expectedTraversePath));
-            System.Diagnostics.Debug.WriteLine(
+            LOGGER.Debug(
                 "Actual: " + string.Join(",", actualTraversePath));
 
             // order is not constant, compare only sizeOf

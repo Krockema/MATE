@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
@@ -31,6 +32,12 @@ namespace Zpp
             // use 2 dicts for demandToProvider to get O(1) in both ways
             Dictionary<int, int> demandToProvider = new Dictionary<int, int>();
             Dictionary<int, int> providerToDemand = new Dictionary<int, int>();
+            // managers
+            ProductionManager productionManager =
+                new ProductionManager();
+
+            PurchaseManager purchaseManager =
+                new PurchaseManager();
 
             // start
 
@@ -59,8 +66,16 @@ namespace Zpp
 
                 if (!isDemandSatisfied)
                 {
-                    System.Diagnostics.Debug.WriteLine("Create a provider for article " + demand.GetArticle().Id + ".");
+                    LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id + ":");
                     // TODO: create provider
+                    if (demand.GetArticle().ToBuild)
+                    {
+                        demandToProviderManager.createProductionOrder();
+                    }
+                    else if (demand.GetArticle().ToPurchase)
+                    {
+                        purchaseManager.createPurchaseOrderPart();
+                    }
                 }
             }
         }

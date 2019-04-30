@@ -38,7 +38,7 @@ namespace Zpp.Simulation
 
         public Simulation()
         {
-            LOGGER.Info("Starting preparation for the ZPP simulation.");
+            LOGGER.Debug("Starting preparation for the ZPP simulation.");
 
             InitDb(_resetDb);
             InitModules();
@@ -65,11 +65,11 @@ namespace Zpp.Simulation
 
                 // using the same dataset as in krockert's master theses presentation 
                 MasterDBInitializerSmall.DbInitialize(_productionDomainContext);
-                LOGGER.Info("master data created.");
+                LOGGER.Debug("master data created.");
                 OrderGenerator.GenerateOrdersSyncron(_productionDomainContext,
                     ContextTest.TestConfiguration(), 1,
                     true);
-                LOGGER.Info("Orders created.");
+                LOGGER.Debug("Orders created.");
             }
         }
 
@@ -79,11 +79,11 @@ namespace Zpp.Simulation
 
         public void Start()
         {
-            LOGGER.Info("Starting: ZPP simulation.");
+            LOGGER.Debug("Starting: ZPP simulation.");
 
             // TODO
 
-            LOGGER.Info("Finished: ZPP simulation.");
+            LOGGER.Debug("Finished: ZPP simulation.");
         }
     }
 }

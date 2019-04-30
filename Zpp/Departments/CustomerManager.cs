@@ -27,7 +27,7 @@ namespace Zpp.CustomerManager
         public void Order(List<T_CustomerOrder> customerOrders)
         {
             T_CustomerOrder order = customerOrders[0];
-            LOGGER.Info("Starting: with Order " + order.Id);
+            LOGGER.Debug("Starting: with Order " + order.Id);
 
             M_Article rootArticle = order.CustomerOrderParts.ElementAt(0).Article;
             ITree<M_Article> articleTree =

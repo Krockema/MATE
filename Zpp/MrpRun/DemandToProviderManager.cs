@@ -8,6 +8,7 @@ namespace Zpp
 {
     public class DemandToProviderManager
     {
+        private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         private readonly ProductionDomainContext _productionDomainContext;
 
         public DemandToProviderManager(ProductionDomainContext productionDomainContext)
@@ -54,6 +55,18 @@ namespace Zpp
             }
 
             return providersAsDictionary;
+        }
+
+        public void createProductionOrder()
+        {
+            LOGGER.Debug("ProductionOrder created.");
+        }
+        
+        
+        
+        public void createStockExchange()
+        {
+            LOGGER.Debug("StockExchange created.");
         }
     }
 }

@@ -16,8 +16,6 @@ namespace Master40.DB.DataModel
         public int Quantity { get; set; }
         [JsonIgnore]
         public State State { get; set; }
-        public int DemandID { get; set; }
-        public T_Demand Demand { get; set; }
         
         public int ProviderId { get; set; }
         public T_Provider Provider { get; set; }
