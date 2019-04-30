@@ -132,28 +132,25 @@ namespace Master40.DB.Data.Initializer
                 context.Stocks.Add(stock);
                 context.SaveChanges();
             }
-            var workSchedule = new M_Operation[]
+            var operations = new M_Operation[]
             {
                 // assemble Truck
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck: Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
                 new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Glue Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
 
                 // assemble Truck
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Race-Truck: Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
                 new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Glue Race Wing", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
-
-
-
-                // assemble chassie
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
                 
-                // assemble chassie
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                // assemble chassie Dump-Truck
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Dump-Truck: Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Dump-Truck: Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                
+                // assemble chassie Race Truck
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Race-Truck: Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
                 new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Mount Engine Extension", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 30 },
-
-
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Race-Truck: Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 30 },
+                
                 // assemble Skeleton
                 new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "mount poles with wheels to Skeleton", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
                 new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Screw wheels onto poles", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
@@ -164,98 +161,100 @@ namespace Master40.DB.Data.Initializer
                 new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Mount hatchback", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
 
                 // assemble Race Wing
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing: Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing: Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // Engine Race Extension
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension: Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension: Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 
                 // side Walls for Truck-bed
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Cut long side", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Side wall long: Cut long side", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Side wall long: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Cut short side", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Side wall short: Cut short side", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Side wall short: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Cut Base plate Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Base plate Truck-Bed: Cut Base plate Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Base plate Truck-Bed: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // engin Block
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Cut Engine-Block", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Engine-Block: Cut Engine-Block", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Engine-Block: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // cabin 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cut Cabin", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cabin: Cut Cabin", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cabin: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // Base Plate
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate").Id,  Name = "Cut Base plate", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "drill holes for axis mount", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate: Cut Base plate", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate: drill holes for axis mount", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
 
             };
-            context.Operations.AddRange(workSchedule);
+            context.Operations.AddRange(operations);
             context.SaveChanges();
 
-
-
+            // !!! - Important NOTE - !!!
+            // For Boms without Link to an Opperation all Materials have to be ready to compleate the opperation assignet to the Article.
             var articleBom = new List<M_ArticleBom>
             {
                 // Final Products 
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck" },
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Race-Truck" },
                 // Bom For DumpTruck
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Wedding").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Chassis Type: Dump", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Wedding").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Wedding").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Truck-Bed").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Truck-Bed", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Truck-Bed").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Truck-Bed").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Truck-Bed").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Truck-Bed").Id },
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "User Manual").Id, Name = "User Manual", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Chassis Type: Dump", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Truck-Bed", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Packing").Id, Name = "Packing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Dump-Truck").Id },
 
                 // Bom For Race Truck
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Skeleton", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Wedding").Id  },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Chassis Type: Race", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Wedding").Id  },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Race Wing").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Race Wing").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Wedding").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Race Wing").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Race Wing").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id, OperationId = operations.Single(x => x.Name == "Glue Race Wing").Id },
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "User Manual").Id, Name = "User Manual", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Chassis Type: Race", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Packing").Id, Name = "Packing", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Race-Truck").Id },
-                
 
                 // Bom for Skeleton
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Wheel").Id, Name = "Wheel", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Semitrailer").Id, Name = "Semitrailer", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Washer").Id, Name = "Washer", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id, OperationId = operations.Single(x => x.Name == "mount poles with wheels to Skeleton").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id, OperationId = operations.Single(x => x.Name == "mount poles with wheels to Skeleton").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Washer").Id, Name = "Washer", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id, OperationId = operations.Single(x => x.Name == "Screw wheels onto poles").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Wheel").Id, Name = "Wheel", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id, OperationId = operations.Single(x => x.Name == "Screw wheels onto poles").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Semitrailer").Id, Name = "Semitrailer", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id, OperationId = operations.Single(x => x.Name == "Glue Semitrailer").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=5, ArticleParentId = articles.Single(a => a.Name == "Skeleton").Id, OperationId = operations.Single(x => x.Name == "Glue Semitrailer").Id },
                 
                 // Bom For Chassis Dump
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Cabin").Id, Name = "Cabin", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine-Block").Id, Name = "Engine-Block", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Cabin").Id, Name = "Cabin", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Assemble Lamps").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Assemble Lamps").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Assemble Lamps").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine-Block").Id, Name = "Engine-Block", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Mount Engine to Cabin").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, OperationId = operations.Single(x => x.Name == "Dump-Truck: Mount Engine to Cabin").Id },
 
                 // Bom For Chassis Race
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Cabin").Id, Name = "Cabin", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine-Block").Id, Name = "Engine-Block", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Cabin").Id, Name = "Cabin", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Assemble Lamps").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Assemble Lamps").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Assemble Lamps").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine-Block").Id, Name = "Engine-Block", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id, OperationId = operations.Single(x => x.Name == "Mount Engine Extension").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id, OperationId = operations.Single(x => x.Name == "Mount Engine Extension").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Chassis Type: Race").Id, OperationId = operations.Single(x => x.Name == "Race-Truck: Mount Engine to Cabin").Id },
 
 
                 // Bom for Truck-Bed
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall long").Id, Name = "Side wall long", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall short").Id, Name = "Side wall short", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id, Name = "Base plate Truck-Bed", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump Joint").Id, Name = "Dump Joint", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=10, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall long").Id, Name = "Side wall long", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Glue side walls and base plate together").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall short").Id, Name = "Side wall short", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Glue side walls and base plate together").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id, Name = "Base plate Truck-Bed", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Glue side walls and base plate together").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Side wall short").Id, Name = "Side wall short", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Mount hatchback").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Dump Joint").Id, Name = "Dump Joint", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Mount hatchback").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pegs").Id, Name = "Pegs", Quantity=10, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Mount hatchback").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Button").Id, Name = "Knop", Quantity=2, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Mount hatchback").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Glue").Id, Name = "Glue", Quantity=7, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Mount hatchback").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(x => x.Name == "Mount hatchback").Id },
 
                 // Bom for some Assemblies
                 new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Side wall long").Id },

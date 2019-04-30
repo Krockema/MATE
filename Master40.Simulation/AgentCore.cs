@@ -5,7 +5,6 @@ using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore;
