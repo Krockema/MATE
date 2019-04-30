@@ -28,13 +28,13 @@ namespace Zpp.Utils
             else
             {
                 // With Sql Server for Mac/Linux
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(
                         Constants.DbConnectionZppUnix)
-                    .Options);
+                    .Options);*/
 
                 // sqlite
-                // _productionDomainContext = InMemoryContext.CreateInMemoryContext();
+                _productionDomainContext = InMemoryContext.CreateInMemoryContext();
             }
 
             return _productionDomainContext;
