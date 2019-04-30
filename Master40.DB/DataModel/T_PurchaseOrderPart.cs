@@ -7,9 +7,9 @@ namespace Master40.DB.DataModel
 {
     public class T_PurchaseOrderPart : BaseEntity, IDemand
     {
-        public int PurchaseId { get; set; }
+        public int PurchaseOrderId { get; set; }
         [JsonIgnore]
-        public T_PurchaseOrder Purchase { get; set; }
+        public T_PurchaseOrder PurchaseOrder { get; set; }
         public int ArticleId { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }

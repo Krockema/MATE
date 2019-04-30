@@ -214,7 +214,7 @@ namespace Master40.DB.Data.Initializer
             {
                 ArticleId = 1,
                 Quantity = 1,
-                OrderId = order.Id
+                CustomerOrderId = order.Id
             };
             context.Add(orderPart);
             context.SaveChanges();
@@ -231,7 +231,7 @@ namespace Master40.DB.Data.Initializer
             {
                 ArticleId = 1,
                 Quantity = 1,
-                OrderId = order2.Id
+                CustomerOrderId = order2.Id
             };
             context.Add(orderPart2);
             context.SaveChanges();
