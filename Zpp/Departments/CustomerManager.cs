@@ -29,7 +29,7 @@ namespace Zpp.CustomerManager
             T_CustomerOrder order = customerOrders[0];
             LOGGER.Info("Starting: with Order " + order.Id);
 
-            M_Article rootArticle = order.OrderParts.ElementAt(0).Article;
+            M_Article rootArticle = order.CustomerOrderParts.ElementAt(0).Article;
             ITree<M_Article> articleTree =
                 new ArticleTree(rootArticle, _productionDomainContext);
             TreeTools<M_Article>.traverseDepthFirst(articleTree, MrpRunAction);
