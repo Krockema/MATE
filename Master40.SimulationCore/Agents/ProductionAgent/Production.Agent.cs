@@ -42,7 +42,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             var requestItem = childItems.Dequeue();
             requesteditems.Add(requestItem);
             this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
-            this.DebugMessage("Production<" + requestItem.Article.Name + "(OrderId: " + requestItem.OrderId + ") >");
+            this.DebugMessage("Production<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") >");
         }
 
 
@@ -113,7 +113,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 firstItemToBuild = false;
                 workItems.Add(n);
                 // ToDO; 
-                var pub = new CreateSimulationWork(n, requestItem.OrderId.ToString(), requestItem.IsHeadDemand, requestItem.Article.ArticleType.Name);
+                var pub = new CreateSimulationWork(n, requestItem.CustomerOrderId.ToString(), requestItem.IsHeadDemand, requestItem.Article.ArticleType.Name);
                 this.Context.System.EventStream.Publish(pub);
 
                 //Statistics.CreateSimulationWorkSchedule(n, RequestItem.OrderId.ToString(), RequestItem.IsHeadDemand);
