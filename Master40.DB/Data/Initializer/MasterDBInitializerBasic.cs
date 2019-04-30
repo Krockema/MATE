@@ -201,39 +201,39 @@ namespace Master40.DB.Data.Initializer
             context.ArticleToBusinessPartners.AddRange(artToBusinessPartner);
             context.SaveChanges();
 
-            var order = new T_CustomerOrder
+            var customerOrder = new T_CustomerOrder
             {
                 BusinessPartnerId = buisnessPartnerList[0].Id,
                 CreationTime = 0,
                 Name = "BeispielOrder 1",
                 DueTime = 10
             };
-            context.Add(order);
+            context.Add(customerOrder);
             context.SaveChanges();
-            var orderPart = new T_CustomerOrderPart
+            var customerOrderPart = new T_CustomerOrderPart
             {
                 ArticleId = 1,
                 Quantity = 1,
-                CustomerOrderId = order.Id
+                CustomerOrderId = customerOrder.Id
             };
-            context.Add(orderPart);
+            context.Add(customerOrderPart);
             context.SaveChanges();
-            var order2 = new T_CustomerOrder
+            var customerOrder2 = new T_CustomerOrder
             {
                 BusinessPartnerId = buisnessPartnerList[0].Id,
                 CreationTime = 0,
                 Name = "BeispielOrder 2",
                 DueTime = 10
             };
-            context.Add(order2);
+            context.Add(customerOrder2);
             context.SaveChanges();
-            var orderPart2 = new T_CustomerOrderPart
+            var customerOrderPart2 = new T_CustomerOrderPart
             {
                 ArticleId = 1,
                 Quantity = 1,
-                CustomerOrderId = order2.Id
+                CustomerOrderId = customerOrder2.Id
             };
-            context.Add(orderPart2);
+            context.Add(customerOrderPart2);
             context.SaveChanges();
 
         }
