@@ -7,7 +7,7 @@ namespace Master40.DB.DataModel
 {
     public class T_CustomerOrderPart : BaseEntity, IDemand
     {
-        public int OrderId { get; set; }
+        public int CustomerOrderId { get; set; }
         [JsonIgnore]
         public T_CustomerOrder CustomerOrder { get; set; }
         public int ArticleId { get; set; }

@@ -130,8 +130,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             }
 
             var order = _productionDomainContext.CustomerOrders
-                .Include(x => x.OrderParts)
-                .Single(x => x.Id == _productionDomainContext.CustomerOrderParts.Single(s => s.Id == requestItem.OrderId).OrderId);
+                .Include(x => x.CustomerOrderParts)
+                .Single(x => x.Id == _productionDomainContext.CustomerOrderParts.Single(s => s.Id == requestItem.CustomerOrderId).CustomerOrderId);
             order.FinishingTime = (int)this.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();

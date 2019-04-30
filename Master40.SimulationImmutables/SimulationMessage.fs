@@ -22,7 +22,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             OriginRequester : IActorRef
             DispoRequester : IActorRef
             ProviderList : System.Collections.Generic.List<IActorRef> 
-            OrderId : int
+            CustomerOrderId : int
             Providable : int 
             Provided : bool
             IsHeadDemand : bool 
@@ -33,7 +33,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             member this.UpdateFinishedAt f = { this with FinishedAt = f }
             member this.UpdateOriginRequester r = { this with OriginRequester = r }
             member this.UpdateDispoRequester r = { this with DispoRequester = r }
-            member this.UpdateOrderAndDue id due storage = { this with OrderId = id; DueTime = due; StorageAgent = storage }
+            member this.UpdateCustomerOrderAndDue id due storage = { this with CustomerOrderId = id; DueTime = due; StorageAgent = storage }
             member this.UpdateArticle article = { this with Article = article }
             member this.UpdateStorageAgent s = { this with StorageAgent = s }
             member this.UpdateStockExchangeId i = { this with StockExchangeId  = i }
@@ -132,7 +132,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
 
     type public CreateSimulationWork = {
         WorkItem : FWorkItem
-        OrderId : string
+        CustomerOrderId : string
         IsHeadDemand : bool
         ArticleType : string
     }
@@ -149,7 +149,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         RequestAgentId : string
         RequestAgentName : string
         IsHeadDemand : bool
-        OrderId : int
+        CustomerOrderId : int
         
     }
 

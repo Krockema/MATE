@@ -145,7 +145,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
                 dueTime = requestItem.DueTime - article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
 
 
-            FRequestItem newItem = requestItem.UpdateOrderAndDue(requestItem.OrderId, dueTime, stockAgent)
+            FRequestItem newItem = requestItem.UpdateCustomerOrderAndDue(requestItem.CustomerOrderId, dueTime, stockAgent)
                                              .UpdateArticle(article);
             agent.Set(Dispo.Properties.REQUEST_ITEM, newItem);
 
