@@ -204,8 +204,12 @@ namespace Master40.DB.Data.Initializer
             var mapping2 = new Mapping { From = "Articles.Name", To = "Material.Name" };
             context.Add(mapping2);
             context.SaveChanges();
-
-
+            var mapping3 = new Mapping { From = "Articles.ToPurchase", To = "Material.InhouseProduction", ConversionFunc = "BoolToLong", ConversionArgs = "true" };
+            context.Add(mapping3);
+            context.SaveChanges();
+            var mapping4 = new Mapping { From = "Articles.ToBuild", To = "Material.InhouseProduction", ConversionFunc = "BoolToLong", ConversionArgs = "false" };
+            context.Add(mapping4);
+            context.SaveChanges();
         }
     }
 }

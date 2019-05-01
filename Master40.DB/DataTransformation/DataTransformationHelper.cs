@@ -68,7 +68,7 @@ namespace Master40.DB.DataTransformation
                 // Locate source table
                 Type sourceType = MasterContext.GetType();
                 PropertyInfo sourceProp = sourceType.GetProperty(srcGroup.Key);
-                // TODO: sourceTable and destTable are InternalDbSet which should not be used
+                // sourceTable and destTable are InternalDbSet which should not be used
                 dynamic sourceTable = sourceProp.GetValue(MasterContext);
 
                 foreach (object srcTuple in sourceTable)
@@ -91,7 +91,8 @@ namespace Master40.DB.DataTransformation
                                 // DB to DB Rule
                                 Type tupleType = srcTuple.GetType();
                                 PropertyInfo tupelProp = tupleType.GetProperty(rule.From.Split('.')[1]);
-                                tupleData[rule.To.Split('.')[1]] = Conversion.DoConvert(rule.ConversionFunc, tupelProp.GetValue(srcTuple));
+                                tupleData[rule.To.Split('.')[1]] = Conversion.DoConvert(rule.ConversionFunc, 
+                                    rule.ConversionArgs, tupelProp.GetValue(srcTuple), false);
                             }
                         }
 
