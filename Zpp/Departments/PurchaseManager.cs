@@ -16,15 +16,13 @@ namespace Zpp
 
         private int counter = 0;
         private readonly ProductionDomainContext _productionDomainContext;
-        private readonly List<IProvider> _providers;
-        private readonly List<T_DemandToProvider> _demandToProvider;
+        private readonly DemandToProviderManager _demandToProviderManager;
 
         public PurchaseManager(ProductionDomainContext productionDomainContext,
-            List<IProvider> providers, List<T_DemandToProvider> demandToProviders)
+            DemandToProviderManager demandToProviderManager)
         {
             _productionDomainContext = productionDomainContext;
-            _providers = providers;
-            _demandToProvider = demandToProviders;
+            _demandToProviderManager = demandToProviderManager;
             initPurchaseOrders();
         }
 
@@ -32,9 +30,7 @@ namespace Zpp
         {
             // currently only one business per article
             M_ArticleToBusinessPartner articleToBusinessPartner = demand.GetArticle()
-                .ArticleToBusinessPartners
-                .OfType<M_ArticleToBusinessPartner>()
-                .First();
+                .ArticleToBusinessPartners.OfType<M_ArticleToBusinessPartner>().First();
             T_PurchaseOrder purchaseOrder =
                 _purchaseOrders[articleToBusinessPartner.BusinessPartnerId];
             if (purchaseOrder.DueTime == 0)
@@ -80,8 +76,7 @@ namespace Zpp
         /// <param name="businessPartner"></param>
         private void createPurchaseOrder(string name, M_BusinessPartner businessPartner)
         {
-            T_PurchaseOrder purchaseOrder =
-                _purchaseOrders[businessPartner.Id];
+            T_PurchaseOrder purchaseOrder = _purchaseOrders[businessPartner.Id];
             _productionDomainContext.PurchaseOrders.Add(purchaseOrder);
 
             // fill _purchaseOrder

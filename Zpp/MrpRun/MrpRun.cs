@@ -21,28 +21,13 @@ namespace Zpp
             DemandToProviderManager demandToProviderManager =
                 new DemandToProviderManager(productionDomainContext);
             // demand/provider
-            List<IDemand> demands =
-                demandToProviderManager.ToIDemands(productionDomainContext.Demands.ToList());
-            List<IProvider> providers =
-                demandToProviderManager.ToIProviders(
-                    productionDomainContext.Providers.ToList());
-            Dictionary<int, IDemand> demandsAsDictionary =
-                demandToProviderManager.ToIDemandsAsDictionary(demands);
-            Dictionary<int, IProvider> providersAsDictionary =
-                demandToProviderManager.ToIProvidersAsDictionary(providers);
 
-            List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
-            Dictionary<int, T_DemandToProvider> providerToDemandToProvider = new Dictionary<int, T_DemandToProvider>();
-            // demandToProvider: use 2 dicts for demandToProvider to get O(1) in both ways
-            // Dictionary<int, int> demandToProvider = new Dictionary<int, int>();
-            // Dictionary<int, int> providerToDemand = new Dictionary<int, int>();
-            
+
             // managers
-            ProductionManager productionManager =
-                new ProductionManager();
+            ProductionManager productionManager = new ProductionManager();
 
             PurchaseManager purchaseManager =
-                new PurchaseManager(productionDomainContext, providers);
+                new PurchaseManager(productionDomainContext, demandToProviderManager.Providers);
 
             // start
 
@@ -50,12 +35,12 @@ namespace Zpp
             productionDomainContext.DemandToProviders.RemoveRange(productionDomainContext
                 .DemandToProviders);
 
-            demandToProviderManager.orderDemandsByUrgency(demands);
-            foreach (IDemand demand in demands)
+            demandToProviderManager.orderDemandsByUrgency(demandToProviderManager.Demands);
+            foreach (IDemand demand in demandToProviderManager.Demands)
             {
                 bool isDemandSatisfied = false;
 
-                foreach (IProvider provider in providers)
+                foreach (IProvider provider in demandToProviderManager.Providers)
                 {
                     // does a provider in time exists?
                     if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&

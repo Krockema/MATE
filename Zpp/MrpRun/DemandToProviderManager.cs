@@ -11,9 +11,31 @@ namespace Zpp
         private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         private readonly ProductionDomainContext _productionDomainContext;
 
+        private readonly List<IDemand> _demands;
+        private readonly List<IProvider> _providers;
+        private readonly Dictionary<int, Lis> _demandsHavingProviders;
+        // private readonly Dictionary<int, IProvider> providersAsDictionary;
+
+        List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
+
+        Dictionary<int, T_DemandToProvider> providerToDemandToProvider =
+            new Dictionary<int, T_DemandToProvider>();
+        // demandToProvider: use 2 dicts for demandToProvider to get O(1) in both ways
+        // Dictionary<int, int> demandToProvider = new Dictionary<int, int>();
+        // Dictionary<int, int> providerToDemand = new Dictionary<int, int>();
+
+        // getter/setter
+        public List<IDemand> Demands => _demands;
+        public List<IProvider> Providers => _providers;
+
         public DemandToProviderManager(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
+
+            _demands = ToIDemands(productionDomainContext.Demands.ToList());
+            _providers = ToIProviders(productionDomainContext.Providers.ToList());
+            demandsAsDictionary = ToIDemandsAsDictionary(_demands);
+            providersAsDictionary = ToIProvidersAsDictionary(_providers);
         }
 
         public void orderDemandsByUrgency(List<IDemand> demands)
@@ -23,20 +45,16 @@ namespace Zpp
 
         public List<IDemand> ToIDemands(List<T_Demand> t_demands)
         {
-           
             return t_demands.Select(x => x.ToIDemand(_productionDomainContext, x)).ToList();
         }
 
         public List<IProvider> ToIProviders(List<T_Provider> t_providers)
         {
-            return t_providers
-                .Select(x => x.ToIProvider(_productionDomainContext, x))
-                .ToList();
+            return t_providers.Select(x => x.ToIProvider(_productionDomainContext, x)).ToList();
         }
-        
+
         public Dictionary<int, IDemand> ToIDemandsAsDictionary(List<IDemand> demands)
         {
-           
             Dictionary<int, IDemand> demandsAsDictionary = new Dictionary<int, IDemand>();
             foreach (IDemand demand in demands)
             {
@@ -61,12 +79,21 @@ namespace Zpp
         {
             LOGGER.Debug("ProductionOrder created.");
         }
-        
-        
-        
+
+
         public void createStockExchange()
         {
             LOGGER.Debug("StockExchange created.");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="demand"></param>
+        /// <returns>the amount of not satisfied demand</returns>
+        public int hasProvider(IDemand demand)
+        {
+            
         }
     }
 }
