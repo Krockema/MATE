@@ -37,5 +37,10 @@ namespace Master40.DB.DataModel
         {
             return Stock.Article;
         }
+
+        public decimal GetQuantity()
+        {
+            return Quantity;
+        }
     }
 }

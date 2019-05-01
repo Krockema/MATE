@@ -20,6 +20,7 @@ namespace Zpp
             // init data structures
             DemandToProviderManager demandToProviderManager =
                 new DemandToProviderManager(productionDomainContext);
+            // demand/provider
             List<IDemand> demands =
                 demandToProviderManager.ToIDemands(productionDomainContext.Demands.ToList());
             List<IProvider> providers =
@@ -29,15 +30,19 @@ namespace Zpp
                 demandToProviderManager.ToIDemandsAsDictionary(demands);
             Dictionary<int, IProvider> providersAsDictionary =
                 demandToProviderManager.ToIProvidersAsDictionary(providers);
-            // use 2 dicts for demandToProvider to get O(1) in both ways
-            Dictionary<int, int> demandToProvider = new Dictionary<int, int>();
-            Dictionary<int, int> providerToDemand = new Dictionary<int, int>();
+
+            List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
+            Dictionary<int, T_DemandToProvider> providerToDemandToProvider = new Dictionary<int, T_DemandToProvider>();
+            // demandToProvider: use 2 dicts for demandToProvider to get O(1) in both ways
+            // Dictionary<int, int> demandToProvider = new Dictionary<int, int>();
+            // Dictionary<int, int> providerToDemand = new Dictionary<int, int>();
+            
             // managers
             ProductionManager productionManager =
                 new ProductionManager();
 
             PurchaseManager purchaseManager =
-                new PurchaseManager();
+                new PurchaseManager(productionDomainContext, providers);
 
             // start
 
@@ -67,17 +72,20 @@ namespace Zpp
                 if (!isDemandSatisfied)
                 {
                     LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id + ":");
-                    // TODO: create provider
                     if (demand.GetArticle().ToBuild)
                     {
                         demandToProviderManager.createProductionOrder();
                     }
                     else if (demand.GetArticle().ToPurchase)
                     {
-                        purchaseManager.createPurchaseOrderPart();
+                        purchaseManager.createPurchaseOrderPart(demand);
                     }
                 }
             }
+
+            // finalize
+            purchaseManager.closeOpenPurchaseOrders();
+            productionDomainContext.SaveChanges();
         }
     }
 }

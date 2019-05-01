@@ -37,6 +37,11 @@ namespace Master40.DB.DataModel
         {
             return Article;
         }
+
+        public decimal GetQuantity()
+        {
+            return Quantity;
+        }
     }
 
 }

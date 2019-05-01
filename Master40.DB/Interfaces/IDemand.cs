@@ -11,5 +11,7 @@ namespace Master40.DB.Interfaces
         int GetDueTime();
 
         M_Article GetArticle();
+
+        decimal GetQuantity();
     }
 }

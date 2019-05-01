@@ -27,5 +27,10 @@ namespace Master40.DB.DataModel
         {
             return ProductionOrderParent.Article;
         }
+
+        public decimal GetQuantity()
+        {
+            return Quantity;
+        }
     }
 }
