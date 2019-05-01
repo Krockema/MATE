@@ -21,10 +21,11 @@ namespace Master40.DB.DataModel
 
         public int ProviderId { get; set; }
         public T_Provider Provider { get; set; }
-        
-        public int GetAvailabilityTime()
+
+        public T_ProductionOrder()
         {
-            return DueTime;
+            // it must be always a T_Provider created for every IProvider
+            Provider = new T_Provider();
         }
         
         public M_Article GetArticle()

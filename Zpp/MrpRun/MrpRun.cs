@@ -49,7 +49,6 @@ namespace Zpp
             // remove all DemandToProvider entries
             productionDomainContext.DemandToProviders.RemoveRange(productionDomainContext
                 .DemandToProviders);
-            productionDomainContext.SaveChanges();
 
             demandToProviderManager.orderDemandsByUrgency(demands);
             foreach (IDemand demand in demands)
@@ -60,7 +59,7 @@ namespace Zpp
                 {
                     // does a provider in time exists?
                     if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
-                        demand.GetDueTime() < provider.GetAvailabilityTime()) // TODO
+                        demand.GetDueTime() < provider.GetDueTime())
                     {
                         demandToProvider.Add(demand.Id, provider.Id);
                         providerToDemand.Add(provider.Id, demand.Id);

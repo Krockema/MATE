@@ -55,8 +55,10 @@ namespace Zpp
                 closeOpenPurchaseOrder(articleToBusinessPartner.BusinessPartner);
             }
 
+            // init a new purchaseOderPart
             T_PurchaseOrderPart purchaseOrderPart = new T_PurchaseOrderPart();
             purchaseOrder.PurchaseOrderParts.Add(purchaseOrderPart);
+            _providers.Add(purchaseOrderPart);
 
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
             purchaseOrderPart.Article = demand.GetArticle();

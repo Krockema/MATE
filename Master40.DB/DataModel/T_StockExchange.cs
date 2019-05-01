@@ -22,15 +22,16 @@ namespace Master40.DB.DataModel
         public T_Demand Demand { get; set; }
         public int ProviderId { get; set; }
         public T_Provider Provider { get; set; }
+
+        public T_StockExchange()
+        {
+            // it must be always a T_Demand created for every IDemand
+            Demand = new T_Demand();
+        }
         
         public int GetDueTime()
         {
             return RequiredOnTime;
-        }
-        
-        public int GetAvailabilityTime()
-        {
-            return GetDueTime();
         }
 
         public M_Article GetArticle()

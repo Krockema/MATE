@@ -8,7 +8,7 @@ namespace Master40.DB.Interfaces
         int ProviderId { get; set; }
         T_Provider Provider { get; set; }
         
-        int GetAvailabilityTime();
+        int GetDueTime();
         
         M_Article GetArticle();
     }

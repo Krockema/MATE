@@ -18,6 +18,12 @@ namespace Master40.DB.DataModel
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
 
+        public T_ProductionOrderBom()
+        {
+            // it must be always a T_Demand created for every IDemand
+            Demand = new T_Demand();
+        }
+        
         public int GetDueTime()
         {
             return ProductionOrderParent.DueTime;
