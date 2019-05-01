@@ -135,7 +135,7 @@ namespace Master40.DB.DataTransformation
                     }
                 }
             }
-            //GpContext.SaveChanges();
+            GpContext.SaveChanges();
             return true;
         }
 

@@ -198,18 +198,30 @@ namespace Master40.DB.Data.Initializer
             };
             context.Add(orderPart2);
             context.SaveChanges();
-            var mapping1 = new Mapping { From = "Articles.Id", To = "Material.MaterialId", ConversionFunc = "IntToString" };
-            context.Add(mapping1);
+
+            var articleMappings = new Mapping[]
+            {
+                new Mapping { From = "Articles.Id", To = "Material.MaterialId", ConversionFunc = "IntToString" },
+                new Mapping { From = "Articles.Name", To = "Material.Name" },
+                new Mapping { From = "Articles.ToPurchase", To = "Material.InhouseProduction", ConversionFunc = "BoolToLong", ConversionArgs = "true" },
+                new Mapping { From = "Articles.ToBuild", To = "Material.InhouseProduction", ConversionFunc = "BoolToLong", ConversionArgs = "false" },
+                new Mapping { From = "Articles.UnitId", To = "Material.QuantityUnitId", ConversionFunc = "IntToString" },
+                new Mapping { From = "Articles.Price", To = "Material.ValuePurchase"},
+                new Mapping { From = "Articles.Price", To = "Material.ValueSales" },
+                new Mapping { From = "Articles.Price", To = "Material.ValueProduction" }
+            };
+            context.AddRange(articleMappings);
             context.SaveChanges();
-            var mapping2 = new Mapping { From = "Articles.Name", To = "Material.Name" };
-            context.Add(mapping2);
+            var unitMappings = new Mapping[]
+            {
+                new Mapping { From = "Units.Id", To = "Unit.UnitId", ConversionFunc = "IntToString"},
+                new Mapping { From = "Units.Name", To = "Unit.Name"}
+            };
+            context.AddRange(unitMappings);
             context.SaveChanges();
-            var mapping3 = new Mapping { From = "Articles.ToPurchase", To = "Material.InhouseProduction", ConversionFunc = "BoolToLong", ConversionArgs = "true" };
-            context.Add(mapping3);
-            context.SaveChanges();
-            var mapping4 = new Mapping { From = "Articles.ToBuild", To = "Material.InhouseProduction", ConversionFunc = "BoolToLong", ConversionArgs = "false" };
-            context.Add(mapping4);
-            context.SaveChanges();
+            //var mapping = new Mapping { From = "Stock.Min", To = "Material.SafetyStockValue", ConversionFunc = "DecimalToDouble" };
+            //context.Add(mapping);
+            //context.SaveChanges();
         }
     }
 }

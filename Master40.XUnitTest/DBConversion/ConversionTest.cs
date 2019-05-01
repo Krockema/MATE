@@ -67,5 +67,20 @@ namespace Master40.XUnitTest.DBConversion
             Assert.Equal(expLongVal, longRes);
             Assert.Equal(expBoolVal, boolRes);
         }
+
+        [Fact]
+        public void TestDecimalToDouble()
+        {
+            decimal decimalVal = 1.2345m;
+            double expDoubleVal = 1.2345;
+            double doubleVal = 0.1234;
+            decimal expDecimalVal = 0.1234m;
+
+            double doubleRes = (double)DecimalToDouble.Convert(null, decimalVal);
+            decimal decimalRes = (decimal)DecimalToDouble.Convert(null, doubleVal, true);
+
+            Assert.Equal(expDoubleVal, doubleRes);
+            Assert.Equal(expDecimalVal, decimalRes);
+        }
     }
 }
