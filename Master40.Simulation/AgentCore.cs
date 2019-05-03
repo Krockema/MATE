@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
@@ -37,17 +38,25 @@ namespace Master40.Simulation
             var _inMemory = InMemoryContext.CreateInMemoryContext();
             // InMemoryContext.LoadData(_context, _inMemory);
             MasterDBInitializerSmall.DbInitialize(_inMemory);
-            PrepareModel(_context, _inMemory);
+            PrepareModel(_inMemory);
 
 
             var simNumber = _resultContext.GetSimulationNumber(simConfig.Id, SimulationType.Decentral);
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
-            _agentSimulation = new AgentSimulation(false, _inMemory, _resultContext, _messageHub);
+
+            _agentSimulation = new AgentSimulation(debug: false // Activates Debugging for all Agents
+                                                   ,DBContext: _inMemory
+                                                   ,DBResults: _resultContext
+                                                   ,messageHub: _messageHub); // Defines the status output
             
-            var simModelConfig = new SimulationConfig(false, simConfig.DynamicKpiTimeSpan);
-            var simulation = await _agentSimulation.InitializeSimulation(simConfig, simModelConfig);
+            var simModelConfig = new SimulationConfig(debug: false // Activates Debugging for Akka
+                                                    , simConfig.DynamicKpiTimeSpan);
+            var simulation = _agentSimulation.InitializeSimulation(simConfig, simModelConfig).Result;
             SimulationContext = simulation.SimulationContext;
+
+            
+            
             if (simulation.IsReady())
             {
                 _messageHub.SendToAllClients("Start Simulation ...", MessageType.info);
@@ -94,7 +103,7 @@ namespace Master40.Simulation
             return simConfig;
         }
 
-        private void PrepareModel(ProductionDomainContext context, ProductionDomainContext inMemory)
+        private void PrepareModel(ProductionDomainContext inMemory)
         {
             inMemory.Machines.RemoveRange(inMemory.Machines.ToList());
             inMemory.SaveChanges();
