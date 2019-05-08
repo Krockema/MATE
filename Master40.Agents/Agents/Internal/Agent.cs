@@ -202,26 +202,6 @@ namespace Master40.Agents.Agents.Internal
             });
         }
 
-        private void CollectProps(object obj, ref Dictionary<string, object> props, String prefix = "")
-        {
-            Type type = obj.GetType();
-            foreach (PropertyInfo prop in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-            {
-                if (new[] { typeof(RequestItem), typeof(DB.Models.Machine), typeof(DB.Models.Article) }.Contains(prop.PropertyType))
-                {
-                    CollectProps(prop.GetValue(obj), ref props, prefix + prop.Name + "-");
-                }
-                //else if (prop.PropertyType == typeof(List<WorkItem>))
-                //{
-                //    // TODO
-                //}
-                else
-                {
-                    props.Add(prefix + prop.Name, prop.GetValue(obj));
-                }
-            }
-        }
-
         private List<Dictionary<string, object>> GetData()
         {
             List<Dictionary<string, object>> dataList = new List<Dictionary<string, object>>();
@@ -232,26 +212,8 @@ namespace Master40.Agents.Agents.Internal
             //data.Add("AgentStatus", this.Status);
             
             Type agentType = this.GetType();
-            //foreach (PropertyInfo prop in agentType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-            //{
-            //    if (new[] { typeof(RequestItem), typeof(DB.Models.Machine) }.Contains(prop.PropertyType))
-            //    {
-            //        foreach (PropertyInfo subProp in prop.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-            //        {
-            //            data.Add(prop.Name + subProp.Name, subProp.GetValue(prop.GetValue(this)));
-            //        }
-            //    }
-            //    else if (prop.PropertyType == typeof(List<WorkItem>))
-            //    {
-            //        // TODO
-            //    }
-            //    else
-            //    {
-            //        data.Add(prop.Name, prop.GetValue(this));
-            //    }
-            //}
 
-            this.CollectProps(this, ref data);
+            DataCollectionHelper.CollectProps(this, ref data);
 
             dataList.Add(data);
             return dataList;

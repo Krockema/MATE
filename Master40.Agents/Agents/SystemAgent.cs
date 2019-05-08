@@ -152,73 +152,13 @@ namespace Master40.Agents.Agents
             //Cannot write data here since receive tasks won't be processed while this task is active 
         }
 
-        private void WriteData(List<Dictionary<string, object>> childData)
-        {
-            // Write data to csv
-            String csv = new String("");
-            foreach (Dictionary<string, object> data in childData)
-            {
-                csv += String.Join(";", data.Keys) + Environment.NewLine;
-                csv += String.Join(";", data.Values) + Environment.NewLine;
-            }
-            System.IO.File.WriteAllText(@"C:\source\out.csv", csv);
-        }
-
-        private void WriteDataGrouped(List<Dictionary<string, object>> childData)
-        {
-            // Write data to csv
-            string contCsv = new string("");
-            string dispCsv = new string("");
-            string prodCsv = new string("");
-            string machCsv = new string("");
-            string otherCsv = new string("");
-
-            foreach (Dictionary<string, object> data in childData)
-            {
-                ref string csv =  ref otherCsv;
-
-                if ((Type)data["AgentType"] == typeof(ContractAgent))
-                    csv = ref contCsv;
-                else if ((Type)data["AgentType"] == typeof(DispoAgent))
-                    csv = ref dispCsv;
-                else if ((Type)data["AgentType"] == typeof(ProductionAgent))
-                    csv = ref prodCsv;
-                else if ((Type)data["AgentType"] == typeof(MachineAgent))
-                    csv = ref machCsv;
-
-                if (csv == "")
-                    csv += String.Join(";", data.Keys) + Environment.NewLine;
-                csv += String.Join(";", data.Values) + Environment.NewLine;
-            }
-
-            System.IO.File.WriteAllText(@"C:\source\agentdata\contract.csv", contCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\disp.csv", dispCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\production.csv", prodCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\machine.csv", machCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\other.csv", otherCsv);
-        }
-
-        private void WriteDataToGPSQLite(List<Dictionary<string, object>> childData)
-        {
-            // TODO
-
-            // Connect to DB
-            GPSzenarioContext _gpSzenarioContext = new GPSzenarioContext(new DbContextOptionsBuilder<GPSzenarioContext>()
-                .UseSqlite("Filename=C:\\source\\repo\\Master-4.0\\Master40.DB\\GanttplanDB\\GPSzenario.gpsx")
-                .Options);
-
-            _gpSzenarioContext.Database.EnsureCreated();
-
-
-        }
-
         private new void ReceiveData(InstructionSet instructionSet)
         {
             SaveChildData(instructionSet);
 
             if (CheckAllChildrenResponded())
             {
-                WriteDataGrouped(allChildData);
+                DataCollectionHelper.WriteDataGrouped(allChildData);
                 //allChildData = null;
             }
         }
