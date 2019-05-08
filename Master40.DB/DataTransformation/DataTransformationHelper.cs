@@ -33,7 +33,7 @@ namespace Master40.DB.DataTransformation
             // Group source tables
             foreach(Mapping mapping in MasterContext.Mappings)
             {
-                string sourceTabName = mapping.From.Split(".")[0];
+                string sourceTabName = mapping.GetFromTable();
                 if (!tmpRuleGroup.ContainsKey(sourceTabName))
                     tmpRuleGroup[sourceTabName] = new DestinationRuleGroup();
 
@@ -46,7 +46,7 @@ namespace Master40.DB.DataTransformation
                 SourceRuleGroup srcRuleGroup = new SourceRuleGroup();
                 foreach(Mapping rule in srcGroup.Value.Rules)
                 {
-                    string destTabName = rule.To.Split(".")[0];
+                    string destTabName = rule.GetToTable();
                     if (!srcRuleGroup.RuleGroups.ContainsKey(destTabName))
                         srcRuleGroup.RuleGroups[destTabName] = new DestinationRuleGroup();
                     srcRuleGroup.RuleGroups[destTabName].AddRule(rule);
@@ -56,85 +56,118 @@ namespace Master40.DB.DataTransformation
             }
         }
 
-        private IEnumerable<string> _getPrimaryKeys(DbContext context, Type objectType)
+        private IEnumerable<string> GetPrimaryKeys(DbContext context, Type objectType)
         {
             return context.Model.FindEntityType(objectType).FindPrimaryKey().Properties.Select(x => x.Name);
         }
 
-        public bool TransformMasterToGp()
+        private dynamic GetTableByName(DbContext context, string tableName)
+        {
+            Type sourceType = context.GetType();
+            PropertyInfo sourceProp = sourceType.GetProperty(tableName);
+            // Returns InternalDbSet which should not be used
+            return sourceProp.GetValue(context);
+        }
+
+        private Type GetTupleTypeByTableName(DbContext context, string tableName)
+        {
+            Type destType = context.GetType();
+            PropertyInfo destProp = destType.GetProperty(tableName);
+            return destProp.PropertyType.GetTypeInfo().GenericTypeArguments[0];
+        }
+
+        private Dictionary<string, object> ReadSourceTupleData(List<Mapping> rules, object srcTuple)
+        {
+            Dictionary<string, object> tupleData = new Dictionary<string, object>();
+
+            // Read source data
+            foreach (Mapping rule in rules)
+            {
+                if (rule.IsAgentData)
+                {
+                    // Agent to DB Rule
+                    // TODO
+                }
+                else
+                {
+                    // DB to DB Rule
+                    Type tupleType = srcTuple.GetType();
+                    PropertyInfo tupelProp = tupleType.GetProperty(rule.GetFromColumn());
+                    tupleData[rule.GetToColumn()] = Conversion.DoConvert(rule.ConversionFunc,
+                        rule.ConversionArgs, tupelProp.GetValue(srcTuple), false);
+                }
+            }
+
+            return tupleData;
+        }
+
+        public object SearchOrCreateDestinationObject(DbContext toContext, dynamic destTable, Dictionary<string, object> srcTupleData, Type destinationObjectType)
+        {
+            object destDataObject = null;
+
+            IEnumerable<string> primaryKeys = GetPrimaryKeys(toContext, destinationObjectType);
+
+            // Search or create destination object based on primary keys
+            foreach (object destTuple in destTable)
+            {
+                bool equals = true;
+                // Compare primary key(s)
+                foreach (string keyName in primaryKeys)
+                {
+                    if (srcTupleData[keyName] != destinationObjectType.GetProperty(keyName).GetValue(destTuple))
+                    {
+                        equals = false;
+                        break;
+                    }
+                }
+                if (equals)
+                {
+                    destDataObject = destTuple;
+                    break;
+                }
+            }
+            if (destDataObject == null)
+                destDataObject = Activator.CreateInstance(destinationObjectType);
+
+            return destDataObject;
+        }
+
+        private void ProcessDestinationRuleGroups(DbContext toContext, Dictionary<string, DestinationRuleGroup> destRuleGroups, object sourceTuple)
+        {
+            foreach (KeyValuePair<string, DestinationRuleGroup> destGroup in destRuleGroups)
+            {
+                // Dictionary<DestinationPropName, SourceData> 
+                Dictionary<string, object> tupleData = ReadSourceTupleData(destGroup.Value.Rules, sourceTuple);
+
+                // Locate destination table
+                dynamic destTable = GetTableByName(toContext, destGroup.Key);
+                Type destDataObjectType = GetTupleTypeByTableName(toContext, destGroup.Key);
+
+                // Acquire destination object
+                object destDataObject = SearchOrCreateDestinationObject(toContext, destTable, tupleData, destDataObjectType);
+
+                // Copy data
+                foreach (KeyValuePair<string, object> data in tupleData)
+                    destDataObjectType.GetProperty(data.Key).SetValue(destDataObject, data.Value);
+
+                toContext.Add(destDataObject);
+            }
+        }
+
+        private void ProcessSourceRuleGroups(DbContext fromContext, DbContext toContext, Dictionary<string, SourceRuleGroup> sourceRuleGroups)
         {
             foreach (KeyValuePair<string, SourceRuleGroup> srcGroup in SourceRuleGroups)
             {
-                // Locate source table
-                Type sourceType = MasterContext.GetType();
-                PropertyInfo sourceProp = sourceType.GetProperty(srcGroup.Key);
-                // sourceTable and destTable are InternalDbSet which should not be used
-                dynamic sourceTable = sourceProp.GetValue(MasterContext);
+                dynamic sourceTable = GetTableByName(fromContext, srcGroup.Key);
 
                 foreach (object srcTuple in sourceTable)
-                {
-                    foreach(KeyValuePair<string, DestinationRuleGroup> destGroup in srcGroup.Value.RuleGroups)
-                    {
-                        // Dictionary<DestinationPropName, SourceData> 
-                        Dictionary<string, object> tupleData = new Dictionary<string, object>();
-
-                        // Read source data
-                        foreach (Mapping rule in destGroup.Value.Rules)
-                        {
-                            if (rule.IsAgentData)
-                            {
-                                // Agent to DB Rule
-                                // TODO
-                            }
-                            else
-                            {
-                                // DB to DB Rule
-                                Type tupleType = srcTuple.GetType();
-                                PropertyInfo tupelProp = tupleType.GetProperty(rule.From.Split('.')[1]);
-                                tupleData[rule.To.Split('.')[1]] = Conversion.DoConvert(rule.ConversionFunc, 
-                                    rule.ConversionArgs, tupelProp.GetValue(srcTuple), false);
-                            }
-                        }
-
-                        // Locate destination table
-                        Type destType = GpContext.GetType();
-                        PropertyInfo destProp = destType.GetProperty(destGroup.Key);
-                        dynamic destTable = destProp.GetValue(GpContext);
-                        Type destDataObjectType = destProp.PropertyType.GetTypeInfo().GenericTypeArguments[0];
-                        object destDataObject = null;
-                        
-                        IEnumerable<string> primaryKeys = _getPrimaryKeys(GpContext, destDataObjectType);
-
-                        // Search or create destination object based on primary keys
-                        foreach(object destTuple in destTable)
-                        {
-                            bool equals = true;
-                            // Compare primary key(s)
-                            foreach(string keyName in primaryKeys)
-                            {
-                                if(tupleData[keyName] != destDataObjectType.GetProperty(keyName).GetValue(destTuple))
-                                {
-                                    equals = false;
-                                    break;
-                                }
-                            }
-                            if(equals)
-                            {
-                                destDataObject = destTuple;
-                                break;
-                            }
-                        }
-                        if (destDataObject == null)
-                            destDataObject = Activator.CreateInstance(destDataObjectType);
-
-                        // Copy data
-                        foreach(KeyValuePair<string, object> data in tupleData)
-                            destDataObjectType.GetProperty(data.Key).SetValue(destDataObject, data.Value);
-
-                        GpContext.Add(destDataObject);
-                    }
-                }
+                    ProcessDestinationRuleGroups(toContext, srcGroup.Value.RuleGroups, srcTuple);
             }
+        }
+
+        public bool TransformMasterToGp()
+        {
+            ProcessSourceRuleGroups(MasterContext, GpContext, SourceRuleGroups);
             GpContext.SaveChanges();
             return true;
         }

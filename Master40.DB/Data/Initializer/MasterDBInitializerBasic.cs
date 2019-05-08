@@ -219,6 +219,25 @@ namespace Master40.DB.Data.Initializer
             };
             context.AddRange(unitMappings);
             context.SaveChanges();
+
+            var machinegroupMappings = new Mapping[]
+            {
+                new Mapping { From = "MachineGroups.Id", To = "Workcentergroup.WorkcentergroupId", ConversionFunc = "IntToString" },
+                new Mapping { From = "MachineGroups.Name", To = "Workcentergroup.Name" },
+                //...
+            };
+            context.AddRange(machinegroupMappings);
+            context.SaveChanges();
+
+            var machineMappings = new Mapping[]
+            {
+                new Mapping { From = "Machines.Id", To = "Workcenter.WorkcenterId", ConversionFunc = "IntToString" },
+                new Mapping { From = "Machines.Name", To = "Workcenter.Name" },
+                //...
+            };
+            context.AddRange(machineMappings);
+            context.SaveChanges();
+
             //var mapping = new Mapping { From = "Stock.Min", To = "Material.SafetyStockValue", ConversionFunc = "DecimalToDouble" };
             //context.Add(mapping);
             //context.SaveChanges();

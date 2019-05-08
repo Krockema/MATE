@@ -108,7 +108,8 @@ namespace Master40.DB.Data.Context
                 .WithMany(r => r.DemandOrderParts)
                 .HasForeignKey(fk => fk.OrderPartId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Mapping>();
+            modelBuilder.Entity<Mapping>()
+                .ToTable("M_Mapping");
         }
     }
 }
