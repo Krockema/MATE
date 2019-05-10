@@ -2,15 +2,18 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "jquery": "3.2.1",
-    "jquery-validation": "1.16.0",
-    "jquery-validation-unobtrusive": "3.2.6",
-    "cldrjs": "cldr.js#0.4.8",
+    "jquery": "3.4.1",
+    "jquery-validation": "1.19.0",
+    "jquery-validation-unobtrusive": "v3.2.11",
+    "cldrjs": "0.5.1",
     "jquery-validation-globalize": "1.0.0",
-    "globalize": "1.2.3",
-    "bootstrap": "v3.3.7",
-    "font-awesome": "Font-Awesome#v4.7.0",
-    "chart.js": "v2.7.0"
+    "globalize": "1.4.2",
+    "bootstrap": "v4.3.1",
+    "font-awesome": "5.8.2",
+    "chart.js": "v2.8.0",
+    "growl": "v1.3.5",
+    "prettify-min": "v1.0.4",
+    "moment": "2.17.1"
   },
   "ignore": [
     "**/.*",
@@ -19,9 +22,13 @@
     "bower.json"
   ],
   "resolutions": {
-    "globalize": "^1.0.0",
-    "jquery-validation": "1.16.0",
-    "jquery": "3.2.1",
-    "chart.js": "v2.7.0"
+    "globalize": "1.4.2",
+    "jquery-validation": "1.19.0",
+    "jquery": "3.4.1",
+    "chart.js": "v2.8.0",
+    "bootstrap": "v4.3.1",
+    "cldrjs": "0.5.1",
+    "font-awesome": "5.8.2",
+    "jquery-validation-unobtrusive": "v3.2.11"
   }
 }
