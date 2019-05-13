@@ -2,10 +2,13 @@
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Configuration;
 using System.Linq;
 using Master40.DB.Enums;
 using Master40.Simulation.CLI;
+using Master40.Simulation.CLI.Arguments;
 
 namespace Master40.Simulation
 {
@@ -15,52 +18,36 @@ namespace Master40.Simulation
         {
             Console.WriteLine("Welcome to AkkaSim Cli");
 
-            var success = true;
-            var command = string.Empty;
-            var lastArg = 0;
             var masterDb = GetMasterDBContext();
             var resultDb = GetResultDBContext();
-            int configId = 1;
-            var simType = SimulationType.Central;
+            var validCommands = Commands.GetCommands();
+            var command = validCommands.Single(x => x.ArgLong == "Help");
+            var lastArg = 0;
+            var results = new ParseResult();
 
             for (; lastArg < args.Length; lastArg++)
             {
-                if (IsArg(args[lastArg], "h", "help") ||
-                    args[lastArg] == "-?" ||
-                    args[lastArg] == "/?")
+                if (args[lastArg] == "-?" || args[lastArg] == "/?")
                 {
-                    HelpCommand.PrintHelp();
+                    command.Action(null, null);
                     return;
                 }
-                // Console.WriteLine(args[lastArg]);
 
-                if (IsArg(args[lastArg], "c", "config"))
+                if (IsArg(validCommands, args[lastArg], ref command))
                 {
-                    lastArg++;
-                    // Console.WriteLine(args[lastArg]);
-                    configId = Int32.Parse(args[lastArg]);
+                    if (command.HasProperty)
+                    {
+                        lastArg++;
+                        command.Action(results, args[lastArg]);
+                        
+                    } else
+                    {
+                        command.Action(results, null);
+                    }
                 }
-
-                if (IsArg(args[lastArg], "s", "simType"))
-                {
-                    lastArg++;
-                    // Console.WriteLine(args[lastArg]);
-                    if (IsArg("-" + args[lastArg], "Central", "central"))
-                    {
-                        Console.WriteLine("Central planned production is selected!");
-                    }
-
-                    if (IsArg("-" + args[lastArg], "Decentral", "decentral"))
-                    {
-                        simType = SimulationType.Decentral;
-                        Console.WriteLine("Self organized production is selected!");
-                    }
-                } 
             }
 
-
-            Console.WriteLine(simType.ToString());
-            switch (simType)
+            switch (results.SimulationType)
             {
                 case SimulationType.Central:
                     Console.WriteLine("Sorry, not implemented yet!");
@@ -68,7 +55,7 @@ namespace Master40.Simulation
                 case SimulationType.Decentral:
                     Console.WriteLine("Starting AkkaSim.");
                     var agentCore = new AgentCore(masterDb, resultDb, new ConsoleHub());
-                    var simConfig = agentCore.UpdateSettings(configId, 550,0.0275, 800);
+                    var simConfig = agentCore.UpdateSettings(results.ConfigId, 550,0.0275, 800);
                     await agentCore.RunAkkaSimulation(simConfig);
                     break;
                 default:
@@ -77,10 +64,17 @@ namespace Master40.Simulation
             }
         }
 
-        private static bool IsArg(string candidate, string shortName, string longName)
+        private static bool IsArg(List<ICommand> validCommands, string argument, ref ICommand command)
         {
-            return (shortName != null && candidate.Equals("-" + shortName, StringComparison.OrdinalIgnoreCase)) ||
-                   (longName != null && candidate.Equals("--" + longName, StringComparison.OrdinalIgnoreCase));
+            if (null != (command = validCommands.SingleOrDefault(x => argument.Equals("-" + x.ArgShort, StringComparison.OrdinalIgnoreCase))))
+            {
+                return true;
+            }
+            if (null != (command = validCommands.SingleOrDefault(x => argument.Equals("--" + x.ArgLong, StringComparison.OrdinalIgnoreCase))))
+            {
+                return true;
+            }
+            return false;
         }
 
 
