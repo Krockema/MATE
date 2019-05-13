@@ -34,7 +34,7 @@ namespace Master40.Controllers
 
             var order = await _context.CustomerOrders
                 .Include(o => o.BusinessPartner)
-                .Include(op => op.OrderParts)
+                .Include(op => op.CustomerOrderParts)
                     .ThenInclude(a => a.Article)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (order == null)

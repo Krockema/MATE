@@ -49,7 +49,7 @@ namespace Master40.ViewComponents
                 }
                 else
                 {  // for the specified Order
-                    orders = _context?.CustomerOrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
+                    orders = _context?.CustomerOrderParts.Where(x => x.CustomerOrderId == _orderId).Select(x => x.Id).ToList();
                 }
 
             // Fill Select Fields

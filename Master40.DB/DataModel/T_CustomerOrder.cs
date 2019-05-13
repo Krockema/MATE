@@ -15,7 +15,7 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public M_BusinessPartner BusinessPartner { get; set; }
         [JsonIgnore]
-        public virtual ICollection<T_CustomerOrderPart> OrderParts { get; set; }
+        public virtual ICollection<T_CustomerOrderPart> CustomerOrderParts { get; set; }
         public State State { get; set; }
     }
 }

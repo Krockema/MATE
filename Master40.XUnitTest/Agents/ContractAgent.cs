@@ -120,7 +120,7 @@ namespace Master40.XUnitTest.Agents
 
             // Create a Order with custom Article
             var order = new T_CustomerOrder() { DueTime = 0, Id = 1 };
-            var orderPart = new T_CustomerOrderPart() { Article = new M_Article() { Name = "Bear" }, Quantity = 1, Id = 1, OrderId = 1, Order = order };
+            var orderPart = new T_CustomerOrderPart() { Article = new M_Article() { Name = "Bear" }, Quantity = 1, Id = 1, CustomerOrderId = 1, CustomerOrder = order };
             // tell teh Contract agent
             simContext.Tell(Contract.Instruction.StartOrder.Create(orderPart, contract));
 
