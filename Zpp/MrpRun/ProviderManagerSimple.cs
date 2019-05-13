@@ -10,7 +10,7 @@ namespace Zpp
     /// </summary>
     public class ProviderManagerSimple : IProviderManager
     {
-        private readonly List<IProvider> DEMANDS = new List<IProvider>();
+        private readonly List<IProvider> _providers = new List<IProvider>();
 
         public ProviderManagerSimple()
         {
@@ -19,31 +19,30 @@ namespace Zpp
 
         public IProvider GetProviderById(int id)
         {
-            foreach (IProvider demand in DEMANDS)
+            foreach (IProvider provider in _providers)
             {
-                if (demand.Id.Equals(id))
+                if (provider.Id.Equals(id))
                 {
-                    return demand;
+                    return provider;
                 }
             }
 
             return null;
         }
 
-        public void AddProvider(IProvider demand)
+        public void AddProvider(IProvider provider)
         {
-            DEMANDS.Add(demand);
+            _providers.Add(provider);
         }
 
         public List<IProvider> GetProviders()
         {
-            return DEMANDS;
-        }
-        
-        public List<IProvider> ToIProviders(List<T_Provider> t_providers)
-        {
-            return t_providers.Select(x => x.ToIProvider(_productionDomainContext, x)).ToList();
+            return _providers;
         }
 
+        public List<IProvider> getProvidersById(List<int> ids)
+        {
+            return _providers.Where(x=>ids.Contains(x.Id)).ToList();
+        }
     }
 }

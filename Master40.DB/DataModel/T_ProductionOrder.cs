@@ -32,5 +32,10 @@ namespace Master40.DB.DataModel
         {
             return Article;
         }
+
+        public int GetDueTime()
+        {
+            return DueTime;
+        }
     }
 }

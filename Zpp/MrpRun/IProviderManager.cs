@@ -10,5 +10,7 @@ namespace Zpp
         void AddProvider(IProvider provider);
 
         List<IProvider> GetProviders();
+
+        List<IProvider> getProvidersById(List<int> ids);
     }
 }

@@ -24,15 +24,14 @@ namespace Zpp.Simulation
 
 
         // MRP modules
-        private readonly CustomerManager.CustomerManager _customerManager;
+        private readonly DbCache _dbCache;
 
         private readonly StockManager _stockManager;
 
         private readonly ProductionManager _productionManager =
             new ProductionManager();
 
-        private readonly PurchaseManager _purchaseManager =
-            new PurchaseManager();
+        private readonly PurchaseManager _purchaseManager;
 
         private readonly bool _resetDb = false;
 
@@ -40,11 +39,13 @@ namespace Zpp.Simulation
         {
             LOGGER.Debug("Starting preparation for the ZPP simulation.");
 
-            InitDb(_resetDb);
-            InitModules();
+            /*InitDb(_resetDb);
 
-            _customerManager = new CustomerManager.CustomerManager(_productionDomainContext);
-            _stockManager = new StockManager(_productionDomainContext, _productionManager, _purchaseManager);
+            _dbCache = new DbCache(_productionDomainContext);
+            _purchaseManager = new PurchaseManager(_dbCache);
+            _customerManager = new CustomerManager.CustomerManager(new DbCache(_productionDomainContext));
+            _stockManager = new StockManager(_productionDomainContext, _productionManager, _purchaseManager);*/
+
         }
 
         private void InitDb(bool resetDb)
@@ -72,10 +73,7 @@ namespace Zpp.Simulation
                 LOGGER.Debug("Orders created.");
             }
         }
-
-        private void InitModules()
-        {
-        }
+        
 
         public void Start()
         {

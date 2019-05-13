@@ -10,7 +10,7 @@ namespace Zpp.Utils
     public class ArticleTree : ITree<M_Article>
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-        private readonly ProductionDomainContext _productionDomainContext;
+        private readonly DbCache _dbCache;
 
         // int is the id of an article
         private readonly AdjacencyList<M_Article> _adjacencyList;
@@ -65,29 +65,13 @@ namespace Zpp.Utils
         }
 
         public ArticleTree(M_ArticleBom articleBom,
-            ProductionDomainContext _productionDomainContext)
+            DbCache dbCache)
         {
-            M_ArticleBom queriedArticleBom = _productionDomainContext.ArticleBoms
-                .Include(m => m.ArticleChild)
-                .Single(x => x.Id == articleBom.Id);
+            M_ArticleBom queriedArticleBom = dbCache.M_ArticleBomGetById(articleBom.Id);
             _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id,
                 queriedArticleBom.Id,
                 queriedArticleBom.ArticleChild);
-            this._productionDomainContext = _productionDomainContext;
-            Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(
-                _rootArticle,
-                new Dictionary<int, List<Node<M_Article>>>());
-            _adjacencyList = new AdjacencyList<M_Article>(builtArticleTree);
-        }
-
-        public ArticleTree(M_Article article, ProductionDomainContext _productionDomainContext)
-        {
-            M_Article queriedArticle = _productionDomainContext.Articles
-                .Single(x => x.Id == article.Id);
-            _rootArticle = new Node<M_Article>(queriedArticle.Id,
-                queriedArticle.Id,
-                queriedArticle);
-            this._productionDomainContext = _productionDomainContext;
+            _dbCache = dbCache;
             Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(
                 _rootArticle,
                 new Dictionary<int, List<Node<M_Article>>>());
@@ -107,9 +91,7 @@ namespace Zpp.Utils
             Node<M_Article> givenArticle,
             Dictionary<int, List<Node<M_Article>>> AdjacencyList)
         {
-            M_Article readArticle = _productionDomainContext.Articles
-                .Include(m => m.ArticleBoms)
-                .ThenInclude(m => m.ArticleChild).Single(x => x.Id == givenArticle.Entity.Id);
+            M_Article readArticle = _dbCache.M_ArticleGetById(givenArticle.Entity.Id);
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 if (!AdjacencyList.ContainsKey(givenArticle.Entity.Id))

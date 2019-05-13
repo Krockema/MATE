@@ -77,7 +77,7 @@ namespace Zpp
         private void createPurchaseOrder(string name, M_BusinessPartner businessPartner)
         {
             T_PurchaseOrder purchaseOrder = _purchaseOrders[businessPartner.Id];
-            _productionDomainContext.PurchaseOrders.Add(purchaseOrder);
+            _dbCache.T_PurchaseOrderAdd(purchaseOrder);
 
             // fill _purchaseOrder
             purchaseOrder.Name = name;
@@ -98,7 +98,7 @@ namespace Zpp
 
         private void initPurchaseOrders()
         {
-            foreach (M_BusinessPartner businessPartner in _productionDomainContext.BusinessPartners)
+            foreach (M_BusinessPartner businessPartner in _dbCache.M_BusinessPartnerGetAll())
             {
                 initPurchaseOrder(businessPartner);
             }
@@ -112,7 +112,7 @@ namespace Zpp
 
         public void closeOpenPurchaseOrders()
         {
-            foreach (M_BusinessPartner businessPartner in _productionDomainContext.BusinessPartners)
+            foreach (M_BusinessPartner businessPartner in _dbCache.M_BusinessPartnerGetAll())
             {
                 closeOpenPurchaseOrder(businessPartner);
             }

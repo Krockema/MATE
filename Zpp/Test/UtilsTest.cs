@@ -22,7 +22,8 @@ namespace Zpp.Test
 
             M_ArticleBom rootArticle =
                 ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
-            ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext);
+            DbCache dbCache = new DbCache(ProductionDomainContext);
+            ArticleTree articleTree = new ArticleTree(rootArticle, dbCache);
 
             SortedDictionary<int, List<int>> expectedAdjacencyList =
                 new SortedDictionary<int, List<int>>()
@@ -97,7 +98,8 @@ namespace Zpp.Test
             int counter = 0;
             M_ArticleBom rootArticle =
                 ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
-            ArticleTree articleTree = new ArticleTree(rootArticle, ProductionDomainContext);
+            DbCache dbCache = new DbCache(ProductionDomainContext);
+            ArticleTree articleTree = new ArticleTree(rootArticle, dbCache);
 
             // sort the tree
             foreach (int key in articleTree.GetAdjacencyList().getAsDictionary().Keys)

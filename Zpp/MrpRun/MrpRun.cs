@@ -21,8 +21,8 @@ namespace Zpp
 
             // managers
             ProductionManager productionManager = new ProductionManager();
-            IDemandManager demandManager = new DemandManagerSimple();
             IProviderManager providerManager = new ProviderManagerSimple();
+            IDemandManager demandManager = new DemandManagerSimple(providerManager);
 
             PurchaseManager purchaseManager =
                 new PurchaseManager(dbCache, providerManager);
@@ -30,7 +30,7 @@ namespace Zpp
             // start
 
             // remove all DemandToProvider entries
-            dbCache.DemandToProvidersRemoveAll();
+            dbCache.T_DemandToProvidersRemoveAll();
 
             demandManager.orderDemandsByUrgency();
             foreach (IDemand demand in demandManager.GetDemands())
@@ -43,8 +43,7 @@ namespace Zpp
                     if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
                         demand.GetDueTime() < provider.GetDueTime())
                     {
-                        demandToProvider.Add(demand.Id, provider.Id);
-                        providerToDemand.Add(provider.Id, demand.Id);
+                        demandManager.addProviderForDemand(demand.Id, provider.Id);
                         isDemandSatisfied = true;
                         break;
                     }
@@ -56,7 +55,7 @@ namespace Zpp
                     LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id + ":");
                     if (demand.GetArticle().ToBuild)
                     {
-                        demandToProviderManager.createProductionOrder();
+                        productionManager.createProductionOrder();
                     }
                     else if (demand.GetArticle().ToPurchase)
                     {
@@ -67,7 +66,7 @@ namespace Zpp
 
             // finalize
             purchaseManager.closeOpenPurchaseOrders();
-            productionDomainContext.SaveChanges();
+            dbCache.persistDbCache();
         }
     }
 }

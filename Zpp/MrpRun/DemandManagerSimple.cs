@@ -10,17 +10,19 @@ namespace Zpp
     /// </summary>
     public class DemandManagerSimple : IDemandManager
     {
-        private readonly List<IDemand> DEMANDS = new List<IDemand>();
-        private readonly Dictionary<int, List<int>> demandsHavingProviders = new Dictionary<int, List<int>>();
+        private readonly List<IDemand> _demands = new List<IDemand>();
+        private readonly Dictionary<int, List<int>> _demandsHavingProviders = new Dictionary<int, List<int>>();
+        private readonly IProviderManager _providerManager;
         
-        public DemandManagerSimple()
+        public DemandManagerSimple(IProviderManager providerManager)
         {
+            _providerManager = providerManager;
             
         }
         
         public IDemand GetDemandById(int id)
         {
-            foreach (IDemand demand in DEMANDS)
+            foreach (IDemand demand in _demands)
             {
                 if (demand.Id.Equals(id))
                 {
@@ -33,27 +35,37 @@ namespace Zpp
 
         public void AddDemand(IDemand demand)
         {
-            DEMANDS.Add(demand);
+            _demands.Add(demand);
         }
 
         public List<IDemand> GetDemands()
         {
-            return DEMANDS;
+            return _demands;
         }
         
         public void orderDemandsByUrgency()
         {
-            DEMANDS.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
+            _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
         }
 
-        List<IProvider> getProvidersOfDemand(int demandId)
+        public List<IProvider> getProvidersOfDemand(int demandId)
         {
-            
+            if (!_demandsHavingProviders.ContainsKey(demandId))
+            {
+                return null;
+            }
+
+            return _providerManager.getProvidersById(_demandsHavingProviders[demandId]);
         }
-        
-        public List<IDemand> ToIDemands(List<T_Demand> t_demands)
+
+        public void addProviderForDemand(int demandId, int providerId)
         {
-            return t_demands.Select(x => x.ToIDemand(_productionDomainContext, x)).ToList();
+            if (!_demandsHavingProviders.ContainsKey(demandId))
+            {
+            
+                _demandsHavingProviders.Add(demandId, new List<int>());
+            }
+            _demandsHavingProviders[demandId].Add(providerId);
         }
     }
 }

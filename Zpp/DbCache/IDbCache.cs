@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using Master40.DB.DataModel;
+
 namespace Zpp
 {
     /// <summary>
@@ -7,6 +10,16 @@ namespace Zpp
     /// </summary>
     public interface IDbCache
     {
-        void DemandToProvidersRemoveAll();
+        void T_DemandToProvidersRemoveAll();
+
+        void persistDbCache();
+
+        void T_PurchaseOrderAdd(T_PurchaseOrder purchaseOrder);
+
+        List<M_BusinessPartner> M_BusinessPartnerGetAll();
+
+        M_ArticleBom M_ArticleBomGetById(int id);
+        
+        M_Article M_ArticleGetById(int id);
     }
 }

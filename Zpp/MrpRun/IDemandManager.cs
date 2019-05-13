@@ -14,5 +14,7 @@ namespace Zpp
         void orderDemandsByUrgency();
 
         List<IProvider> getProvidersOfDemand(int demandId);
+
+        void addProviderForDemand(int demandId, int providerId);
     }
 }
