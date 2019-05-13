@@ -11,6 +11,6 @@ namespace Zpp
 
         List<IProvider> GetProviders();
 
-        List<IProvider> getProvidersById(List<int> ids);
+        List<IProvider> GetProvidersById(List<int> ids);
     }
 }

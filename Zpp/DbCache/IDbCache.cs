@@ -21,5 +21,20 @@ namespace Zpp
         M_ArticleBom M_ArticleBomGetById(int id);
         
         M_Article M_ArticleGetById(int id);
+
+        List<T_Demand> T_DemandsGetAll();
+        
+        List<T_Provider> T_ProvidersGetAll();
+        
+        List<T_CustomerOrderPart> T_CustomerOrderPartGetAll();
+
+        List<T_ProductionOrderBom> T_ProductionOrderBomGetAll();
+        
+        List<T_StockExchange> T_StockExchangeGetAll();
+        
+        List<T_PurchaseOrderPart> T_PurchaseOrderPartGetAll();
+
+        List<T_ProductionOrder> T_ProductionOrderGetAll();
+
     }
 }

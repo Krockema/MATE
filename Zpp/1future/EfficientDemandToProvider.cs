@@ -30,14 +30,5 @@ namespace Zpp
             return providersAsDictionary;
         }
         
-        public List<IDemand> ToIDemands(List<T_Demand> t_demands, ProductionDomainContext productionDomainContext)
-        {
-            return t_demands.Select(x => x.ToIDemand(productionDomainContext, x)).ToList();
-        }
-        
-        public List<IProvider> ToIProviders(List<T_Provider> t_providers, ProductionDomainContext productionDomainContext)
-        {
-            return t_providers.Select(x => x.ToIProvider(productionDomainContext, x)).ToList();
-        }
     }
 }

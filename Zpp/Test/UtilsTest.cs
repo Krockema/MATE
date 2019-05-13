@@ -14,14 +14,19 @@ namespace Zpp.Test
     public class UtilsTest : AbstractTest
     {
         private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-        
+
+        /*
+         * Both tests are currently failing due to:
+         * ich habe für den Obersten artikel im original Leim als material in der Bom gehabt
+         * In der neuen zuordnung brauchten beide arbeitsgänge leim.
+         * daher wurde die bom position 2x angelegt mit je einer andren Operation
+         */
         [Fact]
         public void testArticleTree()
         {
             LOGGER.Debug("Starting: testArticleTree");
 
-            M_ArticleBom rootArticle =
-                ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
+            M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
             DbCache dbCache = new DbCache(ProductionDomainContext);
             ArticleTree articleTree = new ArticleTree(rootArticle, dbCache);
 
@@ -53,11 +58,9 @@ namespace Zpp.Test
             }
 
             LOGGER.Debug("Expected: " + Environment.NewLine +
-                                               TreeTools<int>.AdjacencyListToString(
-                                                   expectedAdjacencyList));
+                         TreeTools<int>.AdjacencyListToString(expectedAdjacencyList));
             LOGGER.Debug("Actual: " + Environment.NewLine +
-                                               TreeTools<int>.AdjacencyListToString(
-                                                   actualAdjacencyList));
+                         TreeTools<int>.AdjacencyListToString(actualAdjacencyList));
             if (Constants.IsWindows)
             {
                 Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
@@ -96,8 +99,7 @@ namespace Zpp.Test
                 3, 10, 7, 5
             };
             int counter = 0;
-            M_ArticleBom rootArticle =
-                ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
+            M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
             DbCache dbCache = new DbCache(ProductionDomainContext);
             ArticleTree articleTree = new ArticleTree(rootArticle, dbCache);
 
@@ -112,10 +114,8 @@ namespace Zpp.Test
                 TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++; });
             List<int> actualTraversePath = traversedNodes.Select(x => x.Entity.Id).ToList();
 
-            LOGGER.Debug(
-                "Expected: " + string.Join(",", expectedTraversePath));
-            LOGGER.Debug(
-                "Actual: " + string.Join(",", actualTraversePath));
+            LOGGER.Debug("Expected: " + string.Join(",", expectedTraversePath));
+            LOGGER.Debug("Actual: " + string.Join(",", actualTraversePath));
 
             // order is not constant, compare only sizeOf
             Assert.Equal(expectedTraversePath.Count(), actualTraversePath.Count());

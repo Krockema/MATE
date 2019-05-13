@@ -11,15 +11,20 @@ namespace Zpp
     public class DemandManagerSimple : IDemandManager
     {
         private readonly List<IDemand> _demands = new List<IDemand>();
-        private readonly Dictionary<int, List<int>> _demandsHavingProviders = new Dictionary<int, List<int>>();
+
+        private readonly Dictionary<int, List<int>> _demandsHavingProviders =
+            new Dictionary<int, List<int>>();
+
         private readonly IProviderManager _providerManager;
-        
-        public DemandManagerSimple(IProviderManager providerManager)
+        private readonly IDbCache _dbCache;
+
+        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager)
         {
             _providerManager = providerManager;
-            
+            _dbCache = dbCache;
+            _demands = ToIDemands(_dbCache);
         }
-        
+
         public IDemand GetDemandById(int id)
         {
             foreach (IDemand demand in _demands)
@@ -42,7 +47,7 @@ namespace Zpp
         {
             return _demands;
         }
-        
+
         public void orderDemandsByUrgency()
         {
             _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
@@ -55,17 +60,24 @@ namespace Zpp
                 return null;
             }
 
-            return _providerManager.getProvidersById(_demandsHavingProviders[demandId]);
+            return _providerManager.GetProvidersById(_demandsHavingProviders[demandId]);
         }
 
         public void addProviderForDemand(int demandId, int providerId)
         {
             if (!_demandsHavingProviders.ContainsKey(demandId))
             {
-            
                 _demandsHavingProviders.Add(demandId, new List<int>());
             }
+
             _demandsHavingProviders[demandId].Add(providerId);
+        }
+
+        private List<IDemand> ToIDemands(IDbCache dbCache)
+        {
+            return dbCache.T_DemandsGetAll().Select(x => x.ToIDemand(x,
+                dbCache.T_CustomerOrderPartGetAll(), dbCache.T_ProductionOrderBomGetAll(),
+                dbCache.T_StockExchangeGetAll())).ToList();
         }
     }
 }

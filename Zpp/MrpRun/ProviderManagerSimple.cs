@@ -11,10 +11,12 @@ namespace Zpp
     public class ProviderManagerSimple : IProviderManager
     {
         private readonly List<IProvider> _providers = new List<IProvider>();
+        private readonly IDbCache _dbCache;
 
-        public ProviderManagerSimple()
+        public ProviderManagerSimple(IDbCache dbCache)
         {
-
+            _dbCache = dbCache;
+            _providers = ToIProviders(_dbCache);
         }
 
         public IProvider GetProviderById(int id)
@@ -40,9 +42,20 @@ namespace Zpp
             return _providers;
         }
 
-        public List<IProvider> getProvidersById(List<int> ids)
+        public List<IProvider> GetProvidersById(List<int> ids)
         {
-            return _providers.Where(x=>ids.Contains(x.Id)).ToList();
+            return _providers.Where(x => ids.Contains(x.Id)).ToList();
+        }
+
+        private List<IProvider> ToIProviders(IDbCache dbCache)
+        {
+            if (dbCache.T_ProvidersGetAll() == null)
+            {
+                return null;
+            }
+            return dbCache.T_ProvidersGetAll().Select(x => x.ToIProvider(x,
+                dbCache.T_PurchaseOrderPartGetAll(), dbCache.T_ProductionOrderGetAll(),
+                dbCache.T_StockExchangeGetAll())).ToList();
         }
     }
 }

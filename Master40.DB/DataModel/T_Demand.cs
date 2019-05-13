@@ -8,27 +8,24 @@ namespace Master40.DB.DataModel
 {
     public class T_Demand : BaseEntity
     {
-        public IDemand ToIDemand(ProductionDomainContext productionDomainContext,
-            T_Demand t_demand)
+        public IDemand ToIDemand(T_Demand t_demand, List<T_CustomerOrderPart> customerOrderParts,
+            List<T_ProductionOrderBom> productionOrderBoms, List<T_StockExchange> stockExchanges)
         {
             IDemand iDemand = null;
-            
-            iDemand = productionDomainContext.CustomerOrderParts.Single(x =>
-                x.Id == t_demand.Id);
+
+            iDemand = customerOrderParts.Single(x => x.Id == t_demand.Id);
             if (iDemand != null)
             {
                 return iDemand;
             }
-            
-            iDemand = productionDomainContext.ProductionOrderBoms.Single(x =>
-                x.Id == t_demand.Id);
+
+            iDemand = productionOrderBoms.Single(x => x.Id == t_demand.Id);
             if (iDemand != null)
             {
                 return iDemand;
             }
-            
-            iDemand = productionDomainContext.StockExchanges.Single(x =>
-                x.Id == t_demand.Id);
+
+            iDemand = stockExchanges.Single(x => x.Id == t_demand.Id);
             if (iDemand != null)
             {
                 return iDemand;
