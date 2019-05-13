@@ -77,6 +77,11 @@ namespace Zpp
         private void createPurchaseOrder(string name, M_BusinessPartner businessPartner)
         {
             T_PurchaseOrder purchaseOrder = _purchaseOrders[businessPartner.Id];
+            if (!purchaseOrder.PurchaseOrderParts.Any())
+            {
+                LOGGER.Debug($"No PurchaseOrderParts, skip creating: {name}");
+                return;
+            }
             _dbCache.T_PurchaseOrderAdd(purchaseOrder);
 
             // fill _purchaseOrder
@@ -106,7 +111,7 @@ namespace Zpp
 
         private void closeOpenPurchaseOrder(M_BusinessPartner businessPartner)
         {
-            createPurchaseOrder($"PurchaseOrder{counter}", businessPartner);
+            createPurchaseOrder($"PurchaseOrder{counter} for businessPartner {businessPartner.Id}", businessPartner);
             counter++;
         }
 

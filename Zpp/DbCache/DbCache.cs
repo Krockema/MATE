@@ -21,6 +21,7 @@ namespace Zpp
         private readonly List<T_StockExchange> _stockExchanges;
         private readonly List<T_PurchaseOrderPart> _purchaseOrderParts;
         private readonly List<T_ProductionOrder> _productionOrders;
+        private readonly List<T_PurchaseOrder> _purchaseOrders;
         
         
         public DbCache(ProductionDomainContext productionDomainContext)
@@ -38,6 +39,7 @@ namespace Zpp
             _stockExchanges = _productionDomainContext.StockExchanges.ToList();
             _productionOrders = _productionDomainContext.ProductionOrders.ToList();
             _purchaseOrderParts = _productionDomainContext.PurchaseOrderParts.ToList();
+            _purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
         }
 
         public void T_DemandToProvidersRemoveAll()
@@ -48,12 +50,13 @@ namespace Zpp
 
         public void persistDbCache()
         {
+            
             _productionDomainContext.SaveChanges();
         }
 
         public void T_PurchaseOrderAdd(T_PurchaseOrder purchaseOrder)
         {
-            _productionDomainContext.PurchaseOrders.Add(purchaseOrder);
+            _purchaseOrders.Add(purchaseOrder);
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -98,12 +101,12 @@ namespace Zpp
 
         public List<T_PurchaseOrderPart> T_PurchaseOrderPartGetAll()
         {
-            throw new System.NotImplementedException();
+            return _purchaseOrderParts;
         }
 
         public List<T_ProductionOrder> T_ProductionOrderGetAll()
         {
-            throw new System.NotImplementedException();
+            return _productionOrders;
         }
     }
 }
