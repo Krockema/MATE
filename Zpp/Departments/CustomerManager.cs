@@ -17,11 +17,11 @@ namespace Zpp.CustomerManager
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-        private readonly ProductionDomainContext _productionDomainContext;
+        private readonly IDbCache _dbCache;
 
-        public CustomerManager(ProductionDomainContext productionDomainContext)
+        public CustomerManager(IDbCache dbCache)
         {
-            _productionDomainContext = productionDomainContext;
+            _dbCache = dbCache;
         }
 
         public void Order(List<T_CustomerOrder> customerOrders)

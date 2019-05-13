@@ -15,32 +15,29 @@ namespace Zpp
 
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
 
-        public static void runMrp(ProductionDomainContext productionDomainContext)
+        public static void runMrp(IDbCache dbCache)
         {
             // init data structures
-            DemandToProviderManager demandToProviderManager =
-                new DemandToProviderManager(productionDomainContext);
-            // demand/provider
-
 
             // managers
             ProductionManager productionManager = new ProductionManager();
+            IDemandManager demandManager = new DemandManagerSimple();
+            IProviderManager providerManager = new ProviderManagerSimple();
 
             PurchaseManager purchaseManager =
-                new PurchaseManager(productionDomainContext, demandToProviderManager.Providers);
+                new PurchaseManager(dbCache, providerManager);
 
             // start
 
             // remove all DemandToProvider entries
-            productionDomainContext.DemandToProviders.RemoveRange(productionDomainContext
-                .DemandToProviders);
+            dbCache.DemandToProvidersRemoveAll();
 
-            demandToProviderManager.orderDemandsByUrgency(demandToProviderManager.Demands);
-            foreach (IDemand demand in demandToProviderManager.Demands)
+            demandManager.orderDemandsByUrgency();
+            foreach (IDemand demand in demandManager.GetDemands())
             {
                 bool isDemandSatisfied = false;
 
-                foreach (IProvider provider in demandToProviderManager.Providers)
+                foreach (IProvider provider in providerManager.GetProviders())
                 {
                     // does a provider in time exists?
                     if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
@@ -54,6 +51,7 @@ namespace Zpp
                 }
 
                 if (!isDemandSatisfied)
+                // create provider for it
                 {
                     LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id + ":");
                     if (demand.GetArticle().ToBuild)

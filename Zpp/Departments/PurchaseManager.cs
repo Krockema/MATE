@@ -15,14 +15,14 @@ namespace Zpp
             new Dictionary<int, T_PurchaseOrder>();
 
         private int counter = 0;
-        private readonly ProductionDomainContext _productionDomainContext;
-        private readonly DemandToProviderManager _demandToProviderManager;
+        private readonly IDbCache _dbCache;
+        private readonly IProviderManager _providerManager;
 
-        public PurchaseManager(ProductionDomainContext productionDomainContext,
-            DemandToProviderManager demandToProviderManager)
+        public PurchaseManager(IDbCache dbCache,
+            IProviderManager providerManager)
         {
-            _productionDomainContext = productionDomainContext;
-            _demandToProviderManager = demandToProviderManager;
+            _dbCache = dbCache;
+            _providerManager = providerManager;
             initPurchaseOrders();
         }
 
@@ -54,7 +54,7 @@ namespace Zpp
             // init a new purchaseOderPart
             T_PurchaseOrderPart purchaseOrderPart = new T_PurchaseOrderPart();
             purchaseOrder.PurchaseOrderParts.Add(purchaseOrderPart);
-            _providers.Add(purchaseOrderPart);
+            _providerManager.AddProvider(purchaseOrderPart);
 
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
             purchaseOrderPart.Article = demand.GetArticle();

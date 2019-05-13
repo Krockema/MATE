@@ -16,7 +16,8 @@ namespace Zpp.Test
         [Fact]
         public void testMrpRun()
         {
-            MrpRun.runMrp(ProductionDomainContext);
+            IDbCache dbCache = new DbCache(ProductionDomainContext);
+            MrpRun.runMrp(dbCache);
         }
     }
 }
