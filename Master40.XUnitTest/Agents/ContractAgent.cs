@@ -1,12 +1,12 @@
 ﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
-using AkkaSim.Interfaces;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
+using Master40.Simulation.CLI;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
@@ -153,7 +153,7 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async void InitialisationAsync()
         {
-            var simContext = new SimulationCore.AgentSimulation(true, _ctx, _resultContext, new Moc.MessageHub());
+            var simContext = new SimulationCore.AgentSimulation(true, _ctx, _resultContext, new ConsoleHub());
             var simConfig = _resultContext.SimulationConfigurations.FirstOrDefault();
             simConfig.OrderQuantity = 0;
             var simulation = await simContext.InitializeSimulation(simConfig, new SimulationConfig(false, 480));
@@ -184,7 +184,7 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task DispoArticleRequestFromStorage()
         {
-            var simContext = new SimulationCore.AgentSimulation(true, _ctx, _resultContext, new Moc.MessageHub());
+            var simContext = new SimulationCore.AgentSimulation(true, _ctx, _resultContext, new ConsoleHub());
             var simConfig = _resultContext.SimulationConfigurations.First();
             simContext.InitializeSimulation(simConfig, new SimulationConfig(false, 480)).Wait();
             simContext.Run();
