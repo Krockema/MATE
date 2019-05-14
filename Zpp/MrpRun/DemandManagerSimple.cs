@@ -10,19 +10,32 @@ namespace Zpp
     /// </summary>
     public class DemandManagerSimple : IDemandManager
     {
-        private readonly List<IDemand> _demands = new List<IDemand>();
+        private readonly List<IDemand> _demands;
 
         private readonly Dictionary<int, List<int>> _demandsHavingProviders =
             new Dictionary<int, List<int>>();
 
         private readonly IProviderManager _providerManager;
-        private readonly IDbCache _dbCache;
+        private readonly IDbCache _dbCache; // is needed to persist demands at the end of MrpRun
 
+        /// <summary>
+        /// Using this constructor, demandList initially has the already existing demands from database
+        /// </summary>
         public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager)
         {
             _providerManager = providerManager;
             _dbCache = dbCache;
             _demands = ToIDemands(_dbCache);
+        }
+        
+        /// <summary>
+        /// Using this constructor, demandList is initially empty
+        /// </summary>
+        public DemandManagerSimple(IProviderManager providerManager)
+        {
+            _providerManager = providerManager;
+            _dbCache = null;
+            _demands = new List<IDemand>();
         }
 
         public IDemand GetDemandById(int id)

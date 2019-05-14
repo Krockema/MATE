@@ -22,7 +22,6 @@ namespace Zpp
             // managers
             ProductionManager productionManager = new ProductionManager();
             IProviderManager providerManager = new ProviderManagerSimple(dbCache);
-            IDemandManager demandManager = new DemandManagerSimple(dbCache, providerManager);
 
             PurchaseManager purchaseManager = new PurchaseManager(dbCache, providerManager);
 
@@ -31,37 +30,61 @@ namespace Zpp
             // remove all DemandToProvider entries
             dbCache.T_DemandToProvidersRemoveAll();
 
-            demandManager.orderDemandsByUrgency();
-            foreach (IDemand demand in demandManager.GetDemands())
+            // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
+            // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
+            // --> it's not possible to add these to the demandList even with Enumerators/Iterators
+            // solution concept: create a new list per loop (one level)
+            // and iterate over levels of evolving tree of demands
+            // where every level is sorted by urgency & fix
+            // and all created demands within a level is put to level below
+
+            List<IDemandManager> levelDemandManagers = new List<IDemandManager>();
+            // first level has the demands from database, while levels below are initially empty
+            IDemandManager firstLevelDemandManager =
+                new DemandManagerSimple(dbCache, providerManager);
+            levelDemandManagers.Add(firstLevelDemandManager);
+
+            using (IEnumerator<IDemandManager> enumerator = levelDemandManagers.GetEnumerator())
             {
-                bool isDemandSatisfied = false;
-
-                if (providerManager.GetProviders() != null)
+                while (enumerator.MoveNext())
                 {
-                    foreach (IProvider provider in providerManager.GetProviders())
+                    IDemandManager demandManager = enumerator.Current;
+                    demandManager.orderDemandsByUrgency();
+                    // add new level for next creating demands (evolving tree of demands)
+                    levelDemandManagers.Add(new DemandManagerSimple(providerManager));
+                    foreach (IDemand demand in demandManager.GetDemands())
                     {
-                        // does a provider in time exists?
-                        if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
-                            demand.GetDueTime() < provider.GetDueTime())
+                        bool isDemandSatisfied = false;
+
+                        if (providerManager.GetProviders() != null)
                         {
-                            demandManager.addProviderForDemand(demand.Id, provider.Id);
-                            isDemandSatisfied = true;
-                            break;
+                            foreach (IProvider provider in providerManager.GetProviders())
+                            {
+                                // does a provider in time exists?
+                                if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
+                                    demand.GetDueTime() < provider.GetDueTime())
+                                {
+                                    demandManager.addProviderForDemand(demand.Id, provider.Id);
+                                    isDemandSatisfied = true;
+                                    break;
+                                }
+                            }
                         }
-                    }
-                }
 
-                if (!isDemandSatisfied)
-                    // create provider for it
-                {
-                    LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id + ":");
-                    if (demand.GetArticle().ToBuild)
-                    {
-                        productionManager.createProductionOrder();
-                    }
-                    else if (demand.GetArticle().ToPurchase)
-                    {
-                        purchaseManager.createPurchaseOrderPart(demand);
+                        if (!isDemandSatisfied) 
+                            // create provider for it
+                        {
+                            LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id +
+                                         ":");
+                            if (demand.GetArticle().ToBuild)
+                            {
+                                productionManager.createProductionOrder(demand);
+                            }
+                            else if (demand.GetArticle().ToPurchase)
+                            {
+                                purchaseManager.createPurchaseOrderPart(demand);
+                            }
+                        }
                     }
                 }
             }
