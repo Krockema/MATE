@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Configurations>Debug;Release;Azure</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
 
   </PropertyGroup>
 
@@ -49,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Shared\Components\Menu\" />
+    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />

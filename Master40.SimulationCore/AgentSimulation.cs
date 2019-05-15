@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AkkaSim;
-using Master40.DB.DataModel;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.CollectorAgent;
 using Master40.SimulationCore.Agents.ContractAgent;
@@ -42,27 +41,27 @@ namespace Master40.SimulationCore
         /// Prepare Simulation Environment
         /// </summary>
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
-        public AgentSimulation(bool debug, ProductionDomainContext DBContext, ResultContext RBResults , IMessageHub messageHub)
+        public AgentSimulation(bool debug, ProductionDomainContext DBContext, ResultContext DBResults , IMessageHub messageHub)
         {
             _DBContext = DBContext;
-            _DBResults = RBResults;
+            _DBResults = DBResults;
             _messageHub = messageHub;
             _debug = debug;
         }
-        public Task<AkkaSim.Simulation> InitializeSimulation(SimulationConfiguration simConfig, SimulationConfig contextConfig)
+        public Task<Simulation> InitializeSimulation(SimulationConfiguration simConfig, SimulationConfig contextConfig)
         {
             return Task.Run(() =>
             {
-                OrderGenerator.GenerateOrdersSyncron(_DBContext, simConfig, 1, false); // .RunSynchronously();
+                OrderGenerator.GenerateOrdersSyncron(_DBContext, simConfig, 1, _debug); // .RunSynchronously();
                 _messageHub.SendToAllClients("Initializing Simulation...");
                 var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, 0);
 
                // #1 Init Simulation
-                _simulation = new AkkaSim.Simulation(contextConfig);
+                _simulation = new Simulation(contextConfig);
                 ActorPaths = new ActorPaths(_simulation.SimulationContext, contextConfig.Inbox.Receiver);
                 // Create DataCollector
                 WorkCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsWorkSchedule.Get()
-                                                        , _messageHub, _DBContext, _DBResults, 0, false
+                                                        , _messageHub, _DBContext, _DBResults, 0, _debug
                                                         , new List<Type> { typeof(CreateSimulationWork),
                                                                            typeof(UpdateSimulationWork),
                                                                            typeof(UpdateSimulationWorkProvider),
@@ -70,11 +69,11 @@ namespace Master40.SimulationCore
                                                                            typeof(Hub.Instruction.AddMachineToHub),
                                                                            typeof(BasicInstruction.ResourceBrakeDown)}));
                 StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
-                                                        , _messageHub, _DBContext, _DBResults, 0, false
+                                                        , _messageHub, _DBContext, _DBResults, 0, _debug
                                                         , new List<Type> { typeof(UpdateStockValues),
                                                                            typeof(UpdateLiveFeed)}));
                 ContractCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsContracts.Get()
-                                                        , _messageHub, _DBContext, _DBResults, 0, false
+                                                        , _messageHub, _DBContext, _DBResults, 0, _debug
                                                         , new List<Type> { typeof(Contract.Instruction.StartOrder),
                                                                            typeof(Supervisor.Instruction.OrderProvided),
                                                                            typeof(UpdateLiveFeed)}));
@@ -99,7 +98,7 @@ namespace Master40.SimulationCore
                 // #1.2 Setup DeadLetter Monitor for Debugging
                 // var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
                 //var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");clockListener
-                Action<long> tm = (TimePeriod) => _messageHub.SendToClient("clockListener", TimePeriod.ToString());
+                Action<long> tm = (timePeriod) => _messageHub.SendToClient("clockListener", timePeriod.ToString());
                 var timeMonitor = Props.Create(() => new TimeMonitor((timePeriod) => tm(timePeriod)));
                 _simulation.ActorSystem.ActorOf(timeMonitor, "TimeMonitor");
                 // subscribe to the event stream for messages of type "DeadLetter"
@@ -149,10 +148,10 @@ namespace Master40.SimulationCore
            _simulation.RunAsync().Wait();
         }
 
-        public static void Continuation(Inbox inbox, AkkaSim.Simulation sim, List<IActorRef> collectors)
+        public static void Continuation(Inbox inbox, Simulation sim, List<IActorRef> collectors)
         {
 
-            var something = inbox.ReceiveAsync(System.TimeSpan.FromHours(1)).Result;
+            var something = inbox.ReceiveAsync(TimeSpan.FromHours(1)).Result;
             switch (something)
             {
                 case SimulationMessage.SimulationState.Started:

@@ -228,7 +228,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 DueTime = (int)ws.DueTime,
                 EstimatedEnd = (int)ws.EstimatedEnd,
                 SimulationConfigurationId = -1,
-                OrderId = "[" + cws.OrderId + "]",
+                OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
                 ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
                 Parent = cws.IsHeadDemand.ToString(),
@@ -290,7 +290,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
-                    item.OrderId = "[" + uswp.OrderId + "]";
+                    item.OrderId = "[" + uswp.CustomerOrderId + "]";
 
                     // item.OrderId = orderId;
                 }

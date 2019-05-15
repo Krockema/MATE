@@ -65,7 +65,7 @@ namespace Master40.DB.Data.Context
                 DueTime = dueTime,
                 CreationTime = creationTime,
                 Name = Articles.Single(x => x.Id == articleId).Name,
-                OrderParts = olist
+                CustomerOrderParts = olist
             };
             return order;
         }

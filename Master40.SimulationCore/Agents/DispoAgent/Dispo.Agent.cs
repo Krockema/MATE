@@ -42,7 +42,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
         {
             var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
             this.Send(Production.Instruction.StartProduction.Create(requestItem, Sender));
-            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.OrderId + ") > ProductionStart has been send.");
+            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") > ProductionStart has been send.");
         }
 
         internal void ShutdownAgent()
