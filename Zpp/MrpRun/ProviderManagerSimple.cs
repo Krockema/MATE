@@ -51,7 +51,7 @@ namespace Zpp
         {
             if (dbCache.T_ProvidersGetAll() == null)
             {
-                return null;
+                return new List<IProvider>();
             }
             return dbCache.T_ProvidersGetAll().Select(x => x.ToIProvider(x,
                 dbCache.T_PurchaseOrderPartGetAll(), dbCache.T_ProductionOrderGetAll(),

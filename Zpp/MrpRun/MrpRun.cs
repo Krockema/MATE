@@ -20,8 +20,8 @@ namespace Zpp
             // init data structures
 
             // managers
-            ProductionManager productionManager = new ProductionManager(dbCache);
             IProviderManager providerManager = new ProviderManagerSimple(dbCache);
+            ProductionManager productionManager = new ProductionManager(dbCache, providerManager);
 
             PurchaseManager purchaseManager = new PurchaseManager(dbCache, providerManager);
 

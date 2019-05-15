@@ -10,10 +10,12 @@ namespace Zpp
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         private readonly IDbCache _dbCache;
+        private readonly IProviderManager _providerManager;
 
-        public ProductionManager(IDbCache dbCache)
+        public ProductionManager(IDbCache dbCache, IProviderManager providerManager)
         {
             _dbCache = dbCache;
+            _providerManager = providerManager;
         }
 
         public void CreateProductionOrder(IDemand demand, IDemandManager demandManager)
@@ -34,6 +36,7 @@ namespace Zpp
 
             ProcessArticleBoms(demand, demandManager, productionOrder);
 
+            _providerManager.AddProvider(productionOrder);
             LOGGER.Debug("ProductionOrder created.");
         }
 
