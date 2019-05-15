@@ -20,7 +20,7 @@ namespace Zpp
             // init data structures
 
             // managers
-            ProductionManager productionManager = new ProductionManager();
+            ProductionManager productionManager = new ProductionManager(dbCache);
             IProviderManager providerManager = new ProviderManagerSimple(dbCache);
 
             PurchaseManager purchaseManager = new PurchaseManager(dbCache, providerManager);
@@ -43,15 +43,17 @@ namespace Zpp
             IDemandManager firstLevelDemandManager =
                 new DemandManagerSimple(dbCache, providerManager);
             levelDemandManagers.Add(firstLevelDemandManager);
+            int hierachyNumber = 1;
 
             using (IEnumerator<IDemandManager> enumerator = levelDemandManagers.GetEnumerator())
             {
                 while (enumerator.MoveNext())
                 {
                     IDemandManager demandManager = enumerator.Current;
-                    demandManager.orderDemandsByUrgency();
+                    demandManager.OrderDemandsByUrgency();
                     // add new level for next creating demands (evolving tree of demands)
-                    levelDemandManagers.Add(new DemandManagerSimple(providerManager));
+                    hierachyNumber++;
+                    levelDemandManagers.Add(new DemandManagerSimple(providerManager, hierachyNumber));
                     foreach (IDemand demand in demandManager.GetDemands())
                     {
                         bool isDemandSatisfied = false;
@@ -64,7 +66,7 @@ namespace Zpp
                                 if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
                                     demand.GetDueTime() < provider.GetDueTime())
                                 {
-                                    demandManager.addProviderForDemand(demand.Id, provider.Id);
+                                    demandManager.AddProviderForDemand(demand.Id, provider.Id);
                                     isDemandSatisfied = true;
                                     break;
                                 }
@@ -78,7 +80,7 @@ namespace Zpp
                                          ":");
                             if (demand.GetArticle().ToBuild)
                             {
-                                productionManager.createProductionOrder(demand);
+                                productionManager.createProductionOrder(demand, demandManager);
                             }
                             else if (demand.GetArticle().ToPurchase)
                             {

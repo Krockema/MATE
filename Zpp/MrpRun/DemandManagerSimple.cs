@@ -17,12 +17,14 @@ namespace Zpp
 
         private readonly IProviderManager _providerManager;
         private readonly IDbCache _dbCache; // is needed to persist demands at the end of MrpRun
+        private readonly int _hierarchyNumber;
 
         /// <summary>
         /// Using this constructor, demandList initially has the already existing demands from database
         /// </summary>
         public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager)
         {
+            _hierarchyNumber = 1;
             _providerManager = providerManager;
             _dbCache = dbCache;
             _demands = ToIDemands(_dbCache);
@@ -31,11 +33,12 @@ namespace Zpp
         /// <summary>
         /// Using this constructor, demandList is initially empty
         /// </summary>
-        public DemandManagerSimple(IProviderManager providerManager)
+        public DemandManagerSimple(IProviderManager providerManager, int hierarchyNumber)
         {
             _providerManager = providerManager;
             _dbCache = null;
             _demands = new List<IDemand>();
+            _hierarchyNumber = hierarchyNumber;
         }
 
         public IDemand GetDemandById(int id)
@@ -61,12 +64,12 @@ namespace Zpp
             return _demands;
         }
 
-        public void orderDemandsByUrgency()
+        public void OrderDemandsByUrgency()
         {
             _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
         }
 
-        public List<IProvider> getProvidersOfDemand(int demandId)
+        public List<IProvider> GetProvidersOfDemand(int demandId)
         {
             if (!_demandsHavingProviders.ContainsKey(demandId))
             {
@@ -76,7 +79,7 @@ namespace Zpp
             return _providerManager.GetProvidersById(_demandsHavingProviders[demandId]);
         }
 
-        public void addProviderForDemand(int demandId, int providerId)
+        public void AddProviderForDemand(int demandId, int providerId)
         {
             if (!_demandsHavingProviders.ContainsKey(demandId))
             {
@@ -91,6 +94,11 @@ namespace Zpp
             return dbCache.T_DemandsGetAll().Select(x => x.ToIDemand(x,
                 dbCache.T_CustomerOrderPartGetAll(), dbCache.T_ProductionOrderBomGetAll(),
                 dbCache.T_StockExchangeGetAll())).ToList();
+        }
+
+        public int GetHierarchyNumber()
+        {
+            return _hierarchyNumber;
         }
     }
 }

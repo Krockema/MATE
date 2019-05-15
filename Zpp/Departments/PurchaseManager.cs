@@ -56,11 +56,13 @@ namespace Zpp
             purchaseOrder.PurchaseOrderParts.Add(purchaseOrderPart);
             _providerManager.AddProvider(purchaseOrderPart);
 
+            // [PurchaseOrderId],[ArticleId],[Quantity],[State],[ProviderId]
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
             purchaseOrderPart.Article = demand.GetArticle();
             purchaseOrderPart.Quantity =
                 calculateQuantity(articleToBusinessPartner, demand.GetQuantity());
             purchaseOrderPart.State = State.Created;
+            // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();
 
 

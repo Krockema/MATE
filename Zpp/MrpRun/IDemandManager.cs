@@ -11,10 +11,12 @@ namespace Zpp
 
         List<IDemand> GetDemands();
 
-        void orderDemandsByUrgency();
+        void OrderDemandsByUrgency();
 
-        List<IProvider> getProvidersOfDemand(int demandId);
+        List<IProvider> GetProvidersOfDemand(int demandId);
 
-        void addProviderForDemand(int demandId, int providerId);
+        void AddProviderForDemand(int demandId, int providerId);
+
+        int GetHierarchyNumber();
     }
 }

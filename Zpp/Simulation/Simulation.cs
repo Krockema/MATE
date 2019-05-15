@@ -27,9 +27,7 @@ namespace Zpp.Simulation
         private readonly DbCache _dbCache;
 
         private readonly StockManager _stockManager;
-
-        private readonly ProductionManager _productionManager =
-            new ProductionManager();
+        
 
         private readonly PurchaseManager _purchaseManager;
 
@@ -43,6 +41,7 @@ namespace Zpp.Simulation
 
             _dbCache = new DbCache(_productionDomainContext);
             _purchaseManager = new PurchaseManager(_dbCache);
+            ProductionManager _productionManager = new ProductionManager(_dbCache);
             _customerManager = new CustomerManager.CustomerManager(new DbCache(_productionDomainContext));
             _stockManager = new StockManager(_productionDomainContext, _productionManager, _purchaseManager);*/
 
