@@ -74,6 +74,7 @@ namespace Master40.XUnitTest.DBContext
             MasterDBInitializerBasic.DbInitialize(_masterDBContext);
             _masterDBContext.Database.EnsureCreated();
             _gpSzenarioContext.Database.EnsureDeleted();
+            GPSzenarioInitializer.DbInitialize(_gpSzenarioContext);
             _gpSzenarioContext.Database.EnsureCreated();
 
             DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
