@@ -75,6 +75,10 @@ namespace Zpp
         private T_ProductionOrderOperation CreateProductionOrderBomOperation(
             M_ArticleBom articleBom, int hierarchyNumber, T_ProductionOrder productionOrder)
         {
+            if (articleBom.ArticleChild.ToPurchase)
+            {
+                return null;
+            }
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation.Name = articleBom.Operation.Name;
             if (hierarchyNumber != articleBom.Operation.HierarchyNumber)
