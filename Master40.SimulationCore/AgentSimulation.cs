@@ -100,7 +100,7 @@ namespace Master40.SimulationCore
                 // var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
                 //var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");clockListener
                 Action<long> tm = (TimePeriod) => _messageHub.SendToClient("clockListener", TimePeriod.ToString());
-                var timeMonitor = Props.Create(() => new TimeMonitor((TimePeriod) => tm(TimePeriod)));
+                var timeMonitor = Props.Create(() => new TimeMonitor((timePeriod) => tm(timePeriod)));
                 _simulation.ActorSystem.ActorOf(timeMonitor, "TimeMonitor");
                 // subscribe to the event stream for messages of type "DeadLetter"
                 // _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
