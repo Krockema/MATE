@@ -15,8 +15,8 @@ namespace Zpp
         {
             _dbCache = dbCache;
         }
-        
-        public void createProductionOrder(IDemand demand, IDemandManager demandManager)
+
+        public void CreateProductionOrder(IDemand demand, IDemandManager demandManager)
         {
             T_ProductionOrder productionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
@@ -26,18 +26,19 @@ namespace Zpp
             // connects this provider with table T_Provider
             productionOrder.Provider = new T_Provider();
             productionOrder.Quantity = demand.GetQuantity();
-            
+
             // TODO: check following navigation properties are created
             /*List<T_ProductionOrderBom> productionOrderBoms = new List<T_ProductionOrderBom>();
             List<T_ProductionOrderOperation> productionOrderWorkSchedule = new List<T_ProductionOrderOperation>();
             List<T_ProductionOrderBom> prodProductionOrderBomChilds = new List<T_ProductionOrderBom>();*/
 
-            processArticleBoms(demand, demandManager, productionOrder, demandManager.GetHierarchyNumber());
-            
+            ProcessArticleBoms(demand, demandManager, productionOrder);
+
             LOGGER.Debug("ProductionOrder created.");
         }
 
-        private void processArticleBoms(IDemand demand, IDemandManager demandManager, T_ProductionOrder productionOrder, int hierarchyNumber)
+        private void ProcessArticleBoms(IDemand demand, IDemandManager demandManager,
+            T_ProductionOrder productionOrder)
         {
             M_Article readArticle = _dbCache.M_ArticleGetById(demand.GetArticle().Id);
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
@@ -49,39 +50,67 @@ namespace Zpp
 
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
-                    T_ProductionOrderBom productionOrderBom = createDemand();
+                    T_ProductionOrderBom productionOrderBom = CreateProductionOrderBom(articleBom,
+                        productionOrder, demandManager.GetHierarchyNumber());
                     demandManager.AddDemand(productionOrderBom);
-                    T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
-                    
-                    productionOrderBom.Quantity = articleBom.Quantity;
-                    productionOrderBom.State = State.Created;
-                    productionOrderBom.ProductionOrderParent = productionOrder;
-                    // ProductionOrderOperation --> nein, denn hier ist productionOrderBom ein Demand, wann dann? ("sie ist beides")
-                    T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
-                    productionOrderBom.ProductionOrderOperation = productionOrderOperation;
-                    productionOrderOperation.Name = articleBom.Operation.Name;
-                    if (hierarchyNumber != articleBom.Operation.HierarchyNumber)
-                    {
-                        LOGGER.Error("Given hierarchyNumber is not matching HierarchyNumber of ArticleBomOperation!");
-                    }
-                    productionOrderOperation.HierarchyNumber = hierarchyNumber;
-                    productionOrderOperation.Duration = articleBom.Operation.Duration;
-                    productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
-                    productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
-                    productionOrderOperation.ProductionOrder = productionOrder;
-                    // TODO: external Algo needed
-                    // productionOrderOperation.Machine, Start, End, StartBackward, EndBackward,
-                    // StartForward, EndForward, ActivitySlack, WorkTimeWithParents,
-                    // StartSimulation, EndSimulation, DurationSimulation, ProducingState
-                    
                 }
             }
         }
 
-        private T_ProductionOrderBom createDemand()
+        private T_ProductionOrderBom CreateProductionOrderBom(M_ArticleBom articleBom,
+            T_ProductionOrder productionOrder, int hierarchyNumber)
         {
-            return null;
+            T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
+
+            productionOrderBom.Quantity = articleBom.Quantity;
+            productionOrderBom.State = State.Created;
+            productionOrderBom.ProductionOrderParent = productionOrder;
+
+            productionOrderBom.ProductionOrderOperation =
+                CreateProductionOrderBomOperation(articleBom, hierarchyNumber, productionOrder);
+
+            return productionOrderBom;
         }
 
+        private T_ProductionOrderOperation CreateProductionOrderBomOperation(
+            M_ArticleBom articleBom, int hierarchyNumber, T_ProductionOrder productionOrder)
+        {
+            T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
+            productionOrderOperation.Name = articleBom.Operation.Name;
+            if (hierarchyNumber != articleBom.Operation.HierarchyNumber)
+            {
+                LOGGER.Error("Given hierarchyNumber is not matching " +
+                             "HierarchyNumber of ArticleBomOperation!");
+            }
+
+            productionOrderOperation.HierarchyNumber = hierarchyNumber;
+            productionOrderOperation.Duration = articleBom.Operation.Duration;
+            productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
+            productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
+            productionOrderOperation.ProductionOrder = productionOrder;
+            productionOrderOperation.ProducingState = ProducingState.Created;
+            
+            // TODO: external Algo needed
+            
+            // for machine utilisation
+            // productionOrderOperation.Machine,
+            
+            // for simulation
+            // Start, End,
+            
+            // for backward scheduling
+            // StartBackward, EndBackward,
+            
+            // for forward scheduling
+            // StartForward, EndForward,
+
+            return productionOrderOperation;
+        }
+
+        // TODO: use this
+        private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
+        {
+            return dueTime - operationDuration - currentTime;
+        }
     }
 }

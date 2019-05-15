@@ -29,11 +29,7 @@ namespace Master40.DB.DataModel
         public int EndBackward { get; set; }
         public int StartForward { get; set; }
         public int EndForward { get; set; }
-        public decimal ActivitySlack { get; set; }
-        public decimal WorkTimeWithParents { get; set; }
-        public int StartSimulation { get; set; }
-        public int EndSimulation { get; set; }
-        public int DurationSimulation { get; set; }
+        
         public ProducingState ProducingState { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
     }

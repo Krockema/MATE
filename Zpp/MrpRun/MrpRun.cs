@@ -80,7 +80,7 @@ namespace Zpp
                                          ":");
                             if (demand.GetArticle().ToBuild)
                             {
-                                productionManager.createProductionOrder(demand, demandManager);
+                                productionManager.CreateProductionOrder(demand, demandManager);
                             }
                             else if (demand.GetArticle().ToPurchase)
                             {
