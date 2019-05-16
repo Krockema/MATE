@@ -82,5 +82,20 @@ namespace Master40.XUnitTest.DBConversion
             Assert.Equal(expDoubleVal, doubleRes);
             Assert.Equal(expDecimalVal, decimalRes);
         }
+
+        [Fact]
+        public void TestIntToDouble()
+        {
+            int intVal = 123;
+            double expDoubleVal = 123.0;
+            double doubleVal = 456.0;
+            int expIntVal = 456;
+
+            double doubleRes = (double)IntToDouble.Convert(null, intVal);
+            int intRes = (int)IntToDouble.Convert(null, doubleVal, true);
+
+            Assert.Equal(expDoubleVal, doubleRes);
+            Assert.Equal(expIntVal, intRes);
+        }
     }
 }
