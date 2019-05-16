@@ -43,16 +43,16 @@ namespace Zpp
             IDemandManager firstLevelDemandManager =
                 new DemandManagerSimple(dbCache, providerManager);
             levelDemandManagers.Add(firstLevelDemandManager);
-            int hierachyNumber = 1;
+            int hierarchyNumber = 1;
 
-            for (int i = 0; i < levelDemandManagers.Count; i++)
+            while (true)
             {
-                IDemandManager currentDemandManager = levelDemandManagers[i];
+                IDemandManager currentDemandManager = levelDemandManagers[0];
                 currentDemandManager.OrderDemandsByUrgency();
                 // add new level for next creating demands (evolving tree of demands)
-                hierachyNumber++;
+                hierarchyNumber++;
                 IDemandManager nextDemandManager =
-                    new DemandManagerSimple(providerManager, hierachyNumber);
+                    new DemandManagerSimple(providerManager, hierarchyNumber);
                 levelDemandManagers.Add(nextDemandManager);
                 // demands in currentDemandManager are not allowed to be expanded,
                 // nextDemandManager must be used for this
@@ -84,7 +84,7 @@ namespace Zpp
                             "Create a provider for article " + demand.GetArticle().Id + ":");
                         if (demand.GetArticle().ToBuild)
                         {
-                            productionManager.CreateProductionOrder(demand, currentDemandManager);
+                            productionManager.CreateProductionOrder(demand, nextDemandManager);
                         }
                         else if (demand.GetArticle().ToPurchase)
                         {
@@ -92,10 +92,21 @@ namespace Zpp
                         }
                     }
                 }
+                // break condition
+                if (nextDemandManager.GetDemands().Count == 0)
+                {
+                    break;
+                }
+                // persist processed demands/providers
+                purchaseManager.closeOpenPurchaseOrders();
+                currentDemandManager.PersistDemands();
+                providerManager.PersistProviders();
+                levelDemandManagers.Remove(currentDemandManager);
+                // TODO: optimize (not everything needs to push to physical DB)
+                dbCache.persistDbCache();
             }
 
             // finalize
-            purchaseManager.closeOpenPurchaseOrders();
             dbCache.persistDbCache();
         }
     }

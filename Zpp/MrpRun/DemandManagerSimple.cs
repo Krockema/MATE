@@ -115,5 +115,11 @@ namespace Zpp
         {
             IsDemandsListLocked = true;
         }
+
+        public void PersistDemands()
+        {
+            _dbCache.DemandsAddAll(_demands);
+            _demands.Clear();
+        }
     }
 }

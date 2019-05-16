@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Master40.DB.Interfaces;
 
 namespace Zpp
 {
@@ -23,8 +24,16 @@ namespace Zpp
         M_Article M_ArticleGetById(int id);
 
         List<T_Demand> T_DemandsGetAll();
+
+        void DemandsAdd(IDemand demand);
+        
+        void DemandsAddAll(List<IDemand> demands);
         
         List<T_Provider> T_ProvidersGetAll();
+
+        void ProvidersAdd(IProvider provider);
+        
+        void ProvidersAddAll(List<IProvider> providers);
         
         List<T_CustomerOrderPart> T_CustomerOrderPartGetAll();
 

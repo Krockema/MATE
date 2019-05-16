@@ -57,5 +57,11 @@ namespace Zpp
                 dbCache.T_PurchaseOrderPartGetAll(), dbCache.T_ProductionOrderGetAll(),
                 dbCache.T_StockExchangeGetAll())).ToList();
         }
+
+        public void PersistProviders()
+        {
+            _dbCache.ProvidersAddAll(_providers);
+            _providers.Clear();
+        }
     }
 }

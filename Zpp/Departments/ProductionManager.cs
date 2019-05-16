@@ -84,13 +84,7 @@ namespace Zpp
             }
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation.Name = articleBom.Operation.Name;
-            if (hierarchyNumber != articleBom.Operation.HierarchyNumber)
-            {
-                LOGGER.Error("Given hierarchyNumber is not matching " +
-                             "HierarchyNumber of ArticleBomOperation!");
-            }
-
-            productionOrderOperation.HierarchyNumber = hierarchyNumber;
+            productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
             productionOrderOperation.Duration = articleBom.Operation.Duration;
             productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
             productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;

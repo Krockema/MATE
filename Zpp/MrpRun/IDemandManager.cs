@@ -23,5 +23,7 @@ namespace Zpp
         /// demandsList are not allowed to be expanded after this call
         /// </summary>
         void LockDemandsList();
+
+        void PersistDemands();
     }
 }

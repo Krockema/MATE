@@ -1,15 +1,19 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
+using Master40.DB.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Zpp
 {
     public class DbCache : IDbCache
     {
-        protected readonly ProductionDomainContext _productionDomainContext;
+        private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         
+        protected readonly ProductionDomainContext _productionDomainContext;
+
         // cached tables
         private readonly List<M_BusinessPartner> _businessPartners;
         private readonly List<M_ArticleBom> _articleBoms;
@@ -22,15 +26,16 @@ namespace Zpp
         private readonly List<T_PurchaseOrderPart> _purchaseOrderParts;
         private readonly List<T_ProductionOrder> _productionOrders;
         private readonly List<T_PurchaseOrder> _purchaseOrders;
-        
-        
+
+
         public DbCache(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
-            
+
             // cache tables
             _businessPartners = _productionDomainContext.BusinessPartners.ToList();
-            _articleBoms = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild).ToList();
+            _articleBoms = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild)
+                .ToList();
             _articles = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
                 .ThenInclude(m => m.ArticleChild).ToList();
             _tDemands = _productionDomainContext.Demands.ToList();
@@ -50,7 +55,16 @@ namespace Zpp
 
         public void persistDbCache()
         {
-            
+            _productionDomainContext.BusinessPartners.AddRange(_businessPartners);
+            _productionDomainContext.ArticleBoms.AddRange(_articleBoms);
+            _productionDomainContext.Articles.AddRange(_articles);
+            _productionDomainContext.Demands.AddRange(_tDemands);
+            _productionDomainContext.CustomerOrderParts.AddRange(_customerOrderParts);
+            _productionDomainContext.ProductionOrderBoms.AddRange(_productionOrderBoms);
+            _productionDomainContext.StockExchanges.AddRange(_stockExchanges);
+            _productionDomainContext.ProductionOrders.AddRange(_productionOrders);
+            _productionDomainContext.PurchaseOrderParts.AddRange(_purchaseOrderParts);
+            _productionDomainContext.PurchaseOrders.AddRange(_purchaseOrders);
             _productionDomainContext.SaveChanges();
         }
 
@@ -107,6 +121,62 @@ namespace Zpp
         public List<T_ProductionOrder> T_ProductionOrderGetAll()
         {
             return _productionOrders;
+        }
+
+        public void DemandsAddAll(List<IDemand> demands)
+        {
+            foreach (var demand in demands)
+            {
+                DemandsAdd(demand);
+            }
+        }
+
+        public void ProvidersAddAll(List<IProvider> providers)
+        {
+            foreach (var provider in providers)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public void DemandsAdd(IDemand demand)
+        {
+            if (demand.GetType() == typeof(T_CustomerOrderPart))
+            {
+                _customerOrderParts.Add((T_CustomerOrderPart)demand);
+            }
+            else if (demand.GetType() == typeof(T_ProductionOrderBom))
+            {
+                    _productionOrderBoms.Add((T_ProductionOrderBom)demand);
+            }
+            else if (demand.GetType() == typeof(T_StockExchange))
+            {
+                    _stockExchanges.Add((T_StockExchange)demand);
+            }
+            else
+            {
+                LOGGER.Error("Unknown type implementing IDemand");
+            }
+        }
+
+        public void ProvidersAdd(IProvider provider)
+        {
+            if (provider.GetType() == typeof(T_ProductionOrder))
+            {
+                _productionOrders.Add((T_ProductionOrder)provider);
+            }
+            else if (provider.GetType() == typeof(T_PurchaseOrderPart))
+            {
+                _purchaseOrderParts.Add((T_PurchaseOrderPart)provider);
+            }
+            else if (provider.GetType() == typeof(T_StockExchange))
+            {
+                _stockExchanges.Add((T_StockExchange)provider);
+            }
+            else
+            {
+                LOGGER.Error("Unknown type implementing IProvider");
+            }
         }
     }
 }

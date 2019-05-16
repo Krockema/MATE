@@ -12,5 +12,7 @@ namespace Zpp
         List<IProvider> GetProviders();
 
         List<IProvider> GetProvidersById(List<int> ids);
+
+        void PersistProviders();
     }
 }
