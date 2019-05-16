@@ -45,53 +45,50 @@ namespace Zpp
             levelDemandManagers.Add(firstLevelDemandManager);
             int hierachyNumber = 1;
 
-            using (IEnumerator<IDemandManager> enumerator = levelDemandManagers.GetEnumerator())
+            for (int i = 0; i < levelDemandManagers.Count; i++)
             {
-                while (enumerator.MoveNext())
+                IDemandManager currentDemandManager = levelDemandManagers[i];
+                currentDemandManager.OrderDemandsByUrgency();
+                // add new level for next creating demands (evolving tree of demands)
+                hierachyNumber++;
+                IDemandManager nextDemandManager =
+                    new DemandManagerSimple(providerManager, hierachyNumber);
+                levelDemandManagers.Add(nextDemandManager);
+                // demands in currentDemandManager are not allowed to be expanded,
+                // nextDemandManager must be used for this
+                currentDemandManager.LockDemandsList();
+                
+                foreach (IDemand demand in currentDemandManager.GetDemands())
                 {
-                    IDemandManager currentDemandManager = enumerator.Current;
-                    currentDemandManager.OrderDemandsByUrgency();
-                    // add new level for next creating demands (evolving tree of demands)
-                    hierachyNumber++;
-                    IDemandManager nextDemandManager =
-                        new DemandManagerSimple(providerManager, hierachyNumber);
-                    levelDemandManagers.Add(nextDemandManager);
-                    // demands in currentDemandManager are not allowed to be expanded,
-                    // nextDemandManager must use for this
-                    currentDemandManager.LockDemandsList();
-                    foreach (IDemand demand in currentDemandManager.GetDemands())
-                    {
-                        bool isDemandSatisfied = false;
+                    bool isDemandSatisfied = false;
 
-                        if (providerManager.GetProviders() != null)
+                    if (providerManager.GetProviders() != null)
+                    {
+                        foreach (IProvider provider in providerManager.GetProviders())
                         {
-                            foreach (IProvider provider in providerManager.GetProviders())
+                            // does a provider in time exists?
+                            if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
+                                demand.GetDueTime() < provider.GetDueTime())
                             {
-                                // does a provider in time exists?
-                                if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
-                                    demand.GetDueTime() < provider.GetDueTime())
-                                {
-                                    nextDemandManager.AddProviderForDemand(demand.Id, provider.Id);
-                                    isDemandSatisfied = true;
-                                    break;
-                                }
+                                nextDemandManager.AddProviderForDemand(demand.Id, provider.Id);
+                                isDemandSatisfied = true;
+                                break;
                             }
                         }
+                    }
 
-                        if (!isDemandSatisfied)
-                            // create provider for it
+                    if (!isDemandSatisfied)
+                        // create provider for it
+                    {
+                        LOGGER.Debug(
+                            "Create a provider for article " + demand.GetArticle().Id + ":");
+                        if (demand.GetArticle().ToBuild)
                         {
-                            LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id +
-                                         ":");
-                            if (demand.GetArticle().ToBuild)
-                            {
-                                productionManager.CreateProductionOrder(demand,
-                                    currentDemandManager);
-                            }
-                            else if (demand.GetArticle().ToPurchase)
-                            {
-                                purchaseManager.createPurchaseOrderPart(demand);
-                            }
+                            productionManager.CreateProductionOrder(demand, currentDemandManager);
+                        }
+                        else if (demand.GetArticle().ToPurchase)
+                        {
+                            purchaseManager.createPurchaseOrderPart(demand);
                         }
                     }
                 }
