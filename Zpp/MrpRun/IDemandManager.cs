@@ -18,5 +18,10 @@ namespace Zpp
         void AddProviderForDemand(int demandId, int providerId);
 
         int GetHierarchyNumber();
+
+        /// <summary>
+        /// demandsList are not allowed to be expanded after this call
+        /// </summary>
+        void LockDemandsList();
     }
 }

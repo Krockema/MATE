@@ -49,12 +49,17 @@ namespace Zpp
             {
                 while (enumerator.MoveNext())
                 {
-                    IDemandManager demandManager = enumerator.Current;
-                    demandManager.OrderDemandsByUrgency();
+                    IDemandManager currentDemandManager = enumerator.Current;
+                    currentDemandManager.OrderDemandsByUrgency();
                     // add new level for next creating demands (evolving tree of demands)
                     hierachyNumber++;
-                    levelDemandManagers.Add(new DemandManagerSimple(providerManager, hierachyNumber));
-                    foreach (IDemand demand in demandManager.GetDemands())
+                    IDemandManager nextDemandManager =
+                        new DemandManagerSimple(providerManager, hierachyNumber);
+                    levelDemandManagers.Add(nextDemandManager);
+                    // demands in currentDemandManager are not allowed to be expanded,
+                    // nextDemandManager must use for this
+                    currentDemandManager.LockDemandsList();
+                    foreach (IDemand demand in currentDemandManager.GetDemands())
                     {
                         bool isDemandSatisfied = false;
 
@@ -66,21 +71,22 @@ namespace Zpp
                                 if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
                                     demand.GetDueTime() < provider.GetDueTime())
                                 {
-                                    demandManager.AddProviderForDemand(demand.Id, provider.Id);
+                                    nextDemandManager.AddProviderForDemand(demand.Id, provider.Id);
                                     isDemandSatisfied = true;
                                     break;
                                 }
                             }
                         }
 
-                        if (!isDemandSatisfied) 
+                        if (!isDemandSatisfied)
                             // create provider for it
                         {
                             LOGGER.Debug("Create a provider for article " + demand.GetArticle().Id +
                                          ":");
                             if (demand.GetArticle().ToBuild)
                             {
-                                productionManager.CreateProductionOrder(demand, demandManager);
+                                productionManager.CreateProductionOrder(demand,
+                                    currentDemandManager);
                             }
                             else if (demand.GetArticle().ToPurchase)
                             {

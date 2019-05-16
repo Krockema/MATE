@@ -6,11 +6,14 @@ using Master40.DB.Interfaces;
 namespace Zpp
 {
     /// <summary>
-    /// An trivial implementation of IDemandManager, which is for performance reasons not well suited
+    /// An simple implementation of IDemandManager, which is for performance reasons not well suited
     /// </summary>
     public class DemandManagerSimple : IDemandManager
     {
+        private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
+        
         private readonly List<IDemand> _demands;
+        private bool IsDemandsListLocked = false;
 
         private readonly Dictionary<int, List<int>> _demandsHavingProviders =
             new Dictionary<int, List<int>>();
@@ -56,7 +59,14 @@ namespace Zpp
 
         public void AddDemand(IDemand demand)
         {
-            _demands.Add(demand);
+            if (!IsDemandsListLocked)
+            {
+                _demands.Add(demand);    
+            }
+            else
+            {
+                LOGGER.Error($"Could not add given demand {demand.Id} to demandsList, because it's locked!");
+            }
         }
 
         public List<IDemand> GetDemands()
@@ -99,6 +109,11 @@ namespace Zpp
         public int GetHierarchyNumber()
         {
             return _hierarchyNumber;
+        }
+
+        public void LockDemandsList()
+        {
+            IsDemandsListLocked = true;
         }
     }
 }
