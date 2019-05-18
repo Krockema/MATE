@@ -44,6 +44,10 @@ namespace Zpp
                 new DemandManagerSimple(dbCache, providerManager);
             levelDemandManagers.Add(firstLevelDemandManager);
             int hierarchyNumber = 1;
+            // TODO remove this step in the end
+            IDemand singleDemand = firstLevelDemandManager.GetDemands()[0];
+            firstLevelDemandManager.GetDemands().Clear();
+            firstLevelDemandManager.GetDemands().Add(singleDemand);
 
             while (true)
             {
@@ -52,7 +56,7 @@ namespace Zpp
                 // add new level for next creating demands (evolving tree of demands)
                 hierarchyNumber++;
                 IDemandManager nextDemandManager =
-                    new DemandManagerSimple(providerManager, hierarchyNumber);
+                    new DemandManagerSimple(dbCache, providerManager, hierarchyNumber);
                 levelDemandManagers.Add(nextDemandManager);
                 // demands in currentDemandManager are not allowed to be expanded,
                 // nextDemandManager must be used for this

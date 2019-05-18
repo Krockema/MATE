@@ -36,10 +36,10 @@ namespace Zpp
         /// <summary>
         /// Using this constructor, demandList is initially empty
         /// </summary>
-        public DemandManagerSimple(IProviderManager providerManager, int hierarchyNumber)
+        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager, int hierarchyNumber)
         {
             _providerManager = providerManager;
-            _dbCache = null;
+            _dbCache = dbCache;
             _demands = new List<IDemand>();
             _hierarchyNumber = hierarchyNumber;
         }

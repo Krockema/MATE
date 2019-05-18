@@ -46,11 +46,6 @@ namespace Zpp
             M_Article readArticle = _dbCache.M_ArticleGetById(demand.GetArticle().Id);
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
-                /*if (!AdjacencyList.ContainsKey(givenArticle.Entity.Id))
-                {
-                    AdjacencyList.Add(givenArticle.Entity.Id, new List<Node<M_Article>>());
-                }*/
-
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
                     T_ProductionOrderBom productionOrderBom = CreateProductionOrderBom(articleBom,
@@ -64,31 +59,31 @@ namespace Zpp
             T_ProductionOrder productionOrder, int hierarchyNumber)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
-
+            
+            // TODO: add not only entities but also the ids !!! --> only ids should be enough???
             productionOrderBom.Quantity = articleBom.Quantity;
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent = productionOrder;
-
             productionOrderBom.ProductionOrderOperation =
-                CreateProductionOrderBomOperation(articleBom, hierarchyNumber, productionOrder);
-
+                CreateProductionOrderBomOperation(articleBom);
+            productionOrderBom.ArticleChild = articleBom.ArticleChild;
             return productionOrderBom;
         }
 
         private T_ProductionOrderOperation CreateProductionOrderBomOperation(
-            M_ArticleBom articleBom, int hierarchyNumber, T_ProductionOrder productionOrder)
+            M_ArticleBom articleBom)
         {
             if (articleBom.ArticleChild.ToPurchase)
             {
                 return null;
             }
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
+            // TODO: add not only entities but also the ids !!! --> only ids should be enough???
             productionOrderOperation.Name = articleBom.Operation.Name;
             productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
             productionOrderOperation.Duration = articleBom.Operation.Duration;
             productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
             productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
-            productionOrderOperation.ProductionOrder = productionOrder;
             productionOrderOperation.ProducingState = ProducingState.Created;
             
             // TODO: external Algo needed

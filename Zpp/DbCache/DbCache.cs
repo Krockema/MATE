@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
@@ -15,11 +16,14 @@ namespace Zpp
         protected readonly ProductionDomainContext _productionDomainContext;
 
         // cached tables
+        // M_*
         private readonly List<M_BusinessPartner> _businessPartners;
         private readonly List<M_ArticleBom> _articleBoms;
         private readonly List<M_Article> _articles;
+        // T_*
         private readonly List<T_Demand> _tDemands;
         private readonly List<T_Provider> _tProviders;
+        
         private readonly List<T_CustomerOrderPart> _customerOrderParts;
         private readonly List<T_ProductionOrderBom> _productionOrderBoms;
         private readonly List<T_StockExchange> _stockExchanges;
@@ -27,6 +31,7 @@ namespace Zpp
         private readonly List<T_ProductionOrder> _productionOrders;
         private readonly List<T_PurchaseOrder> _purchaseOrders;
 
+        private readonly Dictionary<BaseEntity, bool> _wasTableChanged = new Dictionary<BaseEntity, bool>();
 
         public DbCache(ProductionDomainContext productionDomainContext)
         {
@@ -55,17 +60,37 @@ namespace Zpp
 
         public void persistDbCache()
         {
-            _productionDomainContext.BusinessPartners.AddRange(_businessPartners);
-            _productionDomainContext.ArticleBoms.AddRange(_articleBoms);
-            _productionDomainContext.Articles.AddRange(_articles);
-            _productionDomainContext.Demands.AddRange(_tDemands);
-            _productionDomainContext.CustomerOrderParts.AddRange(_customerOrderParts);
-            _productionDomainContext.ProductionOrderBoms.AddRange(_productionOrderBoms);
-            _productionDomainContext.StockExchanges.AddRange(_stockExchanges);
-            _productionDomainContext.ProductionOrders.AddRange(_productionOrders);
-            _productionDomainContext.PurchaseOrderParts.AddRange(_purchaseOrderParts);
-            _productionDomainContext.PurchaseOrders.AddRange(_purchaseOrders);
+
+            // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
+            InsertOrUpdateRange(_productionOrderBoms, _productionDomainContext.ProductionOrderBoms);
+            InsertOrUpdateRange(_stockExchanges, _productionDomainContext.StockExchanges);
+            InsertOrUpdateRange(_productionOrders, _productionDomainContext.ProductionOrders);
+            InsertOrUpdateRange(_purchaseOrderParts, _productionDomainContext.PurchaseOrderParts);
+            InsertOrUpdateRange(_purchaseOrders, _productionDomainContext.PurchaseOrders);
+            
             _productionDomainContext.SaveChanges();
+        }
+        
+        private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)  where TEntity : BaseEntity
+        {
+            dbSet.AddRange(entities);
+            /*foreach (var entity in entities)
+            {
+                InsertOrUpdate(entity, dbSet);
+            }*/
+        }
+
+        private void InsertOrUpdate<TEntity>(TEntity entity, DbSet<TEntity> dbSet)  where TEntity : BaseEntity
+        {
+            if (entity.Id.Equals(0))
+            // it's not in DB yet
+            {
+                dbSet.Add(entity);
+            }
+            else
+            {
+                dbSet.Update(entity);
+            }
         }
 
         public void T_PurchaseOrderAdd(T_PurchaseOrder purchaseOrder)
@@ -135,7 +160,7 @@ namespace Zpp
         {
             foreach (var provider in providers)
             {
-                throw new NotImplementedException();
+                ProvidersAdd(provider);
             }
         }
 
