@@ -34,15 +34,15 @@ namespace Zpp.Test
                 new SortedDictionary<int, List<int>>()
                 {
                     // bomId       ArticleChildId=ArticleChildNode
-                    {1, new List<int> {23, 26, 21, 22, 5, 3, 25, 4, 2}},
+                    {1, new List<int> {23, 26, 21, 22, 5, 5, 3, 25, 4, 2}},
                     {10, new List<int> {7}},
                     {14, new List<int> {7}},
-                    {15, new List<int> {7}},
+                    {15, new List<int> {7, 7}},
                     {16, new List<int> {7}},
                     {17, new List<int> {6}},
                     {18, new List<int> {6}},
                     {21, new List<int> {4, 2, 5, 17, 18}},
-                    {22, new List<int> {16, 15, 14, 13, 4, 2, 5, 3}},
+                    {22, new List<int> {16, 15, 15, 14, 13, 4, 2, 5, 3}},
                     {23, new List<int> {5, 10, 3, 11, 9, 8}},
                 };
             foreach (int key in expectedAdjacencyList.Keys)
@@ -93,10 +93,8 @@ namespace Zpp.Test
 
             int[] expectedTraversePath = new int[]
             {
-                1, 2, 4, 25, 3, 5, 22, 3, 5, 2, 4, 13, 14, 7, 15, 7, 16, 7, 21, 18, 6, 17, 6,
-                5, 2,
-                4, 26, 23, 8, 9, 11,
-                3, 10, 7, 5
+                1, 25, 26, 2, 4, 5, 22, 3, 5, 2, 4, 13, 15, 7, 7, 14, 7, 15, 16, 7, 3, 5, 21, 5, 17,
+                6, 2, 4, 18, 6, 23, 5, 9, 11, 8, 3, 10, 7
             };
             int counter = 0;
             M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
@@ -117,7 +115,7 @@ namespace Zpp.Test
             LOGGER.Debug("Expected: " + string.Join(",", expectedTraversePath));
             LOGGER.Debug("Actual: " + string.Join(",", actualTraversePath));
 
-            // order is not constant, compare only sizeOf
+            // order is not the same in windows as in unix, compare only sizeOf
             Assert.Equal(expectedTraversePath.Count(), actualTraversePath.Count());
 
             // assert, that every node was touched at least once

@@ -29,7 +29,7 @@ namespace Zpp.Utils
             while (stack.Any())
             {
                 Node<TEntity> poppedNode = stack.Pop();
-                traversed.Add(poppedNode);
+                
 
                 // init dict if node not yet exists
                 if (!discovered.ContainsKey(poppedNode))
@@ -40,6 +40,7 @@ namespace Zpp.Utils
                 // if node is not discovered
                 if (!discovered[poppedNode])
                 {
+                    traversed.Add(poppedNode);
                     discovered[poppedNode] = true;
                     action(poppedNode);
 
