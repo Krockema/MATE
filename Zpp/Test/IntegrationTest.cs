@@ -18,6 +18,7 @@ namespace Zpp.Test
         public void testMrpRun()
         {
             IDbCache dbCache = new DbCache(ProductionDomainContext);
+            Assert.True(dbCache.T_DemandsGetAll().Count==1, "No demands are available.");
             MrpRun.runMrp(dbCache);
         }
     }

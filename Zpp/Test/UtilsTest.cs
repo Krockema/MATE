@@ -110,13 +110,17 @@ namespace Zpp.Test
             // traverse tree and execute an action
             List<Node<M_Article>> traversedNodes =
                 TreeTools<M_Article>.traverseDepthFirst(articleTree, node => { counter++; });
+            Assert.True(traversedNodes.Count > 0, "Article wasn't traversed.");
+            Assert.True(traversedNodes.Count == expectedTraversePath.Length,
+                "Article wasn't correctly traversed.");
             List<int> actualTraversePath = traversedNodes.Select(x => x.Entity.Id).ToList();
 
             LOGGER.Debug("Expected: " + string.Join(",", expectedTraversePath));
             LOGGER.Debug("Actual: " + string.Join(",", actualTraversePath));
 
             // order is not the same in windows as in unix, compare only sizeOf
-            Assert.Equal(expectedTraversePath.Count(), actualTraversePath.Count());
+            Assert.True(expectedTraversePath.Count() == actualTraversePath.Count(),
+                "expectedTraversePath is not as long as the actualTraversePath.");
 
             // assert, that every node was touched at least once
             HashSet<int> expectedTraversedArticleIds = new HashSet<int>();
