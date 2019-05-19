@@ -23,7 +23,7 @@ namespace Zpp
             IProviderManager providerManager = new ProviderManagerSimple(dbCache);
             ProductionManager productionManager = new ProductionManager(dbCache, providerManager);
 
-            PurchaseManager purchaseManager = new PurchaseManager(dbCache, providerManager);
+            IPurchaseManager purchaseManager = new PurchaseManagerSimple(dbCache, providerManager);
 
             // start
 
@@ -33,21 +33,18 @@ namespace Zpp
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
             // --> it's not possible to add these to the demandList even with Enumerators/Iterators
-            // solution concept: create a new list per loop (one level)
+            // solution concept: create a new demandList per loop (one level)
             // and iterate over levels of evolving tree of demands
             // where every level is sorted by urgency & fix
             // and all created demands within a level is put to level below
 
             List<IDemandManager> levelDemandManagers = new List<IDemandManager>();
             // first level has the demands from database, while levels below are initially empty
+            // TODO: every customerOrder should traversed completely before taking the next !
             IDemandManager firstLevelDemandManager =
                 new DemandManagerSimple(dbCache, providerManager);
             levelDemandManagers.Add(firstLevelDemandManager);
             int hierarchyNumber = 1;
-            // TODO remove this step in the end
-            IDemand singleDemand = firstLevelDemandManager.GetDemands()[0];
-            firstLevelDemandManager.GetDemands().Clear();
-            firstLevelDemandManager.GetDemands().Add(singleDemand);
 
             while (true)
             {
@@ -96,18 +93,17 @@ namespace Zpp
                         }
                     }
                 }
-                // break condition
-                if (nextDemandManager.GetDemands().Count == 0)
-                {
-                    break;
-                }
                 // persist processed demands/providers
-                purchaseManager.closeOpenPurchaseOrders();
                 currentDemandManager.PersistDemands();
                 providerManager.PersistProviders();
                 levelDemandManagers.Remove(currentDemandManager);
                 // TODO: optimize (not everything needs to push to physical DB)
                 dbCache.persistDbCache();
+                // break condition
+                if (nextDemandManager.GetDemands().Count == 0)
+                {
+                    break;
+                }
             }
 
             // finalize

@@ -7,7 +7,14 @@ using Master40.DB.Interfaces;
 
 namespace Zpp
 {
-    public class PurchaseManager
+    /// <summary>
+    /// This implementation groups all demands within a certain dueTime in one purchaseOrder
+    /// But its curently not working due to "The property 'Id' on entity type
+    /// 'T_PurchaseOrderPart' has a temporary value while attempting to change the entity's state
+    /// to 'Modified'. Either set a permanent value explicitly or ensure that the database
+    /// is configured to generate values for this property"
+    /// </summary>
+    public class PurchaseManager : IPurchaseManager
     {
         private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
@@ -18,8 +25,7 @@ namespace Zpp
         private readonly IDbCache _dbCache;
         private readonly IProviderManager _providerManager;
 
-        public PurchaseManager(IDbCache dbCache,
-            IProviderManager providerManager)
+        public PurchaseManager(IDbCache dbCache, IProviderManager providerManager)
         {
             _dbCache = dbCache;
             _providerManager = providerManager;
@@ -28,7 +34,7 @@ namespace Zpp
 
         public void createPurchaseOrderPart(IDemand demand)
         {
-            // currently only one business per article
+            // currently only one businessPartner per article
             M_ArticleToBusinessPartner articleToBusinessPartner = demand.GetArticle()
                 .ArticleToBusinessPartners.OfType<M_ArticleToBusinessPartner>().First();
             T_PurchaseOrder purchaseOrder =
@@ -41,8 +47,10 @@ namespace Zpp
             // demand cannot be fulfilled in time
             if (articleToBusinessPartner.DueTime > demand.GetDueTime())
             {
-                LOGGER.Error(
-                    $"Article {demand.GetArticle().Id} from demand {demand.Id} should be available at {demand.GetDueTime()}, but businessPartner {articleToBusinessPartner.BusinessPartner.Id} can only deliver at {articleToBusinessPartner.DueTime}.");
+                LOGGER.Error($"Article {demand.GetArticle().Id} from demand {demand.Id} " +
+                             $"should be available at {demand.GetDueTime()}, but " +
+                             $"businessPartner {articleToBusinessPartner.BusinessPartner.Id} " +
+                             $"can only deliver at {articleToBusinessPartner.DueTime}.");
             }
 
             // close purchaseOrder if given purchaseOrderPosition is out of time
@@ -60,7 +68,8 @@ namespace Zpp
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
             purchaseOrderPart.Article = demand.GetArticle();
             purchaseOrderPart.Quantity =
-                calculateQuantity(articleToBusinessPartner, demand.GetQuantity());
+                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
+                    demand.GetQuantity());
             purchaseOrderPart.State = State.Created;
             // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();
@@ -72,7 +81,8 @@ namespace Zpp
         /// <summary>
         /// State Start: empty _purchaseOrder, list with created _purchaseOrderParts
         /// Transition: add list _purchaseOrderParts to _purchaseOrder
-        /// State End: list _purchaseOrders is extended by created purchaseOrder, list _purchaseOrderParts & _purchaseOrder is reset
+        /// State End: list _purchaseOrders is extended by created purchaseOrder,
+        ///   list _purchaseOrderParts & _purchaseOrder is reset
         /// </summary>
         /// <param name="name"></param>
         /// <param name="businessPartner"></param>
@@ -84,6 +94,7 @@ namespace Zpp
                 LOGGER.Debug($"No PurchaseOrderParts, skip creating: {name}");
                 return;
             }
+
             _dbCache.T_PurchaseOrderAdd(purchaseOrder);
 
             // fill _purchaseOrder
@@ -113,7 +124,8 @@ namespace Zpp
 
         private void closeOpenPurchaseOrder(M_BusinessPartner businessPartner)
         {
-            createPurchaseOrder($"PurchaseOrder{counter} for businessPartner {businessPartner.Id}", businessPartner);
+            createPurchaseOrder($"PurchaseOrder{counter} for businessPartner {businessPartner.Id}",
+                businessPartner);
             counter++;
         }
 
@@ -123,21 +135,6 @@ namespace Zpp
             {
                 closeOpenPurchaseOrder(businessPartner);
             }
-        }
-
-        private int calculateQuantity(M_ArticleToBusinessPartner articleToBusinessPartner,
-            decimal demandQuantity)
-        {
-            int purchaseQuantity = 0;
-            // ATTENTION: <= since cast from decimal to integer could be round down
-            for (int quantity = 0;
-                quantity <= demandQuantity;
-                quantity += articleToBusinessPartner.PackSize)
-            {
-                purchaseQuantity++;
-            }
-
-            return purchaseQuantity;
         }
     }
 }

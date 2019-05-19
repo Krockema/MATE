@@ -29,7 +29,7 @@ namespace Zpp.Simulation
         private readonly StockManager _stockManager;
         
 
-        private readonly PurchaseManager _purchaseManager;
+        // private readonly PurchaseManager _purchaseManager;
 
         private readonly bool _resetDb = false;
 

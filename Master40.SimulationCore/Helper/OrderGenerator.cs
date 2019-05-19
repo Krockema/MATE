@@ -20,10 +20,17 @@ namespace Master40.SimulationCore.Helper
             });
         }
 
-        public static bool GenerateOrdersSyncron(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber, bool debug)
+        public static bool GenerateOrdersSyncron(ProductionDomainContext context,
+            SimulationConfiguration simConfig, int simulationNumber, bool debug)
+        {
+            return GenerateOrdersSyncron(context,
+                 simConfig,  simulationNumber,  debug, simConfig.OrderQuantity);
+        }
+
+        public static bool GenerateOrdersSyncron(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber, bool debug, int orderQuantity)
         {
             var time = 0;
-            var samples = simConfig.OrderQuantity;
+            var samples = orderQuantity;
             var seed = new Random(simConfig.Seed + simulationNumber);
             var productIds = context.ArticleBoms
                                     .Where(b => b.ArticleParentId == null)

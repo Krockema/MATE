@@ -73,11 +73,11 @@ namespace Zpp
         
         private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)  where TEntity : BaseEntity
         {
-            dbSet.AddRange(entities);
-            /*foreach (var entity in entities)
+            // dbSet.AddRange(entities);
+            foreach (var entity in entities)
             {
                 InsertOrUpdate(entity, dbSet);
-            }*/
+            }
         }
 
         private void InsertOrUpdate<TEntity>(TEntity entity, DbSet<TEntity> dbSet)  where TEntity : BaseEntity

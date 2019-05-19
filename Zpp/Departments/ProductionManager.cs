@@ -24,10 +24,12 @@ namespace Zpp
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
             productionOrder.DueTime = demand.GetDueTime();
             productionOrder.Article = demand.GetArticle();
+            productionOrder.ArticleId = demand.GetArticle().Id;
             productionOrder.Name = $"ProductionOrder{demand.Id}";
             // connects this provider with table T_Provider
             productionOrder.Provider = new T_Provider();
             productionOrder.Quantity = demand.GetQuantity();
+            
 
             // TODO: check following navigation properties are created
             /*List<T_ProductionOrderBom> productionOrderBoms = new List<T_ProductionOrderBom>();
@@ -60,13 +62,14 @@ namespace Zpp
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             
-            // TODO: add not only entities but also the ids !!! --> only ids should be enough???
             productionOrderBom.Quantity = articleBom.Quantity;
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent = productionOrder;
+            productionOrderBom.ProductionOrderParentId = productionOrder.Id;
             productionOrderBom.ProductionOrderOperation =
                 CreateProductionOrderBomOperation(articleBom);
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
+            productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
             return productionOrderBom;
         }
 
@@ -83,7 +86,9 @@ namespace Zpp
             productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
             productionOrderOperation.Duration = articleBom.Operation.Duration;
             productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
+            productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;
             productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
+            productionOrderOperation.MachineGroupId = articleBom.Operation.MachineGroupId;
             productionOrderOperation.ProducingState = ProducingState.Created;
             
             // TODO: external Algo needed

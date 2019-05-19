@@ -8,9 +8,10 @@ namespace Zpp.Test
     {
         public IntegrationTest()
         {
+            // TODO: orderQuantity should be set to higherValue (from simConfigs)
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
                 ContextTest.TestConfiguration(), 1,
-                true);
+                true, 1);
         }
 
         [Fact]
