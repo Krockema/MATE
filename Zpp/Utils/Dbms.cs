@@ -30,7 +30,7 @@ namespace Zpp.Utils
                 // With Sql Server for Mac/Linux
                 _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(
-                        Constants.DbConnectionZppUnix)
+                        Constants.DbConnectionZppUnix())
                     .Options);
 
                 // sqlite
