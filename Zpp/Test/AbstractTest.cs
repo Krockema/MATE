@@ -11,6 +11,7 @@ namespace Zpp.Test
 {
     public abstract class AbstractTest : IDisposable
     {
+        private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         protected readonly ProductionDomainContext ProductionDomainContext;
         private readonly bool resetDb = true;
 
@@ -21,7 +22,11 @@ namespace Zpp.Test
 
             if (resetDb)
             {
-                ProductionDomainContext.Database.EnsureDeleted();
+                bool isDeleted = ProductionDomainContext.Database.EnsureDeleted();
+                if (!isDeleted)
+                {
+                    LOGGER.Error("Database could not be deleted.");    
+                }
                 MasterDBInitializerSmall.DbInitialize(ProductionDomainContext);
             }
         }
