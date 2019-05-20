@@ -6,7 +6,7 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        public IntegrationTest()
+        public IntegrationTest() : base()
         {
             // TODO: orderQuantity should be set to higherValue (from simConfigs)
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,

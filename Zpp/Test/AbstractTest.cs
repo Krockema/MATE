@@ -10,7 +10,7 @@ namespace Zpp.Test
     public abstract class AbstractTest : IDisposable
     {
         protected readonly ProductionDomainContext ProductionDomainContext;
-        private readonly bool resetDb = true; // TODO: At the end this must be set to true
+        private readonly bool resetDb = true;
 
         // @before
         public AbstractTest()

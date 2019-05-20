@@ -15,12 +15,11 @@ namespace Zpp.Test
     {
         private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-        /*
-         * Both tests are currently failing due to:
-         * ich habe für den Obersten artikel im original Leim als material in der Bom gehabt
-         * In der neuen zuordnung brauchten beide arbeitsgänge leim.
-         * daher wurde die bom position 2x angelegt mit je einer andren Operation
-         */
+        public UtilsTest() : base()
+        {
+            // explicitly force to call the super constructor
+        }
+        
         [Fact]
         public void testArticleTree()
         {

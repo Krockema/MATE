@@ -62,6 +62,7 @@ namespace Zpp
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             
+            // TODO: Terminierung+Maschinenbelegung
             productionOrderBom.Quantity = articleBom.Quantity;
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent = productionOrder;
