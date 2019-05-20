@@ -5,14 +5,14 @@ namespace Zpp.Utils
 {
     public static class Constants
     {
-        public static readonly bool IsWindows = RuntimeInformation
-            .IsOSPlatform(OSPlatform.Windows);
+        public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         public static readonly String DbConnectionZppWindows =
             "Server=(localdb)\\mssqllocaldb;Database=Zpp;Trusted_Connection=True;MultipleActiveResultSets=true";
 
+        // TODO: the random is a workaround, remove this if drop database query in Dispose() added
         public static readonly String DbConnectionZppUnix =
-            "Server=localhost,1433;Database=zpp;MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
-        
+            $"Server=localhost,1433;Database=zpp{new Random().Next(1, 1000000)};" +
+            $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
     }
 }

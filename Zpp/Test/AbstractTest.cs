@@ -1,6 +1,8 @@
 using System;
+using System.Data.SqlClient;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
 using Zpp.Utils;
@@ -20,7 +22,6 @@ namespace Zpp.Test
             if (resetDb)
             {
                 ProductionDomainContext.Database.EnsureDeleted();
-                ProductionDomainContext.Database.EnsureCreated();
                 MasterDBInitializerSmall.DbInitialize(ProductionDomainContext);
             }
         }
@@ -28,6 +29,7 @@ namespace Zpp.Test
         // @after
         public void Dispose()
         {
+            ProductionDomainContext.Database.CloseConnection();
         }
     }
 }
