@@ -223,13 +223,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var sws = new SimulationWorkschedule
             {
                 WorkScheduleId = ws.Key.ToString(),
-                Article = ws.WorkSchedule.Article.Name,
-                WorkScheduleName = ws.WorkSchedule.Name,
+                Article = ws.Operation.Article.Name,
+                WorkScheduleName = ws.Operation.Name,
                 DueTime = (int)ws.DueTime,
                 EstimatedEnd = (int)ws.EstimatedEnd,
                 SimulationConfigurationId = -1,
                 OrderId = "[" + cws.CustomerOrderId + "]",
-                HierarchyNumber = ws.WorkSchedule.HierarchyNumber,
+                HierarchyNumber = ws.Operation.HierarchyNumber,
                 ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
                 Parent = cws.IsHeadDemand.ToString(),
                 ParentId = "[]",

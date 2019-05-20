@@ -61,7 +61,7 @@ namespace Master40.SimulationCore.Agents.Ressource
                 workItem = workItem.UpdateStatus(workItemStatus.Status);
                 Queue.Add(workItem);
 
-                agent.DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
+                agent.DebugMessage("Set Item: " + workItem.Operation.Name + " | Status to: " + workItem.Status);
                 // upate Processing queue
                 agent.UpdateProcessingQueue(workItem);
 
@@ -108,7 +108,7 @@ namespace Master40.SimulationCore.Agents.Ressource
                 }
             }
 
-            agent.DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.WorkSchedule.Name);
+            agent.DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.Operation.Name);
             queue.Add(workItem);
 
             // Enqued before another item?
@@ -147,13 +147,13 @@ namespace Master40.SimulationCore.Agents.Ressource
             // Set next Ready Element from Queue
             var itemFromQueue = Queue.Where(x => x.Status == ElementStatus.Ready)
                                      .OrderBy(x => x.Priority(agent.CurrentTime))
-                                        .ThenBy<FWorkItem, int>(x => x.WorkSchedule.Duration)
+                                        .ThenBy<FWorkItem, int>(x => x.Operation.Duration)
                                      .FirstOrDefault();
             agent.UpdateProcessingQueue(itemFromQueue);
 
             // Set Machine State to Ready for next
             agent.Set(Resource.Properties.ITEMS_IN_PROGRESS, false);
-            agent.DebugMessage("Finished Work with " + workItem.WorkSchedule.Name + " take next...");
+            agent.DebugMessage("Finished Work with " + workItem.Operation.Name + " take next...");
 
             workItem = workItem.UpdateStatus(ElementStatus.Finished);
 

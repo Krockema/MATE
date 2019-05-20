@@ -1,11 +1,10 @@
-﻿using Master40.DB.Enums;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Master40.Tools.Messages;
 using Master40.Tools.SignalR;
 
-namespace Master40.XUnitTest.Moc
+namespace Master40.Simulation.CLI
 {
-    public class MessageHub : IMessageHub
+    public class ConsoleHub: IMessageHub
     {
         public void SendToAllClients(string msg)
         {
@@ -45,7 +44,7 @@ namespace Master40.XUnitTest.Moc
 
         public void EndSimulation(string msg, string simId, string simNumber)
         {
-            throw new System.NotImplementedException();
+            Debug.WriteLine("End Simulation");
         }
     }
 

@@ -4,7 +4,15 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Configurations>Debug;Release;Azure</Configurations>
     <LangVersion>7.3</LangVersion>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject>Master40.Simulation.Program</StartupObject>
+    <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
