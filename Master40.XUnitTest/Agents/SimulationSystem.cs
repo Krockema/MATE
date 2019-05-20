@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.Simulation.CLI;
 using Master40.SimulationCore.Helper;
 using Xunit;
 
@@ -51,7 +52,7 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
-            var simContext = new AgentSimulation(true, _ctx, _ctxResult, new  Moc.MessageHub());
+            var simContext = new AgentSimulation(true, _ctx, _ctxResult, new ConsoleHub());
             var simConfig = ContextTest.TestConfiguration();
             // simConfig.OrderQuantity = 0;
             var simModelConfig = new SimulationConfig(false, 480);

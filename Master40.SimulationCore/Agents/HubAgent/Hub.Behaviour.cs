@@ -69,12 +69,12 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 localItem = workItem.UpdateHubAgent(agent.Context.Self);
                 // add TO queue
                 workItemQueue.Add(localItem);
-                agent.DebugMessage("Got Item to Enqueue: " + workItem.WorkSchedule.Name + " | with status:" + workItem.Status);
+                agent.DebugMessage("Got Item to Enqueue: " + workItem.Operation.Name + " | with status:" + workItem.Status);
             }
             else
             {
                 // reset Item.
-                agent.DebugMessage("Got Item to Requeue: " + workItem.WorkSchedule.Name + " | with status:" + workItem.Status);
+                agent.DebugMessage("Got Item to Requeue: " + workItem.Operation.Name + " | with status:" + workItem.Status);
                 localItem.Proposals.Clear();
             }
 
@@ -105,7 +105,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
             var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
 
-            agent.DebugMessage("Machine called " + workItem.WorkSchedule.Name + " finished.");
+            agent.DebugMessage("Machine called " + workItem.Operation.Name + " finished.");
             agent.Send(Production.Instruction.FinishWorkItem.Create(workItem, workItem.ProductionAgent));
             workItemQueue.Remove(workItemQueue.Find(x => x.Key == workItem.Key));
         }
@@ -122,7 +122,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
             var workItem = workItemQueue.Find(x => x.Key == workItemStatus.ItemId)
                                          .UpdateStatus(workItemStatus.Status);
 
-            agent.DebugMessage("Set Item: " + workItem.WorkSchedule.Name + " | Status to: " + workItem.Status);
+            agent.DebugMessage("Set Item: " + workItem.Operation.Name + " | Status to: " + workItem.Status);
             // if 
             if (workItem.Status == ElementStatus.Ready)
             {

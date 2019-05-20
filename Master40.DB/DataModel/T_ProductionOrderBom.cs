@@ -17,5 +17,8 @@ namespace Master40.DB.DataModel
         public T_Demand Demand { get; set; }
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
+        public int ArticleChildId { get; set; }
+        [JsonIgnore]
+        public M_Article ArticleChild { get; set; }
     }
 }

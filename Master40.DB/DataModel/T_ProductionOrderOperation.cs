@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
 {
-    public class T_ProductionOrderOperation : BaseEntity, IWorkSchedule, ISimulationProductionOrderWorkSchedule
+    public class T_ProductionOrderOperation : BaseEntity, IOperation, ISimulationProductionOrderWorkSchedule
     {
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }

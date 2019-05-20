@@ -15,12 +15,12 @@ namespace Master40.SimulationCore.MessageTypes
         /// <param name="dueTime"></param>
         /// <param name="prio"></param>
         /// <returns></returns>
-        public static FWorkItem ToWorkItem(this M_Operation workSchedule, long dueTime, ElementStatus status, IActorRef productionAgent, long time)
+        public static FWorkItem ToWorkItem(this M_Operation operation, long dueTime, ElementStatus status, IActorRef productionAgent, long time)
         {
             var prioRule = Extension.CreateFunc(
-                // Lamda zur Func.
-                (currentTime) => dueTime - workSchedule.Duration - currentTime
-                // ENDE
+                    // Lamda zur Func.
+                    (currentTime) => dueTime - operation.Duration - currentTime
+                    // ENDE
                 );
 
             return new FWorkItem(key: Guid.NewGuid()
@@ -35,7 +35,7 @@ namespace Master40.SimulationCore.MessageTypes
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
-                                , workSchedule: workSchedule
+                                , operation: operation
                                 , proposals: new List<FProposal>());
         }
 
