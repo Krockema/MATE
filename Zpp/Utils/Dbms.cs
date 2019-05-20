@@ -34,7 +34,10 @@ namespace Zpp.Utils
                     .Options);*/
 
                 // sqlite
-                _productionDomainContext = InMemoryContext.CreateInMemoryContext();
+                // _productionDomainContext = InMemoryContext.CreateInMemoryContext();
+                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                    .UseInMemoryDatabase(databaseName: "InMemoryDB")
+                    .Options);
             }
 
             return _productionDomainContext;
