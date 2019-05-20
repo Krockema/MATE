@@ -3,8 +3,13 @@ mono: none
 dist: bionic
 dotnet: 2.2
 
+services:
+  - docker
+
 install:
+  - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
   - dotnet restore
+  
 
 script:
   - dotnet build
@@ -13,3 +18,4 @@ script:
 notifications:
   email:
     - s74027@htw-dresden.de
+
