@@ -154,5 +154,10 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<T_DemandToProvider>()
                 .ToTable("T_DemandToProvider");
         }
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
+        }
     }
 }
