@@ -96,7 +96,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
           ResourceAgent : IActorRef
           ProductionAgent : IActorRef
           HubAgent : IActorRef
-          WorkSchedule : M_Operation
+          Operation : M_Operation
           Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with 
                 member this.Key  with get() = this.Key
@@ -109,7 +109,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }
         member this.SetReady = { this with Status = ElementStatus.Ready; WasSetReady = true }
-        member this.UpdateEstimations estimatedStart resourceAgent = { this with EstimatedEnd = estimatedStart +  (int64)this.WorkSchedule.Duration;
+        member this.UpdateEstimations estimatedStart resourceAgent = { this with EstimatedEnd = estimatedStart +  (int64)this.Operation.Duration;
                                                                                     EstimatedStart = (int64)estimatedStart;
                                                                                     ResourceAgent = resourceAgent } 
         // with member this.UpdatePriority p = { this with Priority = (double)(p + this.WorkSchedule.Duration)}

@@ -135,7 +135,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             // get next ready WorkItem
             // TODO Return Queing Status ? or Move method to Machine
             var nextItem = workItems.Where(x => x.Status == ElementStatus.InQueue || x.Status == ElementStatus.Created)
-                                    .OrderBy<FWorkItem, int>(x => x.WorkSchedule.HierarchyNumber)
+                                    .OrderBy<FWorkItem, int>(x => x.Operation.HierarchyNumber)
                                     .FirstOrDefault();
             if (nextItem == null)
             {
@@ -145,7 +145,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             nextItem = nextItem.SetReady;
 
             if (hubAgents.Count == 0) return;
-            var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.WorkSchedule.MachineGroup.Name);
+            var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.Operation.MachineGroup.Name);
 
             SendWorkItemStatusMsg(hubAgent, nextItem);
         }

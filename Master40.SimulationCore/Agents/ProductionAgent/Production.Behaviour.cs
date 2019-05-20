@@ -91,7 +91,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             // add agent to current Scope.
             hubAgents.Add(hub.Ref, hub.RequiredFor);
             // foreach fitting WorkSchedule
-            foreach (var workItem in workItems.Where(x => x.WorkSchedule.MachineGroup.Name == hub.RequiredFor))
+            foreach (var workItem in workItems.Where(x => x.Operation.MachineGroup.Name == hub.RequiredFor))
             {
                 agent.Send(Hub.Instruction.EnqueueWorkItem.Create(workItem, hub.Ref));
             }
@@ -140,7 +140,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
-            agent.DebugMessage("Machine called finished with: " + workItem.WorkSchedule.Name + " !");
+            agent.DebugMessage("Machine called finished with: " + workItem.Operation.Name + " !");
 
             // Shortcut:
             //CreateAndEnqueue

@@ -125,7 +125,8 @@ namespace Master40.DB.Data.Context
                 .ToTable("T_ProductionOrderBom")
                 .HasOne(p => p.ProductionOrderParent)
                 .WithMany(b => b.ProductionOrderBoms)
-                .HasForeignKey(fk => fk.ProductionOrderParentId);
+                .HasForeignKey(fk => fk.ProductionOrderParentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<T_ProductionOrderBom>()
                 .ToTable("T_ProductionOrderBom")

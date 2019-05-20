@@ -34,7 +34,7 @@ namespace Master40.SimulationCore.Agents.Ressource
             var hub = Get<IActorRef>(Properties.HUB_AGENT_REF);
             if (processingQueue.CapacitiesLeft && workItem != null)
             {
-                if (workItem.WorkSchedule.HierarchyNumber == 10)
+                if (workItem.Operation.HierarchyNumber == 10)
                     Send(Hub.Instruction.ProductionStarted.Create(workItem, hub));
                 processingQueue.Enqueue(workItem);
                 queue.Remove(workItem);
@@ -79,14 +79,14 @@ namespace Master40.SimulationCore.Agents.Ressource
                 return;
             }
 
-            DebugMessage("Start with " + item.WorkSchedule.Name);
+            DebugMessage("Start with " + item.Operation.Name);
             Set(Properties.ITEMS_IN_PROGRESS, true);
             item = item.UpdateStatus(ElementStatus.Processed);
 
 
             // TODO: Roll delay here
             var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
-            var duration = workTimeGenerator.GetRandomWorkTime(item.WorkSchedule.Duration);
+            var duration = workTimeGenerator.GetRandomWorkTime(item.Operation.Duration);
 
             //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
 
