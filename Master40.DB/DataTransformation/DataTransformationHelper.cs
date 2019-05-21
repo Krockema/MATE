@@ -101,20 +101,24 @@ namespace Master40.DB.DataTransformation
             return tupleData;
         }
 
-        public object SearchOrCreateDestinationObject(DbContext toContext, dynamic destTable, Dictionary<string, object> srcTupleData, Type destinationObjectType)
+        public object SearchOrCreateDestinationObject(DbContext toContext, dynamic destTable, 
+            Dictionary<string, object> srcTupleData, Type destinationObjectType)
         {
             object destDataObject = null;
 
             IEnumerable<string> primaryKeys = GetPrimaryKeys(toContext, destinationObjectType);
 
             // Search or create destination object based on primary keys
-            foreach (object destTuple in destTable)
+            foreach (object destTuple in destTable.Local)
             {
                 bool equals = true;
                 // Compare primary key(s)
                 foreach (string keyName in primaryKeys)
                 {
-                    if (srcTupleData[keyName] != destinationObjectType.GetProperty(keyName).GetValue(destTuple))
+                    dynamic srcPkVal = srcTupleData[keyName];
+                    dynamic destPkVal = destinationObjectType.GetProperty(keyName).GetValue(destTuple);
+
+                    if (srcPkVal != destPkVal)
                     {
                         equals = false;
                         break;

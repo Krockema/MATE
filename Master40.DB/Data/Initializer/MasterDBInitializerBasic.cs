@@ -224,7 +224,8 @@ namespace Master40.DB.Data.Initializer
             {
                 new Mapping { From = "MachineGroups.Id", To = "Workcentergroup.WorkcentergroupId", ConversionFunc = "IntToString" },
                 new Mapping { From = "MachineGroups.Name", To = "Workcentergroup.Name" },
-                //...
+                //workcentergroup.parallel_scheduling_type	-> (immer 1)
+                //workcentergroup.parallel_allocation_criteria-> ( immer 0)
             };
             context.AddRange(machinegroupMappings);
             context.SaveChanges();
@@ -233,9 +234,45 @@ namespace Master40.DB.Data.Initializer
             {
                 new Mapping { From = "Machines.Id", To = "Workcenter.WorkcenterId", ConversionFunc = "IntToString" },
                 new Mapping { From = "Machines.Name", To = "Workcenter.Name" },
-                //...
+                //new Mapping { From = "Machines.Capacity", To = "Workcenter.AllocationMax", ConversionFunc = "IntToDouble" },
+                // Int = "Machines.Capacity" = 1, Double = "Workcenter.AllocationMax" = 100,0
+                //workcenter.parallel_scheduling_type			-> (immer 1)
+                //workcenter.parallel_allocation_criteria     -> (mmer 0)
             };
             context.AddRange(machineMappings);
+            context.SaveChanges();
+
+            //var articlebomsMappings = new Mapping[]
+            //{
+                //new Mapping { From = "ArticleBoms.ArticleChildId", To = "BomItem.BomId", ConversionFunc = "IntToString" },
+                //new Mapping { From = "ArticleBoms.Quantity", To = "BomItem.Quantity", ConversionFunc = "DecimalToDouble" },
+                //Decimal = "ArticleBoms.Quantity", Double = "BomItem.Quantity"
+            //};
+            //context.AddRange(articlebomsMappings);
+            context.SaveChanges();
+
+            var orderMappings = new Mapping[]
+            {
+                new Mapping { From = "Orders.Id", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString" },
+                new Mapping { From = "Orders.Name", To = "Salesorder.Name" },
+                //new Mapping { From = "Orders.State", To = "Salesorder.Status", ConversionFunc = "MasterOrderStateToGP" },
+                //----> Order.State immer auf 0 und bei Salesorder.Status immer auf 4
+            };
+            context.AddRange(orderMappings);
+            context.SaveChanges();
+
+            var orderpartsMappings = new Mapping[]
+            {
+                new Mapping { From = "OrderParts.OrderId", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString" },
+                new Mapping { From = "OrderParts.ArticleId", To = "Salesorder.MaterialId", ConversionFunc = "IntToString" },
+                new Mapping { From = "OrderParts.Quantity", To = "Salesorder.Quantity", ConversionFunc = "IntToDouble" },
+                //new Mapping { From = "OrderParts.State", To = "Salesorder.Status", ConversionFunc = "MasterOrderStateToGP" }
+                //----> Order.State immer auf 0 und bei Salesorder.Status immer auf 4
+                //salesorder.planning_type	-> (immer 1)
+                //salesorder.value_sales      -> (immer -1)
+                //salesorder.quantity_delivered   -> (immer 0)
+            };
+            context.AddRange(orderpartsMappings);
             context.SaveChanges();
 
             //var mapping = new Mapping { From = "Stock.Min", To = "Material.SafetyStockValue", ConversionFunc = "DecimalToDouble" };
