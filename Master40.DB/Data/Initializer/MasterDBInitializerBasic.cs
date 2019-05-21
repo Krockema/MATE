@@ -224,8 +224,8 @@ namespace Master40.DB.Data.Initializer
             {
                 new Mapping { From = "MachineGroups.Id", To = "Workcentergroup.WorkcentergroupId", ConversionFunc = "IntToString" },
                 new Mapping { From = "MachineGroups.Name", To = "Workcentergroup.Name" },
-                //workcentergroup.parallel_scheduling_type	-> (immer 1)
-                //workcentergroup.parallel_allocation_criteria-> ( immer 0)
+                new Mapping { From = "MachineGroups.none", To = "Workcentergroup.ParallelAllocationCriteria", ConversionFunc = "SetLongVal", ConversionArgs = "0" }
+                //workcentergroup.parallel_scheduling_type	-> (immer 1)    // sowieso schon default
             };
             context.AddRange(machinegroupMappings);
             context.SaveChanges();
@@ -234,8 +234,7 @@ namespace Master40.DB.Data.Initializer
             {
                 new Mapping { From = "Machines.Id", To = "Workcenter.WorkcenterId", ConversionFunc = "IntToString" },
                 new Mapping { From = "Machines.Name", To = "Workcenter.Name" },
-                //new Mapping { From = "Machines.Capacity", To = "Workcenter.AllocationMax", ConversionFunc = "IntToDouble" },
-                // Int = "Machines.Capacity" = 1, Double = "Workcenter.AllocationMax" = 100,0
+                new Mapping { From = "Machines.Capacity", To = "Workcenter.AllocationMax", ConversionFunc = "IntToDouble", ConversionArgs = "100" },
                 //workcenter.parallel_scheduling_type			-> (immer 1)
                 //workcenter.parallel_allocation_criteria     -> (mmer 0)
             };

@@ -78,7 +78,7 @@ namespace Master40.DB.DataTransformation
 
         private Dictionary<string, object> ReadSourceTupleData(List<Mapping> rules, object srcTuple)
         {
-            Dictionary<string, object> tupleData = new Dictionary<string, object>();
+            Dictionary<string, object> destTupleData = new Dictionary<string, object>();
 
             // Read source data
             foreach (Mapping rule in rules)
@@ -91,14 +91,23 @@ namespace Master40.DB.DataTransformation
                 else
                 {
                     // DB to DB Rule
-                    Type tupleType = srcTuple.GetType();
-                    PropertyInfo tupelProp = tupleType.GetProperty(rule.GetFromColumn());
-                    tupleData[rule.GetToColumn()] = Conversion.DoConvert(rule.ConversionFunc,
-                        rule.ConversionArgs, tupelProp.GetValue(srcTuple), false);
+                    dynamic sourcePropData;
+                    if (rule.IsFromEmpty())
+                    {
+                        sourcePropData = null;
+                    }
+                    else
+                    {
+                        Type tupleType = srcTuple.GetType();
+                        PropertyInfo tupelProp = tupleType.GetProperty(rule.GetFromColumn());
+                        sourcePropData = tupelProp.GetValue(srcTuple);
+                    }
+                    destTupleData[rule.GetToColumn()] = Conversion.DoConvert(rule.ConversionFunc,
+                        rule.ConversionArgs, sourcePropData, false);
                 }
             }
 
-            return tupleData;
+            return destTupleData;
         }
 
         public object SearchOrCreateDestinationObject(DbContext toContext, dynamic destTable, 

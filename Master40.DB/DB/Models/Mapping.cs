@@ -12,6 +12,11 @@ namespace Master40.DB.Models
         public string ConversionFunc { get; set; }
         public string ConversionArgs { get; set; }
 
+        public bool IsFromEmpty()
+        {
+            return GetFromColumn() == "none";
+        }
+
         public string GetFromTable()
         {
             return From.Split('.')[0];
@@ -20,6 +25,11 @@ namespace Master40.DB.Models
         public string GetFromColumn()
         {
             return From.Split('.')[1];
+        }
+
+        public bool IsToEmpty()
+        {
+            return GetToColumn() == "none";
         }
 
         public string GetToTable()

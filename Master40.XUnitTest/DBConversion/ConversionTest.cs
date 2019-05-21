@@ -90,12 +90,30 @@ namespace Master40.XUnitTest.DBConversion
             double expDoubleVal = 123.0;
             double doubleVal = 456.0;
             int expIntVal = 456;
+            string multi = "3.0";
+            double expDoubleValMulti = 369.0;
+            int expIntValMulti = 152;
 
             double doubleRes = (double)IntToDouble.Convert(null, intVal);
             int intRes = (int)IntToDouble.Convert(null, doubleVal, true);
+            double doubleResMulti = (double)IntToDouble.Convert(new string[] { multi }, intVal);
+            int intResMulti = (int)IntToDouble.Convert(new string[] { multi }, doubleVal, true);
 
             Assert.Equal(expDoubleVal, doubleRes);
             Assert.Equal(expIntVal, intRes);
+            Assert.Equal(expDoubleValMulti, doubleResMulti);
+            Assert.Equal(expIntValMulti, intResMulti);
+        }
+
+        [Fact]
+        public void TestSetLongVal()
+        {
+            string value = "123";
+            long expLongVal = 123;
+
+            long longRes = (long)SetLongVal.Convert(new string[] { value }, null);
+
+            Assert.Equal(expLongVal, longRes);
         }
     }
 }
