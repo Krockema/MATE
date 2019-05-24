@@ -23,8 +23,8 @@
 
     <script>
 
-        var ThorughputElement = document.getElementById("Throughput");
-        var ThroughputChart = new Chart(ThorughputElement, {
+        var ThroughputElement = document.getElementById("Throughput");
+        var ThroughputChart = new Chart(ThroughputElement, {
             type: 'boxplot',
             data: {
                 // define label tree
@@ -38,7 +38,7 @@
                     padding: 10,
                     itemRadius: 2,
                     data: [
-                        []
+                        [600,650,550]
                     ]
                 }, {
                         label: 'Race-Truck',
@@ -49,7 +49,7 @@
                         padding: 10,
                         itemRadius: 2,
                         data: [
-                            []    
+                            [600, 650, 550]    
                         ]
                     }]
             },
@@ -67,7 +67,7 @@
        
 
         processingProxy.on("Throughput", function (msg) {
-            // console.log("Throughput : " + msg);
+            console.log("Throughput : " + msg);
             var serialized = JSON.parse(msg);
             for (item of serialized.group) {
                 switch (item.Key) {
