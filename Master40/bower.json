@@ -13,7 +13,8 @@
     "chart.js": "v2.8.0",
     "growl": "v1.3.5",
     "prettify-min": "v1.0.4",
-    "moment": "2.17.1"
+    "moment": "2.17.1",
+    "popper.js": "v1.15.0"
   },
   "ignore": [
     "**/.*",
