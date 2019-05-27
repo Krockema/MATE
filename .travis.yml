@@ -9,11 +9,10 @@ services:
 install:
   - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
   - dotnet restore
-  
 
 script:
   - dotnet build
 
 notifications:
   email:
-- krockert@htw-dresden.de
+  - krockert@htw-dresden.de
