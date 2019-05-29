@@ -42,12 +42,6 @@ namespace Master40.XUnitTest.Agents
             //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
         }
 
-        [Fact]
-        public async Task OrderDistribution()
-        {
-            OrderGenerator.GenerateOrdersSyncron(_ctx, ContextTest.TestConfiguration(), 1, true); // .RunSynchronously();
-        }
-
 
         [Fact]
         public async Task SystemTestAsync()
@@ -77,20 +71,5 @@ namespace Master40.XUnitTest.Agents
             
             Assert.True(simWasReady);
         }
-
-        [Fact]
-        public async Task MachineUtil()
-        {
-            var simConfig = _ctxResult.SimulationConfigurations.Single(x => x.Id == 1);
-            CalculateKpis.MachineSattleTime(_masterDBContext,_ctxResult, simConfig, DB.Enums.SimulationType.Decentral, 0);
-        }
-
-        [Fact]
-        public async Task ConsoleTest()
-        {
-            Console.WriteLine("System Console", "Programm");
-            System.Diagnostics.Debug.WriteLine("System Diagnostic", "System");
-        }
-
     }
 }
