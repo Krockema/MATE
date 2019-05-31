@@ -3,9 +3,6 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "@aspnet/signalr": "^1.0.0",
-    "mermaid": "^7.1.0",
-    "yarn": "^1.1.0"
   },
   "devDependencies": {},
   "main": "index.js",
