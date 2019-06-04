@@ -206,14 +206,9 @@ namespace Master40.Agents.Agents.Internal
         {
             List<Dictionary<string, object>> dataList = new List<Dictionary<string, object>>();
             Dictionary<string, object> data = new Dictionary<string, object>();
-            //data.Add("AgentId", this.AgentId);
-            //data.Add("AgentName", this.Name);
             data.Add("AgentType", this.GetType());
-            //data.Add("AgentStatus", this.Status);
-            
-            Type agentType = this.GetType();
 
-            DataCollectionHelper.CollectProps(this, ref data);
+            DataCollectionHelper.CollectProps(this, ref data, this.GetType().Name + ".");
 
             dataList.Add(data);
             return dataList;
@@ -223,7 +218,7 @@ namespace Master40.Agents.Agents.Internal
         {
             //Tell children to return data
             foreach(Agent child in ChildAgents)
-                CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "Test", child);
+                CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "ReturnData", child);
 
             //TODO: Move into ReceiveData?
             CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(), GetData(), instructionSet.SourceAgent);

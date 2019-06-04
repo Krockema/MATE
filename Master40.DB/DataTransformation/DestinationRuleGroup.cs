@@ -17,5 +17,10 @@ namespace Master40.DB.DataTransformation
         {
             Rules.Add(rule);
         }
+
+        public bool IsAgentRuleGroup()
+        {
+            return Rules[0].IsAgentData;
+        }
     }
 }

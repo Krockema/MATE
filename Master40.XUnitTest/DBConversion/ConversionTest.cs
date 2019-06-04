@@ -115,5 +115,20 @@ namespace Master40.XUnitTest.DBConversion
 
             Assert.Equal(expLongVal, longRes);
         }
+
+        [Fact]
+        public void TestRelativeTimeIntToDateString()
+        {
+            int intTimeVal = 1337;
+            string expStringDateVal = "19700101 00:22:17";
+            string stringDateVal = "19700101 00:13:17";
+            int expIntTimeVal = 797;
+
+            string stringDateRes = (string)RelativeTimeIntToDateString.Convert(null, intTimeVal);
+            int intTimeRes = (int)RelativeTimeIntToDateString.Convert(null, stringDateVal, true);
+
+            Assert.Equal(expStringDateVal, stringDateRes);
+            Assert.Equal(expIntTimeVal, intTimeRes);
+        }
     }
 }

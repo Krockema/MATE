@@ -62,7 +62,7 @@ namespace Master40.Agents.Agents
             {
                 if (new[] { typeof(RequestItem), typeof(DB.Models.Machine), typeof(DB.Models.Article) }.Contains(prop.PropertyType))
                 {
-                    CollectProps(prop.GetValue(obj), ref props, prefix + prop.Name + "-");
+                    CollectProps(prop.GetValue(obj), ref props, prefix + prop.Name + ".");
                 }
                 //else if (prop.PropertyType == typeof(List<WorkItem>))
                 //{

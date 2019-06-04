@@ -147,7 +147,7 @@ namespace Master40.Agents.Agents
         private void CollectData(InstructionSet instructionSet)
         {
             // Gather own data
-            CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "Test", this);
+            CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "ReturnData", this);
 
             //Cannot write data here since receive tasks won't be processed while this task is active 
         }

@@ -13,12 +13,14 @@ namespace Master40.DB.DataTransformation
     {
         private MasterDBContext MasterContext;
         private GPSzenarioContext GpContext;
+        private List<Dictionary<string, object>> AgentData;
         private Dictionary<string, SourceRuleGroup> SourceRuleGroups = new Dictionary<string, SourceRuleGroup>();
 
-        public DataTransformationHelper(MasterDBContext masterContext, GPSzenarioContext gpContext)
+        public DataTransformationHelper(MasterDBContext masterContext, GPSzenarioContext gpContext, List<Dictionary<string, object>> agentData)
         {
             this.MasterContext = masterContext;
             this.GpContext = gpContext;
+            this.AgentData = agentData;
 
             MasterContext.Database.EnsureCreated();
             GpContext.Database.EnsureCreated();
@@ -86,7 +88,9 @@ namespace Master40.DB.DataTransformation
                 if (rule.IsAgentData)
                 {
                     // Agent to DB Rule
-                    // TODO
+                    Dictionary<string, object> srcDict = (Dictionary<string, object>)srcTuple;
+                    destTupleData[rule.GetToColumn()] = Conversion.DoConvert(rule.ConversionFunc,
+                        rule.ConversionArgs, srcDict[rule.From], false);
                 }
                 else
                 {
@@ -171,9 +175,13 @@ namespace Master40.DB.DataTransformation
         {
             foreach (KeyValuePair<string, SourceRuleGroup> srcGroup in SourceRuleGroups)
             {
-                dynamic sourceTable = GetTableByName(fromContext, srcGroup.Key);
+                dynamic sourceData;
+                if(srcGroup.Value.IsAgentRuleGroup())
+                    sourceData = AgentData;
+                else
+                    sourceData = GetTableByName(fromContext, srcGroup.Key);
 
-                foreach (object srcTuple in sourceTable)
+                foreach (object srcTuple in sourceData)
                     ProcessDestinationRuleGroups(toContext, srcGroup.Value.RuleGroups, srcTuple);
             }
         }

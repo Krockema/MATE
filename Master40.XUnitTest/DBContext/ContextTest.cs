@@ -77,7 +77,19 @@ namespace Master40.XUnitTest.DBContext
             GPSzenarioInitializer.DbInitialize(_gpSzenarioContext);
             _gpSzenarioContext.Database.EnsureCreated();
 
-            DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
+            List<Dictionary<string, object>> dummyAgentData = new List<Dictionary<string, object>>
+            {
+                new Dictionary<string, object>{
+                    { "ContractAgent.requestItem.OrderId", 123 },
+                    { "ContractAgent.requestItem.DueTime", 0 },
+                    { "ContractAgent.requestItem.Article.Id", 321 },
+                    { "ContractAgent.requestItem.Quantity", 2 },
+                    { "ContractAgent.requestItem.Article.UnitId", 3 },
+                    { "ContractAgent.requestItem.IDemandToProvider.State", 0 }
+                }
+            };
+
+            DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext, dummyAgentData);
             helper.TransformMasterToGp();
         }
 
@@ -106,6 +118,9 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task AgentSimulationTestAsync()
         {
+            _productionDomainContext.Database.EnsureDeleted();
+            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
+            _productionDomainContext.Database.EnsureCreated();
 
             // In-memory database only exists while the connection is open
             var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
@@ -114,7 +129,6 @@ namespace Master40.XUnitTest.DBContext
             // create OptionsBuilder with InMemmory Context
             var builder = new DbContextOptionsBuilder<MasterDBContext>();
             builder.UseSqlite(connection);
-
 
             using (var c = new InMemoryContext(builder.Options))
             {

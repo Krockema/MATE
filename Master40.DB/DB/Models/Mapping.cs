@@ -12,6 +12,7 @@ namespace Master40.DB.Models
         public string ConversionFunc { get; set; }
         public string ConversionArgs { get; set; }
 
+        // Rules with "none" as column are used for static values
         public bool IsFromEmpty()
         {
             return GetFromColumn() == "none";

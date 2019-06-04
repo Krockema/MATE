@@ -250,33 +250,45 @@ namespace Master40.DB.Data.Initializer
             //context.AddRange(articlebomsMappings);
             context.SaveChanges();
 
-            var orderMappings = new Mapping[]
-            {
-                new Mapping { From = "Orders.Id", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString" },
-                new Mapping { From = "Orders.Name", To = "Salesorder.Name" },
-                //new Mapping { From = "Orders.State", To = "Salesorder.Status", ConversionFunc = "MasterOrderStateToGP" },
-                //----> Order.State immer auf 0 und bei Salesorder.Status immer auf 4
-            };
-            context.AddRange(orderMappings);
-            context.SaveChanges();
+            //var orderMappings = new Mapping[]
+            //{
+            //    new Mapping { From = "Orders.Id", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString" },
+            //    new Mapping { From = "Orders.Name", To = "Salesorder.Name" },
+            //    //new Mapping { From = "Orders.State", To = "Salesorder.Status", ConversionFunc = "MasterOrderStateToGP" },
+            //    //----> Order.State immer auf 0 und bei Salesorder.Status immer auf 4
+            //};
+            //context.AddRange(orderMappings);
+            //context.SaveChanges();
 
-            var orderpartsMappings = new Mapping[]
-            {
-                new Mapping { From = "OrderParts.OrderId", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString" },
-                new Mapping { From = "OrderParts.ArticleId", To = "Salesorder.MaterialId", ConversionFunc = "IntToString" },
-                new Mapping { From = "OrderParts.Quantity", To = "Salesorder.Quantity", ConversionFunc = "IntToDouble" },
-                //new Mapping { From = "OrderParts.State", To = "Salesorder.Status", ConversionFunc = "MasterOrderStateToGP" }
-                //----> Order.State immer auf 0 und bei Salesorder.Status immer auf 4
-                //salesorder.planning_type	-> (immer 1)
-                //salesorder.value_sales      -> (immer -1)
-                //salesorder.quantity_delivered   -> (immer 0)
-            };
-            context.AddRange(orderpartsMappings);
-            context.SaveChanges();
+            //var orderpartsMappings = new Mapping[]
+            //{
+            //    new Mapping { From = "OrderParts.OrderId", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString" },
+            //    new Mapping { From = "OrderParts.ArticleId", To = "Salesorder.MaterialId", ConversionFunc = "IntToString" },
+            //    new Mapping { From = "OrderParts.Quantity", To = "Salesorder.Quantity", ConversionFunc = "IntToDouble" },
+            //    //new Mapping { From = "OrderParts.State", To = "Salesorder.Status", ConversionFunc = "MasterOrderStateToGP" }
+            //    //----> Order.State immer auf 0 und bei Salesorder.Status immer auf 4
+            //    //salesorder.planning_type	-> (immer 1)
+            //    //salesorder.value_sales      -> (immer -1)
+            //    //salesorder.quantity_delivered   -> (immer 0)
+            //};
+            //context.AddRange(orderpartsMappings);
+            //context.SaveChanges();
 
             //var mapping = new Mapping { From = "Stock.Min", To = "Material.SafetyStockValue", ConversionFunc = "DecimalToDouble" };
             //context.Add(mapping);
             //context.SaveChanges();
+
+            var contractAgentMapping = new Mapping[]
+            {
+                new Mapping { From = "ContractAgent.requestItem.OrderId", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ContractAgent.requestItem.DueTime", To = "Salesorder.Duedate", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
+                new Mapping { From = "ContractAgent.requestItem.Article.Id", To = "Salesorder.MaterialId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ContractAgent.requestItem.Quantity", To = "Salesorder.Quantity", ConversionFunc = "IntToDouble", IsAgentData = true},
+                new Mapping { From = "ContractAgent.requestItem.Article.UnitId", To = "Salesorder.QuantityUnitId", ConversionFunc = "IntToString", IsAgentData = true},
+                //new Mapping { From = "ContractAgent.requestItem.IDemandToProvider.State", To = "salesorder.status", ConversionFunc = "MasterStateToGPStatus", IsAgentData = true}
+            };
+            context.AddRange(contractAgentMapping);
+            context.SaveChanges();
         }
     }
 }
