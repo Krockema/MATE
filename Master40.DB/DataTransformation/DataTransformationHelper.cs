@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Master40.DB.DataTransformation.Conversions;
+using Master40.DB.Data.Initializer;
 
 namespace Master40.DB.DataTransformation
 {
@@ -13,8 +14,15 @@ namespace Master40.DB.DataTransformation
     {
         private MasterDBContext MasterContext;
         private GPSzenarioContext GpContext;
+        // TODO: Later there will be no need to keep this data locally
         private List<Dictionary<string, object>> AgentData;
-        private Dictionary<string, SourceRuleGroup> SourceRuleGroups = new Dictionary<string, SourceRuleGroup>();
+        // Core data only needs to be transformed once
+        private List<Mapping> CoreDataRules = new List<Mapping>();
+        private Dictionary<string, SourceRuleGroup> CoreDataRuleGroups = new Dictionary<string, SourceRuleGroup>();
+        // Agent data will be transformed periodically
+        private List<Mapping> AgentDataRules = new List<Mapping>();
+        private Dictionary<string, SourceRuleGroup> AgentDataRuleGroups = new Dictionary<string, SourceRuleGroup>();
+        private Dictionary<string, SourceRuleGroup> AgentDataRuleGroupsReversed = new Dictionary<string, SourceRuleGroup>();
 
         public DataTransformationHelper(MasterDBContext masterContext, GPSzenarioContext gpContext, List<Dictionary<string, object>> agentData)
         {
@@ -23,23 +31,64 @@ namespace Master40.DB.DataTransformation
             this.AgentData = agentData;
 
             MasterContext.Database.EnsureCreated();
-            GpContext.Database.EnsureCreated();
-
-            GroupRules();
+            SortTransformationRules();
+            this.CoreDataRuleGroups = GroupRules(CoreDataRules);
+            this.AgentDataRuleGroups = GroupRules(AgentDataRules);
+            this.AgentDataRuleGroupsReversed = GroupRules(AgentDataRules, true);
         }
 
-        private void GroupRules()
+        private void SortTransformationRules()
         {
+            foreach(Mapping mapping in MasterContext.Mappings)
+            {
+                if (mapping.IsAgentData)
+                    AgentDataRules.Add(mapping);
+                else
+                    CoreDataRules.Add(mapping);
+            }
+        }
+
+        public Boolean TransformCoreData()
+        {
+            GpContext.Database.EnsureDeleted();
+            GPSzenarioInitializer.DbInitialize(this.GpContext);
+
+            ProcessSourceRuleGroups(MasterContext, GpContext, this.CoreDataRuleGroups);
+            GpContext.SaveChanges();
+            return true;
+        }
+
+        public Boolean TransformAgentDataToGp(List<Dictionary<string, object>> agentData)
+        {
+            ProcessSourceRuleGroups(MasterContext, GpContext, this.AgentDataRuleGroups);
+            GpContext.SaveChanges();
+            return true;
+        }
+
+        public List<Dictionary<string, object>> TransformAgentDataToMaster()
+        {
+            ProcessSourceRuleGroups(MasterContext, GpContext, this.AgentDataRuleGroupsReversed);
+            GpContext.SaveChanges();
+            return new List<Dictionary<string, object>>();
+        }
+
+        private Dictionary<string, SourceRuleGroup> GroupRules(List<Mapping> rules, bool reversed=false)
+        {
+            Dictionary<string, SourceRuleGroup> RuleGroup = new Dictionary<string, SourceRuleGroup>();
             Dictionary<string, DestinationRuleGroup> tmpRuleGroup = new Dictionary<string, DestinationRuleGroup>();
             
             // Group source tables
-            foreach(Mapping mapping in MasterContext.Mappings)
+            foreach(Mapping mapping in rules)
             {
-                string sourceTabName = mapping.GetFromTable();
+                Mapping actualMapping;
+                if (!reversed)
+                    actualMapping = mapping;
+                else
+                    actualMapping = ReverseMapping(mapping);
+                string sourceTabName = actualMapping.GetFromTable();
                 if (!tmpRuleGroup.ContainsKey(sourceTabName))
                     tmpRuleGroup[sourceTabName] = new DestinationRuleGroup();
-
-                tmpRuleGroup[sourceTabName].AddRule(mapping);
+                tmpRuleGroup[sourceTabName].AddRule(actualMapping);
             }
 
             // Group destination tables
@@ -54,8 +103,22 @@ namespace Master40.DB.DataTransformation
                     srcRuleGroup.RuleGroups[destTabName].AddRule(rule);
 
                 }
-                SourceRuleGroups[srcGroup.Key] = srcRuleGroup;
+                RuleGroup[srcGroup.Key] = srcRuleGroup;
             }
+
+            return RuleGroup;
+        }
+
+        private Mapping ReverseMapping(Mapping originalMapping)
+        {
+            return new Mapping
+            {
+                From = originalMapping.To,
+                To = originalMapping.From,
+                IsAgentData = originalMapping.IsAgentData,
+                ConversionFunc = originalMapping.ConversionFunc,
+                ConversionArgs = originalMapping.ConversionArgs
+            };
         }
 
         private IEnumerable<string> GetPrimaryKeys(DbContext context, Type objectType)
@@ -171,12 +234,12 @@ namespace Master40.DB.DataTransformation
             }
         }
 
-        private void ProcessSourceRuleGroups(DbContext fromContext, DbContext toContext, Dictionary<string, SourceRuleGroup> sourceRuleGroups)
+        private void ProcessSourceRuleGroups(DbContext fromContext, DbContext toContext, Dictionary<string, SourceRuleGroup> sourceRuleGroups, bool reversed = false)
         {
-            foreach (KeyValuePair<string, SourceRuleGroup> srcGroup in SourceRuleGroups)
+            foreach (KeyValuePair<string, SourceRuleGroup> srcGroup in sourceRuleGroups)
             {
                 dynamic sourceData;
-                if(srcGroup.Value.IsAgentRuleGroup())
+                if(srcGroup.Value.IsAgentRuleGroup() && !reversed)
                     sourceData = AgentData;
                 else
                     sourceData = GetTableByName(fromContext, srcGroup.Key);
@@ -188,17 +251,19 @@ namespace Master40.DB.DataTransformation
 
         public bool TransformMasterToGp()
         {
-            ProcessSourceRuleGroups(MasterContext, GpContext, SourceRuleGroups);
+            GpContext.Database.EnsureDeleted();
+            GPSzenarioInitializer.DbInitialize(this.GpContext);
+
+            Dictionary<string, SourceRuleGroup> RuleGroup = GroupRules(MasterContext.Mappings.ToList());
+            ProcessSourceRuleGroups(this.MasterContext, this.GpContext, RuleGroup);
             GpContext.SaveChanges();
             return true;
         }
 
         public bool TransformGpToMaster()
         {
-            foreach (Mapping rule in MasterContext.Mappings)
-            {
-                //TODO
-            }
+            Dictionary<string, SourceRuleGroup> RuleGroup = GroupRules(MasterContext.Mappings.ToList(), true);
+            // TODO: Actually transform data. In this direction only Rules with IsAgentData==true need to be applied
             return true;
         }
     }
