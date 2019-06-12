@@ -73,24 +73,33 @@ namespace Master40.XUnitTest.DBContext
             _masterDBContext.Database.EnsureDeleted();
             MasterDBInitializerBasic.DbInitialize(_masterDBContext);
             _masterDBContext.Database.EnsureCreated();
-            _gpSzenarioContext.Database.EnsureDeleted();
-            GPSzenarioInitializer.DbInitialize(_gpSzenarioContext);
-            _gpSzenarioContext.Database.EnsureCreated();
 
             List<Dictionary<string, object>> dummyAgentData = new List<Dictionary<string, object>>
             {
                 new Dictionary<string, object>{
                     { "ContractAgent.requestItem.OrderId", 123 },
                     { "ContractAgent.requestItem.DueTime", 0 },
-                    { "ContractAgent.requestItem.Article.Id", 321 },
+                    { "ContractAgent.requestItem.Article.Id", 1 },
                     { "ContractAgent.requestItem.Quantity", 2 },
                     { "ContractAgent.requestItem.Article.UnitId", 3 },
-                    { "ContractAgent.requestItem.IDemandToProvider.State", 0 }
+                    { "ContractAgent.requestItem.IDemandToProvider.State", 0 },
+                    { "StorageAgent.StockElement.Id", 12345 },
+                    { "StorageAgent.StockElement.Article.Id", 1 },
+                    { "StorageAgent.StockElement.Current", 3.0m },
+                    { "StorageAgent.StockElement.Article.UnitId", 3 },
+                    //{ "ProductionAgent.RequestItem.Article.Id", 1 },
+                    //{ "ProductionAgent.RequestItem.DueTime", 3600 },
+                    //{ "ProductionAgent.RequestItem.OrderId.Id", 123 },
+                    //{ "ProductionAgent.RequestItem.Quantity", 2 },
                 }
             };
 
-            DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext, dummyAgentData);
-            helper.TransformMasterToGp();
+            DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
+            helper.TransformCoreData();
+            helper.TransformAgentDataToGp(dummyAgentData);
+            List<Dictionary<string, object>> receivedAgentData = helper.TransformAgentDataToMaster();
+
+            // Assert.Equal()
         }
 
         /// <summary>
