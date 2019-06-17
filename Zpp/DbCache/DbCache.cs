@@ -42,13 +42,17 @@ namespace Zpp
             _articleBoms = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild)
                 .ToList();
             _articles = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
-                .ThenInclude(m => m.ArticleChild).ToList();
+                .ThenInclude(m => m.ArticleChild)
+                .Include(m => m.ArticleBoms).ThenInclude(x=>x.Operation)
+                .Include(x=>x.ArticleToBusinessPartners).ThenInclude(x=>x.BusinessPartner).ToList();
             _tDemands = _productionDomainContext.Demands.ToList();
-            _customerOrderParts = _productionDomainContext.CustomerOrderParts.ToList();
+            _tProviders = productionDomainContext.Providers.ToList();
+            _customerOrderParts = _productionDomainContext.CustomerOrderParts.Include(x => x.Article)
+                .Include(x => x.CustomerOrder).ToList();
             _productionOrderBoms = _productionDomainContext.ProductionOrderBoms.ToList();
             _stockExchanges = _productionDomainContext.StockExchanges.ToList();
-            _productionOrders = _productionDomainContext.ProductionOrders.ToList();
-            _purchaseOrderParts = _productionDomainContext.PurchaseOrderParts.ToList();
+            _productionOrders = _productionDomainContext.ProductionOrders.Include(x => x.Article).ToList();
+            _purchaseOrderParts = _productionDomainContext.PurchaseOrderParts.Include(x => x.Article).ToList();
             _purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
         }
 
@@ -58,7 +62,7 @@ namespace Zpp
                 .DemandToProviders);
         }
 
-        public void persistDbCache()
+        public void PersistDbCache()
         {
 
             // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
@@ -182,6 +186,7 @@ namespace Zpp
             {
                 LOGGER.Error("Unknown type implementing IDemand");
             }
+            _tDemands.Add(demand.Demand);
         }
 
         public void ProvidersAdd(IProvider provider)
@@ -202,9 +207,10 @@ namespace Zpp
             {
                 LOGGER.Error("Unknown type implementing IProvider");
             }
+            _tProviders.Add(provider.Provider);
         }
 
-        public List<IDemand> GetAllIDemands()
+        public List<IDemand> DemandsGetAll()
         {
             return T_DemandsGetAll().Select(x => x.ToIDemand(x,
                     T_CustomerOrderPartGetAll(), T_ProductionOrderBomGetAll(),

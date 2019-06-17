@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.Utils;
 
 namespace Zpp
 {
@@ -34,6 +35,10 @@ namespace Zpp
 
         public void AddProvider(IProvider provider)
         {
+            if (provider == null)
+            {
+                throw new MrpRunException();
+            }
             _providers.Add(provider);
         }
 

@@ -7,7 +7,7 @@ namespace Zpp.Utils
     {
         public static ProductionDomainContext getDbContext()
         {
-            ProductionDomainContext _productionDomainContext;
+            ProductionDomainContext productionDomainContext;
 
             // EF inMemory
             // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
@@ -19,7 +19,7 @@ namespace Zpp.Utils
             if (Constants.IsWindows)
             {
                 // Windows
-                _productionDomainContext = new ProductionDomainContext(
+                productionDomainContext = new ProductionDomainContext(
                     new DbContextOptionsBuilder<MasterDBContext>()
                         .UseSqlServer(
                             Constants.DbConnectionZppWindows)
@@ -28,7 +28,7 @@ namespace Zpp.Utils
             else
             {
                 // With Sql Server for Mac/Linux
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(
                         Constants.DbConnectionZppUnix())
                     .Options);
@@ -41,7 +41,10 @@ namespace Zpp.Utils
                     .Options);*/
             }
 
-            return _productionDomainContext;
+            // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
+            productionDomainContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            
+            return productionDomainContext;
         }
     }
 }

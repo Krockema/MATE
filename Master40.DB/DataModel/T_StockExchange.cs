@@ -27,6 +27,8 @@ namespace Master40.DB.DataModel
         {
             // it must be always a T_Demand created for every IDemand
             Demand = new T_Demand();
+            Provider = new T_Provider();
+            // TODO: is a new StockExchange a demand and a provider?
         }
         
         public int GetDueTime()

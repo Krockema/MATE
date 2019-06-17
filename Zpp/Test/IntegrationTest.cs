@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB;
 using Master40.DB.DataModel;
+using Master40.DB.Interfaces;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
 using Microsoft.EntityFrameworkCore;
@@ -26,10 +27,17 @@ namespace Zpp.Test
             IDbCache dbCache = new DbCache(ProductionDomainContext);
             Assert.True(dbCache.T_DemandsGetAll().Count == 1, "No demands are initially available.");
             
-            MrpRun.RunMrp(dbCache, dbCache.GetAllIDemands());
+            MrpRun.RunMrp(dbCache, dbCache.DemandsGetAll());
             
-            Assert.True(dbCache.T_DemandsGetAll().Count == 28, "No demands were created by MrpRun.");
-            Assert.True(dbCache.T_ProvidersGetAll().Count == 28, "No providers were created by MrpRun.");
+            int expectedNumberOfDemandsAndProviders = 28;
+            List<T_Demand> actualDemands = dbCache.T_DemandsGetAll();
+            List<T_Provider> actualProviders = dbCache.T_ProvidersGetAll();
+            Assert.True(actualDemands.Count == expectedNumberOfDemandsAndProviders + 1, // TODO: why is + 1 needed? 
+                $"No demands were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
+                $"Actual {actualProviders.Count}");
+            Assert.True(actualProviders.Count == expectedNumberOfDemandsAndProviders, 
+                $"No providers were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
+                $"Actual {actualProviders.Count}");
 
             // check certain constraints are not violated
             

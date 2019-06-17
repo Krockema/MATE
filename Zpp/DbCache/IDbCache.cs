@@ -13,7 +13,7 @@ namespace Zpp
     {
         void T_DemandToProvidersRemoveAll();
 
-        void persistDbCache();
+        void PersistDbCache();
 
         void T_PurchaseOrderAdd(T_PurchaseOrder purchaseOrder);
 
@@ -45,7 +45,7 @@ namespace Zpp
 
         List<T_ProductionOrder> T_ProductionOrderGetAll();
 
-        List<IDemand> GetAllIDemands();
+        List<IDemand> DemandsGetAll();
 
     }
 }

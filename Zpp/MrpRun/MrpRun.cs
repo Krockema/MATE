@@ -30,7 +30,7 @@ namespace Zpp
             }
 
             // finalize
-            dbCache.persistDbCache();
+            dbCache.PersistDbCache();
         }
 
         private static void ProcessDbDemand(IDbCache dbCache, IDemand oneDbDemand)
@@ -51,7 +51,6 @@ namespace Zpp
 
             List<IDemandManager> levelDemandManagers = new List<IDemandManager>();
             // first level has the given oneDbDemand from database, while levels below are initially empty
-            // TODO: every customerOrder should traversed completely before taking the next !
             IDemandManager firstLevelDemandManager =
                 new DemandManagerSimple(dbCache, providerManager, 1);
             firstLevelDemandManager.AddDemand(oneDbDemand);
@@ -77,6 +76,8 @@ namespace Zpp
 
                     if (providerManager.GetProviders() != null)
                     {
+                        // check existing provider
+                        
                         foreach (IProvider provider in providerManager.GetProviders())
                         {
                             // does a provider in time exists?
@@ -110,7 +111,7 @@ namespace Zpp
                 providerManager.PersistProviders();
                 levelDemandManagers.Remove(currentDemandManager);
                 // TODO: optimize (not everything needs to push to physical DB)
-                dbCache.persistDbCache();
+                dbCache.PersistDbCache();
                 // break condition
                 if (nextDemandManager.GetDemands().Count == 0)
                 {
