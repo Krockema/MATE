@@ -45,5 +45,7 @@ namespace Zpp
 
         List<T_ProductionOrder> T_ProductionOrderGetAll();
 
+        List<IDemand> GetAllIDemands();
+
     }
 }

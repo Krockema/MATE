@@ -203,5 +203,12 @@ namespace Zpp
                 LOGGER.Error("Unknown type implementing IProvider");
             }
         }
+
+        public List<IDemand> GetAllIDemands()
+        {
+            return T_DemandsGetAll().Select(x => x.ToIDemand(x,
+                    T_CustomerOrderPartGetAll(), T_ProductionOrderBomGetAll(),
+                    T_StockExchangeGetAll())).ToList();
+            }
     }
 }

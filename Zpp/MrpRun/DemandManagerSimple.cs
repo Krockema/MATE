@@ -25,12 +25,12 @@ namespace Zpp
         /// <summary>
         /// Using this constructor, demandList initially has the already existing demands from database
         /// </summary>
-        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager)
+        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager, List<IDemand> demands)
         {
             _hierarchyNumber = 1;
             _providerManager = providerManager;
             _dbCache = dbCache;
-            _demands = ToIDemands(_dbCache);
+            _demands = demands;
         }
         
         /// <summary>
@@ -97,13 +97,6 @@ namespace Zpp
             }
 
             _demandsHavingProviders[demandId].Add(providerId);
-        }
-
-        private List<IDemand> ToIDemands(IDbCache dbCache)
-        {
-            return dbCache.T_DemandsGetAll().Select(x => x.ToIDemand(x,
-                dbCache.T_CustomerOrderPartGetAll(), dbCache.T_ProductionOrderBomGetAll(),
-                dbCache.T_StockExchangeGetAll())).ToList();
         }
 
         public int GetHierarchyNumber()

@@ -20,13 +20,16 @@ namespace Zpp.Test
         }
 
         [Fact]
-        public void testMrpRun()
+        public void TestMrpRun()
         {
             List<int> countsMasterDataBefore = countMasterData();
             IDbCache dbCache = new DbCache(ProductionDomainContext);
-            Assert.True(dbCache.T_DemandsGetAll().Count == 1, "No demands are available.");
-
-            MrpRun.runMrp(dbCache);
+            Assert.True(dbCache.T_DemandsGetAll().Count == 1, "No demands are initially available.");
+            
+            MrpRun.RunMrp(dbCache, dbCache.GetAllIDemands());
+            
+            Assert.True(dbCache.T_DemandsGetAll().Count == 28, "No demands were created by MrpRun.");
+            Assert.True(dbCache.T_ProvidersGetAll().Count == 28, "No providers were created by MrpRun.");
 
             // check certain constraints are not violated
             

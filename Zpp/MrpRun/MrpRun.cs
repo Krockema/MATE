@@ -15,21 +15,32 @@ namespace Zpp
 
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
 
-        public static void runMrp(IDbCache dbCache)
+        public static void RunMrp(IDbCache dbCache, List<IDemand> initialDemands)
         {
             // init data structures
-
-            // managers
-            IProviderManager providerManager = new ProviderManagerSimple(dbCache);
-            ProductionManager productionManager = new ProductionManager(dbCache, providerManager);
-
-            IPurchaseManager purchaseManager = new PurchaseManagerSimple(dbCache, providerManager);
-
+            
             // start
 
             // remove all DemandToProvider entries
             dbCache.T_DemandToProvidersRemoveAll();
 
+            foreach (var initialDemand in initialDemands){
+            
+                ProcessDbDemand(dbCache, initialDemand);
+            }
+
+            // finalize
+            dbCache.persistDbCache();
+        }
+
+        private static void ProcessDbDemand(IDbCache dbCache, IDemand oneDbDemand)
+        {
+            // managers
+            IProviderManager providerManager = new ProviderManagerSimple(dbCache);
+            ProductionManager productionManager = new ProductionManager(dbCache, providerManager);
+
+            IPurchaseManager purchaseManager = new PurchaseManagerSimple(dbCache, providerManager);
+            
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
             // --> it's not possible to add these to the demandList even with Enumerators/Iterators
@@ -39,10 +50,11 @@ namespace Zpp
             // and all created demands within a level is put to level below
 
             List<IDemandManager> levelDemandManagers = new List<IDemandManager>();
-            // first level has the demands from database, while levels below are initially empty
+            // first level has the given oneDbDemand from database, while levels below are initially empty
             // TODO: every customerOrder should traversed completely before taking the next !
             IDemandManager firstLevelDemandManager =
-                new DemandManagerSimple(dbCache, providerManager);
+                new DemandManagerSimple(dbCache, providerManager, 1);
+            firstLevelDemandManager.AddDemand(oneDbDemand);
             levelDemandManagers.Add(firstLevelDemandManager);
             int hierarchyNumber = 1;
 
@@ -105,9 +117,6 @@ namespace Zpp
                     break;
                 }
             }
-
-            // finalize
-            dbCache.persistDbCache();
         }
     }
 }
