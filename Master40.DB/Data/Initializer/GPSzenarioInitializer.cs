@@ -2129,7 +2129,7 @@ Login name: IPC7\Administrator"},
 
             var plannningparameter = new Planningparameter[]
             {
-                new Planningparameter { PlanningparameterId = "Standard"}
+                new Planningparameter { PlanningparameterId = "Standard", MrpCheckInhouseProduction = 0, MrpCheckPurchase = 0, MrpCreateInhouseProduction = 0, MrpCreatePurchase = 0, MrpRelinkProductionorders = 0, MrpRelinkPurchaseorders = 0, MrpRelinkStockreservations = 0, PlanningTypes = 1 }
             };
             context.AddRange(plannningparameter);
             context.SaveChanges();
