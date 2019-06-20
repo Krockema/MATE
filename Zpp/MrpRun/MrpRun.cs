@@ -6,6 +6,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.ModelExtensions;
 using Zpp.Utils;
+using Zpp.Wrappers;
 
 namespace Zpp
 {
@@ -96,14 +97,9 @@ namespace Zpp
                     {
                         LOGGER.Debug(
                             "Create a provider for article " + demand.GetArticle().Id + ":");
-                        if (demand.GetArticle().ToBuild)
-                        {
-                            productionManager.CreateProductionOrder(demand, nextDemandManager);
-                        }
-                        else if (demand.GetArticle().ToPurchase)
-                        {
-                            purchaseManager.createPurchaseOrderPart(demand);
-                        }
+                        WIProvider provider = demand.createProvider(dbCache);
+                        nextDemandManager.AddDemands(provider.GetDemands());
+                        providerManager.AddProvider(provider);
                     }
                 }
                 // persist processed demands/providers

@@ -8,6 +8,8 @@ namespace Zpp
         IDemand GetDemandById(int id);
 
         void AddDemand(IDemand demand);
+        
+        void AddDemands(List<IDemand> demands);
 
         List<IDemand> GetDemands();
 

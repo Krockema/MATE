@@ -114,5 +114,13 @@ namespace Zpp
             _dbCache.DemandsAddAll(_demands);
             _demands.Clear();
         }
+
+        public void AddDemands(List<IDemand> demands)
+        {
+            foreach (IDemand demand in demands)
+            {
+                AddDemand(demand);
+            }
+        }
     }
 }

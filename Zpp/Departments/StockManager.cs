@@ -11,13 +11,11 @@ namespace Zpp
     {
         private readonly ProductionDomainContext _productionDomainContext;
         private IPurchaseManager _purchaseManager;
-        ProductionManager _productionManager;
         private readonly Queue<T_StockExchange> _stockExchanges = new Queue<T_StockExchange>();
 
-        public StockManager(ProductionDomainContext productionDomainContext, ProductionManager productionManager, IPurchaseManager purchaseManager)
+        public StockManager(ProductionDomainContext productionDomainContext, IPurchaseManager purchaseManager)
         {
             _productionDomainContext = productionDomainContext;
-            _productionManager = productionManager;
             _purchaseManager = purchaseManager;
         }
 
