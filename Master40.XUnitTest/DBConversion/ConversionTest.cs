@@ -130,5 +130,20 @@ namespace Master40.XUnitTest.DBConversion
             Assert.Equal(expStringDateVal, stringDateRes);
             Assert.Equal(expIntTimeVal, intTimeRes);
         }
+
+        [Fact]
+        public void TestGuidToString()
+        {
+            Guid guidVal = Guid.Parse("12345678-1234-1234-1234-1234567890ab");
+            string expStringVal = "12345678-1234-1234-1234-1234567890ab";
+            string stringVal = "12345678-abcd-abcd-abcd-1234567890ab";
+            Guid expGuidVal = Guid.Parse("12345678-abcd-abcd-abcd-1234567890ab");
+
+            string stringRes = (string)GuidToString.Convert(null, guidVal);
+            Guid guidRes = (Guid)GuidToString.Convert(null, stringVal, true);
+
+            Assert.Equal(expStringVal, stringRes);
+            Assert.Equal(expGuidVal, guidRes);
+        }
     }
 }

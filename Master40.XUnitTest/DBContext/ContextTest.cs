@@ -83,21 +83,53 @@ namespace Master40.XUnitTest.DBContext
                     { "ContractAgent.requestItem.Quantity", 2 },
                     { "ContractAgent.requestItem.Article.UnitId", 3 },
                     { "ContractAgent.requestItem.IDemandToProvider.State", 0 },
-                    { "StorageAgent.StockElement.Id", 12345 },
-                    { "StorageAgent.StockElement.Article.Id", 1 },
-                    { "StorageAgent.StockElement.Current", 3.0m },
-                    { "StorageAgent.StockElement.Article.UnitId", 3 },
-                    //{ "ProductionAgent.RequestItem.Article.Id", 1 },
-                    //{ "ProductionAgent.RequestItem.DueTime", 3600 },
-                    //{ "ProductionAgent.RequestItem.OrderId.Id", 123 },
-                    //{ "ProductionAgent.RequestItem.Quantity", 2 },
+                    //{ "StorageAgent.StockElement.Id", 12345 },
+                    //{ "StorageAgent.StockElement.Article.Id", 1 },
+                    //{ "StorageAgent.StockElement.Current", 3.0m },
+                    //{ "StorageAgent.StockElement.Article.UnitId", 3 },
+                    { "ProductionAgent.RequestItem.Article.Id", 1 },
+                    { "ProductionAgent.RequestItem.DueTime", 7200 },
+                    { "ProductionAgent.RequestItem.OrderId", 123 },
+                    { "ProductionAgent.RequestItem.Quantity", 2 },
+                    { "ProductionAgent.RequestItem.Article.UnitId", 3 },
+                    { "ProductionAgent.WorkItems.EstimatedStart", 25},  // Workitems ist eigentlich Liste
+                    { "ProductionAgent.WorkItems.EstimatedEnd", 10000},
+                    { "ProductionAgent.WorkItems.WorkSchedule.Id", 1},
+                    //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000001")},
+
+                    //{ "ProductionAgent.WorkItems.WorkSchedule.HierarchyNumber", 1},
+                    //{ "ProductionAgent.WorkItems.WorkSchedule.Duration", 600},
+                },
+
+                new Dictionary<string, object>{
+                    { "ProductionAgent.RequestItem.Article.Id", 2 },
+                    { "ProductionAgent.RequestItem.DueTime", 6600 },
+                    { "ProductionAgent.RequestItem.OrderId", 124 },
+                    { "ProductionAgent.RequestItem.Quantity", 2 },
+                    { "ProductionAgent.RequestItem.Article.UnitId", 3 },
+                    { "ProductionAgent.WorkItems.EstimatedStart", 25},  // Workitems ist eigentlich Liste
+                    { "ProductionAgent.WorkItems.EstimatedEnd", 10000},
+                    { "ProductionAgent.WorkItems.WorkSchedule.Id", 2},
+                    //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000002")},
+                },
+
+                new Dictionary<string, object>{
+                    { "ProductionAgent.RequestItem.Article.Id", 3 },
+                    { "ProductionAgent.RequestItem.DueTime", 3600 },
+                    { "ProductionAgent.RequestItem.OrderId", 125 },
+                    { "ProductionAgent.RequestItem.Quantity", 8 },
+                    { "ProductionAgent.RequestItem.Article.UnitId", 3 },
+                    { "ProductionAgent.WorkItems.EstimatedStart", 25},  // Workitems ist eigentlich Liste
+                    { "ProductionAgent.WorkItems.EstimatedEnd", 10000},
+                    { "ProductionAgent.WorkItems.WorkSchedule.Id", 3},
+                    //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000003")},
                 }
             };
 
             DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
-            helper.TransformCoreData();
+            //helper.TransformCoreData();
             helper.TransformAgentDataToGp(dummyAgentData);
-            List<Dictionary<string, object>> receivedAgentData = helper.TransformAgentDataToMaster();
+            //List<Dictionary<string, object>> receivedAgentData = helper.TransformAgentDataToMaster();
 
             // Assert.Equal()
         }

@@ -62,6 +62,7 @@ namespace Master40.DB.Data.Initializer
                 new Article{Name="Tisch-Bein",ArticleTypeId = articleTypes.Single( s => s.Name == "Assembly").Id, DeliveryPeriod = 10, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 5.00, ToBuild = true, ToPurchase = false },
                 new Article{Name="Holz 1,5m x 3,0m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 5, ToBuild = false, ToPurchase = true  },
                 new Article{Name="Schrauben", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod = 3, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.05, ToBuild = false, ToPurchase = true },
+                new Article{Name="Holz 0,8m x 0,1m x 0,1m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 5, ToBuild = false, ToPurchase = true  },
             };
             context.Articles.AddRange(articles);
             context.SaveChanges();
@@ -100,7 +101,7 @@ namespace Master40.DB.Data.Initializer
                 // Tisch-Platte
                 new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holz 1,5m x 3,0m").Id, Name = "Holz 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tisch-Platte").Id },
                 // Tisch-Bein
-                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holz 1,5m x 3,0m").Id, Name = "Holz 1,5m x 3,0m", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Tisch-Bein").Id },
+                new ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holz 0,8m x 0,1m x 0,1m").Id, Name = "Holz 0,8m x 0,1m x 0,1m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tisch-Bein").Id },
                 
 
             };
@@ -135,6 +136,7 @@ namespace Master40.DB.Data.Initializer
             var artToBusinessPartner = new ArticleToBusinessPartner[]
             {
                 new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Holz 1,5m x 3,0m").Id, PackSize = 1, Price = 1, DueTime = 2 },
+                new ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name == "Holz 0,8m x 0,1m x 0,1m").Id, PackSize = 1, Price = 1, DueTime = 2 },
             };
             context.ArticleToBusinessPartners.AddRange(artToBusinessPartner);
             context.SaveChanges();
@@ -224,8 +226,8 @@ namespace Master40.DB.Data.Initializer
             {
                 new Mapping { From = "MachineGroups.Id", To = "Workcentergroup.WorkcentergroupId", ConversionFunc = "IntToString" },
                 new Mapping { From = "MachineGroups.Name", To = "Workcentergroup.Name" },
-                new Mapping { From = "MachineGroups.none", To = "Workcentergroup.ParallelAllocationCriteria", ConversionFunc = "SetLongVal", ConversionArgs = "0" }
-                //workcentergroup.parallel_scheduling_type	-> (immer 1)    // sowieso schon default
+                new Mapping { From = "MachineGroups.none", To = "Workcentergroup.ParallelAllocationCriteria", ConversionFunc = "SetIntVal", ConversionArgs = "0" },
+                new Mapping { From = "MachineGroups.none", To = "Workcentergroup.ParallelSchedulingType", ConversionFunc = "SetIntVal", ConversionArgs = "1" }
             };
             context.AddRange(machinegroupMappings);
             context.SaveChanges();
@@ -235,20 +237,48 @@ namespace Master40.DB.Data.Initializer
                 new Mapping { From = "Machines.Id", To = "Workcenter.WorkcenterId", ConversionFunc = "IntToString" },
                 new Mapping { From = "Machines.Name", To = "Workcenter.Name" },
                 new Mapping { From = "Machines.Capacity", To = "Workcenter.AllocationMax", ConversionFunc = "IntToDouble", ConversionArgs = "100" },
-                //workcenter.parallel_scheduling_type			-> (immer 1)
-                //workcenter.parallel_allocation_criteria     -> (mmer 0)
+                new Mapping { From = "Machines.none", To = "Workcenter.ParallelAllocationCriteria", ConversionFunc = "SetIntVal", ConversionArgs = "1" }
+                //workcenter.parallel_scheduling_type			-> (immer 1) // sowieso default
             };
             context.AddRange(machineMappings);
             context.SaveChanges();
 
-            //var articlebomsMappings = new Mapping[]
-            //{
-                //new Mapping { From = "ArticleBoms.ArticleChildId", To = "BomItem.BomId", ConversionFunc = "IntToString" },
-                //new Mapping { From = "ArticleBoms.Quantity", To = "BomItem.Quantity", ConversionFunc = "DecimalToDouble" },
-                //Decimal = "ArticleBoms.Quantity", Double = "BomItem.Quantity"
-            //};
-            //context.AddRange(articlebomsMappings);
+            var articlebomsMappings = new Mapping[]
+            {
+            new Mapping { From = "ArticleBoms.Id", To = "Bom.BomId", ConversionFunc = "IntToString" },
+            new Mapping { From = "ArticleBoms.Name", To = "Bom.Name" },
+            //new Mapping { From = "ArticleBoms.Quantity", To = "BomItem.Quantity", ConversionFunc = "DecimalToDouble" },
+            //Decimal = "ArticleBoms.Quantity", Double = "BomItem.Quantity"
+            };
+            context.AddRange(articlebomsMappings);
             context.SaveChanges();
+
+            //var articlebomsitemsMappings = new Mapping[]
+            //{
+            //new Mapping { From = "ArticleBoms.Id", To = "BomItem.BomId", ConversionFunc = "IntToString" },
+            //new Mapping { From = "ArticleBoms.ArticleChildId", To = "BomItem.ItemId", ConversionFunc = "IntToString" },
+            //new Mapping { From = "ArticleBoms.none", To = "BomItem.AlternativeId", ConversionFunc = "SetStringVal", ConversionArgs = "0" },
+            ////new Mapping { From = "ArticleBoms.ArticleChild.Name", To = "BomItem.Name" },
+            //new Mapping { From = "ArticleBoms.Quantity", To = "BomItem.Quantity", ConversionFunc = "DecimalToDouble"},
+            ////new Mapping { From = "ArticleBoms.ArticleChild.UnitId", To = "BomItem.QuantityUnitId", ConversionFunc = "IntToString" },
+            //new Mapping { From = "ArticleBoms.ArticleChildId", To = "BomItem.MaterialId", ConversionFunc = "IntToString" },
+            //};
+            //context.AddRange(articlebomsitemsMappings);
+            //context.SaveChanges();
+
+            //var routingMappings = new Mapping[]
+            //{
+            //new Mapping { From = "WorkSchedule.Id", To = "Routing.RoutingId", ConversionFunc = "IntToString" },
+            //new Mapping { From = "WorkSchedule.Name", To = "Routing.Name" },
+            //new Mapping { From = "WorkSchedule.ArticleBoms.Id", To = "Routing.BomId", ConversionFunc = "IntToString" },
+            //new Mapping { From = "WorkSchedule.HierarchyNumber ", To = "RoutingOperationActivity.ActivityId", ConversionFunc = "IntToString" },
+            //new Mapping { From = "WorkSchedule.Duration", To = "Routing.BomId", ConversionFunc = "IntToString" } // ??
+
+            ////new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "Routing.RoutingId", ConversionFunc = "IntToString", IsAgentData = true},
+            ////new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Name", To = "Routing.Name", IsAgentData = true},
+            //};
+            //context.AddRange(routingMappings);
+            //context.SaveChanges();
 
             //var orderMappings = new Mapping[]
             //{
@@ -278,17 +308,62 @@ namespace Master40.DB.Data.Initializer
             //context.Add(mapping);
             //context.SaveChanges();
 
-            var contractAgentMapping = new Mapping[]
+            //var contractAgentMapping = new Mapping[]
+            //{
+            //    new Mapping { From = "ContractAgent.requestItem.OrderId", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString", IsAgentData = true},
+            //    new Mapping { From = "ContractAgent.requestItem.DueTime", To = "Salesorder.Duedate", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
+            //    new Mapping { From = "ContractAgent.requestItem.Article.Id", To = "Salesorder.MaterialId", ConversionFunc = "IntToString", IsAgentData = true},
+            //    new Mapping { From = "ContractAgent.requestItem.Quantity", To = "Salesorder.Quantity", ConversionFunc = "IntToDouble", IsAgentData = true},
+            //    new Mapping { From = "ContractAgent.requestItem.Article.UnitId", To = "Salesorder.QuantityUnitId", ConversionFunc = "IntToString", IsAgentData = true},
+            //    //new Mapping { From = "ContractAgent.requestItem.IDemandToProvider.State", To = "salesorder.status", ConversionFunc = "MasterStateToGPStatus", IsAgentData = true}
+            //};
+            //context.AddRange(contractAgentMapping);
+            //context.SaveChanges();
+
+            //var storageAgentMapping = new Mapping[]
+            //{
+            //    new Mapping { From = "StorageAgent.StockElement.Id", To = "Stockquantityposting.StockquantitypostingId", ConversionFunc = "IntToString", IsAgentData = true},
+            //    new Mapping { From = "StorageAgent.StockElement.Article.Id", To = "Stockquantityposting.MaterialId", ConversionFunc = "IntToString", IsAgentData = true},
+            //    new Mapping { From = "StorageAgent.StockElement.Current", To = "Stockquantityposting.Quantity", ConversionFunc = "DecimalToDouble", IsAgentData = true},
+            //    new Mapping { From = "StorageAgent.StockElement.Article.UnitId", To = "Stockquantityposting.QuantityUnitId", ConversionFunc = "IntToString", IsAgentData = true}
+
+            //};
+            //context.AddRange(storageAgentMapping);
+            //context.SaveChanges();
+
+            var productionAgentMapping = new Mapping[]
             {
-                new Mapping { From = "ContractAgent.requestItem.OrderId", To = "Salesorder.SalesorderId", ConversionFunc = "IntToString", IsAgentData = true},
-                new Mapping { From = "ContractAgent.requestItem.DueTime", To = "Salesorder.Duedate", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
-                new Mapping { From = "ContractAgent.requestItem.Article.Id", To = "Salesorder.MaterialId", ConversionFunc = "IntToString", IsAgentData = true},
-                new Mapping { From = "ContractAgent.requestItem.Quantity", To = "Salesorder.Quantity", ConversionFunc = "IntToDouble", IsAgentData = true},
-                new Mapping { From = "ContractAgent.requestItem.Article.UnitId", To = "Salesorder.QuantityUnitId", ConversionFunc = "IntToString", IsAgentData = true},
-                //new Mapping { From = "ContractAgent.requestItem.IDemandToProvider.State", To = "salesorder.status", ConversionFunc = "MasterStateToGPStatus", IsAgentData = true}
+                new Mapping { From = "ProductionAgent.RequestItem.Article.Id", To = "Productionorder.MaterialId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.RequestItem.OrderId", To = "Productionorder.ProductionorderId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.RequestItem.Quantity", To = "Productionorder.QuantityGross",  ConversionFunc = "IntToDouble", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.RequestItem.DueTime", To = "Productionorder.Duedate", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.RequestItem.Article.UnitId", To = "Productionorder.QuantityUnitId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.RequestItem.OrderId", To = "ProductionorderOperationActivity.ProductionorderId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "ProductionorderOperationActivity.OperationId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.ActivityId", ConversionFunc = "SetIntVal", ConversionArgs = "3", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.AlternativeId", ConversionFunc = "SetStringVal", ConversionArgs = "", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.SplitId", ConversionFunc = "SetIntVal", ConversionArgs = "0", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.WorkItems.EstimatedStart", To = "ProductionorderOperationActivity.DateStart", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.WorkItems.EstimatedEnd", To = "ProductionorderOperationActivity.DateEnd", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "Productionorder.RoutingId", ConversionFunc = "IntToString", IsAgentData = true},
             };
-            context.AddRange(contractAgentMapping);
+            context.AddRange(productionAgentMapping);
             context.SaveChanges();
+
+            /*var dispoAgentMapping = new Mapping[]
+            {
+
+            };
+            context.AddRange(dispoAgentMapping);
+            context.SaveChanges();
+
+            var machineAgentMapping = new Mapping[]
+            {
+
+            };
+            context.AddRange(machineAgentMapping);
+            context.SaveChanges();
+            */
         }
     }
 }

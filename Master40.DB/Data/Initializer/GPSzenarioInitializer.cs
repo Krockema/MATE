@@ -2127,6 +2127,19 @@ Login name: IPC7\Administrator"},
             context.AddRange(configs);
             context.SaveChanges();
 
+            var plannningparameter = new Planningparameter[]
+            {
+                new Planningparameter { PlanningparameterId = "Standard"}
+            };
+            context.AddRange(plannningparameter);
+            context.SaveChanges();
+
+            var modelparameter = new Modelparameter[]
+            {
+                new Modelparameter { ModelparameterId = "Standard", ActualTime = "20000101 00:00:00", ActualTimeFromSystemTime = 0 }
+            };
+            context.AddRange(modelparameter);
+            context.SaveChanges();
         }
     }
 }

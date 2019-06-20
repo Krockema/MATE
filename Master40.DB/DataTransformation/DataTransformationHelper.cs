@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Master40.DB.DataTransformation.Conversions;
 using Master40.DB.Data.Initializer;
+using Master40.DB.GanttplanDB.Models;
 
 namespace Master40.DB.DataTransformation
 {
@@ -164,6 +165,18 @@ namespace Master40.DB.DataTransformation
 
         public Boolean TransformAgentDataToGp(List<Dictionary<string, object>> agentData)
         {
+            GpContext.Database.EnsureCreated();
+            foreach(Productionorder po in GpContext.Productionorder)
+            {
+                GpContext.Productionorder.Remove(po);
+                GpContext.SaveChanges();
+            }
+            foreach (ProductionorderOperationActivity pooa in GpContext.ProductionorderOperationActivity)
+            {
+                GpContext.ProductionorderOperationActivity.Remove(pooa);
+                GpContext.SaveChanges();
+            }
+
             ProcessAgentSourceRuleGroups(GpContext, this.AgentDataRuleGroups, agentData);
             GpContext.SaveChanges();
             return true;
@@ -205,9 +218,18 @@ namespace Master40.DB.DataTransformation
             // Read source data
             foreach (Mapping rule in rules)
             {
+                dynamic sourcePropData;
+                if (rule.IsFromEmpty())
+                {
+                    sourcePropData = null;
+                }
+                else
+                {
+                    sourcePropData = srcDict[rule.From];
+                }
                 // Agent to DB Rule
                 destTupleData[rule.GetToColumn()] = Conversion.DoConvert(rule.ConversionFunc,
-                    rule.ConversionArgs, srcDict[rule.From], false);
+                    rule.ConversionArgs, sourcePropData, false);
             }
 
             return destTupleData;
