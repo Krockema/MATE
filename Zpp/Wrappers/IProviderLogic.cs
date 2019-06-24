@@ -5,8 +5,8 @@ namespace Zpp.Wrappers
     /**
      * A wrapper for IProvider providing methods that every wrapped ProviderType implements
      */
-    public interface WIProvider
+    public interface IProviderLogic
     {
-        List<WIDemand> GetDemands();
+        List<Demand> GetDemands();
     }
 }

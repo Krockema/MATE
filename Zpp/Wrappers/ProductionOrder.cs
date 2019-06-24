@@ -5,15 +5,15 @@ using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Wrappers
 {
-    public class WT_ProductionOrder : Provider, WIProvider
+    public class ProductionOrder : Provider, IProviderLogic
     {
         public IProvider Provider => _provider;
 
-        public WT_ProductionOrder(IProvider provider, List<WIDemand> demands) : base(provider, demands)
+        public ProductionOrder(IProvider provider, List<Demand> demands) : base(provider, demands)
         {
         }
 
-        public WT_ProductionOrder(M_Article article, DueTime dueTime, Quantity quantity, string productionOrderName)
+        public ProductionOrder(M_Article article, DueTime dueTime, Quantity quantity, string productionOrderName)
         {
             T_ProductionOrder productionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]

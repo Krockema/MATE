@@ -32,5 +32,41 @@ namespace Master40.DB.DataModel
         
         public ProducingState ProducingState { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
+        
+        public T_ProductionOrderOperation(){}
+        
+        public T_ProductionOrderOperation(M_ArticleBom articleBom)
+        {
+            if (articleBom.ArticleChild.ToBuild)
+            {
+
+                T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
+                // TODO: add not only entities but also the ids !!! --> only ids should be enough???
+                productionOrderOperation.Name = articleBom.Operation.Name;
+                productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
+                productionOrderOperation.Duration = articleBom.Operation.Duration;
+                productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
+                productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;
+                productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
+                productionOrderOperation.MachineGroupId = articleBom.Operation.MachineGroupId;
+                productionOrderOperation.ProducingState = ProducingState.Created;
+
+                // TODO: external Algo needed
+
+                // for machine utilisation
+                // productionOrderOperation.Machine,
+
+                // for simulation
+                // Start, End,
+
+                // for backward scheduling
+                // StartBackward, EndBackward,
+
+                // for forward scheduling
+                // StartForward, EndForward,
+            }
+
+        }
+
     }
 }

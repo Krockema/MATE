@@ -97,7 +97,7 @@ namespace Zpp
                     {
                         LOGGER.Debug(
                             "Create a provider for article " + demand.GetArticle().Id + ":");
-                        WIProvider provider = demand.createProvider(dbCache);
+                        IProviderLogic provider = demand.createProvider(dbCache);
                         nextDemandManager.AddDemands(provider.GetDemands());
                         providerManager.AddProvider(provider);
                     }
