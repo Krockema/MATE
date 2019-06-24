@@ -2,17 +2,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.Wrappers;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp
 {
     /// <summary>
-    /// An simple implementation of IDemandManager, which is for performance reasons not well suited
+    /// An simple implementation of DemandManager, which is for performance reasons not well suited
     /// </summary>
-    public class DemandManagerSimple : IDemandManager
+    public class DemandManagerSimple : DemandManager
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         
-        private readonly List<IDemand> _demands;
+        private readonly List<Demand> _demands;
         private bool IsDemandsListLocked = false;
 
         private readonly Dictionary<int, List<int>> _demandsHavingProviders =
@@ -20,14 +22,14 @@ namespace Zpp
 
         private readonly IProviderManager _providerManager;
         private readonly IDbCache _dbCache; // is needed to persist demands at the end of MrpRun
-        private readonly int _hierarchyNumber;
+        private readonly HierarchyNumber _hierarchyNumber;
 
         /// <summary>
         /// Using this constructor, demandList initially has the already existing demands from database
         /// </summary>
-        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager, List<IDemand> demands)
+        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager, List<Demand> demands)
         {
-            _hierarchyNumber = 1;
+            _hierarchyNumber = new HierarchyNumber(1);
             _providerManager = providerManager;
             _dbCache = dbCache;
             _demands = demands;
@@ -36,28 +38,15 @@ namespace Zpp
         /// <summary>
         /// Using this constructor, demandList is initially empty
         /// </summary>
-        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager, int hierarchyNumber)
+        public DemandManagerSimple(IDbCache dbCache, IProviderManager providerManager, HierarchyNumber hierarchyNumber)
         {
             _providerManager = providerManager;
             _dbCache = dbCache;
-            _demands = new List<IDemand>();
+            _demands = new List<Demand>();
             _hierarchyNumber = hierarchyNumber;
         }
 
-        public IDemand GetDemandById(int id)
-        {
-            foreach (IDemand demand in _demands)
-            {
-                if (demand.Id.Equals(id))
-                {
-                    return demand;
-                }
-            }
-
-            return null;
-        }
-
-        public void AddDemand(IDemand demand)
+        public void AddDemand(Demand demand)
         {
             if (!IsDemandsListLocked)
             {
@@ -69,14 +58,14 @@ namespace Zpp
             }
         }
 
-        public List<IDemand> GetDemands()
+        public List<Demand> GetDemands()
         {
             return _demands;
         }
 
         public void OrderDemandsByUrgency()
         {
-            _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
+            _demands.Sort());
         }
 
         public List<IProvider> GetProvidersOfDemand(int demandId)
@@ -99,7 +88,7 @@ namespace Zpp
             _demandsHavingProviders[demandId].Add(providerId);
         }
 
-        public int GetHierarchyNumber()
+        public HierarchyNumber GetHierarchyNumber()
         {
             return _hierarchyNumber;
         }
@@ -115,9 +104,9 @@ namespace Zpp
             _demands.Clear();
         }
 
-        public void AddDemands(List<IDemand> demands)
+        public void AddDemands(List<Demand> demands)
         {
-            foreach (IDemand demand in demands)
+            foreach (Demand demand in demands)
             {
                 AddDemand(demand);
             }

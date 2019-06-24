@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
+using Zpp.Wrappers;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp
 {
-    public interface IDemandManager
+    public interface DemandManager
     {
-        IDemand GetDemandById(int id);
 
-        void AddDemand(IDemand demand);
+        void AddDemand(Demand demand);
         
-        void AddDemands(List<IDemand> demands);
+        void AddDemands(List<Demand> demands);
 
-        List<IDemand> GetDemands();
+        List<Demand> GetDemands();
 
         void OrderDemandsByUrgency();
 
@@ -19,7 +20,7 @@ namespace Zpp
 
         void AddProviderForDemand(int demandId, int providerId);
 
-        int GetHierarchyNumber();
+        HierarchyNumber GetHierarchyNumber();
 
         /// <summary>
         /// demandsList are not allowed to be expanded after this call

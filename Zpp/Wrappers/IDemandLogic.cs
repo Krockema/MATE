@@ -1,3 +1,4 @@
+using System;
 using Master40.DB.Interfaces;
 using Zpp.Entities;
 using Zpp.WrappersForPrimitives;
@@ -11,5 +12,8 @@ namespace Zpp.Wrappers
     {
        
         Provider CreateProvider(IDbCache dbCache);
+
+        // is needed to compare two instances
+        DueTime GetDueTime();
     }
 }

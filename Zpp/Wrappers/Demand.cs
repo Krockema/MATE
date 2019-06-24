@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.DataModel;
@@ -96,13 +97,15 @@ namespace Zpp.Wrappers
             return null;
         }
 
-
         // TODO: use this
         private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
         {
             return dueTime - operationDuration - currentTime;
         }
         
-       
+        public DueTime GetDueTime()
+        {
+            return new DueTime(_demand.GetDueTime());
+        }
     }
 }

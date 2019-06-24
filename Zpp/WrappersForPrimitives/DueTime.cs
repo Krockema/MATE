@@ -1,6 +1,8 @@
+using System;
+
 namespace Zpp.WrappersForPrimitives
 {
-    public class DueTime
+    public class DueTime : IComparable<DueTime>
     {
         public int _dueTime;
 
@@ -12,6 +14,13 @@ namespace Zpp.WrappersForPrimitives
         public int GetDueTime()
         {
             return _dueTime;
+        }
+        
+        public int CompareTo(DueTime that)
+        {
+            if (this._dueTime >  that.Balance) return -1;
+            if (this.Balance == that.Balance) return 0;
+            return 1;
         }
     }
 }

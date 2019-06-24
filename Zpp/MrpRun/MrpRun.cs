@@ -7,6 +7,7 @@ using Master40.DB.Interfaces;
 using Zpp.ModelExtensions;
 using Zpp.Utils;
 using Zpp.Wrappers;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp
 {
@@ -16,7 +17,7 @@ namespace Zpp
 
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
 
-        public static void RunMrp(IDbCache dbCache, List<IDemand> initialDemands)
+        public static void RunMrp(IDbCache dbCache, List<Demand> initialDemands)
         {
             // init data structures
             
@@ -34,14 +35,11 @@ namespace Zpp
             dbCache.PersistDbCache();
         }
 
-        private static void ProcessDbDemand(IDbCache dbCache, IDemand oneDbDemand)
+        private static void ProcessDbDemand(IDbCache dbCache, Demand oneDbDemand)
         {
             // managers
             IProviderManager providerManager = new ProviderManagerSimple(dbCache);
-            ProductionManager productionManager = new ProductionManager(dbCache, providerManager);
 
-            IPurchaseManager purchaseManager = new PurchaseManagerSimple(dbCache, providerManager);
-            
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
             // --> it's not possible to add these to the demandList even with Enumerators/Iterators
@@ -52,11 +50,13 @@ namespace Zpp
 
             List<IDemandManager> levelDemandManagers = new List<IDemandManager>();
             // first level has the given oneDbDemand from database, while levels below are initially empty
+
+            HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
             IDemandManager firstLevelDemandManager =
-                new DemandManagerSimple(dbCache, providerManager, 1);
+                new DemandManagerSimple(dbCache, providerManager, hierarchyNumber);
             firstLevelDemandManager.AddDemand(oneDbDemand);
             levelDemandManagers.Add(firstLevelDemandManager);
-            int hierarchyNumber = 1;
+
 
             while (true)
             {
@@ -71,7 +71,7 @@ namespace Zpp
                 // nextDemandManager must be used for this
                 currentDemandManager.LockDemandsList();
                 
-                foreach (IDemand demand in currentDemandManager.GetDemands())
+                foreach (Demand demand in currentDemandManager.GetDemands())
                 {
                     bool isDemandSatisfied = false;
 
@@ -97,7 +97,7 @@ namespace Zpp
                     {
                         LOGGER.Debug(
                             "Create a provider for article " + demand.GetArticle().Id + ":");
-                        IProviderLogic provider = demand.createProvider(dbCache);
+                        Provider provider = demand.CreateProvider(dbCache);
                         nextDemandManager.AddDemands(provider.GetDemands());
                         providerManager.AddProvider(provider);
                     }
