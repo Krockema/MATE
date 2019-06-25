@@ -18,5 +18,7 @@ namespace Zpp.DemandDomain
         DueTime GetDueTime();
 
         IDemand ToIDemand();
+
+        void AddProvider(Provider provider);
     }
 }

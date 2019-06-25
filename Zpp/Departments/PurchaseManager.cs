@@ -23,12 +23,11 @@ namespace Zpp
 
         private int counter = 0;
         private readonly IDbCache _dbCache;
-        private readonly IProviderManager _providerManager;
 
-        public PurchaseManager(IDbCache dbCache, IProviderManager providerManager)
+        public PurchaseManager(IDbCache dbCache)
         {
             _dbCache = dbCache;
-            _providerManager = providerManager;
+            // _providerManager = providerManager;
             initPurchaseOrders();
         }
 
@@ -62,7 +61,7 @@ namespace Zpp
             // init a new purchaseOderPart
             T_PurchaseOrderPart purchaseOrderPart = new T_PurchaseOrderPart();
             purchaseOrder.PurchaseOrderParts.Add(purchaseOrderPart);
-            _providerManager.AddProvider(purchaseOrderPart);
+            // TODO: enable this: _providerManager.AddProvider(purchaseOrderPart);
 
             // [PurchaseOrderId],[ArticleId],[Quantity],[State],[ProviderId]
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
@@ -95,7 +94,7 @@ namespace Zpp
                 return;
             }
 
-            _dbCache.T_PurchaseOrderAdd(purchaseOrder);
+            // TODO: enable this: _dbCache.T_PurchaseOrderAdd(purchaseOrder);
 
             // fill _purchaseOrder
             purchaseOrder.Name = name;

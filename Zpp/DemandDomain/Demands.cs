@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
+using ZppForPrimitives;
 
 namespace Zpp.DemandDomain
 {
     /**
-     * wraps the collection with all demands
+     * wraps the collection with all demands, earlier named "DemandManager"
      */
     public class Demands : IDemands
     {
         protected List<Demand> _demands;
+        private bool IsDemandsListLocked = false;
+        private readonly HierarchyNumber _hierarchyNumber;
 
         public Demands()
         {
@@ -53,6 +56,21 @@ namespace Zpp.DemandDomain
                 productionOrderBoms.Add((T)demand.ToIDemand());
             }
             return productionOrderBoms;
+        }
+        
+        public void OrderDemandsByUrgency()
+        {
+            _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
+        }
+        
+        public HierarchyNumber GetHierarchyNumber()
+        {
+            return _hierarchyNumber;
+        }
+
+        public void LockDemandsList()
+        {
+            IsDemandsListLocked = true;
         }
     }
 }

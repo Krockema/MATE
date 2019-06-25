@@ -16,6 +16,7 @@ namespace Zpp.DemandDomain
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected IDemand _demand;
+        protected List<Provider> _providers;
 
         public Demand(IDemand demand)
         {
@@ -136,5 +137,10 @@ namespace Zpp.DemandDomain
         }
 
         public abstract IDemand ToIDemand();
+
+        public void AddProvider(Provider provider)
+        {
+            _providers.Add(provider);
+        }
     }
 }
