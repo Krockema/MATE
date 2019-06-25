@@ -7,7 +7,9 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
-using Zpp.Wrappers;
+using Zpp;
+using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
 
 namespace Zpp
 {
@@ -71,7 +73,7 @@ namespace Zpp
             _purchaseOrders = new PurchaseOrders(purchaseOrders);
         }
 
-        public void T_DemandToProvidersRemoveAll()
+        public void DemandToProvidersRemoveAll()
         {
             _productionDomainContext.DemandToProviders.RemoveRange(_productionDomainContext
                 .DemandToProviders);
@@ -114,7 +116,7 @@ namespace Zpp
             }
         }
 
-        public void T_PurchaseOrderAdd(T_PurchaseOrder purchaseOrder)
+        public void PurchaseOrderAdd(PurchaseOrder purchaseOrder)
         {
             _purchaseOrders.Add(purchaseOrder);
         }
@@ -156,7 +158,7 @@ namespace Zpp
             }
         }
 
-        public void ProvidersAdd(IProvider provider)
+        public void ProvidersAdd(Provider provider)
         {
             if (provider.GetType() == typeof(ProductionOrder))
             {
@@ -184,7 +186,40 @@ namespace Zpp
             demands.AddAll(_stockExchangeDemands);
             return demands;
         }
-        
-        
+
+
+        public Providers ProvidersGetAll()
+        {
+            Providers providers = new Providers();
+            providers.AddAll(_productionOrders);
+            providers.AddAll(_purchaseOrderParts);
+            providers.AddAll(_stockExchangeProviders);
+            return providers;
+        }
+
+        public CustomerOrderParts CustomerOrderPartGetAll()
+        {
+            return _customerOrderParts;
+        }
+
+        public ProductionOrderBoms ProductionOrderBomGetAll()
+        {
+            return _productionOrderBoms;
+        }
+
+        public StockExchangeProviders StockExchangeGetAll()
+        {
+            return _stockExchangeProviders;
+        }
+
+        public PurchaseOrderParts PurchaseOrderPartGetAll()
+        {
+            return _purchaseOrderParts;
+        }
+
+        public ProductionOrders ProductionOrderGetAll()
+        {
+            return _productionOrders;
+        }
     }
 }

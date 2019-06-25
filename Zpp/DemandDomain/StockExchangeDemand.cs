@@ -1,7 +1,7 @@
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 
-namespace Zpp.Wrappers
+namespace Zpp.DemandDomain
 {
     /**
      * wraps T_StockExchange for T_StockExchange demands

@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.WrappersForPrimitives;
+using Zpp.DemandDomain;
+using ZppForPrimitives;
 
-namespace Zpp.Wrappers
+namespace Zpp.ProviderDomain
 {
     /**
      * wraps T_ProductionOrder

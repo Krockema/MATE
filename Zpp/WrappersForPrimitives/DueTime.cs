@@ -1,6 +1,6 @@
 using System;
 
-namespace Zpp.WrappersForPrimitives
+namespace ZppForPrimitives
 {
     public class DueTime : IComparable<DueTime>
     {

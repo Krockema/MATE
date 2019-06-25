@@ -2,7 +2,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 
-namespace Zpp.Wrappers
+namespace Zpp.DemandDomain
 {
     public class ProductionOrderBom : Demand, IDemandLogic
     {

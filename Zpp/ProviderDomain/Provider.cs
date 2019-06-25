@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
-using Zpp.WrappersForPrimitives;
+using Zpp.DemandDomain;
+using ZppForPrimitives;
 
-namespace Zpp.Wrappers
+namespace Zpp.ProviderDomain
 {
     /**
      * Provides default implementations for interface methods, can be moved to interface once C# 8.0 is released

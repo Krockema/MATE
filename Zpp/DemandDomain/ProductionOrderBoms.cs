@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 
-namespace Zpp.Wrappers
+namespace Zpp.DemandDomain
 {
     /**
      * wraps the collection with all productionOrderBoms

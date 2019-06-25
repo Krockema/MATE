@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 
-namespace Zpp.Wrappers
+namespace Zpp
 {
     /**
      * wraps the collection with all purchaseOrders
@@ -33,6 +33,11 @@ namespace Zpp.Wrappers
                 productionOrderBoms.Add(demand.ToT_PurchaseOrder());
             }
             return productionOrderBoms;
+        }
+
+        public void Add(PurchaseOrder purchaseOrder)
+        {
+            _purchaseOrders.Add(purchaseOrder);
         }
     }
 }

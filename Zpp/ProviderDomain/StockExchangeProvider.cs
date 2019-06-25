@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.DemandDomain;
 
-namespace Zpp.Wrappers
+namespace Zpp.ProviderDomain
 {
     /**
      * wraps T_StockExchange for T_StockExchange providers

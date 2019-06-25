@@ -1,18 +1,22 @@
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
 
-namespace Zpp.Wrappers
+namespace Zpp.ProviderDomain
 {
     /**
      * wraps the collection with all providers
      */
-    public abstract class Providers : IProviders
+    public class Providers : IProviders
     {
         private List<Provider> _providers;
 
         public Providers(List<Provider> providers)
         {
             _providers = providers;
+        }
+
+        public Providers()
+        {
         }
 
         public void Add(Provider provider)

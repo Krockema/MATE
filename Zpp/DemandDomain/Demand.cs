@@ -4,9 +4,10 @@ using System.Linq;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
-using Zpp.WrappersForPrimitives;
+using Zpp.ProviderDomain;
+using ZppForPrimitives;
 
-namespace Zpp.Wrappers
+namespace Zpp.DemandDomain
 {
     /**
      * Provides default implementations for interface methods, can be moved to interface once C# 8.0 is released

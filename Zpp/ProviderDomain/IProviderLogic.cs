@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
+using Zpp.DemandDomain;
 
-namespace Zpp.Wrappers
+namespace Zpp.ProviderDomain
 {
     /**
      * A wrapper for IProvider providing methods that every wrapped ProviderType implements

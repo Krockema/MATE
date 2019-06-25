@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.Wrappers;
+using Zpp;
+using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
 
 namespace Zpp
 {

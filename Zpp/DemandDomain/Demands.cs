@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
 
-namespace Zpp.Wrappers
+namespace Zpp.DemandDomain
 {
     /**
      * wraps the collection with all demands

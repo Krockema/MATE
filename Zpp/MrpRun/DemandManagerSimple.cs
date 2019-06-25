@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.Wrappers;
-using Zpp.WrappersForPrimitives;
+using Zpp;
+using ZppForPrimitives;
 
 namespace Zpp
 {

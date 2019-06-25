@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
-using Zpp.Wrappers;
-using Zpp.WrappersForPrimitives;
+using Zpp;
+using ZppForPrimitives;
 
 namespace Zpp
 {
