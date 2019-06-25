@@ -107,5 +107,33 @@ namespace Zpp.Wrappers
         {
             return new DueTime(_demand.GetDueTime());
         }
+        
+        public static Demand ToDemand(T_Demand t_demand, List<T_CustomerOrderPart> customerOrderParts,
+            List<T_ProductionOrderBom> productionOrderBoms, List<T_StockExchange> stockExchanges)
+        {
+            IDemand iDemand = null;
+
+            iDemand = customerOrderParts.Single(x => x.Id == t_demand.Id);
+            if (iDemand != null)
+            {
+                return new CustomerOrderPart(iDemand);
+            }
+
+            iDemand = productionOrderBoms.Single(x => x.Id == t_demand.Id);
+            if (iDemand != null)
+            {
+                return new ProductionOrderBom(iDemand);
+            }
+
+            iDemand = stockExchanges.Single(x => x.Id == t_demand.Id);
+            if (iDemand != null)
+            {
+                return new StockExchangeDemand(iDemand);
+            }
+
+            return null;
+        }
+
+        public abstract IDemand ToIDemand();
     }
 }

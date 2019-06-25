@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Master40.DB.Interfaces;
 
 namespace Zpp.Wrappers
 {
@@ -8,5 +9,7 @@ namespace Zpp.Wrappers
     public interface IProviderLogic
     {
         List<Demand> GetDemands();
+
+        IProvider ToIProvider();
     }
 }

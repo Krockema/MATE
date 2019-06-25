@@ -5,6 +5,9 @@ using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Wrappers
 {
+    /**
+     * wraps T_ProductionOrder
+     */
     public class ProductionOrder : Provider, IProviderLogic
     {
         public IProvider Provider => _provider;
@@ -25,7 +28,10 @@ namespace Zpp.Wrappers
             productionOrder.Provider = new T_Provider();
             productionOrder.Quantity = quantity.GetQuantity();
         }
-        
-        
+
+        public override IProvider ToIProvider()
+        {
+            return (T_ProductionOrder)_provider;
+        }
     }
 }

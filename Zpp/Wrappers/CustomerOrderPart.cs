@@ -10,5 +10,10 @@ namespace Zpp.Wrappers
         {
             
         }
+
+        public override IDemand ToIDemand()
+        {
+            return (T_CustomerOrderPart)_demand;
+        }
     }
 }

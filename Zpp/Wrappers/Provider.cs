@@ -32,5 +32,7 @@ namespace Zpp.Wrappers
         {
             return new DueTime(_provider.GetDueTime());
         }
+
+        public abstract IProvider ToIProvider();
     }
 }

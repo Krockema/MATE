@@ -65,7 +65,7 @@ namespace Zpp
 
         public void OrderDemandsByUrgency()
         {
-            _demands.Sort());
+            _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
         }
 
         public List<IProvider> GetProvidersOfDemand(int demandId)

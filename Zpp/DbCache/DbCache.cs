@@ -5,7 +5,9 @@ using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
+using Zpp.Wrappers;
 
 namespace Zpp
 {
@@ -21,15 +23,21 @@ namespace Zpp
         private readonly List<M_ArticleBom> _articleBoms;
         private readonly List<M_Article> _articles;
         // T_*
-        private readonly List<T_Demand> _tDemands;
-        private readonly List<T_Provider> _tProviders;
+        // demands
+        private readonly CustomerOrderParts _customerOrderParts;
+        // demands
+        private readonly ProductionOrderBoms _productionOrderBoms;
+        // demands
+        private readonly StockExchangeDemands _stockExchangeDemands;
+        // providers
+        private readonly StockExchangeProviders _stockExchangeProviders;
+        // providers
+        private readonly PurchaseOrderParts _purchaseOrderParts;
+        // providers
+        private readonly ProductionOrders _productionOrders;
         
-        private readonly List<T_CustomerOrderPart> _customerOrderParts;
-        private readonly List<T_ProductionOrderBom> _productionOrderBoms;
-        private readonly List<T_StockExchange> _stockExchanges;
-        private readonly List<T_PurchaseOrderPart> _purchaseOrderParts;
-        private readonly List<T_ProductionOrder> _productionOrders;
-        private readonly List<T_PurchaseOrder> _purchaseOrders;
+        private readonly PurchaseOrders _purchaseOrders;
+
 
         private readonly Dictionary<BaseEntity, bool> _wasTableChanged = new Dictionary<BaseEntity, bool>();
 
@@ -45,15 +53,22 @@ namespace Zpp
                 .ThenInclude(m => m.ArticleChild)
                 .Include(m => m.ArticleBoms).ThenInclude(x=>x.Operation)
                 .Include(x=>x.ArticleToBusinessPartners).ThenInclude(x=>x.BusinessPartner).ToList();
-            _tDemands = _productionDomainContext.Demands.ToList();
-            _tProviders = productionDomainContext.Providers.ToList();
-            _customerOrderParts = _productionDomainContext.CustomerOrderParts.Include(x => x.Article)
+
+            
+            List<T_CustomerOrderPart> customerOrderParts = _productionDomainContext.CustomerOrderParts.Include(x => x.Article)
                 .Include(x => x.CustomerOrder).ToList();
-            _productionOrderBoms = _productionDomainContext.ProductionOrderBoms.ToList();
-            _stockExchanges = _productionDomainContext.StockExchanges.ToList();
-            _productionOrders = _productionDomainContext.ProductionOrders.Include(x => x.Article).ToList();
-            _purchaseOrderParts = _productionDomainContext.PurchaseOrderParts.Include(x => x.Article).ToList();
-            _purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
+            _customerOrderParts = new CustomerOrderParts(customerOrderParts);
+            List<T_ProductionOrderBom> productionOrderBoms = _productionDomainContext.ProductionOrderBoms.ToList();
+            _productionOrderBoms = new ProductionOrderBoms(productionOrderBoms);
+            List<T_StockExchange> stockExchanges = _productionDomainContext.StockExchanges.ToList();
+            _stockExchangeDemands = new StockExchangeDemands(stockExchanges);
+            _stockExchangeProviders = new StockExchangeProviders(stockExchanges);
+            List<T_ProductionOrder> productionOrders = _productionDomainContext.ProductionOrders.Include(x => x.Article).ToList();
+            _productionOrders = new ProductionOrders(productionOrders);
+            List<T_PurchaseOrderPart> purchaseOrderParts = _productionDomainContext.PurchaseOrderParts.Include(x => x.Article).ToList();
+            _purchaseOrderParts = new PurchaseOrderParts(purchaseOrderParts);
+            List<T_PurchaseOrder> purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
+            _purchaseOrders = new PurchaseOrders(purchaseOrders);
         }
 
         public void T_DemandToProvidersRemoveAll()
@@ -65,12 +80,14 @@ namespace Zpp
         public void PersistDbCache()
         {
 
+            // this should stay here, since all domainContext should only used here
             // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
-            InsertOrUpdateRange(_productionOrderBoms, _productionDomainContext.ProductionOrderBoms);
-            InsertOrUpdateRange(_stockExchanges, _productionDomainContext.StockExchanges);
-            InsertOrUpdateRange(_productionOrders, _productionDomainContext.ProductionOrders);
-            InsertOrUpdateRange(_purchaseOrderParts, _productionDomainContext.PurchaseOrderParts);
-            InsertOrUpdateRange(_purchaseOrders, _productionDomainContext.PurchaseOrders);
+            InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(), _productionDomainContext.ProductionOrderBoms);
+            InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(), _productionDomainContext.StockExchanges);
+            InsertOrUpdateRange(_productionOrders.GetAllAs<T_ProductionOrder>(), _productionDomainContext.ProductionOrders);
+            InsertOrUpdateRange(_purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>(), _productionDomainContext.PurchaseOrderParts);
+            
+            InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(), _productionDomainContext.PurchaseOrders);
             
             _productionDomainContext.SaveChanges();
         }
@@ -117,104 +134,57 @@ namespace Zpp
             return _articles.Single(x => x.Id == id);
         }
 
-        public List<T_Demand> T_DemandsGetAll()
-        {
-            return _tDemands;
-        }
 
-        public List<T_Provider> T_ProvidersGetAll()
+   
+        public void DemandsAdd(Demand demand)
         {
-            return _tProviders;
-        }
-
-        public List<T_CustomerOrderPart> T_CustomerOrderPartGetAll()
-        {
-            return _customerOrderParts;
-        }
-
-        public List<T_ProductionOrderBom> T_ProductionOrderBomGetAll()
-        {
-            return _productionOrderBoms;
-        }
-
-        public List<T_StockExchange> T_StockExchangeGetAll()
-        {
-            return _stockExchanges;
-        }
-
-        public List<T_PurchaseOrderPart> T_PurchaseOrderPartGetAll()
-        {
-            return _purchaseOrderParts;
-        }
-
-        public List<T_ProductionOrder> T_ProductionOrderGetAll()
-        {
-            return _productionOrders;
-        }
-
-        public void DemandsAddAll(List<IDemand> demands)
-        {
-            foreach (var demand in demands)
+            if (demand.GetType() == typeof(CustomerOrderPart))
             {
-                DemandsAdd(demand);
+                _customerOrderParts.Add((CustomerOrderPart)demand);
             }
-        }
-
-        public void ProvidersAddAll(List<IProvider> providers)
-        {
-            foreach (var provider in providers)
+            else if (demand.GetType() == typeof(ProductionOrderBom))
             {
-                ProvidersAdd(provider);
+                    _productionOrderBoms.Add((ProductionOrderBom)demand);
             }
-        }
-
-        public void DemandsAdd(IDemand demand)
-        {
-            if (demand.GetType() == typeof(T_CustomerOrderPart))
+            else if (demand.GetType() == typeof(StockExchangeDemand))
             {
-                _customerOrderParts.Add((T_CustomerOrderPart)demand);
-            }
-            else if (demand.GetType() == typeof(T_ProductionOrderBom))
-            {
-                    _productionOrderBoms.Add((T_ProductionOrderBom)demand);
-            }
-            else if (demand.GetType() == typeof(T_StockExchange))
-            {
-                    _stockExchanges.Add((T_StockExchange)demand);
+                    _stockExchangeDemands.Add((StockExchangeDemand)demand);
             }
             else
             {
-                LOGGER.Error("Unknown type implementing IDemand");
+                LOGGER.Error("Unknown type implementing Demand");
             }
-            _tDemands.Add(demand.Demand);
         }
 
         public void ProvidersAdd(IProvider provider)
         {
-            if (provider.GetType() == typeof(T_ProductionOrder))
+            if (provider.GetType() == typeof(ProductionOrder))
             {
-                _productionOrders.Add((T_ProductionOrder)provider);
+                _productionOrders.Add((ProductionOrder)provider);
             }
-            else if (provider.GetType() == typeof(T_PurchaseOrderPart))
+            else if (provider.GetType() == typeof(PurchaseOrderPart))
             {
-                _purchaseOrderParts.Add((T_PurchaseOrderPart)provider);
+                _purchaseOrderParts.Add((PurchaseOrderPart)provider);
             }
-            else if (provider.GetType() == typeof(T_StockExchange))
+            else if (provider.GetType() == typeof(StockExchangeProvider))
             {
-                _stockExchanges.Add((T_StockExchange)provider);
+                _stockExchangeProviders.Add((StockExchangeProvider)provider);
             }
             else
             {
                 LOGGER.Error("Unknown type implementing IProvider");
             }
-            _tProviders.Add(provider.Provider);
         }
 
-        public List<IDemand> DemandsGetAll()
+        public Demands DemandsGetAll()
         {
-            return T_DemandsGetAll().Select(x => x.ToIDemand(x,
-                    T_CustomerOrderPartGetAll(), T_ProductionOrderBomGetAll(),
-                    T_StockExchangeGetAll())).ToList();
-            }
+            Demands demands = new Demands();
+            demands.AddAll(_customerOrderParts);
+            demands.AddAll(_productionOrderBoms);
+            demands.AddAll(_stockExchangeDemands);
+            return demands;
+        }
+        
+        
     }
 }

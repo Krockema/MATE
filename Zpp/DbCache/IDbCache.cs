@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.Wrappers;
 
 namespace Zpp
 {
@@ -11,11 +12,11 @@ namespace Zpp
     /// </summary>
     public interface IDbCache
     {
-        void T_DemandToProvidersRemoveAll();
+        void DemandToProvidersRemoveAll();
 
         void PersistDbCache();
 
-        void T_PurchaseOrderAdd(T_PurchaseOrder purchaseOrder);
+        void PurchaseOrderAdd(PurchaseOrder purchaseOrder);
 
         List<M_BusinessPartner> M_BusinessPartnerGetAll();
 
@@ -23,29 +24,25 @@ namespace Zpp
         
         M_Article M_ArticleGetById(int id);
 
-        List<T_Demand> T_DemandsGetAll();
+        void DemandsAdd(Demand demand);
+        
+        
+        Providers ProvidersGetAll();
 
-        void DemandsAdd(IDemand demand);
+        void ProvidersAdd(Provider provider);
         
-        void DemandsAddAll(List<IDemand> demands);
         
-        List<T_Provider> T_ProvidersGetAll();
+        CustomerOrderParts CustomerOrderPartGetAll();
 
-        void ProvidersAdd(IProvider provider);
+        ProductionOrderBoms ProductionOrderBomGetAll();
         
-        void ProvidersAddAll(List<IProvider> providers);
+        StockExchangeProviders StockExchangeGetAll();
         
-        List<T_CustomerOrderPart> T_CustomerOrderPartGetAll();
+        PurchaseOrderParts PurchaseOrderPartGetAll();
 
-        List<T_ProductionOrderBom> T_ProductionOrderBomGetAll();
-        
-        List<T_StockExchange> T_StockExchangeGetAll();
-        
-        List<T_PurchaseOrderPart> T_PurchaseOrderPartGetAll();
+        ProductionOrders ProductionOrderGetAll();
 
-        List<T_ProductionOrder> T_ProductionOrderGetAll();
-
-        List<IDemand> DemandsGetAll();
+        Demands DemandsGetAll();
 
     }
 }

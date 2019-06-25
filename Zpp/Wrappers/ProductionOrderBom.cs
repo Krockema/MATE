@@ -26,5 +26,10 @@ namespace Zpp.Wrappers
             _productionOrderBom.ArticleChild = articleBom.ArticleChild;
             _productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
         }
+
+        public override IDemand ToIDemand()
+        {
+            return (T_ProductionOrderBom)_demand;
+        }
     }
 }
