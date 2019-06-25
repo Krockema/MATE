@@ -1,4 +1,5 @@
 ﻿using System;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 
@@ -41,9 +42,9 @@ namespace Master40.DB.DataModel
             return Stock.Article;
         }
 
-        public decimal GetQuantity()
+        public Quantity GetQuantity()
         {
-            return Quantity;
+            return new Quantity(Quantity);
         }
     }
 }

@@ -1,3 +1,4 @@
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 
 namespace Master40.DB.Interfaces
@@ -11,5 +12,7 @@ namespace Master40.DB.Interfaces
         int GetDueTime();
         
         M_Article GetArticle();
+
+        Quantity GetQuantity();
     }
 }

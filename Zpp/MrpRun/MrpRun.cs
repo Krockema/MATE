@@ -8,6 +8,7 @@ using Zpp.ModelExtensions;
 using Zpp.Utils;
 using Zpp;
 using Zpp.DemandDomain;
+using Zpp.DemandToProviderDomain;
 using Zpp.ProviderDomain;
 using ZppForPrimitives;
 
@@ -22,14 +23,14 @@ namespace Zpp
         public static void RunMrp(IDbCache dbCache, List<Demand> initialDemands)
         {
             // init data structures
-            
+
             // start
 
             // remove all DemandToProvider entries
             dbCache.T_DemandToProvidersRemoveAll();
 
-            foreach (var initialDemand in initialDemands){
-            
+            foreach (var initialDemand in initialDemands)
+            {
                 ProcessDbDemand(dbCache, initialDemand);
             }
 
@@ -41,6 +42,7 @@ namespace Zpp
         {
             // init
             Providers providers = new Providers();
+            DemandToProvider demandToProvider = new DemandToProvider();
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
@@ -54,8 +56,7 @@ namespace Zpp
             // first level has the given oneDbDemand from database, while levels below are initially empty
 
             HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
-            Demands firstLevelDemandManager =
-                new Demands(hierarchyNumber);
+            Demands firstLevelDemandManager = new Demands(hierarchyNumber);
             firstLevelDemandManager.Add(oneDbDemand);
             levelDemandManagers.Add(firstLevelDemandManager);
 
@@ -66,33 +67,15 @@ namespace Zpp
                 currentDemandManager.OrderDemandsByUrgency();
                 // add new level for next creating demands (evolving tree of demands)
                 hierarchyNumber.increment();
-                Demands nextDemandManager =
-                    new Demands(hierarchyNumber);
+                Demands nextDemandManager = new Demands(hierarchyNumber);
                 levelDemandManagers.Add(nextDemandManager);
                 // demands in currentDemandManager are not allowed to be expanded,
                 // nextDemandManager must be used for this
                 currentDemandManager.LockDemandsList();
-                
+
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
-                    bool isDemandSatisfied = false;
-
-                    if (providerManager.GetProviders() != null)
-                    {
-                        // check existing provider
-                        
-                        foreach (IProvider provider in providerManager.GetProviders())
-                        {
-                            // does a provider in time exists?
-                            if (demand.GetArticle().Id.Equals(provider.GetArticle().Id) &&
-                                demand.GetDueTime() < provider.GetDueTime())
-                            {
-                                nextDemandManager.AddProviderForDemand(demand.Id, provider.Id);
-                                isDemandSatisfied = true;
-                                break;
-                            }
-                        }
-                    }
+                    bool isDemandSatisfied = demandToProvider.IsSatisfied(demand);
 
                     if (!isDemandSatisfied)
                         // create provider for it
@@ -104,6 +87,7 @@ namespace Zpp
                         providerManager.AddProvider(provider);
                     }
                 }
+
                 // persist processed demands/providers
                 currentDemandManager.PersistDemands();
                 providerManager.PersistProviders();

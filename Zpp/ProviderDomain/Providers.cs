@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
+using ZppForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -46,12 +48,17 @@ namespace Zpp.ProviderDomain
             return productionOrderBoms;
         }
 
-        public Provider HasFor(Demand demand)
+        public bool ProvideMoreThan(Quantity quantity)
         {
-            foreach (Provider provider in _providers)
+            Quantity providedQuantity = new Quantity();
+            
+            foreach (var provider in _providers)
             {
-                provider.Is
+                providedQuantity.IncrementBy(provider.GetQuantity());
             }
+
+            return providedQuantity.IsGreaterThan(quantity);
         }
+        
     }
 }

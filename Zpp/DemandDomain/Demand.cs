@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
@@ -15,8 +16,9 @@ namespace Zpp.DemandDomain
     public abstract class Demand : IDemandLogic
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        protected IDemand _demand;
-        protected List<Provider> _providers;
+        protected readonly IDemand _demand;
+        protected readonly List<Provider> _providers;
+        protected readonly Guid _guid = new Guid();
 
         public Demand(IDemand demand)
         {
@@ -152,17 +154,22 @@ namespace Zpp.DemandDomain
         {
             var item = obj as Demand;
 
-            if (item == null || item._demand.Id.Equals(0))
+            if (item == null)
             {
                 return false;
             }
 
-            return _demand.Id.Equals(item._demand.Id);
+            return _guid.Equals(item._guid);
         }
         
         public override int GetHashCode()
         {
-            return _demand.Id.GetHashCode();
+            return _guid.GetHashCode();
+        }
+
+        public Quantity GetQuantity()
+        {
+            return _demand.GetQuantity();
         }
     }
 }

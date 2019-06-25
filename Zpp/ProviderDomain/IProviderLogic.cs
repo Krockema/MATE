@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 using Zpp.DemandDomain;
+using ZppForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -13,6 +15,7 @@ namespace Zpp.ProviderDomain
 
         IProvider ToIProvider();
 
-        bool isFor(Demand demand);
+        Quantity GetQuantity();
+
     }
 }

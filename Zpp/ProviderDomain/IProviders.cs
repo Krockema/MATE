@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
+using ZppForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -17,7 +19,6 @@ namespace Zpp.ProviderDomain
         
         List<T> GetAllAs<T>();
 
-        Provider HasFor(Demand demand);
-
+        bool ProvideMoreThan(Quantity quantity);
     }
 }

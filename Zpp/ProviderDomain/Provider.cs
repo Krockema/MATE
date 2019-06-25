@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 using Zpp.DemandDomain;
 using ZppForPrimitives;
@@ -11,8 +12,9 @@ namespace Zpp.ProviderDomain
      */
     public abstract class Provider : IProviderLogic
     {
-        protected List<Demand> _demands;
-        protected IProvider _provider;
+        protected readonly Guid _guid = new Guid();
+        protected readonly List<Demand> _demands;
+        protected readonly IProvider _provider;
 
         public Provider(IProvider provider, List<Demand> demands)
         {
@@ -36,13 +38,27 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract IProvider ToIProvider();
-
-        public bool isFor(Demand demand)
+        
+        public override bool Equals(object obj)
         {
-            foreach (var loopDemand in _demands)
+            var item = obj as Provider;
+
+            if (item == null)
             {
-                throw new NotImplementedException();
+                return false;
             }
+
+            return _guid.Equals(item._guid);
+        }
+        
+        public override int GetHashCode()
+        {
+            return _guid.GetHashCode();
+        }
+
+        public Quantity GetQuantity()
+        {
+            return _provider.GetQuantity();
         }
     }
 }

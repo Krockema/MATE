@@ -4,7 +4,7 @@ using Master40.DB.Interfaces;
 
 namespace Zpp.DemandDomain
 {
-    public class CustomerOrderPart : Demand, IDemandLogic 
+    public class CustomerOrderPart : Demand 
     {
 
         public CustomerOrderPart(IDemand demand) : base(demand)
@@ -16,5 +16,7 @@ namespace Zpp.DemandDomain
         {
             return (T_CustomerOrderPart)_demand;
         }
+        
+        
     }
 }

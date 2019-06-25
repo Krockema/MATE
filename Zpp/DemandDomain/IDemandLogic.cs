@@ -1,4 +1,5 @@
 using System;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.ProviderDomain;
@@ -22,5 +23,7 @@ namespace Zpp.DemandDomain
         void AddProvider(Provider provider);
 
         bool HasProvider(Providers providers);
+        
+        Quantity GetQuantity();
     }
 }

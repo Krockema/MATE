@@ -1,3 +1,4 @@
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 
 namespace Zpp
@@ -5,10 +6,10 @@ namespace Zpp
     public static class PurchaseManagerUtils
     {
         public static int calculateQuantity(M_ArticleToBusinessPartner articleToBusinessPartner,
-            decimal demandQuantity)
+            Quantity demandQuantity)
         {
             // force round up the decimal demandQuantity
-            int demandQuantityInt = (int) decimal.Truncate(demandQuantity) + 1;
+            int demandQuantityInt = (int) decimal.Truncate(demandQuantity.GetQuantity()) + 1;
             int purchaseQuantity = 0;
             
             for (int quantity = 0;
