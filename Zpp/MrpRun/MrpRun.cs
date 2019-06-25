@@ -39,8 +39,8 @@ namespace Zpp
 
         private static void ProcessDbDemand(IDbCache dbCache, Demand oneDbDemand)
         {
-            // managers
-            IProviderManager providerManager = new ProviderManagerSimple(dbCache);
+            // init
+            Providers providers = new Providers();
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
@@ -50,30 +50,30 @@ namespace Zpp
             // where every level is sorted by urgency & fix
             // and all created demands within a level is put to level below
 
-            List<IDemandManager> levelDemandManagers = new List<IDemandManager>();
+            List<Demands> levelDemandManagers = new List<Demands>();
             // first level has the given oneDbDemand from database, while levels below are initially empty
 
             HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
-            IDemandManager firstLevelDemandManager =
-                new DemandManagerSimple(dbCache, providerManager, hierarchyNumber);
-            firstLevelDemandManager.AddDemand(oneDbDemand);
+            Demands firstLevelDemandManager =
+                new Demands(hierarchyNumber);
+            firstLevelDemandManager.Add(oneDbDemand);
             levelDemandManagers.Add(firstLevelDemandManager);
 
 
             while (true)
             {
-                IDemandManager currentDemandManager = levelDemandManagers[0];
+                Demands currentDemandManager = levelDemandManagers[0];
                 currentDemandManager.OrderDemandsByUrgency();
                 // add new level for next creating demands (evolving tree of demands)
-                hierarchyNumber++;
-                IDemandManager nextDemandManager =
-                    new DemandManagerSimple(dbCache, providerManager, hierarchyNumber);
+                hierarchyNumber.increment();
+                Demands nextDemandManager =
+                    new Demands(hierarchyNumber);
                 levelDemandManagers.Add(nextDemandManager);
                 // demands in currentDemandManager are not allowed to be expanded,
                 // nextDemandManager must be used for this
                 currentDemandManager.LockDemandsList();
                 
-                foreach (Demand demand in currentDemandManager.GetDemands())
+                foreach (Demand demand in currentDemandManager.GetAll())
                 {
                     bool isDemandSatisfied = false;
 

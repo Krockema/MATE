@@ -17,6 +17,11 @@ namespace Zpp.DemandDomain
         {
         }
 
+        public Demands(HierarchyNumber hierarchyNumber)
+        {
+            _hierarchyNumber = hierarchyNumber;
+        }
+
         public Demands(List<Demand> demands)
         {
             _demands = demands;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
 using Zpp.DemandDomain;
@@ -10,12 +11,12 @@ namespace Zpp.ProviderDomain
      */
     public abstract class Provider : IProviderLogic
     {
-        protected List<Demand> Demands;
+        protected List<Demand> _demands;
         protected IProvider _provider;
 
         public Provider(IProvider provider, List<Demand> demands)
         {
-            Demands = demands;
+            _demands = demands;
             _provider = provider;
         }
 
@@ -26,7 +27,7 @@ namespace Zpp.ProviderDomain
 
         public List<Demand> GetDemands()
         {
-            return Demands;
+            return _demands;
         }
         
         protected DueTime GetDueTime()
@@ -35,5 +36,13 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract IProvider ToIProvider();
+
+        public bool isFor(Demand demand)
+        {
+            foreach (var loopDemand in _demands)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

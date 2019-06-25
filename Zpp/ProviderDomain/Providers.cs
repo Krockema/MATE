@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
+using Zpp.DemandDomain;
 
 namespace Zpp.ProviderDomain
 {
@@ -42,6 +44,14 @@ namespace Zpp.ProviderDomain
                 productionOrderBoms.Add((T)demand.ToIProvider());
             }
             return productionOrderBoms;
+        }
+
+        public Provider HasFor(Demand demand)
+        {
+            foreach (Provider provider in _providers)
+            {
+                provider.Is
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
+using Zpp.DemandDomain;
 
 namespace Zpp.ProviderDomain
 {
@@ -15,6 +16,8 @@ namespace Zpp.ProviderDomain
         List<Provider> GetAll();
         
         List<T> GetAllAs<T>();
+
+        Provider HasFor(Demand demand);
 
     }
 }

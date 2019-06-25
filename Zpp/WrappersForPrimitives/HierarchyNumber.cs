@@ -8,5 +8,10 @@ namespace ZppForPrimitives
         {
             _hierarchyNumber = hierarchyNumber;
         }
+
+        public void increment()
+        {
+            _hierarchyNumber++;
+        }
     }
 }

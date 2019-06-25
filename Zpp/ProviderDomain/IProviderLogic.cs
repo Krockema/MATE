@@ -12,5 +12,7 @@ namespace Zpp.ProviderDomain
         List<Demand> GetDemands();
 
         IProvider ToIProvider();
+
+        bool isFor(Demand demand);
     }
 }

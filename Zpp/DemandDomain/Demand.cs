@@ -142,5 +142,27 @@ namespace Zpp.DemandDomain
         {
             _providers.Add(provider);
         }
+
+        public bool HasProvider(Providers providers)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public override bool Equals(object obj)
+        {
+            var item = obj as Demand;
+
+            if (item == null || item._demand.Id.Equals(0))
+            {
+                return false;
+            }
+
+            return _demand.Id.Equals(item._demand.Id);
+        }
+        
+        public override int GetHashCode()
+        {
+            return _demand.Id.GetHashCode();
+        }
     }
 }
