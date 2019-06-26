@@ -35,7 +35,7 @@ namespace Zpp.DemandDomain
             {
                 T_ProductionOrder productionOrder =  new T_ProductionOrder(_demand);
                 Logger.Debug("ProductionOrder created.");
-                List<Demand> productionOrderBoms = ProcessArticleBoms(_demand, productionOrder, dbCache);
+                Demands productionOrderBoms = ProcessArticleBoms(_demand, productionOrder, dbCache);
                 return new ProductionOrder(productionOrder, productionOrderBoms);
             }
             return createPurchaseOrderPart(_demand);
@@ -81,7 +81,7 @@ namespace Zpp.DemandDomain
             return new PurchaseOrderPart(purchaseOrderPart, null);
         }
         
-        private List<Demand> ProcessArticleBoms(IDemand demand,
+        private Demands ProcessArticleBoms(IDemand demand,
             T_ProductionOrder productionOrder, IDbCache dbCache)
         {
             M_Article readArticle = dbCache.M_ArticleGetById(demand.GetArticle().Id);
@@ -95,7 +95,7 @@ namespace Zpp.DemandDomain
                     productionOrderBoms.Add(productionOrderBom);
                 }
 
-                return productionOrderBoms;
+                return new ProductionOrderBoms(productionOrderBoms);
             }
 
             return null;
@@ -170,6 +170,11 @@ namespace Zpp.DemandDomain
         public Quantity GetQuantity()
         {
             return _demand.GetQuantity();
+        }
+
+        public override string ToString()
+        {
+            return $"{_demand.Id}: {_demand.GetQuantity()} of {_demand.GetArticle().Name}";
         }
     }
 }

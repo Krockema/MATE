@@ -10,7 +10,7 @@ namespace Zpp.ProviderDomain
      */
     public class StockExchangeProvider : Provider, IProviderLogic
     {
-        public StockExchangeProvider(IProvider provider, List<Demand> demands) : base(provider, demands)
+        public StockExchangeProvider(IProvider provider, Demands demands) : base(provider, demands)
         {
         }
 

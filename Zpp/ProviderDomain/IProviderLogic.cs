@@ -11,7 +11,7 @@ namespace Zpp.ProviderDomain
      */
     public interface IProviderLogic
     {
-        List<Demand> GetDemands();
+        Demands GetDemands();
 
         IProvider ToIProvider();
 

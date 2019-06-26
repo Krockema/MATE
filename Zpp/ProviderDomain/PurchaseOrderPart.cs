@@ -10,7 +10,7 @@ namespace Zpp.ProviderDomain
      */
     public class PurchaseOrderPart : Provider, IProviderLogic
     {
-        public PurchaseOrderPart(IProvider provider, List<Demand> demands) : base(provider, demands)
+        public PurchaseOrderPart(IProvider provider, Demands demands) : base(provider, demands)
         {
         }
 

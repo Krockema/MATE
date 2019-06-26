@@ -221,5 +221,21 @@ namespace Zpp
         {
             return _productionOrders;
         }
+
+        public void DemandsAddAll(Demands demands)
+        {
+            foreach (var demand in demands.GetAll())
+            {
+                DemandsAdd(demand);
+            }
+        }
+
+        public void ProvidersAddAll(Providers providers)
+        {
+            foreach (var provider in providers.GetAll())
+            {
+                ProvidersAdd(provider);
+            }
+        }
     }
 }

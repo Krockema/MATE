@@ -28,10 +28,14 @@ namespace Zpp
 
         void DemandsAdd(Demand demand);
         
+        void DemandsAddAll(Demands demands);
+        
         
         Providers ProvidersGetAll();
 
         void ProvidersAdd(Provider provider);
+        
+        void ProvidersAddAll(Providers providers);
         
         
         CustomerOrderParts CustomerOrderPartGetAll();

@@ -12,6 +12,10 @@ namespace Zpp.DemandDomain
         public ProductionOrderBoms(List<T_ProductionOrderBom> iDemands) : base(ToDemands(iDemands))
         {
         }
+        
+        public ProductionOrderBoms(List<Demand> demands) : base(demands)
+        {
+        }
 
         private static List<Demand> ToDemands(List<T_ProductionOrderBom> iDemands)
         {

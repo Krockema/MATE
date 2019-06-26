@@ -27,7 +27,7 @@ namespace Zpp
             // start
 
             // remove all DemandToProvider entries
-            dbCache.T_DemandToProvidersRemoveAll();
+            dbCache.DemandToProvidersRemoveAll();
 
             foreach (var initialDemand in initialDemands)
             {
@@ -81,25 +81,27 @@ namespace Zpp
                         // create provider for it
                     {
                         LOGGER.Debug(
-                            "Create a provider for article " + demand.GetArticle().Id + ":");
+                            $"Create a provider for article {demand}:");
                         Provider provider = demand.CreateProvider(dbCache);
-                        nextDemandManager.AddDemands(provider.GetDemands());
-                        providerManager.AddProvider(provider);
+                        nextDemandManager.AddAll(provider.GetDemands());
+                        providers.Add(provider);
                     }
                 }
 
-                // persist processed demands/providers
-                currentDemandManager.PersistDemands();
-                providerManager.PersistProviders();
+                // final reorganizing
+                dbCache.DemandsAddAll(currentDemandManager);
                 levelDemandManagers.Remove(currentDemandManager);
-                // TODO: optimize (not everything needs to push to physical DB)
-                dbCache.PersistDbCache();
+
                 // break condition
-                if (nextDemandManager.GetDemands().Count == 0)
+                if (nextDemandManager.GetAll().Count == 0)
                 {
                     break;
                 }
             }
+            
+            // TODO: persist T_*
+            dbCache.ProvidersAddAll(providers);
+            dbCache.PersistDbCache();
         }
     }
 }

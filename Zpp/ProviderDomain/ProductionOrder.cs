@@ -14,7 +14,7 @@ namespace Zpp.ProviderDomain
     {
         public IProvider Provider => _provider;
 
-        public ProductionOrder(IProvider provider, List<Demand> demands) : base(provider, demands)
+        public ProductionOrder(IProvider provider, Demands demands) : base(provider, demands)
         {
         }
 

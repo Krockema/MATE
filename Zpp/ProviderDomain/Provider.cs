@@ -13,10 +13,10 @@ namespace Zpp.ProviderDomain
     public abstract class Provider : IProviderLogic
     {
         protected readonly Guid _guid = new Guid();
-        protected readonly List<Demand> _demands;
+        protected readonly Demands _demands;
         protected readonly IProvider _provider;
 
-        public Provider(IProvider provider, List<Demand> demands)
+        public Provider(IProvider provider, Demands demands)
         {
             _demands = demands;
             _provider = provider;
@@ -27,7 +27,7 @@ namespace Zpp.ProviderDomain
             
         }
 
-        public List<Demand> GetDemands()
+        public Demands GetDemands()
         {
             return _demands;
         }
