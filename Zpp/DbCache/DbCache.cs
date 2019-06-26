@@ -16,32 +16,40 @@ namespace Zpp
     public class DbCache : IDbCache
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-        
+
         protected readonly ProductionDomainContext _productionDomainContext;
 
         // cached tables
         // M_*
         private readonly List<M_BusinessPartner> _businessPartners;
         private readonly List<M_ArticleBom> _articleBoms;
+
         private readonly List<M_Article> _articles;
+
         // T_*
         // demands
         private readonly CustomerOrderParts _customerOrderParts;
+
         // demands
         private readonly ProductionOrderBoms _productionOrderBoms;
+
         // demands
         private readonly StockExchangeDemands _stockExchangeDemands;
+
         // providers
         private readonly StockExchangeProviders _stockExchangeProviders;
+
         // providers
         private readonly PurchaseOrderParts _purchaseOrderParts;
+
         // providers
         private readonly ProductionOrders _productionOrders;
-        
+
         private readonly PurchaseOrders _purchaseOrders;
 
 
-        private readonly Dictionary<BaseEntity, bool> _wasTableChanged = new Dictionary<BaseEntity, bool>();
+        private readonly Dictionary<BaseEntity, bool> _wasTableChanged =
+            new Dictionary<BaseEntity, bool>();
 
         public DbCache(ProductionDomainContext productionDomainContext)
         {
@@ -52,22 +60,26 @@ namespace Zpp
             _articleBoms = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild)
                 .ToList();
             _articles = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
-                .ThenInclude(m => m.ArticleChild)
-                .Include(m => m.ArticleBoms).ThenInclude(x=>x.Operation)
-                .Include(x=>x.ArticleToBusinessPartners).ThenInclude(x=>x.BusinessPartner).ToList();
+                .ThenInclude(m => m.ArticleChild).Include(m => m.ArticleBoms)
+                .ThenInclude(x => x.Operation).ThenInclude(x => x.MachineGroup)
+                .Include(x => x.ArticleToBusinessPartners).ThenInclude(x => x.BusinessPartner)
+                .ToList();
 
-            
-            List<T_CustomerOrderPart> customerOrderParts = _productionDomainContext.CustomerOrderParts.Include(x => x.Article)
-                .Include(x => x.CustomerOrder).ToList();
+
+            List<T_CustomerOrderPart> customerOrderParts = _productionDomainContext
+                .CustomerOrderParts.Include(x => x.Article).Include(x => x.CustomerOrder).ToList();
             _customerOrderParts = new CustomerOrderParts(customerOrderParts);
-            List<T_ProductionOrderBom> productionOrderBoms = _productionDomainContext.ProductionOrderBoms.ToList();
+            List<T_ProductionOrderBom> productionOrderBoms =
+                _productionDomainContext.ProductionOrderBoms.ToList();
             _productionOrderBoms = new ProductionOrderBoms(productionOrderBoms);
             List<T_StockExchange> stockExchanges = _productionDomainContext.StockExchanges.ToList();
             _stockExchangeDemands = new StockExchangeDemands(stockExchanges);
             _stockExchangeProviders = new StockExchangeProviders(stockExchanges);
-            List<T_ProductionOrder> productionOrders = _productionDomainContext.ProductionOrders.Include(x => x.Article).ToList();
+            List<T_ProductionOrder> productionOrders = _productionDomainContext.ProductionOrders
+                .Include(x => x.Article).ToList();
             _productionOrders = new ProductionOrders(productionOrders);
-            List<T_PurchaseOrderPart> purchaseOrderParts = _productionDomainContext.PurchaseOrderParts.Include(x => x.Article).ToList();
+            List<T_PurchaseOrderPart> purchaseOrderParts = _productionDomainContext
+                .PurchaseOrderParts.Include(x => x.Article).ToList();
             _purchaseOrderParts = new PurchaseOrderParts(purchaseOrderParts);
             List<T_PurchaseOrder> purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
             _purchaseOrders = new PurchaseOrders(purchaseOrders);
@@ -81,20 +93,25 @@ namespace Zpp
 
         public void PersistDbCache()
         {
-
             // this should stay here, since all domainContext should only used here
             // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
-            InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(), _productionDomainContext.ProductionOrderBoms);
-            InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(), _productionDomainContext.StockExchanges);
-            InsertOrUpdateRange(_productionOrders.GetAllAs<T_ProductionOrder>(), _productionDomainContext.ProductionOrders);
-            InsertOrUpdateRange(_purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>(), _productionDomainContext.PurchaseOrderParts);
-            
-            InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(), _productionDomainContext.PurchaseOrders);
-            
+            InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(),
+                _productionDomainContext.ProductionOrderBoms);
+            InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(),
+                _productionDomainContext.StockExchanges);
+            InsertOrUpdateRange(_productionOrders.GetAllAs<T_ProductionOrder>(),
+                _productionDomainContext.ProductionOrders);
+            InsertOrUpdateRange(_purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>(),
+                _productionDomainContext.PurchaseOrderParts);
+
+            InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(),
+                _productionDomainContext.PurchaseOrders);
+
             _productionDomainContext.SaveChanges();
         }
-        
-        private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)  where TEntity : BaseEntity
+
+        private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)
+            where TEntity : BaseEntity
         {
             // dbSet.AddRange(entities);
             foreach (var entity in entities)
@@ -103,10 +120,11 @@ namespace Zpp
             }
         }
 
-        private void InsertOrUpdate<TEntity>(TEntity entity, DbSet<TEntity> dbSet)  where TEntity : BaseEntity
+        private void InsertOrUpdate<TEntity>(TEntity entity, DbSet<TEntity> dbSet)
+            where TEntity : BaseEntity
         {
             if (entity.Id.Equals(0))
-            // it's not in DB yet
+                // it's not in DB yet
             {
                 dbSet.Add(entity);
             }
@@ -137,20 +155,19 @@ namespace Zpp
         }
 
 
-   
         public void DemandsAdd(Demand demand)
         {
             if (demand.GetType() == typeof(CustomerOrderPart))
             {
-                _customerOrderParts.Add((CustomerOrderPart)demand);
+                _customerOrderParts.Add((CustomerOrderPart) demand);
             }
             else if (demand.GetType() == typeof(ProductionOrderBom))
             {
-                    _productionOrderBoms.Add((ProductionOrderBom)demand);
+                _productionOrderBoms.Add((ProductionOrderBom) demand);
             }
             else if (demand.GetType() == typeof(StockExchangeDemand))
             {
-                    _stockExchangeDemands.Add((StockExchangeDemand)demand);
+                _stockExchangeDemands.Add((StockExchangeDemand) demand);
             }
             else
             {
@@ -162,15 +179,15 @@ namespace Zpp
         {
             if (provider.GetType() == typeof(ProductionOrder))
             {
-                _productionOrders.Add((ProductionOrder)provider);
+                _productionOrders.Add((ProductionOrder) provider);
             }
             else if (provider.GetType() == typeof(PurchaseOrderPart))
             {
-                _purchaseOrderParts.Add((PurchaseOrderPart)provider);
+                _purchaseOrderParts.Add((PurchaseOrderPart) provider);
             }
             else if (provider.GetType() == typeof(StockExchangeProvider))
             {
-                _stockExchangeProviders.Add((StockExchangeProvider)provider);
+                _stockExchangeProviders.Add((StockExchangeProvider) provider);
             }
             else
             {
@@ -185,14 +202,17 @@ namespace Zpp
             {
                 demands.AddAll(_customerOrderParts);
             }
+
             if (_productionOrderBoms.GetAll().Any())
             {
                 demands.AddAll(_productionOrderBoms);
             }
+
             if (_stockExchangeDemands.GetAll().Any())
             {
                 demands.AddAll(_stockExchangeDemands);
             }
+
             return demands;
         }
 

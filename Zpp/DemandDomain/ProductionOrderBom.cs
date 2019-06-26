@@ -27,7 +27,7 @@ namespace Zpp.DemandDomain
             productionOrderBom.ProductionOrderParent = (T_ProductionOrder)productionOrder;
             productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
             productionOrderBom.ProductionOrderOperation =
-                new T_ProductionOrderOperation(articleBom);
+                new ProductionOrderOperation(articleBom).GetValue();
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
             productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
 
