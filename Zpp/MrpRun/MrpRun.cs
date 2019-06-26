@@ -42,6 +42,7 @@ namespace Zpp
         {
             // init
             Providers providers = new Providers();
+            Demands finalAllDemands = new Demands();
             DemandToProvider demandToProvider = new DemandToProvider();
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
@@ -83,13 +84,16 @@ namespace Zpp
                         LOGGER.Debug(
                             $"Create a provider for article {demand}:");
                         Provider provider = demand.CreateProvider(dbCache);
-                        nextDemandManager.AddAll(provider.GetDemands());
+                        if (provider.AnyDemands())
+                        {
+                            nextDemandManager.AddAll(provider.GetDemands());    
+                        }
                         providers.Add(provider);
                     }
                 }
 
                 // final reorganizing
-                dbCache.DemandsAddAll(currentDemandManager);
+                finalAllDemands.AddAll(currentDemandManager);
                 levelDemandManagers.Remove(currentDemandManager);
 
                 // break condition
@@ -101,6 +105,7 @@ namespace Zpp
             
             // TODO: persist T_*
             dbCache.ProvidersAddAll(providers);
+            dbCache.DemandsAddAll(finalAllDemands);
             dbCache.PersistDbCache();
         }
     }

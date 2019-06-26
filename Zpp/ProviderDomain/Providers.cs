@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
@@ -68,6 +69,11 @@ namespace Zpp.ProviderDomain
         public int Size()
         {
             return _providers.Count;
+        }
+
+        public bool Any()
+        {
+            return _providers.Any();
         }
     }
 }

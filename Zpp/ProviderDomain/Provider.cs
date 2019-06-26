@@ -60,5 +60,10 @@ namespace Zpp.ProviderDomain
         {
             return _provider.GetQuantity();
         }
+
+        public bool AnyDemands()
+        {
+            return _demands != null && _demands.Any();
+        }
     }
 }

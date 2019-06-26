@@ -20,8 +20,6 @@ namespace Zpp.DemandDomain
 
         IDemand ToIDemand();
 
-        void AddProvider(Provider provider);
-
         bool HasProvider(Providers providers);
         
         Quantity GetQuantity();

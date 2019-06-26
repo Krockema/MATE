@@ -17,5 +17,7 @@ namespace Zpp.ProviderDomain
 
         Quantity GetQuantity();
 
+        bool AnyDemands();
+
     }
 }

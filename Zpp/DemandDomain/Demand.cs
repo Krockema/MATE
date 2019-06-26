@@ -18,7 +18,6 @@ namespace Zpp.DemandDomain
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected readonly IDemand _demand;
-        protected readonly List<Provider> _providers;
         protected readonly Guid _guid = Guid.NewGuid();
 
         public Demand(IDemand demand)
@@ -34,10 +33,9 @@ namespace Zpp.DemandDomain
         {
             if (_demand.GetArticle().ToBuild)
             {
-                ProductionOrder productionOrder =  new ProductionOrder(_demand, null);
+                ProductionOrder productionOrder =  new ProductionOrder(_demand, dbCache);
                 Logger.Debug("ProductionOrder created.");
-                Demands productionOrderBoms = ProcessArticleBoms(_demand, productionOrder, dbCache);
-                return new ProductionOrder(productionOrder, productionOrderBoms);
+                return productionOrder;
             }
             return createPurchaseOrderPart(_demand);
         }
@@ -82,25 +80,7 @@ namespace Zpp.DemandDomain
             return new PurchaseOrderPart(purchaseOrderPart, null);
         }
         
-        private Demands ProcessArticleBoms(IDemand demand,
-            T_ProductionOrder productionOrder, IDbCache dbCache)
-        {
-            M_Article readArticle = dbCache.M_ArticleGetById(demand.GetArticle().Id);
-            if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
-            {
-                List<Demand> productionOrderBoms = new List<Demand>();
-                foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
-                {
-                    ProductionOrderBom productionOrderBom = new ProductionOrderBom(articleBom,
-                        productionOrder);
-                    productionOrderBoms.Add(productionOrderBom);
-                }
-
-                return new ProductionOrderBoms(productionOrderBoms);
-            }
-
-            return null;
-        }
+        
 
         // TODO: use this
         private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
@@ -140,11 +120,6 @@ namespace Zpp.DemandDomain
         }
 
         public abstract IDemand ToIDemand();
-
-        public void AddProvider(Provider provider)
-        {
-            _providers.Add(provider);
-        }
 
         public bool HasProvider(Providers providers)
         {

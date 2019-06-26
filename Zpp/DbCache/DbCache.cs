@@ -181,9 +181,18 @@ namespace Zpp
         public Demands DemandsGetAll()
         {
             Demands demands = new Demands();
-            demands.AddAll(_customerOrderParts);
-            demands.AddAll(_productionOrderBoms);
-            demands.AddAll(_stockExchangeDemands);
+            if (_customerOrderParts.GetAll().Any())
+            {
+                demands.AddAll(_customerOrderParts);
+            }
+            if (_productionOrderBoms.GetAll().Any())
+            {
+                demands.AddAll(_productionOrderBoms);
+            }
+            if (_stockExchangeDemands.GetAll().Any())
+            {
+                demands.AddAll(_stockExchangeDemands);
+            }
             return demands;
         }
 

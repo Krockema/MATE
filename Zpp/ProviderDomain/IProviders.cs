@@ -24,5 +24,7 @@ namespace Zpp.ProviderDomain
         bool ProvideMoreThan(Quantity quantity);
         
         int Size();
+        
+        bool Any();
     }
 }

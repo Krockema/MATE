@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Interfaces;
 using Zpp.Utils;
 using ZppForPrimitives;
@@ -46,6 +47,11 @@ namespace Zpp.DemandDomain
             if (_isDemandsListLocked)
             {
                 throw new MrpRunException("Demands is locked, no demands can be added anymore.");
+            }
+
+            if (demands == null || demands.GetAll() == null || demands.GetAll().Count.Equals(0))
+            {
+                throw new MrpRunException("Given demands should not be empty.");
             }
             _demands.AddRange(demands.GetAll());
         }
@@ -101,6 +107,11 @@ namespace Zpp.DemandDomain
         public int Size()
         {
             return _demands.Count;
+        }
+
+        public bool Any()
+        {
+            return _demands.Any();
         }
     }
 }
