@@ -11,6 +11,8 @@ namespace Zpp.ProviderDomain
      */
     public interface IProviders
     {
+        // TODO: Use this interface instead of the implementor Providers directly
+        
         void Add(Provider provider);
 
         void AddAll(Providers providers);
@@ -20,5 +22,7 @@ namespace Zpp.ProviderDomain
         List<T> GetAllAs<T>();
 
         bool ProvideMoreThan(Quantity quantity);
+        
+        int Size();
     }
 }

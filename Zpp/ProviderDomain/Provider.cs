@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 using Zpp.DemandDomain;
+using Zpp.Utils;
 using ZppForPrimitives;
 
 namespace Zpp.ProviderDomain
@@ -12,19 +13,18 @@ namespace Zpp.ProviderDomain
      */
     public abstract class Provider : IProviderLogic
     {
-        protected readonly Guid _guid = new Guid();
+        protected readonly Guid _guid = Guid.NewGuid();
         protected readonly Demands _demands;
         protected readonly IProvider _provider;
 
         public Provider(IProvider provider, Demands demands)
         {
+            if (provider == null)
+            {
+                throw new MrpRunException("Given provider should not be null.");
+            }
             _demands = demands;
             _provider = provider;
-        }
-
-        public Provider()
-        {
-            
         }
 
         public Demands GetDemands()

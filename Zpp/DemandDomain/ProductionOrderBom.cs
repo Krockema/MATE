@@ -6,25 +6,32 @@ namespace Zpp.DemandDomain
 {
     public class ProductionOrderBom : Demand, IDemandLogic
     {
-        private T_ProductionOrderBom _productionOrderBom;
         public ProductionOrderBom(IDemand demand) : base(demand)
         {
         }
 
        
         public ProductionOrderBom(M_ArticleBom articleBom,
+            IProvider productionOrder) : base(CreateProductionOrderBom(articleBom,productionOrder))
+        {
+            
+        }
+
+        private static IDemand CreateProductionOrderBom(M_ArticleBom articleBom,
             IProvider productionOrder)
         {
-            _productionOrderBom = new T_ProductionOrderBom();
+            T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
-            _productionOrderBom.Quantity = articleBom.Quantity;
-            _productionOrderBom.State = State.Created;
-            _productionOrderBom.ProductionOrderParent = (T_ProductionOrder)productionOrder;
-            _productionOrderBom.ProductionOrderParentId = _productionOrderBom.ProductionOrderParent.Id;
-            _productionOrderBom.ProductionOrderOperation =
+            productionOrderBom.Quantity = articleBom.Quantity;
+            productionOrderBom.State = State.Created;
+            productionOrderBom.ProductionOrderParent = (T_ProductionOrder)productionOrder;
+            productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
+            productionOrderBom.ProductionOrderOperation =
                 new T_ProductionOrderOperation(articleBom);
-            _productionOrderBom.ArticleChild = articleBom.ArticleChild;
-            _productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
+            productionOrderBom.ArticleChild = articleBom.ArticleChild;
+            productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
+
+            return productionOrderBom;
         }
 
         public override IDemand ToIDemand()

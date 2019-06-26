@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
+using Zpp.Utils;
 using ZppForPrimitives;
 
 namespace Zpp.ProviderDomain
@@ -12,10 +13,14 @@ namespace Zpp.ProviderDomain
      */
     public class Providers : IProviders
     {
-        private List<Provider> _providers;
+        private readonly List<Provider> _providers = new List<Provider>();
 
         public Providers(List<Provider> providers)
         {
+            if (providers == null)
+            {
+                throw new MrpRunException("Given list should not be null.");
+            }
             _providers = providers;
         }
 
@@ -59,6 +64,10 @@ namespace Zpp.ProviderDomain
 
             return providedQuantity.IsGreaterThan(quantity);
         }
-        
+
+        public int Size()
+        {
+            return _providers.Count;
+        }
     }
 }

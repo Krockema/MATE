@@ -6,6 +6,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.ProviderDomain;
+using Zpp.Utils;
 using ZppForPrimitives;
 
 namespace Zpp.DemandDomain
@@ -18,22 +19,22 @@ namespace Zpp.DemandDomain
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected readonly IDemand _demand;
         protected readonly List<Provider> _providers;
-        protected readonly Guid _guid = new Guid();
+        protected readonly Guid _guid = Guid.NewGuid();
 
         public Demand(IDemand demand)
         {
+            if (demand == null)
+            {
+                throw new MrpRunException("Given demand should not be null.");
+            }
             _demand = demand;
-        }
-        
-        public Demand()
-        {
         }
         
         public Provider CreateProvider(IDbCache dbCache)
         {
             if (_demand.GetArticle().ToBuild)
             {
-                T_ProductionOrder productionOrder =  new T_ProductionOrder(_demand);
+                ProductionOrder productionOrder =  new ProductionOrder(_demand, null);
                 Logger.Debug("ProductionOrder created.");
                 Demands productionOrderBoms = ProcessArticleBoms(_demand, productionOrder, dbCache);
                 return new ProductionOrder(productionOrder, productionOrderBoms);

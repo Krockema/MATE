@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.Interfaces;
+using Zpp.Utils;
 using ZppForPrimitives;
 
 namespace Zpp.DemandDomain
@@ -9,8 +10,8 @@ namespace Zpp.DemandDomain
      */
     public class Demands : IDemands
     {
-        protected List<Demand> _demands;
-        private bool IsDemandsListLocked = false;
+        protected readonly List<Demand> _demands = new List<Demand>();
+        private bool _isDemandsListLocked = false;
         private readonly HierarchyNumber _hierarchyNumber;
 
         public Demands()
@@ -24,16 +25,28 @@ namespace Zpp.DemandDomain
 
         public Demands(List<Demand> demands)
         {
+            if (demands == null)
+            {
+                throw new MrpRunException("Given list should not be null.");
+            }
             _demands = demands;
         }
 
         public void Add(Demand demand)
         {
+            if (_isDemandsListLocked)
+            {
+                throw new MrpRunException("Demands is locked, no demands can be added anymore.");
+            }
             _demands.Add(demand);
         }
 
         public void AddAll(Demands demands)
         {
+            if (_isDemandsListLocked)
+            {
+                throw new MrpRunException("Demands is locked, no demands can be added anymore.");
+            }
             _demands.AddRange(demands.GetAll());
         }
 
@@ -65,7 +78,14 @@ namespace Zpp.DemandDomain
         
         public void OrderDemandsByUrgency()
         {
-            _demands.Sort((x, y) => x.GetDueTime().CompareTo(y.GetDueTime()));
+            // sort only, if there are more than one element
+            if (_demands.Count > 1)
+            {
+                _demands.Sort((x, y) =>
+                {
+                    return x.GetDueTime().CompareTo(y.GetDueTime());
+                });
+            }
         }
         
         public HierarchyNumber GetHierarchyNumber()
@@ -73,9 +93,14 @@ namespace Zpp.DemandDomain
             return _hierarchyNumber;
         }
 
-        public void LockDemandsList()
+        public void Lock()
         {
-            IsDemandsListLocked = true;
+            _isDemandsListLocked = true;
+        }
+
+        public int Size()
+        {
+            return _demands.Count;
         }
     }
 }

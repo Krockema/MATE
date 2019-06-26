@@ -20,7 +20,7 @@ namespace Zpp
 
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
 
-        public static void RunMrp(IDbCache dbCache, List<Demand> initialDemands)
+        public static void RunMrp(IDbCache dbCache, Demands initialDemands)
         {
             // init data structures
 
@@ -29,7 +29,7 @@ namespace Zpp
             // remove all DemandToProvider entries
             dbCache.DemandToProvidersRemoveAll();
 
-            foreach (var initialDemand in initialDemands)
+            foreach (var initialDemand in initialDemands.GetAll())
             {
                 ProcessDbDemand(dbCache, initialDemand);
             }
@@ -71,7 +71,7 @@ namespace Zpp
                 levelDemandManagers.Add(nextDemandManager);
                 // demands in currentDemandManager are not allowed to be expanded,
                 // nextDemandManager must be used for this
-                currentDemandManager.LockDemandsList();
+                currentDemandManager.Lock();
 
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {

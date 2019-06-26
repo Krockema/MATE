@@ -8,6 +8,8 @@ using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
 
 namespace Zpp.Test
 {
@@ -25,19 +27,19 @@ namespace Zpp.Test
         {
             List<int> countsMasterDataBefore = countMasterData();
             IDbCache dbCache = new DbCache(ProductionDomainContext);
-            Assert.True(dbCache.T_DemandsGetAll().Count == 1, "No demands are initially available.");
+            Assert.True(dbCache.DemandsGetAll().Size() == 1, "No demands are initially available.");
             
             MrpRun.RunMrp(dbCache, dbCache.DemandsGetAll());
             
             int expectedNumberOfDemandsAndProviders = 28;
-            List<T_Demand> actualDemands = dbCache.T_DemandsGetAll();
-            List<T_Provider> actualProviders = dbCache.T_ProvidersGetAll();
-            Assert.True(actualDemands.Count == expectedNumberOfDemandsAndProviders + 1, // TODO: why is + 1 needed? 
+            IDemands actualDemands = dbCache.DemandsGetAll();
+            IProviders actualProviders = dbCache.ProvidersGetAll();
+            Assert.True(actualDemands.Size() == expectedNumberOfDemandsAndProviders + 1, // TODO: why is + 1 needed? 
                 $"No demands were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
-                $"Actual {actualProviders.Count}");
-            Assert.True(actualProviders.Count == expectedNumberOfDemandsAndProviders, 
+                $"Actual {actualProviders.Size()}");
+            Assert.True(actualProviders.Size() == expectedNumberOfDemandsAndProviders, 
                 $"No providers were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
-                $"Actual {actualProviders.Count}");
+                $"Actual {actualProviders.Size()}");
 
             // check certain constraints are not violated
             

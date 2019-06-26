@@ -9,6 +9,8 @@ namespace Zpp.DemandDomain
      */
     public interface IDemands
     {
+        // TODO: Use this interface instead of the implementor Demands directly
+        
         void Add(Demand demand);
         
         void AddAll(Demands demands);
@@ -26,6 +28,8 @@ namespace Zpp.DemandDomain
         /// <summary>
         /// demandsList are not allowed to be expanded after this call
         /// </summary>
-        void LockDemandsList();
+        void Lock();
+
+        int Size();
     }
 }

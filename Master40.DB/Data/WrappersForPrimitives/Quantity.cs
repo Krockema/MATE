@@ -13,7 +13,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
             _quantity = quantity;
         }
 
-        public decimal GetQuantity()
+        public decimal GetValue()
         {
             return _quantity;
         }

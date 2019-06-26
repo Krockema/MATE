@@ -11,16 +11,15 @@ namespace ZppForPrimitives
             _dueTime = dueTime;
         }
 
-        public int GetDueTime()
+        public int GetValue()
         {
             return _dueTime;
         }
         
         public int CompareTo(DueTime that)
         {
-            if (_dueTime >  that.GetDueTime()) return -1;
-            if (_dueTime == that.GetDueTime()) return 0;
-            return 1;
+            return _dueTime.CompareTo(that.GetValue());
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Newtonsoft.Json;
@@ -37,9 +38,9 @@ namespace Master40.DB.DataModel
             return ArticleChild;
         }
 
-        public decimal GetQuantity()
+        public Quantity GetQuantity()
         {
-            return Quantity;
+            return new Quantity(Quantity);
         }
     }
 }

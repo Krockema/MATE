@@ -39,25 +39,6 @@ namespace Master40.DB.DataModel
             return DueTime;
         }
 
-        public T_ProductionOrder(IDemand demand)
-        {
-            // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            DueTime = demand.GetDueTime();
-            Article = demand.GetArticle();
-            ArticleId = demand.GetArticle().Id;
-            Name = $"ProductionOrder{demand.Id}";
-            // connects this provider with table T_Provider
-            Provider = new T_Provider();
-            Quantity = demand.GetQuantity();
-            
-
-            // TODO: check following navigation properties are created
-            /*List<T_ProductionOrderBom> productionOrderBoms = new List<T_ProductionOrderBom>();
-            List<T_ProductionOrderOperation> productionOrderWorkSchedule = new List<T_ProductionOrderOperation>();
-            List<T_ProductionOrderBom> prodProductionOrderBomChilds = new List<T_ProductionOrderBom>();*/
-
-        }
-
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);

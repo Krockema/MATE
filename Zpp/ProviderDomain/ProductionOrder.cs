@@ -12,28 +12,32 @@ namespace Zpp.ProviderDomain
      */
     public class ProductionOrder : Provider, IProviderLogic
     {
-        public IProvider Provider => _provider;
-
         public ProductionOrder(IProvider provider, Demands demands) : base(provider, demands)
         {
         }
 
-        public ProductionOrder(M_Article article, DueTime dueTime, Quantity quantity, string productionOrderName)
+        public ProductionOrder(IDemand demand, Demands childDemands) : base(CreateProductionOrder(demand), childDemands)
+        {
+        }
+
+        private static IProvider CreateProductionOrder(IDemand demand)
         {
             T_ProductionOrder productionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            productionOrder.DueTime = dueTime.GetDueTime();
-            productionOrder.Article = article;
-            productionOrder.ArticleId = article.Id;
-            productionOrder.Name = productionOrderName;
+            productionOrder.DueTime = demand.GetDueTime();
+            productionOrder.Article = demand.GetArticle();
+            productionOrder.ArticleId =  demand.GetArticle().Id;
+            productionOrder.Name = $"ProductionOrder for Demand {demand.Id}";
             // connects this provider with table T_Provider
             productionOrder.Provider = new T_Provider();
-            productionOrder.Quantity = quantity.GetQuantity();
+            productionOrder.Quantity = demand.GetQuantity().GetValue();
+
+            return productionOrder;
         }
 
         public override IProvider ToIProvider()
         {
-            return (T_ProductionOrder)_provider;
+            return (T_ProductionOrder) _provider;
         }
     }
 }
