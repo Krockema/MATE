@@ -4,7 +4,7 @@ namespace ZppForPrimitives
 {
     public class DueTime : IComparable<DueTime>
     {
-        public int _dueTime;
+        private int _dueTime;
 
         public DueTime(int dueTime)
         {

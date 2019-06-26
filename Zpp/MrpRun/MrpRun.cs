@@ -103,7 +103,6 @@ namespace Zpp
                 }
             }
             
-            // TODO: persist T_*
             dbCache.ProvidersAddAll(providers);
             dbCache.DemandsAddAll(finalAllDemands);
             dbCache.PersistDbCache();
