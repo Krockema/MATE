@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -8,7 +9,11 @@ namespace Zpp.Test
 {
     public class ObjectCalisthenicsTest
     {
-        [Fact]
+        const string
+            skipThisTestClass =
+                "ObjectCalisthenicsTest is currenctly disabled."; // TODO: change to null to enable this class
+
+        [Fact(Skip = skipThisTestClass)]
         /**
          * Rule no. 2: Don't use else-keyword
          */
@@ -21,7 +26,7 @@ namespace Zpp.Test
             });
         }
 
-        [Fact]
+        [Fact(Skip = skipThisTestClass)]
         /**
          * Rule no. 4: A line should not have more than two "." (access operator)
          */
@@ -50,16 +55,34 @@ namespace Zpp.Test
             });
         }
 
-        [Fact]
+        [Fact(Skip = skipThisTestClass)]
         /**
-         * Rule no. 6: Keep Entites small (not more than 50 lines, 5 classes per package
-         * --> with tolerance 100 lines, 10 classes per package)
+         * Rule no. 6: Keep Entites small (not more than x lines, x classes per package
+         * --> with some tolerance)
          */
         public void testKeepEntitiesSmall()
         {
             int maxLines = 100;
-            int maxClassesPerPackage = 10;
-            
+            int maxClassesPerPackage = 7;
+
+            // check no more than maxClassesPerPackage
+            traverseAllCsharpDirectoriesAndExecute((directoryInfo) =>
+            {
+                int fileCountInDirectory = 0;
+                foreach (var file in directoryInfo.GetFiles())
+                {
+                    if (file.Extension.Equals(".cs"))
+                    {
+                        fileCountInDirectory++;
+                    }
+                }
+
+
+                Assert.False(fileCountInDirectory > maxClassesPerPackage,
+                    $"{directoryInfo.Name}: has more than {maxClassesPerPackage} classes.");
+            });
+
+            // check maxLines in every csharpFile
             traverseAllCsharpFilesAndExecute((lines, fileName) =>
             {
                 Assert.False(lines.Count() > maxLines,
@@ -82,7 +105,8 @@ namespace Zpp.Test
             }
         }
 
-        private void traverseAllCsharpFilesAndExecute(Action<Line, LineNumber, FileName> actionOnOneLine)
+        private void traverseAllCsharpFilesAndExecute(
+            Action<Line, LineNumber, FileName> actionOnOneLine)
         {
             traverseAllCsharpFilesAndExecute((lines, fileName) =>
             {
@@ -94,6 +118,17 @@ namespace Zpp.Test
                     actionOnOneLine(line, currentLineNumber, fileName);
                 }
             });
+        }
+
+        private void traverseAllCsharpDirectoriesAndExecute(Action<DirectoryInfo> actionOnDirectory)
+        {
+            DirectoryInfo currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+            foreach (string directory in Directory.EnumerateDirectories(
+                currentDirectory.Parent.Parent.Parent.FullName, "*.*", SearchOption.AllDirectories))
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                actionOnDirectory(directoryInfo);
+            }
         }
     }
 }
