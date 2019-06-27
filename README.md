@@ -1,7 +1,7 @@
 # Master-4.0
 This project is created to test selforganized concepts in an Industrial Enterprise Resouce Planning application.
 
-The Project build status [![Build Status](https://travis-ci.com/Krockema/Master-4.0.svg?branch=AkkaSim)](https://travis-ci.com/Krockema/Master-4.0)
+The Project build status [![Build Status](https://travis-ci.com/Krockema/ng-erp-4.0.svg?branch=AkkaSim)](https://travis-ci.com/Krockema/ng-erp-4.0)
 
 Code Structure
 <ul>
