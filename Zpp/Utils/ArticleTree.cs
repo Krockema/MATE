@@ -10,7 +10,7 @@ namespace Zpp.Utils
     public class ArticleTree : ITree<M_Article>
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-        private readonly DbCache _dbCache;
+        private readonly DbTransactionData _dbTransactionData;
 
         // int is the id of an article
         private readonly AdjacencyList<M_Article> _adjacencyList;
@@ -65,13 +65,13 @@ namespace Zpp.Utils
         }
 
         public ArticleTree(M_ArticleBom articleBom,
-            DbCache dbCache)
+            DbTransactionData dbTransactionData)
         {
-            M_ArticleBom queriedArticleBom = dbCache.M_ArticleBomGetById(articleBom.GetId());
+            M_ArticleBom queriedArticleBom = dbTransactionData.M_ArticleBomGetById(articleBom.GetId());
             _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id,
                 queriedArticleBom.Id,
                 queriedArticleBom.ArticleChild);
-            _dbCache = dbCache;
+            _dbTransactionData = dbTransactionData;
             Dictionary<int, List<Node<M_Article>>> builtArticleTree = buildArticleTree(
                 _rootArticle,
                 new Dictionary<int, List<Node<M_Article>>>());
@@ -91,7 +91,7 @@ namespace Zpp.Utils
             Node<M_Article> givenArticle,
             Dictionary<int, List<Node<M_Article>>> AdjacencyList)
         {
-            M_Article readArticle = _dbCache.M_ArticleGetById(givenArticle.Entity.GetId());
+            M_Article readArticle = _dbTransactionData.M_ArticleGetById(givenArticle.Entity.GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 if (!AdjacencyList.ContainsKey(givenArticle.Entity.Id))

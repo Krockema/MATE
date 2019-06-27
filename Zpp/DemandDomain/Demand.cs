@@ -20,45 +20,51 @@ namespace Zpp.DemandDomain
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected readonly IDemand _demand;
         protected readonly Guid _guid = Guid.NewGuid();
+        protected readonly IDbCacheMasterData _dbCacheMasterData;
 
-        public Demand(IDemand demand)
+        public Demand(IDemand demand, IDbCacheMasterData dbCacheMasterData)
         {
             if (demand == null)
             {
                 throw new MrpRunException("Given demand should not be null.");
             }
+
             _demand = demand;
+            _dbCacheMasterData = dbCacheMasterData;
         }
-        
-        public Provider CreateProvider(IDbCache dbCache)
+
+        public Provider CreateProvider(IDbTransactionData dbTransactionData)
         {
-            if (_demand.GetArticle().ToBuild)
+            M_Article article = GetArticle();
+            if (article.ToBuild)
             {
-                ProductionOrder productionOrder =  new ProductionOrder(_demand, dbCache);
+                ProductionOrder productionOrder =
+                    new ProductionOrder(this, dbTransactionData, _dbCacheMasterData);
                 Logger.Debug("ProductionOrder created.");
                 return productionOrder;
             }
+
             return createPurchaseOrderPart(_demand);
         }
-        
+
         private Provider createPurchaseOrderPart(IDemand demand)
         {
             // currently only one businessPartner per article
-            M_ArticleToBusinessPartner articleToBusinessPartner = demand.GetArticle()
+            M_ArticleToBusinessPartner articleToBusinessPartner = GetArticle()
                 .ArticleToBusinessPartners.OfType<M_ArticleToBusinessPartner>().First();
             T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
             // [Name],[DueTime],[BusinessPartnerId]
-            purchaseOrder.DueTime = demand.GetDueTime();
+            purchaseOrder.DueTime = GetDueTime().GetValue();
             purchaseOrder.BusinessPartner = articleToBusinessPartner.BusinessPartner;
-            purchaseOrder.Name = $"PurchaseOrder{demand.GetArticle().Name} for " +
+            purchaseOrder.Name = $"PurchaseOrder{GetArticle().Name} for " +
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";
 
 
             // demand cannot be fulfilled in time
-            if (articleToBusinessPartner.DueTime > demand.GetDueTime())
+            if (articleToBusinessPartner.DueTime > GetDueTime().GetValue())
             {
-                Logger.Error($"Article {demand.GetArticle().Id} from demand {demand.Id} " +
-                             $"should be available at {demand.GetDueTime()}, but " +
+                Logger.Error($"Article {GetArticle().Id} from demand {demand.Id} " +
+                             $"should be available at {GetDueTime()}, but " +
                              $"businessPartner {articleToBusinessPartner.BusinessPartner.Id} " +
                              $"can only deliver at {articleToBusinessPartner.DueTime}.");
             }
@@ -68,7 +74,7 @@ namespace Zpp.DemandDomain
 
             // [PurchaseOrderId],[ArticleId],[Quantity],[State],[ProviderId]
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
-            purchaseOrderPart.Article = demand.GetArticle();
+            purchaseOrderPart.Article = GetArticle();
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
                     demand.GetQuantity());
@@ -80,44 +86,12 @@ namespace Zpp.DemandDomain
             Logger.Debug("PurchaseOrderPart created.");
             return new PurchaseOrderPart(purchaseOrderPart, null);
         }
-        
-        
+
 
         // TODO: use this
         private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
         {
             return dueTime - operationDuration - currentTime;
-        }
-        
-        public DueTime GetDueTime()
-        {
-            return new DueTime(_demand.GetDueTime());
-        }
-        
-        public static Demand ToDemand(T_Demand t_demand, List<T_CustomerOrderPart> customerOrderParts,
-            List<T_ProductionOrderBom> productionOrderBoms, List<T_StockExchange> stockExchanges)
-        {
-            IDemand iDemand = null;
-
-            iDemand = customerOrderParts.Single(x => x.Id == t_demand.Id);
-            if (iDemand != null)
-            {
-                return new CustomerOrderPart(iDemand);
-            }
-
-            iDemand = productionOrderBoms.Single(x => x.Id == t_demand.Id);
-            if (iDemand != null)
-            {
-                return new ProductionOrderBom(iDemand);
-            }
-
-            iDemand = stockExchanges.Single(x => x.Id == t_demand.Id);
-            if (iDemand != null)
-            {
-                return new StockExchangeDemand(iDemand);
-            }
-
-            return null;
         }
 
         public abstract IDemand ToIDemand();
@@ -126,7 +100,7 @@ namespace Zpp.DemandDomain
         {
             throw new NotImplementedException();
         }
-        
+
         public override bool Equals(object obj)
         {
             var item = obj as Demand;
@@ -138,7 +112,7 @@ namespace Zpp.DemandDomain
 
             return _guid.Equals(item._guid);
         }
-        
+
         public override int GetHashCode()
         {
             return _guid.GetHashCode();
@@ -151,7 +125,16 @@ namespace Zpp.DemandDomain
 
         public override string ToString()
         {
-            return $"{_demand.Id}: {_demand.GetQuantity()} of {_demand.GetArticle().Name}";
+            return $"{_demand.Id}: {_demand.GetQuantity()} of {_demand.Id}";
+        }
+
+        public abstract M_Article GetArticle();
+
+        public abstract DueTime GetDueTime();
+
+        public Id GetId()
+        {
+            return new Id(_demand.Id);
         }
     }
 }

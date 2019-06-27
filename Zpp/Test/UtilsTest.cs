@@ -26,8 +26,9 @@ namespace Zpp.Test
             LOGGER.Debug("Starting: testArticleTree");
 
             M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
-            DbCache dbCache = new DbCache(ProductionDomainContext);
-            ArticleTree articleTree = new ArticleTree(rootArticle, dbCache);
+            IDbCacheMasterData dbCacheMasterData = new DbCacheMasterData(ProductionDomainContext);
+            DbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbCacheMasterData);
+            ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
 
             SortedDictionary<int, List<int>> expectedAdjacencyList =
                 new SortedDictionary<int, List<int>>()
@@ -97,8 +98,9 @@ namespace Zpp.Test
             };
             int counter = 0;
             M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
-            DbCache dbCache = new DbCache(ProductionDomainContext);
-            ArticleTree articleTree = new ArticleTree(rootArticle, dbCache);
+            IDbCacheMasterData dbCacheMasterData = new DbCacheMasterData(ProductionDomainContext);
+            DbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbCacheMasterData);
+            ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
 
             // sort the tree
             foreach (int key in articleTree.GetAdjacencyList().getAsDictionary().Keys)

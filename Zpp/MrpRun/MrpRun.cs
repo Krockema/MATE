@@ -20,25 +20,30 @@ namespace Zpp
 
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
 
-        public static void RunMrp(IDbCache dbCache, Demands initialDemands, IDbCacheMasterData dbCacheMasterData)
+        /**
+         * Only at start the demands are customerOrders
+         */
+        public static Plan RunMrp(ProductionDomainContext ProductionDomainContext)
         {
             // init data structures
-
+            IDbCacheMasterData dbCacheMasterData = new DbCacheMasterData(ProductionDomainContext);
+            IDbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbCacheMasterData);
+            
             // start
 
             // remove all DemandToProvider entries
-            dbCache.DemandToProvidersRemoveAll();
-
-            foreach (var initialDemand in initialDemands.GetAll())
+            dbTransactionData.DemandToProvidersRemoveAll();
+            
+            List<Plan> plans = new List<Plan>();
+            foreach (var initialDemand in dbCacheMasterData.T_CustomerOrderPartGetAll())
             {
-                ProcessDbDemand(dbCache, initialDemand, dbCacheMasterData);
+                ProcessDbDemand(dbTransactionData, new CustomerOrderPart(initialDemand, dbCacheMasterData), dbCacheMasterData);
             }
 
-            // finalize
-            dbCache.PersistDbCache();
+            return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll());
         }
 
-        private static void ProcessDbDemand(IDbCache dbCache, Demand oneDbDemand, IDbCacheMasterData dbCacheMasterData)
+        private static void ProcessDbDemand(IDbTransactionData dbTransactionData, Demand oneDbDemand, IDbCacheMasterData dbCacheMasterData)
         {
             // init
             Providers providers = new Providers();
@@ -83,7 +88,7 @@ namespace Zpp
                     {
                         LOGGER.Debug(
                             $"Create a provider for article {demand}:");
-                        Provider provider = demand.CreateProvider(dbCache);
+                        Provider provider = demand.CreateProvider(dbTransactionData);
                         if (provider.AnyDemands())
                         {
                             nextDemandManager.AddAll(provider.GetDemands());    
@@ -103,9 +108,9 @@ namespace Zpp
                 }
             }
             
-            dbCache.ProvidersAddAll(providers);
-            dbCache.DemandsAddAll(finalAllDemands);
-            dbCache.PersistDbCache();
+            dbTransactionData.ProvidersAddAll(providers);
+            dbTransactionData.DemandsAddAll(finalAllDemands);
+            dbTransactionData.PersistDbCache();
         }
     }
 }

@@ -35,11 +35,6 @@ namespace Master40.DB.DataModel
             Demand = new T_Demand();
         }
         
-        public int GetDueTime()
-        {
-            return CustomerOrder.DueTime;
-        }
-        
         public M_Article GetArticle()
         {
             return Article;

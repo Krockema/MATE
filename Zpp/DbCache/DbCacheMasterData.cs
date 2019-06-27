@@ -7,6 +7,9 @@ using Master40.DB.DataModel;
 
 namespace Zpp
 {
+    /**
+     * MasterData includes T_CustomerOrders and T_CustomerOrderParts, since they will not be changed by MRP-Run
+     */
     public class DbCacheMasterData : IDbCacheMasterData
     {
         private readonly ProductionDomainContext _productionDomainContext;
@@ -27,6 +30,9 @@ namespace Zpp
         private readonly List<M_Stock> _stocks;
         private readonly List<M_Unit> _units;
         
+        private readonly List<T_CustomerOrder> _customerOrders;
+        private readonly List<T_CustomerOrderPart> _customerOrderParts;
+        
         public DbCacheMasterData(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
@@ -44,6 +50,9 @@ namespace Zpp
             _operations = _productionDomainContext.Operations.ToList();
             _stocks = _productionDomainContext.Stocks.ToList();
             _units = _productionDomainContext.Units.ToList();
+
+            _customerOrders = _productionDomainContext.CustomerOrders.ToList();
+            _customerOrderParts = _productionDomainContext.CustomerOrderParts.ToList();
         }
         
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -56,6 +65,7 @@ namespace Zpp
             return _articleBoms.Single(x => x.Id == id.GetValue());
         }
 
+        // TODO: replace these implementations by Dictionary via Id
         public M_Article M_ArticleGetById(Id id)
         {
             return _articles.Single(x => x.Id == id.GetValue());
@@ -99,6 +109,26 @@ namespace Zpp
         public M_Unit M_UnitGetById(Id id)
         {
             return _units.Single(x => x.Id == id.GetValue());
+        }
+
+        public T_CustomerOrder T_CustomerOrderGetById(Id id)
+        {
+            return _customerOrders.Single(x => x.Id == id.GetValue());
+        }
+
+        public T_CustomerOrderPart T_CustomerOrderPartGetById(Id id)
+        {
+            return _customerOrderParts.Single(x => x.Id == id.GetValue());
+        }
+
+        public List<T_CustomerOrder> T_CustomerOrderGetAll()
+        {
+            return _customerOrders;
+        }
+
+        public List<T_CustomerOrderPart> T_CustomerOrderPartGetAll()
+        {
+            return _customerOrderParts;
         }
     }
 }

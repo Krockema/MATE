@@ -76,5 +76,10 @@ namespace Zpp.ProviderDomain
         {
             return _providers.Any();
         }
+
+        public void Clear()
+        {
+            _providers.Clear();
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace Zpp.Simulation
 
 
         // MRP modules
-        private readonly DbCache _dbCache;
+        private readonly DbTransactionData _dbTransactionData;
 
         private readonly StockManager _stockManager;
         

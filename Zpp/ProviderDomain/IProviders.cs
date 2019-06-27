@@ -27,5 +27,7 @@ namespace Zpp.ProviderDomain
         int Size();
         
         bool Any();
+        
+        void Clear();
     }
 }

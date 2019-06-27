@@ -27,17 +27,6 @@ namespace Master40.DB.DataModel
             // it must be always a T_Demand created for every IDemand
             Demand = new T_Demand();
         }
-        
-        public int GetDueTime()
-        {
-            return ProductionOrderParent.DueTime;
-        }
-        
-        public M_Article GetArticle()
-        {
-            return ArticleChild;
-        }
-
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);

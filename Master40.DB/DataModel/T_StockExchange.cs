@@ -32,11 +32,6 @@ namespace Master40.DB.DataModel
             // TODO: is a new StockExchange a demand and a provider?
         }
         
-        public int GetDueTime()
-        {
-            return RequiredOnTime;
-        }
-
         public M_Article GetArticle()
         {
             return Stock.Article;
@@ -45,6 +40,11 @@ namespace Master40.DB.DataModel
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);
+        }
+
+        public int GetDueTime()
+        {
+            return RequiredOnTime;
         }
     }
 }

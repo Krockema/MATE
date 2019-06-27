@@ -33,5 +33,7 @@ namespace Zpp.DemandDomain
         int Size();
 
         bool Any();
+
+        void Clear();
     }
 }

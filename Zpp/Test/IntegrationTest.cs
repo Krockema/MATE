@@ -27,15 +27,14 @@ namespace Zpp.Test
         public void TestMrpRun()
         {
             List<int> countsMasterDataBefore = countMasterData();
-            IDbCache dbCache = new DbCache(ProductionDomainContext);
-            IDbCacheMasterData dbCacheMasterData = new DbCacheMasterData(ProductionDomainContext);
-            Assert.True(dbCache.DemandsGetAll().Size() == 1, "No demands are initially available.");
             
-            MrpRun.RunMrp(dbCache, dbCache.DemandsGetAll(), dbCacheMasterData);
+            Assert.True(ProductionDomainContext.CustomerOrders.Count() == 1, "No customerOrders are initially available.");
+            
+            Plan plan = MrpRun.RunMrp(ProductionDomainContext);
             
             int expectedNumberOfDemandsAndProviders = 28;
-            IDemands actualDemands = dbCache.DemandsGetAll();
-            IProviders actualProviders = dbCache.ProvidersGetAll();
+            IDemands actualDemands = plan.GetDemands();
+            IProviders actualProviders = plan.GetProviders();
             Assert.True(actualDemands.Size() == expectedNumberOfDemandsAndProviders + 1, // TODO: why is + 1 needed? 
                 $"No demands were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
                 $"Actual {actualProviders.Size()}");

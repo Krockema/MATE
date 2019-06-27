@@ -13,16 +13,18 @@ namespace Zpp.DemandDomain
      */
     public interface IDemandLogic
     {
-       
-        Provider CreateProvider(IDbCache dbCache);
-
-        // is needed to compare two instances
-        DueTime GetDueTime();
+        Provider CreateProvider(IDbTransactionData dbTransactionData);
 
         IDemand ToIDemand();
 
         bool HasProvider(Providers providers);
-        
+
         Quantity GetQuantity();
+
+        M_Article GetArticle();
+
+        DueTime GetDueTime();
+
+        Id GetId();
     }
 }

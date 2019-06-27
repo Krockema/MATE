@@ -113,5 +113,10 @@ namespace Zpp.DemandDomain
         {
             return _demands.Any();
         }
+
+        public void Clear()
+        {
+            _demands.Clear();
+        }
     }
 }

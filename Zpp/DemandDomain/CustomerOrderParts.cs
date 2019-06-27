@@ -10,16 +10,18 @@ namespace Zpp.DemandDomain
      */
     public class CustomerOrderParts : Demands
     {
-        public CustomerOrderParts(List<T_CustomerOrderPart> iDemands) : base(ToDemands(iDemands))
+        public CustomerOrderParts(List<T_CustomerOrderPart> iDemands,
+            IDbCacheMasterData dbCacheMasterData) : base(ToDemands(iDemands, dbCacheMasterData))
         {
         }
 
-        private static List<Demand> ToDemands(List<T_CustomerOrderPart> iDemands)
+        private static List<Demand> ToDemands(List<T_CustomerOrderPart> iDemands,
+            IDbCacheMasterData dbCacheMasterData)
         {
             List<Demand> demands = new List<Demand>();
             foreach (var iDemand in iDemands)
             {
-                demands.Add(new CustomerOrderPart(iDemand));
+                demands.Add(new CustomerOrderPart(iDemand, dbCacheMasterData));
             }
 
             return demands;

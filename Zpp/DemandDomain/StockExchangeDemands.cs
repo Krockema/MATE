@@ -8,20 +8,20 @@ namespace Zpp.DemandDomain
      */
     public class StockExchangeDemands : Demands
     {
-        public StockExchangeDemands(List<T_StockExchange> iDemands) : base(ToDemands(iDemands))
+        public StockExchangeDemands(List<T_StockExchange> iDemands,IDbCacheMasterData dbCacheMasterData
+            ) : base(ToDemands(iDemands, dbCacheMasterData))
         {
         }
 
-        private static List<Demand> ToDemands(List<T_StockExchange> iDemands)
+        private static List<Demand> ToDemands(List<T_StockExchange> iDemands, IDbCacheMasterData dbCacheMasterData)
         {
             List<Demand> demands = new List<Demand>();
             foreach (var iDemand in iDemands)
             {
-                demands.Add(new StockExchangeDemand(iDemand));
+                demands.Add(new StockExchangeDemand(iDemand, dbCacheMasterData));
             }
 
             return demands;
         }
-        
     }
 }

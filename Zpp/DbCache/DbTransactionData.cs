@@ -15,20 +15,22 @@ using Zpp;
 
 namespace Zpp
 {
-    public class DbCache : IDbCache
+    /**
+     * NOTE: TransactionData does NOT include CustomerOrders or CustomerOrderParts !
+     */
+    public class DbTransactionData : IDbTransactionData
     {
-        private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly ProductionDomainContext _productionDomainContext;
+        private readonly IDbCacheMasterData _dbCacheMasterData;
 
+        // TODO: These 3 lines should be removed
         private readonly List<M_Article> _articles;
         private readonly List<M_ArticleBom> _articleBoms;
         private readonly List<M_BusinessPartner> _businessPartners;
-       
-        // T_*
-        // demands
-        private readonly CustomerOrderParts _customerOrderParts;
 
+        // T_*
         // demands
         private readonly ProductionOrderBoms _productionOrderBoms;
 
@@ -50,11 +52,13 @@ namespace Zpp
         private readonly Dictionary<BaseEntity, bool> _wasTableChanged =
             new Dictionary<BaseEntity, bool>();
 
-        public DbCache(ProductionDomainContext productionDomainContext)
+        public DbTransactionData(ProductionDomainContext productionDomainContext, IDbCacheMasterData dbCacheMasterData)
         {
             _productionDomainContext = productionDomainContext;
+            _dbCacheMasterData = dbCacheMasterData;
 
             // cache tables
+            // TODO: These 3 lines should be removed
             _businessPartners = _productionDomainContext.BusinessPartners.ToList();
             _articleBoms = _productionDomainContext.ArticleBoms.Include(m => m.ArticleChild)
                 .ToList();
@@ -64,24 +68,14 @@ namespace Zpp
                 .Include(x => x.ArticleToBusinessPartners).ThenInclude(x => x.BusinessPartner)
                 .ToList();
 
-
-            List<T_CustomerOrderPart> customerOrderParts = _productionDomainContext
-                .CustomerOrderParts.Include(x => x.Article).Include(x => x.CustomerOrder).ToList();
-            _customerOrderParts = new CustomerOrderParts(customerOrderParts);
-            List<T_ProductionOrderBom> productionOrderBoms =
-                _productionDomainContext.ProductionOrderBoms.ToList();
-            _productionOrderBoms = new ProductionOrderBoms(productionOrderBoms);
-            List<T_StockExchange> stockExchanges = _productionDomainContext.StockExchanges.ToList();
-            _stockExchangeDemands = new StockExchangeDemands(stockExchanges);
-            _stockExchangeProviders = new StockExchangeProviders(stockExchanges);
-            List<T_ProductionOrder> productionOrders = _productionDomainContext.ProductionOrders
-                .Include(x => x.Article).ToList();
-            _productionOrders = new ProductionOrders(productionOrders);
-            List<T_PurchaseOrderPart> purchaseOrderParts = _productionDomainContext
-                .PurchaseOrderParts.Include(x => x.Article).ToList();
-            _purchaseOrderParts = new PurchaseOrderParts(purchaseOrderParts);
-            List<T_PurchaseOrder> purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
-            _purchaseOrders = new PurchaseOrders(purchaseOrders);
+            _productionOrderBoms = new ProductionOrderBoms( new List<T_ProductionOrderBom>(), _dbCacheMasterData);
+            
+            _stockExchangeDemands = new StockExchangeDemands(new List<T_StockExchange>(), _dbCacheMasterData);
+            _stockExchangeProviders = new StockExchangeProviders(new List<T_StockExchange>());
+            
+            _productionOrders = new ProductionOrders(new List<T_ProductionOrder>());
+            _purchaseOrderParts = new PurchaseOrderParts(new List<T_PurchaseOrderPart>());
+            _purchaseOrders = new PurchaseOrders(new List<T_PurchaseOrder>());
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -107,11 +101,14 @@ namespace Zpp
 
         public void PersistDbCache()
         {
-            // this should stay here, since all domainContext should only used here
             // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
+            // --> readOnly
+
             InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(),
                 _productionDomainContext.ProductionOrderBoms);
             InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(),
+                _productionDomainContext.StockExchanges);
+            InsertOrUpdateRange(_stockExchangeProviders.GetAllAs<T_StockExchange>(),
                 _productionDomainContext.StockExchanges);
             InsertOrUpdateRange(_productionOrders.GetAllAs<T_ProductionOrder>(),
                 _productionDomainContext.ProductionOrders);
@@ -154,15 +151,9 @@ namespace Zpp
         }
 
 
-
-
         public void DemandsAdd(Demand demand)
         {
-            if (demand.GetType() == typeof(CustomerOrderPart))
-            {
-                _customerOrderParts.Add((CustomerOrderPart) demand);
-            }
-            else if (demand.GetType() == typeof(ProductionOrderBom))
+            if (demand.GetType() == typeof(ProductionOrderBom))
             {
                 _productionOrderBoms.Add((ProductionOrderBom) demand);
             }
@@ -172,7 +163,7 @@ namespace Zpp
             }
             else
             {
-                LOGGER.Error("Unknown type implementing Demand");
+                Logger.Error("Unknown type implementing Demand");
             }
         }
 
@@ -192,17 +183,13 @@ namespace Zpp
             }
             else
             {
-                LOGGER.Error("Unknown type implementing IProvider");
+                Logger.Error("Unknown type implementing IProvider");
             }
         }
 
         public Demands DemandsGetAll()
         {
             Demands demands = new Demands();
-            if (_customerOrderParts.GetAll().Any())
-            {
-                demands.AddAll(_customerOrderParts);
-            }
 
             if (_productionOrderBoms.GetAll().Any())
             {
@@ -225,11 +212,6 @@ namespace Zpp
             providers.AddAll(_purchaseOrderParts);
             providers.AddAll(_stockExchangeProviders);
             return providers;
-        }
-
-        public CustomerOrderParts CustomerOrderPartGetAll()
-        {
-            return _customerOrderParts;
         }
 
         public ProductionOrderBoms ProductionOrderBomGetAll()
@@ -267,7 +249,5 @@ namespace Zpp
                 ProvidersAdd(provider);
             }
         }
-
-
     }
 }

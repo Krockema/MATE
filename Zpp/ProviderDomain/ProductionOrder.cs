@@ -18,21 +18,21 @@ namespace Zpp.ProviderDomain
         {
         }
 
-        public ProductionOrder(IDemand demand, IDbCache dbCache) : base(
-            CreateProductionOrder(demand), CreateProductionOrderBoms(demand,
-            dbCache))
+        public ProductionOrder(Demand demand, IDbTransactionData dbTransactionData,
+            IDbCacheMasterData dbCacheMasterData) : base(CreateProductionOrder(demand),
+            CreateProductionOrderBoms(demand, dbTransactionData, dbCacheMasterData))
 
         {
         }
 
-        private static IProvider CreateProductionOrder(IDemand demand)
+        private static IProvider CreateProductionOrder(Demand demand)
         {
             T_ProductionOrder productionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            productionOrder.DueTime = demand.GetDueTime();
+            productionOrder.DueTime = demand.GetDueTime().GetValue();
             productionOrder.Article = demand.GetArticle();
             productionOrder.ArticleId = demand.GetArticle().Id;
-            productionOrder.Name = $"ProductionOrder for Demand {demand.Id}";
+            productionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
             // connects this provider with table T_Provider
             productionOrder.Provider = new T_Provider();
             productionOrder.Quantity = demand.GetQuantity().GetValue();
@@ -41,16 +41,17 @@ namespace Zpp.ProviderDomain
             return productionOrder;
         }
 
-        private static Demands CreateProductionOrderBoms(IDemand demand, IDbCache dbCache)
+        private static Demands CreateProductionOrderBoms(Demand demand,
+            IDbTransactionData dbTransactionData, IDbCacheMasterData dbCacheMasterData)
         {
-            M_Article readArticle = dbCache.M_ArticleGetById(demand.GetArticle().GetId());
+            M_Article readArticle = dbTransactionData.M_ArticleGetById(demand.GetArticle().GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 List<Demand> productionOrderBoms = new List<Demand>();
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
                     ProductionOrderBom productionOrderBom = new ProductionOrderBom(articleBom,
-                        CreateProductionOrder(demand));
+                        CreateProductionOrder(demand), dbCacheMasterData);
                     productionOrderBoms.Add(productionOrderBom);
                 }
 
@@ -64,6 +65,5 @@ namespace Zpp.ProviderDomain
         {
             return (T_ProductionOrder) _provider;
         }
-
     }
 }

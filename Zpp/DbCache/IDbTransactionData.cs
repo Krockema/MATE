@@ -9,13 +9,13 @@ using Zpp;
 
 namespace Zpp
 {
-    /// <summary>
-    /// A wrapper around the ProductionDomainContext (e.g. to find DB calls), that should be DB Cache in future.
-    /// This class is only allowed to do transactions on the database.
-    /// Convention: Prefix DatabaseBeingAffected
-    /// </summary>
-    public interface IDbCache
+
+    /**
+     * NOTE: TransactionData does NOT include CustomerOrders or CustomerOrderParts !
+     */
+    public interface IDbTransactionData
     {
+        // TODO: M_* methods should be removed
         M_Article M_ArticleGetById(Id id);
         
         M_ArticleBom M_ArticleBomGetById(Id id);
@@ -39,9 +39,6 @@ namespace Zpp
         
         void ProvidersAddAll(Providers providers);
         
-        
-        CustomerOrderParts CustomerOrderPartGetAll();
-
         ProductionOrderBoms ProductionOrderBomGetAll();
         
         StockExchangeProviders StockExchangeGetAll();
