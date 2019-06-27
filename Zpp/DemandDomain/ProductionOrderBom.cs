@@ -8,15 +8,15 @@ namespace Zpp.DemandDomain
 {
     public class ProductionOrderBom : Demand, IDemandLogic
     {
-        public ProductionOrderBom(IDemand demand, IDbCacheMasterData dbCacheMasterData) : base(
-            demand, dbCacheMasterData)
+        public ProductionOrderBom(IDemand demand, IDbMasterDataCache dbMasterDataCache) : base(
+            demand, dbMasterDataCache)
         {
         }
 
 
         public ProductionOrderBom(M_ArticleBom articleBom, IProvider productionOrder,
-            IDbCacheMasterData dbCacheMasterData) : base(
-            CreateProductionOrderBom(articleBom, productionOrder), dbCacheMasterData)
+            IDbMasterDataCache dbMasterDataCache) : base(
+            CreateProductionOrderBom(articleBom, productionOrder), dbMasterDataCache)
         {
         }
 
@@ -46,7 +46,7 @@ namespace Zpp.DemandDomain
         public override M_Article GetArticle()
         {
             Id articleId = new Id(((T_ProductionOrderBom) _demand).ArticleChildId);
-            return _dbCacheMasterData.M_ArticleGetById(articleId);
+            return _dbMasterDataCache.M_ArticleGetById(articleId);
         }
 
         public override DueTime GetDueTime()

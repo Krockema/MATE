@@ -9,7 +9,7 @@ namespace Zpp.DemandDomain
     public class CustomerOrderPart : Demand 
     {
 
-        public CustomerOrderPart(IDemand demand, IDbCacheMasterData dbCacheMasterData) : base(demand, dbCacheMasterData)
+        public CustomerOrderPart(IDemand demand, IDbMasterDataCache dbMasterDataCache) : base(demand, dbMasterDataCache)
         {
             
         }
@@ -22,13 +22,13 @@ namespace Zpp.DemandDomain
         public override M_Article GetArticle()
         {
             Id articleId = new Id(((T_CustomerOrderPart) _demand).ArticleId);
-            return _dbCacheMasterData.M_ArticleGetById(articleId);
+            return _dbMasterDataCache.M_ArticleGetById(articleId);
         }
 
         public override DueTime GetDueTime( )
         {
             Id customerOrderId = new Id(((T_CustomerOrderPart) _demand).CustomerOrderId);
-            DueTime dueTime = new DueTime(_dbCacheMasterData.T_CustomerOrderGetById(customerOrderId).DueTime);
+            DueTime dueTime = new DueTime(_dbMasterDataCache.T_CustomerOrderGetById(customerOrderId).DueTime);
             return dueTime;
         }
     }

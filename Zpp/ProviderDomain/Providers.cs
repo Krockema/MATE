@@ -26,6 +26,26 @@ namespace Zpp.ProviderDomain
             _providers = providers;
         }
 
+        public Providers(Provider[] providers)
+        {
+            if (providers == null)
+            {
+                throw new MrpRunException("Given list should not be null.");
+            }
+            List<Provider> providerList = new List<Provider>();
+            foreach (var provider in providers)
+            {
+                providerList.Add(provider);
+            }
+            _providers = providerList;
+        }
+
+        public Providers(Provider provider1, Provider provider2)
+        {
+            _providers.Add(provider1);
+            _providers.Add(provider2);
+        }
+
         public Providers()
         {
         }

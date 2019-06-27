@@ -12,7 +12,7 @@ namespace Zpp
     ///
     /// MasterData includes T_CustomerOrders and T_CustomerOrderParts, since they will not be changed by MRP-Run
     /// </summary>
-    public interface IDbCacheMasterData
+    public interface IDbMasterDataCache
     {
         M_Article M_ArticleGetById(Id id);
 

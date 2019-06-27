@@ -23,7 +23,7 @@ namespace Zpp
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly ProductionDomainContext _productionDomainContext;
-        private readonly IDbCacheMasterData _dbCacheMasterData;
+        private readonly IDbMasterDataCache _dbMasterDataCache;
 
         // TODO: These 3 lines should be removed
         private readonly List<M_Article> _articles;
@@ -52,10 +52,10 @@ namespace Zpp
         private readonly Dictionary<BaseEntity, bool> _wasTableChanged =
             new Dictionary<BaseEntity, bool>();
 
-        public DbTransactionData(ProductionDomainContext productionDomainContext, IDbCacheMasterData dbCacheMasterData)
+        public DbTransactionData(ProductionDomainContext productionDomainContext, IDbMasterDataCache dbMasterDataCache)
         {
             _productionDomainContext = productionDomainContext;
-            _dbCacheMasterData = dbCacheMasterData;
+            _dbMasterDataCache = dbMasterDataCache;
 
             // cache tables
             // TODO: These 3 lines should be removed
@@ -68,9 +68,9 @@ namespace Zpp
                 .Include(x => x.ArticleToBusinessPartners).ThenInclude(x => x.BusinessPartner)
                 .ToList();
 
-            _productionOrderBoms = new ProductionOrderBoms( new List<T_ProductionOrderBom>(), _dbCacheMasterData);
+            _productionOrderBoms = new ProductionOrderBoms( new List<T_ProductionOrderBom>(), _dbMasterDataCache);
             
-            _stockExchangeDemands = new StockExchangeDemands(new List<T_StockExchange>(), _dbCacheMasterData);
+            _stockExchangeDemands = new StockExchangeDemands(new List<T_StockExchange>(), _dbMasterDataCache);
             _stockExchangeProviders = new StockExchangeProviders(new List<T_StockExchange>());
             
             _productionOrders = new ProductionOrders(new List<T_ProductionOrder>());

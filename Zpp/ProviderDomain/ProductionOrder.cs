@@ -19,8 +19,8 @@ namespace Zpp.ProviderDomain
         }
 
         public ProductionOrder(Demand demand, IDbTransactionData dbTransactionData,
-            IDbCacheMasterData dbCacheMasterData) : base(CreateProductionOrder(demand),
-            CreateProductionOrderBoms(demand, dbTransactionData, dbCacheMasterData))
+            IDbMasterDataCache dbMasterDataCache) : base(CreateProductionOrder(demand),
+            CreateProductionOrderBoms(demand, dbTransactionData, dbMasterDataCache))
 
         {
         }
@@ -42,7 +42,7 @@ namespace Zpp.ProviderDomain
         }
 
         private static Demands CreateProductionOrderBoms(Demand demand,
-            IDbTransactionData dbTransactionData, IDbCacheMasterData dbCacheMasterData)
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache)
         {
             M_Article readArticle = dbTransactionData.M_ArticleGetById(demand.GetArticle().GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
@@ -51,7 +51,7 @@ namespace Zpp.ProviderDomain
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
                     ProductionOrderBom productionOrderBom = new ProductionOrderBom(articleBom,
-                        CreateProductionOrder(demand), dbCacheMasterData);
+                        CreateProductionOrder(demand), dbMasterDataCache);
                     productionOrderBoms.Add(productionOrderBom);
                 }
 

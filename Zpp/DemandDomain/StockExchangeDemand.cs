@@ -11,7 +11,7 @@ namespace Zpp.DemandDomain
     public class StockExchangeDemand : Demand, IDemandLogic
     {
 
-        public StockExchangeDemand(IDemand demand, IDbCacheMasterData dbCacheMasterData) : base(demand, dbCacheMasterData)
+        public StockExchangeDemand(IDemand demand, IDbMasterDataCache dbMasterDataCache) : base(demand, dbMasterDataCache)
         {
         }
 
@@ -23,9 +23,9 @@ namespace Zpp.DemandDomain
         public override M_Article GetArticle( )
         {
             Id stockId = new Id(((T_StockExchange) _demand).StockId);
-            M_Stock stock = _dbCacheMasterData.M_StockGetById(stockId);
+            M_Stock stock = _dbMasterDataCache.M_StockGetById(stockId);
             Id articleId = stock.GetId();
-            return _dbCacheMasterData.M_ArticleGetById(articleId);
+            return _dbMasterDataCache.M_ArticleGetById(articleId);
         }
 
         public override DueTime GetDueTime( )

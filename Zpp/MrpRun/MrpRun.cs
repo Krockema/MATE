@@ -26,29 +26,28 @@ namespace Zpp
         public static Plan RunMrp(ProductionDomainContext ProductionDomainContext)
         {
             // init data structures
-            IDbCacheMasterData dbCacheMasterData = new DbCacheMasterData(ProductionDomainContext);
-            IDbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbCacheMasterData);
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             
             // start
 
             // remove all DemandToProvider entries
             dbTransactionData.DemandToProvidersRemoveAll();
             
-            List<Plan> plans = new List<Plan>();
-            foreach (var initialDemand in dbCacheMasterData.T_CustomerOrderPartGetAll())
+            foreach (var initialDemand in dbMasterDataCache.T_CustomerOrderPartGetAll())
             {
-                ProcessDbDemand(dbTransactionData, new CustomerOrderPart(initialDemand, dbCacheMasterData), dbCacheMasterData);
+                ProcessDbDemand(dbTransactionData, new CustomerOrderPart(initialDemand, dbMasterDataCache));
             }
 
             return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll());
         }
 
-        private static void ProcessDbDemand(IDbTransactionData dbTransactionData, Demand oneDbDemand, IDbCacheMasterData dbCacheMasterData)
+        private static void ProcessDbDemand(IDbTransactionData dbTransactionData, Demand oneDbDemand)
         {
             // init
             Providers providers = new Providers();
             Demands finalAllDemands = new Demands();
-            DemandToProvider demandToProvider = new DemandToProvider();
+            IDemandToProviders demandToProviders = new DemandToProviders();
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
@@ -81,14 +80,16 @@ namespace Zpp
 
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
-                    bool isDemandSatisfied = demandToProvider.IsSatisfied(demand);
+                    // bool isDemandSatisfied = demandToProvider.IsSatisfied(demand); --> not needed here
+                    Provider nonExhaustedProvider = 
 
                     if (!isDemandSatisfied)
-                        // create provider for it
+                        // search/create provider for it
                     {
                         LOGGER.Debug(
                             $"Create a provider for article {demand}:");
                         Provider provider = demand.CreateProvider(dbTransactionData);
+                        demandToProviders.SatisfyDemandWithProviders(demand, );
                         if (provider.AnyDemands())
                         {
                             nextDemandManager.AddAll(provider.GetDemands());    

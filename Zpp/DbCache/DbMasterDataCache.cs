@@ -12,7 +12,7 @@ namespace Zpp
     /**
      * MasterData includes T_CustomerOrders and T_CustomerOrderParts, since they will not be changed by MRP-Run
      */
-    public class DbCacheMasterData : IDbCacheMasterData
+    public class DbMasterDataCache : IDbMasterDataCache
     {
         private readonly ProductionDomainContext _productionDomainContext;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -35,7 +35,7 @@ namespace Zpp
         private readonly IMasterDataTable<T_CustomerOrder> _customerOrders;
         private readonly IMasterDataTable<T_CustomerOrderPart> _customerOrderParts;
         
-        public DbCacheMasterData(ProductionDomainContext productionDomainContext)
+        public DbMasterDataCache(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
             

@@ -20,9 +20,9 @@ namespace Zpp.DemandDomain
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected readonly IDemand _demand;
         protected readonly Guid _guid = Guid.NewGuid();
-        protected readonly IDbCacheMasterData _dbCacheMasterData;
+        protected readonly IDbMasterDataCache _dbMasterDataCache;
 
-        public Demand(IDemand demand, IDbCacheMasterData dbCacheMasterData)
+        public Demand(IDemand demand, IDbMasterDataCache dbMasterDataCache)
         {
             if (demand == null)
             {
@@ -30,7 +30,7 @@ namespace Zpp.DemandDomain
             }
 
             _demand = demand;
-            _dbCacheMasterData = dbCacheMasterData;
+            _dbMasterDataCache = dbMasterDataCache;
         }
 
         public Provider CreateProvider(IDbTransactionData dbTransactionData)
@@ -39,7 +39,7 @@ namespace Zpp.DemandDomain
             if (article.ToBuild)
             {
                 ProductionOrder productionOrder =
-                    new ProductionOrder(this, dbTransactionData, _dbCacheMasterData);
+                    new ProductionOrder(this, dbTransactionData, _dbMasterDataCache);
                 Logger.Debug("ProductionOrder created.");
                 return productionOrder;
             }
@@ -52,10 +52,10 @@ namespace Zpp.DemandDomain
         {
             // currently only one businessPartner per article TODO: This could be changing
             M_ArticleToBusinessPartner articleToBusinessPartner =
-                _dbCacheMasterData.M_ArticleToBusinessPartnerGetAllByArticleId(
+                _dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(
                     demand.GetArticle().GetId())[0];
             M_BusinessPartner businessPartner =
-                _dbCacheMasterData.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
+                _dbMasterDataCache.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
                     .BusinessPartnerId));
             T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
             // [Name],[DueTime],[BusinessPartnerId]

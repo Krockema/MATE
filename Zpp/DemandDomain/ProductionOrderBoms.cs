@@ -9,8 +9,8 @@ namespace Zpp.DemandDomain
     public class ProductionOrderBoms : Demands
     {
         
-        public ProductionOrderBoms(List<T_ProductionOrderBom> iDemands, IDbCacheMasterData
-            dbCacheMasterData) : base(ToDemands(iDemands, dbCacheMasterData))
+        public ProductionOrderBoms(List<T_ProductionOrderBom> iDemands, IDbMasterDataCache
+            dbMasterDataCache) : base(ToDemands(iDemands, dbMasterDataCache))
         {
         }
         
@@ -18,13 +18,13 @@ namespace Zpp.DemandDomain
         {
         }
 
-        private static List<Demand> ToDemands(List<T_ProductionOrderBom> iDemands,IDbCacheMasterData
-            dbCacheMasterData )
+        private static List<Demand> ToDemands(List<T_ProductionOrderBom> iDemands,IDbMasterDataCache
+            dbMasterDataCache )
         {
             List<Demand> demands = new List<Demand>();
             foreach (var iDemand in iDemands)
             {
-                demands.Add(new ProductionOrderBom(iDemand, dbCacheMasterData));
+                demands.Add(new ProductionOrderBom(iDemand, dbMasterDataCache));
             }
 
             return demands;
