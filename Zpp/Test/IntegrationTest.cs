@@ -35,9 +35,9 @@ namespace Zpp.Test
             int expectedNumberOfDemandsAndProviders = 28;
             IDemands actualDemands = plan.GetDemands();
             IProviders actualProviders = plan.GetProviders();
-            Assert.True(actualDemands.Size() == expectedNumberOfDemandsAndProviders + 1, // TODO: why is + 1 needed? 
-                $"No demands were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
-                $"Actual {actualProviders.Size()}");
+            Assert.True(actualDemands.Size().Equals(expectedNumberOfDemandsAndProviders), // TODO: why is + 1 needed? 
+                $"Not correct number of demands were created by MrpRun: Expected " 
+                + $"{expectedNumberOfDemandsAndProviders}, Actual {actualProviders.Size()}");
             Assert.True(actualProviders.Size() == expectedNumberOfDemandsAndProviders, 
                 $"No providers were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
                 $"Actual {actualProviders.Size()}");

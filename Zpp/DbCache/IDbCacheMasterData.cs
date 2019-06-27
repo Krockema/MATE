@@ -19,8 +19,14 @@ namespace Zpp
         M_ArticleBom M_ArticleBomGetById(Id id);
 
         List<M_BusinessPartner> M_BusinessPartnerGetAll();
+        
+        M_BusinessPartner M_BusinessPartnerGetById(Id id);
 
         M_ArticleToBusinessPartner M_ArticleToBusinessPartnerGetById(Id id);
+        
+        BusinessPartners M_ArticleToBusinessPartnerGetAllBusinessPartnersByArticleId(Id articleId);
+        
+        List<M_ArticleToBusinessPartner> M_ArticleToBusinessPartnerGetAllByArticleId(Id articleId);
 
         M_ArticleType M_ArticleTypeGetById(Id id);
 

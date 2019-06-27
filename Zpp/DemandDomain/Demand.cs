@@ -44,18 +44,23 @@ namespace Zpp.DemandDomain
                 return productionOrder;
             }
 
-            return createPurchaseOrderPart(_demand);
+            // TODO: remove all parameters fo methos, where only "this" is given to it
+            return createPurchaseOrderPart(this);
         }
 
-        private Provider createPurchaseOrderPart(IDemand demand)
+        private Provider createPurchaseOrderPart(Demand demand)
         {
-            // currently only one businessPartner per article
-            M_ArticleToBusinessPartner articleToBusinessPartner = GetArticle()
-                .ArticleToBusinessPartners.OfType<M_ArticleToBusinessPartner>().First();
+            // currently only one businessPartner per article TODO: This could be changing
+            M_ArticleToBusinessPartner articleToBusinessPartner =
+                _dbCacheMasterData.M_ArticleToBusinessPartnerGetAllByArticleId(
+                    demand.GetArticle().GetId())[0];
+            M_BusinessPartner businessPartner =
+                _dbCacheMasterData.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
+                    .BusinessPartnerId));
             T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
             // [Name],[DueTime],[BusinessPartnerId]
             purchaseOrder.DueTime = GetDueTime().GetValue();
-            purchaseOrder.BusinessPartner = articleToBusinessPartner.BusinessPartner;
+            purchaseOrder.BusinessPartner = businessPartner;
             purchaseOrder.Name = $"PurchaseOrder{GetArticle().Name} for " +
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";
 
@@ -63,7 +68,7 @@ namespace Zpp.DemandDomain
             // demand cannot be fulfilled in time
             if (articleToBusinessPartner.DueTime > GetDueTime().GetValue())
             {
-                Logger.Error($"Article {GetArticle().Id} from demand {demand.Id} " +
+                Logger.Error($"Article {GetArticle().Id} from demand {demand.GetId()} " +
                              $"should be available at {GetDueTime()}, but " +
                              $"businessPartner {articleToBusinessPartner.BusinessPartner.Id} " +
                              $"can only deliver at {articleToBusinessPartner.DueTime}.");

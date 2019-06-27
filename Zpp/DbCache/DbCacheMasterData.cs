@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.WrappersForPrimitives;
@@ -18,117 +20,154 @@ namespace Zpp
         // cached tables
         // M_*
         
-        private readonly List<M_Article> _articles;
-        private readonly List<M_ArticleBom> _articleBoms;
-        private readonly List<M_ArticleToBusinessPartner> _articleToBusinessPartners;
-        private readonly List<M_ArticleType> _articleTypes;
-        private readonly List<M_BusinessPartner> _businessPartners;
-        private readonly List<M_Machine> _machines;
-        private readonly List<M_MachineGroup> _machineGroups;
-        private readonly List<M_MachineTool> _machineTools;
-        private readonly List<M_Operation> _operations;
-        private readonly List<M_Stock> _stocks;
-        private readonly List<M_Unit> _units;
+        private readonly IMasterDataTable<M_Article> _articles;
+        private readonly IMasterDataTable<M_ArticleBom> _articleBoms;
+        private readonly IMasterDataTable<M_ArticleToBusinessPartner> _articleToBusinessPartners;
+        private readonly IMasterDataTable<M_ArticleType> _articleTypes;
+        private readonly IMasterDataTable<M_BusinessPartner> _businessPartners;
+        private readonly IMasterDataTable<M_Machine> _machines;
+        private readonly IMasterDataTable<M_MachineGroup> _machineGroups;
+        private readonly IMasterDataTable<M_MachineTool> _machineTools;
+        private readonly IMasterDataTable<M_Operation> _operations;
+        private readonly IMasterDataTable<M_Stock> _stocks;
+        private readonly IMasterDataTable<M_Unit> _units;
         
-        private readonly List<T_CustomerOrder> _customerOrders;
-        private readonly List<T_CustomerOrderPart> _customerOrderParts;
+        private readonly IMasterDataTable<T_CustomerOrder> _customerOrders;
+        private readonly IMasterDataTable<T_CustomerOrderPart> _customerOrderParts;
         
         public DbCacheMasterData(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
             
             // cache tables
-            _articles = _productionDomainContext.Articles.ToList();
-            _articleBoms = _productionDomainContext.ArticleBoms.ToList();
+            _articles = new MasterDataTable<M_Article>(_productionDomainContext.Articles);
+            _articleBoms = new MasterDataTable<M_ArticleBom>(_productionDomainContext.ArticleBoms);
             _articleToBusinessPartners = 
-                _productionDomainContext.ArticleToBusinessPartners.ToList();
-            _articleTypes = _productionDomainContext.ArticleTypes.ToList();
-            _businessPartners = _productionDomainContext.BusinessPartners.ToList();
-            _machines = _productionDomainContext.Machines.ToList();
-            _machineGroups = _productionDomainContext.MachineGroups.ToList();
-            _machineTools = _productionDomainContext.MachineTools.ToList();
-            _operations = _productionDomainContext.Operations.ToList();
-            _stocks = _productionDomainContext.Stocks.ToList();
-            _units = _productionDomainContext.Units.ToList();
+                new MasterDataTable<M_ArticleToBusinessPartner>(_productionDomainContext.ArticleToBusinessPartners);
+            _articleTypes = new MasterDataTable<M_ArticleType>(_productionDomainContext.ArticleTypes);
+            _businessPartners = new MasterDataTable<M_BusinessPartner>(_productionDomainContext.BusinessPartners);
+            _machines = new MasterDataTable<M_Machine>(_productionDomainContext.Machines);
+            _machineGroups = new MasterDataTable<M_MachineGroup>(_productionDomainContext.MachineGroups);
+            _machineTools = new MasterDataTable<M_MachineTool>(_productionDomainContext.MachineTools);
+            _operations = new MasterDataTable<M_Operation>(_productionDomainContext.Operations);
+            _stocks = new MasterDataTable<M_Stock>(_productionDomainContext.Stocks);
+            _units = new MasterDataTable<M_Unit>(_productionDomainContext.Units);
 
-            _customerOrders = _productionDomainContext.CustomerOrders.ToList();
-            _customerOrderParts = _productionDomainContext.CustomerOrderParts.ToList();
+            _customerOrders = new MasterDataTable<T_CustomerOrder>(_productionDomainContext.CustomerOrders);
+            _customerOrderParts = new MasterDataTable<T_CustomerOrderPart>(_productionDomainContext.CustomerOrderParts);
         }
+
+        
         
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
         {
-            return _businessPartners;
+            return _businessPartners.GetAll();
         }
 
         public M_ArticleBom M_ArticleBomGetById(Id id)
         {
-            return _articleBoms.Single(x => x.Id == id.GetValue());
+            return _articleBoms.GetById(id);
         }
 
         // TODO: replace these implementations by Dictionary via Id
         public M_Article M_ArticleGetById(Id id)
         {
-            return _articles.Single(x => x.Id == id.GetValue());
+            return _articles.GetById(id);
         }
 
         public M_ArticleToBusinessPartner M_ArticleToBusinessPartnerGetById(Id id)
         {
-            return _articleToBusinessPartners.Single(x => x.Id == id.GetValue());
+            return _articleToBusinessPartners.GetById(id);
         }
 
         public M_ArticleType M_ArticleTypeGetById(Id id)
         {
-            return _articleTypes.Single(x => x.Id == id.GetValue());
+            return _articleTypes.GetById(id);
         }
 
         public M_Machine M_MachineGetById(Id id)
         {
-            return _machines.Single(x => x.Id == id.GetValue());
+            return _machines.GetById(id);
         }
 
         public M_MachineGroup M_MachineGroupGetById(Id id)
         {
-            return _machineGroups.Single(x => x.Id == id.GetValue());
+            return _machineGroups.GetById(id);
         }
 
         public M_MachineTool M_MachineToolGetById(Id id)
         {
-            return _machineTools.Single(x => x.Id == id.GetValue());
+            return _machineTools.GetById(id);
         }
 
         public M_Operation M_OperationGetById(Id id)
         {
-            return _operations.Single(x => x.Id == id.GetValue());
+            return _operations.GetById(id);
         }
 
         public M_Stock M_StockGetById(Id id)
         {
-            return _stocks.Single(x => x.Id == id.GetValue());
+            return _stocks.GetById(id);
         }
 
         public M_Unit M_UnitGetById(Id id)
         {
-            return _units.Single(x => x.Id == id.GetValue());
+            return _units.GetById(id);
         }
 
         public T_CustomerOrder T_CustomerOrderGetById(Id id)
         {
-            return _customerOrders.Single(x => x.Id == id.GetValue());
+            return _customerOrders.GetById(id);
         }
 
         public T_CustomerOrderPart T_CustomerOrderPartGetById(Id id)
         {
-            return _customerOrderParts.Single(x => x.Id == id.GetValue());
+            return _customerOrderParts.GetById(id);
         }
 
         public List<T_CustomerOrder> T_CustomerOrderGetAll()
         {
-            return _customerOrders;
+            return _customerOrders.GetAll();
         }
 
         public List<T_CustomerOrderPart> T_CustomerOrderPartGetAll()
         {
-            return _customerOrderParts;
+            return _customerOrderParts.GetAll();
+        }
+
+        public BusinessPartners M_ArticleToBusinessPartnerGetAllBusinessPartnersByArticleId(Id articleId)
+        {
+            List<M_BusinessPartner> businessPartners = new List<M_BusinessPartner>();
+            foreach (var articleToBusinessPartner in _articleToBusinessPartners.GetAll())
+            {
+                if (articleToBusinessPartner.ArticleId.Equals(articleId))
+                {
+                    M_BusinessPartner businessPartner =
+                        _businessPartners.GetById(new Id(articleToBusinessPartner.BusinessPartnerId));
+                    businessPartners.Add(businessPartner);
+                }
+            }
+
+            return new BusinessPartners(businessPartners);
+        }
+
+        public M_BusinessPartner M_BusinessPartnerGetById(Id id)
+        {
+            return _businessPartners.GetById(id);
+        }
+
+        public List<M_ArticleToBusinessPartner> M_ArticleToBusinessPartnerGetAllByArticleId(Id articleId)
+        {
+            List<M_ArticleToBusinessPartner> articleToBusinessPartners = new List<M_ArticleToBusinessPartner>();
+            foreach (var articleToBusinessPartner in _articleToBusinessPartners.GetAll())
+            {
+                if (articleToBusinessPartner.ArticleId.Equals(articleId.GetValue()))
+                {
+                    articleToBusinessPartners.Add(articleToBusinessPartner);
+                }
+            }
+
+            return articleToBusinessPartners;
         }
     }
 }
