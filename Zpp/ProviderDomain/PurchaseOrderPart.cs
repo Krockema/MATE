@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Zpp.DemandDomain;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.DemandDomain;
 
 namespace Zpp.ProviderDomain
 {

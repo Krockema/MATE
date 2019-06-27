@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
+using Zpp;
 using Zpp.Utils;
-using ZppForPrimitives;
+using Zpp.DemandDomain;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
 {

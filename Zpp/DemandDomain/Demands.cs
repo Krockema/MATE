@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.Interfaces;
 using Zpp.Utils;
-using ZppForPrimitives;
+using Zpp.WrappersForPrimitives;
+using Master40.DB.Interfaces;
 
 namespace Zpp.DemandDomain
 {

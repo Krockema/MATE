@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
+using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using Zpp;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
 
 namespace Zpp
 {
@@ -17,15 +19,12 @@ namespace Zpp
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-        protected readonly ProductionDomainContext _productionDomainContext;
-
-        // cached tables
-        // M_*
-        private readonly List<M_BusinessPartner> _businessPartners;
-        private readonly List<M_ArticleBom> _articleBoms;
+        private readonly ProductionDomainContext _productionDomainContext;
 
         private readonly List<M_Article> _articles;
-
+        private readonly List<M_ArticleBom> _articleBoms;
+        private readonly List<M_BusinessPartner> _businessPartners;
+       
         // T_*
         // demands
         private readonly CustomerOrderParts _customerOrderParts;
@@ -85,6 +84,21 @@ namespace Zpp
             _purchaseOrders = new PurchaseOrders(purchaseOrders);
         }
 
+        public List<M_BusinessPartner> M_BusinessPartnerGetAll()
+        {
+            return _businessPartners;
+        }
+
+        public M_ArticleBom M_ArticleBomGetById(Id id)
+        {
+            return _articleBoms.Single(x => x.Id == id.GetValue());
+        }
+
+        public M_Article M_ArticleGetById(Id id)
+        {
+            return _articles.Single(x => x.Id == id.GetValue());
+        }
+
         public void DemandToProvidersRemoveAll()
         {
             _productionDomainContext.DemandToProviders.RemoveRange(_productionDomainContext
@@ -139,20 +153,7 @@ namespace Zpp
             _purchaseOrders.Add(purchaseOrder);
         }
 
-        public List<M_BusinessPartner> M_BusinessPartnerGetAll()
-        {
-            return _businessPartners;
-        }
 
-        public M_ArticleBom M_ArticleBomGetById(int id)
-        {
-            return _articleBoms.Single(x => x.Id == id);
-        }
-
-        public M_Article M_ArticleGetById(int id)
-        {
-            return _articles.Single(x => x.Id == id);
-        }
 
 
         public void DemandsAdd(Demand demand)
@@ -266,5 +267,7 @@ namespace Zpp
                 ProvidersAdd(provider);
             }
         }
+
+
     }
 }

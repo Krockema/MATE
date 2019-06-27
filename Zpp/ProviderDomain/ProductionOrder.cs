@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
+using Zpp;
+using Zpp.DemandDomain;
+using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.DemandDomain;
-using ZppForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -42,7 +43,7 @@ namespace Zpp.ProviderDomain
 
         private static Demands CreateProductionOrderBoms(IDemand demand, IDbCache dbCache)
         {
-            M_Article readArticle = dbCache.M_ArticleGetById(demand.GetArticle().Id);
+            M_Article readArticle = dbCache.M_ArticleGetById(demand.GetArticle().GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 List<Demand> productionOrderBoms = new List<Demand>();

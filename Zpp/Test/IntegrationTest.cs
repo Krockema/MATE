@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Master40.DB;
+using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
 
 namespace Zpp.Test
 {
@@ -28,9 +28,10 @@ namespace Zpp.Test
         {
             List<int> countsMasterDataBefore = countMasterData();
             IDbCache dbCache = new DbCache(ProductionDomainContext);
+            IDbCacheMasterData dbCacheMasterData = new DbCacheMasterData(ProductionDomainContext);
             Assert.True(dbCache.DemandsGetAll().Size() == 1, "No demands are initially available.");
             
-            MrpRun.RunMrp(dbCache, dbCache.DemandsGetAll());
+            MrpRun.RunMrp(dbCache, dbCache.DemandsGetAll(), dbCacheMasterData);
             
             int expectedNumberOfDemandsAndProviders = 28;
             IDemands actualDemands = dbCache.DemandsGetAll();

@@ -1,4 +1,4 @@
-namespace ZppForPrimitives
+namespace Zpp.WrappersForPrimitives
 {
     public class HierarchyNumber
     {

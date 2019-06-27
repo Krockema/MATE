@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
+using Zpp.DemandDomain;
+using Zpp.DemandToProviderDomain;
+using Zpp.ProviderDomain;
+using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.ModelExtensions;
 using Zpp.Utils;
 using Zpp;
-using Zpp.DemandDomain;
-using Zpp.DemandToProviderDomain;
-using Zpp.ProviderDomain;
-using ZppForPrimitives;
 
 namespace Zpp
 {
@@ -20,7 +20,7 @@ namespace Zpp
 
         // articleNode.Entity.ArticleType.Name.Equals(ArticleType.ASSEMBLY)
 
-        public static void RunMrp(IDbCache dbCache, Demands initialDemands)
+        public static void RunMrp(IDbCache dbCache, Demands initialDemands, IDbCacheMasterData dbCacheMasterData)
         {
             // init data structures
 
@@ -31,14 +31,14 @@ namespace Zpp
 
             foreach (var initialDemand in initialDemands.GetAll())
             {
-                ProcessDbDemand(dbCache, initialDemand);
+                ProcessDbDemand(dbCache, initialDemand, dbCacheMasterData);
             }
 
             // finalize
             dbCache.PersistDbCache();
         }
 
-        private static void ProcessDbDemand(IDbCache dbCache, Demand oneDbDemand)
+        private static void ProcessDbDemand(IDbCache dbCache, Demand oneDbDemand, IDbCacheMasterData dbCacheMasterData)
         {
             // init
             Providers providers = new Providers();

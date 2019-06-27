@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.Interfaces;
+using Zpp;
 using Zpp.DemandDomain;
-using ZppForPrimitives;
+using Master40.DB.Interfaces;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
 {

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
+using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
 
 namespace Zpp
 {
@@ -14,17 +16,17 @@ namespace Zpp
     /// </summary>
     public interface IDbCache
     {
+        M_Article M_ArticleGetById(Id id);
+        
+        M_ArticleBom M_ArticleBomGetById(Id id);
+        
+        List<M_BusinessPartner> M_BusinessPartnerGetAll();
+        
         void DemandToProvidersRemoveAll();
 
         void PersistDbCache();
 
         void PurchaseOrderAdd(PurchaseOrder purchaseOrder);
-
-        List<M_BusinessPartner> M_BusinessPartnerGetAll();
-
-        M_ArticleBom M_ArticleBomGetById(int id);
-        
-        M_Article M_ArticleGetById(int id);
 
         void DemandsAdd(Demand demand);
         
@@ -49,6 +51,8 @@ namespace Zpp
         ProductionOrders ProductionOrderGetAll();
 
         Demands DemandsGetAll();
+
+        
 
     }
 }

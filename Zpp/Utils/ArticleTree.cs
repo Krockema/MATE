@@ -67,7 +67,7 @@ namespace Zpp.Utils
         public ArticleTree(M_ArticleBom articleBom,
             DbCache dbCache)
         {
-            M_ArticleBom queriedArticleBom = dbCache.M_ArticleBomGetById(articleBom.Id);
+            M_ArticleBom queriedArticleBom = dbCache.M_ArticleBomGetById(articleBom.GetId());
             _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id,
                 queriedArticleBom.Id,
                 queriedArticleBom.ArticleChild);
@@ -91,7 +91,7 @@ namespace Zpp.Utils
             Node<M_Article> givenArticle,
             Dictionary<int, List<Node<M_Article>>> AdjacencyList)
         {
-            M_Article readArticle = _dbCache.M_ArticleGetById(givenArticle.Entity.Id);
+            M_Article readArticle = _dbCache.M_ArticleGetById(givenArticle.Entity.GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 if (!AdjacencyList.ContainsKey(givenArticle.Entity.Id))
