@@ -18,7 +18,7 @@ namespace Zpp.DemandToProviderDomain
         public void AddDemandForProvider(Provider provider, Demand demand)
         {
             // add provider
-            if (_providerToDemands.ContainsKey(provider))
+            if (!_providerToDemands.ContainsKey(provider))
             {
                 _providerToDemands.Add(provider, new Demands());
                 return;
@@ -45,7 +45,7 @@ namespace Zpp.DemandToProviderDomain
             foreach (var provider in _articleToProviders[demand.GetArticleId()].GetAll())
             {
                 Quantity quantityOfAllDemands = _providerToDemands[provider].GetQuantityOfAll();
-                if (provider.GetQuantity().IsGreaterThan(quantityOfAllDemands))
+                if (provider.GetQuantity().IsGreaterThanOrEqualTo(quantityOfAllDemands))
                 {
                     return provider;
                 }

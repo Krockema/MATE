@@ -86,7 +86,7 @@ namespace Zpp
 
                     providers.AddAll(providersOfDemand);
                     
-                    // bool isDemandSatisfied = demandToProvider.IsSatisfied(demand); --> not needed here
+                    // TODO: this check should be done in a separate test
                     if (!demandToProviders.IsSatisfied(demand))
                     {
                         throw new MrpRunException("At this point, the demand should be satisfied, but it is NOT.");

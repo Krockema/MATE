@@ -75,7 +75,7 @@ namespace Zpp.ProviderDomain
             return productionOrderBoms;
         }
 
-        public bool ProvideMoreThan(Quantity quantity)
+        public bool ProvideMoreThanOrEqualTo(Quantity quantity)
         {
             Quantity providedQuantity = new Quantity();
             
@@ -84,7 +84,7 @@ namespace Zpp.ProviderDomain
                 providedQuantity.IncrementBy(provider.GetQuantity());
             }
 
-            return providedQuantity.IsGreaterThan(quantity);
+            return providedQuantity.IsGreaterThanOrEqualTo(quantity);
         }
 
         public int Size()

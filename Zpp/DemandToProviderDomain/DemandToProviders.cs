@@ -18,13 +18,8 @@ namespace Zpp.DemandToProviderDomain
         {
             if (_demandToProviders.ContainsKey(demand))
             {
-                Providers providers = _demandToProviders[demand];
-                if (providers.ProvideMoreThan(demand.GetQuantity()))
-                {
-                    return true;
-                }
-                
-                return false;
+                IProviders providers = _demandToProviders[demand];
+                return providers.ProvideMoreThanOrEqualTo(demand.GetQuantity());
             }
 
             return false;

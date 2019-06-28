@@ -83,7 +83,7 @@ namespace Zpp.DemandDomain
             purchaseOrderPart.Article = GetArticle();
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    demand.GetQuantity());
+                    demand.GetQuantity()) * articleToBusinessPartner.PackSize; // TODO: is amount*packsize in var quantity correct?
             purchaseOrderPart.State = State.Created;
             // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();
@@ -147,16 +147,19 @@ namespace Zpp.DemandDomain
         {
             Providers providers = new Providers();
             Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(this);
-            providers.Add(nonExhaustedProvider);
-            if (nonExhaustedProvider.ProvidesMoreThan(this.GetQuantity()))
+            if (nonExhaustedProvider != null)
             {
-                return providers;
+                providers.Add(nonExhaustedProvider);
+                if (nonExhaustedProvider.ProvidesMoreThan(this.GetQuantity()))
+                {
+                    return providers;
+                }
             }
 
             Logger.Debug($"Create a provider for article {this}:");
 
             Provider createdProvider = CreateProvider(dbTransactionData);
-
+            providers.Add(createdProvider);
             if (createdProvider.AnyDemands())
             {
                 // TODO: This should do the caller, but then the caller must get providers and nextDemands...

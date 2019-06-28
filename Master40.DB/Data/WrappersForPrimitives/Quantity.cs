@@ -23,9 +23,9 @@ namespace Master40.DB.Data.WrappersForPrimitives
             _quantity += quantity._quantity;
         }
 
-        public bool IsGreaterThan(Quantity quantity)
+        public bool IsGreaterThanOrEqualTo(Quantity quantity)
         {
-            return _quantity > quantity._quantity;
+            return _quantity >= quantity._quantity;
         }
     }
 }

@@ -74,7 +74,7 @@ namespace Zpp.ProviderDomain
 
         public bool ProvidesMoreThan(Quantity quantity)
         {
-            return GetQuantity().IsGreaterThan(quantity);
+            return GetQuantity().IsGreaterThanOrEqualTo(quantity);
         }
     }
 }

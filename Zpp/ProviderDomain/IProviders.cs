@@ -22,7 +22,7 @@ namespace Zpp.ProviderDomain
         
         List<T> GetAllAs<T>();
 
-        bool ProvideMoreThan(Quantity quantity);
+        bool ProvideMoreThanOrEqualTo(Quantity quantity);
         
         int Size();
         
