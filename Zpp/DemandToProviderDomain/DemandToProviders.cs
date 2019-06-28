@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Zpp.DemandDomain;
@@ -6,14 +7,12 @@ using Zpp.Utils;
 
 namespace Zpp.DemandToProviderDomain
 {
-    /**
-     * Maps one demand to max. two providers (at least one of the providers must be exhausted,
-     * the demand must be satisfied by both providers)
-     */
+    
     public class DemandToProviders : IDemandToProviders
     {
         private readonly Dictionary<Demand, Providers> _demandToProviders = new Dictionary<Demand, Providers>();
-        private readonly Dictionary<Provider, Demands> _providerToDemands = new Dictionary<Provider, Demands>();
+        private readonly IProviderToDemands _providerToDemands = new ProviderToDemands();
+        private const int MAX_PROVIDERS_PER_DEMAND = 2;
 
         public bool IsSatisfied(Demand demand)
         {
@@ -31,23 +30,31 @@ namespace Zpp.DemandToProviderDomain
             return false;
         }
 
-        public void SatisfyDemandWithProviders(Demand demand, Providers providers)
+        public void AddProviderForDemand(Demand demand, Provider provider)
         {
-            const int maxProvidersPerDemand = 2;
-            if (providers.Size() > maxProvidersPerDemand)
+            if (!_demandToProviders.ContainsKey(demand))
             {
-                throw new MrpRunException($"One demand must not need more than {maxProvidersPerDemand} providers.");
+                _demandToProviders.Add(demand, new Providers());
             }
-            _demandToProviders.Add(demand, providers);
-            foreach (var provider in providers.GetAll())
+            if (_demandToProviders[demand].Size() > MAX_PROVIDERS_PER_DEMAND)
             {
-                _providerToDemands.Add(provider, );
+                throw new MrpRunException($"One demand must not have more than {MAX_PROVIDERS_PER_DEMAND} providers.");
             }
-        }
+            _demandToProviders[demand].Add(provider);
+            _providerToDemands.AddDemandForProvider(provider, demand);
+            }
 
         public Provider FindNonExhaustedProvider(Demand demand)
         {
-            throw new System.NotImplementedException();
+            return _providerToDemands.FindNonExhaustedProvider(demand);
+        }
+
+        public void AddProvidersForDemand(Demand demand, Providers providers)
+        {
+            foreach (var provider in providers.GetAll())
+            {
+                AddProviderForDemand(demand, provider);
+            }
         }
     }
 }

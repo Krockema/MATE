@@ -80,22 +80,18 @@ namespace Zpp
 
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
-                    // bool isDemandSatisfied = demandToProvider.IsSatisfied(demand); --> not needed here
-                    Provider nonExhaustedProvider = 
+                    Providers providersOfDemand = demand.Satisfy(demandToProviders, dbTransactionData, nextDemandManager);
+                    
+                    demandToProviders.AddProvidersForDemand(demand, providersOfDemand);
 
-                    if (!isDemandSatisfied)
-                        // search/create provider for it
+                    providers.AddAll(providersOfDemand);
+                    
+                    // bool isDemandSatisfied = demandToProvider.IsSatisfied(demand); --> not needed here
+                    if (!demandToProviders.IsSatisfied(demand))
                     {
-                        LOGGER.Debug(
-                            $"Create a provider for article {demand}:");
-                        Provider provider = demand.CreateProvider(dbTransactionData);
-                        demandToProviders.SatisfyDemandWithProviders(demand, );
-                        if (provider.AnyDemands())
-                        {
-                            nextDemandManager.AddAll(provider.GetDemands());    
-                        }
-                        providers.Add(provider);
+                        throw new MrpRunException("At this point, the demand should be satisfied, but it is NOT.");
                     }
+                    
                 }
 
                 // final reorganizing

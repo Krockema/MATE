@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp;
 using Zpp.DemandDomain;
 using Master40.DB.Interfaces;
@@ -19,5 +20,9 @@ namespace Zpp.ProviderDomain
         Quantity GetQuantity();
 
         bool AnyDemands();
+
+        Id GetArticleId();
+
+        bool ProvidesMoreThan(Quantity quantity);
     }
 }

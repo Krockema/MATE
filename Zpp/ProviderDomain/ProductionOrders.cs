@@ -12,16 +12,16 @@ namespace Zpp.ProviderDomain
         {
         }
         
-        public ProductionOrders(List<T_ProductionOrder> iDemands) : base(ToProviders(iDemands))
+        public ProductionOrders(List<T_ProductionOrder> iDemands, IDbMasterDataCache dbMasterDataCache) : base(ToProviders(iDemands, dbMasterDataCache))
         {
         }
 
-        private static List<Provider> ToProviders(List<T_ProductionOrder> iProviders)
+        private static List<Provider> ToProviders(List<T_ProductionOrder> iProviders, IDbMasterDataCache dbMasterDataCache)
         {
             List<Provider> providers = new List<Provider>();
             foreach (var iProvider in iProviders)
             {
-                providers.Add(new ProductionOrder(iProvider, null));
+                providers.Add(new ProductionOrder(iProvider, null, dbMasterDataCache));
             }
 
             return providers;

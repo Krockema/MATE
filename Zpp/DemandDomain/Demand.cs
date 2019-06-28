@@ -9,6 +9,7 @@ using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Zpp.DemandToProviderDomain;
 
 namespace Zpp.DemandDomain
 {
@@ -89,7 +90,7 @@ namespace Zpp.DemandDomain
 
 
             Logger.Debug("PurchaseOrderPart created.");
-            return new PurchaseOrderPart(purchaseOrderPart, null);
+            return new PurchaseOrderPart(purchaseOrderPart, null, _dbMasterDataCache);
         }
 
 
@@ -100,11 +101,6 @@ namespace Zpp.DemandDomain
         }
 
         public abstract IDemand ToIDemand();
-
-        public bool HasProvider(Providers providers)
-        {
-            throw new NotImplementedException();
-        }
 
         public override bool Equals(object obj)
         {
@@ -140,6 +136,34 @@ namespace Zpp.DemandDomain
         public Id GetId()
         {
             return new Id(_demand.Id);
+        }
+
+        public Id GetArticleId()
+        {
+            return new Id(GetArticle().Id);
+        }
+
+        public Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData, Demands nextDemands)
+        {
+            Providers providers = new Providers();
+            Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(this);
+            providers.Add(nonExhaustedProvider);
+            if (nonExhaustedProvider.ProvidesMoreThan(this.GetQuantity()))
+            {
+                return providers;
+            }
+
+            Logger.Debug($"Create a provider for article {this}:");
+
+            Provider createdProvider = CreateProvider(dbTransactionData);
+
+            if (createdProvider.AnyDemands())
+            {
+                // TODO: This should do the caller, but then the caller must get providers and nextDemands...
+                nextDemands.AddAll(createdProvider.GetDemands());
+            }
+
+            return providers;
         }
     }
 }

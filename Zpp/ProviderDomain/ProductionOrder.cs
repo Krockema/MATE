@@ -14,13 +14,13 @@ namespace Zpp.ProviderDomain
      */
     public class ProductionOrder : Provider, IProviderLogic
     {
-        public ProductionOrder(IProvider provider, Demands demands) : base(provider, demands)
+        public ProductionOrder(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache) : base(provider, demands, dbMasterDataCache)
         {
         }
 
         public ProductionOrder(Demand demand, IDbTransactionData dbTransactionData,
             IDbMasterDataCache dbMasterDataCache) : base(CreateProductionOrder(demand),
-            CreateProductionOrderBoms(demand, dbTransactionData, dbMasterDataCache))
+            CreateProductionOrderBoms(demand, dbTransactionData, dbMasterDataCache), dbMasterDataCache)
 
         {
         }
@@ -64,6 +64,12 @@ namespace Zpp.ProviderDomain
         public override IProvider ToIProvider()
         {
             return (T_ProductionOrder) _provider;
+        }
+
+        public override Id GetArticleId()
+        {
+            Id articleId = new Id(((T_ProductionOrder) _provider).ArticleId);
+            return articleId;
         }
     }
 }

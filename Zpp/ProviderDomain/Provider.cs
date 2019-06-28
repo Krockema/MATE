@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp;
 using Zpp.DemandDomain;
 using Zpp.Utils;
@@ -17,8 +18,9 @@ namespace Zpp.ProviderDomain
         protected readonly Guid _guid = Guid.NewGuid();
         protected readonly Demands _demands;
         protected readonly IProvider _provider;
+        protected readonly IDbMasterDataCache _dbMasterDataCache;
 
-        public Provider(IProvider provider, Demands demands)
+        public Provider(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache)
         {
             if (provider == null)
             {
@@ -26,6 +28,7 @@ namespace Zpp.ProviderDomain
             }
             _demands = demands;
             _provider = provider;
+            _dbMasterDataCache = dbMasterDataCache;
         }
 
         public Demands GetDemands()
@@ -65,6 +68,13 @@ namespace Zpp.ProviderDomain
         public bool AnyDemands()
         {
             return _demands != null && _demands.Any();
+        }
+
+        public abstract Id GetArticleId();
+
+        public bool ProvidesMoreThan(Quantity quantity)
+        {
+            return GetQuantity().IsGreaterThan(quantity);
         }
     }
 }

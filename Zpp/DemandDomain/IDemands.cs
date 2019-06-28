@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 
@@ -35,5 +36,11 @@ namespace Zpp.DemandDomain
         bool Any();
 
         void Clear();
+
+        /**
+         * sums quantites of all demands
+         */
+        Quantity GetQuantityOfAll();
+
     }
 }

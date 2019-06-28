@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.Interfaces;
@@ -117,6 +118,17 @@ namespace Zpp.DemandDomain
         public void Clear()
         {
             _demands.Clear();
+        }
+
+        public Quantity GetQuantityOfAll()
+        {
+            Quantity sumQuantity = new Quantity();
+            foreach (var demand in _demands)
+            {
+                sumQuantity.IncrementBy(demand.GetQuantity());
+            }
+
+            return sumQuantity;
         }
     }
 }

@@ -5,6 +5,7 @@ using Zpp.ProviderDomain;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.DemandToProviderDomain;
 
 namespace Zpp.DemandDomain
 {
@@ -17,14 +18,17 @@ namespace Zpp.DemandDomain
 
         IDemand ToIDemand();
 
-        bool HasProvider(Providers providers);
-
         Quantity GetQuantity();
 
         M_Article GetArticle();
+        
+        Id GetArticleId();
 
         DueTime GetDueTime();
 
         Id GetId();
+
+        Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData,
+            Demands nextDemands);
     }
 }

@@ -71,10 +71,10 @@ namespace Zpp
             _productionOrderBoms = new ProductionOrderBoms( new List<T_ProductionOrderBom>(), _dbMasterDataCache);
             
             _stockExchangeDemands = new StockExchangeDemands(new List<T_StockExchange>(), _dbMasterDataCache);
-            _stockExchangeProviders = new StockExchangeProviders(new List<T_StockExchange>());
+            _stockExchangeProviders = new StockExchangeProviders(new List<T_StockExchange>(), _dbMasterDataCache);
             
-            _productionOrders = new ProductionOrders(new List<T_ProductionOrder>());
-            _purchaseOrderParts = new PurchaseOrderParts(new List<T_PurchaseOrderPart>());
+            _productionOrders = new ProductionOrders(new List<T_ProductionOrder>(), _dbMasterDataCache);
+            _purchaseOrderParts = new PurchaseOrderParts(new List<T_PurchaseOrderPart>(), _dbMasterDataCache);
             _purchaseOrders = new PurchaseOrders(new List<T_PurchaseOrder>());
         }
 

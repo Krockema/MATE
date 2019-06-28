@@ -8,16 +8,16 @@ namespace Zpp.ProviderDomain
      */
     public class StockExchangeProviders : Providers
     {
-        public StockExchangeProviders(List<T_StockExchange> iDemands) : base(ToProviders(iDemands))
+        public StockExchangeProviders(List<T_StockExchange> iDemands, IDbMasterDataCache dbMasterDataCache) : base(ToProviders(iDemands, dbMasterDataCache))
         {
         }
 
-        private static List<Provider> ToProviders(List<T_StockExchange> iProviders)
+        private static List<Provider> ToProviders(List<T_StockExchange> iProviders, IDbMasterDataCache dbMasterDataCache)
         {
             List<Provider> providers = new List<Provider>();
             foreach (var iProvider in iProviders)
             {
-                providers.Add(new StockExchangeProvider(iProvider, null));
+                providers.Add(new StockExchangeProvider(iProvider, null, dbMasterDataCache));
             }
 
             return providers;
