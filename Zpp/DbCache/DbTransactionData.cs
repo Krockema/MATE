@@ -106,6 +106,7 @@ namespace Zpp
             // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
             // --> readOnly
 
+            // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
             InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(),
                 _productionDomainContext.ProductionOrderBoms);
             InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(),
@@ -138,13 +139,16 @@ namespace Zpp
         private void InsertOrUpdate<TEntity>(TEntity entity, DbSet<TEntity> dbSet)
             where TEntity : BaseEntity
         {
-            if (entity.Id.Equals(0))
+            if(dbSet.Find(entity.Id) == null) // TODO: performance issue: a select before every insert is a no go
+            // if (entity.Id.Equals(0))
                 // it's not in DB yet
             {
+                _productionDomainContext.Entry(entity).State = EntityState.Added;
                 dbSet.Add(entity);
             }
             else
             {
+                _productionDomainContext.Entry(entity).State = EntityState.Modified;
                 dbSet.Update(entity);
             }
         }

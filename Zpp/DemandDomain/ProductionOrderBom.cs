@@ -2,6 +2,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Zpp.LotSize;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.DemandDomain
@@ -12,30 +13,23 @@ namespace Zpp.DemandDomain
             demand, dbMasterDataCache)
         {
         }
+        
 
-
-        public ProductionOrderBom(M_ArticleBom articleBom, IProvider productionOrder,
-            IDbMasterDataCache dbMasterDataCache) : base(
-            CreateProductionOrderBom(articleBom, productionOrder), dbMasterDataCache)
-        {
-        }
-
-        private static IDemand CreateProductionOrderBom(M_ArticleBom articleBom,
-            IProvider productionOrder)
+        public static ProductionOrderBom CreateProductionOrderBom(M_ArticleBom articleBom,
+            IProvider productionOrder, IDbMasterDataCache dbMasterDataCache,  ILotSize lotSize)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
-            productionOrderBom.Quantity = articleBom.Quantity;
+            productionOrderBom.Quantity = articleBom.Quantity * lotSize.GetCalculatedQuantity().GetValue();
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent = (T_ProductionOrder) productionOrder;
-            productionOrderBom.ProductionOrderParentId =
-                productionOrderBom.ProductionOrderParent.Id;
+            // productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
             productionOrderBom.ProductionOrderOperation =
                 new ProductionOrderOperation(articleBom).GetValue();
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
             productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
 
-            return productionOrderBom;
+            return new ProductionOrderBom(productionOrderBom, dbMasterDataCache);
         }
 
         public override IDemand ToIDemand()

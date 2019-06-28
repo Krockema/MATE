@@ -132,59 +132,62 @@ namespace Master40.DB.Data.Initializer
                 context.Stocks.Add(stock);
                 context.SaveChanges();
             }
+
+            int machineToolId = machineTools.Single(a => a.Name == "Saw blade").Id;
             var operations = new M_Operation[]
             {
+                
                 // assemble Truck
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck: Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Glue Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Dump-Truck: Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Dump-Truck").Id, Name = "Glue Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
 
                 // assemble Truck
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Race-Truck: Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Glue Race Wing", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Race-Truck: Wedding", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Race-Truck").Id, Name = "Glue Race Wing", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
                 
                 // assemble chassie Dump-Truck
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Dump-Truck: Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Dump-Truck: Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Dump-Truck: Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Chassis Type: Dump").Id, Name = "Dump-Truck: Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
                 
                 // assemble chassie Race Truck
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Race-Truck: Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Mount Engine Extension", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Race-Truck: Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 30 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Race-Truck: Assemble Lamps", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Mount Engine Extension", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Chassis Type: Race").Id, Name = "Race-Truck: Mount Engine to Cabin", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 30 },
                 
                 // assemble Skeleton
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "mount poles with wheels to Skeleton", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Screw wheels onto poles", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Glue Semitrailer", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 30 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "mount poles with wheels to Skeleton", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Screw wheels onto poles", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Skeleton").Id, Name = "Glue Semitrailer", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 30 },
                
                 // assemble Truck Bed
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Glue side walls and base plate together", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Mount hatchback", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Glue side walls and base plate together", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Truck-Bed").Id, Name = "Mount hatchback", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
 
                 // assemble Race Wing
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing: Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing: Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing: Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Race Wing").Id, Name = "Race Wing: Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // Engine Race Extension
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension: Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension: Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension: Cut shape", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Engine Race Extension").Id, Name = "Engine Race Extension: Drill Mount Holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 
                 // side Walls for Truck-bed
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Side wall long: Cut long side", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Side wall long: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Side wall long: Cut long side", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Side wall long").Id,  Name = "Side wall long: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Side wall short: Cut short side", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Side wall short: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Side wall short: Cut short side", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Side wall short").Id,  Name = "Side wall short: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Base plate Truck-Bed: Cut Base plate Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Base plate Truck-Bed: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Base plate Truck-Bed: Cut Base plate Truck-Bed", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Base plate Truck-Bed").Id,  Name = "Base plate Truck-Bed: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // engin Block
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Engine-Block: Cut Engine-Block", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Engine-Block: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Engine-Block: Cut Engine-Block", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Engine-Block").Id,  Name = "Engine-Block: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // cabin 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cabin: Cut Cabin", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cabin: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cabin: Cut Cabin", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Cabin").Id,  Name = "Cabin: Drill mount holes", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
                 // Base Plate
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate: Cut Base plate", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate: drill holes for axis mount", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate: Cut Base plate", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ MachineToolId = machineToolId, ArticleId = articles.Single(a => a.Name == "Base plate").Id, Name = "Base plate: drill holes for axis mount", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
 
             };
             context.Operations.AddRange(operations);

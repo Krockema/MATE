@@ -10,6 +10,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.DemandToProviderDomain;
+using Zpp.LotSize;
 
 namespace Zpp.DemandDomain
 {
@@ -34,27 +35,28 @@ namespace Zpp.DemandDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Provider CreateProvider(IDbTransactionData dbTransactionData)
+        public Provider CreateProvider(IDbTransactionData dbTransactionData, Quantity quantity)
         {
             M_Article article = GetArticle();
+            ILotSize lotSize = new LotSize.LotSize(quantity, GetArticleId());
             if (article.ToBuild)
             {
                 ProductionOrder productionOrder =
-                    new ProductionOrder(this, dbTransactionData, _dbMasterDataCache);
+                    ProductionOrder.CreateProductionOrder(this, dbTransactionData, _dbMasterDataCache, lotSize);
                 Logger.Debug("ProductionOrder created.");
                 return productionOrder;
             }
 
-            // TODO: remove all parameters fo methos, where only "this" is given to it
-            return createPurchaseOrderPart(this);
+            // TODO: remove all parameters fo methods, where only "this" is given to it
+            return createPurchaseOrderPart(this, lotSize);
         }
 
-        private Provider createPurchaseOrderPart(Demand demand)
+        private Provider createPurchaseOrderPart(Demand demand, ILotSize lotSize)
         {
             // currently only one businessPartner per article TODO: This could be changing
             M_ArticleToBusinessPartner articleToBusinessPartner =
                 _dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(
-                    demand.GetArticle().GetId())[0];
+                    demand.GetArticleId())[0];
             M_BusinessPartner businessPartner =
                 _dbMasterDataCache.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
                     .BusinessPartnerId));
@@ -83,7 +85,7 @@ namespace Zpp.DemandDomain
             purchaseOrderPart.Article = GetArticle();
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    demand.GetQuantity()) * articleToBusinessPartner.PackSize; // TODO: is amount*packSize in var quantity correct?
+                    lotSize.GetCalculatedQuantity()) * articleToBusinessPartner.PackSize; // TODO: is amount*packSize in var quantity correct?
             purchaseOrderPart.State = State.Created;
             // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();
@@ -147,8 +149,10 @@ namespace Zpp.DemandDomain
         {
             Providers providers = new Providers();
             Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(this);
+            Quantity newQuantity = null;
             if (nonExhaustedProvider != null)
             {
+                newQuantity = GetQuantity().Minus(nonExhaustedProvider.GetQuantity());
                 providers.Add(nonExhaustedProvider);
                 if (nonExhaustedProvider.ProvidesMoreThan(this.GetQuantity()))
                 {
@@ -156,9 +160,14 @@ namespace Zpp.DemandDomain
                 }
             }
 
-            Logger.Debug($"Create a provider for article {this}:");
+            if (newQuantity == null)
+            {
+                newQuantity = GetQuantity();
+            }
 
-            Provider createdProvider = CreateProvider(dbTransactionData);
+            Logger.Debug($"Create a provider for article {this}:");
+            
+            Provider createdProvider = CreateProvider(dbTransactionData, newQuantity);
             providers.Add(createdProvider);
             if (createdProvider.AnyDemands())
             {

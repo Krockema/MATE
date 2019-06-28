@@ -1,10 +1,20 @@
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace Zpp.Utils
 {
     public static class Dbms
     {
+        public static readonly LoggerFactory MyLoggerFactory
+            = new LoggerFactory(new[]
+            {
+                new ConsoleLoggerProvider((category, level)
+                    => category == DbLoggerCategory.Database.Command.Name
+                       && level == LogLevel.Information, true)
+            });
+        
         public static ProductionDomainContext getDbContext()
         {
             ProductionDomainContext productionDomainContext;
@@ -27,9 +37,11 @@ namespace Zpp.Utils
             }
             else
             {
+                
+                
                 // With Sql Server for Mac/Linux
                 productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                    .UseSqlServer(
+                    .UseLoggerFactory(MyLoggerFactory).UseSqlServer(
                         Constants.DbConnectionZppUnix())
                     .Options);
 
