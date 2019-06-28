@@ -13,6 +13,6 @@ namespace Zpp
 
         IProviders GetProviders();
 
-        IDemandToProviders GetDemandToProviders();
+        IDemandToProviderTable GetDemandToProviders();
     }
 }

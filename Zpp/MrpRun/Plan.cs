@@ -9,13 +9,13 @@ namespace Zpp
     {
         private IDemands _demands;
         private IProviders _providers;
-        private IDemandToProviders _demandToProviders;
+        private IDemandToProviderTable _demandToProviderTable;
 
-        public Plan(IDemands demands, IProviders providers, IDemandToProviders demandToProviders)
+        public Plan(IDemands demands, IProviders providers, IDemandToProviderTable demandToProviders)
         {
             _demands = demands;
             _providers = providers;
-            _demandToProviders = demandToProviders;
+            _demandToProviderTable = demandToProviders;
         }
 
         public IDemands GetDemands()
@@ -28,9 +28,9 @@ namespace Zpp
             return _providers;
         }
 
-        public IDemandToProviders GetDemandToProviders()
+        public IDemandToProviderTable GetDemandToProviders()
         {
-            return _demandToProviders;
+            return _demandToProviderTable;
         }
     }
 }

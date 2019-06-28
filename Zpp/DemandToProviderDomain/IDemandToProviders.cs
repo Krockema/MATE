@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Master40.DB.DataModel;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 
@@ -26,9 +28,10 @@ namespace Zpp.DemandToProviderDomain
         void AddProvidersForDemand(Demand demand, Providers providers);
 
         Provider FindNonExhaustedProvider(Demand demand);
-
-        Demands GetAllDemands();
-
-        Providers GetAllProviders();
+        
+        /**
+         * Converts to list of T_DemandToProvider
+         */
+        List<T_DemandToProvider> ToDemandToT_DemandToProvider();
     }
 }

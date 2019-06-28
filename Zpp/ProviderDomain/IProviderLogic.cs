@@ -24,5 +24,7 @@ namespace Zpp.ProviderDomain
         Id GetArticleId();
 
         bool ProvidesMoreThan(Quantity quantity);
+
+        T_Provider ToT_Provider();
     }
 }

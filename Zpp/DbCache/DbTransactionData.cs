@@ -32,6 +32,7 @@ namespace Zpp
         private readonly List<M_BusinessPartner> _businessPartners;
 
         // T_*
+        private readonly IDemandToProviderTable _demandToProviderTable = new DemandToProviderTable();
         // demands
         private readonly ProductionOrderBoms _productionOrderBoms;
 
@@ -118,6 +119,8 @@ namespace Zpp
 
             InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(),
                 _productionDomainContext.PurchaseOrders);
+            
+            InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);
 
             _productionDomainContext.SaveChanges();
         }
@@ -253,11 +256,13 @@ namespace Zpp
 
         public void DemandToProviderAddAll(IDemandToProviders demandToProviders)
         {
-            
-            foreach (var demand in demandToProviders.GetAllDemands().GetAll())
-            {
-                demand.
-            }
+
+            _demandToProviderTable.AddAll(demandToProviders);
+        }
+
+        public IDemandToProviderTable DemandToProviderGetAll()
+        {
+            return _demandToProviderTable;
         }
     }
 }

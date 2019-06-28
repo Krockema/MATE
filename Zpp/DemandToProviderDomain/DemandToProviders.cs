@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Master40.DB.DataModel;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 using Zpp.Utils;
@@ -50,6 +51,24 @@ namespace Zpp.DemandToProviderDomain
             {
                 AddProviderForDemand(demand, provider);
             }
+        }
+
+        public List<T_DemandToProvider> ToDemandToT_DemandToProvider()
+        {
+            List<T_DemandToProvider> demandToProvider = new List<T_DemandToProvider>();
+            
+            foreach (var demand in _demandToProviders.Keys)
+            {
+                foreach (var provider in _demandToProviders[demand].GetAll())
+                {
+                    T_DemandToProvider tDemandToProvider = new T_DemandToProvider();
+                    tDemandToProvider.Demand = demand.ToT_Demand();
+                    tDemandToProvider.Provider = provider.ToT_Provider();
+                    demandToProvider.Add(tDemandToProvider);
+                }
+            }
+            
+            return demandToProvider;
         }
     }
 }

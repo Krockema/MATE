@@ -30,7 +30,7 @@ namespace Zpp.Test
             
             Assert.True(ProductionDomainContext.CustomerOrders.Count() == 1, "No customerOrders are initially available.");
             
-            Plan plan = MrpRun.RunMrp(ProductionDomainContext);
+            IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
             
             int expectedNumberOfDemandsAndProviders = 28;
             IDemands actualDemands = plan.GetDemands();

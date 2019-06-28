@@ -76,5 +76,10 @@ namespace Zpp.ProviderDomain
         {
             return GetQuantity().IsGreaterThanOrEqualTo(quantity);
         }
+
+        public T_Provider ToT_Provider()
+        {
+            return _provider.Provider;
+        }
     }
 }

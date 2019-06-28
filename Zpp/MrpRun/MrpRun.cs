@@ -39,7 +39,7 @@ namespace Zpp
                 ProcessDbDemand(dbTransactionData, new CustomerOrderPart(initialDemand, dbMasterDataCache));
             }
 
-            return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll());
+            return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(), dbTransactionData.DemandToProviderGetAll());
         }
 
         private static void ProcessDbDemand(IDbTransactionData dbTransactionData, Demand oneDbDemand)
@@ -107,7 +107,7 @@ namespace Zpp
             
             dbTransactionData.ProvidersAddAll(providers);
             dbTransactionData.DemandsAddAll(finalAllDemands);
-            // TODO: demandToProvider is not persisted yet
+            dbTransactionData.DemandToProviderAddAll(demandToProviders);
             dbTransactionData.PersistDbCache();
         }
     }

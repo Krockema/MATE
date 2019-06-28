@@ -30,5 +30,7 @@ namespace Zpp.DemandDomain
 
         Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData,
             Demands nextDemands);
+        
+        T_Demand ToT_Demand();
     }
 }

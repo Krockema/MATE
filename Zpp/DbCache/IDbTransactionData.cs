@@ -51,6 +51,8 @@ namespace Zpp
         Demands DemandsGetAll();
 
         void DemandToProviderAddAll(IDemandToProviders demandToProviders);
+        
+        IDemandToProviderTable DemandToProviderGetAll();
 
     }
 }

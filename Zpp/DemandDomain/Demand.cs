@@ -168,5 +168,10 @@ namespace Zpp.DemandDomain
 
             return providers;
         }
+
+        public T_Demand ToT_Demand()
+        {
+            return _demand.Demand;
+        }
     }
 }
