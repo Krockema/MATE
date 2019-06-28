@@ -107,6 +107,7 @@ namespace Zpp
             
             dbTransactionData.ProvidersAddAll(providers);
             dbTransactionData.DemandsAddAll(finalAllDemands);
+            // TODO: demandToProvider is not persisted yet
             dbTransactionData.PersistDbCache();
         }
     }

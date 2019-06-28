@@ -83,7 +83,7 @@ namespace Zpp.DemandDomain
             purchaseOrderPart.Article = GetArticle();
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    demand.GetQuantity()) * articleToBusinessPartner.PackSize; // TODO: is amount*packsize in var quantity correct?
+                    demand.GetQuantity()) * articleToBusinessPartner.PackSize; // TODO: is amount*packSize in var quantity correct?
             purchaseOrderPart.State = State.Created;
             // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();

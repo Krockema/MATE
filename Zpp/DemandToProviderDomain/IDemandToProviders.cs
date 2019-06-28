@@ -6,6 +6,8 @@ namespace Zpp.DemandToProviderDomain
     /**
      * Maps one demand to max. two providers (at least one of the providers must be exhausted,
      * the demand must be satisfied by both providers)
+     *
+     * NOTE: the "s" at the end, has nothing to do with T_DemandToProvider table & IDemandToProvider interface (Those are dbRelated)
      */
     public interface IDemandToProviders
     {
@@ -24,5 +26,9 @@ namespace Zpp.DemandToProviderDomain
         void AddProvidersForDemand(Demand demand, Providers providers);
 
         Provider FindNonExhaustedProvider(Demand demand);
+
+        Demands GetAllDemands();
+
+        Providers GetAllProviders();
     }
 }

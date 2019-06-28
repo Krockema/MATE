@@ -12,6 +12,7 @@ using Master40.DB.Interfaces;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using Zpp;
+using Zpp.DemandToProviderDomain;
 
 namespace Zpp
 {
@@ -247,6 +248,15 @@ namespace Zpp
             foreach (var provider in providers.GetAll())
             {
                 ProvidersAdd(provider);
+            }
+        }
+
+        public void DemandToProviderAddAll(IDemandToProviders demandToProviders)
+        {
+            
+            foreach (var demand in demandToProviders.GetAllDemands().GetAll())
+            {
+                demand.
             }
         }
     }

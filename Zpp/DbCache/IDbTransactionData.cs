@@ -6,6 +6,7 @@ using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp;
+using Zpp.DemandToProviderDomain;
 
 namespace Zpp
 {
@@ -49,7 +50,7 @@ namespace Zpp
 
         Demands DemandsGetAll();
 
-        
+        void DemandToProviderAddAll(IDemandToProviders demandToProviders);
 
     }
 }
