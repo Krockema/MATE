@@ -41,7 +41,11 @@ namespace Master40.Simulation
             //In-memory database only exists while the connection is open
             var _inMemory = InMemoryContext.CreateInMemoryContext();
             // InMemoryContext.LoadData(_context, _inMemory);
+            // MMT 01.07.2019
             MasterDBInitializerSmall.DbInitialize(_inMemory);
+
+            //MasterDBInitializerSimple.DbInitialize(_inMemory);
+
             PrepareModel(_inMemory);
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
