@@ -121,9 +121,18 @@ namespace Zpp
             InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(),
                 _productionDomainContext.PurchaseOrders);
             
-            InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);
+            // TODO: Enable
+            // InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);
 
-            _productionDomainContext.SaveChanges();
+            try
+            {
+                _productionDomainContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("DbCache could not be persisted.");
+                throw e;
+            }
         }
 
         private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)

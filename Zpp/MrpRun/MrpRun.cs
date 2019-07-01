@@ -95,7 +95,6 @@ namespace Zpp
                 }
 
                 // final reorganizing
-                finalAllDemands.AddAll(currentDemandManager);
                 levelDemandManagers.Remove(currentDemandManager);
 
                 // break condition
@@ -103,6 +102,7 @@ namespace Zpp
                 {
                     break;
                 }
+                finalAllDemands.AddAll(nextDemandManager);
             }
             
             dbTransactionData.ProvidersAddAll(providers);

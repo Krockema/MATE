@@ -42,7 +42,8 @@ namespace Zpp.DemandDomain
             if (article.ToBuild)
             {
                 ProductionOrder productionOrder =
-                    ProductionOrder.CreateProductionOrder(this, dbTransactionData, _dbMasterDataCache, lotSize);
+                    ProductionOrder.CreateProductionOrder(this, dbTransactionData,
+                        _dbMasterDataCache, lotSize);
                 Logger.Debug("ProductionOrder created.");
                 return productionOrder;
             }
@@ -85,7 +86,9 @@ namespace Zpp.DemandDomain
             purchaseOrderPart.Article = GetArticle();
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    lotSize.GetCalculatedQuantity()) * articleToBusinessPartner.PackSize; // TODO: is amount*packSize in var quantity correct?
+                    lotSize.GetCalculatedQuantity()) *
+                articleToBusinessPartner
+                    .PackSize; // TODO: is amount*packSize in var quantity correct?
             purchaseOrderPart.State = State.Created;
             // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();
@@ -145,7 +148,8 @@ namespace Zpp.DemandDomain
             return new Id(GetArticle().Id);
         }
 
-        public Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData, Demands nextDemands)
+        public Providers Satisfy(IDemandToProviders demandToProviders,
+            IDbTransactionData dbTransactionData, Demands nextDemands)
         {
             Providers providers = new Providers();
             Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(this);
@@ -166,7 +170,7 @@ namespace Zpp.DemandDomain
             }
 
             Logger.Debug($"Create a provider for article {this}:");
-            
+
             Provider createdProvider = CreateProvider(dbTransactionData, newQuantity);
             providers.Add(createdProvider);
             if (createdProvider.AnyDemands())
