@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.ProviderDomain;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.DemandDomain
@@ -16,16 +17,18 @@ namespace Zpp.DemandDomain
         
 
         public static ProductionOrderBom CreateProductionOrderBom(M_ArticleBom articleBom,
-            IProvider productionOrder, IDbMasterDataCache dbMasterDataCache,  ILotSize lotSize)
+            Provider productionOrder, IDbMasterDataCache dbMasterDataCache,  ILotSize lotSize)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
             productionOrderBom.Quantity = articleBom.Quantity * lotSize.GetCalculatedQuantity().GetValue();
             productionOrderBom.State = State.Created;
-            productionOrderBom.ProductionOrderParent = (T_ProductionOrder) productionOrder;
-            // productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
+            productionOrderBom.ProductionOrderParent = (T_ProductionOrder) productionOrder.ToIProvider();
+            productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
             productionOrderBom.ProductionOrderOperation =
                 new ProductionOrderOperation(articleBom).GetValue();
+            productionOrderBom.ProductionOrderOperationId =
+                productionOrderBom.ProductionOrderOperation.Id;
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
             productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
 

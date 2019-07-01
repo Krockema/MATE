@@ -33,5 +33,9 @@ namespace Zpp.DemandToProviderDomain
          * Converts to list of T_DemandToProvider
          */
         List<T_DemandToProvider> ToDemandToT_DemandToProvider();
+
+        List<T_Demand> ToT_Demands();
+        
+        List<T_Provider> ToT_Providers();
     }
 }

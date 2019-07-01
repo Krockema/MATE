@@ -17,6 +17,8 @@ namespace Zpp.DemandDomain
         Provider CreateProvider(IDbTransactionData dbTransactionData, Quantity quantity);
 
         IDemand ToIDemand();
+        
+        T_Demand ToT_Demand();
 
         Quantity GetQuantity();
 
@@ -31,6 +33,5 @@ namespace Zpp.DemandDomain
         Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData,
             Demands nextDemands);
         
-        T_Demand ToT_Demand();
     }
 }

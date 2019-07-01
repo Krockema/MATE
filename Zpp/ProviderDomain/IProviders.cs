@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp;
 using Zpp.DemandDomain;
 using Zpp.WrappersForPrimitives;
@@ -21,6 +22,8 @@ namespace Zpp.ProviderDomain
         List<Provider> GetAll();
         
         List<T> GetAllAs<T>();
+
+        List<T_Provider> GetAllAsT_Provider();
 
         bool ProvideMoreThanOrEqualTo(Quantity quantity);
         

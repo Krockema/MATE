@@ -101,25 +101,41 @@ namespace Zpp
                 .DemandToProviders);
         }
 
-        public void PersistDbCache()
+        public void PersistDbCache(IDemandToProviders demandToProviders)
         {
             // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
             // --> readOnly
 
             // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
+            
+            // first T_Demand, T_Provider
+            InsertOrUpdateRange(demandToProviders.ToT_Demands(),
+                _productionDomainContext.Demands);
+            _productionDomainContext.SaveChanges();
+            InsertOrUpdateRange(demandToProviders.ToT_Providers(),
+                _productionDomainContext.Providers);
+            _productionDomainContext.SaveChanges();
+            
+            // then demands
             InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(),
                 _productionDomainContext.ProductionOrderBoms);
             InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(),
                 _productionDomainContext.StockExchanges);
             InsertOrUpdateRange(_stockExchangeProviders.GetAllAs<T_StockExchange>(),
                 _productionDomainContext.StockExchanges);
+            _productionDomainContext.SaveChanges();
+            // the providers
             InsertOrUpdateRange(_productionOrders.GetAllAs<T_ProductionOrder>(),
                 _productionDomainContext.ProductionOrders);
             InsertOrUpdateRange(_purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>(),
                 _productionDomainContext.PurchaseOrderParts);
+            _productionDomainContext.SaveChanges();
 
+            // at the end: T_DemandToProvider
             InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(),
                 _productionDomainContext.PurchaseOrders);
+            
+            // TODO: First all T_Provider & T_Demands must be persisted before T_ProductionOrder, ...
             
             // TODO: Enable
             // InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);

@@ -21,7 +21,7 @@ namespace Zpp.ProviderDomain
             List<Provider> providers = new List<Provider>();
             foreach (var iProvider in iProviders)
             {
-                providers.Add(new ProductionOrder(iProvider, null, dbMasterDataCache));
+                providers.Add(new ProductionOrder(iProvider, dbMasterDataCache));
             }
 
             return providers;

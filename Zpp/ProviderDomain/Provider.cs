@@ -7,6 +7,7 @@ using Zpp.DemandDomain;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.Interfaces;
+using Zpp.LotSize;
 
 namespace Zpp.ProviderDomain
 {
@@ -16,17 +17,16 @@ namespace Zpp.ProviderDomain
     public abstract class Provider : IProviderLogic
     {
         protected readonly Guid _guid = Guid.NewGuid();
-        protected readonly Demands _demands;
+        protected Demands _demands;
         protected readonly IProvider _provider;
         protected readonly IDbMasterDataCache _dbMasterDataCache;
 
-        public Provider(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache)
+        public Provider(IProvider provider, IDbMasterDataCache dbMasterDataCache)
         {
             if (provider == null)
             {
                 throw new MrpRunException("Given provider should not be null.");
             }
-            _demands = demands;
             _provider = provider;
             _dbMasterDataCache = dbMasterDataCache;
         }
@@ -81,5 +81,9 @@ namespace Zpp.ProviderDomain
         {
             return _provider.Provider;
         }
+
+        public abstract Demands CreateNeededDemands(M_Article article,
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            Provider parentProvider, ILotSize lotSize);
     }
 }

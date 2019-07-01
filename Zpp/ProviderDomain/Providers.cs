@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp;
 using Zpp.Utils;
 using Zpp.DemandDomain;
@@ -100,6 +101,11 @@ namespace Zpp.ProviderDomain
         public void Clear()
         {
             _providers.Clear();
+        }
+
+        public List<T_Provider> GetAllAsT_Provider()
+        {
+            return _providers.Select(x => x.ToT_Provider()).ToList();
         }
     }
 }

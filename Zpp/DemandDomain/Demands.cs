@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.Interfaces;
@@ -129,6 +130,11 @@ namespace Zpp.DemandDomain
             }
 
             return sumQuantity;
+        }
+
+        public List<T_Demand> GetAllAsT_Demand()
+        {
+            return _demands.Select(x => x.ToT_Demand()).ToList();
         }
     }
 }

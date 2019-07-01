@@ -3,6 +3,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.LotSize;
 
 namespace Zpp.ProviderDomain
 {
@@ -11,7 +12,7 @@ namespace Zpp.ProviderDomain
      */
     public class PurchaseOrderPart : Provider, IProviderLogic
     {
-        public PurchaseOrderPart(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache) : base(provider, demands, dbMasterDataCache)
+        public PurchaseOrderPart(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache) : base(provider, dbMasterDataCache)
         {
         }
 
@@ -24,6 +25,13 @@ namespace Zpp.ProviderDomain
         {
             Id articleId = new Id(((T_PurchaseOrderPart)_provider).ArticleId);
             return articleId;
+        }
+
+        public override Demands CreateNeededDemands(M_Article article,
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            Provider parentProvider, ILotSize lotSize)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

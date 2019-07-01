@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -7,52 +8,78 @@ using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.Utils;
 
 namespace Zpp.ProviderDomain
 {
     /**
      * wraps T_ProductionOrder
      */
-    public class ProductionOrder : Provider, IProviderLogic
+    public class ProductionOrder : Provider
     {
-        public ProductionOrder(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache) : base(provider, demands, dbMasterDataCache)
+        public ProductionOrder(IProvider provider, IDbMasterDataCache dbMasterDataCache) : base(
+            provider, dbMasterDataCache)
         {
         }
 
         public static ProductionOrder CreateProductionOrder(Demand demand,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache, ILotSize lotSize)
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            ILotSize lotSize)
         {
-            T_ProductionOrder productionOrder = new T_ProductionOrder();
+            if (!demand.GetArticle().ToBuild)
+            {
+                throw new MrpRunException(
+                    "You are trying to create a productionOrder for a purchaseArticle.");
+            }
+
+            T_ProductionOrder tProductionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            productionOrder.DueTime = demand.GetDueTime().GetValue();
-            productionOrder.Article = demand.GetArticle();
-            productionOrder.ArticleId = demand.GetArticle().Id;
-            productionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
+            tProductionOrder.DueTime = demand.GetDueTime().GetValue();
+            tProductionOrder.Article = demand.GetArticle();
+            tProductionOrder.ArticleId = demand.GetArticle().Id;
+            tProductionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
             // connects this provider with table T_Provider
-            productionOrder.Provider = new T_Provider();
-            productionOrder.Quantity = lotSize.GetCalculatedQuantity().GetValue();
+            tProductionOrder.Provider = new T_Provider();
+            tProductionOrder.Quantity = lotSize.GetCalculatedQuantity().GetValue();
 
-            Demands newDemands = CreateProductionOrderBoms(demand,
-                dbTransactionData, dbMasterDataCache, productionOrder, lotSize);
+            ProductionOrder productionOrder =
+                new ProductionOrder(tProductionOrder, dbMasterDataCache);
+            productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData, dbMasterDataCache,
+                productionOrder, lotSize);
 
-            return new ProductionOrder(productionOrder, newDemands, dbMasterDataCache);
+
+            return productionOrder;
         }
 
-        private static Demands CreateProductionOrderBoms(Demand demand,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache, IProvider parentProductionOrder, ILotSize lotSize)
+        private static Demands CreateProductionOrderBoms(M_Article article,
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            Provider parentProductionOrder, ILotSize lotSize)
         {
-            M_Article readArticle = dbTransactionData.M_ArticleGetById(demand.GetArticle().GetId());
+            M_Article readArticle = dbTransactionData.M_ArticleGetById(article.GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
-                List<Demand> productionOrderBoms = new List<Demand>();
+                List<Demand> newDemands = new List<Demand>();
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
-                    ProductionOrderBom productionOrderBom = ProductionOrderBom.CreateProductionOrderBom(articleBom,
-                        parentProductionOrder, dbMasterDataCache, lotSize);
-                    productionOrderBoms.Add(productionOrderBom);
+                    Id articleChildId = new Id(articleBom.ArticleChildId);
+                    M_Article childArticle = dbMasterDataCache.M_ArticleGetById(articleChildId);
+                    Demand newDemand;
+                    if (childArticle.ToBuild)
+                    {
+                        newDemand =
+                            ProductionOrderBom.CreateProductionOrderBom(articleBom,
+                                parentProductionOrder, dbMasterDataCache, lotSize);
+                    }
+                    else
+                    {
+                        // TODO: T_StockExchange
+                        throw new NotImplementedException();
+
+                    }
+                    newDemands.Add(newDemand);   
                 }
 
-                return new ProductionOrderBoms(productionOrderBoms);
+                return new ProductionOrderBoms(newDemands);
             }
 
             return null;
@@ -67,6 +94,15 @@ namespace Zpp.ProviderDomain
         {
             Id articleId = new Id(((T_ProductionOrder) _provider).ArticleId);
             return articleId;
+        }
+
+        public override Demands CreateNeededDemands(M_Article article,
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            Provider parentProvider, ILotSize lotSize)
+        {
+            _demands = CreateProductionOrderBoms(article, dbTransactionData, dbMasterDataCache,
+                parentProvider, lotSize);
+            return _demands;
         }
     }
 }

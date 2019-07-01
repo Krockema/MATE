@@ -108,7 +108,7 @@ namespace Zpp
             dbTransactionData.ProvidersAddAll(providers);
             dbTransactionData.DemandsAddAll(finalAllDemands);
             dbTransactionData.DemandToProviderAddAll(demandToProviders);
-            dbTransactionData.PersistDbCache();
+            dbTransactionData.PersistDbCache(demandToProviders);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 
@@ -21,6 +22,8 @@ namespace Zpp.DemandDomain
         List<IDemand> GetAllAsIDemand();
 
         List<T> GetAllAs<T>();
+        
+        List<T_Demand> GetAllAsT_Demand();
         
         void OrderDemandsByUrgency();
         

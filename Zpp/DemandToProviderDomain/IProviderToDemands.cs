@@ -16,5 +16,7 @@ namespace Zpp.DemandToProviderDomain
         void AddDemandForProvider(Provider provider, Demand demand);
 
         Provider FindNonExhaustedProvider(Demand demand);
+
+        Providers GetAllProviders();
     }
 }

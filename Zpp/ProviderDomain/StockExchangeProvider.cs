@@ -3,6 +3,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.LotSize;
 
 namespace Zpp.ProviderDomain
 {
@@ -11,7 +12,7 @@ namespace Zpp.ProviderDomain
      */
     public class StockExchangeProvider : Provider, IProviderLogic
     {
-        public StockExchangeProvider(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache) : base(provider, demands, dbMasterDataCache)
+        public StockExchangeProvider(IProvider provider, Demands demands, IDbMasterDataCache dbMasterDataCache) : base(provider, dbMasterDataCache)
         {
         }
 
@@ -25,6 +26,13 @@ namespace Zpp.ProviderDomain
             Id stockId = new Id(((T_StockExchange) _provider).StockId);
             M_Stock stock = _dbMasterDataCache.M_StockGetById(stockId);
             return new Id(stock.ArticleForeignKey);
+        }
+
+        public override Demands CreateNeededDemands(M_Article article,
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            Provider parentProvider, ILotSize lotSize)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

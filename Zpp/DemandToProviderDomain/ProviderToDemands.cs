@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DemandDomain;
@@ -52,6 +53,11 @@ namespace Zpp.DemandToProviderDomain
             }
 
             return null;
+        }
+
+        public Providers GetAllProviders()
+        {
+            return new Providers(_providerToDemands.Keys.ToList());
         }
     }
 }
