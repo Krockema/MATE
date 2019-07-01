@@ -30,7 +30,7 @@ namespace Master40.Controllers
         {
             if (simId == 0) return;
             // using Default Test Values.
-            var simConfig = _agentSimulator.UpdateSettings(1011, orderAmount, arivalRate, estimatedThroughputTime);
+            var simConfig = _agentSimulator.UpdateSettings(simId, orderAmount, arivalRate, estimatedThroughputTime);
             await _agentSimulator.RunAkkaSimulation(simConfig);
         }
 
