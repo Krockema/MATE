@@ -13,6 +13,8 @@ namespace Master40.DB.ReportingModel
         public string Article { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
+        public int SetupTimeStart { get; set; }
+        public int SetupTimeEnd { get; set; }
         public int EstimatedStart { get; set; }
         public int EstimatedEnd { get; set; }
         public string Machine { get; set; }
