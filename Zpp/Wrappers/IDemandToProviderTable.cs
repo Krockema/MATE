@@ -9,5 +9,7 @@ namespace Zpp
         void AddAll(IDemandToProviders demandToProviders);
 
         List<T_DemandToProvider> GetAll();
+
+        IDemandToProviders ToDemandToProviders();
     }
 }

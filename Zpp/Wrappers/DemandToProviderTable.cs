@@ -34,5 +34,10 @@ namespace Zpp
         {
             _demandToProvider.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
         }
+
+        public IDemandToProviders ToDemandToProviders()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

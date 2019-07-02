@@ -32,15 +32,14 @@ namespace Zpp.Test
             
             IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
             
-            int expectedNumberOfDemandsAndProviders = 28;
             IDemands actualDemands = plan.GetDemands();
-            IProviders actualProviders = plan.GetProviders();
-            Assert.True((actualDemands.Size() + 1).Equals(expectedNumberOfDemandsAndProviders), // TODO: why is + 1 needed? 
-                $"Not correct number of demands were created by MrpRun: Expected " 
-                + $"{expectedNumberOfDemandsAndProviders}, Actual {actualProviders.Size()}");
-            Assert.True(actualProviders.Size() == expectedNumberOfDemandsAndProviders, 
-                $"No providers were created by MrpRun: Expected {expectedNumberOfDemandsAndProviders}, " +
-                $"Actual {actualProviders.Size()}");
+
+            foreach (var demand in actualDemands.GetAll())
+            {
+                bool isSatisfied = !plan.GetDemandToProviders().ToDemandToProviders()
+                    .IsSatisfied(demand);
+                Assert.True(isSatisfied, "The demand should be satisfied, but it is NOT.");
+            }
 
             // check certain constraints are not violated
             

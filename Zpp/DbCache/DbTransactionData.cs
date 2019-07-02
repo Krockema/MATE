@@ -49,12 +49,6 @@ namespace Zpp
         // providers
         private readonly ProductionOrders _productionOrders;
 
-        private readonly PurchaseOrders _purchaseOrders;
-
-
-        private readonly Dictionary<BaseEntity, bool> _wasTableChanged =
-            new Dictionary<BaseEntity, bool>();
-
         public DbTransactionData(ProductionDomainContext productionDomainContext, IDbMasterDataCache dbMasterDataCache)
         {
             _productionDomainContext = productionDomainContext;
@@ -78,7 +72,6 @@ namespace Zpp
             
             _productionOrders = new ProductionOrders(new List<T_ProductionOrder>(), _dbMasterDataCache);
             _purchaseOrderParts = new PurchaseOrderParts(new List<T_PurchaseOrderPart>(), _dbMasterDataCache);
-            _purchaseOrders = new PurchaseOrders(new List<T_PurchaseOrder>());
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -134,6 +127,15 @@ namespace Zpp
             validateT_Demands(tProductionOrderBoms, tDemands);
             InsertOrUpdateRange(tProductionOrderBoms,
                 _productionDomainContext.ProductionOrderBoms);
+            
+            // T_ProductionOrderOperation
+            List<T_ProductionOrderOperation> tProductionOrderOperations = new List<T_ProductionOrderOperation>();
+            foreach (var tProductionOrderBom in tProductionOrderBoms)
+            {
+                tProductionOrderOperations.Add(tProductionOrderBom.ProductionOrderOperation);
+            }
+            InsertOrUpdateRange(tProductionOrderOperations,
+                _productionDomainContext.ProductionOrderOperations);
 
             // T_StockExchange demands
             List<T_StockExchange> tStockExchangeDemands =
@@ -141,8 +143,6 @@ namespace Zpp
             validateT_StockExchangeDemands(tStockExchangeDemands, tDemands);
             InsertOrUpdateRange(tStockExchangeDemands,
                 _productionDomainContext.StockExchanges);
-            
-            _productionDomainContext.SaveChanges();
 
             // T_StockExchange providers
             List<T_StockExchange> tStockExchangesProviders =
@@ -164,14 +164,16 @@ namespace Zpp
             validateT_Providers(tPurchaseOrderParts, tProviders);
             InsertOrUpdateRange(tPurchaseOrderParts,
                 _productionDomainContext.PurchaseOrderParts);
-            
-            _productionDomainContext.SaveChanges();
 
-            // at the end: T_DemandToProvider
-            InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(),
+            List<T_PurchaseOrder> tPurchaseOrders = new List<T_PurchaseOrder>();
+            foreach (var tPurchaseOrderPart in tPurchaseOrderParts)
+            {
+                tPurchaseOrders.Add(tPurchaseOrderPart.PurchaseOrder);
+            }
+            InsertOrUpdateRange(tPurchaseOrders,
                 _productionDomainContext.PurchaseOrders);
             
-            
+            // at the end: T_DemandToProvider
             InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);
 
             try
@@ -262,12 +264,6 @@ namespace Zpp
                 dbSet.Update(entity);
             }
         }
-
-        public void PurchaseOrderAdd(PurchaseOrder purchaseOrder)
-        {
-            _purchaseOrders.Add(purchaseOrder);
-        }
-
 
         public void DemandsAdd(Demand demand)
         {

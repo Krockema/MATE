@@ -27,8 +27,6 @@ namespace Zpp
 
         void PersistDbCache(IDemandToProviders demandToProviders);
 
-        void PurchaseOrderAdd(PurchaseOrder purchaseOrder);
-
         void DemandsAdd(Demand demand);
         
         void DemandsAddAll(Demands demands);
