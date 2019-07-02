@@ -7,30 +7,33 @@ using MathNet.Numerics.Distributions;
 using System.Threading.Tasks;
 using Master40.DB.DataModel;
 using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Environment;
+using Master40.SimulationCore.Environment.Options;
 
 namespace Master40.SimulationCore.Helper
 {
     public static class OrderGenerator
     {
-        public static Task GenerateOrders(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber)
+        public static Task GenerateOrders(ProductionDomainContext context, Configuration simConfig)
         {
             return Task.Run(() =>
             {
-                GenerateOrdersSyncron(context, simConfig, simulationNumber, false);
+                GenerateOrdersSyncron(context, simConfig, false);
             });
         }
 
-        public static bool GenerateOrdersSyncron(ProductionDomainContext context, SimulationConfiguration simConfig, int simulationNumber, bool debug)
+        public static bool GenerateOrdersSyncron(ProductionDomainContext context, Configuration simConfig, bool debug = false)
         {
             var time = 0;
-            var samples = simConfig.OrderQuantity;
-            var seed = new Random(simConfig.Seed + simulationNumber);
+            var samples = simConfig.GetOption<OrderQuantity>().Value;
+            var seed = new Random(simConfig.GetOption<Seed>().Value 
+                                + simConfig.GetOption<SimulationNumber>().Value);
             var productIds = context.ArticleBoms
                                     .Where(b => b.ArticleParentId == null)
                                     .Select(a => a.ArticleChildId)
                                     .ToList();
 
-            var dist = new Exponential(rate: simConfig.OrderRate, randomSource: seed);
+            var dist = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value, randomSource: seed);
             //get equal distribution from 0 to 1
             var norml = new DiscreteUniform(0, productIds.Count() - 1, seed);
             //get equal distribution for duetime
@@ -75,11 +78,11 @@ namespace Master40.SimulationCore.Helper
             {
                 var sample = dist.Sample();
                 var round = Math.Round(sample*5, MidpointRounding.AwayFromZero);
-                if (sample < 5 || sample > 5)
-                {
-                    var a = 1;
-                }
-                samples.Add( (int)round);
+                // if (sample < 5 || sample > 5)
+                // {
+                //     var a = 1;
+                // }
+                samples.Add((int)round);
             }
             return samples;
         }
@@ -91,7 +94,7 @@ namespace Master40.SimulationCore.Helper
             SystemRandomSource randomSource = new SystemRandomSource(seed);
             var dist = new Exponential(rate: 0.25, randomSource: new Random(seed));
 
-            double[] list = new double[1000];
+            double[] list = new double[samples];
             dist.Samples(list);
             for(var i=0;i<list.Count();i++)
             {

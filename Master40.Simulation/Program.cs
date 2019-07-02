@@ -1,14 +1,11 @@
 ﻿using Master40.DB.Data.Context;
-using Master40.DB.ReportingModel;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Configuration;
-using System.Linq;
 using Master40.DB.Enums;
 using Master40.Simulation.CLI;
-using Master40.Simulation.CLI.Arguments;
+using Master40.SimulationCore.Environment.Options;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 
 namespace Master40.Simulation
 {
@@ -18,8 +15,8 @@ namespace Master40.Simulation
         {
             Console.WriteLine("Welcome to AkkaSim Cli");
 
-            var masterDb = GetMasterDBContext();
-            var resultDb = GetResultDBContext();
+            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[0]);
+            var resultDb = ResultContext.GetContext(ConfigurationManager.AppSettings[1]);
             var validCommands = Commands.GetCommands();
             var command = validCommands.Single(x => x.ArgLong == "Help");
             var lastArg = 0;
@@ -54,9 +51,28 @@ namespace Master40.Simulation
                     break;
                 case SimulationType.Decentral:
                     Console.WriteLine("Starting AkkaSim.");
-                    var agentCore = new AgentCore(masterDb, resultDb, new ConsoleHub());
-                    var simConfig = agentCore.UpdateSettings(results.ConfigId, 550,0.0275, 800);
-                    await agentCore.RunAkkaSimulation(simConfig);
+                    var agentCore = new AgentCore(masterDb
+                                                , new ConsoleHub());
+                    
+                    // ToDo Match Command and Update Settings.
+                    await agentCore.RunAkkaSimulation(SimulationCore.Environment.Configuration.Create(new object[]
+                                                {
+                                                    new DBConnectionString(ConfigurationManager.AppSettings[1])
+                                                    , new SimulationId(results.ConfigId)
+                                                    , new SimulationNumber(1)
+                                                    , new SimulationKind(SimulationType.Decentral)
+                                                    , new OrderArrivalRate(0.0275)
+                                                    , new OrderQuantity(550)
+                                                    , new EstimatedThroughPut(800)
+                                                    , new DebugAgents(false)
+                                                    , new DebugSystem(false)
+                                                    , new KpiTimeSpan(480)
+                                                    , new Seed(1337)
+                                                    , new SettlingStart(2880)
+                                                    , new SimulationEnd(20160)
+                                                    , new WorkTimeDeviation(0.2)
+                                                    , new SaveToDB(false)
+                                                }));
                     break;
                 default:
                     Console.WriteLine("Ooops. Something went wrong!");
@@ -76,25 +92,6 @@ namespace Master40.Simulation
             }
             return false;
         }
-
-
-        private static ProductionDomainContext GetMasterDBContext()
-        {
-            var defaultConnectionString = ConfigurationManager.AppSettings[0];
-            return new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(defaultConnectionString)
-                .Options);
-        }
-
-        private static ResultContext GetResultDBContext()
-        {
-
-            var resultConnectionString = ConfigurationManager.AppSettings[1];
-            return new ResultContext(new DbContextOptionsBuilder<ResultContext>()
-                .UseSqlServer(resultConnectionString)
-                .Options);
-        }
-
     }
 
 }
