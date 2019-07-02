@@ -261,7 +261,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 WorkScheduleName = ws.Operation.Name,
                 DueTime = (int)ws.DueTime,
                 EstimatedEnd = (int)ws.EstimatedEnd,
-                SimulationConfigurationId = -1,
+                SimulationConfigurationId = agent.simulationId.Value,
+                SimulationNumber = agent.simulationNumber.Value,
+                SimulationType = agent.simulationKind.Value,
                 OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.Operation.HierarchyNumber,
                 ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
@@ -301,19 +303,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
-
-        private void UpdateSimulationId(Collector agent, int simulationId, SimulationType simluationType, int simNumber)
-        {
-
-            var simItems = simulationWorkschedules.Where(x => x.SimulationConfigurationId == -1).ToList();
-            foreach (var item in simItems)
-            {
-                item.SimulationConfigurationId = simulationId;
-                item.SimulationType = simluationType;
-                item.SimulationNumber = simNumber;
-            }
-        }
-
+        
         private void UpdateSimulationWorkItemProvider(UpdateSimulationWorkProvider uswp)
         {
             foreach (var agentId in uswp.ProductionAgents)
