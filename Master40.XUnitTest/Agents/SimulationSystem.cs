@@ -20,10 +20,13 @@ namespace Master40.XUnitTest.Agents
 {
     public class SimulationSystem : TestKit
     {
+        private string localdb = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private int simNr = 999;
+
         ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                                                             .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                             .Options);
-
+        
         ProductionDomainContext _masterDBContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
@@ -37,7 +40,8 @@ namespace Master40.XUnitTest.Agents
             _ctx.Database.EnsureDeleted();
             _ctx.Database.EnsureCreated();
             //MasterDBInitializerMedium.DbInitialize(_ctx);
-            MasterDBInitializerSmall.DbInitialize(_ctx);
+            //MasterDBInitializerSmall.DbInitialize(_ctx);
+            MasterDBInitializerSimple.DbInitialize(_ctx);
             // MasterDBInitializerLarge.DbInitialize(_ctx);
             //_productionDomainContext.Database.EnsureDeleted();
             //_productionDomainContext.Database.EnsureCreated();
@@ -48,29 +52,36 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
+            
+
             var simContext = new AgentSimulation(true, _ctx, new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(new object[]
                                                 {
-                                                    new DBConnectionString("")
+                                                    // set ResultDBString and set SaveToDB true
+                                                    new DBConnectionString(localdb)
                                                     , new SimulationId(1)
-                                                    , new SimulationNumber(1)
+                                                    , new SimulationNumber(simNr)
                                                     , new SimulationKind(SimulationType.Decentral)
                                                     , new OrderArrivalRate(0.0275)
-                                                    , new OrderQuantity(550)
+                                                    , new OrderQuantity(50)
                                                     , new EstimatedThroughPut(800)
                                                     , new DebugAgents(false)
-                                                    , new DebugSystem(true)
+                                                    , new DebugSystem(false)
                                                     , new KpiTimeSpan(480)
                                                     , new Seed(1337)
                                                     , new SettlingStart(2880)
                                                     , new SimulationEnd(20160)
                                                     , new WorkTimeDeviation(0.2)
-                                                    , new SaveToDB(false)
+                                                    , new SaveToDB(true)
                                                 });
             // simConfig.OrderQuantity = 0;
-            var simModelConfig = new SimulationConfig(false, 480);
+   
+            //var simModelConfig = new SimulationConfig(false, 480);
             var simulation = await simContext.InitializeSimulation(simConfig);
+
+            emtpyResultDB(simConfig.GetOption<SimulationNumber>());
+
 
             // simulation.ActorSystem.EventStream.Subscribe(testProbe, typeof(DirectoryAgent.Instruction.CreateMachineAgents));
 
@@ -82,14 +93,28 @@ namespace Master40.XUnitTest.Agents
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                AgentSimulation.Continuation(simModelConfig.Inbox
+                AgentSimulation.Continuation(simContext.SimulationConfig.Inbox
                                             , simulation
                                             , new List<IActorRef> { simContext.StorageCollector
-                                                                    , simContext.WorkCollector });
+                                                                    , simContext.WorkCollector
+                                                                    , simContext.ContractCollector
+                                            });
                 await sim;
             }
             
             Assert.True(simWasReady);
+        }
+
+        private void emtpyResultDB(SimulationNumber simNr)
+        {
+            var _simNr = simNr;
+            using (var _ctx = ResultContext.GetContext(localdb))
+            {
+                _ctx.RemoveRange(_ctx.SimulationOperations.Where(a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctx.RemoveRange(_ctx.Kpis.Where(a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctx.RemoveRange(_ctx.StockExchanges.Where(a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctx.SaveChanges();
+            }
         }
     }
 }

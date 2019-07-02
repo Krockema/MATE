@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }
 
-        private void UpdateFeed(Collector agent, bool logToDb)
+        private void UpdateFeed(Collector agent, bool writeResultsToDB)
         {
             if (machines.Count == 0)
             {
@@ -73,18 +73,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             lastIntervalStart = agent.Time;
 
 
-            LogToDB(agent);
+            LogToDB(agent, writeResultsToDB);
             
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
 
-        private void LogToDB(Collector agent)
+        private void LogToDB(Collector agent, bool writeResultsToDB)
         {
-            if (agent.saveToDB.Value)
+            if (agent.saveToDB.Value &&  writeResultsToDB)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SimulationOperations.AddRange(simulationWorkschedules.Select(x => { x.Id = 0; return x; }));
+                    ctx.SimulationOperations.AddRange(simulationWorkschedules);
                     ctx.Kpis.AddRange(Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -261,7 +261,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 WorkScheduleName = ws.Operation.Name,
                 DueTime = (int)ws.DueTime,
                 EstimatedEnd = (int)ws.EstimatedEnd,
-                SimulationConfigurationId = -1,
+                SimulationConfigurationId = agent.simulationId.Value,
+                SimulationNumber = agent.simulationNumber.Value,
                 OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.Operation.HierarchyNumber,
                 ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",

@@ -40,7 +40,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             return true;
         }
 
-        private void UpdateFeed(Collector agent, bool logToDB)
+        private void UpdateFeed(Collector agent, bool writeResultsToDB)
         {
             
             agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from Storage");
@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
 
 
-            LogToDB(agent);
+            LogToDB(agent, writeResultsToDB);
             
 
             lastIntervalStart = agent.Time;
@@ -92,13 +92,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         }
 
-        private void LogToDB(Collector agent)
+        private void LogToDB(Collector agent, bool writeResultsToDB)
         {
-            if (agent.saveToDB.Value)
+            if (agent.saveToDB.Value && writeResultsToDB)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.Kpis.AddRange(StockValuesOverTime);
+                    ctx.Kpis.AddRange(StockValuesOverTime.Select(x => { x.Id = 0; return x; }));
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

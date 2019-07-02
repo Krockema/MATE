@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.Simulation;
+using Master40.SimulationCore.Environment.Options;
+using Master40.DB.Enums;
 
 namespace Master40.Controllers
 {
@@ -30,7 +32,24 @@ namespace Master40.Controllers
         {
             if (simId == 0) return;
             // using Default Test Values.
-            var simConfig = _agentSimulator.UpdateSettings(simId, orderAmount, arivalRate, estimatedThroughputTime);
+            var simConfig = SimulationCore.Environment.Configuration.Create(new object[]
+                                                {
+                                                    new DBConnectionString("")
+                                                    , new SimulationId(simId)
+                                                    , new SimulationNumber(1)
+                                                    , new SimulationKind(SimulationType.Decentral)
+                                                    , new OrderArrivalRate(arivalRate)
+                                                    , new OrderQuantity(orderAmount)
+                                                    , new EstimatedThroughPut(estimatedThroughputTime)
+                                                    , new DebugAgents(false)
+                                                    , new DebugSystem(false)
+                                                    , new KpiTimeSpan(480)
+                                                    , new Seed(1337)
+                                                    , new SettlingStart(2880)
+                                                    , new SimulationEnd(20160)
+                                                    , new WorkTimeDeviation(0.2)
+                                                    , new SaveToDB(false)
+                                                });
             await _agentSimulator.RunAkkaSimulation(simConfig);
         }
 

@@ -94,7 +94,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             finishedOrderParts = 0;
 
 
-            WriteToDB(agent);
+            WriteToDB(agent, writeResultsToDB);
             
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
@@ -131,9 +131,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             toUpdate.FinishingTime = (int)item.FinishedAt;
         }
 
-        private void WriteToDB(Collector agent)
+        private void WriteToDB(Collector agent, bool saveNow)
         {
-            if (agent.saveToDB.Value)
+            if (agent.saveToDB.Value && saveNow)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {

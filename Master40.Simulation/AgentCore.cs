@@ -42,9 +42,9 @@ namespace Master40.Simulation
             var _inMemory = InMemoryContext.CreateInMemoryContext();
             // InMemoryContext.LoadData(_context, _inMemory);
             // MMT 01.07.2019
-            MasterDBInitializerSmall.DbInitialize(_inMemory);
+            //MasterDBInitializerSmall.DbInitialize(_inMemory);
 
-            //MasterDBInitializerSimple.DbInitialize(_inMemory);
+            MasterDBInitializerSimple.DbInitialize(_inMemory);
 
             PrepareModel(_inMemory);
             
