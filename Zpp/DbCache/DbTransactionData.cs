@@ -13,6 +13,7 @@ using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using Zpp;
 using Zpp.DemandToProviderDomain;
+using Zpp.Utils;
 
 namespace Zpp
 {
@@ -107,38 +108,71 @@ namespace Zpp
             // --> readOnly
 
             // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
+            // TODO: remove validate* calls, these should be in unitTests
+            // TODO: SaveChanges at the end only once
             
-            // first T_Demand, T_Provider
-            InsertOrUpdateRange(demandToProviders.ToT_Demands(),
+            // first T_Demand
+            List<T_Demand> tDemands = demandToProviders.ToT_Demands();
+            T_Demand dummyT_Demand = new T_Demand();
+            dummyT_Demand.Id = 0;
+            tDemands.Add(dummyT_Demand);
+            InsertOrUpdateRange(tDemands,
                 _productionDomainContext.Demands);
-            _productionDomainContext.SaveChanges();
-            InsertOrUpdateRange(demandToProviders.ToT_Providers(),
+
+            // T_Provider
+            List<T_Provider> tProviders = demandToProviders.ToT_Providers();
+            T_Provider dummyT_Provider = new T_Provider();
+            dummyT_Provider.Id = 0;
+            tProviders.Add(dummyT_Provider);
+            InsertOrUpdateRange(tProviders,
                 _productionDomainContext.Providers);
             _productionDomainContext.SaveChanges();
             
-            // then demands
-            InsertOrUpdateRange(_productionOrderBoms.GetAllAs<T_ProductionOrderBom>(),
+            // T_ProductionOrderBom
+            List<T_ProductionOrderBom> tProductionOrderBoms =
+                _productionOrderBoms.GetAllAs<T_ProductionOrderBom>();
+            validateT_Demands(tProductionOrderBoms, tDemands);
+            InsertOrUpdateRange(tProductionOrderBoms,
                 _productionDomainContext.ProductionOrderBoms);
-            InsertOrUpdateRange(_stockExchangeDemands.GetAllAs<T_StockExchange>(),
+
+            // T_StockExchange demands
+            List<T_StockExchange> tStockExchangeDemands =
+                _stockExchangeDemands.GetAllAs<T_StockExchange>();
+            validateT_StockExchangeDemands(tStockExchangeDemands, tDemands);
+            InsertOrUpdateRange(tStockExchangeDemands,
                 _productionDomainContext.StockExchanges);
-            InsertOrUpdateRange(_stockExchangeProviders.GetAllAs<T_StockExchange>(),
-                _productionDomainContext.StockExchanges);
+            
             _productionDomainContext.SaveChanges();
-            // the providers
-            InsertOrUpdateRange(_productionOrders.GetAllAs<T_ProductionOrder>(),
+
+            // T_StockExchange providers
+            List<T_StockExchange> tStockExchangesProviders =
+                _stockExchangeProviders.GetAllAs<T_StockExchange>();
+            validateT_StockExchangeProviders(tStockExchangesProviders, tProviders);
+            InsertOrUpdateRange(tStockExchangesProviders,
+                _productionDomainContext.StockExchanges);
+
+            // T_ProductionOrder
+            List<T_ProductionOrder> tProductionOrders =
+                _productionOrders.GetAllAs<T_ProductionOrder>();
+            validateT_Providers(tProductionOrders, tProviders);
+            InsertOrUpdateRange(tProductionOrders,
                 _productionDomainContext.ProductionOrders);
-            InsertOrUpdateRange(_purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>(),
+            
+            // T_PurchaseOrderPart
+            List<T_PurchaseOrderPart> tPurchaseOrderParts =
+                _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>();
+            validateT_Providers(tPurchaseOrderParts, tProviders);
+            InsertOrUpdateRange(tPurchaseOrderParts,
                 _productionDomainContext.PurchaseOrderParts);
+            
             _productionDomainContext.SaveChanges();
 
             // at the end: T_DemandToProvider
             InsertOrUpdateRange(_purchaseOrders.GetAllAsT_PurchaseOrder(),
                 _productionDomainContext.PurchaseOrders);
             
-            // TODO: First all T_Provider & T_Demands must be persisted before T_ProductionOrder, ...
             
-            // TODO: Enable
-            // InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);
+            InsertOrUpdateRange(_demandToProviderTable.GetAll(), _productionDomainContext.DemandToProviders);
 
             try
             {
@@ -148,6 +182,57 @@ namespace Zpp
             {
                 Logger.Error("DbCache could not be persisted.");
                 throw e;
+            }
+        }
+
+        private void validateT_Demands<T>(List<T> entities, List<T_Demand> tDemands) where T: IDemand
+        {
+            foreach (var entity in entities)
+            {
+                bool found1 = tDemands.Select(x => x.Id.Equals(entity.DemandID)).Any();
+                bool found2 = tDemands.Select(x => x.Id.Equals(entity.Demand.Id)).Any();
+                if (!(found1 && found2))
+                {
+                    throw new MrpRunException("For this demand does no T_Demand exists.");
+                }
+            }
+        }
+        
+        private void validateT_StockExchangeDemands(List<T_StockExchange> entities, List<T_Demand> tDemands)
+        {
+            validateT_Demands(entities, tDemands);
+            foreach (var entity in entities)
+            {
+                if (entity.Provider != null || entity.ProviderId != 0)
+                {
+                    throw new MrpRunException("This is not valid.");
+                }
+            }
+        }
+
+        private void validateT_Providers<T>(List<T> entities, List<T_Provider> tDemands) where T: IProvider
+        {
+            foreach (var entity in entities)
+            {
+                bool found1 = tDemands.Select(x => x.Id.Equals(entity.ProviderId)).Any();
+                bool found2 = tDemands.Select(x => x.Id.Equals(entity.Provider.Id)).Any();
+                if (!(found1 && found2))
+                {
+                    throw new MrpRunException("For this provider does no T_Provider exists.");
+                }
+            }
+        }
+        
+        
+        private void validateT_StockExchangeProviders(List<T_StockExchange> entities, List<T_Provider> tProviders)
+        {
+            validateT_Providers(entities, tProviders);
+            foreach (var entity in entities)
+            {
+                if (entity.Demand != null || entity.DemandID != 0)
+                {
+                    throw new MrpRunException("This is not valid.");
+                }
             }
         }
 
