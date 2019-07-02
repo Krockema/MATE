@@ -27,22 +27,26 @@ namespace Zpp
         {
             // init data structures
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
-            IDbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
             // start
 
             // remove all DemandToProvider entries
             dbTransactionData.DemandToProvidersRemoveAll();
-            
-            foreach (var initialDemand in dbMasterDataCache.T_CustomerOrderPartGetAll())
+
+            foreach (var initialDemand in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll())
             {
-                ProcessDbDemand(dbTransactionData, new CustomerOrderPart(initialDemand, dbMasterDataCache));
+                ProcessDbDemand(dbTransactionData,
+                    new CustomerOrderPart(initialDemand.ToIDemand(), dbMasterDataCache));
             }
 
-            return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(), dbTransactionData.DemandToProviderGetAll());
+            return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(),
+                dbTransactionData.DemandToProviderGetAll(), dbTransactionData);
         }
 
-        private static void ProcessDbDemand(IDbTransactionData dbTransactionData, Demand oneDbDemand)
+        private static void ProcessDbDemand(IDbTransactionData dbTransactionData,
+            Demand oneDbDemand)
         {
             // init
             Providers providers = new Providers();
@@ -80,12 +84,12 @@ namespace Zpp
 
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
-                    Providers providersOfDemand = demand.Satisfy(demandToProviders, dbTransactionData, nextDemandManager);
-                    
+                    Providers providersOfDemand = demand.Satisfy(demandToProviders,
+                        dbTransactionData, nextDemandManager);
+
                     demandToProviders.AddProvidersForDemand(demand, providersOfDemand);
 
                     providers.AddAll(providersOfDemand);
-
                 }
 
                 // final reorganizing
@@ -96,9 +100,10 @@ namespace Zpp
                 {
                     break;
                 }
+
                 finalAllDemands.AddAll(nextDemandManager);
             }
-            
+
             dbTransactionData.ProvidersAddAll(providers);
             dbTransactionData.DemandsAddAll(finalAllDemands);
             dbTransactionData.DemandToProviderAddAll(demandToProviders);

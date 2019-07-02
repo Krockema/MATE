@@ -160,5 +160,10 @@ namespace Zpp.DemandDomain
         {
             return _demand.Demand;
         }
+
+        public Id GetT_DemandId()
+        {
+            return new Id(_demand.DemandID);
+        }
     }
 }

@@ -1,6 +1,10 @@
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Zpp.DemandDomain;
 using Zpp.DemandToProviderDomain;
+using Zpp.ProviderDomain;
+using Zpp.Utils;
 
 namespace Zpp
 {
@@ -9,11 +13,11 @@ namespace Zpp
      */
     public class DemandToProviderTable : IDemandToProviderTable
     {
-        private List<T_DemandToProvider> _demandToProvider = new List<T_DemandToProvider>();
+        private readonly List<T_DemandToProvider> _demandToProviderEntities = new List<T_DemandToProvider>();
 
-        public DemandToProviderTable(List<T_DemandToProvider> demandToProvider)
+        public DemandToProviderTable(List<T_DemandToProvider> demandToProviderEntities)
         {
-            _demandToProvider = demandToProvider;
+            _demandToProviderEntities = demandToProviderEntities;
         }
 
         public DemandToProviderTable()
@@ -22,22 +26,39 @@ namespace Zpp
 
         public DemandToProviderTable(IDemandToProviders demandToProviders)
         {
-            _demandToProvider.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
+            _demandToProviderEntities.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
         }
 
         public List<T_DemandToProvider> GetAll()
         {
-            return _demandToProvider;
+            return _demandToProviderEntities;
         }
 
         public void AddAll(IDemandToProviders demandToProviders)
         {
-            _demandToProvider.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
+            _demandToProviderEntities.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
         }
 
-        public IDemandToProviders ToDemandToProviders()
+        public IDemandToProviders ToDemandToProviders(IDbTransactionData dbTransactionData)
         {
-            throw new System.NotImplementedException();
+            IDemandToProviders demandToProviders = new DemandToProviders();
+            
+            foreach (var demandToProviderEntity in _demandToProviderEntities)
+            {
+                Demand demand =
+                    dbTransactionData.DemandsGetById(new Id(demandToProviderEntity.DemandId));
+                Provider provider =
+                    dbTransactionData.ProvidersGetById(new Id(demandToProviderEntity.ProviderId));
+                if (demand == null || provider == null)
+                {
+                    throw new MrpRunException("Could not find demand or provider.");
+                }
+                
+                demandToProviders.AddProviderForDemand(demand, provider);
+                    
+            }
+
+            return demandToProviders;
         }
     }
 }

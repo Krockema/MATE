@@ -36,7 +36,7 @@ namespace Zpp.Test
 
             foreach (var demand in actualDemands.GetAll())
             {
-                bool isSatisfied = !plan.GetDemandToProviders().ToDemandToProviders()
+                bool isSatisfied = !plan.GetDemandToProviders().ToDemandToProviders(plan.GetDbTransactionData())
                     .IsSatisfied(demand);
                 Assert.True(isSatisfied, "The demand should be satisfied, but it is NOT.");
             }

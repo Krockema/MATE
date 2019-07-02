@@ -34,5 +34,9 @@ namespace Zpp.ProviderDomain
             IDbMasterDataCache dbMasterDataCache, Provider parentProvider, Quantity quantity);
 
         DueTime GetDueTime();
+
+        Id GetId();
+        
+        Id GetT_ProviderId();
     }
 }

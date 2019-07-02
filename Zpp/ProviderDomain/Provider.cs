@@ -107,5 +107,15 @@ namespace Zpp.ProviderDomain
         {
             return _dbMasterDataCache.M_ArticleGetById(GetArticleId());
         }
+
+        public Id GetId()
+        {
+            return new Id(_provider.Id);
+        }
+
+        public Id GetT_ProviderId()
+        {
+            return new Id(_provider.ProviderId);
+        }
     }
 }

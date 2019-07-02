@@ -30,6 +30,8 @@ namespace Zpp.DemandDomain
 
         Id GetId();
 
+        Id GetT_DemandId();
+
         Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData,
             Demands nextDemands);
         

@@ -10,6 +10,6 @@ namespace Zpp
 
         List<T_DemandToProvider> GetAll();
 
-        IDemandToProviders ToDemandToProviders();
+        IDemandToProviders ToDemandToProviders(IDbTransactionData dbTransactionData);
     }
 }

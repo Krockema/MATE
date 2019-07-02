@@ -14,5 +14,7 @@ namespace Zpp
         IProviders GetProviders();
 
         IDemandToProviderTable GetDemandToProviders();
+
+        IDbTransactionData GetDbTransactionData();
     }
 }

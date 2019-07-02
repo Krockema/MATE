@@ -24,5 +24,10 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             return _id.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return _id.ToString();
+        }
     }
 }

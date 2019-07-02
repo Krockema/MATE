@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Zpp.DemandDomain;
 
 namespace Zpp
 {
@@ -50,6 +51,6 @@ namespace Zpp
 
         List<T_CustomerOrder> T_CustomerOrderGetAll();
 
-        List<T_CustomerOrderPart> T_CustomerOrderPartGetAll();
+        Demands T_CustomerOrderPartGetAll();
     }
 }

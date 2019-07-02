@@ -314,6 +314,11 @@ namespace Zpp
             {
                 demands.AddAll(_stockExchangeDemands);
             }
+            
+            if (_dbMasterDataCache.T_CustomerOrderGetAll().Any())
+            {
+                demands.AddAll(_dbMasterDataCache.T_CustomerOrderPartGetAll());
+            }
 
             return demands;
         }
@@ -373,6 +378,16 @@ namespace Zpp
         public IDemandToProviderTable DemandToProviderGetAll()
         {
             return _demandToProviderTable;
+        }
+
+        public Demand DemandsGetById(Id id)
+        {
+            return DemandsGetAll().GetAll().Find(x => x.GetT_DemandId().Equals(id));
+        }
+
+        public Provider ProvidersGetById(Id id)
+        {
+            return ProvidersGetAll().GetAll().Find(x => x.GetT_ProviderId().Equals(id));
         }
     }
 }

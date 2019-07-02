@@ -6,6 +6,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Zpp.DemandDomain;
 
 namespace Zpp
 {
@@ -130,9 +131,15 @@ namespace Zpp
             return _customerOrders.GetAll();
         }
 
-        public List<T_CustomerOrderPart> T_CustomerOrderPartGetAll()
+        public Demands T_CustomerOrderPartGetAll()
         {
-            return _customerOrderParts.GetAll();
+            List<Demand> demands = new List<Demand>();
+            foreach (var demand in _customerOrderParts.GetAll())
+            {
+                demands.Add(new CustomerOrderPart(demand, this));
+            }
+
+            return new Demands(demands);
         }
 
         public BusinessPartners M_ArticleToBusinessPartnerGetAllBusinessPartnersByArticleId(Id articleId)

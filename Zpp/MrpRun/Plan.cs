@@ -10,12 +10,15 @@ namespace Zpp
         private IDemands _demands;
         private IProviders _providers;
         private IDemandToProviderTable _demandToProviderTable;
+        private IDbTransactionData _dbTransactionData;
 
-        public Plan(IDemands demands, IProviders providers, IDemandToProviderTable demandToProviders)
+        public Plan(IDemands demands, IProviders providers,
+            IDemandToProviderTable demandToProviders, IDbTransactionData dbTransactionData)
         {
             _demands = demands;
             _providers = providers;
             _demandToProviderTable = demandToProviders;
+            _dbTransactionData = dbTransactionData;
         }
 
         public IDemands GetDemands()
@@ -31,6 +34,11 @@ namespace Zpp
         public IDemandToProviderTable GetDemandToProviders()
         {
             return _demandToProviderTable;
+        }
+
+        public IDbTransactionData GetDbTransactionData()
+        {
+            return _dbTransactionData;
         }
     }
 }
