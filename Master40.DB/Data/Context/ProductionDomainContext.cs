@@ -10,6 +10,13 @@ namespace Master40.DB.Data.Context
 {
     public class ProductionDomainContext : MasterDBContext
     {
+        public static ProductionDomainContext GetContext(string defaultCon)
+        {
+            return new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                .UseSqlServer(defaultCon)
+                .Options);
+        }
+
         public ProductionDomainContext(DbContextOptions<MasterDBContext> options) : base(options) { }
         
         public T_CustomerOrder OrderById(int id)

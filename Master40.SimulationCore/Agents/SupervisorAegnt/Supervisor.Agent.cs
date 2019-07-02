@@ -6,10 +6,11 @@ using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Environment;
+using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationImmutables;
 using Master40.Tools.SignalR;
@@ -21,8 +22,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
     {
         private ProductionDomainContext _productionDomainContext;
         private IMessageHub _messageHub;
-        private SimulationConfiguration _simConfig;
         private int orderCount = 0;
+        private int _configID;
+        private int _orderMaxQuantity;
+        private long _estimatedThroughPut;
         private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
         private Queue<T_CustomerOrderPart> _orderQueue = new Queue<T_CustomerOrderPart>();
 
@@ -33,10 +36,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                                         , bool debug
                                         , ProductionDomainContext productionDomainContext
                                         , IMessageHub messageHub
-                                        , SimulationConfiguration simConfig
+                                        , Configuration configuration
                                         , IActorRef  principal)
         {
-            return Akka.Actor.Props.Create(() => new Supervisor(actorPaths, time, debug, productionDomainContext, messageHub, simConfig, principal));
+            return Akka.Actor.Props.Create(() => new Supervisor(actorPaths, time, debug, productionDomainContext, messageHub, configuration, principal));
         }
 
         public Supervisor(ActorPaths actorPaths
@@ -44,15 +47,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                                         , bool debug
                                         , ProductionDomainContext productionDomainContext
                                         , IMessageHub messageHub
-                                        , SimulationConfiguration simConfig
+                                        , Configuration configuration
                                         , IActorRef principal) 
             : base(actorPaths, time, debug, principal)
         {
             _productionDomainContext = productionDomainContext;
             _messageHub = messageHub;
-            _simConfig = simConfig;
+            //_configuration = configuration;
+            _orderMaxQuantity = configuration.GetOption<OrderQuantity>().Value;
+            _configID = configuration.GetOption<SimulationId>().Value;
+            _estimatedThroughPut = configuration.GetOption<EstimatedThroughPut>().Value;
             Send(Instruction.PopOrder.Create("Pop", ActorPaths.SystemAgent.Ref), 1);
-            Send(Instruction.EndSimulation.Create(true, Self), _simConfig.SimulationEndTime);
+            Send(Instruction.EndSimulation.Create(true, Self), configuration.GetOption<SimulationEnd>().Value);
         }
 
         protected override void Do(object o)
@@ -111,11 +117,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
 
             if (article == null)
             {
-                article = Queryable.SingleOrDefault(_productionDomainContext.Articles
+                article = Queryable.SingleOrDefault(source: _productionDomainContext.Articles
                                                         .Include(x => x.WorkSchedules)
                                                         .ThenInclude(x => x.MachineGroup)
                                                         .Include(x => x.ArticleBoms)
-                                                        .ThenInclude(x => x.ArticleChild), (System.Linq.Expressions.Expression<Func<M_Article, bool>>)(x => x.Id == requestItem.Article.Id));
+                                                        .ThenInclude(x => x.ArticleChild), 
+                                                    predicate: (x => x.Id == requestItem.Article.Id));
                 _cache.Add((int)requestItem.Article.Id, article);
             }
             // calback with po.bom
@@ -135,7 +142,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             order.FinishingTime = (int)this.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
-            _messageHub.ProcessingUpdate(_simConfig.Id, ++orderCount, SimulationType.Decentral.ToString(), _simConfig.OrderQuantity);
+            _messageHub.ProcessingUpdate(_configID, ++orderCount, SimulationType.Decentral.ToString(), _orderMaxQuantity);
         }
 
         private void End()
@@ -167,7 +174,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                 }
                 else
                 {
-                    long period = orderpart.CustomerOrder.DueTime - (_simConfig.Time); // 1 Tag un 1 Schich
+                    long period = orderpart.CustomerOrder.DueTime - (_estimatedThroughPut); // 1 Tag un 1 Schich
                     if (period < 0) { period = 0; }
                     Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self)
                            , waitFor: period);

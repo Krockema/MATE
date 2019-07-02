@@ -46,6 +46,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                 private OrderProvided(object message, IActorRef target) : base(message, target, true)
                 {
                 }
+                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
 
             public class Inizialized : SimulationMessage
