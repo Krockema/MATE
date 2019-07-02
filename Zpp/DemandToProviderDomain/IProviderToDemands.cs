@@ -1,3 +1,4 @@
+using Master40.DB.DataModel;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 
@@ -15,7 +16,7 @@ namespace Zpp.DemandToProviderDomain
         /// <param name="demand">that is added to a provider</param>
         void AddDemandForProvider(Provider provider, Demand demand);
 
-        Provider FindNonExhaustedProvider(Demand demand);
+        Provider FindNonExhaustedProvider(M_Article article);
 
         Providers GetAllProviders();
     }

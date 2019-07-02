@@ -44,16 +44,27 @@ namespace Zpp.ProviderDomain
 
             ProductionOrder productionOrder =
                 new ProductionOrder(tProductionOrder, dbMasterDataCache);
-            productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData, dbMasterDataCache,
-                productionOrder, lotSize);
+            
+            productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData,
+                dbMasterDataCache, productionOrder, productionOrder.GetQuantity());
 
 
             return productionOrder;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="article"></param>
+        /// <param name="dbTransactionData"></param>
+        /// <param name="dbMasterDataCache"></param>
+        /// <param name="parentProductionOrder"></param>
+        /// <param name="quantity">of production article to produce
+        /// --> is used for childs as: articleBom.Quantity * quantity</param>
+        /// <returns></returns>
         private static Demands CreateProductionOrderBoms(M_Article article,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProductionOrder, ILotSize lotSize)
+            Provider parentProductionOrder, Quantity quantity)
         {
             M_Article readArticle = dbTransactionData.M_ArticleGetById(article.GetId());
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
@@ -66,17 +77,17 @@ namespace Zpp.ProviderDomain
                     Demand newDemand;
                     if (childArticle.ToBuild)
                     {
-                        newDemand =
-                            ProductionOrderBom.CreateProductionOrderBom(articleBom,
-                                parentProductionOrder, dbMasterDataCache, lotSize);
+                        newDemand = ProductionOrderBom.CreateProductionOrderBom(articleBom,
+                            parentProductionOrder, dbMasterDataCache, quantity);
                     }
                     else
                     {
-                        // TODO: T_StockExchange
-                        throw new NotImplementedException();
-
+                        newDemand =
+                            StockExchangeDemand.CreateStockExchangeProductionOrderDemand(articleBom,
+                                parentProductionOrder.GetDueTime(), dbMasterDataCache);
                     }
-                    newDemands.Add(newDemand);   
+
+                    newDemands.Add(newDemand);
                 }
 
                 return new ProductionOrderBoms(newDemands);
@@ -98,10 +109,10 @@ namespace Zpp.ProviderDomain
 
         public override Demands CreateNeededDemands(M_Article article,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProvider, ILotSize lotSize)
+            Provider parentProvider, Quantity quantity)
         {
             _demands = CreateProductionOrderBoms(article, dbTransactionData, dbMasterDataCache,
-                parentProvider, lotSize);
+                parentProvider, quantity);
             return _demands;
         }
     }

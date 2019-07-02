@@ -26,7 +26,6 @@ namespace Zpp.Simulation
         // MRP modules
         private readonly DbTransactionData _dbTransactionData;
 
-        private readonly StockManager _stockManager;
         
 
         // private readonly PurchaseManager _purchaseManager;

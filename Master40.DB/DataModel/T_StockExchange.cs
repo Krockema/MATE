@@ -16,6 +16,7 @@ namespace Master40.DB.DataModel
         public int RequiredOnTime { get; set; }
         public State State { get; set; }
         public decimal Quantity { get; set; }
+        // time of withdrawal/insert (wird von der Simulation belegt bei erfullung des Requests)id
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
 
@@ -26,12 +27,9 @@ namespace Master40.DB.DataModel
 
         public T_StockExchange()
         {
-            // it must be always a T_Demand created for every IDemand
-            Demand = new T_Demand();
-            Provider = new T_Provider();
-            // TODO: is a new StockExchange a demand and a provider?
+            
         }
-        
+
         public M_Article GetArticle()
         {
             return Stock.Article;

@@ -169,5 +169,18 @@ namespace Zpp
 
             return articleToBusinessPartners;
         }
+
+        public M_Stock M_StockGetByArticleId(Id articleId)
+        {
+            M_Article article = M_ArticleGetById(articleId);
+            if (article.Stock == null)
+            { // init stocks for all articles
+                foreach (var stock in _stocks.GetAll())
+                {
+                    M_ArticleGetById(new Id(stock.ArticleForeignKey)).Stock = stock;
+                }
+            }
+            return article.Stock;
+        }
     }
 }

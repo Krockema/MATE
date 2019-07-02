@@ -16,12 +16,21 @@ namespace Zpp.DemandDomain
         }
         
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="articleBom"></param>
+        /// <param name="productionOrder"></param>
+        /// <param name="dbMasterDataCache"></param>
+        /// <param name="quantity">of production article to produce
+        /// --> is used for childs as: articleBom.Quantity * quantity</param>
+        /// <returns></returns>
         public static ProductionOrderBom CreateProductionOrderBom(M_ArticleBom articleBom,
-            Provider productionOrder, IDbMasterDataCache dbMasterDataCache,  ILotSize lotSize)
+            Provider productionOrder, IDbMasterDataCache dbMasterDataCache, Quantity quantity)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
-            productionOrderBom.Quantity = articleBom.Quantity * lotSize.GetCalculatedQuantity().GetValue();
+            productionOrderBom.Quantity = articleBom.Quantity * quantity.GetValue();
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent = (T_ProductionOrder) productionOrder.ToIProvider();
             productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;

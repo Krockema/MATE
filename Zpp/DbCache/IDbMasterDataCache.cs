@@ -39,6 +39,8 @@ namespace Zpp
         M_Operation M_OperationGetById(Id id);
 
         M_Stock M_StockGetById(Id id);
+        
+        M_Stock M_StockGetByArticleId(Id articleId);
 
         M_Unit M_UnitGetById(Id id);
 

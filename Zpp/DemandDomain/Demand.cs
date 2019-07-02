@@ -38,6 +38,8 @@ namespace Zpp.DemandDomain
         public Provider CreateProvider(IDbTransactionData dbTransactionData, Quantity quantity)
         {
             M_Article article = GetArticle();
+
+            // make or buy
             ILotSize lotSize = new LotSize.LotSize(quantity, GetArticleId());
             if (article.ToBuild)
             {
@@ -48,58 +50,12 @@ namespace Zpp.DemandDomain
                 return productionOrder;
             }
 
-            // TODO: remove all parameters fo methods, where only "this" is given to it
-            return createPurchaseOrderPart(this, lotSize);
-        }
-
-        private Provider createPurchaseOrderPart(Demand demand, ILotSize lotSize)
-        {
-            // currently only one businessPartner per article TODO: This could be changing
-            M_ArticleToBusinessPartner articleToBusinessPartner =
-                _dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(
-                    demand.GetArticleId())[0];
-            M_BusinessPartner businessPartner =
-                _dbMasterDataCache.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
-                    .BusinessPartnerId));
-            T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
-            // [Name],[DueTime],[BusinessPartnerId]
-            purchaseOrder.DueTime = GetDueTime().GetValue();
-            purchaseOrder.BusinessPartner = businessPartner;
-            purchaseOrder.Name = $"PurchaseOrder{GetArticle().Name} for " +
-                                 $"businessPartner {purchaseOrder.BusinessPartner.Id}";
-
-
-            // demand cannot be fulfilled in time
-            if (articleToBusinessPartner.DueTime > GetDueTime().GetValue())
-            {
-                Logger.Error($"Article {GetArticle().Id} from demand {demand.GetId()} " +
-                             $"should be available at {GetDueTime()}, but " +
-                             $"businessPartner {articleToBusinessPartner.BusinessPartner.Id} " +
-                             $"can only deliver at {articleToBusinessPartner.DueTime}.");
-            }
-
-            // init a new purchaseOderPart
-            T_PurchaseOrderPart purchaseOrderPart = new T_PurchaseOrderPart();
-
-            // [PurchaseOrderId],[ArticleId],[Quantity],[State],[ProviderId]
-            purchaseOrderPart.PurchaseOrder = purchaseOrder;
-            purchaseOrderPart.Article = GetArticle();
-            purchaseOrderPart.Quantity =
-                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    lotSize.GetCalculatedQuantity()) *
-                articleToBusinessPartner
-                    .PackSize; // TODO: is amount*packSize in var quantity correct?
-            purchaseOrderPart.State = State.Created;
-            // connects this provider with table T_Provider
-            purchaseOrderPart.Provider = new T_Provider();
-
-
-            Logger.Debug("PurchaseOrderPart created.");
-            return new PurchaseOrderPart(purchaseOrderPart, null, _dbMasterDataCache);
+            // TODO: revisit all methods that have this as parameter
+            return PurchaseOrderPart.CreatePurchaseOrderPart(this, lotSize, _dbMasterDataCache);
         }
 
 
-        // TODO: use this
+        // TODO: use this method
         private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
         {
             return dueTime - operationDuration - currentTime;
@@ -152,26 +108,44 @@ namespace Zpp.DemandDomain
             IDbTransactionData dbTransactionData, Demands nextDemands)
         {
             Providers providers = new Providers();
-            Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(this);
-            Quantity newQuantity = null;
+
+            // use existing provider, if one is not exhausted
+            Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(GetArticle());
+            Quantity unsatisfiedQuantity = GetQuantity();
+            Quantity nullQuantity = new Quantity(0);
             if (nonExhaustedProvider != null)
             {
-                newQuantity = GetQuantity().Minus(nonExhaustedProvider.GetQuantity());
+                unsatisfiedQuantity = unsatisfiedQuantity.Minus(nonExhaustedProvider.GetQuantity());
                 providers.Add(nonExhaustedProvider);
-                if (nonExhaustedProvider.ProvidesMoreThan(this.GetQuantity()))
+                if (unsatisfiedQuantity.Equals(nullQuantity))
                 {
                     return providers;
                 }
             }
 
-            if (newQuantity == null)
+            // satisfy by stock if possible
+            Provider stockProvider = StockExchangeProvider.CreateStockProvider(GetArticle(),
+                GetDueTime(), unsatisfiedQuantity, _dbMasterDataCache, dbTransactionData);
+            if (stockProvider != null)
             {
-                newQuantity = GetQuantity();
+                unsatisfiedQuantity.Minus(stockProvider.GetQuantity());
+                providers.Add(stockProvider);
+                if (stockProvider.AnyDemands())
+                {
+                    // TODO: This should do the caller, but then the caller must get providers and nextDemands...
+                    nextDemands.AddAll(stockProvider.GetDemands());
+                }
+                
+                if (unsatisfiedQuantity.Equals(nullQuantity))
+                {
+                    return providers;
+                }
             }
 
+            // satisfy by provider
             Logger.Debug($"Create a provider for article {this}:");
 
-            Provider createdProvider = CreateProvider(dbTransactionData, newQuantity);
+            Provider createdProvider = CreateProvider(dbTransactionData, unsatisfiedQuantity);
             providers.Add(createdProvider);
             if (createdProvider.AnyDemands())
             {

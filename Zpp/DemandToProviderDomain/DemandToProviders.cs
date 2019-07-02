@@ -41,9 +41,9 @@ namespace Zpp.DemandToProviderDomain
             _providerToDemands.AddDemandForProvider(provider, demand);
             }
 
-        public Provider FindNonExhaustedProvider(Demand demand)
+        public Provider FindNonExhaustedProvider(M_Article article)
         {
-            return _providerToDemands.FindNonExhaustedProvider(demand);
+            return _providerToDemands.FindNonExhaustedProvider(article);
         }
 
         public void AddProvidersForDemand(Demand demand, Providers providers)

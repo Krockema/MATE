@@ -23,12 +23,16 @@ namespace Zpp.ProviderDomain
         bool AnyDemands();
 
         Id GetArticleId();
+        
+        M_Article GetArticle();
 
         bool ProvidesMoreThan(Quantity quantity);
 
         T_Provider ToT_Provider();
 
         Demands CreateNeededDemands(M_Article article, IDbTransactionData dbTransactionData,
-            IDbMasterDataCache dbMasterDataCache, Provider parentProvider, ILotSize lotSize);
+            IDbMasterDataCache dbMasterDataCache, Provider parentProvider, Quantity quantity);
+
+        DueTime GetDueTime();
     }
 }

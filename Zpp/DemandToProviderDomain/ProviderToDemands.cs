@@ -36,14 +36,14 @@ namespace Zpp.DemandToProviderDomain
 
         }
 
-        public Provider FindNonExhaustedProvider(Demand demand)
+        public Provider FindNonExhaustedProvider(M_Article article)
         {
-            if (!_articleToProviders.ContainsKey(demand.GetArticleId()))
+            if (!_articleToProviders.ContainsKey(article.GetId()))
             {
                 return null;
             }
                 
-            foreach (var provider in _articleToProviders[demand.GetArticleId()].GetAll())
+            foreach (var provider in _articleToProviders[article.GetId()].GetAll())
             {
                 Quantity quantityOfAllDemands = _providerToDemands[provider].GetQuantityOfAll();
                 if (provider.GetQuantity().IsGreaterThanOrEqualTo(quantityOfAllDemands))

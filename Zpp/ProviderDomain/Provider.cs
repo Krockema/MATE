@@ -20,6 +20,7 @@ namespace Zpp.ProviderDomain
         protected Demands _demands;
         protected readonly IProvider _provider;
         protected readonly IDbMasterDataCache _dbMasterDataCache;
+        protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public Provider(IProvider provider, IDbMasterDataCache dbMasterDataCache)
         {
@@ -36,7 +37,7 @@ namespace Zpp.ProviderDomain
             return _demands;
         }
         
-        protected DueTime GetDueTime()
+        public DueTime GetDueTime()
         {
             return new DueTime(_provider.GetDueTime());
         }
@@ -84,6 +85,27 @@ namespace Zpp.ProviderDomain
 
         public abstract Demands CreateNeededDemands(M_Article article,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProvider, ILotSize lotSize);
+            Provider parentProvider, Quantity quantity);
+        
+        public static Quantity CalcQuantityProvidedByProvider(Quantity providedQuantity,
+            Quantity demandedQuantity)
+        {
+            if (!providedQuantity.IsGreaterThan(new Quantity(0)))
+            {
+                return null;
+            }
+
+            if (providedQuantity.IsGreaterThanOrEqualTo(demandedQuantity))
+            {
+                return demandedQuantity;
+            }
+
+            return providedQuantity;
+        }
+
+        public M_Article GetArticle()
+        {
+            return _dbMasterDataCache.M_ArticleGetById(GetArticleId());
+        }
     }
 }

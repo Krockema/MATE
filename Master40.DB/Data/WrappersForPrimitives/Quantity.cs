@@ -1,3 +1,5 @@
+using System;
+
 namespace Master40.DB.Data.WrappersForPrimitives
 {
     public class Quantity
@@ -33,15 +35,39 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             return _quantity >= quantity._quantity;
         }
+        
+        public bool IsGreaterThan(Quantity quantity)
+        {
+            return _quantity > quantity._quantity;
+        }
 
         public bool IsSmallerThan(Quantity quantity)
         {
             return _quantity < quantity.GetValue();
         }
 
+        /**
+         * Consider using AbsoluteValue() after this function
+         */
         public Quantity Minus(Quantity quantity)
         {
             return new Quantity(quantity.GetValue() - quantity.GetValue());
+        }
+
+        public Quantity AbsoluteValue()
+        {
+            return new Quantity(Math.Abs(_quantity));
+        }
+
+        public override bool Equals(object obj)
+        {
+            Quantity otherQuantity = (Quantity) obj;
+            return _quantity.Equals(otherQuantity.GetValue());
+        }
+
+        public override int GetHashCode()
+        {
+            return _quantity.GetHashCode();
         }
     }
 }
