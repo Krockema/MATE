@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AkkaSim;
+﻿using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -18,9 +17,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
         private Dictionary<string, UpdateStockValues> CurrentStockValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
-
-        private long lastIntervalStart = 0;
-
 
         public static CollectorAnalyticsStorage Get()
         {
@@ -40,7 +36,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             return true;
         }
 
-        private void UpdateFeed(Collector agent, bool logToDB)
+        private void UpdateFeed(Collector agent, bool writeToDatabase)
         {
             
             agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from Storage");
@@ -58,11 +54,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 agent.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
             }
 
-
-            LogToDB(agent);
-            
-
-            lastIntervalStart = agent.Time;
+            LogToDB(agent, writeToDatabase);
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
 
@@ -92,9 +84,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         }
 
-        private void LogToDB(Collector agent)
+        private void LogToDB(Collector agent, bool writeToDatabase)
         {
-            if (agent.saveToDB.Value)
+            if (agent.saveToDB.Value && writeToDatabase)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {

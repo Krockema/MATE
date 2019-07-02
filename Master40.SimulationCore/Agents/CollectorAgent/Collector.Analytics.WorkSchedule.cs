@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }
 
-        private void UpdateFeed(Collector agent, bool logToDb)
+        private void UpdateFeed(Collector agent, bool writeToDatabase)
         {
             if (machines.Count == 0)
             {
@@ -73,14 +73,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             lastIntervalStart = agent.Time;
 
 
-            LogToDB(agent);
+            LogToDB(agent, writeToDatabase);
             
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
 
-        private void LogToDB(Collector agent)
+        private void LogToDB(Collector agent, bool writeToDatabase)
         {
-            if (agent.saveToDB.Value)
+            if (agent.saveToDB.Value && writeToDatabase)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {
