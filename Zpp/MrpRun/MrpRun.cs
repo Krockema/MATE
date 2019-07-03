@@ -35,73 +35,75 @@ namespace Zpp
             // remove all DemandToProvider entries
             dbTransactionData.DemandToProvidersRemoveAll();
 
-            foreach (var initialDemand in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll())
-            {
-                ProcessDbDemand(dbTransactionData,
-                    new CustomerOrderPart(initialDemand.ToIDemand(), dbMasterDataCache));
-            }
 
-            return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(),
+                ProcessDbDemands(dbTransactionData,
+                    dbMasterDataCache.T_CustomerOrderPartGetAll());
+
+                return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(),
                 dbTransactionData.DemandToProviderGetAll(), dbTransactionData);
         }
 
-        private static void ProcessDbDemand(IDbTransactionData dbTransactionData,
-            Demand oneDbDemand)
+        private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
+            Demands dbDemands)
         {
             // init
             Providers providers = new Providers();
             Demands finalAllDemands = new Demands();
             IDemandToProviders demandToProviders = new DemandToProviders();
 
-            // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
-            // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
-            // --> it's not possible to add these to the demandList even with Enumerators/Iterators
-            // solution concept: create a new demandList per loop (one level)
-            // and iterate over levels of evolving tree of demands
-            // where every level is sorted by urgency & fix
-            // and all created demands within a level is put to level below
-
-            List<Demands> levelDemandManagers = new List<Demands>();
-            // first level has the given oneDbDemand from database, while levels below are initially empty
-
-            HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
-            Demands firstLevelDemandManager = new Demands(hierarchyNumber);
-            firstLevelDemandManager.Add(oneDbDemand);
-            levelDemandManagers.Add(firstLevelDemandManager);
-
-
-            while (true)
+            foreach (var oneDbDemand in dbDemands.GetAll())
             {
-                Demands currentDemandManager = levelDemandManagers[0];
-                currentDemandManager.OrderDemandsByUrgency();
-                // add new level for next creating demands (evolving tree of demands)
-                hierarchyNumber.increment();
-                Demands nextDemandManager = new Demands(hierarchyNumber);
-                levelDemandManagers.Add(nextDemandManager);
-                // demands in currentDemandManager are not allowed to be expanded,
-                // nextDemandManager must be used for this
-                currentDemandManager.Lock();
+                
+                // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
+                // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
+                // --> it's not possible to add these to the demandList even with Enumerators/Iterators
+                // solution concept: create a new demandList per loop (one level)
+                // and iterate over levels of evolving tree of demands
+                // where every level is sorted by urgency & fix
+                // and all created demands within a level is put to level below
 
-                foreach (Demand demand in currentDemandManager.GetAll())
+                List<Demands> levelDemandManagers = new List<Demands>();
+                // first level has the given oneDbDemand from database, while levels below are initially empty
+
+                HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
+                Demands firstLevelDemandManager = new Demands(hierarchyNumber);
+                firstLevelDemandManager.Add(oneDbDemand);
+                levelDemandManagers.Add(firstLevelDemandManager);
+
+
+                while (true)
                 {
-                    Providers providersOfDemand = demand.Satisfy(demandToProviders,
-                        dbTransactionData, nextDemandManager);
+                    Demands currentDemandManager = levelDemandManagers[0];
+                    currentDemandManager.OrderDemandsByUrgency();
+                    // add new level for next creating demands (evolving tree of demands)
+                    hierarchyNumber.increment();
+                    Demands nextDemandManager = new Demands(hierarchyNumber);
+                    levelDemandManagers.Add(nextDemandManager);
+                    // demands in currentDemandManager are not allowed to be expanded,
+                    // nextDemandManager must be used for this
+                    currentDemandManager.Lock();
 
-                    demandToProviders.AddProvidersForDemand(demand, providersOfDemand);
+                    foreach (Demand demand in currentDemandManager.GetAll())
+                    {
+                        Providers providersOfDemand = demand.Satisfy(demandToProviders,
+                            dbTransactionData, nextDemandManager);
 
-                    providers.AddAll(providersOfDemand);
+                        demandToProviders.AddProvidersForDemand(demand, providersOfDemand);
+
+                        providers.AddAll(providersOfDemand);
+                    }
+
+                    // final reorganizing
+                    levelDemandManagers.Remove(currentDemandManager);
+
+                    // break condition
+                    if (nextDemandManager.GetAll().Count == 0)
+                    {
+                        break;
+                    }
+
+                    finalAllDemands.AddAll(nextDemandManager);
                 }
-
-                // final reorganizing
-                levelDemandManagers.Remove(currentDemandManager);
-
-                // break condition
-                if (nextDemandManager.GetAll().Count == 0)
-                {
-                    break;
-                }
-
-                finalAllDemands.AddAll(nextDemandManager);
             }
 
             dbTransactionData.ProvidersAddAll(providers);
