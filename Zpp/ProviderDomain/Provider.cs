@@ -16,7 +16,6 @@ namespace Zpp.ProviderDomain
      */
     public abstract class Provider : IProviderLogic
     {
-        protected readonly Guid _guid = Guid.NewGuid();
         protected Demands _demands;
         protected readonly IProvider _provider;
         protected readonly IDbMasterDataCache _dbMasterDataCache;
@@ -53,12 +52,12 @@ namespace Zpp.ProviderDomain
                 return false;
             }
 
-            return _guid.Equals(item._guid);
+            return _provider.Id.Equals(item._provider.Id);
         }
         
         public override int GetHashCode()
         {
-            return _guid.GetHashCode();
+            return _provider.Id.GetHashCode();
         }
 
         public Quantity GetQuantity()
@@ -115,7 +114,12 @@ namespace Zpp.ProviderDomain
 
         public Id GetT_ProviderId()
         {
-            return new Id(_provider.ProviderId);
+            return new Id(_provider.ProviderId.GetValueOrDefault());
+        }
+
+        public override string ToString()
+        {
+            return $"{GetId()}: {GetQuantity()} pieces";
         }
     }
 }

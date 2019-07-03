@@ -14,19 +14,14 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public decimal Quantity { get; set; }
         public State State { get; set; }
-        public int DemandID { get; set; }
+        public int? DemandId { get; set; }
         public T_Demand Demand { get; set; }
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
         public int ArticleChildId { get; set; }
         [JsonIgnore]
         public M_Article ArticleChild { get; set; }
-
-        public T_ProductionOrderBom()
-        {
-            // it must be always a T_Demand created for every IDemand
-            Demand = new T_Demand();
-        }
+        
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);

@@ -52,5 +52,10 @@ namespace Zpp
         List<T_CustomerOrder> T_CustomerOrderGetAll();
 
         Demands T_CustomerOrderPartGetAll();
+
+        /**
+         * This is needed for T_CustomerOrders wich does NOT include T_Demand
+         */
+        T_Demand T_DemandGetById(Id id);
     }
 }

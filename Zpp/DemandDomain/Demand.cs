@@ -21,7 +21,6 @@ namespace Zpp.DemandDomain
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected readonly IDemand _demand;
-        protected readonly Guid _guid = Guid.NewGuid();
         protected readonly IDbMasterDataCache _dbMasterDataCache;
 
         public Demand(IDemand demand, IDbMasterDataCache dbMasterDataCache)
@@ -72,12 +71,12 @@ namespace Zpp.DemandDomain
                 return false;
             }
 
-            return _guid.Equals(item._guid);
+            return _demand.Id.Equals(item._demand.Id);
         }
 
         public override int GetHashCode()
         {
-            return _guid.GetHashCode();
+            return _demand.Id.GetHashCode();
         }
 
         public Quantity GetQuantity()
@@ -87,7 +86,7 @@ namespace Zpp.DemandDomain
 
         public override string ToString()
         {
-            return $"{_demand.Id}: {_demand.GetQuantity()} of {_demand.Id}";
+            return $"{GetId()}: {GetQuantity()} pieces";
         }
 
         public abstract M_Article GetArticle();
@@ -158,12 +157,16 @@ namespace Zpp.DemandDomain
 
         public T_Demand ToT_Demand()
         {
+            if (_demand.Demand == null)
+            {
+                _demand.Demand = _dbMasterDataCache.T_DemandGetById(new Id(_demand.DemandId.GetValueOrDefault()));
+            }
             return _demand.Demand;
         }
 
         public Id GetT_DemandId()
         {
-            return new Id(_demand.DemandID);
+            return new Id(_demand.DemandId.GetValueOrDefault());
         }
     }
 }

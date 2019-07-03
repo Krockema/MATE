@@ -18,13 +18,15 @@ namespace Zpp.DemandToProviderDomain
 
         public bool IsSatisfied(Demand demand)
         {
+            bool isSatisfied = false;
             if (_demandToProviders.ContainsKey(demand))
             {
                 IProviders providers = _demandToProviders[demand];
-                return providers.ProvideMoreThanOrEqualTo(demand.GetQuantity());
+                isSatisfied = providers.ProvideMoreThanOrEqualTo(demand.GetQuantity());
+                return isSatisfied;
             }
 
-            return false;
+            return isSatisfied;
         }
 
         public void AddProviderForDemand(Demand demand, Provider provider)

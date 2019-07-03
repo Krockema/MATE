@@ -20,14 +20,8 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
 
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
         public T_Provider Provider { get; set; }
-
-        public T_ProductionOrder()
-        {
-            // it must be always a T_Provider created for every IProvider
-            Provider = new T_Provider();
-        }
         
         public M_Article GetArticle()
         {

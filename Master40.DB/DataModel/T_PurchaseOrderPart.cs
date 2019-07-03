@@ -18,14 +18,8 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public State State { get; set; }
         
-        public int ProviderId { get; set; }
+        public int? ProviderId { get; set; }
         public T_Provider Provider { get; set; }
-
-        public T_PurchaseOrderPart()
-        {
-            // it must be always a T_Provider created for every IProvider
-            Provider = new T_Provider();
-        }
         
         public int GetDueTime()
         {

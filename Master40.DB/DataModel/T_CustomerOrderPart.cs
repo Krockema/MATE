@@ -26,15 +26,9 @@ namespace Master40.DB.DataModel
         [NotMapped]
         public string Source { get; private set; }
         */
-        public int DemandID { get; set; }
+        public int? DemandId { get; set; }
         public T_Demand Demand { get; set; }
 
-        public T_CustomerOrderPart()
-        {
-            // it must be always a T_Demand created for every IDemand
-            Demand = new T_Demand();
-        }
-        
         public M_Article GetArticle()
         {
             return Article;

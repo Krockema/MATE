@@ -6,7 +6,7 @@ namespace Master40.DB.Interfaces
     public interface IDemand
     {
         int Id { get; set; }
-        int DemandID { get; set; }
+        int? DemandId { get; set; }
         T_Demand Demand { get; set; }
 
         Quantity GetQuantity();

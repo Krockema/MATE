@@ -77,7 +77,7 @@ namespace Zpp.ProviderDomain
             purchaseOrderPart.State = State.Created;
             // connects this provider with table T_Provider
             purchaseOrderPart.Provider = new T_Provider();
-
+            purchaseOrderPart.ProviderId = purchaseOrderPart.Provider.Id;
 
             Logger.Debug("PurchaseOrderPart created.");
             return new PurchaseOrderPart(purchaseOrderPart, null, dbMasterDataCache);

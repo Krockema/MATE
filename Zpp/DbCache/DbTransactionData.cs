@@ -97,36 +97,23 @@ namespace Zpp
 
         public void PersistDbCache(IDemandToProviders demandToProviders)
         {
-            // InsertOrUpdateRange(_customerOrderParts, _productionDomainContext.CustomerOrderParts);
-            // --> readOnly
 
             // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
-            // TODO: remove validate* calls, these should be in unitTests
             // TODO: SaveChanges at the end only once
             
-            // first T_Demand
+            // first collect all T_* entities
             List<T_Demand> tDemands = demandToProviders.ToT_Demands();
-            T_Demand dummyT_Demand = new T_Demand();
-            dummyT_Demand.Id = 0;
-            tDemands.Add(dummyT_Demand);
-            InsertOrUpdateRange(tDemands,
-                _productionDomainContext.Demands);
-
-            // T_Provider
             List<T_Provider> tProviders = demandToProviders.ToT_Providers();
-            T_Provider dummyT_Provider = new T_Provider();
-            dummyT_Provider.Id = 0;
-            tProviders.Add(dummyT_Provider);
-            InsertOrUpdateRange(tProviders,
-                _productionDomainContext.Providers);
-            _productionDomainContext.SaveChanges();
-            
-            // T_ProductionOrderBom
             List<T_ProductionOrderBom> tProductionOrderBoms =
                 _productionOrderBoms.GetAllAs<T_ProductionOrderBom>();
-            validateT_Demands(tProductionOrderBoms, tDemands);
-            InsertOrUpdateRange(tProductionOrderBoms,
-                _productionDomainContext.ProductionOrderBoms);
+            List<T_StockExchange> tStockExchangeDemands =
+                _stockExchangeDemands.GetAllAs<T_StockExchange>();
+            List<T_StockExchange> tStockExchangesProviders =
+                _stockExchangeProviders.GetAllAs<T_StockExchange>();
+            List<T_ProductionOrder> tProductionOrders =
+                _productionOrders.GetAllAs<T_ProductionOrder>();
+            List<T_PurchaseOrderPart> tPurchaseOrderParts =
+                _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>();
             
             // T_ProductionOrderOperation
             List<T_ProductionOrderOperation> tProductionOrderOperations = new List<T_ProductionOrderOperation>();
@@ -134,42 +121,41 @@ namespace Zpp
             {
                 tProductionOrderOperations.Add(tProductionOrderBom.ProductionOrderOperation);
             }
-            InsertOrUpdateRange(tProductionOrderOperations,
-                _productionDomainContext.ProductionOrderOperations);
-
-            // T_StockExchange demands
-            List<T_StockExchange> tStockExchangeDemands =
-                _stockExchangeDemands.GetAllAs<T_StockExchange>();
-            validateT_StockExchangeDemands(tStockExchangeDemands, tDemands);
-            InsertOrUpdateRange(tStockExchangeDemands,
-                _productionDomainContext.StockExchanges);
-
-            // T_StockExchange providers
-            List<T_StockExchange> tStockExchangesProviders =
-                _stockExchangeProviders.GetAllAs<T_StockExchange>();
-            validateT_StockExchangeProviders(tStockExchangesProviders, tProviders);
-            InsertOrUpdateRange(tStockExchangesProviders,
-                _productionDomainContext.StockExchanges);
-
-            // T_ProductionOrder
-            List<T_ProductionOrder> tProductionOrders =
-                _productionOrders.GetAllAs<T_ProductionOrder>();
-            validateT_Providers(tProductionOrders, tProviders);
-            InsertOrUpdateRange(tProductionOrders,
-                _productionDomainContext.ProductionOrders);
             
-            // T_PurchaseOrderPart
-            List<T_PurchaseOrderPart> tPurchaseOrderParts =
-                _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>();
-            validateT_Providers(tPurchaseOrderParts, tProviders);
-            InsertOrUpdateRange(tPurchaseOrderParts,
-                _productionDomainContext.PurchaseOrderParts);
-
+            // T_PurchaseOrders
             List<T_PurchaseOrder> tPurchaseOrders = new List<T_PurchaseOrder>();
             foreach (var tPurchaseOrderPart in tPurchaseOrderParts)
             {
                 tPurchaseOrders.Add(tPurchaseOrderPart.PurchaseOrder);
             }
+            
+            // validate all T_* entities --> use these, if Foreign-key violation happens
+            /*validateT_Demands(tProductionOrderBoms, tDemands);
+            validateT_StockExchangeDemands(tStockExchangeDemands, tDemands);
+            validateT_StockExchangeProviders(tStockExchangesProviders, tProviders);
+            validateT_Providers(tProductionOrders, tProviders);
+            validateT_Providers(tPurchaseOrderParts, tProviders);*/
+            
+            // Insert all T_* entities
+            InsertOrUpdateRange(tDemands,
+                _productionDomainContext.Demands);
+            InsertOrUpdateRange(tProviders,
+                _productionDomainContext.Providers);
+            // to avoid unknown T_Demand/Provider exceptions
+            _productionDomainContext.SaveChanges();
+            
+            InsertOrUpdateRange(tProductionOrderBoms,
+                _productionDomainContext.ProductionOrderBoms);
+            InsertOrUpdateRange(tProductionOrderOperations,
+                _productionDomainContext.ProductionOrderOperations);
+            InsertOrUpdateRange(tStockExchangeDemands,
+                _productionDomainContext.StockExchanges);
+            InsertOrUpdateRange(tStockExchangesProviders,
+                _productionDomainContext.StockExchanges);
+            InsertOrUpdateRange(tProductionOrders,
+                _productionDomainContext.ProductionOrders);
+            InsertOrUpdateRange(tPurchaseOrderParts,
+                _productionDomainContext.PurchaseOrderParts);
             InsertOrUpdateRange(tPurchaseOrders,
                 _productionDomainContext.PurchaseOrders);
             
@@ -191,7 +177,11 @@ namespace Zpp
         {
             foreach (var entity in entities)
             {
-                bool found1 = tDemands.Select(x => x.Id.Equals(entity.DemandID)).Any();
+                if (entity.Demand == null || entity.DemandId == null || !entity.Demand.Id.Equals(entity.DemandId))
+                {
+                    throw new MrpRunException("This is not valid.");
+                }
+                bool found1 = tDemands.Select(x => x.Id.Equals(entity.DemandId)).Any();
                 bool found2 = tDemands.Select(x => x.Id.Equals(entity.Demand.Id)).Any();
                 if (!(found1 && found2))
                 {
@@ -205,7 +195,7 @@ namespace Zpp
             validateT_Demands(entities, tDemands);
             foreach (var entity in entities)
             {
-                if (entity.Provider != null || entity.ProviderId != 0)
+                if (entity.Provider != null || entity.ProviderId != null)
                 {
                     throw new MrpRunException("This is not valid.");
                 }
@@ -216,6 +206,10 @@ namespace Zpp
         {
             foreach (var entity in entities)
             {
+                if (entity.Provider == null || entity.ProviderId == null || !entity.Provider.Id.Equals(entity.ProviderId))
+                {
+                    throw new MrpRunException("This is not valid.");
+                }
                 bool found1 = tDemands.Select(x => x.Id.Equals(entity.ProviderId)).Any();
                 bool found2 = tDemands.Select(x => x.Id.Equals(entity.Provider.Id)).Any();
                 if (!(found1 && found2))
@@ -231,7 +225,11 @@ namespace Zpp
             validateT_Providers(entities, tProviders);
             foreach (var entity in entities)
             {
-                if (entity.Demand != null || entity.DemandID != 0)
+                if (entity.Provider == null || entity.ProviderId == null)
+                {
+                    throw new MrpRunException("This is not valid.");
+                }
+                if (entity.Demand != null || entity.DemandId != null)
                 {
                     throw new MrpRunException("This is not valid.");
                 }
@@ -251,19 +249,46 @@ namespace Zpp
         private void InsertOrUpdate<TEntity>(TEntity entity, DbSet<TEntity> dbSet)
             where TEntity : BaseEntity
         {
-            if(dbSet.Find(entity.Id) == null) // TODO: performance issue: a select before every insert is a no go
-            // if (entity.Id.Equals(0))
+            TEntity foundEntity = dbSet.Find(entity.Id);
+            if(foundEntity == null) // TODO: performance issue: a select before every insert is a no go
                 // it's not in DB yet
             {
                 _productionDomainContext.Entry(entity).State = EntityState.Added;
                 dbSet.Add(entity);
             }
             else
+            // it's already in DB
             {
-                _productionDomainContext.Entry(entity).State = EntityState.Modified;
-                dbSet.Update(entity);
+                CopyProperties(entity, foundEntity);
+                _productionDomainContext.Entry(foundEntity).State = EntityState.Modified;
+                dbSet.Update(foundEntity);
             }
         }
+        
+        
+
+        private static void CopyProperties<T, TU>(T source, TU destination)
+        {
+            var sourceProps = typeof (T).GetProperties().Where(x => x.CanRead).ToList();
+            var destProps = typeof(TU).GetProperties()
+                .Where(x => x.CanWrite)
+                .ToList();
+
+            foreach (var sourceProp in sourceProps)
+            {
+                if (destProps.Any(x => x.Name == sourceProp.Name))
+                {
+                    var p = destProps.First(x => x.Name == sourceProp.Name);
+                    if(p.CanWrite) { // check if the property can be set or no.
+                        p.SetValue(destination, sourceProp.GetValue(source, null), null);
+                    }
+                }
+
+            }
+
+        }
+
+
 
         public void DemandsAdd(Demand demand)
         {

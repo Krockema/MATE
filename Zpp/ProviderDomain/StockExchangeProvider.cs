@@ -52,6 +52,7 @@ namespace Zpp.ProviderDomain
             {
                 T_StockExchange stockExchange = new T_StockExchange();
                 stockExchange.Provider = new T_Provider();
+                stockExchange.ProviderId = stockExchange.Provider.Id;
                 stockExchange.Quantity = providedQuantityByStock.GetValue();
                 stockExchange.State = State.Created;
 

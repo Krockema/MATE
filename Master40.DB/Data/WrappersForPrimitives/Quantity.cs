@@ -69,5 +69,10 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             return _quantity.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return $"{_quantity}";
+        }
     }
 }

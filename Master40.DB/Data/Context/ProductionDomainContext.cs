@@ -52,13 +52,14 @@ namespace Master40.DB.Data.Context
         public T_CustomerOrder CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
-            olist.Add(new T_CustomerOrderPart
-            {
-                ArticleId = articleId,
-                IsPlanned = false,
-                Quantity = amount,
-                Demand = new T_Demand()
-            });
+            T_CustomerOrderPart tCustomerOrderPart = new T_CustomerOrderPart();
+            tCustomerOrderPart.ArticleId = articleId;
+            tCustomerOrderPart.IsPlanned = false;
+            tCustomerOrderPart.Quantity = amount;
+            tCustomerOrderPart.Demand = new T_Demand();
+            tCustomerOrderPart.DemandId = tCustomerOrderPart.Demand.Id;
+
+            olist.Add(tCustomerOrderPart);
 
             var order = new T_CustomerOrder()
             {

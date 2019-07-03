@@ -41,6 +41,8 @@ namespace Zpp.ProviderDomain
             // connects this provider with table T_Provider
             tProductionOrder.Provider = new T_Provider();
             tProductionOrder.Quantity = lotSize.GetCalculatedQuantity().GetValue();
+            tProductionOrder.Provider = new T_Provider();
+            tProductionOrder.ProviderId = tProductionOrder.Provider.Id;
 
             ProductionOrder productionOrder =
                 new ProductionOrder(tProductionOrder, dbMasterDataCache);
