@@ -20,7 +20,7 @@ namespace Zpp.Test
             // explicitly force to call the super constructor
         }
         
-        [Fact]
+        [Fact (Skip = "Tests unused functionality")]
         public void testArticleTree()
         {
             LOGGER.Debug("Starting: testArticleTree");
@@ -86,7 +86,7 @@ namespace Zpp.Test
             }
         }
 
-        [Fact]
+        [Fact (Skip = "Tests unused functionality")]
         public void testTreeToolTraverseTree()
         {
             LOGGER.Debug("Starting: testTreeToolTraverseTree");
