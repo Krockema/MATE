@@ -141,9 +141,7 @@ namespace Zpp
                 _productionDomainContext.Demands);
             InsertOrUpdateRange(tProviders,
                 _productionDomainContext.Providers);
-            // to avoid unknown T_Demand/Provider exceptions
-            _productionDomainContext.SaveChanges();
-            
+
             InsertOrUpdateRange(tProductionOrderBoms,
                 _productionDomainContext.ProductionOrderBoms);
             InsertOrUpdateRange(tProductionOrderOperations,
