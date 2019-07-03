@@ -59,7 +59,7 @@ namespace Zpp.ProviderDomain
             {
                 Logger.Error($"Article {demand.GetArticle().Id} from demand {demand.GetId()} " +
                              $"should be available at {demand.GetDueTime()}, but " +
-                             $"businessPartner {articleToBusinessPartner.BusinessPartner.Id} " +
+                             $"businessPartner {businessPartner.Id} " +
                              $"can only deliver at {articleToBusinessPartner.DueTime}.");
             }
 

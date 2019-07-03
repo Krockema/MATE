@@ -17,11 +17,13 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
+        private const int _orderQuantity = 6;
+        
         public IntegrationTest()
         {
             // TODO: orderQuantity should be set to higherValue (from simConfigs)
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, 1);
+                ContextTest.TestConfiguration(), 1, true, _orderQuantity);
         }
 
         [Fact]
@@ -29,7 +31,7 @@ namespace Zpp.Test
         {
             List<int> countsMasterDataBefore = CountMasterData();
             
-            Assert.True(ProductionDomainContext.CustomerOrders.Count() == 1, "No customerOrders are initially available.");
+            Assert.True(ProductionDomainContext.CustomerOrders.Count() == _orderQuantity, "No customerOrders are initially available.");
 
             IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
             
