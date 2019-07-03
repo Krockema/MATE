@@ -55,7 +55,6 @@ namespace Zpp.Utils
                     .Options);*/
             }
             MyLoggerFactory.AddNLog();
-            MyLoggerFactory.ConfigureNLog("nlog.config");
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
             productionDomainContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
