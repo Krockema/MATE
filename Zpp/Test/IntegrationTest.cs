@@ -27,6 +27,12 @@ namespace Zpp.Test
                 ContextTest.TestConfiguration(), 1, true, _orderQuantity);
         }
 
+        /**
+         * Verifies, that the sum(stockExchanges.Quantity) plus initial stock level equals stock.current
+         * for every stock
+         *
+         * TODO: sum(stockExchangeDemands=withdrawel) <= sum(stockExchangeProviders=insert) for every stock
+         */
         [Fact]
         public void TestStockExchanges()
         {
@@ -39,15 +45,17 @@ namespace Zpp.Test
             IDbTransactionData persistedTransactionData =
                 new DbTransactionData(ProductionDomainContext, originalDbMasterData);
 
-            List<int> stockIdsFromPersistedStockExchanges = persistedTransactionData.StockExchangeGetAll()
-                .GetAllAs<T_StockExchange>().Select(x => x.StockId).ToList();
+            List<int> stockIdsFromPersistedStockExchanges = persistedTransactionData
+                .StockExchangeGetAll().GetAllAs<T_StockExchange>().Select(x => x.StockId).ToList();
             List<M_Stock> originalStocks = originalDbMasterData.M_StockGetAll();
             foreach (var originalStock in originalStocks)
             {
                 if (!stockIdsFromPersistedStockExchanges.Contains(originalStock.Id))
-                {  // ignore all stocks for which there are no stockExchanges
+                {
+                    // ignore all stocks for which there are no stockExchanges
                     continue;
                 }
+
                 decimal actualStockLevel = nonPersistedDbMasterData
                     .M_StockGetById(originalStock.GetId()).Current;
 
