@@ -85,12 +85,16 @@ namespace Zpp
 
                     foreach (Demand demand in currentDemandManager.GetAll())
                     {
-                        Providers providersOfDemand = demand.Satisfy(demandToProviders,
-                            dbTransactionData, nextDemandManager);
+                        IProviders providersOfDemand = demand.Satisfy(demandToProviders,
+                            dbTransactionData);
 
                         demandToProviders.AddProvidersForDemand(demand, providersOfDemand);
-
                         providers.AddAll(providersOfDemand);
+                        // performance: replace any by directly Adding
+                        if (providersOfDemand.AnyDependingDemands())
+                        {
+                            nextDemandManager.AddAll(providersOfDemand.GetAllDependingDemands());
+                        }
                     }
 
                     // final reorganizing

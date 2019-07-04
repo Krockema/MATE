@@ -12,7 +12,7 @@ namespace Zpp.Test.WrappersForPrimitives
             _line = line;
         }
 
-        public string GetLine()
+        public string GetValue()
         {
             return _line;
         }

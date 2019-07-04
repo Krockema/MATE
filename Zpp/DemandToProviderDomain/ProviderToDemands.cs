@@ -55,7 +55,7 @@ namespace Zpp.DemandToProviderDomain
             return null;
         }
 
-        public Providers GetAllProviders()
+        public IProviders GetAllProviders()
         {
             return new Providers(_providerToDemands.Keys.ToList());
         }

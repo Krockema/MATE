@@ -44,7 +44,7 @@ namespace Zpp.DemandDomain
             _demands.Add(demand);
         }
 
-        public void AddAll(Demands demands)
+        public void AddAll(IDemands demands)
         {
             if (_isDemandsListLocked)
             {

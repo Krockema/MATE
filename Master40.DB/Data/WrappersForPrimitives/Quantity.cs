@@ -74,5 +74,20 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             return $"{_quantity}";
         }
+
+        public bool IsNull()
+        {
+            return _quantity.Equals(0);
+        }
+
+        public bool IsNegative()
+        {
+            return _quantity < 0;
+        }
+
+        public static Quantity Null()
+        {
+            return new Quantity(0);
+        }
     }
 }

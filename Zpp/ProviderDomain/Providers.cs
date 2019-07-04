@@ -76,16 +76,23 @@ namespace Zpp.ProviderDomain
             return productionOrderBoms;
         }
 
-        public bool ProvideMoreThanOrEqualTo(Quantity quantity)
+        public bool ProvideMoreThanOrEqualTo(Demand demand)
+        {
+            return GetProvidedQuantity(demand).IsGreaterThanOrEqualTo(demand.GetQuantity());
+        }
+
+        private Quantity GetProvidedQuantity(Demand demand)
         {
             Quantity providedQuantity = new Quantity();
             
             foreach (var provider in _providers)
             {
-                providedQuantity.IncrementBy(provider.GetQuantity());
+                if (demand.GetArticleId().Equals(provider.GetArticleId()))
+                {
+                    providedQuantity.IncrementBy(provider.GetQuantity());    
+                }
             }
-
-            return providedQuantity.IsGreaterThanOrEqualTo(quantity);
+            return providedQuantity;
         }
 
         public int Size()
@@ -130,6 +137,23 @@ namespace Zpp.ProviderDomain
             }
 
             return dependingDemands;
+        }
+
+        public bool IsSatisfied(Demand demand)
+        {
+            bool isSatisfied = ProvideMoreThanOrEqualTo(demand);
+            return isSatisfied;
+        }
+
+        public Quantity GetMissingQuantity(Demand demand)
+        {
+            Quantity missingQuantity = demand.GetQuantity().Minus(GetProvidedQuantity(demand));
+            if (missingQuantity.IsNegative())
+            {
+                return Quantity.Null();
+            }
+
+            return missingQuantity;
         }
     }
 }

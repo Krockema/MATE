@@ -22,7 +22,7 @@ namespace Zpp.DemandToProviderDomain
             if (_demandToProviders.ContainsKey(demand))
             {
                 IProviders providers = _demandToProviders[demand];
-                isSatisfied = providers.ProvideMoreThanOrEqualTo(demand.GetQuantity());
+                isSatisfied = providers.IsSatisfied(demand);
                 return isSatisfied;
             }
 
@@ -48,7 +48,7 @@ namespace Zpp.DemandToProviderDomain
             return _providerToDemands.FindNonExhaustedProvider(article);
         }
 
-        public void AddProvidersForDemand(Demand demand, Providers providers)
+        public void AddProvidersForDemand(Demand demand, IProviders providers)
         {
             foreach (var provider in providers.GetAll())
             {
@@ -83,5 +83,7 @@ namespace Zpp.DemandToProviderDomain
         {
             return _providerToDemands.GetAllProviders().GetAllAsT_Provider();
         }
+        
+        
     }
 }

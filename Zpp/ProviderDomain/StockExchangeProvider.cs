@@ -45,7 +45,7 @@ namespace Zpp.ProviderDomain
          * returns a provider, which can be a stockExchangeProvider, if article can be fulfilled by stock, else
          * a productionOrder/purchaseOrderPart
          */
-        public static Providers CreateStockProvider(M_Article article, DueTime dueTime, Quantity demandedQuantity,
+        public static Provider CreateStockProvider(M_Article article, DueTime dueTime, Quantity demandedQuantity,
             IDbMasterDataCache dbMasterDataCache, IDbTransactionData dbTransactionData)
         {
             M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(article.GetId());
@@ -73,22 +73,6 @@ namespace Zpp.ProviderDomain
                 {
                     stockExchangeProvider.CreateNeededDemands(article,
                         dbTransactionData, dbMasterDataCache, stockExchangeProvider, new Quantity(stock.Max - stock.Current));
-                }
-                
-                if (stockProvider != null)
-                {
-                    unsatisfiedQuantity.Minus(stockProvider.GetQuantity());
-                    providers.Add(stockProvider);
-                    if (stockProvider.AnyDependingDemands())
-                    {
-                        // TODO: This should do the caller, but then the caller must get providers and nextDemands...
-                        nextDemands.AddAll(stockProvider.GetAllDependingDemands());
-                    }
-
-                    if (unsatisfiedQuantity.Equals(nullQuantity))
-                    {
-                        return providers;
-                    }
                 }
 
                 return stockExchangeProvider;

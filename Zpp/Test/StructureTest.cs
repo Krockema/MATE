@@ -1,18 +1,45 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Zpp.Test.WrappersForPrimitives;
 using Xunit;
 
 namespace Zpp.Test
 {
-    public class ObjectCalisthenicsTest
+    /**
+     * Tests testable rules that ensures a good structure e.g. ObjectCalisthenics
+     */
+    public class StructureTest
     {
         const string
             skipThisTestClass =
                 "ObjectCalisthenicsTest is currenctly disabled."; // TODO: change to null to enable this class
 
+        [Fact]
+        public void testInterfacesUseInterfacesAsParametersAndResturns()
+        {
+            
+            traverseAllCsharpFilesAndExecute((line, lineNumber, fileName) =>
+            {
+                String[] fileIgnoreList = new String[]
+                {
+                    ""
+                };
+                if (fileName.GetValue().StartsWith("I") && !fileIgnoreList.Contains(fileName.GetValue()))
+                {
+                    var regexReturnType = new Regex("(^.+[A-Z]+[0-9]*\\($)");
+                    Match match = regexReturnType.Match(line.GetValue());
+    
+                        Assert.True(match.Value.StartsWith("I"),
+                            $"{fileName}:{lineNumber} return type is not an interface.");
+                }
+                // TODO assert parameters are also interfaces
+                
+            });
+        }
+        
         [Fact(Skip = skipThisTestClass)]
         /**
          * Rule no. 2: Don't use else-keyword
@@ -21,7 +48,7 @@ namespace Zpp.Test
         {
             traverseAllCsharpFilesAndExecute((line, lineNumber, fileName) =>
             {
-                Assert.False(line.GetLine().Contains("else"),
+                Assert.False(line.GetValue().Contains("else"),
                     $"{fileName}:{lineNumber} contains an 'else'.");
             });
         }
@@ -44,13 +71,13 @@ namespace Zpp.Test
                 // skip if line contains a string mention in exceptions
                 foreach (var exception in exceptions)
                 {
-                    if (line.GetLine().Contains(exception))
+                    if (line.GetValue().Contains(exception))
                     {
                         return;
                     }
                 }
 
-                Assert.False(regex.IsMatch(line.GetLine()),
+                Assert.False(regex.IsMatch(line.GetValue()),
                     $"{fileName}:{lineNumber} contains more than two '.' (Access-Operators).");
             });
         }

@@ -19,7 +19,7 @@ namespace Zpp.DemandDomain
 
         List<Demand> GetAll();
         
-        List<Demand> GetAllAsIDemand();
+        List<IDemand> GetAllAsIDemand();
 
         List<T> GetAllAs<T>();
         

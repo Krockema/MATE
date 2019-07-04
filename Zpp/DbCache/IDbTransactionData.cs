@@ -29,14 +29,14 @@ namespace Zpp
 
         void DemandsAdd(Demand demand);
         
-        void DemandsAddAll(Demands demands);
+        void DemandsAddAll(IDemands demands);
         
         
         IProviders ProvidersGetAll();
 
         void ProvidersAdd(Provider provider);
         
-        void ProvidersAddAll(Providers providers);
+        void ProvidersAddAll(IProviders providers);
         
         ProductionOrderBoms ProductionOrderBomGetAll();
         

@@ -25,7 +25,7 @@ namespace Zpp.DemandToProviderDomain
         /**
          * Should  do "AddProviderForDemand" for every provider of given providers
          */
-        void AddProvidersForDemand(Demand demand, Providers providers);
+        void AddProvidersForDemand(Demand demand, IProviders providers);
 
         Provider FindNonExhaustedProvider(M_Article article);
         

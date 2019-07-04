@@ -376,7 +376,7 @@ namespace Zpp
             return _productionOrders;
         }
 
-        public void DemandsAddAll(Demands demands)
+        public void DemandsAddAll(IDemands demands)
         {
             foreach (var demand in demands.GetAll())
             {
@@ -384,7 +384,7 @@ namespace Zpp
             }
         }
 
-        public void ProvidersAddAll(Providers providers)
+        public void ProvidersAddAll(IProviders providers)
         {
             foreach (var provider in providers.GetAll())
             {

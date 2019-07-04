@@ -26,7 +26,7 @@ namespace Zpp.ProviderDomain
 
         List<T_Provider> GetAllAsT_Provider();
 
-        bool ProvideMoreThanOrEqualTo(Quantity quantity);
+        bool ProvideMoreThanOrEqualTo(Demand demand);
         
         int Size();
         
@@ -40,6 +40,6 @@ namespace Zpp.ProviderDomain
 
         bool IsSatisfied(Demand demand);
 
-        Quantity GetSatisfiedQuantity(Demand demand);
+        Quantity GetMissingQuantity(Demand demand);
     }
 }

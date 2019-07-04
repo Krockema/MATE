@@ -28,11 +28,11 @@ namespace Zpp.DemandDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Providers SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity quantity)
+        public IProviders SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity quantity)
         {
             M_Article article = GetArticle();
             IProviders providers = new Providers();
-            
+
             // make or buy
             if (article.ToBuild)
             {
@@ -55,7 +55,7 @@ namespace Zpp.DemandDomain
                     GetDueTime(), quantity, _dbMasterDataCache);
             Logger.Debug("PurchaseOrderPart created.");
             providers.Add(purchaseOrderPart);
-            
+
             return providers;
         }
 
@@ -109,72 +109,62 @@ namespace Zpp.DemandDomain
             return new Id(GetArticle().Id);
         }
 
-        public IProviders Satisfy2(IDemandToProviders demandToProviders,
-            IDbTransactionData dbTransactionData, Demands nextDemands)
+        public IProviders Satisfy(IDemandToProviders demandToProviders,
+            IDbTransactionData dbTransactionData)
         {
             IProviders finalProviders = new Providers();
             Quantity remainingQuantity = GetQuantity();
-            
-            IProviders providersByExisting = SatisfyByExistingProvider();
+
+            Provider providersByExisting =
+                SatisfyByExistingNonExhaustedProvider(demandToProviders, GetArticle());
             if (providersByExisting != null)
             {
-                finalProviders = providersByExisting;
-                if (providersByExisting.IsSatisfied(this))
+                finalProviders.Add(providersByExisting);
+                if (finalProviders.IsSatisfied(this))
                 {
                     return finalProviders;
                 }
 
                 remainingQuantity =
-                    remainingQuantity.Minus(finalProviders.GetSatisfiedQuantity(this));
+                    finalProviders.GetMissingQuantity(this);
             }
-            
-            Providers providersByStock = SatisfyByStock(remainingQuantity);
+
+            IProviders providersByStock = SatisfyByStock(remainingQuantity, dbTransactionData);
             finalProviders.AddAll(providersByStock);
             return finalProviders;
-
         }
 
-        public IProviders Satisfy(IDemandToProviders demandToProviders,
-            IDbTransactionData dbTransactionData, IDemands nextDemands)
+        public Provider SatisfyByExistingNonExhaustedProvider(IDemandToProviders demandToProviders,
+            M_Article article)
+        {
+            return demandToProviders.FindNonExhaustedProvider(article);
+        }
+
+        public IProviders SatisfyByStock(Quantity missingQuantity,
+            IDbTransactionData dbTransactionData)
         {
             IProviders providers = new Providers();
 
-            // use existing provider, if one is not exhausted
-            Provider nonExhaustedProvider =
-                demandToProviders.FindNonExhaustedProvider(GetArticle());
-            Quantity unsatisfiedQuantity = GetQuantity();
-            Quantity nullQuantity = new Quantity(0);
-            if (nonExhaustedProvider != null)
+            // satisfy by stock
+            Provider stockExchangeProvider = StockExchangeProvider.CreateStockProvider(GetArticle(), GetDueTime(),
+                missingQuantity, _dbMasterDataCache, dbTransactionData);
+            if (stockExchangeProvider != null)
             {
-                unsatisfiedQuantity = unsatisfiedQuantity.Minus(nonExhaustedProvider.GetQuantity());
-                providers.Add(nonExhaustedProvider);
-                if (unsatisfiedQuantity.Equals(nullQuantity))
+                providers.Add(stockExchangeProvider);
+                missingQuantity = providers.GetMissingQuantity(this);
+                if (missingQuantity.IsNull())
                 {
                     return providers;
                 }
             }
-
-            Providers createdProviders;
-            // satisfy by stock if such exist for this article
-            if (_dbMasterDataCache.M_StockGetByArticleId(GetArticleId()) != null)
-            {
-                createdProviders = StockExchangeProvider.CreateStockProvider(GetArticle(),
-                    GetDueTime(), unsatisfiedQuantity, _dbMasterDataCache, dbTransactionData);
-            }
-
+            
             // satisfy by provider
-            Logger.Debug($"Create a providers for article {this}:");
+            Logger.Debug($"Satisfy by order for article {this}:");
 
-            createdProviders = SatisfyByOrders(dbTransactionData, unsatisfiedQuantity);
+            IProviders createdProviders = SatisfyByOrders(dbTransactionData, missingQuantity);
             providers.AddAll(createdProviders);
-            // TODO: performance: this could be faster, if do adding dependingDemands directly instead of using Any
-            if (createdProviders.AnyDependingDemands())
-            {
-                // TODO: This should do the caller, but then the caller must get providers and nextDemands...
-                nextDemands.AddAll(createdProviders.GetAllDependingDemands());
-            }
 
-            return providers;
+            return createdProviders;
         }
 
         public T_Demand ToT_Demand()
@@ -193,15 +183,6 @@ namespace Zpp.DemandDomain
         {
             return new Id(_demand.DemandId.GetValueOrDefault());
         }
-
-        public Providers SatisfyByExistingProvider()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Providers SatisfyByStock()
-        {
-            throw new System.NotImplementedException();
-        }
+        
     }
 }

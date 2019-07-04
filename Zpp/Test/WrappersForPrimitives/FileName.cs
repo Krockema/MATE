@@ -12,7 +12,7 @@ namespace Zpp.Test.WrappersForPrimitives
             _fileName = fileName;
         }
 
-        public string GetFileName()
+        public string GetValue()
         {
             return _fileName;
         }
