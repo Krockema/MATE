@@ -197,5 +197,10 @@ namespace Zpp
         {
             return _tDemands.GetById(id);
         }
+
+        public List<M_Stock> M_StockGetAll()
+        {
+            return _stocks.GetAll();
+        }
     }
 }

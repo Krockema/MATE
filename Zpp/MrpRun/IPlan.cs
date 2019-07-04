@@ -16,5 +16,11 @@ namespace Zpp
         IDemandToProviderTable GetDemandToProviders();
 
         IDbTransactionData GetDbTransactionData();
+
+        /**
+         * returns the DbMasterDataCache after the run which is+will not persisted
+         * (only for validation purpose)
+         */
+        IDbMasterDataCache GetNotPersistedDbMasterDataCache();
     }
 }

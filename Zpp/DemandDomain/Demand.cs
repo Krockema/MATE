@@ -115,6 +115,7 @@ namespace Zpp.DemandDomain
             IProviders finalProviders = new Providers();
             Quantity remainingQuantity = GetQuantity();
 
+            // satisfy by existing provider
             Provider providersByExisting =
                 SatisfyByExistingNonExhaustedProvider(demandToProviders, GetArticle());
             if (providersByExisting != null)
@@ -129,6 +130,7 @@ namespace Zpp.DemandDomain
                     finalProviders.GetMissingQuantity(this);
             }
 
+            // satisfy by stock (includes productionOrder/PurchaseOrderPart)
             IProviders providersByStock = SatisfyByStock(remainingQuantity, dbTransactionData);
             finalProviders.AddAll(providersByStock);
             return finalProviders;
@@ -162,8 +164,13 @@ namespace Zpp.DemandDomain
             Logger.Debug($"Satisfy by order for article {this}:");
 
             IProviders createdProviders = SatisfyByOrders(dbTransactionData, missingQuantity);
+            // performance: is already called in SatisfyByOrders --> cache it
+            Quantity providedQuantity = createdProviders.GetProvidedQuantity(this);
             providers.AddAll(createdProviders);
-
+            // increase stock
+            _dbMasterDataCache.M_StockGetByArticleId(GetArticleId()).Current +=
+                providedQuantity.GetValue();
+            
             return createdProviders;
         }
 

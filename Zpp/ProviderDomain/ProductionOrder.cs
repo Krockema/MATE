@@ -113,9 +113,9 @@ namespace Zpp.ProviderDomain
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Provider parentProvider, Quantity quantity)
         {
-            _demands = CreateProductionOrderBoms(article, dbTransactionData, dbMasterDataCache,
+            _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData, dbMasterDataCache,
                 parentProvider, quantity);
-            return _demands;
+            return _dependingDemands;
         }
     }
 }

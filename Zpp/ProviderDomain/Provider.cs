@@ -16,7 +16,7 @@ namespace Zpp.ProviderDomain
      */
     public abstract class Provider : IProviderLogic
     {
-        protected Demands _demands;
+        protected Demands _dependingDemands;
         protected readonly IProvider _provider;
         protected readonly IDbMasterDataCache _dbMasterDataCache;
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -33,7 +33,7 @@ namespace Zpp.ProviderDomain
 
         public Demands GetAllDependingDemands()
         {
-            return _demands;
+            return _dependingDemands;
         }
         
         public DueTime GetDueTime()
@@ -67,7 +67,7 @@ namespace Zpp.ProviderDomain
 
         public bool AnyDependingDemands()
         {
-            return _demands != null && _demands.Any();
+            return _dependingDemands != null && _dependingDemands.Any();
         }
 
         public abstract Id GetArticleId();
@@ -86,12 +86,15 @@ namespace Zpp.ProviderDomain
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Provider parentProvider, Quantity quantity);
         
+        /**
+         * returns Quantity.Null or higher
+         */
         public static Quantity CalcQuantityProvidedByProvider(Quantity providedQuantity,
             Quantity demandedQuantity)
         {
-            if (!providedQuantity.IsGreaterThan(new Quantity(0)))
+            if (!providedQuantity.IsGreaterThan(Quantity.Null()))
             {
-                return null;
+                return Quantity.Null();
             }
 
             if (providedQuantity.IsGreaterThanOrEqualTo(demandedQuantity))

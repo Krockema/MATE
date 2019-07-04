@@ -41,5 +41,7 @@ namespace Zpp.ProviderDomain
         bool IsSatisfied(Demand demand);
 
         Quantity GetMissingQuantity(Demand demand);
+
+        Quantity GetProvidedQuantity(Demand demand);
     }
 }

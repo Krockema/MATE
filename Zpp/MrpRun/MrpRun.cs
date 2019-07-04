@@ -40,7 +40,7 @@ namespace Zpp
                     dbMasterDataCache.T_CustomerOrderPartGetAll());
 
                 return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(),
-                dbTransactionData.DemandToProviderGetAll(), dbTransactionData);
+                dbTransactionData.DemandToProviderGetAll(), dbTransactionData, dbMasterDataCache);
         }
 
         private static void ProcessDbDemands(IDbTransactionData dbTransactionData,

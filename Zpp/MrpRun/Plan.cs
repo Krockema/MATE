@@ -11,14 +11,16 @@ namespace Zpp
         private IProviders _providers;
         private IDemandToProviderTable _demandToProviderTable;
         private IDbTransactionData _dbTransactionData;
+        private IDbMasterDataCache _notPersistedDbMasterDataCache;
 
         public Plan(IDemands demands, IProviders providers,
-            IDemandToProviderTable demandToProviders, IDbTransactionData dbTransactionData)
+            IDemandToProviderTable demandToProviders, IDbTransactionData dbTransactionData, IDbMasterDataCache notPersistedDbMasterDataCache)
         {
             _demands = demands;
             _providers = providers;
             _demandToProviderTable = demandToProviders;
             _dbTransactionData = dbTransactionData;
+            _notPersistedDbMasterDataCache = notPersistedDbMasterDataCache;
         }
 
         public IDemands GetDemands()
@@ -39,6 +41,11 @@ namespace Zpp
         public IDbTransactionData GetDbTransactionData()
         {
             return _dbTransactionData;
+        }
+
+        public IDbMasterDataCache GetNotPersistedDbMasterDataCache()
+        {
+            return _notPersistedDbMasterDataCache;
         }
     }
 }

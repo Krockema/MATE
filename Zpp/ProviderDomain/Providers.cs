@@ -81,7 +81,7 @@ namespace Zpp.ProviderDomain
             return GetProvidedQuantity(demand).IsGreaterThanOrEqualTo(demand.GetQuantity());
         }
 
-        private Quantity GetProvidedQuantity(Demand demand)
+        public Quantity GetProvidedQuantity(Demand demand)
         {
             Quantity providedQuantity = new Quantity();
             
