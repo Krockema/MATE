@@ -16,30 +16,8 @@ namespace Zpp.Test
         const string
             skipThisTestClass =
                 "ObjectCalisthenicsTest is currenctly disabled."; // TODO: change to null to enable this class
-
-        [Fact]
-        public void testInterfacesUseInterfacesAsParametersAndResturns()
-        {
-            
-            traverseAllCsharpFilesAndExecute((line, lineNumber, fileName) =>
-            {
-                String[] fileIgnoreList = new String[]
-                {
-                    ""
-                };
-                if (fileName.GetValue().StartsWith("I") && !fileIgnoreList.Contains(fileName.GetValue()))
-                {
-                    var regexReturnType = new Regex("(^.+[A-Z]+[0-9]*\\($)");
-                    Match match = regexReturnType.Match(line.GetValue());
-    
-                        Assert.True(match.Value.StartsWith("I"),
-                            $"{fileName}:{lineNumber} return type is not an interface.");
-                }
-                // TODO assert parameters are also interfaces
-                
-            });
-        }
         
+
         [Fact(Skip = skipThisTestClass)]
         /**
          * Rule no. 2: Don't use else-keyword
