@@ -14,7 +14,7 @@ namespace Zpp.DemandDomain
      */
     public interface IDemandLogic
     {
-        Providers CreateProviders(IDbTransactionData dbTransactionData, Quantity quantity);
+        
 
         IDemand ToIDemand();
         
@@ -34,6 +34,12 @@ namespace Zpp.DemandDomain
 
         Providers Satisfy(IDemandToProviders demandToProviders, IDbTransactionData dbTransactionData,
             Demands nextDemands);
+
+        Providers SatisfyByExistingProvider();
+
+        Providers SatisfyByStock();
         
+        Providers SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity quantity);
+
     }
 }

@@ -28,10 +28,10 @@ namespace Zpp.DemandDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Providers CreateProviders(IDbTransactionData dbTransactionData, Quantity quantity)
+        public Providers SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity quantity)
         {
             M_Article article = GetArticle();
-            Providers providers = new Providers();
+            IProviders providers = new Providers();
             
             // make or buy
             if (article.ToBuild)
@@ -109,10 +109,35 @@ namespace Zpp.DemandDomain
             return new Id(GetArticle().Id);
         }
 
-        public Providers Satisfy(IDemandToProviders demandToProviders,
+        public IProviders Satisfy2(IDemandToProviders demandToProviders,
             IDbTransactionData dbTransactionData, Demands nextDemands)
         {
-            Providers providers = new Providers();
+            IProviders finalProviders = new Providers();
+            Quantity remainingQuantity = GetQuantity();
+            
+            IProviders providersByExisting = SatisfyByExistingProvider();
+            if (providersByExisting != null)
+            {
+                finalProviders = providersByExisting;
+                if (providersByExisting.IsSatisfied(this))
+                {
+                    return finalProviders;
+                }
+
+                remainingQuantity =
+                    remainingQuantity.Minus(finalProviders.GetSatisfiedQuantity(this));
+            }
+            
+            Providers providersByStock = SatisfyByStock(remainingQuantity);
+            finalProviders.AddAll(providersByStock);
+            return finalProviders;
+
+        }
+
+        public IProviders Satisfy(IDemandToProviders demandToProviders,
+            IDbTransactionData dbTransactionData, IDemands nextDemands)
+        {
+            IProviders providers = new Providers();
 
             // use existing provider, if one is not exhausted
             Provider nonExhaustedProvider =
@@ -129,29 +154,18 @@ namespace Zpp.DemandDomain
                 }
             }
 
-            // satisfy by stock if possible
-            Provider stockProvider = StockExchangeProvider.CreateStockProvider(GetArticle(),
-                GetDueTime(), unsatisfiedQuantity, _dbMasterDataCache, dbTransactionData);
-            if (stockProvider != null)
+            Providers createdProviders;
+            // satisfy by stock if such exist for this article
+            if (_dbMasterDataCache.M_StockGetByArticleId(GetArticleId()) != null)
             {
-                unsatisfiedQuantity.Minus(stockProvider.GetQuantity());
-                providers.Add(stockProvider);
-                if (stockProvider.AnyDependingDemands())
-                {
-                    // TODO: This should do the caller, but then the caller must get providers and nextDemands...
-                    nextDemands.AddAll(stockProvider.GetAllDependingDemands());
-                }
-
-                if (unsatisfiedQuantity.Equals(nullQuantity))
-                {
-                    return providers;
-                }
+                createdProviders = StockExchangeProvider.CreateStockProvider(GetArticle(),
+                    GetDueTime(), unsatisfiedQuantity, _dbMasterDataCache, dbTransactionData);
             }
 
             // satisfy by provider
             Logger.Debug($"Create a providers for article {this}:");
 
-            Providers createdProviders = CreateProviders(dbTransactionData, unsatisfiedQuantity);
+            createdProviders = SatisfyByOrders(dbTransactionData, unsatisfiedQuantity);
             providers.AddAll(createdProviders);
             // TODO: performance: this could be faster, if do adding dependingDemands directly instead of using Any
             if (createdProviders.AnyDependingDemands())
@@ -178,6 +192,16 @@ namespace Zpp.DemandDomain
         public Id GetT_DemandId()
         {
             return new Id(_demand.DemandId.GetValueOrDefault());
+        }
+
+        public Providers SatisfyByExistingProvider()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Providers SatisfyByStock()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

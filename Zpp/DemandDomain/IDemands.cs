@@ -15,11 +15,11 @@ namespace Zpp.DemandDomain
         
         void Add(Demand demand);
         
-        void AddAll(Demands demands);
+        void AddAll(IDemands demands);
 
         List<Demand> GetAll();
         
-        List<IDemand> GetAllAsIDemand();
+        List<Demand> GetAllAsIDemand();
 
         List<T> GetAllAs<T>();
         

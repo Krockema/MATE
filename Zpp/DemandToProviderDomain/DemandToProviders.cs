@@ -12,7 +12,7 @@ namespace Zpp.DemandToProviderDomain
     
     public class DemandToProviders : IDemandToProviders
     {
-        private readonly Dictionary<Demand, Providers> _demandToProviders = new Dictionary<Demand, Providers>();
+        private readonly Dictionary<Demand, IProviders> _demandToProviders = new Dictionary<Demand, IProviders>();
         private readonly IProviderToDemands _providerToDemands = new ProviderToDemands();
         private const int MAX_PROVIDERS_PER_DEMAND = 2;
 

@@ -347,9 +347,9 @@ namespace Zpp
         }
 
 
-        public Providers ProvidersGetAll()
+        public IProviders ProvidersGetAll()
         {
-            Providers providers = new Providers();
+            IProviders providers = new Providers();
             providers.AddAll(_productionOrders);
             providers.AddAll(_purchaseOrderParts);
             providers.AddAll(_stockExchangeProviders);

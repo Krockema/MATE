@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Master40.DB.Interfaces;
 using Zpp;
 using Zpp.DemandDomain;
 using Zpp.WrappersForPrimitives;
@@ -17,7 +18,7 @@ namespace Zpp.ProviderDomain
         
         void Add(Provider provider);
 
-        void AddAll(Providers providers);
+        void AddAll(IProviders providers);
         
         List<Provider> GetAll();
         
@@ -35,6 +36,10 @@ namespace Zpp.ProviderDomain
 
         bool AnyDependingDemands();
 
-        Demands GetAllDependingDemands();
+        IDemands GetAllDependingDemands();
+
+        bool IsSatisfied(Demand demand);
+
+        Quantity GetSatisfiedQuantity(Demand demand);
     }
 }

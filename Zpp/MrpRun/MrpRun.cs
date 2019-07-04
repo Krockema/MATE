@@ -44,11 +44,11 @@ namespace Zpp
         }
 
         private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
-            Demands dbDemands)
+            IDemands dbDemands)
         {
             // init
-            Providers providers = new Providers();
-            Demands finalAllDemands = new Demands();
+            IProviders providers = new Providers();
+            IDemands finalAllDemands = new Demands();
             IDemandToProviders demandToProviders = new DemandToProviders();
 
             foreach (var oneDbDemand in dbDemands.GetAll())
@@ -62,22 +62,22 @@ namespace Zpp
                 // where every level is sorted by urgency & fix
                 // and all created demands within a level is put to level below
 
-                List<Demands> levelDemandManagers = new List<Demands>();
+                List<IDemands> levelDemandManagers = new List<IDemands>();
                 // first level has the given oneDbDemand from database, while levels below are initially empty
 
                 HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
-                Demands firstLevelDemandManager = new Demands(hierarchyNumber);
+                IDemands firstLevelDemandManager = new Demands(hierarchyNumber);
                 firstLevelDemandManager.Add(oneDbDemand);
                 levelDemandManagers.Add(firstLevelDemandManager);
 
 
                 while (true)
                 {
-                    Demands currentDemandManager = levelDemandManagers[0];
+                    IDemands currentDemandManager = levelDemandManagers[0];
                     currentDemandManager.OrderDemandsByUrgency();
                     // add new level for next creating demands (evolving tree of demands)
                     hierarchyNumber.increment();
-                    Demands nextDemandManager = new Demands(hierarchyNumber);
+                    IDemands nextDemandManager = new Demands(hierarchyNumber);
                     levelDemandManagers.Add(nextDemandManager);
                     // demands in currentDemandManager are not allowed to be expanded,
                     // nextDemandManager must be used for this
@@ -101,7 +101,6 @@ namespace Zpp
                     {
                         break;
                     }
-
                     finalAllDemands.AddAll(nextDemandManager);
                 }
             }

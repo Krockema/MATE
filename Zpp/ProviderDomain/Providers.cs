@@ -56,7 +56,7 @@ namespace Zpp.ProviderDomain
             _providers.Add(provider);
         }
 
-        public void AddAll(Providers providers)
+        public void AddAll(IProviders providers)
         {
             _providers.AddRange(providers.GetAll());
         }
@@ -121,9 +121,9 @@ namespace Zpp.ProviderDomain
             return false;
         }
 
-        public Demands GetAllDependingDemands()
+        public IDemands GetAllDependingDemands()
         {
-            Demands dependingDemands = new Demands();
+            IDemands dependingDemands = new Demands();
             foreach (var provider in _providers)
             {
                 dependingDemands.AddAll(provider.GetAllDependingDemands());

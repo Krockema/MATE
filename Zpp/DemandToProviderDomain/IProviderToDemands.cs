@@ -18,6 +18,6 @@ namespace Zpp.DemandToProviderDomain
 
         Provider FindNonExhaustedProvider(M_Article article);
 
-        Providers GetAllProviders();
+        IProviders GetAllProviders();
     }
 }

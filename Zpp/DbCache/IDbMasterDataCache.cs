@@ -41,6 +41,9 @@ namespace Zpp
 
         M_Stock M_StockGetById(Id id);
         
+        /**
+         * returns the stock for given article if such exist, else null
+         */
         M_Stock M_StockGetByArticleId(Id articleId);
 
         M_Unit M_UnitGetById(Id id);
