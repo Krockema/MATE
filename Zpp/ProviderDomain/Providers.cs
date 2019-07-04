@@ -107,5 +107,29 @@ namespace Zpp.ProviderDomain
         {
             return _providers.Select(x => x.ToT_Provider()).ToList();
         }
+
+        public bool AnyDependingDemands()
+        {
+            foreach (var provider in _providers)
+            {
+                if (provider.AnyDependingDemands())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public Demands GetAllDependingDemands()
+        {
+            Demands dependingDemands = new Demands();
+            foreach (var provider in _providers)
+            {
+                dependingDemands.AddAll(provider.GetAllDependingDemands());
+            }
+
+            return dependingDemands;
+        }
     }
 }

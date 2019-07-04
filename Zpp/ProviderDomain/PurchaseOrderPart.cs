@@ -5,6 +5,8 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.Utils;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -36,29 +38,34 @@ namespace Zpp.ProviderDomain
             throw new System.NotImplementedException();
         }
 
-        public static Provider CreatePurchaseOrderPart(Demand demand, ILotSize lotSize,
+        public static Provider CreatePurchaseOrderPart(Id demandId, M_Article article, DueTime dueTime, Quantity lotSize,
             IDbMasterDataCache dbMasterDataCache)
         {
+            if (article.ToBuild)
+            {
+                throw new MrpRunException("You try to create a purchaseOrderPart for a articleToBuild.");
+            }
+            
             // currently only one businessPartner per article TODO: This could be changing
             M_ArticleToBusinessPartner articleToBusinessPartner =
-                dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(demand.GetArticleId())
+                dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(article.GetId())
                     [0];
             M_BusinessPartner businessPartner =
                 dbMasterDataCache.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
                     .BusinessPartnerId));
             T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
             // [Name],[DueTime],[BusinessPartnerId]
-            purchaseOrder.DueTime = demand.GetDueTime().GetValue();
+            purchaseOrder.DueTime = dueTime.GetValue();
             purchaseOrder.BusinessPartner = businessPartner;
-            purchaseOrder.Name = $"PurchaseOrder{demand.GetArticle().Name} for " +
+            purchaseOrder.Name = $"PurchaseOrder{article.Name} for " +
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";
 
 
             // demand cannot be fulfilled in time
-            if (articleToBusinessPartner.DueTime > demand.GetDueTime().GetValue())
+            if (articleToBusinessPartner.DueTime > dueTime.GetValue())
             {
-                Logger.Error($"Article {demand.GetArticle().Id} from demand {demand.GetId()} " +
-                             $"should be available at {demand.GetDueTime()}, but " +
+                Logger.Error($"Article {article.GetId()} from demand {demandId} " +
+                             $"should be available at {dueTime}, but " +
                              $"businessPartner {businessPartner.Id} " +
                              $"can only deliver at {articleToBusinessPartner.DueTime}.");
             }
@@ -68,10 +75,10 @@ namespace Zpp.ProviderDomain
 
             // [PurchaseOrderId],[ArticleId],[Quantity],[State],[ProviderId]
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
-            purchaseOrderPart.Article = demand.GetArticle();
+            purchaseOrderPart.Article = article;
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    lotSize.GetCalculatedQuantity()) *
+                    lotSize) *
                 articleToBusinessPartner
                     .PackSize; // TODO: is amount*packSize in var quantity correct?
             purchaseOrderPart.State = State.Created;

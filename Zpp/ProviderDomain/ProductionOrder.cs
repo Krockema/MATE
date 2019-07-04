@@ -24,7 +24,7 @@ namespace Zpp.ProviderDomain
 
         public static ProductionOrder CreateProductionOrder(Demand demand,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            ILotSize lotSize)
+            Quantity lotSize)
         {
             if (!demand.GetArticle().ToBuild)
             {
@@ -40,7 +40,7 @@ namespace Zpp.ProviderDomain
             tProductionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
             // connects this provider with table T_Provider
             tProductionOrder.Provider = new T_Provider();
-            tProductionOrder.Quantity = lotSize.GetCalculatedQuantity().GetValue();
+            tProductionOrder.Quantity = lotSize.GetValue();
             tProductionOrder.Provider = new T_Provider();
             tProductionOrder.ProviderId = tProductionOrder.Provider.Id;
 

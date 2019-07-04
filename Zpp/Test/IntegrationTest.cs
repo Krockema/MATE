@@ -42,7 +42,7 @@ namespace Zpp.Test
             {
                 bool isSatisfied = 
                     demandToProviders.IsSatisfied(demand);
-                Assert.True(isSatisfied, "The demand should be satisfied, but it is NOT.");
+                Assert.True(isSatisfied, $"The demand {demand} should be satisfied, but it is NOT.");
             }
 
             // check certain constraints are not violated

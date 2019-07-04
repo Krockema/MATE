@@ -14,13 +14,13 @@ namespace Zpp.ProviderDomain
      */
     public interface IProviderLogic
     {
-        Demands GetDemands();
+        Demands GetAllDependingDemands();
 
         IProvider ToIProvider();
 
         Quantity GetQuantity();
 
-        bool AnyDemands();
+        bool AnyDependingDemands();
 
         Id GetArticleId();
         

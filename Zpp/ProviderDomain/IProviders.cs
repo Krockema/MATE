@@ -32,5 +32,9 @@ namespace Zpp.ProviderDomain
         bool Any();
         
         void Clear();
+
+        bool AnyDependingDemands();
+
+        Demands GetAllDependingDemands();
     }
 }

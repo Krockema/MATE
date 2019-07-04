@@ -31,7 +31,7 @@ namespace Zpp.ProviderDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Demands GetDemands()
+        public Demands GetAllDependingDemands()
         {
             return _demands;
         }
@@ -65,7 +65,7 @@ namespace Zpp.ProviderDomain
             return _provider.GetQuantity();
         }
 
-        public bool AnyDemands()
+        public bool AnyDependingDemands()
         {
             return _demands != null && _demands.Any();
         }

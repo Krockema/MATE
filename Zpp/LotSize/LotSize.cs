@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 
 namespace Zpp.LotSize
@@ -14,16 +15,20 @@ namespace Zpp.LotSize
             _articleId = articleId;
         }
 
-        public Quantity GetCalculatedQuantity()
+        public List<Quantity> GetCalculatedQuantity()
         {
+            List<Quantity> lotSizes = new List<Quantity>();
+            
             // you work on a copy here
             Quantity calculatedQuantity = new Quantity(_lotSize);
+            lotSizes.Add(calculatedQuantity);
             while (calculatedQuantity.IsSmallerThan(_neededQuantity))
             {
+                lotSizes.Add(_lotSize);
                 calculatedQuantity.IncrementBy(_lotSize);
             }
             
-            return calculatedQuantity;
+            return lotSizes;
         }
     }
 }

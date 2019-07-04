@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp;
 using Zpp.ProviderDomain;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.DemandToProviderDomain;
-using Zpp.LotSize;
 
 namespace Zpp.DemandDomain
 {
@@ -34,23 +28,35 @@ namespace Zpp.DemandDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Provider CreateProvider(IDbTransactionData dbTransactionData, Quantity quantity)
+        public Providers CreateProviders(IDbTransactionData dbTransactionData, Quantity quantity)
         {
             M_Article article = GetArticle();
-
+            Providers providers = new Providers();
+            
             // make or buy
-            ILotSize lotSize = new LotSize.LotSize(quantity, GetArticleId());
             if (article.ToBuild)
             {
-                ProductionOrder productionOrder =
-                    ProductionOrder.CreateProductionOrder(this, dbTransactionData,
-                        _dbMasterDataCache, lotSize);
-                Logger.Debug("ProductionOrder created.");
-                return productionOrder;
+                LotSize.LotSize lotSizes = new LotSize.LotSize(quantity, GetArticleId());
+                foreach (var lotSize in lotSizes.GetCalculatedQuantity())
+                {
+                    ProductionOrder productionOrder =
+                        ProductionOrder.CreateProductionOrder(this, dbTransactionData,
+                            _dbMasterDataCache, lotSize);
+                    Logger.Debug("ProductionOrder created.");
+                    providers.Add(productionOrder);
+                }
+
+                return providers;
             }
 
             // TODO: revisit all methods that have this as parameter
-            return PurchaseOrderPart.CreatePurchaseOrderPart(this, lotSize, _dbMasterDataCache);
+            PurchaseOrderPart purchaseOrderPart =
+                (PurchaseOrderPart) PurchaseOrderPart.CreatePurchaseOrderPart(GetId(), GetArticle(),
+                    GetDueTime(), quantity, _dbMasterDataCache);
+            Logger.Debug("PurchaseOrderPart created.");
+            providers.Add(purchaseOrderPart);
+            
+            return providers;
         }
 
 
@@ -109,7 +115,8 @@ namespace Zpp.DemandDomain
             Providers providers = new Providers();
 
             // use existing provider, if one is not exhausted
-            Provider nonExhaustedProvider = demandToProviders.FindNonExhaustedProvider(GetArticle());
+            Provider nonExhaustedProvider =
+                demandToProviders.FindNonExhaustedProvider(GetArticle());
             Quantity unsatisfiedQuantity = GetQuantity();
             Quantity nullQuantity = new Quantity(0);
             if (nonExhaustedProvider != null)
@@ -129,12 +136,12 @@ namespace Zpp.DemandDomain
             {
                 unsatisfiedQuantity.Minus(stockProvider.GetQuantity());
                 providers.Add(stockProvider);
-                if (stockProvider.AnyDemands())
+                if (stockProvider.AnyDependingDemands())
                 {
                     // TODO: This should do the caller, but then the caller must get providers and nextDemands...
-                    nextDemands.AddAll(stockProvider.GetDemands());
+                    nextDemands.AddAll(stockProvider.GetAllDependingDemands());
                 }
-                
+
                 if (unsatisfiedQuantity.Equals(nullQuantity))
                 {
                     return providers;
@@ -142,14 +149,15 @@ namespace Zpp.DemandDomain
             }
 
             // satisfy by provider
-            Logger.Debug($"Create a provider for article {this}:");
+            Logger.Debug($"Create a providers for article {this}:");
 
-            Provider createdProvider = CreateProvider(dbTransactionData, unsatisfiedQuantity);
-            providers.Add(createdProvider);
-            if (createdProvider.AnyDemands())
+            Providers createdProviders = CreateProviders(dbTransactionData, unsatisfiedQuantity);
+            providers.AddAll(createdProviders);
+            // TODO: performance: this could be faster, if do adding dependingDemands directly instead of using Any
+            if (createdProviders.AnyDependingDemands())
             {
                 // TODO: This should do the caller, but then the caller must get providers and nextDemands...
-                nextDemands.AddAll(createdProvider.GetDemands());
+                nextDemands.AddAll(createdProviders.GetAllDependingDemands());
             }
 
             return providers;
@@ -159,8 +167,11 @@ namespace Zpp.DemandDomain
         {
             if (_demand.Demand == null)
             {
-                _demand.Demand = _dbMasterDataCache.T_DemandGetById(new Id(_demand.DemandId.GetValueOrDefault()));
+                _demand.Demand =
+                    _dbMasterDataCache.T_DemandGetById(
+                        new Id(_demand.DemandId.GetValueOrDefault()));
             }
+
             return _demand.Demand;
         }
 
