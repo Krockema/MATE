@@ -20,12 +20,13 @@ namespace Zpp.Test
             // explicitly force to call the super constructor
         }
         
-        [Fact (Skip = "Tests unused functionality")]
+        [Fact]
         public void testArticleTree()
         {
             LOGGER.Debug("Starting: testArticleTree");
 
-            M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
+            M_ArticleBom rootArticle =
+                ProductionDomainContext.ArticleBoms.Where(x => x.Name.Equals("Dump-Truck")).ToList()[0];
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             DbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
@@ -86,7 +87,7 @@ namespace Zpp.Test
             }
         }
 
-        [Fact (Skip = "Tests unused functionality")]
+        [Fact]
         public void testTreeToolTraverseTree()
         {
             LOGGER.Debug("Starting: testTreeToolTraverseTree");
@@ -97,7 +98,8 @@ namespace Zpp.Test
                 6, 2, 4, 18, 6, 23, 5, 9, 11, 8, 3, 10, 7
             };
             int counter = 0;
-            M_ArticleBom rootArticle = ProductionDomainContext.ArticleBoms.Single(x => x.Id == 1);
+            M_ArticleBom rootArticle =
+                ProductionDomainContext.ArticleBoms.Where(x => x.Name.Equals("Dump-Truck")).ToList()[0];
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             DbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
