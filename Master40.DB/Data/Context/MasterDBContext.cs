@@ -24,7 +24,7 @@ namespace Master40.DB.Data.Context
         public DbSet<M_Unit> Units { get; set; }
         public DbSet<M_Operation> Operations { get; set; }
         public DbSet<T_DemandToProvider> DemandToProviders { get; set; }
-        //public DbSet<DemandToProvider> DemandToProvider { get; set; }
+        public DbSet<T_ProviderToDemand> ProviderToDemand { get; set; }
         public DbSet<T_CustomerOrder> CustomerOrders { get; set; }
         public DbSet<T_CustomerOrderPart> CustomerOrderParts { get; set; }
         public DbSet<T_PurchaseOrder> PurchaseOrders { get; set; }
@@ -153,6 +153,8 @@ namespace Master40.DB.Data.Context
                 .ToTable("T_Provider");
             modelBuilder.Entity<T_DemandToProvider>()
                 .ToTable("T_DemandToProvider");
+            modelBuilder.Entity<T_ProviderToDemand>()
+                .ToTable("T_ProviderToDemand");
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

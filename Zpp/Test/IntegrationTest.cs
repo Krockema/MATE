@@ -40,6 +40,7 @@ namespace Zpp.Test
             foreach (var rootArticle in rootArticles)
             {
                 // TODO: traverse the demandToProviders, not the articleTree
+                // --> therefore fill the new T_ProviderToDemand table
                 ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
 
 
