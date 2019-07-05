@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Linq;
+using Master40.SimulationCore.Environment.Abstractions;
 
 namespace Master40.Simulation
 {
@@ -13,6 +14,7 @@ namespace Master40.Simulation
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to AkkaSim Cli");
+            
 
             var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[0]);
             var validCommands = new Commands();
@@ -49,6 +51,11 @@ namespace Master40.Simulation
         private static async Task RunSimulationTask(ProductionDomainContext masterDb
                                                     , SimulationCore.Environment.Configuration config)
         {
+            foreach (var item in config)
+            {
+                Console.WriteLine(item.Key + " " + ((dynamic)item.Value).Value.ToString());
+            }
+
             try
             {
                 Console.WriteLine("Starting AkkaSim.");

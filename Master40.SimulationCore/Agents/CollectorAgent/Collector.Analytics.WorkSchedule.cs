@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using AkkaSim;
+﻿using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -200,9 +199,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             C = mg.Sum(x => x.C),
                             W = mg.Sum(x => x.W)
                         };
-
-
-            
 
             foreach (var item in final.OrderBy(x => x.M))
             {
