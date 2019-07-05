@@ -24,9 +24,9 @@ namespace Zpp
         {
         }
 
-        public DemandToProviderTable(IDemandToProviders demandToProviders)
+        public DemandToProviderTable(IDemandToProvidersMap demandToProvidersMap)
         {
-            _demandToProviderEntities.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
+            _demandToProviderEntities.AddRange(demandToProvidersMap.ToDemandToT_DemandToProvider());
         }
 
         public List<T_DemandToProvider> GetAll()
@@ -34,14 +34,14 @@ namespace Zpp
             return _demandToProviderEntities;
         }
 
-        public void AddAll(IDemandToProviders demandToProviders)
+        public void AddAll(IDemandToProvidersMap demandToProvidersMap)
         {
-            _demandToProviderEntities.AddRange(demandToProviders.ToDemandToT_DemandToProvider());
+            _demandToProviderEntities.AddRange(demandToProvidersMap.ToDemandToT_DemandToProvider());
         }
 
-        public IDemandToProviders ToDemandToProviders(IDbTransactionData dbTransactionData)
+        public IDemandToProvidersMap ToDemandToProviders(IDbTransactionData dbTransactionData)
         {
-            IDemandToProviders demandToProviders = new DemandToProviders();
+            IDemandToProvidersMap demandToProvidersMap = new DemandToProvidersMap();
             
             foreach (var demandToProviderEntity in _demandToProviderEntities)
             {
@@ -54,11 +54,11 @@ namespace Zpp
                     throw new MrpRunException("Could not find demand or provider.");
                 }
                 
-                demandToProviders.AddProviderForDemand(demand, provider);
+                demandToProvidersMap.AddProviderForDemand(demand, provider);
                     
             }
 
-            return demandToProviders;
+            return demandToProvidersMap;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Zpp.DemandToProviderDomain
      *
      * NOTE: the "s" at the end, has nothing to do with T_DemandToProvider table & IDemandToProvider interface (Those are dbRelated)
      */
-    public interface IDemandToProviders
+    public interface IDemandToProvidersMap
     {
         bool IsSatisfied(Demand demand);
 

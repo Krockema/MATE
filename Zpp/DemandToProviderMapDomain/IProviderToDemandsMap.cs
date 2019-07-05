@@ -7,7 +7,7 @@ namespace Zpp.DemandToProviderDomain
     /**
      * Maps one provider to demands. A provider can satisfy possibly n demands
      */
-    public interface IProviderToDemands
+    public interface IProviderToDemandsMap
     {
         /// <summary>
         /// demand is added to the provider

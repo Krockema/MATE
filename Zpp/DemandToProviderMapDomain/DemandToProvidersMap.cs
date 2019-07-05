@@ -10,10 +10,10 @@ using Zpp.Utils;
 namespace Zpp.DemandToProviderDomain
 {
     
-    public class DemandToProviders : IDemandToProviders
+    public class DemandToProvidersMap : IDemandToProvidersMap
     {
         private readonly Dictionary<Demand, IProviders> _demandToProviders = new Dictionary<Demand, IProviders>();
-        private readonly IProviderToDemands _providerToDemands = new ProviderToDemands();
+        private readonly IProviderToDemandsMap _providerToDemandsMap = new ProviderToDemandsMap();
         private const int MAX_PROVIDERS_PER_DEMAND = 2;
 
         public bool IsSatisfied(Demand demand)
@@ -40,12 +40,12 @@ namespace Zpp.DemandToProviderDomain
                 throw new MrpRunException($"One demand must not have more than {MAX_PROVIDERS_PER_DEMAND} providers.");
             }
             _demandToProviders[demand].Add(provider);
-            _providerToDemands.AddDemandForProvider(provider, demand);
+            _providerToDemandsMap.AddDemandForProvider(provider, demand);
             }
 
         public Provider FindNonExhaustedProvider(M_Article article)
         {
-            return _providerToDemands.FindNonExhaustedProvider(article);
+            return _providerToDemandsMap.FindNonExhaustedProvider(article);
         }
 
         public void AddProvidersForDemand(Demand demand, IProviders providers)
@@ -81,7 +81,7 @@ namespace Zpp.DemandToProviderDomain
 
         public List<T_Provider> ToT_Providers()
         {
-            return _providerToDemands.GetAllProviders().GetAllAsT_Provider();
+            return _providerToDemandsMap.GetAllProviders().GetAllAsT_Provider();
         }
         
         

@@ -6,10 +6,10 @@ namespace Zpp
 {
     public interface IDemandToProviderTable
     {
-        void AddAll(IDemandToProviders demandToProviders);
+        void AddAll(IDemandToProvidersMap demandToProvidersMap);
 
         List<T_DemandToProvider> GetAll();
 
-        IDemandToProviders ToDemandToProviders(IDbTransactionData dbTransactionData);
+        IDemandToProvidersMap ToDemandToProviders(IDbTransactionData dbTransactionData);
     }
 }

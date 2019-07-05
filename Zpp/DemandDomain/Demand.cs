@@ -109,7 +109,7 @@ namespace Zpp.DemandDomain
             return new Id(GetArticle().Id);
         }
 
-        public IProviders Satisfy(IDemandToProviders demandToProviders,
+        public IProviders Satisfy(IDemandToProvidersMap demandToProvidersMap,
             IDbTransactionData dbTransactionData)
         {
             IProviders finalProviders = new Providers();
@@ -117,7 +117,7 @@ namespace Zpp.DemandDomain
 
             // satisfy by existing provider
             Provider providersByExisting =
-                SatisfyByExistingNonExhaustedProvider(demandToProviders, GetArticle());
+                SatisfyByExistingNonExhaustedProvider(demandToProvidersMap, GetArticle());
             if (providersByExisting != null)
             {
                 finalProviders.Add(providersByExisting);
@@ -136,10 +136,10 @@ namespace Zpp.DemandDomain
             return finalProviders;
         }
 
-        public Provider SatisfyByExistingNonExhaustedProvider(IDemandToProviders demandToProviders,
+        public Provider SatisfyByExistingNonExhaustedProvider(IDemandToProvidersMap demandToProvidersMap,
             M_Article article)
         {
-            return demandToProviders.FindNonExhaustedProvider(article);
+            return demandToProvidersMap.FindNonExhaustedProvider(article);
         }
 
         public IProviders SatisfyByStock(Quantity missingQuantity,

@@ -32,13 +32,13 @@ namespace Zpp.DemandDomain
 
         Id GetT_DemandId();
 
-        IProviders Satisfy(IDemandToProviders demandToProviders,
+        IProviders Satisfy(IDemandToProvidersMap demandToProvidersMap,
             IDbTransactionData dbTransactionData);
 
         /**
          * For convenience
          */
-        Provider SatisfyByExistingNonExhaustedProvider(IDemandToProviders demandToProviders,
+        Provider SatisfyByExistingNonExhaustedProvider(IDemandToProvidersMap demandToProvidersMap,
             M_Article article);
 
         IProviders SatisfyByStock(Quantity missingQuantity, IDbTransactionData dbTransactionData);

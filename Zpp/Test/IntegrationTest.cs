@@ -133,11 +133,11 @@ namespace Zpp.Test
 
             IDemands actualDemands = plan.GetDemands();
 
-            IDemandToProviders demandToProviders = plan.GetDemandToProviders()
+            IDemandToProvidersMap demandToProvidersMap = plan.GetDemandToProviders()
                 .ToDemandToProviders(plan.GetDbTransactionData());
             foreach (var demand in actualDemands.GetAll())
             {
-                bool isSatisfied = demandToProviders.IsSatisfied(demand);
+                bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
                 Assert.True(isSatisfied,
                     $"The demand {demand} should be satisfied, but it is NOT.");
             }

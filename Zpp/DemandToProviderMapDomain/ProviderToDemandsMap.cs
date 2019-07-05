@@ -10,7 +10,7 @@ using Zpp.Utils;
 namespace Zpp.DemandToProviderDomain
 {
     
-    public class ProviderToDemands : IProviderToDemands
+    public class ProviderToDemandsMap : IProviderToDemandsMap
     {
         private readonly Dictionary<Provider, IDemands> _providerToDemands = new Dictionary<Provider, IDemands>();
         private readonly Dictionary<Id, Providers> _articleToProviders = new Dictionary<Id, Providers>();

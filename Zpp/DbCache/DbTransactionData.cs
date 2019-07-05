@@ -95,15 +95,15 @@ namespace Zpp
                 .DemandToProviders);
         }
 
-        public void PersistDbCache(IDemandToProviders demandToProviders)
+        public void PersistDbCache(IDemandToProvidersMap demandToProvidersMap)
         {
 
             // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
             // TODO: SaveChanges at the end only once
             
             // first collect all T_* entities
-            List<T_Demand> tDemands = demandToProviders.ToT_Demands();
-            List<T_Provider> tProviders = demandToProviders.ToT_Providers();
+            List<T_Demand> tDemands = demandToProvidersMap.ToT_Demands();
+            List<T_Provider> tProviders = demandToProvidersMap.ToT_Providers();
             List<T_ProductionOrderBom> tProductionOrderBoms =
                 _productionOrderBoms.GetAllAs<T_ProductionOrderBom>();
             List<T_StockExchange> tStockExchangeDemands =
@@ -392,10 +392,10 @@ namespace Zpp
             }
         }
 
-        public void DemandToProviderAddAll(IDemandToProviders demandToProviders)
+        public void DemandToProviderAddAll(IDemandToProvidersMap demandToProvidersMap)
         {
 
-            _demandToProviderTable.AddAll(demandToProviders);
+            _demandToProviderTable.AddAll(demandToProvidersMap);
         }
 
         public IDemandToProviderTable DemandToProviderGetAll()

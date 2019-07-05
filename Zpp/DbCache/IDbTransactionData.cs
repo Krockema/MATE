@@ -25,7 +25,7 @@ namespace Zpp
         
         void DemandToProvidersRemoveAll();
 
-        void PersistDbCache(IDemandToProviders demandToProviders);
+        void PersistDbCache(IDemandToProvidersMap demandToProvidersMap);
 
         void DemandsAdd(Demand demand);
         
@@ -48,7 +48,7 @@ namespace Zpp
 
         Demands DemandsGetAll();
 
-        void DemandToProviderAddAll(IDemandToProviders demandToProviders);
+        void DemandToProviderAddAll(IDemandToProvidersMap demandToProvidersMap);
         
         IDemandToProviderTable DemandToProviderGetAll();
 

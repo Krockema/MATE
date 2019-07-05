@@ -49,7 +49,7 @@ namespace Zpp
             // init
             IProviders providers = new Providers();
             IDemands finalAllDemands = new Demands();
-            IDemandToProviders demandToProviders = new DemandToProviders();
+            IDemandToProvidersMap demandToProvidersMap = new DemandToProvidersMap();
 
             foreach (var oneDbDemand in dbDemands.GetAll())
             {
@@ -85,10 +85,10 @@ namespace Zpp
 
                     foreach (Demand demand in currentDemandManager.GetAll())
                     {
-                        IProviders providersOfDemand = demand.Satisfy(demandToProviders,
+                        IProviders providersOfDemand = demand.Satisfy(demandToProvidersMap,
                             dbTransactionData);
 
-                        demandToProviders.AddProvidersForDemand(demand, providersOfDemand);
+                        demandToProvidersMap.AddProvidersForDemand(demand, providersOfDemand);
                         providers.AddAll(providersOfDemand);
                         // performance: replace any by directly Adding
                         if (providersOfDemand.AnyDependingDemands())
@@ -111,8 +111,8 @@ namespace Zpp
 
             dbTransactionData.ProvidersAddAll(providers);
             dbTransactionData.DemandsAddAll(finalAllDemands);
-            dbTransactionData.DemandToProviderAddAll(demandToProviders);
-            dbTransactionData.PersistDbCache(demandToProviders);
+            dbTransactionData.DemandToProviderAddAll(demandToProvidersMap);
+            dbTransactionData.PersistDbCache(demandToProvidersMap);
         }
     }
 }
