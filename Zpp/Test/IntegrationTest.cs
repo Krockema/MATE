@@ -18,20 +18,19 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        private const int _orderQuantity = 6;
+        private const int ORDER_QUANTITY = 6;
 
         public IntegrationTest()
         {
-            // TODO: orderQuantity should be set to higherValue (from simConfigs)
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, _orderQuantity);
+                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
         }
 
         /**
-         * Verifies, that the sum(stockExchanges.Quantity) plus initial stock level equals stock.current
+         * Verifies, that
+         * - the sum(stockExchanges.Quantity) plus initial stock level equals stock.current
          * for every stock
-         *
-         * TODO: sum(stockExchangeDemands=withdrawel) <= sum(stockExchangeProviders=insert) for every stock
+         * - sum(stockExchangeDemands=withdrawel) <= sum(stockExchangeProviders=insert) for every stock
          */
         [Fact]
         public void TestStockExchanges()
@@ -66,21 +65,27 @@ namespace Zpp.Test
                 List<T_StockExchange> persistedStockExchanges = persistedTransactionData
                     .StockExchangeGetAll().GetAllAs<T_StockExchange>()
                     .Where(x => x.StockId.Equals(originalStock.Id)).ToList();
+                decimal sumWithDrawel = 0;
+                decimal sumInsert = 0;
                 foreach (var persistedStockExchange in persistedStockExchanges)
                 {
                     if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert))
                     {
                         expectedStockLevel += persistedStockExchange.Quantity;
+                        sumInsert += persistedStockExchange.Quantity;
                     }
                     else if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Withdrawal))
                     {
                         expectedStockLevel -= persistedStockExchange.Quantity;
+                        sumWithDrawel += persistedStockExchange.Quantity;
                     }
                 }
 
                 Assert.True(actualStockLevel.Equals(expectedStockLevel),
                     $"Stock level is not correct for stock {originalStock.Id}: " +
                     $"Expected: {expectedStockLevel}, Actual: {actualStockLevel}");
+
+                Assert.True(sumWithDrawel <= sumInsert, "sumWithDrawel should be smaller than or equal to sumInsert");
             }
         }
 
@@ -89,7 +94,7 @@ namespace Zpp.Test
         {
             List<int> countsMasterDataBefore = CountMasterData();
 
-            Assert.True(ProductionDomainContext.CustomerOrders.Count() == _orderQuantity,
+            Assert.True(ProductionDomainContext.CustomerOrders.Count() == ORDER_QUANTITY,
                 "No customerOrders are initially available.");
 
             IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
