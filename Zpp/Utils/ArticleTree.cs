@@ -10,7 +10,7 @@ namespace Zpp.Utils
     public class ArticleTree : ITree<M_Article>
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-        private readonly DbTransactionData _dbTransactionData;
+        private readonly IDbTransactionData _dbTransactionData;
 
         // int is the id of an article
         private readonly AdjacencyList<M_Article> _adjacencyList;
@@ -65,7 +65,7 @@ namespace Zpp.Utils
         }
 
         public ArticleTree(M_ArticleBom articleBom,
-            DbTransactionData dbTransactionData)
+            IDbTransactionData dbTransactionData)
         {
             M_ArticleBom queriedArticleBom = dbTransactionData.M_ArticleBomGetById(articleBom.GetId());
             _rootArticle = new Node<M_Article>(queriedArticleBom.ArticleChild.Id,

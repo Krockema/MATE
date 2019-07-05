@@ -202,5 +202,10 @@ namespace Zpp
         {
             return _stocks.GetAll();
         }
+
+        public List<M_ArticleBom> M_ArticleBomGetRootArticles()
+        {
+            return _articleBoms.GetAll().Where(x => x.ArticleParentId == null).ToList();
+        }
     }
 }

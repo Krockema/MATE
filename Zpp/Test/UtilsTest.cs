@@ -101,7 +101,7 @@ namespace Zpp.Test
             M_ArticleBom rootArticle =
                 ProductionDomainContext.ArticleBoms.Where(x => x.Name.Equals("Dump-Truck")).ToList()[0];
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
-            DbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+            IDbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
 
             // sort the tree

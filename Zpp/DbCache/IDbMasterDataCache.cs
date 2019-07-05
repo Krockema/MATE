@@ -62,5 +62,8 @@ namespace Zpp
          * This is needed for T_CustomerOrders wich does NOT include T_Demand
          */
         T_Demand T_DemandGetById(Id id);
+
+        List<M_ArticleBom> M_ArticleBomGetRootArticles();
+
     }
 }
