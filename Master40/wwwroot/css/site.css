@@ -19,8 +19,6 @@ textarea {
 .fa-unset {
     width: unset !important;
     height: unset !important;
-    padding-top: 0;
-    padding-bottom: 3px;
 }
 
 /* Carousel */
@@ -91,7 +89,6 @@ textarea {
     background: white url(/images/loading.svg) no-repeat center;
     min-height: 120px;
     margin-top: 100px;
-    max-height: 300px;
 }
 
 .panel-collapse-clickable {
