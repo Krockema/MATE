@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Master40.DB.Data.Context
 {
-    public class MasterDBContext : DbContext 
+    public class MasterDBContext : DbContext
     {
         private DbContextOptions<ProductionDomainContext> options;
 
@@ -17,9 +17,11 @@ namespace Master40.DB.Data.Context
         public DbSet<M_ArticleType> ArticleTypes { get; set; }
         public DbSet<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public DbSet<M_BusinessPartner> BusinessPartners { get; set; }
-        public DbSet<M_Machine> Machines { get; set; }
+        public DbSet<M_Resource> Resources { get; set; }
         public DbSet<M_MachineGroup> MachineGroups { get; set; }
-        public DbSet<M_MachineTool> MachineTools { get; set; }
+        public DbSet<M_ResourceTool> ResourceTools { get; set; }
+        public DbSet<M_ResourceSkill> ResourceSkills { get; set; }
+        public DbSet<M_ResourceToResourceTool> ResourceToResourceTools { get; set; }
         public DbSet<M_Stock> Stocks { get; set; }
         public DbSet<M_Unit> Units { get; set; }
         public DbSet<M_Operation> Operations { get; set; }
@@ -35,11 +37,9 @@ namespace Master40.DB.Data.Context
         public DbSet<T_StockExchange> StockExchanges { get; set; }
         public DbSet<T_Demand> Demands { get; set; }
         public DbSet<T_Provider> Providers { get; set; }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-
             modelBuilder.Entity<M_Article>()
                 .ToTable("M_Article")
                 .HasOne(a => a.Stock)
@@ -72,9 +72,7 @@ namespace Master40.DB.Data.Context
 
             modelBuilder.Entity<M_Operation>()
                 .ToTable("M_Operation")
-                .HasOne(m => m.MachineTool)
-                .WithMany(m => m.WorkSchedules)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(m => m.ResourceSkill);
 
             modelBuilder.Entity<M_ArticleType>()
                 .ToTable("M_ArticleType");
@@ -85,14 +83,29 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_ArticleToBusinessPartner>()
                 .ToTable("M_ArticleToBusinessPartner");
 
-            modelBuilder.Entity<M_Machine>()
-                .ToTable("M_Machine");
-            
             modelBuilder.Entity<M_MachineGroup>()
                 .ToTable("M_MachineGroup");
-            
-            modelBuilder.Entity<M_MachineTool>()
-                .ToTable("M_MachineTool");
+
+            modelBuilder.Entity<M_Resource>()
+                .ToTable("M_Resource");
+
+            modelBuilder.Entity<M_ResourceTool>()
+                .ToTable("M_ResourceTool");
+
+            modelBuilder.Entity<M_ResourceSkill>()
+                .ToTable("M_ResourceSkill");
+
+            modelBuilder.Entity<M_ResourceToResourceTool>()
+                .ToTable("M_ResourceToResourceTool")
+                .HasOne(re => re.Resource)
+                .WithMany(r => r.ResourceToResourceTools)
+                .HasForeignKey(re => re.ResourceId);
+
+            modelBuilder.Entity<M_ResourceToResourceTool>()
+                .ToTable("M_ResourceToResourceTool")
+                .HasOne(re => re.ResourceTool)
+                .WithMany(r => r.ResourceToResourceTools)
+                .HasForeignKey(re => re.ResourceToolId);
 
             modelBuilder.Entity<M_Stock>()
                 .ToTable("M_Stock");
@@ -114,13 +127,13 @@ namespace Master40.DB.Data.Context
 
             modelBuilder.Entity<T_CustomerOrderPart>()
                 .ToTable("T_CustomerOrderPart");
-           
+
             modelBuilder.Entity<T_ProductionOrder>()
                 .ToTable("T_ProductionOrder");
 
             modelBuilder.Entity<T_StockExchange>()
                 .ToTable("T_StockExchange");
-            
+
             modelBuilder.Entity<T_ProductionOrderBom>()
                 .ToTable("T_ProductionOrderBom")
                 .HasOne(p => p.ProductionOrderParent)
@@ -134,7 +147,7 @@ namespace Master40.DB.Data.Context
                 .WithMany(b => b.ProductionOrderBoms)
                 .HasForeignKey(fk => fk.ProductionOrderOperationId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             modelBuilder.Entity<T_ProductionOrderOperation>()
                 .ToTable("T_ProductionOrderOperation")
                 .HasOne(m => m.MachineGroup)
@@ -143,7 +156,7 @@ namespace Master40.DB.Data.Context
 
             modelBuilder.Entity<T_ProductionOrderOperation>()
                 .ToTable("T_ProductionOrderOperation")
-                .HasOne(m => m.Machine)
+                .HasOne(m => m.Resource)
                 .WithMany(m => m.ProductionOrderWorkSchedules)
                 .OnDelete(DeleteBehavior.Restrict);
 

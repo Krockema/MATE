@@ -19,7 +19,7 @@ namespace Master40.DB.DataModel
         public M_MachineGroup MachineGroup { get; set; }
         public int? MachineId { get; set; }
         [JsonIgnore]
-        public M_Machine Machine { get; set; }
+        public M_Resource Resource { get; set; }
         public int ProductionOrderId { get; set; }
         [JsonIgnore]
         public T_ProductionOrder ProductionOrder { get; set; }

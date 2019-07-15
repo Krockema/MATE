@@ -66,7 +66,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
         public void CreateMachineAgents(Directory agent, FRessourceDefinition ressource)
         {
-            var machine = ressource.Resource as M_Machine;
+            var machine = ressource.Resource as M_Resource;
 
             // Create Hub If Required
             var hubAgents = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);

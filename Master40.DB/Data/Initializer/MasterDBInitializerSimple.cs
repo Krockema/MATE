@@ -39,28 +39,68 @@ namespace Master40.DB.Data.Initializer
             };
             context.Units.AddRange(units);
             context.SaveChanges();
-            var cutting = new M_MachineGroup { Name = "Cutting", Stage = 1, ImageUrl = "/images/Production/saw.svg" };
-            var drills = new M_MachineGroup { Name = "Drills", Stage = 2, ImageUrl = "/images/Production/drill.svg" };
-            var assemblyUnit = new M_MachineGroup { Name = "AssemblyUnits", Stage = 3, ImageUrl = "/images/Production/assemblys.svg" };
 
-            var machines = new M_Machine[] {
-                new M_Machine{Capacity=1, Name="Saw 1", Count = 1, MachineGroup = cutting },
-                new M_Machine{Capacity=1, Name="Saw 2", Count = 1, MachineGroup = cutting },
-                new M_Machine{Capacity=1, Name="Drill 1", Count = 1, MachineGroup = drills },
-                new M_Machine{Capacity=1, Name="AssemblyUnit 1", Count=1, MachineGroup = assemblyUnit},
-                new M_Machine{Capacity=1, Name="AssemblyUnit 2", Count=1, MachineGroup = assemblyUnit},
-            };
-            context.Machines.AddRange(machines);
-            context.SaveChanges();
-
-            var machineTools = new M_MachineTool[]
+            var resourceSkills = new M_ResourceSkill[]
             {
-                new M_MachineTool{MachineId=machines.Single(m => m.Name == "Saw 1").Id, SetupTime=1, Name="Saw blade"},
-                new M_MachineTool{MachineId=machines.Single(m => m.Name == "Drill 1").Id, SetupTime=1, Name="M6 head"},
-                new M_MachineTool{MachineId=machines.Single(m => m.Name == "AssemblyUnit 2").Id, SetupTime=1, Name="Screwdriver universal cross size 2"},
+                new M_ResourceSkill { Name = "CuttingLarge", Stage = 1, ImageUrl = "/images/Production/saw.svg" },
+                new M_ResourceSkill { Name = "CuttingSmall", Stage = 1, ImageUrl = "/images/Production/saw.svg" },
+                new M_ResourceSkill { Name = "Drills", Stage = 2, ImageUrl = "/images/Production/drill.svg" },
+                new M_ResourceSkill { Name = "AssemblyUnits", Stage = 3, ImageUrl = "/images/Production/assemblys.svg" },
             };
-            context.MachineTools.AddRange(machineTools);
+
+            var resourceTools = new M_ResourceTool[]
+            {
+                new M_ResourceTool{ Name="Saw blade big"},
+                new M_ResourceTool{ Name="Saw blade small"},
+                new M_ResourceTool{ Name="M6 head"},
+                new M_ResourceTool{ Name="M4 head"},
+                new M_ResourceTool{ Name="Screwdriver universal cross size 2"},
+            };
+            context.ResourceTools.AddRange(resourceTools);
             context.SaveChanges();
+
+            var resources = new M_Resource[] {
+                new M_Resource{Name="Saw 1", Count = 1},
+                new M_Resource{Name="Saw 2", Count = 1},
+                new M_Resource{Name="Drill 1", Count = 1 },
+                new M_Resource{Name="AssemblyUnit 1", Count = 1},
+                new M_Resource{Name="AssemblyUnit 2", Count = 1},
+            };
+            context.Resources.AddRange(resources);
+            context.SaveChanges();
+
+            var resourceToResourceTools = new M_ResourceToResourceTool[]{
+            new M_ResourceToResourceTool { Name = "Saw1_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 1"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
+            new M_ResourceToResourceTool { Name = "Saw1_Sawbladesmall", Resource = resources.Single(s => s.Name == "Saw 1"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade small"), SetupTime = 5 },
+            new M_ResourceToResourceTool { Name = "Saw2_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
+            new M_ResourceToResourceTool { Name = "Saw2_Sawbladesmall", Resource = resources.Single(s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade small"), SetupTime = 5 },
+
+            new M_ResourceToResourceTool { Name = "Drill1_M4", Resource = resources.Single(s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(s => s.Name == "M4"), SetupTime = 10 },
+            new M_ResourceToResourceTool { Name = "Drill1_M6", Resource = resources.Single(s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(s => s.Name == "M6"), SetupTime = 10 },
+
+            new M_ResourceToResourceTool { Name = "AssemblyUnit1_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 1"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
+            new M_ResourceToResourceTool { Name = "AssemblyUnit2_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 2"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
+
+            };
+
+            // register resourceToResourceTool at the resourceSkill
+            resourceSkills.Single(s => s.Name == "CuttingLarge").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw1_Sawbladebig"));
+            resourceSkills.Single(s => s.Name == "CuttingLarge").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw1_Sawbladesmall"));
+            resourceSkills.Single(s => s.Name == "CuttingSmall").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw2_Sawbladesmall"));
+
+            context.ResourceSkills.AddRange(resourceSkills);
+            context.SaveChanges();
+
+            // register resourceToResourceTool at resources
+            //ToDo foreach
+            resources.Single(s => s.Name == "Saw 1").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw1_Sawbladebig"));
+            resources.Single(s => s.Name == "Saw 1").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw1_Sawbladesmall"));
+            resources.Single(s => s.Name == "Saw 2").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw2_Sawbladebig"));
+            resources.Single(s => s.Name == "Saw 2").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw2_Sawbladesmall"));
+            // register resourceToResourceTool at resources
+            //ToDo foreach
+            resourceTools.Single(s => s.Name == "Saw blade big").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw1_Sawbladesbig"));
+            resourceTools.Single(s => s.Name == "Saw blade small").ResourceToResourceTools.Add(resourceToResourceTools.Single(r => r.Name == "Saw1_Sawbladesmall"));
 
             // Articles
             var articles = new M_Article[]
@@ -76,7 +116,6 @@ namespace Master40.DB.Data.Initializer
                 new M_Article{Name="Holzplatte 1,5m x 3,0m x 0,03m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 3.00, ToPurchase = true, ToBuild = false},
                 new M_Article{Name="Holzpflock 1,20m x 0,15m x 0,15m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.70, ToPurchase = true, ToBuild = false},
                 new M_Article{Name="Schrauben", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.50, ToPurchase = true, ToBuild = false},
-               
 
             };
 
@@ -101,17 +140,17 @@ namespace Master40.DB.Data.Initializer
             var operations = new M_Operation[]
             {
                 // Final Product Tisch 
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="AssemblyUnit 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15,ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnits"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnits"), HierarchyNumber = 20 },
 
                 // Bom For Tischbein
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingLarge"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="Drills"), HierarchyNumber = 20 },
 
                 // Bom For Tischbein
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="Saw 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ MachineToolId = 1, ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Drill 1").MachineGroupId, HierarchyNumber = 20 },
-                
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSmall"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="Drills"), HierarchyNumber = 20 },
+
 
             };
             context.Operations.AddRange(operations);

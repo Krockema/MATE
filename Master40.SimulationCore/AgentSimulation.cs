@@ -122,7 +122,7 @@ namespace Master40.SimulationCore
                 _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, DirectoryBehaviour.Get()));
 
                 // #4 Create Machines
-                foreach (var machine in _DBContext.Machines.Include(m => m.MachineGroup).AsNoTracking())
+                foreach (var machine in _DBContext.Resources.Include(m => m.MachineGroup).AsNoTracking())
                 {
                     var resource = new FRessourceDefinition(randomWorkTime, machine, _debug);
 

@@ -38,21 +38,21 @@ namespace Master40.DB.Data.Initializer
             context.Units.AddRange(units);
             context.SaveChanges();
 
-            var machines = new M_Machine[] {
+            var ressources = new M_Resource[] {
                 //new Machine{Capacity=1, Name="Säge", Count = 1, MachineGroup = new MachineGroup{ Name = "Zuschnitt" } },
                 //new Machine{Capacity=1, Name="Bohrer", Count = 1, MachineGroup = new MachineGroup{ Name = "Bohrwerk" } },
-                new M_Machine{Capacity=1, Name="Montage 1", Count=1, MachineGroup = new M_MachineGroup{ Name = "Montage" }},
-                new M_Machine{Capacity=1, Name="Montage 2", Count=1, MachineGroup = new M_MachineGroup{ Name = "Montage" }}
+                new M_Resource{Capacity=1, Name="Montage 1", Count=1, MachineGroup = new M_MachineGroup{ Name = "Montage" }},
+                new M_Resource{Capacity=1, Name="Montage 2", Count=1, MachineGroup = new M_MachineGroup{ Name = "Montage" }}
             };
-            context.Machines.AddRange(machines);
+            context.Resources.AddRange(ressources);
             context.SaveChanges();
 
-            var machineTools = new M_MachineTool[]
+            var ressourceTools = new M_ResourceTool[]
             {
-                new M_MachineTool{MachineId=machines.Single(m => m.Name == "Montage 1").Id, SetupTime=1, Name="Sägeblatt 1mm Zahnabstant"},
-                new M_MachineTool{MachineId=machines.Single(m => m.Name == "Montage 1").Id, SetupTime=1, Name="M6 Bohrkopf"},
+                new M_ResourceTool{Name="Sägeblatt 1mm Zahnabstant"},
+                new M_ResourceTool{Name="M6 Bohrkopf"},
             };
-            context.MachineTools.AddRange(machineTools);
+            context.ResourceTools.AddRange(ressourceTools);
             context.SaveChanges();
 
             // Articles
@@ -111,14 +111,14 @@ namespace Master40.DB.Data.Initializer
             var workSchedule = new M_Operation[]
             {
                 // Tisch 
-                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch Montage", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch Montage", Duration=10, MachineGroupId=ressources.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 10 },
                  
                 // Tisch Platte
-                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Zuschneiden", Duration=15, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 10 },
-                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Löcher vorbohren", Duration=10, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Zuschneiden", Duration=15, MachineGroupId=ressources.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 10 },
+                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Platte").Id, Name = "Löcher vorbohren", Duration=10, MachineGroupId=ressources.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 20 },
                 // Tisch Beine 
-                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Zuschneiden", Duration=5, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 10 },
-                // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Löcher vorbohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 20 },
+                new M_Operation{ ArticleId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Zuschneiden", Duration=5, MachineGroupId=ressources.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 10 },
+                // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tisch-Bein").Id, Name = "Löcher vorbohren", Duration=2, MachineGroupId=ressources.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 20 },
 
             };
             context.Operations.AddRange(workSchedule);

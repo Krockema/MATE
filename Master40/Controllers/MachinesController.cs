@@ -22,7 +22,7 @@ namespace Master40.Controllers
         // GET: Machines
         public async Task<IActionResult> Index()
         {
-            var machines = _context.Machines.Include(m => m.MachineGroup);
+            var machines = _context.Resources.Include(m => m.MachineGroup);
             
             var mermaid = @"graph LR;
                 p>Production Line]
@@ -66,7 +66,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var machine = await _context.Machines
+            var machine = await _context.Resources
                 .Include(m => m.MachineGroup)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (machine == null)
@@ -89,7 +89,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Count,MachineGroupId,Capacity,Id")] M_Machine machine)
+        public async Task<IActionResult> Create([Bind("Name,Count,MachineGroupId,Capacity,Id")] M_Resource machine)
         {
             if (ModelState.IsValid)
             {
@@ -109,7 +109,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var machine = await _context.Machines.SingleOrDefaultAsync(m => m.Id == id);
+            var machine = await _context.Resources.SingleOrDefaultAsync(m => m.Id == id);
             if (machine == null)
             {
                 return NotFound();
@@ -123,7 +123,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Count,MachineGroupId,Capacity,Id")] M_Machine machine)
+        public async Task<IActionResult> Edit(int id, [Bind("Name,Count,MachineGroupId,Capacity,Id")] M_Resource machine)
         {
             if (id != machine.Id)
             {
@@ -162,7 +162,7 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var machine = await _context.Machines
+            var machine = await _context.Resources
                 .Include(m => m.MachineGroup)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (machine == null)
@@ -178,15 +178,15 @@ namespace Master40.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var machine = await _context.Machines.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Machines.Remove(machine);
+            var machine = await _context.Resources.SingleOrDefaultAsync(m => m.Id == id);
+            _context.Resources.Remove(machine);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         private bool MachineExists(int id)
         {
-            return _context.Machines.Any(e => e.Id == id);
+            return _context.Resources.Any(e => e.Id == id);
         }
 
 
@@ -194,22 +194,22 @@ namespace Master40.Controllers
         public async Task<IActionResult> Setup(string setup)
         {
 
-            _context.Machines.RemoveRange(_context.Machines.Where(x => x.Capacity == 0).ToList());
+            _context.Resources.RemoveRange(_context.Resources.Where(x => x.Capacity == 0).ToList());
             if (setup == "Large")
             {
-                var machines = new M_Machine[] {
-                    new M_Machine{Capacity=0, Name="Saw 3", Count = 1, MachineGroupId = 1 },
-                    new M_Machine{Capacity=0, Name="Saw 4", Count = 1, MachineGroupId = 1 },
-                    new M_Machine{Capacity=0, Name="Saw 5", Count = 1, MachineGroupId = 1 },
-                    new M_Machine{Capacity=0, Name="Saw 6", Count = 1, MachineGroupId = 1 },
-                    new M_Machine{Capacity=0, Name="Drill 2", Count = 1, MachineGroupId = 2 },
-                    new M_Machine{Capacity=0, Name="Drill 3", Count = 1, MachineGroupId = 2 },
-                    new M_Machine{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroupId = 3 },
-                    new M_Machine{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroupId = 3 },
-                    new M_Machine{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroupId = 3 },
-                    new M_Machine{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroupId = 3 }
+                var machines = new M_Resource[] {
+                    new M_Resource{Capacity=0, Name="Saw 3", Count = 1, MachineGroupId = 1 },
+                    new M_Resource{Capacity=0, Name="Saw 4", Count = 1, MachineGroupId = 1 },
+                    new M_Resource{Capacity=0, Name="Saw 5", Count = 1, MachineGroupId = 1 },
+                    new M_Resource{Capacity=0, Name="Saw 6", Count = 1, MachineGroupId = 1 },
+                    new M_Resource{Capacity=0, Name="Drill 2", Count = 1, MachineGroupId = 2 },
+                    new M_Resource{Capacity=0, Name="Drill 3", Count = 1, MachineGroupId = 2 },
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroupId = 3 },
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroupId = 3 },
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroupId = 3 },
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroupId = 3 }
                 };
-                _context.Machines.AddRange(machines);
+                _context.Resources.AddRange(machines);
 
             }
 

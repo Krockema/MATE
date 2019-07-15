@@ -82,15 +82,15 @@ namespace Master40.Simulation
 
         private void PrepareModel(ProductionDomainContext inMemory)
         {
-            inMemory.Machines.RemoveRange(inMemory.Machines.ToList());
+            inMemory.Resources.RemoveRange(inMemory.Resources.ToList());
             inMemory.SaveChanges();
-            inMemory.AddRange(_context.Machines.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList());
+            inMemory.AddRange(_context.Resources.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList());
             inMemory.SaveChanges();
         }
 
         public void ResourceBreakDown(string name)
         {
-            var machineGroup = _context.Machines.Include(x => x.MachineGroup).Single(x => x.Name.Replace(" ", "") == name).MachineGroup.Name;
+            var machineGroup = _context.Resources.Include(x => x.MachineGroup).Single(x => x.Name.Replace(" ", "") == name).MachineGroup.Name;
             SimulationContext.Tell(BasicInstruction.ResourceBrakeDown.Create(message: new SimulationImmutables.FBreakDown("Machine(" + name + ")", machineGroup, true, 0),
                                                                               target: _agentSimulation.ActorPaths.HubDirectory.Ref));
         }

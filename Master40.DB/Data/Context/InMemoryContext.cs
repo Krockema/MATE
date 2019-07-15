@@ -93,15 +93,27 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.Machines)
+            foreach (var item in source.Resources)
             {
-                target.Machines.Add(item.CopyProperties());
+                target.Resources.Add(item.CopyProperties());
             }
             target.SaveChanges();
 
-            foreach (var item in source.MachineTools)
+            foreach (var item in source.ResourceTools)
             {
-                target.MachineTools.Add(item.CopyProperties());
+                target.ResourceTools.Add(item.CopyProperties());
+            }
+            target.SaveChanges();
+
+            foreach (var item in source.ResourceSkills)
+            {
+                target.ResourceSkills.Add(item.CopyProperties());
+            }
+            target.SaveChanges();
+
+            foreach (var item in source.ResourceToResourceTools)
+            {
+                target.ResourceToResourceTools.Add(item.CopyProperties());
             }
             target.SaveChanges();
 

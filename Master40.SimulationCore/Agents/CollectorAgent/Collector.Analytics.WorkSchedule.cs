@@ -63,7 +63,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (machines.Count == 0)
             {
-                machines.AddRange(agent.DBContext.Machines.Select(x => "Machine(" + x.Name.Replace(" ", "") + ")"));
+                machines.AddRange(agent.DBContext.Resources.Select(x => "Machine(" + x.Name.Replace(" ", "") + ")"));
             }
 
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;

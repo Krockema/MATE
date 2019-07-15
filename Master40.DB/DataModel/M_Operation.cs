@@ -16,8 +16,7 @@ namespace Master40.DB.DataModel
         public int ArticleId { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }
-        public int MachineToolId { get; set; }
-        public M_MachineTool MachineTool { get; set; }
-        public  ICollection<M_ArticleBom> ArticleBoms { get; set; }
+        public M_ResourceSkill ResourceSkill { get; set; }
+        public ICollection<M_ArticleBom> ArticleBoms { get; set; }
     }
 }
