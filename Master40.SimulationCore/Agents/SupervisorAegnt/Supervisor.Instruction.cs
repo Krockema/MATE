@@ -76,6 +76,17 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                 {
                 }
             }
+
+            public class SystemCheck : SimulationMessage
+            {
+                public static SystemCheck Create(string message, IActorRef target)
+                {
+                    return new SystemCheck(message, target);
+                }
+                private SystemCheck(object message, IActorRef target) : base(message, target)
+                {
+                }
+            }
         }
     }
 }

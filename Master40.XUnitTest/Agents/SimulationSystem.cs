@@ -48,8 +48,6 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
-            var simContext = new AgentSimulation(true, _ctx, new ConsoleHub());
-
             var simConfig = SimulationCore.Environment.Configuration.Create(new object[]
                                                 {
                                                     new DBConnectionString("")
@@ -58,20 +56,22 @@ namespace Master40.XUnitTest.Agents
                                                     , new SimulationKind(SimulationType.Decentral)
                                                     , new OrderArrivalRate(0.0275)
                                                     , new OrderQuantity(550)
-                                                    , new EstimatedThroughPut(800)
+                                                    , new EstimatedThroughPut(600)
                                                     , new DebugAgents(false)
-                                                    , new DebugSystem(true)
+                                                    , new DebugSystem(false)
                                                     , new KpiTimeSpan(480)
                                                     , new Seed(1337)
+                                                    , new MinDeliveryTime(1160)
+                                                    , new MaxDeliveryTime(1600)
                                                     , new SettlingStart(2880)
                                                     , new SimulationEnd(20160)
                                                     , new WorkTimeDeviation(0.2)
                                                     , new SaveToDB(false)
                                                 });
             // simConfig.OrderQuantity = 0;
-            var simModelConfig = new SimulationConfig(false, 480);
-            var simulation = await simContext.InitializeSimulation(simConfig);
-
+            var simContext = new AgentSimulation(false, _ctx, new ConsoleHub());
+            var simulation = simContext.InitializeSimulation(simConfig).Result;
+            
             // simulation.ActorSystem.EventStream.Subscribe(testProbe, typeof(DirectoryAgent.Instruction.CreateMachineAgents));
 
             var simWasReady = false;
@@ -82,10 +82,11 @@ namespace Master40.XUnitTest.Agents
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                AgentSimulation.Continuation(simModelConfig.Inbox
+                AgentSimulation.Continuation(simContext.SimulationConfig.Inbox
                                             , simulation
                                             , new List<IActorRef> { simContext.StorageCollector
-                                                                    , simContext.WorkCollector });
+                                                                    , simContext.WorkCollector
+                                                                    , simContext.ContractCollector });
                 await sim;
             }
             

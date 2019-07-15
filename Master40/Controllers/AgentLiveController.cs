@@ -45,6 +45,8 @@ namespace Master40.Controllers
                                                     , new DebugAgents(false)
                                                     , new DebugSystem(false)
                                                     , new KpiTimeSpan(480)
+                                                    , new MinDeliveryTime(1160)
+                                                    , new MaxDeliveryTime(1600)
                                                     , new Seed(1337)
                                                     , new SettlingStart(2880)
                                                     , new SimulationEnd(20160)

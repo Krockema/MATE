@@ -66,6 +66,8 @@ namespace Master40.Simulation
                                                     , new EstimatedThroughPut(800)
                                                     , new DebugAgents(false)
                                                     , new DebugSystem(false)
+                                                    , new MinDeliveryTime(1160)
+                                                    , new MaxDeliveryTime(1600)
                                                     , new KpiTimeSpan(480)
                                                     , new Seed(1337)
                                                     , new SettlingStart(2880)

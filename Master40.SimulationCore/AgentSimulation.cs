@@ -20,6 +20,8 @@ using Master40.Tools.SignalR;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
+using Master40.SimulationCore.Reporting;
+using Akka.Event;
 
 namespace Master40.SimulationCore
 {
@@ -53,7 +55,6 @@ namespace Master40.SimulationCore
         {
             return Task.Run(() =>
             {
-                OrderGenerator.GenerateOrdersSyncron(_DBContext, configuration); // .RunSynchronously();
                 _messageHub.SendToAllClients("Initializing Simulation...");
                 var randomWorkTime = new WorkTimeGenerator(
                     seed: configuration.GetOption<Seed>().Value
@@ -101,10 +102,10 @@ namespace Master40.SimulationCore
                 ActorPaths.AddGuardian(GuardianType.Production, productionGuard);
 
                 // #1.2 Setup DeadLetter Monitor for Debugging
-                // var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
-                //var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");clockListener
-                // subscribe to the event stream for messages of type "DeadLetter"
-                // _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
+                var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
+                var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
+                //subscribe to the event stream for messages of type "DeadLetter"
+                _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
 
                 // #1.3 Setup a TimeMonitor to watch wallclock progress
                 Action<long> tm = (timePeriod) => _messageHub.SendToClient("clockListener", timePeriod.ToString());
@@ -112,7 +113,7 @@ namespace Master40.SimulationCore
                 _simulation.ActorSystem.ActorOf(timeMonitor, "TimeMonitor");
 
                 // #2 Create System Agent
-                ActorPaths.SetSystemAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, configuration, ActorRefs.Nobody), "Supervisor"));
+                ActorPaths.SetSupervisorAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, configuration, ActorRefs.Nobody), "Supervisor"));
                 
                 // #3 Create DirectoryAgents
                 ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "HubDirectory"));

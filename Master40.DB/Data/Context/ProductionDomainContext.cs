@@ -56,24 +56,36 @@ namespace Master40.DB.Data.Context
             return rs;
         }
         
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
+        /// <summary>
+        /// To Try with DB Context
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <param name="amount"></param>
+        /// <param name="creationTime"></param>
+        /// <param name="dueTime"></param>
+        /// <returns></returns>
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(new T_CustomerOrderPart
             {
+                Article = Articles.First(x => x.Id == articleId),
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
             });
 
+            var bp = BusinessPartners.First(x => x.Debitor);
             var order = new T_CustomerOrder()
             {
-                BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
-                DueTime = dueTime,
-                CreationTime = creationTime,
+                BusinessPartnerId = bp.Id,
+                BusinessPartner = bp,
+                DueTime = (int)dueTime,
+                CreationTime = (int)creationTime,
                 Name = Articles.Single(x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
             };
+            olist.ForEach(x => x.CustomerOrder = order);
             return order;
         }
 
@@ -91,7 +103,6 @@ namespace Master40.DB.Data.Context
             return article;
 
         }
-
 
         public int GetEarliestStart(ResultContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationWorkschedule> schedules = null)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Akka.Actor;
 using AkkaSim.Definitions;
@@ -26,8 +27,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
         private int _configID;
         private int _orderMaxQuantity;
         private long _estimatedThroughPut;
+        private OrderGenerator _orderGenerator;
         private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
         private Queue<T_CustomerOrderPart> _orderQueue = new Queue<T_CustomerOrderPart>();
+        private List<T_CustomerOrder> _openOrders = new List<T_CustomerOrder>();
 
 
         // public Constructor
@@ -53,12 +56,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
         {
             _productionDomainContext = productionDomainContext;
             _messageHub = messageHub;
-            //_configuration = configuration;
+            _orderGenerator = new OrderGenerator(configuration, _productionDomainContext);
             _orderMaxQuantity = configuration.GetOption<OrderQuantity>().Value;
             _configID = configuration.GetOption<SimulationId>().Value;
             _estimatedThroughPut = configuration.GetOption<EstimatedThroughPut>().Value;
-            Send(Instruction.PopOrder.Create("Pop", ActorPaths.SystemAgent.Ref), 1);
+            Send(Instruction.PopOrder.Create("Pop", Self), 1);
             Send(Instruction.EndSimulation.Create(true, Self), configuration.GetOption<SimulationEnd>().Value);
+            Send(Instruction.SystemCheck.Create("CheckForOrders", Self), 1);
+            DebugMessage("Agent-System ready for Work");
         }
 
         protected override void Do(object o)
@@ -69,6 +74,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                 case Instruction.CreateContractAgent instruction: CreateContractAgent(instruction.GetObjectFromMessage); break;
                 case Instruction.RequestArticleBom instruction: RequestArticleBom(instruction.GetObjectFromMessage); break;
                 case Instruction.OrderProvided instruction: OrderProvided(instruction); break;
+                case Instruction.SystemCheck instruction: SystemCheck(); break;
                 case Instruction.EndSimulation instruction: End(); break;
                 case Instruction.PopOrder p : PopOrder(); break;
                 default: throw new Exception("Invalid Message Object.");
@@ -161,27 +167,30 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
 
         private void PopOrder()
         {
-            foreach (var orderpart in _productionDomainContext.CustomerOrderParts
-                                                                .Include(x => x.Article)
-                                                                    .ThenInclude(x => x.ArticleBoms)
-                                                                        .ThenInclude(x => x.ArticleChild)
-                                                                .Include(x => x.CustomerOrder)
-                                                                .AsNoTracking())
+            var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
+            Send(Instruction.PopOrder.Create("PopNext", Self), order.CreationTime - CurrentTime);
+            long period = order.DueTime - (_estimatedThroughPut); // 1 Tag un 1 Schich
+            if (period < 0)
             {
-                if (orderpart.CustomerOrder.CreationTime == 0)
-                {
-                    Send(Instruction.CreateContractAgent.Create(orderpart, Self));
-                }
-                else
-                {
-                    long period = orderpart.CustomerOrder.DueTime - (_estimatedThroughPut); // 1 Tag un 1 Schich
-                    if (period < 0) { period = 0; }
-                    Send(instruction: Instruction.CreateContractAgent.Create(orderpart, Self)
-                           , waitFor: period);
-                }
+                order.CustomerOrderParts.ToList()
+                     .ForEach(item => CreateContractAgent(item));
+                return;
             }
-            //_messageHub.SendToAllClients("Agent-System ready for Work");
-            DebugMessage("Agent-System ready for Work");
+            _openOrders.Add(order);
+        }
+
+        private void SystemCheck()
+        {
+            Send(Instruction.SystemCheck.Create("CheckForOrders", Self), 1);
+            
+            var orders = _openOrders.Where(x => x.DueTime - _estimatedThroughPut <= this.TimePeriod);
+            Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
+            foreach (var order in orders)
+            {
+                order.CustomerOrderParts.ToList()
+                     .ForEach(item => CreateContractAgent(item));
+            }
+            _openOrders.RemoveAll(x => x.DueTime - _estimatedThroughPut <= this.TimePeriod);
         }
     }
 }
