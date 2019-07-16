@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Zpp.DemandDomain;
 using Zpp.Utils;
@@ -6,7 +7,8 @@ namespace Zpp
 {
     public class OrderGraph : IGraph<INode>
     {
-        private readonly Dictionary<INode, List<INode>> _adjacencyList = new Dictionary<INode, List<INode>>();
+        private readonly Dictionary<INode, List<INode>> _adjacencyList =
+            new Dictionary<INode, List<INode>>();
 
         public List<INode> GetChildNodes(INode node)
         {
@@ -14,6 +16,7 @@ namespace Zpp
             {
                 return null;
             }
+
             return _adjacencyList[node];
         }
 
@@ -29,6 +32,7 @@ namespace Zpp
                 _adjacencyList.Add(node, nodes);
                 return;
             }
+
             _adjacencyList[node].AddRange(nodes);
         }
 
@@ -38,6 +42,7 @@ namespace Zpp
             {
                 _adjacencyList.Add(node, new List<INode>());
             }
+
             _adjacencyList[node].Add(childNode);
         }
 
@@ -45,5 +50,27 @@ namespace Zpp
         {
             return _adjacencyList.Values.Count;
         }
-    }
+
+        public override string ToString()
+        {
+            string mystring = "";
+            foreach (var fromNode in _adjacencyList.Keys)
+            {
+                foreach (var toNode in _adjacencyList[fromNode])
+                {
+                    mystring += $"\"{fromNode.GetId()}" +
+                                $"{enumToString(fromNode.GetNodeType())[0]}\" -> \"{toNode.GetId()}" +
+                                $"{enumToString(toNode.GetNodeType())[0]}\";" + Environment.NewLine;
+                }
+            }
+
+            return mystring;
+        }
+        
+        private string enumToString(NodeType nodeType)
+        {
+            return Enum.GetName(typeof(NodeType), nodeType);
+        }
+}
+
 }

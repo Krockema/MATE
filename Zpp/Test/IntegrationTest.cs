@@ -21,7 +21,7 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
+        private const int ORDER_QUANTITY = 1;
         private const int MAX_TIME_FOR_MRP_RUN = 60;
 
         public IntegrationTest()
@@ -94,9 +94,10 @@ namespace Zpp.Test
                 dbTransactionData.DemandToProviderGetAll().Count() +
                 dbTransactionData.ProviderToDemandGetAll().Count();
 
+            // TODO: since this fails, evaluate which are missing
             Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.Count(),
                 $"Should be equal size: sumDemandToProviderAndProviderToDemand " + 
-                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrdergraph {orderGraph.Count()}");
+                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.Count()}");
         }
 
         [Fact]
