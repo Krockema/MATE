@@ -59,5 +59,66 @@ namespace Zpp.DemandToProviderDomain
         {
             return new Providers(_providerToDemands.Keys.ToList());
         }
+
+        public IDemands GetAllDemands()
+        {
+            IDemands allDemands = new Demands();
+            foreach (var oneDemands in _providerToDemands.Values.ToList())
+            {
+                allDemands.AddAll(oneDemands);
+            }
+            return allDemands;
+        }
+
+        public void AddDemandsForProvider(Provider provider, IDemands demands)
+        {
+            if (!_providerToDemands.ContainsKey(provider))
+            {
+                _providerToDemands.Add(provider, demands);
+                return;
+            }
+            _providerToDemands[provider].AddAll(demands);
+        }
+
+        public IDemands GetAllDemandsOfProvider(Provider provider)
+        {
+            if (_providerToDemands.ContainsKey(provider))
+            {
+                return _providerToDemands[provider];
+            }
+
+            return null;
+        }
+
+        public void AddAll(IProviderToDemandsMap providerToDemandsMap)
+        {
+            foreach (var provider in providerToDemandsMap.GetAllProviders().GetAll())
+            {
+                IDemands demands = providerToDemandsMap.GetAllDemandsOfProvider(provider);
+                if (demands != null && demands.Any())
+                {
+                    AddDemandsForProvider(provider, demands);    
+                }
+                
+            }
+        }
+
+        public List<T_ProviderToDemand> ToT_ProviderToDemand()
+        {
+            List<T_ProviderToDemand> providerToDemand = new List<T_ProviderToDemand>();
+            
+            foreach (var provider in _providerToDemands.Keys)
+            {
+                foreach (var demand in _providerToDemands[provider].GetAll())
+                {
+                    T_ProviderToDemand tProviderToDemand = new T_ProviderToDemand();
+                    tProviderToDemand.Demand = demand.ToT_Demand();
+                    tProviderToDemand.Provider = provider.ToT_Provider();
+                    providerToDemand.Add(tProviderToDemand);
+                }
+            }
+            
+            return providerToDemand;
+        }
     }
 }

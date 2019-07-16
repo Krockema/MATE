@@ -11,7 +11,7 @@ namespace Zpp.DemandDomain
     /**
      * Provides default implementations for interface methods, can be moved to interface once C# 8.0 is released
      */
-    public abstract class Demand : IDemandLogic
+    public abstract class Demand : IDemandLogic, INode
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         protected readonly IDemand _demand;
@@ -190,6 +190,15 @@ namespace Zpp.DemandDomain
         {
             return new Id(_demand.DemandId.GetValueOrDefault());
         }
-        
+
+        public NodeType GetNodeType()
+        {
+            return NodeType.Demand;
+        }
+
+        public INode GetEntity()
+        {
+            return this;
+        }
     }
 }

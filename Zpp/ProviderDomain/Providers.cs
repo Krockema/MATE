@@ -7,6 +7,7 @@ using Master40.DB.DataModel;
 using Zpp;
 using Zpp.Utils;
 using Zpp.DemandDomain;
+using Zpp.DemandToProviderDomain;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
@@ -128,17 +129,6 @@ namespace Zpp.ProviderDomain
             return false;
         }
 
-        public IDemands GetAllDependingDemands()
-        {
-            IDemands dependingDemands = new Demands();
-            foreach (var provider in _providers)
-            {
-                dependingDemands.AddAll(provider.GetAllDependingDemands());
-            }
-
-            return dependingDemands;
-        }
-
         public bool IsSatisfied(Demand demand)
         {
             bool isSatisfied = ProvideMoreThanOrEqualTo(demand);
@@ -154,6 +144,17 @@ namespace Zpp.ProviderDomain
             }
 
             return missingQuantity;
+        }
+
+        public IProviderToDemandsMap GetAllDependingDemandsAsMap()
+        {
+            IProviderToDemandsMap providerToDemandsMap = new ProviderToDemandsMap();
+            foreach (var provider in _providers)
+            {
+                providerToDemandsMap.AddDemandsForProvider(provider, provider.GetAllDependingDemands());
+            }
+
+            return providerToDemandsMap;
         }
     }
 }

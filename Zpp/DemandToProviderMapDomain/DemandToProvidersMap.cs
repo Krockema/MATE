@@ -56,7 +56,7 @@ namespace Zpp.DemandToProviderDomain
             }
         }
 
-        public List<T_DemandToProvider> ToDemandToT_DemandToProvider()
+        public List<T_DemandToProvider> ToT_DemandToProvider()
         {
             List<T_DemandToProvider> demandToProvider = new List<T_DemandToProvider>();
             

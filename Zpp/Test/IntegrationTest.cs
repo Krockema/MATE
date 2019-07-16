@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Master40.DB;
+using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 using Master40.DB.DataModel;
@@ -10,6 +11,7 @@ using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Zpp.DemandToProviderDomain;
@@ -20,6 +22,7 @@ namespace Zpp.Test
     public class IntegrationTest : AbstractTest
     {
         private const int ORDER_QUANTITY = 6;
+        private const int MAX_TIME_FOR_MRP_RUN = 60;
 
         public IntegrationTest()
         {
@@ -27,14 +30,14 @@ namespace Zpp.Test
                 ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
         }
 
-        [Fact(Skip="not implemented yet")]
+        [Fact(Skip = "not implemented yet")]
         public void TestBackwardScheduling()
         {
             MrpRun.RunMrp(ProductionDomainContext);
-            
-            
+
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
-            IDbTransactionData dbTransactionData = new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             List<M_ArticleBom> rootArticles = dbMasterDataCache.M_ArticleBomGetRootArticles();
 
             foreach (var rootArticle in rootArticles)
@@ -50,13 +53,61 @@ namespace Zpp.Test
                     // TODO: check now the backward scheduling
                 });
             }
-            
+        }
+
+        /**
+         * Verifies, that the orderNet
+         * - can be build up from DemandToProvider+ProviderToDemand table
+         * - is a top down graph
+         */
+        [Fact]
+        public void TestOrderNet()
+        {
+            MrpRun.RunMrp(ProductionDomainContext);
+
+            // build it up
+            OrderGraph orderGraph = new OrderGraph();
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll().GetAll())
+            {
+                Demand demand = dbTransactionData.DemandsGetById(new Id(demandToProvider.DemandId));
+                Provider provider =
+                    dbTransactionData.ProvidersGetById(new Id(demandToProvider.ProviderId));
+                orderGraph.AddChild(demand, provider);
+            }
+
+            foreach (var providerToDemand in dbTransactionData.ProviderToDemandGetAll().GetAll())
+            {
+                Demand demand = dbTransactionData.DemandsGetById(new Id(providerToDemand.DemandId));
+                Provider provider =
+                    dbTransactionData.ProvidersGetById(new Id(providerToDemand.ProviderId));
+                orderGraph.AddChild(provider, demand);
+            }
+
+            Assert.True(orderGraph.GetAdjacencyList().Values.Count > 0,
+                "There are no child in the orderGraph.");
         }
 
         [Fact]
         public void TestTransactionDataIsCompletelyPersisted()
         {
             // TODO
+        }
+
+        [Fact]
+        public void TestMaxTimeForMrpRunIsNotExceeded()
+        {
+            DateTime startTime = DateTime.UtcNow;
+
+            IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
+
+            DateTime endTime = DateTime.UtcNow;
+            Assert.True((endTime - startTime).TotalMilliseconds / 1000 < MAX_TIME_FOR_MRP_RUN,
+                $"MrpRun for example use case ({ORDER_QUANTITY}customerOrder) " +
+                $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds");
         }
 
         /**
@@ -118,7 +169,8 @@ namespace Zpp.Test
                     $"Stock level is not correct for stock {originalStock.Id}: " +
                     $"Expected: {expectedStockLevel}, Actual: {actualStockLevel}");
 
-                Assert.True(sumWithDrawel <= sumInsert, "sumWithDrawel should be smaller than or equal to sumInsert");
+                Assert.True(sumWithDrawel <= sumInsert,
+                    "sumWithDrawel should be smaller than or equal to sumInsert");
             }
         }
 

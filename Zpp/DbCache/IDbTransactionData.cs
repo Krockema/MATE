@@ -25,6 +25,10 @@ namespace Zpp
         
         void DemandToProvidersRemoveAll();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="demandToProvidersMap">is used to generate T_Demand and T_Provider tables</param>
         void PersistDbCache(IDemandToProvidersMap demandToProvidersMap);
 
         void DemandsAdd(Demand demand);
@@ -49,6 +53,10 @@ namespace Zpp
         Demands DemandsGetAll();
 
         void DemandToProviderAddAll(IDemandToProvidersMap demandToProvidersMap);
+        
+        void ProviderToDemandAddAll(IProviderToDemandsMap providerToDemands);
+
+        IProviderToDemandTable ProviderToDemandGetAll();
         
         IDemandToProviderTable DemandToProviderGetAll();
 

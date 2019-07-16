@@ -14,7 +14,7 @@ namespace Zpp.ProviderDomain
     /**
      * Provides default implementations for interface methods, can be moved to interface once C# 8.0 is released
      */
-    public abstract class Provider : IProviderLogic
+    public abstract class Provider : IProviderLogic, INode
     {
         protected Demands _dependingDemands;
         protected readonly IProvider _provider;
@@ -123,6 +123,16 @@ namespace Zpp.ProviderDomain
         public override string ToString()
         {
             return $"{GetId()}: {GetQuantity()} pieces";
+        }
+
+        public NodeType GetNodeType()
+        {
+            return NodeType.Provider;
+        }
+
+        public INode GetEntity()
+        {
+            return this;
         }
     }
 }

@@ -23,10 +23,10 @@ namespace Zpp
         public DemandToProviderTable()
         {
         }
-
+        
         public DemandToProviderTable(IDemandToProvidersMap demandToProvidersMap)
         {
-            _demandToProviderEntities.AddRange(demandToProvidersMap.ToDemandToT_DemandToProvider());
+            _demandToProviderEntities.AddRange(demandToProvidersMap.ToT_DemandToProvider());
         }
 
         public List<T_DemandToProvider> GetAll()
@@ -36,7 +36,7 @@ namespace Zpp
 
         public void AddAll(IDemandToProvidersMap demandToProvidersMap)
         {
-            _demandToProviderEntities.AddRange(demandToProvidersMap.ToDemandToT_DemandToProvider());
+            _demandToProviderEntities.AddRange(demandToProvidersMap.ToT_DemandToProvider());
         }
 
         public IDemandToProvidersMap ToDemandToProviders(IDbTransactionData dbTransactionData)
