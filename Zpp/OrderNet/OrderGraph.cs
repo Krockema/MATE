@@ -40,5 +40,10 @@ namespace Zpp
             }
             _adjacencyList[node].Add(childNode);
         }
+
+        public int Count()
+        {
+            return _adjacencyList.Values.Count;
+        }
     }
 }

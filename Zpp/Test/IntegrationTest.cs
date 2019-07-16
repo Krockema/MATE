@@ -89,6 +89,14 @@ namespace Zpp.Test
 
             Assert.True(orderGraph.GetAdjacencyList().Values.Count > 0,
                 "There are no child in the orderGraph.");
+
+            int sumDemandToProviderAndProviderToDemand =
+                dbTransactionData.DemandToProviderGetAll().Count() +
+                dbTransactionData.ProviderToDemandGetAll().Count();
+
+            Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.Count(),
+                $"Should be equal size: sumDemandToProviderAndProviderToDemand " + 
+                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrdergraph {orderGraph.Count()}");
         }
 
         [Fact]
@@ -106,7 +114,7 @@ namespace Zpp.Test
 
             DateTime endTime = DateTime.UtcNow;
             Assert.True((endTime - startTime).TotalMilliseconds / 1000 < MAX_TIME_FOR_MRP_RUN,
-                $"MrpRun for example use case ({ORDER_QUANTITY}customerOrder) " +
+                $"MrpRun for example use case ({ORDER_QUANTITY} customerOrder) " +
                 $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds");
         }
 

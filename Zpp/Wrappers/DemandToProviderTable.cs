@@ -60,5 +60,10 @@ namespace Zpp
 
             return demandToProvidersMap;
         }
+
+        public int Count()
+        {
+            return _demandToProviderEntities.Count;
+        }
     }
 }

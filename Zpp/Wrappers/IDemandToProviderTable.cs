@@ -11,5 +11,7 @@ namespace Zpp
         List<T_DemandToProvider> GetAll();
 
         IDemandToProvidersMap ToDemandToProviders(IDbTransactionData dbTransactionData);
+
+        int Count();
     }
 }
