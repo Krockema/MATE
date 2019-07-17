@@ -63,5 +63,12 @@ namespace Zpp.DemandDomain
                 new DueTime(((T_ProductionOrderBom) _demand).ProductionOrderParent.DueTime);
             return dueTime;
         }
+
+        public override string GetGraphizString()
+        {
+            // Demand(CustomerOrder);20;Truck
+            string graphizString = $"D(PrOB);{GetQuantity()};{GetArticle().Name}";
+            return graphizString;
+        }
     }
 }

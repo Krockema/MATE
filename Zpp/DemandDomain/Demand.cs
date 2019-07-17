@@ -200,5 +200,9 @@ namespace Zpp.DemandDomain
         {
             return this;
         }
+
+        public abstract string GetGraphizString();
+
+
     }
 }

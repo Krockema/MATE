@@ -134,5 +134,7 @@ namespace Zpp.ProviderDomain
         {
             return this;
         }
+
+        public abstract string GetGraphizString();
     }
 }

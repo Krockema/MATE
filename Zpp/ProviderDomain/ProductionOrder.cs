@@ -117,5 +117,12 @@ namespace Zpp.ProviderDomain
                 parentProvider, quantity);
             return _dependingDemands;
         }
+
+        public override string GetGraphizString()
+        {
+            // Demand(CustomerOrder);20;Truck
+            string graphizString = $"P(PrO);{GetQuantity()};{GetArticle().Name}";
+            return graphizString;
+        }
     }
 }

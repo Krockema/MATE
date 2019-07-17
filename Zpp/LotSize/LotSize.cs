@@ -5,7 +5,7 @@ namespace Zpp.LotSize
 {
     public class LotSize : ILotSize
     {
-        private readonly Quantity _lotSize = new Quantity(1); // TODO for Marvin: This is not dependant from given article
+        private readonly Quantity _lotSize = new Quantity(1); // TODO: This must be higher
         private readonly Quantity _neededQuantity;
         private readonly Id _articleId;
 

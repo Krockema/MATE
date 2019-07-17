@@ -89,5 +89,12 @@ namespace Zpp.ProviderDomain
             Logger.Debug("PurchaseOrderPart created.");
             return new PurchaseOrderPart(purchaseOrderPart, null, dbMasterDataCache);
         }
+
+        public override string GetGraphizString()
+        {
+            // Demand(CustomerOrder);20;Truck
+            string graphizString = $"P(PuOP);{GetQuantity()};{GetArticle().Name}";
+            return graphizString;
+        }
     }
 }

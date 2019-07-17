@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
+using Xunit;
 using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
 using Zpp.Utils;
 
 namespace Zpp
@@ -9,6 +12,31 @@ namespace Zpp
     {
         private readonly Dictionary<INode, List<INode>> _adjacencyList =
             new Dictionary<INode, List<INode>>();
+
+        public OrderGraph(IDbTransactionData dbTransactionData)
+        {
+            foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll().GetAll())
+            {
+                Demand demand = dbTransactionData.DemandsGetById(new Id(demandToProvider.DemandId));
+                Provider provider =
+                    dbTransactionData.ProvidersGetById(new Id(demandToProvider.ProviderId));
+                Assert.True(demand != null || provider != null,
+                    "Demand/Provider should not be null.");
+                AddChild(new Node(demand, demandToProvider.GetId()),
+                    new Node(provider, demandToProvider.GetId()));
+            }
+
+            foreach (var providerToDemand in dbTransactionData.ProviderToDemandGetAll().GetAll())
+            {
+                Demand demand = dbTransactionData.DemandsGetById(new Id(providerToDemand.DemandId));
+                Provider provider =
+                    dbTransactionData.ProvidersGetById(new Id(providerToDemand.ProviderId));
+                Assert.True(demand != null || provider != null,
+                    "Demand/Provider should not be null.");
+                AddChild(new Node(provider, providerToDemand.GetId()),
+                    new Node(demand, providerToDemand.GetId()));
+            }
+        }
 
         public List<INode> GetChildNodes(INode node)
         {
@@ -58,19 +86,20 @@ namespace Zpp
             {
                 foreach (var toNode in _adjacencyList[fromNode])
                 {
-                    mystring += $"\"{fromNode.GetId()}" +
-                                $"{enumToString(fromNode.GetNodeType())[0]}\" -> \"{toNode.GetId()}" +
-                                $"{enumToString(toNode.GetNodeType())[0]}\";" + Environment.NewLine;
+                    // TODO: <Type>, <Menge>, <ItemName>
+                    mystring +=
+                        $"\"{fromNode.GetId()};{fromNode.GetGraphizString()}\" -> " + 
+                        $"\"{toNode.GetId()};{toNode.GetGraphizString()}\";" +
+                        Environment.NewLine;
                 }
             }
 
             return mystring;
         }
-        
+
         private string enumToString(NodeType nodeType)
         {
             return Enum.GetName(typeof(NodeType), nodeType);
         }
-}
-
+    }
 }

@@ -6,6 +6,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
@@ -37,8 +38,16 @@ namespace Zpp.ProviderDomain
             Provider parentProvider, Quantity quantity)
         {
             _dependingDemands = new Demands();
-            _dependingDemands.Add(StockExchangeDemand.CreateStockExchangeStockDemand(article,
-                GetDueTime(), quantity, _dbMasterDataCache));
+            Demand stockExchangeDemand =
+                StockExchangeDemand.CreateStockExchangeStockDemand(article, GetDueTime(), quantity,
+                    _dbMasterDataCache);
+            if (stockExchangeDemand.GetQuantity().IsSmallerThan(quantity))
+            {
+                throw new MrpRunException($"Created demand should have not a smaller " +
+                                          $"quantity ({stockExchangeDemand.GetQuantity()}) " +
+                                          $"than the needed quantity ({quantity}).");
+            }
+            _dependingDemands.Add(stockExchangeDemand);
             return _dependingDemands;
         }
 
@@ -78,6 +87,11 @@ namespace Zpp.ProviderDomain
                     { // buildArticle has max == zero --> will always be negative (null if current is also 0)
                         missingQuantity = new Quantity(1);
                     }
+
+                    if (stock.Current + missingQuantity.GetValue() <= stock.Min)
+                    {
+                        throw new MrpRunException($"Stock will not be refilled correctly.");
+                    }
                     stockExchangeProvider.CreateNeededDemands(article, dbTransactionData,
                         dbMasterDataCache, stockExchangeProvider, missingQuantity);
                 }
@@ -86,6 +100,13 @@ namespace Zpp.ProviderDomain
             }
 
             return null;
+        }
+
+        public override string GetGraphizString()
+        {
+            // Demand(CustomerOrder);20;Truck
+            string graphizString = $"P(SE);{GetQuantity()};{GetArticle().Name}";
+            return graphizString;
         }
     }
 }

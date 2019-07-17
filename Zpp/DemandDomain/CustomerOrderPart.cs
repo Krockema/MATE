@@ -31,5 +31,12 @@ namespace Zpp.DemandDomain
             DueTime dueTime = new DueTime(_dbMasterDataCache.T_CustomerOrderGetById(customerOrderId).DueTime);
             return dueTime;
         }
+
+        public override string GetGraphizString()
+        {
+            // Demand(CustomerOrder);20;Truck
+            string graphizString = $"D(COP);{GetQuantity()};{GetArticle().Name}";
+            return graphizString;
+        }
     }
 }

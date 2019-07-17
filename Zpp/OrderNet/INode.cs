@@ -8,5 +8,7 @@ namespace Zpp
         NodeType GetNodeType();
 
         INode GetEntity();
+
+        string GetGraphizString();
     }
 }

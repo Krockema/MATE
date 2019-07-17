@@ -21,7 +21,7 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        private const int ORDER_QUANTITY = 1;
+        private const int ORDER_QUANTITY = 6;
         private const int MAX_TIME_FOR_MRP_RUN = 60;
 
         public IntegrationTest()
@@ -66,26 +66,11 @@ namespace Zpp.Test
             MrpRun.RunMrp(ProductionDomainContext);
 
             // build it up
-            OrderGraph orderGraph = new OrderGraph();
+
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-
-            foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll().GetAll())
-            {
-                Demand demand = dbTransactionData.DemandsGetById(new Id(demandToProvider.DemandId));
-                Provider provider =
-                    dbTransactionData.ProvidersGetById(new Id(demandToProvider.ProviderId));
-                orderGraph.AddChild(demand, provider);
-            }
-
-            foreach (var providerToDemand in dbTransactionData.ProviderToDemandGetAll().GetAll())
-            {
-                Demand demand = dbTransactionData.DemandsGetById(new Id(providerToDemand.DemandId));
-                Provider provider =
-                    dbTransactionData.ProvidersGetById(new Id(providerToDemand.ProviderId));
-                orderGraph.AddChild(provider, demand);
-            }
+            OrderGraph orderGraph = new OrderGraph(dbTransactionData);
 
             Assert.True(orderGraph.GetAdjacencyList().Values.Count > 0,
                 "There are no child in the orderGraph.");
@@ -94,10 +79,12 @@ namespace Zpp.Test
                 dbTransactionData.DemandToProviderGetAll().Count() +
                 dbTransactionData.ProviderToDemandGetAll().Count();
 
-            // TODO: since this fails, evaluate which are missing
+            // TODO: graphiz separate between label and id
             Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.Count(),
-                $"Should be equal size: sumDemandToProviderAndProviderToDemand " + 
+                $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
                 $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.Count()}");
+
+            // TODO: Lotsize must be higher
         }
 
         [Fact]
@@ -121,9 +108,10 @@ namespace Zpp.Test
 
         /**
          * Verifies, that
-         * - the sum(stockExchanges.Quantity) plus initial stock level equals stock.current
+         * - the sum(stockExchanges.Quantity) plus initial stock <= stock.Max && >= stock.Min
+         * - 
+         * - sum(stockExchangeDemands=withdrawal) <= sum(stockExchangeProviders=insert)
          * for every stock
-         * - sum(stockExchangeDemands=withdrawel) <= sum(stockExchangeProviders=insert) for every stock
          */
         [Fact]
         public void TestStockExchanges()
@@ -148,18 +136,24 @@ namespace Zpp.Test
                     continue;
                 }
 
+                // =stock.Current
                 decimal actualStockLevel = nonPersistedDbMasterData
                     .M_StockGetById(originalStock.GetId()).Current;
 
-                // calculate the expected stock level (for every stock) from original master state
-                // over all created stockExchanges
-                // --> must be equal to current stock
+                // ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal))
                 decimal expectedStockLevel = originalStock.Current;
+                Assert.True(expectedStockLevel >= 0,
+                    $"Initial expectedStockLevel" + 
+                    $"({expectedStockLevel}) must be greaterThan/EqualTo 0.");
+                
                 List<T_StockExchange> persistedStockExchanges = persistedTransactionData
                     .StockExchangeGetAll().GetAllAs<T_StockExchange>()
                     .Where(x => x.StockId.Equals(originalStock.Id)).ToList();
-                decimal sumWithDrawel = 0;
+                decimal sumWithDrawal = 0;
                 decimal sumInsert = 0;
+                
+                // calculate the expected stock level (for every stock) from original master state
+                // over all created stockExchanges
                 foreach (var persistedStockExchange in persistedStockExchanges)
                 {
                     if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert))
@@ -170,16 +164,35 @@ namespace Zpp.Test
                     else if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Withdrawal))
                     {
                         expectedStockLevel -= persistedStockExchange.Quantity;
-                        sumWithDrawel += persistedStockExchange.Quantity;
+                        sumWithDrawal += persistedStockExchange.Quantity;
                     }
                 }
+                Assert.True(expectedStockLevel >= 0,
+                    $"ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal)) " + 
+                    $"({expectedStockLevel}) must be greaterThan/EqualTo 0.");
+                Assert.True(actualStockLevel >= 0,
+                    $"ActualStockLevel (=stock.Current) ({actualStockLevel}) " +
+                    $"must be greaterThan/EqualTo 0.");
 
-                Assert.True(actualStockLevel.Equals(expectedStockLevel),
-                    $"Stock level is not correct for stock {originalStock.Id}: " +
-                    $"Expected: {expectedStockLevel}, Actual: {actualStockLevel}");
+                decimal maxStock = originalStock.Max;
+                if (maxStock < 1)
+                {
+                    maxStock = 5;
+                }
 
-                Assert.True(sumWithDrawel <= sumInsert,
-                    "sumWithDrawel should be smaller than or equal to sumInsert");
+                Assert.True(actualStockLevel < maxStock,
+                    $"Stock level for stock {originalStock.Id} must be " +
+                    $"smallerThan/equalTo MaxQuantity({maxStock}) " +
+                    $"Expected: {maxStock}, Actual: {actualStockLevel}");
+
+                decimal minStock = originalStock.Min;
+                Assert.True(actualStockLevel >= minStock,
+                    $"Stock level for stock {originalStock.Id} must be " +
+                    $"smallerThan/equalTo MaxQuantity({minStock}) " +
+                    $"Expected: {minStock}, Actual: {actualStockLevel}");
+
+                Assert.True(sumWithDrawal <= sumInsert,
+                    $"sumWithDrawel({sumWithDrawal}) should be smaller than or equal to sumInsert({sumInsert})");
             }
         }
 

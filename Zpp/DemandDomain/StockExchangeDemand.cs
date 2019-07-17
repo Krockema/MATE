@@ -66,5 +66,12 @@ namespace Zpp.DemandDomain
             
             return new StockExchangeDemand(stockExchange, dbMasterDataCache);
         }
+
+        public override string GetGraphizString()
+        {
+            // Demand(CustomerOrder);20;Truck
+            string graphizString = $"D(SE);{GetQuantity()};{GetArticle().Name}";
+            return graphizString;
+        }
     }
 }
