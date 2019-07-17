@@ -450,5 +450,10 @@ namespace Zpp
         {
             return _tProviders.Single(x => x.Id.Equals(id.GetValue()));
         }
+
+        public T_Demand T_DemandGetById(Id id)
+        {
+            return _tDemands.Single(x => x.Id.Equals(id.GetValue()));
+        }
     }
 }

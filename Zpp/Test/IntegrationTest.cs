@@ -226,7 +226,7 @@ namespace Zpp.Test
             foreach (var demand in dbTransactionData.DemandsGetAll().GetAll())
             {
                 Id demandId = demand.GetId();
-                Id tDemandId = demand.ToT_Demand().GetId();
+                Id tDemandId = demand.ToT_Demand(dbTransactionData).GetId();
                 Assert.True(demandId.Equals(tDemandId),
                     $"{demand}: DemandId ({demandId}) must be equal to its tDemandId ({tDemandId}).");
             }

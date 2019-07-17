@@ -19,6 +19,8 @@ namespace Zpp.DemandDomain
         IDemand ToIDemand();
         
         T_Demand ToT_Demand();
+        
+        T_Demand ToT_Demand(IDbTransactionData dbTransactionData);
 
         Quantity GetQuantity();
 

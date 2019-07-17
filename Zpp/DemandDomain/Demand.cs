@@ -204,6 +204,9 @@ namespace Zpp.DemandDomain
 
         public abstract string GetGraphizString();
 
-
+        public T_Demand ToT_Demand(IDbTransactionData dbTransactionData)
+        {
+            return dbTransactionData.T_DemandGetById(new Id(_demand.Id));
+        }
     }
 }
