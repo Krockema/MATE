@@ -214,6 +214,28 @@ namespace Zpp.Test
                 Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
             }
         }
+        
+        [Fact]
+        public void TestAllProvidersAreInProviderToDemandTable()
+        {
+            MrpRun.RunMrp(ProductionDomainContext);
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            IProviderToDemandsMap providerToDemandsMap = dbTransactionData.ProviderToDemandGetAll()
+                .ToProviderToDemands(dbTransactionData);
+            IProviders allDbProviders = dbTransactionData.ProvidersGetAll();
+            IProviders providersInProviderToDemandTable = providerToDemandsMap.GetAllProviders();
+
+            foreach (var provider in allDbProviders.GetAll())
+            {
+                bool isInProviderToDemandTable =
+                    providersInProviderToDemandTable.GetAll().Contains(provider);
+                Assert.True(isInProviderToDemandTable,
+                    $"Provider {provider} is NOT in providerToDemandTable.");
+            }
+        }
 
         [Fact]
         public void TestAllDemandsAreInDemandToProviderTable()
