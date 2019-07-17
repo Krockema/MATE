@@ -116,12 +116,11 @@ namespace Zpp.Test
         [Fact]
         public void TestStockExchanges()
         {
-            IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.RunMrp(ProductionDomainContext);
 
             // stock behaviour
             IDbMasterDataCache originalDbMasterData =
                 new DbMasterDataCache(ProductionDomainContext);
-            IDbMasterDataCache nonPersistedDbMasterData = plan.GetNotPersistedDbMasterDataCache();
             IDbTransactionData persistedTransactionData =
                 new DbTransactionData(ProductionDomainContext, originalDbMasterData);
 
@@ -136,15 +135,11 @@ namespace Zpp.Test
                     continue;
                 }
 
-                // =stock.Current
-                decimal actualStockLevel = nonPersistedDbMasterData
-                    .M_StockGetById(originalStock.GetId()).Current;
-
-                // ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal))
-                decimal expectedStockLevel = originalStock.Current;
-                Assert.True(expectedStockLevel >= 0,
+                // currentStockLevel will be calculated (=initial+sum(insert)-sum(withdrawal))
+                decimal currentStockLevel = originalStock.Current;
+                Assert.True(currentStockLevel >= 0,
                     $"Initial expectedStockLevel" +
-                    $"({expectedStockLevel}) must be greaterThan/EqualTo 0.");
+                    $"({currentStockLevel}) must be greaterThan/EqualTo 0.");
 
                 List<T_StockExchange> persistedStockExchanges = persistedTransactionData
                     .StockExchangeGetAll().GetAllAs<T_StockExchange>()
@@ -158,22 +153,19 @@ namespace Zpp.Test
                 {
                     if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert))
                     {
-                        expectedStockLevel += persistedStockExchange.Quantity;
+                        currentStockLevel += persistedStockExchange.Quantity;
                         sumInsert += persistedStockExchange.Quantity;
                     }
                     else if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Withdrawal))
                     {
-                        expectedStockLevel -= persistedStockExchange.Quantity;
+                        currentStockLevel -= persistedStockExchange.Quantity;
                         sumWithDrawal += persistedStockExchange.Quantity;
                     }
                 }
 
-                Assert.True(expectedStockLevel >= 0,
+                Assert.True(currentStockLevel >= 0,
                     $"ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal)) " +
-                    $"({expectedStockLevel}) must be greaterThan/EqualTo 0.");
-                Assert.True(actualStockLevel >= 0,
-                    $"ActualStockLevel (=stock.Current) ({actualStockLevel}) " +
-                    $"must be greaterThan/EqualTo 0.");
+                    $"({currentStockLevel}) must be greaterThan/EqualTo 0.");
 
                 decimal maxStock = originalStock.Max;
                 if (maxStock < 1)
@@ -181,16 +173,16 @@ namespace Zpp.Test
                     maxStock = 5;
                 }
 
-                Assert.True(actualStockLevel < maxStock,
+                Assert.True(currentStockLevel < maxStock,
                     $"Stock level for stock {originalStock.Id} must be " +
                     $"smallerThan/equalTo MaxQuantity({maxStock}) " +
-                    $"Expected: {maxStock}, Actual: {actualStockLevel}");
+                    $"Expected: {maxStock}, Actual: {currentStockLevel}");
 
                 decimal minStock = originalStock.Min;
-                Assert.True(actualStockLevel >= minStock,
+                Assert.True(currentStockLevel >= minStock,
                     $"Stock level for stock {originalStock.Id} must be " +
                     $"smallerThan/equalTo MaxQuantity({minStock}) " +
-                    $"Expected: {minStock}, Actual: {actualStockLevel}");
+                    $"Expected: {minStock}, Actual: {currentStockLevel}");
 
                 Assert.True(sumWithDrawal <= sumInsert,
                     $"sumWithDrawel({sumWithDrawal}) should be smaller than or equal to sumInsert({sumInsert})");
@@ -330,19 +322,8 @@ namespace Zpp.Test
             Assert.True(ProductionDomainContext.CustomerOrders.Count() == ORDER_QUANTITY,
                 "No customerOrders are initially available.");
 
-            IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
-
-            IDemands actualDemands = plan.GetDemands();
-
-            IDemandToProvidersMap demandToProvidersMap = plan.GetDemandToProviders()
-                .ToDemandToProvidersMap(plan.GetDbTransactionData());
-            foreach (var demand in actualDemands.GetAll())
-            {
-                bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
-                Assert.True(isSatisfied,
-                    $"The demand {demand} should be satisfied, but it is NOT.");
-            }
-
+            MrpRun.RunMrp(ProductionDomainContext);
+            
             // check certain constraints are not violated
 
             // masterData entities in db must not change within an MrpRun

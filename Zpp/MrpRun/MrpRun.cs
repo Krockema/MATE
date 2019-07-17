@@ -23,7 +23,7 @@ namespace Zpp
         /**
          * Only at start the demands are customerOrders
          */
-        public static Plan RunMrp(ProductionDomainContext ProductionDomainContext)
+        public static void RunMrp(ProductionDomainContext ProductionDomainContext)
         {
             // init data structures
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
@@ -35,12 +35,7 @@ namespace Zpp
             // remove all DemandToProvider entries
             dbTransactionData.DemandToProvidersRemoveAll();
 
-
-                ProcessDbDemands(dbTransactionData,
-                    dbMasterDataCache.T_CustomerOrderPartGetAll());
-
-                return new Plan(dbTransactionData.DemandsGetAll(), dbTransactionData.ProvidersGetAll(),
-                dbTransactionData.DemandToProviderGetAll(), dbTransactionData, dbMasterDataCache);
+            ProcessDbDemands(dbTransactionData, dbMasterDataCache.T_CustomerOrderPartGetAll());
         }
 
         private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
@@ -54,7 +49,6 @@ namespace Zpp
 
             foreach (var oneDbDemand in dbDemands.GetAll())
             {
-                
                 // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
                 // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
                 // --> it's not possible to add these to the demandList even with Enumerators/Iterators
@@ -98,9 +92,11 @@ namespace Zpp
                         // performance: replace any by directly Adding
                         if (providersOfDemand.AnyDependingDemands())
                         {
-                            IProviderToDemandsMap dependingDemands = providersOfDemand.GetAllDependingDemandsAsMap(); 
+                            IProviderToDemandsMap dependingDemands =
+                                providersOfDemand.GetAllDependingDemandsAsMap();
                             nextDemandManager.AddAll(dependingDemands.GetAllDemands());
-                            providerToDemandsMap.AddAll(providersOfDemand.GetAllDependingDemandsAsMap());
+                            providerToDemandsMap.AddAll(providersOfDemand
+                                .GetAllDependingDemandsAsMap());
                         }
                     }
 
@@ -112,6 +108,7 @@ namespace Zpp
                     {
                         break;
                     }
+
                     finalAllDemands.AddAll(nextDemandManager);
                 }
             }
