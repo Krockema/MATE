@@ -88,6 +88,10 @@ namespace Zpp
                     {
                         IProviders providersOfDemand = demand.Satisfy(demandToProvidersMap,
                             dbTransactionData);
+                        if (providersOfDemand.Any() == false)
+                        {
+                            throw new MrpRunException($"No provider were created for {demand}.");
+                        }
 
                         demandToProvidersMap.AddProvidersForDemand(demand, providersOfDemand);
                         providers.AddAll(providersOfDemand);

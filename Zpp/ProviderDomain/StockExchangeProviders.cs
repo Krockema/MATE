@@ -17,6 +17,10 @@ namespace Zpp.ProviderDomain
             List<Provider> providers = new List<Provider>();
             foreach (var iProvider in iProviders)
             {
+                if (iProvider.ProviderId == null)
+                {
+                    continue;
+                }
                 providers.Add(new StockExchangeProvider(iProvider, dbMasterDataCache));
             }
 

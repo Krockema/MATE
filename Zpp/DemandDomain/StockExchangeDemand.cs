@@ -48,7 +48,10 @@ namespace Zpp.DemandDomain
             stockExchange.RequiredOnTime = dueTime.GetValue();
             stockExchange.ExchangeType = ExchangeType.Withdrawal;
             
-            return new StockExchangeDemand(stockExchange, dbMasterDataCache);
+            StockExchangeDemand stockExchangeDemand =
+                new StockExchangeDemand(stockExchange, dbMasterDataCache);
+            
+            return stockExchangeDemand;
         }
         
         public static Demand CreateStockExchangeStockDemand(M_Article article, DueTime dueTime, Quantity quantity, IDbMasterDataCache dbMasterDataCache)
@@ -63,8 +66,10 @@ namespace Zpp.DemandDomain
             stockExchange.StockId = stock.Id;
             stockExchange.RequiredOnTime = dueTime.GetValue();
             stockExchange.ExchangeType = ExchangeType.Insert;
+            StockExchangeDemand stockExchangeDemand =
+                new StockExchangeDemand(stockExchange, dbMasterDataCache);
             
-            return new StockExchangeDemand(stockExchange, dbMasterDataCache);
+            return stockExchangeDemand;
         }
 
         public override string GetGraphizString()

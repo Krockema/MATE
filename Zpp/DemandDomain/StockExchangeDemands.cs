@@ -18,6 +18,10 @@ namespace Zpp.DemandDomain
             List<Demand> demands = new List<Demand>();
             foreach (var iDemand in iDemands)
             {
+                if (iDemand.DemandId == null)
+                {
+                    continue;
+                }
                 demands.Add(new StockExchangeDemand(iDemand, dbMasterDataCache));
             }
 
