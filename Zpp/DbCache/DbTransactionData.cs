@@ -342,7 +342,7 @@ namespace Zpp
             }
         }
 
-        public Demands DemandsGetAll()
+        public IDemands DemandsGetAll()
         {
             Demands demands = new Demands();
 

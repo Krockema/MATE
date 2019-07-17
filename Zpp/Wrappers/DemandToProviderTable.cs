@@ -39,7 +39,7 @@ namespace Zpp
             _demandToProviderEntities.AddRange(demandToProvidersMap.ToT_DemandToProvider());
         }
 
-        public IDemandToProvidersMap ToDemandToProviders(IDbTransactionData dbTransactionData)
+        public IDemandToProvidersMap ToDemandToProvidersMap(IDbTransactionData dbTransactionData)
         {
             IDemandToProvidersMap demandToProvidersMap = new DemandToProvidersMap();
             

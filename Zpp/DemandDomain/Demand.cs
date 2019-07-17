@@ -92,7 +92,7 @@ namespace Zpp.DemandDomain
 
         public override string ToString()
         {
-            return $"{GetId()}: {GetQuantity()} pieces";
+            return $"{GetId()}: {GetArticle().Name};{GetQuantity()}";
         }
 
         public abstract M_Article GetArticle();

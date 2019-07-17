@@ -83,7 +83,10 @@ namespace Zpp.DemandToProviderDomain
         {
             return _providerToDemandsMap.GetAllProviders().GetAllAsT_Provider();
         }
-        
-        
+
+        public Demands GetDemands()
+        {
+            return new Demands(_demandToProviders.Keys.ToList());
+        }
     }
 }

@@ -122,7 +122,7 @@ namespace Zpp.ProviderDomain
 
         public override string ToString()
         {
-            return $"{GetId()}: {GetQuantity()} pieces";
+            return $"{GetId()}: {GetArticle().Name};{GetQuantity()}";
         }
 
         public NodeType GetNodeType()

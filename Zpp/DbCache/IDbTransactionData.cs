@@ -50,7 +50,7 @@ namespace Zpp
 
         ProductionOrders ProductionOrderGetAll();
 
-        Demands DemandsGetAll();
+        IDemands DemandsGetAll();
 
         void DemandToProviderAddAll(IDemandToProvidersMap demandToProvidersMap);
         
