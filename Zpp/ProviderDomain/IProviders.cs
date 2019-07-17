@@ -40,6 +40,8 @@ namespace Zpp.ProviderDomain
         IProviderToDemandsMap GetAllDependingDemandsAsMap();
 
         bool IsSatisfied(Demand demand);
+        
+        IDemands CalculateUnsatisfiedDemands(IDemands demands);
 
         Quantity GetMissingQuantity(Demand demand);
 

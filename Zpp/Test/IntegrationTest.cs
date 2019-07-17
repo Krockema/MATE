@@ -21,7 +21,7 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
+        private const int ORDER_QUANTITY = 1;
         private const int MAX_TIME_FOR_MRP_RUN = 60;
 
         public IntegrationTest()
@@ -98,7 +98,7 @@ namespace Zpp.Test
         {
             DateTime startTime = DateTime.UtcNow;
 
-            IPlan plan = MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.RunMrp(ProductionDomainContext);
 
             DateTime endTime = DateTime.UtcNow;
             Assert.True((endTime - startTime).TotalMilliseconds / 1000 < MAX_TIME_FOR_MRP_RUN,
@@ -143,15 +143,15 @@ namespace Zpp.Test
                 // ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal))
                 decimal expectedStockLevel = originalStock.Current;
                 Assert.True(expectedStockLevel >= 0,
-                    $"Initial expectedStockLevel" + 
+                    $"Initial expectedStockLevel" +
                     $"({expectedStockLevel}) must be greaterThan/EqualTo 0.");
-                
+
                 List<T_StockExchange> persistedStockExchanges = persistedTransactionData
                     .StockExchangeGetAll().GetAllAs<T_StockExchange>()
                     .Where(x => x.StockId.Equals(originalStock.Id)).ToList();
                 decimal sumWithDrawal = 0;
                 decimal sumInsert = 0;
-                
+
                 // calculate the expected stock level (for every stock) from original master state
                 // over all created stockExchanges
                 foreach (var persistedStockExchange in persistedStockExchanges)
@@ -167,8 +167,9 @@ namespace Zpp.Test
                         sumWithDrawal += persistedStockExchange.Quantity;
                     }
                 }
+
                 Assert.True(expectedStockLevel >= 0,
-                    $"ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal)) " + 
+                    $"ExpectedStockLevel (=initial+sum(insert)-sum(withdrawal)) " +
                     $"({expectedStockLevel}) must be greaterThan/EqualTo 0.");
                 Assert.True(actualStockLevel >= 0,
                     $"ActualStockLevel (=stock.Current) ({actualStockLevel}) " +
@@ -197,6 +198,74 @@ namespace Zpp.Test
         }
 
         [Fact]
+        public void TestAllDemandsAreSatisfiedByProvidersOfDemandToProviderTable()
+        {
+            MrpRun.RunMrp(ProductionDomainContext);
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            IDemandToProvidersMap demandToProvidersMap = dbTransactionData.DemandToProviderGetAll()
+                .ToDemandToProvidersMap(dbTransactionData);
+            IDemands allDbDemands = dbTransactionData.DemandsGetAll();
+            foreach (var demand in allDbDemands.GetAll())
+            {
+                bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
+                Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
+            }
+        }
+
+        [Fact]
+        public void TestAllDemandsAreInDemandToProviderTable()
+        {
+            MrpRun.RunMrp(ProductionDomainContext);
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            IDemandToProvidersMap demandToProvidersMap = dbTransactionData.DemandToProviderGetAll()
+                .ToDemandToProvidersMap(dbTransactionData);
+            IDemands allDbDemands = dbTransactionData.DemandsGetAll();
+            Demands demandsInDemandToProviderTable = demandToProvidersMap.GetDemands();
+
+            foreach (var demand in allDbDemands.GetAll())
+            {
+                bool isInDemandToProviderTable =
+                    demandsInDemandToProviderTable.GetAll().Contains(demand);
+                Assert.True(isInDemandToProviderTable,
+                    $"Demand {demand} is NOT in demandToProviderTable.");
+            }
+        }
+
+        /**
+         * Tests, if the demands are theoretically satisfied by looking for providers in ProviderTable
+         * --> success does not mean, that the demands from demandToProvider table are satisfied by providers from demandToProviderTable
+         */
+        [Fact]
+        public void TestAllDemandsAreSatisfiedWithinProviderTable()
+        {
+            MrpRun.RunMrp(ProductionDomainContext);
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            IDemands demands = dbTransactionData.DemandsGetAll();
+            IProviders providers = dbTransactionData.ProvidersGetAll();
+            IDemands unsatisfiedDemands = providers.CalculateUnsatisfiedDemands(demands);
+            foreach (var unsatisfiedDemand in unsatisfiedDemands.GetAll())
+            {
+                Assert.True(false,
+                    $"The demand {unsatisfiedDemand} should be satisfied, but it is NOT.");
+            }
+        }
+
+        [Fact]
+        public void TestNoEntityWasLostDuringPersisting()
+        {
+            // TODO: check every created id is also in database
+        }
+
+        [Fact]
         public void TestMrpRun()
         {
             List<int> countsMasterDataBefore = CountMasterData();
@@ -209,7 +278,7 @@ namespace Zpp.Test
             IDemands actualDemands = plan.GetDemands();
 
             IDemandToProvidersMap demandToProvidersMap = plan.GetDemandToProviders()
-                .ToDemandToProviders(plan.GetDbTransactionData());
+                .ToDemandToProvidersMap(plan.GetDbTransactionData());
             foreach (var demand in actualDemands.GetAll())
             {
                 bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);

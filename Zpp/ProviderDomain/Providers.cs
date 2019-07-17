@@ -25,6 +25,7 @@ namespace Zpp.ProviderDomain
             {
                 throw new MrpRunException("Given list should not be null.");
             }
+
             _providers = providers;
         }
 
@@ -34,11 +35,13 @@ namespace Zpp.ProviderDomain
             {
                 throw new MrpRunException("Given list should not be null.");
             }
+
             List<Provider> providerList = new List<Provider>();
             foreach (var provider in providers)
             {
                 providerList.Add(provider);
             }
+
             _providers = providerList;
         }
 
@@ -66,14 +69,15 @@ namespace Zpp.ProviderDomain
         {
             return _providers;
         }
-        
+
         public List<T> GetAllAs<T>()
         {
             List<T> productionOrderBoms = new List<T>();
             foreach (var demand in _providers)
             {
-                productionOrderBoms.Add((T)demand.ToIProvider());
+                productionOrderBoms.Add((T) demand.ToIProvider());
             }
+
             return productionOrderBoms;
         }
 
@@ -85,14 +89,15 @@ namespace Zpp.ProviderDomain
         public Quantity GetProvidedQuantity(Demand demand)
         {
             Quantity providedQuantity = new Quantity();
-            
+
             foreach (var provider in _providers)
             {
                 if (demand.GetArticleId().Equals(provider.GetArticleId()))
                 {
-                    providedQuantity.IncrementBy(provider.GetQuantity());    
+                    providedQuantity.IncrementBy(provider.GetQuantity());
                 }
             }
+
             return providedQuantity;
         }
 
@@ -151,10 +156,52 @@ namespace Zpp.ProviderDomain
             IProviderToDemandsMap providerToDemandsMap = new ProviderToDemandsMap();
             foreach (var provider in _providers)
             {
-                providerToDemandsMap.AddDemandsForProvider(provider, provider.GetAllDependingDemands());
+                providerToDemandsMap.AddDemandsForProvider(provider,
+                    provider.GetAllDependingDemands());
             }
 
             return providerToDemandsMap;
+        }
+
+        public IDemands CalculateUnsatisfiedDemands(IDemands demands)
+        {
+            List<Demand> unSatisfiedDemands = new List<Demand>();
+            Dictionary<Provider, Quantity> reservableQuantityToProvider =
+                new Dictionary<Provider, Quantity>();
+            foreach (var provider in _providers)
+            {
+                reservableQuantityToProvider.Add(provider, provider.GetQuantity());
+            }
+
+            foreach (var demand in demands.GetAll())
+            {
+                Quantity neededQuantity = demand.GetQuantity();
+                foreach (var provider in _providers)
+                {
+                    Quantity reservableQuantity = reservableQuantityToProvider[provider];
+                    if (provider.GetArticleId().Equals(demand.GetArticleId()) &&
+                        reservableQuantity.IsGreaterThan(Quantity.Null()))
+                    {
+                        reservableQuantityToProvider[provider] = reservableQuantity
+                            .Minus(neededQuantity);
+                        neededQuantity = neededQuantity.Minus(reservableQuantity);
+
+                        // neededQuantity < 0
+                        if (neededQuantity.IsSmallerThan(Quantity.Null()))
+                        {
+                            break;
+                        }
+                        // neededQuantity > 0: continue to provide it
+                    }
+                }
+
+                if (neededQuantity.IsGreaterThan(Quantity.Null()))
+                {
+                    unSatisfiedDemands.Add(demand);
+                }
+            }
+            
+            return new Demands(unSatisfiedDemands);
         }
     }
 }
