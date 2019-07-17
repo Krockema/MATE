@@ -17,6 +17,8 @@ namespace Zpp.ProviderDomain
         Demands GetAllDependingDemands();
 
         IProvider ToIProvider();
+        
+        T_Provider ToT_Provider(IDbTransactionData dbTransactionData);
 
         Quantity GetQuantity();
 

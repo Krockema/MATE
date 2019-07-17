@@ -53,6 +53,9 @@ namespace Zpp
 
         // providers
         private readonly ProductionOrders _productionOrders;
+        
+        private readonly List<T_Demand> _tDemands = new List<T_Demand>();
+        private readonly List<T_Provider> _tProviders = new List<T_Provider>();
 
         public DbTransactionData(ProductionDomainContext productionDomainContext,
             IDbMasterDataCache dbMasterDataCache)
@@ -89,6 +92,9 @@ namespace Zpp
                 new DemandToProviderTable(_productionDomainContext.DemandToProviders.ToList());
             _providerToDemandTable =
                 new ProviderToDemandTable(_productionDomainContext.ProviderToDemand.ToList());
+
+            _tDemands = _productionDomainContext.Demands.ToList();
+            _tProviders = _productionDomainContext.Providers.ToList();
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -438,6 +444,11 @@ namespace Zpp
         public IProviderToDemandTable ProviderToDemandGetAll()
         {
             return _providerToDemandTable;
+        }
+
+        public T_Provider T_ProviderGetById(Id id)
+        {
+            return _tProviders.Single(x => x.Id.Equals(id.GetValue()));
         }
     }
 }

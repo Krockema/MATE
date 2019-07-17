@@ -63,6 +63,7 @@ namespace Zpp
         Demand DemandsGetById(Id id);
         
         Provider ProvidersGetById(Id id);
-        
+
+        T_Provider T_ProviderGetById(Id id);
     }
 }

@@ -136,5 +136,10 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract string GetGraphizString();
+
+        public T_Provider ToT_Provider(IDbTransactionData dbTransactionData)
+        {
+            return dbTransactionData.T_ProviderGetById(new Id(_provider.Id));
+        }
     }
 }

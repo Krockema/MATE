@@ -83,10 +83,6 @@ namespace Zpp.ProviderDomain
                 articleToBusinessPartner
                     .PackSize; // TODO: is amount*packSize in var quantity correct?
             purchaseOrderPart.State = State.Created;
-            // connects this provider with table T_Provider
-            purchaseOrderPart.Provider = new T_Provider();
-            purchaseOrderPart.Provider.Id = purchaseOrderPart.Id;
-            purchaseOrderPart.ProviderId = purchaseOrderPart.Provider.Id;
 
             Logger.Debug("PurchaseOrderPart created.");
             return new PurchaseOrderPart(purchaseOrderPart, null, dbMasterDataCache);

@@ -37,5 +37,12 @@ namespace Master40.DB.DataModel
         {
             return new Quantity(Quantity);
         }
+
+        public T_ProductionOrder() : base()
+        {
+            Provider = new T_Provider();
+            Provider.Id = Id;
+            ProviderId = Provider.Id;
+        }
     }
 }

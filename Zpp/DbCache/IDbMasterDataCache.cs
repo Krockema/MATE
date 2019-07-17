@@ -59,7 +59,7 @@ namespace Zpp
         Demands T_CustomerOrderPartGetAll();
 
         /**
-         * This is needed for T_CustomerOrders wich does NOT include T_Demand
+         * This is needed for T_CustomerOrders which does NOT include T_Demand
          */
         T_Demand T_DemandGetById(Id id);
 

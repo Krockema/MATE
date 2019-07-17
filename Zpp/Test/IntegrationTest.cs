@@ -208,9 +208,10 @@ namespace Zpp.Test
             foreach (var provider in dbTransactionData.ProvidersGetAll().GetAll())
             {
                 Id providerId = provider.GetId();
-                Id tProviderId = provider.ToT_Provider().GetId();
+                Id tProviderId = provider.ToT_Provider(dbTransactionData).GetId();
                 Assert.True(providerId.Equals(tProviderId),
                     $"{provider}: ProviderId ({providerId}) must be equal to its tProviderId ({tProviderId}).");
+                    
             }
         }
 

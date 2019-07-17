@@ -184,13 +184,6 @@ namespace Zpp.DemandDomain
 
         public T_Demand ToT_Demand()
         {
-            if (_demand.Demand == null)
-            {
-                _demand.Demand =
-                    _dbMasterDataCache.T_DemandGetById(
-                        new Id(_demand.DemandId.GetValueOrDefault()));
-            }
-
             return _demand.Demand;
         }
 
