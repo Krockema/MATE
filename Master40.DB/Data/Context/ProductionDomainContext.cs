@@ -57,6 +57,7 @@ namespace Master40.DB.Data.Context
             tCustomerOrderPart.IsPlanned = false;
             tCustomerOrderPart.Quantity = amount;
             tCustomerOrderPart.Demand = new T_Demand();
+            tCustomerOrderPart.Demand.Id = tCustomerOrderPart.Id;
             tCustomerOrderPart.DemandId = tCustomerOrderPart.Demand.Id;
 
             olist.Add(tCustomerOrderPart);

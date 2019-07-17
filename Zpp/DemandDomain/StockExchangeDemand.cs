@@ -39,6 +39,7 @@ namespace Zpp.DemandDomain
         {
             T_StockExchange stockExchange = new T_StockExchange();
             stockExchange.Demand = new T_Demand();
+            stockExchange.Demand.Id = stockExchange.Id;
             stockExchange.DemandId = stockExchange.Demand.Id;
             stockExchange.Quantity = articleBom.Quantity;
             stockExchange.State = State.Created;
@@ -58,6 +59,7 @@ namespace Zpp.DemandDomain
         {
             T_StockExchange stockExchange = new T_StockExchange();
             stockExchange.Demand = new T_Demand();
+            stockExchange.Demand.Id = stockExchange.Id;
             stockExchange.DemandId = stockExchange.Demand.Id;
             stockExchange.Quantity = quantity.GetValue();
             stockExchange.State = State.Created;

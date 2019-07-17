@@ -41,6 +41,7 @@ namespace Zpp.DemandDomain
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
             productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
             productionOrderBom.Demand = new T_Demand();
+            productionOrderBom.Demand.Id = productionOrderBom.Id;
             productionOrderBom.DemandId = productionOrderBom.Demand.Id;
 
             return new ProductionOrderBom(productionOrderBom, dbMasterDataCache);
