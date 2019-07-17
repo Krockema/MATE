@@ -133,6 +133,14 @@ namespace Zpp.DemandDomain
             // satisfy by stock (includes productionOrder/PurchaseOrderPart)
             IProviders providersByStock = SatisfyByStock(remainingQuantity, dbTransactionData);
             finalProviders.AddAll(providersByStock);
+            
+            remainingQuantity =
+                finalProviders.GetMissingQuantity(this);
+            if (remainingQuantity.IsGreaterThan(Quantity.Null()))
+            {
+                throw new MrpRunException("The demand was NOT satisfied.");
+            }
+            
             return finalProviders;
         }
 

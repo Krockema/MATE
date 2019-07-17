@@ -76,6 +76,7 @@ namespace Zpp.ProviderDomain
             // [PurchaseOrderId],[ArticleId],[Quantity],[State],[ProviderId]
             purchaseOrderPart.PurchaseOrder = purchaseOrder;
             purchaseOrderPart.Article = article;
+            purchaseOrderPart.ArticleId = article.Id;
             purchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
                     lotSize) *
