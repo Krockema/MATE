@@ -65,10 +65,8 @@ namespace Zpp.ProviderDomain
                 CalcQuantityProvidedByProvider(currentStockQuantity, demandedQuantity);
             if (! providedQuantityByStock.Equals(Quantity.Null()))
             {
-                T_StockExchange stockExchange = new T_StockExchange();
-                stockExchange.Provider = new T_Provider();
-                stockExchange.Provider.Id = stockExchange.Id;
-                stockExchange.ProviderId = stockExchange.Provider.Id;
+                T_StockExchange stockExchange = new T_StockExchange(new T_Provider());
+                
                 stockExchange.Quantity = providedQuantityByStock.GetValue();
                 stockExchange.State = State.Created;
 

@@ -200,7 +200,7 @@ namespace Zpp.Test
             foreach (var provider in dbTransactionData.ProvidersGetAll().GetAll())
             {
                 Id providerId = provider.GetId();
-                Id tProviderId = provider.ToT_Provider(dbTransactionData).GetId();
+                Id tProviderId = provider.ToT_Provider(dbTransactionData).GetProviderId();
                 Assert.True(providerId.Equals(tProviderId),
                     $"{provider}: ProviderId ({providerId}) must be equal to its tProviderId ({tProviderId}).");
                     
@@ -218,7 +218,7 @@ namespace Zpp.Test
             foreach (var demand in dbTransactionData.DemandsGetAll().GetAll())
             {
                 Id demandId = demand.GetId();
-                Id tDemandId = demand.ToT_Demand(dbTransactionData).GetId();
+                Id tDemandId = demand.ToT_Demand(dbTransactionData).GetDemandId();
                 Assert.True(demandId.Equals(tDemandId),
                     $"{demand}: DemandId ({demandId}) must be equal to its tDemandId ({tDemandId}).");
             }
@@ -271,6 +271,8 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            // TODO: let T_Demand, T_Provider have an own Id and a foreign as reference
 
             IDemandToProvidersMap demandToProvidersMap = dbTransactionData.DemandToProviderGetAll()
                 .ToDemandToProvidersMap(dbTransactionData);

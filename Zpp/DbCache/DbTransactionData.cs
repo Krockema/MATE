@@ -448,12 +448,12 @@ namespace Zpp
 
         public T_Provider T_ProviderGetById(Id id)
         {
-            return _tProviders.Single(x => x.Id.Equals(id.GetValue()));
+            return _tProviders.Single(x => x.ProviderId.Equals(id.GetValue()));
         }
 
         public T_Demand T_DemandGetById(Id id)
         {
-            return _tDemands.Single(x => x.Id.Equals(id.GetValue()));
+            return _tDemands.Single(x => x.DemandId.Equals(id.GetValue()));
         }
     }
 }

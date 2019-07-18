@@ -39,5 +39,23 @@ namespace Master40.DB.DataModel
         {
             return RequiredOnTime;
         }
+
+        public T_StockExchange(T_Demand demand)
+        {
+            Demand = demand;
+            Demand.DemandId = Id;
+            DemandId = Id;
+        }
+        
+        public T_StockExchange(T_Provider provider)
+        {
+            Provider = provider;
+            Provider.ProviderId = Id;
+            ProviderId = Id;
+        }
+
+        public T_StockExchange()
+        {
+        }
     }
 }

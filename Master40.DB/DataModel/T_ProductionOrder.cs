@@ -38,11 +38,11 @@ namespace Master40.DB.DataModel
             return new Quantity(Quantity);
         }
 
-        public T_ProductionOrder() : base()
+        public T_ProductionOrder()
         {
             Provider = new T_Provider();
-            Provider.Id = Id;
-            ProviderId = Provider.Id;
+            Provider.ProviderId = Id;
+            ProviderId = Id;
         }
     }
 }

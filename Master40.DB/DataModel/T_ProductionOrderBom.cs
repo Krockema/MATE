@@ -30,8 +30,8 @@ namespace Master40.DB.DataModel
         public T_ProductionOrderBom()
         {
             Demand = new T_Demand();
-            Demand.Id = Id;
-            DemandId = Demand.Id;
+            Demand.DemandId = Id;
+            DemandId = Id;
         }
     }
 }

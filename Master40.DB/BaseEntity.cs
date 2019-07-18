@@ -14,6 +14,7 @@ namespace Master40.DB
         protected BaseEntity()
         {
             Id = IdGeneratorHolder.GetIdGenerator().GetNewId();
+            // TODO: via reflection: Store the caller of this constructor in map with created id for later debugging
         }
         
         public Id GetId()
