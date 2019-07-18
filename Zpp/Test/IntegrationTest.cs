@@ -181,7 +181,7 @@ namespace Zpp.Test
                 decimal minStock = originalStock.Min;
                 Assert.True(currentStockLevel >= minStock,
                     $"Stock level for stock {originalStock.Id} must be " +
-                    $"smallerThan/equalTo MaxQuantity({minStock}) " +
+                    $"greaterThan/equalTo MinQuantity({minStock}) " +
                     $"Expected: {minStock}, Actual: {currentStockLevel}");
 
                 Assert.True(sumWithDrawal <= sumInsert,
@@ -204,28 +204,6 @@ namespace Zpp.Test
             {
                 bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
                 Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
-            }
-        }
-
-        [Fact]
-        public void TestAllProvidersAreInProviderToDemandTable()
-        {
-            MrpRun.RunMrp(ProductionDomainContext);
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
-            IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-
-            IProviderToDemandsMap providerToDemandsMap = dbTransactionData.ProviderToDemandGetAll()
-                .ToProviderToDemands(dbTransactionData);
-            IProviders allDbProviders = dbTransactionData.ProvidersGetAll();
-            IProviders providersInProviderToDemandTable = providerToDemandsMap.GetAllProviders();
-
-            foreach (var provider in allDbProviders.GetAll())
-            {
-                bool isInProviderToDemandTable =
-                    providersInProviderToDemandTable.GetAll().Contains(provider);
-                Assert.True(isInProviderToDemandTable,
-                    $"Provider {provider} is NOT in providerToDemandTable.");
             }
         }
 
