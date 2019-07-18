@@ -26,8 +26,6 @@ namespace Master40.DB.DataModel
         [NotMapped]
         public string Source { get; private set; }
         */
-        public int? DemandId { get; set; }
-        public T_Demand Demand { get; set; }
 
         public M_Article GetArticle()
         {
@@ -38,12 +36,7 @@ namespace Master40.DB.DataModel
         {
             return new Quantity(Quantity);
         }
-
-        public  T_CustomerOrderPart()
-        {
-            Demand = new T_Demand(Id);
-            DemandId = Demand.Id;
-        }
+        
     }
 
 }

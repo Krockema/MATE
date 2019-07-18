@@ -35,8 +35,7 @@ namespace Zpp
         
         private readonly IMasterDataTable<T_CustomerOrder> _customerOrders;
         private readonly IMasterDataTable<T_CustomerOrderPart> _customerOrderParts;
-        private readonly IMasterDataTable<T_Demand> _tDemands;
-        
+
         public DbMasterDataCache(ProductionDomainContext productionDomainContext)
         {
             _productionDomainContext = productionDomainContext;
@@ -57,8 +56,7 @@ namespace Zpp
 
             _customerOrders = new MasterDataTable<T_CustomerOrder>(_productionDomainContext.CustomerOrders);
             _customerOrderParts = new MasterDataTable<T_CustomerOrderPart>(_productionDomainContext.CustomerOrderParts);
-            _tDemands = new MasterDataTable<T_Demand>(_productionDomainContext.Demands);
-            
+
         }
 
         
@@ -191,11 +189,6 @@ namespace Zpp
                 }
             }
             return article.Stock;
-        }
-
-        public T_Demand T_DemandGetById(Id id)
-        {
-            return _tDemands.GetById(id);
         }
 
         public List<M_Stock> M_StockGetAll()

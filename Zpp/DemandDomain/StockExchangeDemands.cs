@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Master40.DB.Enums;
 
 namespace Zpp.DemandDomain
 {
@@ -18,7 +19,7 @@ namespace Zpp.DemandDomain
             List<Demand> demands = new List<Demand>();
             foreach (var iDemand in iDemands)
             {
-                if (iDemand.DemandId == null)
+                if (iDemand.StockExchangeType.Equals(StockExchangeType.Provider))
                 {
                     continue;
                 }

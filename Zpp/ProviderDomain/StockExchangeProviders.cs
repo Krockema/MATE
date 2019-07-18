@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Master40.DB.Enums;
 
 namespace Zpp.ProviderDomain
 {
@@ -17,7 +18,7 @@ namespace Zpp.ProviderDomain
             List<Provider> providers = new List<Provider>();
             foreach (var iProvider in iProviders)
             {
-                if (iProvider.ProviderId == null)
+                if (iProvider.StockExchangeType.Equals(StockExchangeType.Demand))
                 {
                     continue;
                 }

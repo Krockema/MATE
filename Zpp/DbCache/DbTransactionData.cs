@@ -54,9 +54,6 @@ namespace Zpp
         // providers
         private readonly ProductionOrders _productionOrders;
 
-        private readonly List<T_Demand> _tDemands = new List<T_Demand>();
-        private readonly List<T_Provider> _tProviders = new List<T_Provider>();
-
         public DbTransactionData(ProductionDomainContext productionDomainContext,
             IDbMasterDataCache dbMasterDataCache)
         {
@@ -96,9 +93,7 @@ namespace Zpp
                 new DemandToProviderTable(_productionDomainContext.DemandToProviders.ToList());
             _providerToDemandTable =
                 new ProviderToDemandTable(_productionDomainContext.ProviderToDemand.ToList());
-
-            _tDemands = _productionDomainContext.Demands.ToList();
-            _tProviders = _productionDomainContext.Providers.ToList();
+            
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -128,8 +123,6 @@ namespace Zpp
             // TODO: SaveChanges at the end only once
 
             // first collect all T_* entities
-            List<T_Demand> tDemands = demandToProvidersMap.ToT_Demands();
-            List<T_Provider> tProviders = demandToProvidersMap.ToT_Providers();
             List<T_ProductionOrderBom> tProductionOrderBoms =
                 _productionOrderBoms.GetAllAs<T_ProductionOrderBom>();
             List<T_StockExchange> tStockExchangeDemands =
@@ -156,16 +149,7 @@ namespace Zpp
                 tPurchaseOrders.Add(tPurchaseOrderPart.PurchaseOrder);
             }
 
-            // validate all T_* entities --> use these, if Foreign-key violation happens
-            validateT_Demands(tProductionOrderBoms, tDemands);
-            validateT_StockExchangeDemands(tStockExchangeDemands, tDemands);
-            validateT_StockExchangeProviders(tStockExchangesProviders, tProviders);
-            validateT_Providers(tProductionOrders, tProviders);
-            validateT_Providers(tPurchaseOrderParts, tProviders);
-
             // Insert all T_* entities
-            InsertOrUpdateRange(tDemands, _productionDomainContext.Demands);
-            InsertOrUpdateRange(tProviders, _productionDomainContext.Providers);
 
             InsertOrUpdateRange(tProductionOrderBoms, _productionDomainContext.ProductionOrderBoms);
             InsertOrUpdateRange(tProductionOrderOperations,
@@ -190,83 +174,6 @@ namespace Zpp
             {
                 Logger.Error("DbCache could not be persisted.");
                 throw e;
-            }
-        }
-
-        private void validateT_Demands<T>(List<T> entities, List<T_Demand> tDemands)
-            where T : IDemand
-        {
-            foreach (var entity in entities)
-            {
-                if (entity.Demand == null || entity.DemandId == null ||
-                    !entity.Demand.GetDemandId().GetValue().Equals(entity.Id) ||
-                    !entity.Demand.GetId().GetValue().Equals(entity.DemandId))
-                {
-                    throw new MrpRunException("This is not valid.");
-                }
-
-                bool found1 = tDemands
-                    .Select(x => x.GetDemandId().GetValue().Equals(entity.DemandId)).Any();
-                bool found2 = tDemands
-                    .Select(x => x.GetDemandId().Equals(entity.Demand.GetDemandId())).Any();
-                if (!(found1 && found2))
-                {
-                    throw new MrpRunException("For this demand does no T_Demand exists.");
-                }
-            }
-        }
-
-        private void validateT_StockExchangeDemands(List<T_StockExchange> entities,
-            List<T_Demand> tDemands)
-        {
-            validateT_Demands(entities, tDemands);
-            foreach (var entity in entities)
-            {
-                if (entity.Provider != null || entity.ProviderId != null)
-                {
-                    throw new MrpRunException("This is not valid.");
-                }
-            }
-        }
-
-        private void validateT_Providers<T>(List<T> entities, List<T_Provider> tDemands)
-            where T : IProvider
-        {
-            foreach (var entity in entities)
-            {
-                if (entity.Provider == null || entity.ProviderId == null ||
-                    !entity.Provider.GetProviderId().GetValue().Equals(entity.Id) ||
-                    !entity.Provider.GetId().GetValue().Equals(entity.ProviderId))
-                {
-                    throw new MrpRunException("This is not valid.");
-                }
-
-                bool found1 = tDemands.Select(x => x.ProviderId.Equals(entity.ProviderId)).Any();
-                bool found2 = tDemands
-                    .Select(x => x.GetProviderId().Equals(entity.Provider.GetProviderId())).Any();
-                if (!(found1 && found2))
-                {
-                    throw new MrpRunException("For this provider does no T_Provider exists.");
-                }
-            }
-        }
-
-
-        private void validateT_StockExchangeProviders(List<T_StockExchange> entities,
-            List<T_Provider> tProviders)
-        {
-            validateT_Providers(entities, tProviders);
-            foreach (var entity in entities)
-            {
-                if (entity.Provider == null || entity.ProviderId == null)
-                {
-                    throw new MrpRunException("This is not valid.");
-                }
-
-                if (entity.Demand != null || entity.DemandId != null)
-                {
-                    throw new MrpRunException("This is not valid.");
-                }
             }
         }
 
@@ -437,12 +344,12 @@ namespace Zpp
 
         public Demand DemandsGetById(Id id)
         {
-            return DemandsGetAll().GetAll().Find(x => x.GetT_DemandId().Equals(id));
+            return DemandsGetAll().GetAll().Find(x => x.Equals(id));
         }
 
         public Provider ProvidersGetById(Id id)
         {
-            return ProvidersGetAll().GetAll().Find(x => x.GetT_ProviderId().Equals(id));
+            return ProvidersGetAll().GetAll().Find(x => x.Equals(id));
         }
 
         public void ProviderToDemandAddAll(IProviderToDemandsMap providerToDemands)
@@ -453,16 +360,6 @@ namespace Zpp
         public IProviderToDemandTable ProviderToDemandGetAll()
         {
             return _providerToDemandTable;
-        }
-
-        public T_Provider T_ProviderGetByProviderId(Id id)
-        {
-            return _tProviders.Single(x => x.ProviderId.Equals(id.GetValue()));
-        }
-
-        public T_Demand T_DemandGetByDemandId(Id id)
-        {
-            return _tDemands.Single(x => x.DemandId.Equals(id.GetValue()));
         }
     }
 }

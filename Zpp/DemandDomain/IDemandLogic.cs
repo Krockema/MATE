@@ -17,10 +17,6 @@ namespace Zpp.DemandDomain
         
 
         IDemand ToIDemand();
-        
-        T_Demand ToT_Demand();
-        
-        T_Demand ToT_Demand(IDbTransactionData dbTransactionData);
 
         Quantity GetQuantity();
 
@@ -31,8 +27,6 @@ namespace Zpp.DemandDomain
         DueTime GetDueTime();
 
         Id GetId();
-
-        Id GetT_DemandId();
 
         IProviders Satisfy(IDemandToProvidersMap demandToProvidersMap,
             IDbTransactionData dbTransactionData);

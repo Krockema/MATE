@@ -182,16 +182,6 @@ namespace Zpp.DemandDomain
             return createdProviders;
         }
 
-        public T_Demand ToT_Demand()
-        {
-            return _demand.Demand;
-        }
-
-        public Id GetT_DemandId()
-        {
-            return new Id(_demand.DemandId.GetValueOrDefault());
-        }
-
         public NodeType GetNodeType()
         {
             return NodeType.Demand;
@@ -204,9 +194,5 @@ namespace Zpp.DemandDomain
 
         public abstract string GetGraphizString();
 
-        public T_Demand ToT_Demand(IDbTransactionData dbTransactionData)
-        {
-            return dbTransactionData.T_DemandGetByDemandId(GetId());
-        }
     }
 }

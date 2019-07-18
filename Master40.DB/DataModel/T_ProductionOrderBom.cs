@@ -14,8 +14,6 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public decimal Quantity { get; set; }
         public State State { get; set; }
-        public int? DemandId { get; set; }
-        public T_Demand Demand { get; set; }
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
         public int ArticleChildId { get; set; }
@@ -25,12 +23,6 @@ namespace Master40.DB.DataModel
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);
-        }
-
-        public T_ProductionOrderBom()
-        {
-            Demand = new T_Demand(Id);
-            DemandId = Demand.Id;
         }
     }
 }

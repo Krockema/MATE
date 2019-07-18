@@ -33,9 +33,7 @@ namespace Master40.DB.Data.Context
         public DbSet<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
         public DbSet<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
         public DbSet<T_StockExchange> StockExchanges { get; set; }
-        public DbSet<T_Demand> Demands { get; set; }
-        public DbSet<T_Provider> Providers { get; set; }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -146,11 +144,7 @@ namespace Master40.DB.Data.Context
                 .HasOne(m => m.Machine)
                 .WithMany(m => m.ProductionOrderWorkSchedules)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<T_Demand>()
-                .ToTable("T_Demand");
-            modelBuilder.Entity<T_Provider>()
-                .ToTable("T_Provider");
+            
             modelBuilder.Entity<T_DemandToProvider>()
                 .ToTable("T_DemandToProvider");
             modelBuilder.Entity<T_ProviderToDemand>()

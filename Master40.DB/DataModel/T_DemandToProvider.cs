@@ -11,9 +11,7 @@ namespace Master40.DB.DataModel
     public class T_DemandToProvider : BaseEntity, IDemandToProvider
     {
         public int DemandId { get; set; }
-        public T_Demand Demand { get; set; }
         public int ProviderId { get; set; }
-        public T_Provider Provider { get; set; }
 
         public override string ToString()
         {

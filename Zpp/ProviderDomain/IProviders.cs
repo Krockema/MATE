@@ -25,8 +25,6 @@ namespace Zpp.ProviderDomain
         
         List<T> GetAllAs<T>();
 
-        List<T_Provider> GetAllAsT_Provider();
-
         bool ProvideMoreThanOrEqualTo(Demand demand);
         
         int Size();

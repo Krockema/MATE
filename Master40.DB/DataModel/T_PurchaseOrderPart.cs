@@ -17,10 +17,7 @@ namespace Master40.DB.DataModel
         public int Quantity { get; set; }
         [JsonIgnore]
         public State State { get; set; }
-        
-        public int? ProviderId { get; set; }
-        public T_Provider Provider { get; set; }
-        
+
         public int GetDueTime()
         {
             return PurchaseOrder.DueTime;
@@ -36,10 +33,5 @@ namespace Master40.DB.DataModel
             return new Quantity(Quantity);
         }
 
-        public T_PurchaseOrderPart()
-        {
-            Provider = new T_Provider(Id);
-            ProviderId = Provider.Id;
-        }
     }
 }

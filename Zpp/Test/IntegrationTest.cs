@@ -188,41 +188,6 @@ namespace Zpp.Test
                     $"sumWithDrawel({sumWithDrawal}) should be smaller than or equal to sumInsert({sumInsert})");
             }
         }
-        
-        [Fact]
-        public void TestEveryProviderIdEqualsItsTProviderId()
-        {
-            MrpRun.RunMrp(ProductionDomainContext);
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
-            IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-
-            foreach (var provider in dbTransactionData.ProvidersGetAll().GetAll())
-            {
-                Id providerId = provider.GetId();
-                Id tProviderId = provider.ToT_Provider(dbTransactionData).GetProviderId();
-                Assert.True(providerId.Equals(tProviderId),
-                    $"{provider}: ProviderId ({providerId}) must be equal to its tProviderId ({tProviderId}).");
-                    
-            }
-        }
-
-        [Fact]
-        public void TestEveryDemandIdEqualsItsTDemandId()
-        {
-            MrpRun.RunMrp(ProductionDomainContext);
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
-            IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-
-            foreach (var demand in dbTransactionData.DemandsGetAll().GetAll())
-            {
-                Id demandId = demand.GetId();
-                Id tDemandId = demand.ToT_Demand(dbTransactionData).GetDemandId();
-                Assert.True(demandId.Equals(tDemandId),
-                    $"{demand}: DemandId ({demandId}) must be equal to its tDemandId ({tDemandId}).");
-            }
-        }
 
         [Fact]
         public void TestAllDemandsAreSatisfiedByProvidersOfDemandToProviderTable()

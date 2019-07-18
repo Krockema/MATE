@@ -16,14 +16,11 @@ namespace Master40.DB.DataModel
         public int RequiredOnTime { get; set; }
         public State State { get; set; }
         public decimal Quantity { get; set; }
-        // time of withdrawal/insert (wird von der Simulation belegt bei erfullung des Requests)id
+        // time of withdrawal/insert (wird von der Simulation belegt bei erfuellung des Requests)id
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
-
-        public int? DemandId { get; set; }
-        public T_Demand Demand { get; set; }
-        public int? ProviderId { get; set; }
-        public T_Provider Provider { get; set; }
+        
+        public StockExchangeType StockExchangeType { get; set; }
 
         public M_Article GetArticle()
         {
@@ -38,18 +35,6 @@ namespace Master40.DB.DataModel
         public int GetDueTime()
         {
             return RequiredOnTime;
-        }
-
-        public T_StockExchange(T_Demand demand)
-        {
-            Demand = new T_Demand(Id);
-            DemandId = Demand.Id;
-        }
-        
-        public T_StockExchange(T_Provider provider)
-        {
-            Provider = new T_Provider(Id);
-            ProviderId = Provider.Id;
         }
 
         public T_StockExchange()

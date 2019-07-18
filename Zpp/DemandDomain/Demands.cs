@@ -131,10 +131,5 @@ namespace Zpp.DemandDomain
 
             return sumQuantity;
         }
-
-        public List<T_Demand> GetAllAsT_Demand()
-        {
-            return _demands.Select(x => x.ToT_Demand()).ToList();
-        }
     }
 }

@@ -77,11 +77,6 @@ namespace Zpp.ProviderDomain
             return GetQuantity().IsGreaterThanOrEqualTo(quantity);
         }
 
-        public T_Provider ToT_Provider()
-        {
-            return _provider.Provider;
-        }
-
         public abstract Demands CreateNeededDemands(M_Article article,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Provider parentProvider, Quantity quantity);
@@ -115,11 +110,6 @@ namespace Zpp.ProviderDomain
             return new Id(_provider.Id);
         }
 
-        public Id GetT_ProviderId()
-        {
-            return new Id(_provider.ProviderId.GetValueOrDefault());
-        }
-
         public override string ToString()
         {
             return $"{GetId()}: {GetArticle().Name};{GetQuantity()}";
@@ -136,10 +126,5 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract string GetGraphizString();
-
-        public T_Provider ToT_Provider(IDbTransactionData dbTransactionData)
-        {
-            return dbTransactionData.T_ProviderGetByProviderId(GetId());
-        }
     }
 }

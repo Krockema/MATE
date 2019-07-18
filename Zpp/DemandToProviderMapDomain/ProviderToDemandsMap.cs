@@ -112,8 +112,8 @@ namespace Zpp.DemandToProviderDomain
                 foreach (var demand in _providerToDemands[provider].GetAll())
                 {
                     T_ProviderToDemand tProviderToDemand = new T_ProviderToDemand();
-                    tProviderToDemand.Demand = demand.ToT_Demand();
-                    tProviderToDemand.Provider = provider.ToT_Provider();
+                    tProviderToDemand.DemandId = demand.GetId().GetValue();
+                    tProviderToDemand.ProviderId = provider.GetId().GetValue();
                     providerToDemand.Add(tProviderToDemand);
                 }
             }

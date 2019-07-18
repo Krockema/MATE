@@ -65,25 +65,13 @@ namespace Zpp.DemandToProviderDomain
                 foreach (var provider in _demandToProviders[demand].GetAll())
                 {
                     T_DemandToProvider tDemandToProvider = new T_DemandToProvider();
-                    tDemandToProvider.Demand = demand.ToT_Demand();
-                    tDemandToProvider.DemandId = tDemandToProvider.Demand.GetId().GetValue();
-                    tDemandToProvider.Provider = provider.ToT_Provider();
-                    tDemandToProvider.ProviderId = tDemandToProvider.Provider.GetId().GetValue();
+                    tDemandToProvider.DemandId = demand.GetId().GetValue();
+                    tDemandToProvider.ProviderId = provider.GetId().GetValue();
                     demandToProvider.Add(tDemandToProvider);
                 }
             }
             
             return demandToProvider;
-        }
-
-        public List<T_Demand> ToT_Demands()
-        {
-            return new Demands(_demandToProviders.Keys.ToList()).GetAllAsT_Demand();
-        }
-
-        public List<T_Provider> ToT_Providers()
-        {
-            return _providerToDemandsMap.GetAllProviders().GetAllAsT_Provider();
         }
 
         public Demands GetDemands()

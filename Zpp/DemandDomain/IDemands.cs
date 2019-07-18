@@ -22,9 +22,7 @@ namespace Zpp.DemandDomain
         List<IDemand> GetAllAsIDemand();
 
         List<T> GetAllAs<T>();
-        
-        List<T_Demand> GetAllAsT_Demand();
-        
+
         void OrderDemandsByUrgency();
         
         HierarchyNumber GetHierarchyNumber();

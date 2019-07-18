@@ -116,11 +116,6 @@ namespace Zpp.ProviderDomain
             _providers.Clear();
         }
 
-        public List<T_Provider> GetAllAsT_Provider()
-        {
-            return _providers.Select(x => x.ToT_Provider()).ToList();
-        }
-
         public bool AnyDependingDemands()
         {
             foreach (var provider in _providers)

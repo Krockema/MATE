@@ -20,9 +20,6 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
 
-        public int? ProviderId { get; set; }
-        public T_Provider Provider { get; set; }
-        
         public M_Article GetArticle()
         {
             return Article;
@@ -36,12 +33,6 @@ namespace Master40.DB.DataModel
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);
-        }
-
-        public T_ProductionOrder()
-        {
-            Provider = new T_Provider(Id);
-            ProviderId = Provider.Id;
         }
     }
 }

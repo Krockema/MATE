@@ -17,8 +17,6 @@ namespace Zpp.ProviderDomain
         Demands GetAllDependingDemands();
 
         IProvider ToIProvider();
-        
-        T_Provider ToT_Provider(IDbTransactionData dbTransactionData);
 
         Quantity GetQuantity();
 
@@ -29,8 +27,7 @@ namespace Zpp.ProviderDomain
         M_Article GetArticle();
 
         bool ProvidesMoreThan(Quantity quantity);
-
-        T_Provider ToT_Provider();
+        
 
         Demands CreateNeededDemands(M_Article article, IDbTransactionData dbTransactionData,
             IDbMasterDataCache dbMasterDataCache, Provider parentProvider, Quantity quantity);
@@ -39,6 +36,5 @@ namespace Zpp.ProviderDomain
 
         Id GetId();
         
-        Id GetT_ProviderId();
     }
 }
