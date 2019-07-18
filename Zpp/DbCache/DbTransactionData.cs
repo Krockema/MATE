@@ -344,12 +344,12 @@ namespace Zpp
 
         public Demand DemandsGetById(Id id)
         {
-            return DemandsGetAll().GetAll().Find(x => x.Equals(id));
+            return DemandsGetAll().GetAll().Find(x => x.GetId().Equals(id));
         }
 
         public Provider ProvidersGetById(Id id)
         {
-            return ProvidersGetAll().GetAll().Find(x => x.Equals(id));
+            return ProvidersGetAll().GetAll().Find(x => x.GetId().Equals(id));
         }
 
         public void ProviderToDemandAddAll(IProviderToDemandsMap providerToDemands)
