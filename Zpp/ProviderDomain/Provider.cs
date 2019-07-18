@@ -139,7 +139,7 @@ namespace Zpp.ProviderDomain
 
         public T_Provider ToT_Provider(IDbTransactionData dbTransactionData)
         {
-            return dbTransactionData.T_ProviderGetById(new Id(_provider.Id));
+            return dbTransactionData.T_ProviderGetByProviderId(GetId());
         }
     }
 }

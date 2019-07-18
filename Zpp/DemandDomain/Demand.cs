@@ -206,7 +206,7 @@ namespace Zpp.DemandDomain
 
         public T_Demand ToT_Demand(IDbTransactionData dbTransactionData)
         {
-            return dbTransactionData.T_DemandGetById(new Id(_demand.Id));
+            return dbTransactionData.T_DemandGetByDemandId(GetId());
         }
     }
 }

@@ -66,9 +66,9 @@ namespace Zpp.DemandToProviderDomain
                 {
                     T_DemandToProvider tDemandToProvider = new T_DemandToProvider();
                     tDemandToProvider.Demand = demand.ToT_Demand();
-                    tDemandToProvider.DemandId = tDemandToProvider.Demand.Id;
+                    tDemandToProvider.DemandId = tDemandToProvider.Demand.GetDemandId().GetValue();
                     tDemandToProvider.Provider = provider.ToT_Provider();
-                    tDemandToProvider.ProviderId = tDemandToProvider.Provider.Id;
+                    tDemandToProvider.ProviderId = tDemandToProvider.Provider.GetProviderId().GetValue();
                     demandToProvider.Add(tDemandToProvider);
                 }
             }

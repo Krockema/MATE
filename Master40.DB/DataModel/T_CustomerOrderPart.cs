@@ -41,9 +41,8 @@ namespace Master40.DB.DataModel
 
         public  T_CustomerOrderPart()
         {
-            Demand = new T_Demand();
-            Demand.DemandId = Id;
-            DemandId = Id;
+            Demand = new T_Demand(Id);
+            DemandId = Demand.Id;
         }
     }
 

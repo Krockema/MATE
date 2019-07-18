@@ -40,9 +40,8 @@ namespace Master40.DB.DataModel
 
         public T_ProductionOrder()
         {
-            Provider = new T_Provider();
-            Provider.ProviderId = Id;
-            ProviderId = Id;
+            Provider = new T_Provider(Id);
+            ProviderId = Provider.Id;
         }
     }
 }

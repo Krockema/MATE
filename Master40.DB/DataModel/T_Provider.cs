@@ -13,12 +13,22 @@ namespace Master40.DB.DataModel
         
         public override string ToString()
         {
-            return Id.ToString();
+            return ProviderId.ToString();
         }
 
         public Id GetProviderId()
         {
             return new Id(ProviderId);
+        }
+
+        public T_Provider(int providerId)
+        {
+            ProviderId = providerId;
+        }
+
+        // TODO: add unique constraint here
+        public T_Provider()
+        {
         }
     }
 }

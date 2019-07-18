@@ -38,9 +38,8 @@ namespace Master40.DB.DataModel
 
         public T_PurchaseOrderPart()
         {
-            Provider = new T_Provider();
-            Provider.ProviderId = Id;
-            ProviderId = Id;
+            Provider = new T_Provider(Id);
+            ProviderId = Provider.Id;
         }
     }
 }

@@ -13,7 +13,8 @@ namespace Zpp
      */
     public class DemandToProviderTable : IDemandToProviderTable
     {
-        private readonly List<T_DemandToProvider> _demandToProviderEntities = new List<T_DemandToProvider>();
+        private readonly List<T_DemandToProvider> _demandToProviderEntities =
+            new List<T_DemandToProvider>();
 
         public DemandToProviderTable(List<T_DemandToProvider> demandToProviderEntities)
         {
@@ -23,7 +24,7 @@ namespace Zpp
         public DemandToProviderTable()
         {
         }
-        
+
         public DemandToProviderTable(IDemandToProvidersMap demandToProvidersMap)
         {
             _demandToProviderEntities.AddRange(demandToProvidersMap.ToT_DemandToProvider());
@@ -42,20 +43,21 @@ namespace Zpp
         public IDemandToProvidersMap ToDemandToProvidersMap(IDbTransactionData dbTransactionData)
         {
             IDemandToProvidersMap demandToProvidersMap = new DemandToProvidersMap();
-            
+
             foreach (var demandToProviderEntity in _demandToProviderEntities)
             {
                 Demand demand =
-                    dbTransactionData.DemandsGetById(new Id(demandToProviderEntity.DemandId));
+                    dbTransactionData.DemandsGetById(demandToProviderEntity.GetDemandId());
                 Provider provider =
-                    dbTransactionData.ProvidersGetById(new Id(demandToProviderEntity.ProviderId));
+                    dbTransactionData.ProvidersGetById(demandToProviderEntity.GetProviderId());
                 if (demand == null || provider == null)
                 {
-                    throw new MrpRunException("Could not find demand or provider.");
+                    throw new MrpRunException(
+                        $"Could not find demand ({demand}) or provider ({provider}) of demandToProvider" +
+                        $"({demandToProviderEntity.GetDemandId()}->{demandToProviderEntity.GetProviderId()}).");
                 }
-                
+
                 demandToProvidersMap.AddProviderForDemand(demand, provider);
-                    
             }
 
             return demandToProvidersMap;

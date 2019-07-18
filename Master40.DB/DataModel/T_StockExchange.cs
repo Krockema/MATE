@@ -42,16 +42,14 @@ namespace Master40.DB.DataModel
 
         public T_StockExchange(T_Demand demand)
         {
-            Demand = demand;
-            Demand.DemandId = Id;
-            DemandId = Id;
+            Demand = new T_Demand();
+            DemandId = Demand.Id;
         }
         
         public T_StockExchange(T_Provider provider)
         {
-            Provider = provider;
-            Provider.ProviderId = Id;
-            ProviderId = Id;
+            Provider = new T_Provider();
+            ProviderId = Provider.Id;
         }
 
         public T_StockExchange()

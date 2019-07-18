@@ -195,13 +195,13 @@ namespace Zpp
             foreach (var entity in entities)
             {
                 if (entity.Demand == null || entity.DemandId == null ||
-                    !entity.Demand.Id.Equals(entity.DemandId))
+                    !entity.Demand.GetDemandId().GetValue().Equals(entity.DemandId))
                 {
                     throw new MrpRunException("This is not valid.");
                 }
 
-                bool found1 = tDemands.Select(x => x.Id.Equals(entity.DemandId)).Any();
-                bool found2 = tDemands.Select(x => x.Id.Equals(entity.Demand.Id)).Any();
+                bool found1 = tDemands.Select(x => x.GetDemandId().GetValue().Equals(entity.DemandId)).Any();
+                bool found2 = tDemands.Select(x => x.GetDemandId().Equals(entity.Demand.GetDemandId())).Any();
                 if (!(found1 && found2))
                 {
                     throw new MrpRunException("For this demand does no T_Demand exists.");
@@ -228,13 +228,13 @@ namespace Zpp
             foreach (var entity in entities)
             {
                 if (entity.Provider == null || entity.ProviderId == null ||
-                    !entity.Provider.Id.Equals(entity.ProviderId))
+                    !entity.Provider.GetProviderId().GetValue().Equals(entity.ProviderId))
                 {
                     throw new MrpRunException("This is not valid.");
                 }
 
-                bool found1 = tDemands.Select(x => x.Id.Equals(entity.ProviderId)).Any();
-                bool found2 = tDemands.Select(x => x.Id.Equals(entity.Provider.Id)).Any();
+                bool found1 = tDemands.Select(x => x.ProviderId.Equals(entity.ProviderId)).Any();
+                bool found2 = tDemands.Select(x => x.GetProviderId().Equals(entity.Provider.GetProviderId())).Any();
                 if (!(found1 && found2))
                 {
                     throw new MrpRunException("For this provider does no T_Provider exists.");
@@ -446,12 +446,12 @@ namespace Zpp
             return _providerToDemandTable;
         }
 
-        public T_Provider T_ProviderGetById(Id id)
+        public T_Provider T_ProviderGetByProviderId(Id id)
         {
             return _tProviders.Single(x => x.ProviderId.Equals(id.GetValue()));
         }
 
-        public T_Demand T_DemandGetById(Id id)
+        public T_Demand T_DemandGetByDemandId(Id id)
         {
             return _tDemands.Single(x => x.DemandId.Equals(id.GetValue()));
         }
