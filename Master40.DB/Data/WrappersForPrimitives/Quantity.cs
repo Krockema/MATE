@@ -51,7 +51,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
          */
         public Quantity Minus(Quantity quantity)
         {
-            return new Quantity(quantity.GetValue() - quantity.GetValue());
+            return new Quantity(_quantity - quantity.GetValue());
         }
 
         public Quantity AbsoluteValue()

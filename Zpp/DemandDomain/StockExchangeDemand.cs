@@ -76,5 +76,10 @@ namespace Zpp.DemandDomain
             string graphizString = $"D(SE);{GetQuantity()};{GetArticle().Name}";
             return graphizString;
         }
+
+        public bool IsTypeOfInsert()
+        {
+            return ((T_StockExchange) _demand).ExchangeType.Equals(ExchangeType.Insert);
+        }
     }
 }

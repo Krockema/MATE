@@ -65,6 +65,10 @@ namespace Zpp.DemandToProviderDomain
             IDemands allDemands = new Demands();
             foreach (var oneDemands in _providerToDemands.Values.ToList())
             {
+                if (oneDemands == null || oneDemands.GetAll() == null || oneDemands.GetAll().Count.Equals(0))
+                {
+                    continue;
+                }
                 allDemands.AddAll(oneDemands);
             }
             return allDemands;
