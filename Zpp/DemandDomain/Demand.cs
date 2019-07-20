@@ -139,6 +139,10 @@ namespace Zpp.DemandDomain
                 IProviders providersByStock = SatisfyByStock(remainingQuantity, dbTransactionData);
                 finalProviders.AddAll(providersByStock);
             
+                if (finalProviders.IsSatisfied(remainingQuantity, GetArticleId()))
+                {
+                    return finalProviders;
+                }
                 remainingQuantity =
                     finalProviders.GetMissingQuantity(remainingQuantity, GetArticleId());
             }
