@@ -25,7 +25,7 @@ namespace Zpp.ProviderDomain
         
         List<T> GetAllAs<T>();
 
-        bool ProvideMoreThanOrEqualTo(Demand demand);
+        bool ProvideMoreThanOrEqualTo(Id articleId, Quantity demandedQuantity);
         
         int Size();
         
@@ -37,12 +37,12 @@ namespace Zpp.ProviderDomain
 
         IProviderToDemandsMap GetAllDependingDemandsAsMap();
 
-        bool IsSatisfied(Demand demand);
+        bool IsSatisfied(Quantity demandedQuantity, Id articleId);
         
         IDemands CalculateUnsatisfiedDemands(IDemands demands);
 
-        Quantity GetMissingQuantity(Demand demand);
+        Quantity GetMissingQuantity(Quantity demandedQuantity, Id articleId);
 
-        Quantity GetProvidedQuantity(Demand demand);
+        Quantity GetProvidedQuantity(Id articleId);
     }
 }

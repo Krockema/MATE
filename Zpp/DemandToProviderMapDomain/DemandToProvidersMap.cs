@@ -22,7 +22,7 @@ namespace Zpp.DemandToProviderDomain
             if (_demandToProviders.ContainsKey(demand))
             {
                 IProviders providers = _demandToProviders[demand];
-                isSatisfied = providers.IsSatisfied(demand);
+                isSatisfied = providers.IsSatisfied(demand.GetQuantity(), demand.GetArticleId());
                 return isSatisfied;
             }
 

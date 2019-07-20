@@ -81,18 +81,18 @@ namespace Zpp.ProviderDomain
             return productionOrderBoms;
         }
 
-        public bool ProvideMoreThanOrEqualTo(Demand demand)
+        public bool ProvideMoreThanOrEqualTo(Id articleId, Quantity demandedQuantity)
         {
-            return GetProvidedQuantity(demand).IsGreaterThanOrEqualTo(demand.GetQuantity());
+            return GetProvidedQuantity(articleId).IsGreaterThanOrEqualTo(demandedQuantity);
         }
 
-        public Quantity GetProvidedQuantity(Demand demand)
+        public Quantity GetProvidedQuantity(Id articleId)
         {
             Quantity providedQuantity = new Quantity();
 
             foreach (var provider in _providers)
             {
-                if (demand.GetArticleId().Equals(provider.GetArticleId()))
+                if (articleId.Equals(provider.GetArticleId()))
                 {
                     providedQuantity.IncrementBy(provider.GetQuantity());
                 }
@@ -129,15 +129,15 @@ namespace Zpp.ProviderDomain
             return false;
         }
 
-        public bool IsSatisfied(Demand demand)
+        public bool IsSatisfied(Quantity demandedQuantity, Id articleId)
         {
-            bool isSatisfied = ProvideMoreThanOrEqualTo(demand);
+            bool isSatisfied = ProvideMoreThanOrEqualTo(articleId, demandedQuantity);
             return isSatisfied;
         }
 
-        public Quantity GetMissingQuantity(Demand demand)
+        public Quantity GetMissingQuantity(Quantity demandedQuantity, Id articleId)
         {
-            Quantity missingQuantity = demand.GetQuantity().Minus(GetProvidedQuantity(demand));
+            Quantity missingQuantity = demandedQuantity.Minus(GetProvidedQuantity(articleId));
             if (missingQuantity.IsNegative())
             {
                 return Quantity.Null();

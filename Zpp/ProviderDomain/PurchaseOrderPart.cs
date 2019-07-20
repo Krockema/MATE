@@ -82,6 +82,11 @@ namespace Zpp.ProviderDomain
                     lotSize) *
                 articleToBusinessPartner
                     .PackSize; // TODO: is amount*packSize in var quantity correct?
+            if (purchaseOrderPart.Quantity < lotSize.GetValue())
+            {
+                throw new MrpRunException("You cannot purchase less than you need!");
+            }
+            
             purchaseOrderPart.State = State.Created;
 
             Logger.Debug("PurchaseOrderPart created.");

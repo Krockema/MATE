@@ -50,6 +50,7 @@ namespace Zpp.DemandDomain
             }
 
             // TODO: revisit all methods that have this as parameter
+            // TODO: here is no lotSize used !
             PurchaseOrderPart purchaseOrderPart =
                 (PurchaseOrderPart) PurchaseOrderPart.CreatePurchaseOrderPart(GetId(), GetArticle(),
                     GetDueTime(), quantity, _dbMasterDataCache);
@@ -121,13 +122,12 @@ namespace Zpp.DemandDomain
             if (providersByExisting != null)
             {
                 finalProviders.Add(providersByExisting);
-                if (finalProviders.IsSatisfied(this))
+                if (finalProviders.IsSatisfied(remainingQuantity, GetArticleId()))
                 {
                     return finalProviders;
                 }
-
                 remainingQuantity =
-                    finalProviders.GetMissingQuantity(this);
+                    finalProviders.GetMissingQuantity(remainingQuantity, GetArticleId());
             }
 
             // satisfy by stock (includes productionOrder/PurchaseOrderPart)
@@ -135,7 +135,7 @@ namespace Zpp.DemandDomain
             finalProviders.AddAll(providersByStock);
             
             remainingQuantity =
-                finalProviders.GetMissingQuantity(this);
+                finalProviders.GetMissingQuantity(remainingQuantity, GetArticleId());
             if (remainingQuantity.IsGreaterThan(Quantity.Null()))
             {
                 throw new MrpRunException("The demand was NOT satisfied.");
@@ -161,7 +161,7 @@ namespace Zpp.DemandDomain
             if (stockExchangeProvider != null)
             {
                 providers.Add(stockExchangeProvider);
-                missingQuantity = providers.GetMissingQuantity(this);
+                missingQuantity = providers.GetMissingQuantity(missingQuantity, GetArticleId());
                 if (missingQuantity.IsNull())
                 {
                     return providers;
@@ -173,7 +173,7 @@ namespace Zpp.DemandDomain
 
             IProviders createdProviders = SatisfyByOrders(dbTransactionData, missingQuantity);
             // performance: is already called in SatisfyByOrders --> cache it
-            Quantity providedQuantity = createdProviders.GetProvidedQuantity(this);
+            Quantity providedQuantity = createdProviders.GetProvidedQuantity(GetArticleId());
             providers.AddAll(createdProviders);
             // increase stock
             _dbMasterDataCache.M_StockGetByArticleId(GetArticleId()).Current +=
