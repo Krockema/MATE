@@ -151,17 +151,13 @@ namespace Zpp.Test
                 // over all created stockExchanges
                 foreach (var persistedStockExchange in persistedStockExchanges)
                 {
-                    if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert))
+                    if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert) 
+                    || persistedStockExchange.StockExchangeType.Equals(StockExchangeType.Provider))
                     {
-                        // StockExchangeDemand with ExchangeType Insert will be satisfied by simulator
-                        if ( persistedStockExchange.StockExchangeType.Equals(StockExchangeType.Demand))
-                        {
-                            continue;
-                        }
                         currentStockLevel += persistedStockExchange.Quantity;
                         sumInsert += persistedStockExchange.Quantity;
                     }
-                    else if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Withdrawal))
+                    else
                     {
                         currentStockLevel -= persistedStockExchange.Quantity;
                         sumWithDrawal += persistedStockExchange.Quantity;
