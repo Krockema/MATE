@@ -9,11 +9,14 @@ namespace Zpp
      */
     public interface IGraph<TNode>
     {
-        List<TNode> GetChildNodes(TNode node);
-        Dictionary<TNode, List<TNode>> GetAdjacencyList();
+        List<TNode> GetToNodesOfFromNode(TNode fromNode);
 
-        void AddChilds(INode node, List<INode> nodes);
+        void AddEdges(TNode fromNode, List<TNode> toNodes);
         
-        void AddChild(INode node, INode childNode);
+        void AddEdge(TNode fromNode, TNode toNode);
+
+        int CountEdges();
+
+        List<INode> GetAllToNodes();
     }
 }

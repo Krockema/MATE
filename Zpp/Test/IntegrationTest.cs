@@ -70,18 +70,18 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            OrderGraph orderGraph = new OrderGraph(dbTransactionData);
+            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
 
-            Assert.True(orderGraph.GetAdjacencyList().Values.Count > 0,
-                "There are no child in the orderGraph.");
+            Assert.True(orderGraph.GetAllToNodes().Count > 0,
+                "There are no toNodes in the orderGraph.");
 
             int sumDemandToProviderAndProviderToDemand =
                 dbTransactionData.DemandToProviderGetAll().Count() +
                 dbTransactionData.ProviderToDemandGetAll().Count();
 
-            Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.Count(),
+            Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.CountEdges(),
                 $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
-                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.Count()}");
+                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.CountEdges()}");
 
             // TODO: Lotsize must be higher
         }

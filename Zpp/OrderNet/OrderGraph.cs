@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Xunit;
 using Zpp.DemandDomain;
@@ -22,7 +23,7 @@ namespace Zpp
                     dbTransactionData.ProvidersGetById(new Id(demandToProvider.ProviderId));
                 Assert.True(demand != null || provider != null,
                     "Demand/Provider should not be null.");
-                AddChild(new Node(demand, demandToProvider.GetDemandId()),
+                AddEdge(new Node(demand, demandToProvider.GetDemandId()),
                     new Node(provider, demandToProvider.GetProviderId()));
             }
 
@@ -33,50 +34,65 @@ namespace Zpp
                     dbTransactionData.ProvidersGetById(new Id(providerToDemand.ProviderId));
                 Assert.True(demand != null || provider != null,
                     "Demand/Provider should not be null.");
-                AddChild(new Node(provider, providerToDemand.GetProviderId()),
+                AddEdge(new Node(provider, providerToDemand.GetProviderId()),
                     new Node(demand, providerToDemand.GetDemandId()));
             }
         }
 
-        public List<INode> GetChildNodes(INode node)
+        public List<INode> GetToNodesOfFromNode(INode fromNode)
         {
-            if (!_adjacencyList.ContainsKey(node))
+            if (!_adjacencyList.ContainsKey(fromNode))
             {
                 return null;
             }
 
-            return _adjacencyList[node];
+            return _adjacencyList[fromNode];
         }
 
-        public Dictionary<INode, List<INode>> GetAdjacencyList()
+        public void AddEdges(INode fromNode, List<INode> toNodes)
         {
-            return _adjacencyList;
-        }
-
-        public void AddChilds(INode node, List<INode> nodes)
-        {
-            if (!_adjacencyList.ContainsKey(node))
+            if (!_adjacencyList.ContainsKey(fromNode))
             {
-                _adjacencyList.Add(node, nodes);
+                _adjacencyList.Add(fromNode, toNodes);
                 return;
             }
 
-            _adjacencyList[node].AddRange(nodes);
+            _adjacencyList[fromNode].AddRange(toNodes);
         }
 
-        public void AddChild(INode node, INode childNode)
+        public void AddEdge(INode fromNode, INode toNode)
         {
-            if (!_adjacencyList.ContainsKey(node))
+            if (!_adjacencyList.ContainsKey(fromNode))
             {
-                _adjacencyList.Add(node, new List<INode>());
+                _adjacencyList.Add(fromNode, new List<INode>());
             }
 
-            _adjacencyList[node].Add(childNode);
+            _adjacencyList[fromNode].Add(toNode);
         }
 
-        public int Count()
+        public int CountEdges()
         {
-            return _adjacencyList.Values.Count;
+            return GetAllToNodes().Count;
+        }
+
+        public List<INode> GetAllNodes()
+        {
+            // TODO: use Set here
+            List<INode> nodes = new List<INode>();
+            nodes.AddRange(_adjacencyList.Keys.ToList());
+            foreach (var nodeList in _adjacencyList.Values.ToList())
+            {
+                foreach (var node in nodeList)
+                {
+                    if (nodes.Contains(node) == false)
+                    {
+                        nodes.Add(node);
+                    }    
+                }
+                
+            }
+
+            return nodes;
         }
 
         public override string ToString()
@@ -100,6 +116,18 @@ namespace Zpp
         private string enumToString(NodeType nodeType)
         {
             return Enum.GetName(typeof(NodeType), nodeType);
+        }
+
+        public List<INode> GetAllToNodes()
+        {
+           List<INode> toNodes = new List<INode>();
+
+           foreach (var nodeList in _adjacencyList.Values.ToList())
+           {
+               toNodes.AddRange(nodeList);
+           }
+
+           return toNodes;
         }
     }
 }
