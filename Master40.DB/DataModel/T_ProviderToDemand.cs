@@ -1,3 +1,4 @@
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
@@ -10,6 +11,16 @@ namespace Master40.DB.DataModel
         public override string ToString()
         {
             return $"provider: {ProviderId}, demand: {DemandId}";
+        }
+        
+        public Id GetProviderId()
+        {
+            return new Id(ProviderId);
+        }
+
+        public Id GetDemandId()
+        {
+            return new Id(DemandId);
         }
     }
 }

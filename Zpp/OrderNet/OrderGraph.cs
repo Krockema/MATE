@@ -22,8 +22,8 @@ namespace Zpp
                     dbTransactionData.ProvidersGetById(new Id(demandToProvider.ProviderId));
                 Assert.True(demand != null || provider != null,
                     "Demand/Provider should not be null.");
-                AddChild(new Node(demand, demandToProvider.GetId()),
-                    new Node(provider, demandToProvider.GetId()));
+                AddChild(new Node(demand, demandToProvider.GetDemandId()),
+                    new Node(provider, demandToProvider.GetProviderId()));
             }
 
             foreach (var providerToDemand in dbTransactionData.ProviderToDemandGetAll().GetAll())
@@ -33,8 +33,8 @@ namespace Zpp
                     dbTransactionData.ProvidersGetById(new Id(providerToDemand.ProviderId));
                 Assert.True(demand != null || provider != null,
                     "Demand/Provider should not be null.");
-                AddChild(new Node(provider, providerToDemand.GetId()),
-                    new Node(demand, providerToDemand.GetId()));
+                AddChild(new Node(provider, providerToDemand.GetProviderId()),
+                    new Node(demand, providerToDemand.GetDemandId()));
             }
         }
 
