@@ -104,7 +104,8 @@ namespace Zpp.ProviderDomain
         public override string GetGraphizString()
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"P(SE);{GetQuantity()};{GetArticle().Name}";
+            string exchangeType = Constants.EnumToString(((T_StockExchange)_provider).ExchangeType, typeof(ExchangeType));
+            string graphizString = $"P(SE:{exchangeType[0]});{GetQuantity()};{GetArticle().Name}";
             return graphizString;
         }
     }

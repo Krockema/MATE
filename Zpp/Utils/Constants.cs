@@ -16,5 +16,10 @@ namespace Zpp.Utils
             return $"Server=localhost,1433;Database=zpp{new Random().Next(1, 1000000)};" +
                 $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
         }
+        
+        public static string EnumToString<T>(T enumValue, Type enumType)
+        {
+            return Enum.GetName(enumType, enumValue);
+        }
     }
 }

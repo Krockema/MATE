@@ -2,6 +2,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.DemandDomain
@@ -73,7 +74,8 @@ namespace Zpp.DemandDomain
         public override string GetGraphizString()
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"D(SE);{GetQuantity()};{GetArticle().Name}";
+            string exchangeType = Constants.EnumToString(((T_StockExchange)_demand).ExchangeType, typeof(ExchangeType));
+            string graphizString = $"D(SE:{exchangeType[0]});{GetQuantity()};{GetArticle().Name}";
             return graphizString;
         }
 

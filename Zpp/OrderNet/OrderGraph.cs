@@ -113,11 +113,6 @@ namespace Zpp
             return mystring;
         }
 
-        private string enumToString(NodeType nodeType)
-        {
-            return Enum.GetName(typeof(NodeType), nodeType);
-        }
-
         public List<INode> GetAllToNodes()
         {
            List<INode> toNodes = new List<INode>();
