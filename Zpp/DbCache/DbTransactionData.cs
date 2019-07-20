@@ -180,6 +180,10 @@ namespace Zpp
         private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)
             where TEntity : BaseEntity
         {
+            if (entities.Any() == false)
+            {
+                throw new MrpRunException("Collection to persist is empty.");
+            }
             // dbSet.AddRange(entities);
             foreach (var entity in entities)
             {

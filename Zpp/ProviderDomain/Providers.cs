@@ -72,13 +72,13 @@ namespace Zpp.ProviderDomain
 
         public List<T> GetAllAs<T>()
         {
-            List<T> productionOrderBoms = new List<T>();
-            foreach (var demand in _providers)
+            List<T> providers = new List<T>();
+            foreach (var provider in _providers)
             {
-                productionOrderBoms.Add((T) demand.ToIProvider());
+                providers.Add((T) provider.ToIProvider());
             }
 
-            return productionOrderBoms;
+            return providers;
         }
 
         public bool ProvideMoreThanOrEqualTo(Id articleId, Quantity demandedQuantity)

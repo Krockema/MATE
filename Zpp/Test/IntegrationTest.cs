@@ -79,7 +79,6 @@ namespace Zpp.Test
                 dbTransactionData.DemandToProviderGetAll().Count() +
                 dbTransactionData.ProviderToDemandGetAll().Count();
 
-            // TODO: graphiz separate between label and id
             Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.Count(),
                 $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
                 $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.Count()}");
@@ -104,6 +103,39 @@ namespace Zpp.Test
             Assert.True((endTime - startTime).TotalMilliseconds / 1000 < MAX_TIME_FOR_MRP_RUN,
                 $"MrpRun for example use case ({ORDER_QUANTITY} customerOrder) " +
                 $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds");
+        }
+
+        [Fact]
+        public void TestPurchaseQuantityIsAVielfachesOfPacksize()
+        {
+            // TODO: Vielfaches in method name and assert
+
+            MrpRun.RunMrp(ProductionDomainContext);
+
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData persistedTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            List<T_PurchaseOrderPart> tPurchaseOrderParts = persistedTransactionData
+                .PurchaseOrderPartGetAll().GetAllAs<T_PurchaseOrderPart>();
+
+            foreach (var tPurchaseOrderPart in tPurchaseOrderParts)
+            {
+                M_ArticleToBusinessPartner articleToBusinessPartner =
+                    dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(
+                        new Id(tPurchaseOrderPart.ArticleId))[0];
+                Quantity multiplier = new Quantity(1);
+                while (multiplier.GetValue() * articleToBusinessPartner.PackSize <
+                       tPurchaseOrderPart.Quantity)
+                {
+                    multiplier.IncrementBy(new Quantity(1));
+                }
+
+                Quantity expectedPurchaseQuantity = new Quantity(multiplier.GetValue() *
+                                                                 articleToBusinessPartner.PackSize);
+                Assert.True(tPurchaseOrderPart.GetQuantity().Equals(expectedPurchaseQuantity),
+                    $"Quantity of PurchaseOrderPart ({tPurchaseOrderPart}) ist not a Vielfaches of packSize.");
+            }
         }
 
         /**
@@ -151,8 +183,8 @@ namespace Zpp.Test
                 // over all created stockExchanges
                 foreach (var persistedStockExchange in persistedStockExchanges)
                 {
-                    if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert) 
-                    || persistedStockExchange.StockExchangeType.Equals(StockExchangeType.Provider))
+                    if (persistedStockExchange.ExchangeType.Equals(ExchangeType.Insert) ||
+                        persistedStockExchange.StockExchangeType.Equals(StockExchangeType.Provider))
                     {
                         currentStockLevel += persistedStockExchange.Quantity;
                         sumInsert += persistedStockExchange.Quantity;
@@ -209,6 +241,7 @@ namespace Zpp.Test
                 {
                     continue;
                 }
+
                 bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
                 Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
             }
@@ -275,7 +308,7 @@ namespace Zpp.Test
                 "No customerOrders are initially available.");
 
             MrpRun.RunMrp(ProductionDomainContext);
-            
+
             // check certain constraints are not violated
 
             // masterData entities in db must not change within an MrpRun
