@@ -235,13 +235,6 @@ namespace Zpp.Test
             IDemands allDbDemands = dbTransactionData.DemandsGetAll();
             foreach (var demand in allDbDemands.GetAll())
             {
-                // StockExchangeDemand with ExchangeType Insert will be satisfied by simulator
-                if (demand.GetType() == typeof(StockExchangeDemand) &&
-                    ((StockExchangeDemand) demand).IsTypeOfInsert())
-                {
-                    continue;
-                }
-
                 bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
                 Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
             }

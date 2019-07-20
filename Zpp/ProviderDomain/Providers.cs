@@ -170,13 +170,6 @@ namespace Zpp.ProviderDomain
 
             foreach (var demand in demands.GetAll())
             {
-                // StockExchangeDemand with ExchangeType Insert will be satisfied by simulator
-                if (demand.GetType() == typeof(StockExchangeDemand) &&
-                    ((StockExchangeDemand) demand).IsTypeOfInsert())
-                {
-                    continue;
-                }
-                
                 Quantity neededQuantity = demand.GetQuantity();
                 foreach (var provider in _providers)
                 {

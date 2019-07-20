@@ -43,6 +43,7 @@ namespace Zpp.ProviderDomain
 
         Quantity GetMissingQuantity(Quantity demandedQuantity, Id articleId);
 
+        // TODO: performance: use it less and cache it
         Quantity GetProvidedQuantity(Id articleId);
     }
 }

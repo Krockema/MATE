@@ -80,13 +80,6 @@ namespace Zpp
 
                     foreach (Demand demand in currentDemandManager.GetAll())
                     {
-                        // StockExchangeDemand with ExchangeType Insert will be satisfied by simulator
-                        // else we have an endless loop here
-                        if (demand.GetType() == typeof(StockExchangeDemand) &&
-                            ((StockExchangeDemand) demand).IsTypeOfInsert())
-                        {
-                            continue;
-                        }
 
                         IProviders providersOfDemand = demand.Satisfy(demandToProvidersMap,
                             dbTransactionData);
