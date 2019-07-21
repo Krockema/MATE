@@ -21,7 +21,7 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        private const int ORDER_QUANTITY = 1;
+        private const int ORDER_QUANTITY = 6;
         private const int MAX_TIME_FOR_MRP_RUN = 60;
 
         public IntegrationTest()
@@ -82,8 +82,6 @@ namespace Zpp.Test
             Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.CountEdges(),
                 $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
                 $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.CountEdges()}");
-
-            // TODO: Lotsize must be higher
         }
 
         [Fact]
@@ -203,10 +201,10 @@ namespace Zpp.Test
                 decimal maxStock = originalStock.Max;
                 if (maxStock < 1)
                 {
-                    maxStock = 5;
+                    maxStock = ORDER_QUANTITY;
                 }
 
-                Assert.True(currentStockLevel < maxStock,
+                Assert.True(currentStockLevel < maxStock + new decimal(0.01),
                     $"Stock level for stock {originalStock.Id} must be " +
                     $"smallerThan/equalTo MaxQuantity({maxStock}) " +
                     $"Expected: {maxStock}, Actual: {currentStockLevel}");
