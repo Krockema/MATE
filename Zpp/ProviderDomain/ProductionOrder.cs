@@ -73,18 +73,9 @@ namespace Zpp.ProviderDomain
                 {
                     Id articleChildId = new Id(articleBom.ArticleChildId);
                     M_Article childArticle = dbMasterDataCache.M_ArticleGetById(articleChildId);
-                    Demand newDemand;
-                    if (childArticle.ToBuild)
-                    {
-                        newDemand = ProductionOrderBom.CreateProductionOrderBom(articleBom,
+                    Demand newDemand = ProductionOrderBom.CreateProductionOrderBom(articleBom,
                             parentProductionOrder, dbMasterDataCache, quantity);
-                    }
-                    else
-                    {
-                        newDemand =
-                            StockExchangeDemand.CreateStockExchangeProductionOrderDemand(articleBom,
-                                parentProductionOrder.GetDueTime(), dbMasterDataCache);
-                    }
+                    
 
                     newDemands.Add(newDemand);
                 }

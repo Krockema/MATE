@@ -21,7 +21,7 @@ namespace Zpp.Test
 {
     public class IntegrationTest : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
+        private const int ORDER_QUANTITY = 1;
         private const int MAX_TIME_FOR_MRP_RUN = 60;
 
         public IntegrationTest()

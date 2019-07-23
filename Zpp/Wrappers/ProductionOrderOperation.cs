@@ -16,11 +16,6 @@ namespace Zpp
 
         public static T_ProductionOrderOperation CreateProductionOrderOperation(M_ArticleBom articleBom, Provider parentProductionOrder)
         {
-            if (!articleBom.ArticleChild.ToBuild)
-            {
-                throw new MrpRunException(
-                    "You are trying to create a ProductionOrderOperation for a purchase article.");
-            }
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation = new T_ProductionOrderOperation();
             // TODO: add not only entities but also the ids !!! --> only ids should be enough???

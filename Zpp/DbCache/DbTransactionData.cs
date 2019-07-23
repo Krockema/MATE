@@ -187,7 +187,12 @@ namespace Zpp
             // dbSet.AddRange(entities);
             foreach (var entity in entities)
             {
-                InsertOrUpdate(entity, dbSet);
+                // e.g. if it is a PrBom which is toPurchase
+                if (entity != null)
+                {
+                    InsertOrUpdate(entity, dbSet);    
+                }
+                
             }
         }
 
