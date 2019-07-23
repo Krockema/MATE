@@ -14,8 +14,11 @@ namespace Zpp
         private readonly Dictionary<INode, List<INode>> _adjacencyList =
             new Dictionary<INode, List<INode>>();
 
-        public OrderGraph(IDbTransactionData dbTransactionData)
+        private readonly CustomerOrderPart _startNode;
+
+        public OrderGraph(IDbTransactionData dbTransactionData, CustomerOrderPart startNode)
         {
+            _startNode = startNode;
             foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll().GetAll())
             {
                 Demand demand = dbTransactionData.DemandsGetById(new Id(demandToProvider.DemandId));
@@ -39,7 +42,7 @@ namespace Zpp
             }
         }
 
-        public List<INode> GetToNodesOfFromNode(INode fromNode)
+        public List<INode> GetChildNodes(INode fromNode)
         {
             if (!_adjacencyList.ContainsKey(fromNode))
             {
@@ -123,6 +126,63 @@ namespace Zpp
            }
 
            return toNodes;
+        }
+        
+        // 
+        // TODO: Switch this to iterative depth search (with dfs limit default set to max depth of given truck examples)
+        ///
+        /// <summary>
+        ///     A depth-first-search (DFS) traversal of given tree
+        /// </summary>
+        /// <param name="graph">to traverse</param>
+        /// <returns>
+        ///    The List of the traversed nodes in exact order
+        /// </returns>
+        public List<INode> TraverseDepthFirst(Action<INode,List<INode>> action)
+        {
+            var stack = new Stack<INode>();
+
+            Dictionary<INode, bool> discovered = new Dictionary<INode, bool>();
+            List<INode> traversed = new List<INode>();
+
+            stack.Push(GetStartNode());
+            INode parentNode;
+            
+            while (stack.Any())
+            {
+                
+                INode poppedNode = stack.Pop();
+
+                // init dict if node not yet exists
+                if (!discovered.ContainsKey(poppedNode))
+                {
+                    discovered[poppedNode] = false;
+                }
+
+                // if node is not discovered
+                if (!discovered[poppedNode])
+                {
+                    traversed.Add(poppedNode);
+                    discovered[poppedNode] = true;
+                    List<INode> childNodes = GetChildNodes(poppedNode);
+                    action(poppedNode, childNodes);
+
+                    if (childNodes != null)
+                    {
+                        foreach (INode node in childNodes)
+                        {
+                            stack.Push(node);
+                        }
+                    }
+                }
+            }
+
+            return traversed;
+        }
+
+        public INode GetStartNode()
+        {
+            return _startNode;
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Zpp
     public interface INode
     {
         Id GetId();
+        
         NodeType GetNodeType();
 
         INode GetEntity();

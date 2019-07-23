@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Zpp.Utils;
 
@@ -9,7 +10,11 @@ namespace Zpp
      */
     public interface IGraph<TNode>
     {
-        List<TNode> GetToNodesOfFromNode(TNode fromNode);
+        /**
+         * one fromNode has many toNodes
+         * @return: toNodes
+         */
+        List<TNode> GetChildNodes(TNode fromNode);
 
         void AddEdges(TNode fromNode, List<TNode> toNodes);
         
@@ -18,5 +23,9 @@ namespace Zpp
         int CountEdges();
 
         List<INode> GetAllToNodes();
+        
+        INode GetStartNode();
+
+        List<INode> TraverseDepthFirst(Action<INode, List<INode>> action);
     }
 }

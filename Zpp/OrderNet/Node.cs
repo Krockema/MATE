@@ -8,7 +8,6 @@ namespace Zpp
     {
         private Id _id;
         private INode _entity;
-        private List<INode> _childEntities;
 
         public Node(INode entity, Id id)
         {
@@ -29,16 +28,6 @@ namespace Zpp
         public INode GetEntity()
         {
             return _entity;
-        }
-
-        public void AddChild(Node node)
-        {
-            _childEntities.Add(node);
-        }
-
-        public List<INode> GetChilds()
-        {
-            return _childEntities;
         }
 
         public override bool Equals(object obj)
