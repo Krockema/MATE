@@ -26,7 +26,7 @@ namespace Zpp.Test
         }
 
         /**
-         * Verifies, that the orderNet
+         * Verifies, that the orderGraph
          * - can be build up from DemandToProvider+ProviderToDemand table
          * - is a top down graph TODO is not done yet<br>
          * - has all demandToProvider and providerToDemand edges
@@ -124,6 +124,7 @@ namespace Zpp.Test
             foreach (var customerOrderPart in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll()
             )
             {
+                // verify edgeTypes
                 IGraph<INode> orderGraph = new OrderGraph(dbTransactionData,
                     (CustomerOrderPart) customerOrderPart);
 
