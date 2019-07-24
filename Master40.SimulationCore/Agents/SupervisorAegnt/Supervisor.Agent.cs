@@ -17,7 +17,7 @@ using Master40.SimulationImmutables;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Master40.SimulationCore.Agents.SupervisorAegnt
+namespace Master40.SimulationCore.Agents.SupervisorAgent
 {
     public partial class Supervisor : Agent
     {
@@ -26,7 +26,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
         private int orderCount = 0;
         private int _configID;
         private int _orderMaxQuantity;
-        private long _estimatedThroughPut;
+        private Dictionary<string, EstimatedThroughPut> _estimatedThroughPuts = new Dictionary<string, EstimatedThroughPut>();
         private OrderGenerator _orderGenerator;
         private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
         private Queue<T_CustomerOrderPart> _orderQueue = new Queue<T_CustomerOrderPart>();
@@ -40,9 +40,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                                         , ProductionDomainContext productionDomainContext
                                         , IMessageHub messageHub
                                         , Configuration configuration
+                                        , List<int> productIds
                                         , IActorRef  principal)
         {
-            return Akka.Actor.Props.Create(() => new Supervisor(actorPaths, time, debug, productionDomainContext, messageHub, configuration, principal));
+            return Akka.Actor.Props.Create(() => new Supervisor(actorPaths, time, debug, productionDomainContext, messageHub, configuration, productIds, principal));
         }
 
         public Supervisor(ActorPaths actorPaths
@@ -51,19 +52,36 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                                         , ProductionDomainContext productionDomainContext
                                         , IMessageHub messageHub
                                         , Configuration configuration
-                                        , IActorRef principal) 
+                                        , List<int> productIds
+                                        , IActorRef principal
+                                        ) 
             : base(actorPaths, time, debug, principal)
         {
             _productionDomainContext = productionDomainContext;
             _messageHub = messageHub;
-            _orderGenerator = new OrderGenerator(configuration, _productionDomainContext);
+            _orderGenerator = new OrderGenerator(configuration, _productionDomainContext, productIds);
             _orderMaxQuantity = configuration.GetOption<OrderQuantity>().Value;
             _configID = configuration.GetOption<SimulationId>().Value;
-            _estimatedThroughPut = configuration.GetOption<EstimatedThroughPut>().Value;
+            SetInitialThroughput(configuration.GetOption<EstimatedThroughPut>().Value);
             Send(Instruction.PopOrder.Create("Pop", Self), 1);
             Send(Instruction.EndSimulation.Create(true, Self), configuration.GetOption<SimulationEnd>().Value);
             Send(Instruction.SystemCheck.Create("CheckForOrders", Self), 1);
             DebugMessage("Agent-System ready for Work");
+        }
+
+        private void SetInitialThroughput(long eta)
+        {
+            var names = _productionDomainContext.ArticleBoms
+                                                .Include(c => c.ArticleChild)
+                                                .Where(b => b.ArticleParentId == null)
+                                                .AsNoTracking()
+                                                .Select(a => new { a.ArticleChild.Name, a.ArticleChild.Id })
+                                                .ToList();
+            foreach (var name in names)
+            {
+                _estimatedThroughPuts.Add(name.Name, new EstimatedThroughPut(eta));
+            }
+   
         }
 
         protected override void Do(object o)
@@ -74,12 +92,19 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
                 case Instruction.CreateContractAgent instruction: CreateContractAgent(instruction.GetObjectFromMessage); break;
                 case Instruction.RequestArticleBom instruction: RequestArticleBom(instruction.GetObjectFromMessage); break;
                 case Instruction.OrderProvided instruction: OrderProvided(instruction); break;
+                case Instruction.SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(instruction.GetObjectFromMessage); break;
                 case Instruction.SystemCheck instruction: SystemCheck(); break;
                 case Instruction.EndSimulation instruction: End(); break;
                 case Instruction.PopOrder p : PopOrder(); break;
                 default: throw new Exception("Invalid Message Object.");
             }
             
+        }
+
+        private void SetEstimatedThroughputTime(FSetEstimatedThroughputTime getObjectFromMessage)
+        {
+            _estimatedThroughPuts.TryGetValue(getObjectFromMessage.ArticleName, out EstimatedThroughPut eta);
+            eta.Set(getObjectFromMessage.Time);
         }
 
         private void CreateContractAgent(T_CustomerOrderPart orderPart)
@@ -125,11 +150,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             {
                 article = Queryable.SingleOrDefault(source: _productionDomainContext.Articles
                                                         .Include(x => x.WorkSchedules)
-                                                        .ThenInclude(x => x.MachineGroup)
+                                                            .ThenInclude(x => x.MachineGroup)
                                                         .Include(x => x.ArticleBoms)
-                                                        .ThenInclude(x => x.ArticleChild), 
+                                                            .ThenInclude(x => x.ArticleChild), 
                                                     predicate: (x => x.Id == requestItem.Article.Id));
-                _cache.Add((int)requestItem.Article.Id, article);
+                _cache.Add(requestItem.Article.Id, article);
             }
             // calback with po.bom
             Send(Dispo.Instruction.ResponseFromSystemForBom.Create(article, Sender));                        
@@ -169,7 +194,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
         {
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
             Send(Instruction.PopOrder.Create("PopNext", Self), order.CreationTime - CurrentTime);
-            long period = order.DueTime - (_estimatedThroughPut); // 1 Tag un 1 Schich
+            _estimatedThroughPuts.TryGetValue(order.CustomerOrderParts.First().Article.Name, out EstimatedThroughPut eta);
+
+            long period = order.DueTime - (eta.Value); // 1 Tag un 1 Schich
             if (period < 0)
             {
                 order.CustomerOrderParts.ToList()
@@ -182,15 +209,17 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
         private void SystemCheck()
         {
             Send(Instruction.SystemCheck.Create("CheckForOrders", Self), 1);
-            
-            var orders = _openOrders.Where(x => x.DueTime - _estimatedThroughPut <= this.TimePeriod);
-            Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
+            var orders = _openOrders.Where(x => x.DueTime - _estimatedThroughPuts
+                                                    .Single(y => y.Key == x.CustomerOrderParts.First().Article.Name)
+                                                        .Value.Value <= this.TimePeriod).ToList();
+           // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {
                 order.CustomerOrderParts.ToList()
                      .ForEach(item => CreateContractAgent(item));
+                _openOrders.RemoveAll(x => x.Id == order.Id);
             }
-            _openOrders.RemoveAll(x => x.DueTime - _estimatedThroughPut <= this.TimePeriod);
+            
         }
     }
 }

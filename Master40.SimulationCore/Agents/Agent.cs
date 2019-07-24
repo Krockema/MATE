@@ -8,7 +8,6 @@ using Master40.SimulationCore.Helper;
 using System;
 using Master40.SimulationCore.MessageTypes;
 using System.Dynamic;
-using Akka.Util.Internal;
 
 namespace Master40.SimulationCore.Agents
 {

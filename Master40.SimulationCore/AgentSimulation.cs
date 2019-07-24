@@ -15,7 +15,7 @@ using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.HubAgent;
-using Master40.SimulationCore.Agents.SupervisorAegnt;
+using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.Tools.SignalR;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 using Master40.SimulationCore.Environment;
@@ -101,11 +101,11 @@ namespace Master40.SimulationCore
                 ActorPaths.AddGuardian(GuardianType.Dispo, dispoGuard );
                 ActorPaths.AddGuardian(GuardianType.Production, productionGuard);
 
-                // #1.2 Setup DeadLetter Monitor for Debugging
-                var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
-                var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
-                //subscribe to the event stream for messages of type "DeadLetter"
-                _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
+                /// // #1.2 Setup DeadLetter Monitor for Debugging
+                /// var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
+                /// var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
+                /// //subscribe to the event stream for messages of type "DeadLetter"
+                /// _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
 
                 // #1.3 Setup a TimeMonitor to watch wallclock progress
                 Action<long> tm = (timePeriod) => _messageHub.SendToClient("clockListener", timePeriod.ToString());
@@ -113,7 +113,8 @@ namespace Master40.SimulationCore
                 _simulation.ActorSystem.ActorOf(timeMonitor, "TimeMonitor");
 
                 // #2 Create System Agent
-                ActorPaths.SetSupervisorAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, configuration, ActorRefs.Nobody), "Supervisor"));
+                var productIds = _DBContext.GetProductIds();
+                ActorPaths.SetSupervisorAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, configuration, productIds, ActorRefs.Nobody), "Supervisor"));
                 
                 // #3 Create DirectoryAgents
                 ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "HubDirectory"));

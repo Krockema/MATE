@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
@@ -11,6 +13,7 @@ using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
+using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
@@ -98,7 +101,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var art = from a in simulationWorkschedules
                       where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
-                          && a.Time >= lastIntervalStart
+                          && a.Time >= lastIntervalStart - 1440
                       group a by new { a.Article, a.OrderId } into arti
                       select new
                       {
@@ -111,7 +114,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                            select new
                            {
                                OrderID = so.Key,
-                               Dlz = so.Max(x => x.End) - so.Min(x => x.Start)
+                               Dlz = (double)(so.Max(x => x.End) - so.Min(x => x.Start))
                            };
 
             var innerJoinQuery =
@@ -136,6 +139,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 var thoughput = JsonConvert.SerializeObject(new { group });
                 agent.messageHub.SendToClient("Throughput",  thoughput);
+
+                var boxPlot = item.List.FiveNumberSummary();
+                var uperQuartile = Convert.ToInt64(boxPlot[3]);
+                agent.actorPaths.SimulationContext.Ref.Tell(
+                    SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
+                        new FSetEstimatedThroughputTime(uperQuartile, item.Key)
+                        , agent.actorPaths.SystemAgent.Ref
+                    )
+                    , ActorRefs.NoSender);
+
+                Debug.WriteLine("(" + agent.Time + ")" + item.Key + ": " + uperQuartile); 
             }
 
             var v2 = simulationWorkschedules.Where(a => a.ArticleType == "Product"

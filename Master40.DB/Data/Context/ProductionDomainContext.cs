@@ -2,6 +2,7 @@
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,7 +56,15 @@ namespace Master40.DB.Data.Context
             });
             return rs;
         }
-        
+
+        public List<int> GetProductIds()
+        {
+            return this.ArticleBoms
+                        .Where(b => b.ArticleParentId == null)
+                        .Select(a => a.ArticleChildId)
+                        .ToList();
+        }
+
         /// <summary>
         /// To Try with DB Context
         /// </summary>
@@ -85,7 +94,9 @@ namespace Master40.DB.Data.Context
                 Name = Articles.Single(x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
             };
-            olist.ForEach(x => x.CustomerOrder = order);
+
+            this.CustomerOrders.Add(order);
+            SaveChanges();
             return order;
         }
 

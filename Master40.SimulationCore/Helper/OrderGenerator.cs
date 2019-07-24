@@ -24,7 +24,7 @@ namespace Master40.SimulationCore.Helper
         private DiscreteUniform _duetime { get; set; }
         private ProductionDomainContext _productionDomainContext { get; }
 
-        public OrderGenerator(Configuration simConfig, ProductionDomainContext productionDomainContext)
+        public OrderGenerator(Configuration simConfig, ProductionDomainContext productionDomainContext, List<int> productIds)
         {
             _currentTime = 0;
             _simConfig = simConfig;
@@ -33,10 +33,7 @@ namespace Master40.SimulationCore.Helper
                                      + simConfig.GetOption<SimulationNumber>().Value);
             _exponential = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value
                                          , randomSource: _seededRandom);
-            _productIds = productionDomainContext.ArticleBoms
-                                                 .Where(b => b.ArticleParentId == null)
-                                                 .Select(a => a.ArticleChildId)
-                                                 .ToList();
+            _productIds = productIds;
             _productionDomainContext = productionDomainContext;
 
 
