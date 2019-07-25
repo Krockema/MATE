@@ -31,8 +31,8 @@ namespace Master40.SimulationCore
         // public IActorRef SimulationContext { get; }
         private List<string> AgentStatistic;
         private readonly IMessageHub _messageHub;
-        private readonly bool _debug;
         private readonly ProductionDomainContext _DBContext;
+        private bool _debug;
         private Simulation _simulation;
         public SimulationConfig SimulationConfig { get; private set; }
         public ActorPaths ActorPaths { get; private set; }
@@ -45,11 +45,10 @@ namespace Master40.SimulationCore
         /// Prepare Simulation Environment
         /// </summary>
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
-        public AgentSimulation(bool debug, ProductionDomainContext DBContext, IMessageHub messageHub)
+        public AgentSimulation(ProductionDomainContext DBContext, IMessageHub messageHub)
         {
             _DBContext = DBContext;
             _messageHub = messageHub;
-            _debug = debug;
         }
         public Task<Simulation> InitializeSimulation(Configuration configuration)
         {
@@ -63,6 +62,7 @@ namespace Master40.SimulationCore
 
                 // #1 Init Simulation
                 SimulationConfig = configuration.GetContextConfiguration();
+                _debug = configuration.GetOption<DebugAgents>().Value;
                 _simulation = new Simulation(SimulationConfig);
                 ActorPaths = new ActorPaths(_simulation.SimulationContext, SimulationConfig.Inbox.Receiver);
                 // Create DataCollector

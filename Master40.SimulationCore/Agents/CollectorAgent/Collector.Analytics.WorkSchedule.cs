@@ -25,6 +25,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
+        private long scope = 1440;
         private List<UpdateSimulationWork> _updatedSimulationWork = new List<UpdateSimulationWork>();
         private List<string> machines = new List<string>();
         private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
@@ -97,11 +98,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void ThroughPut(Collector agent)
         {
-            
+
             var art = from a in simulationWorkschedules
                       where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
-                          && a.Time >= lastIntervalStart - 1440
+                          && a.Time >= agent.Config.GetOption<TimePeriodForThrougputCalculation>().Value
                       group a by new { a.Article, a.OrderId } into arti
                       select new
                       {

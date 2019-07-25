@@ -47,6 +47,7 @@ namespace Master40.Controllers
                                                     , new KpiTimeSpan(480)
                                                     , new MinDeliveryTime(1160)
                                                     , new MaxDeliveryTime(1600)
+                                                    , new TimePeriodForThrougputCalculation(1920)
                                                     , new Seed(1337)
                                                     , new SettlingStart(2880)
                                                     , new SimulationEnd(40320)

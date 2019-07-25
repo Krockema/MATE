@@ -63,13 +63,14 @@ namespace Master40.XUnitTest.Agents
                                                     , new Seed(1337)
                                                     , new MinDeliveryTime(1160)
                                                     , new MaxDeliveryTime(1600)
+                                                    , new TimePeriodForThrougputCalculation(1920)
                                                     , new SettlingStart(2880)
                                                     , new SimulationEnd(20160)
                                                     , new WorkTimeDeviation(0.2)
                                                     , new SaveToDB(false)
                                                 });
             // simConfig.OrderQuantity = 0;
-            var simContext = new AgentSimulation(false, _ctx, new ConsoleHub());
+            var simContext = new AgentSimulation(_ctx, new ConsoleHub());
             var simulation = simContext.InitializeSimulation(simConfig).Result;
             
             // simulation.ActorSystem.EventStream.Subscribe(testProbe, typeof(DirectoryAgent.Instruction.CreateMachineAgents));
