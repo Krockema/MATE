@@ -14,11 +14,8 @@ namespace Zpp
         private readonly Dictionary<INode, List<INode>> _adjacencyList =
             new Dictionary<INode, List<INode>>();
 
-        private readonly CustomerOrderPart _startNode;
-
-        public OrderGraph(IDbTransactionData dbTransactionData, CustomerOrderPart startNode)
+        public OrderGraph(IDbTransactionData dbTransactionData)
         {
-            _startNode = startNode;
             foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll().GetAll())
             {
                 Demand demand = dbTransactionData.DemandsGetById(new Id(demandToProvider.DemandId));
@@ -138,14 +135,14 @@ namespace Zpp
         /// <returns>
         ///    The List of the traversed nodes in exact order
         /// </returns>
-        public List<INode> TraverseDepthFirst(Action<INode,List<INode>> action)
+        public List<INode> TraverseDepthFirst(Action<INode,List<INode>> action, CustomerOrderPart startNode)
         {
             var stack = new Stack<INode>();
 
             Dictionary<INode, bool> discovered = new Dictionary<INode, bool>();
             List<INode> traversed = new List<INode>();
 
-            stack.Push(GetStartNode());
+            stack.Push(startNode);
             INode parentNode;
             
             while (stack.Any())
@@ -178,11 +175,6 @@ namespace Zpp
             }
 
             return traversed;
-        }
-
-        public INode GetStartNode()
-        {
-            return _startNode;
         }
     }
 }

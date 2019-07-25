@@ -1,13 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
 using Xunit;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
+using Zpp.Test.WrappersForPrimitives;
 
 namespace Zpp.Test
 {
@@ -38,11 +41,8 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            foreach (var customerOrderPart in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll()
-            )
-            {
-                IGraph<INode> orderGraph = new OrderGraph(dbTransactionData,
-                    (CustomerOrderPart) customerOrderPart);
+            
+                IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
 
                 Assert.True(orderGraph.GetAllToNodes().Count > 0,
                     "There are no toNodes in the orderGraph.");
@@ -54,7 +54,6 @@ namespace Zpp.Test
                 Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.CountEdges(),
                     $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
                     $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.CountEdges()}");
-            }
         }
 
         /**
@@ -121,13 +120,12 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
+            
+            // verify edgeTypes
             foreach (var customerOrderPart in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll()
             )
             {
-                // verify edgeTypes
-                IGraph<INode> orderGraph = new OrderGraph(dbTransactionData,
-                    (CustomerOrderPart) customerOrderPart);
-
                 orderGraph.TraverseDepthFirst((INode parentNode, List<INode> childNodes) =>
                 {
                     if (childNodes != null && childNodes.Any())
@@ -140,8 +138,26 @@ namespace Zpp.Test
                                 $"This is no valid edge: {parentType} --> {childType}");
                         }
                     }
-                });
+                }, (CustomerOrderPart) customerOrderPart);
             }
+        }
+
+        [Fact]
+        public void TestOrderGraphStaysTheSame()
+        {
+            string orderGraphFileName = $"..\\..\\..\\Test\\Ordergraphs\\ordergraph_cop_{ORDER_QUANTITY}_lotsize_{DEFAULT_LOT_SIZE}.txt";
+            
+            // build orderGraph up
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
+            
+            // for initial creating of the file
+            // File.WriteAllText(orderGraphFileName, orderGraph.ToString(), Encoding.UTF8);
+            
+            string expectedOrderGraph = File.ReadAllText(orderGraphFileName, Encoding.UTF8);
+            Assert.True(expectedOrderGraph.Equals(orderGraph.ToString()), "OrderGraph has changed.");
         }
     }
 }

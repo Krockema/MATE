@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Zpp.DemandDomain;
 using Zpp.Utils;
 
 namespace Zpp
@@ -24,8 +25,6 @@ namespace Zpp
 
         List<INode> GetAllToNodes();
         
-        INode GetStartNode();
-
-        List<INode> TraverseDepthFirst(Action<INode, List<INode>> action);
+        List<INode> TraverseDepthFirst(Action<INode, List<INode>> action, CustomerOrderPart startNode);
     }
 }
