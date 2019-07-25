@@ -97,24 +97,6 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
         }
 
-        // public static Action<Agent, ISimulationMessage> CreateHubAgent = (agent, item) =>
-        // {
-        //     var hubInfo = item.Message as RessourceDefinition;
-        //     var requiredFor = ((Machine)hubInfo.Resource).MachineGroup.Name;
-        //     // Create ComunicationAgent if not existent
-        //     var hubAgent = agent.Context.ActorOf(props: HubAgent.Props(actorPaths: agent.ActorPaths
-        //                                                             , time: agent.CurrentTime
-        //                                                             , skillGroup: requiredFor
-        //                                                             , debug: agent.DebugThis)
-        //                                                             , name: "Hub(" + requiredFor + ")");
-        // 
-        //     var ressourceCollection = agent.Get<List<RequestRessource>>(Ressource);
-        //     ressourceCollection.Add(new RequestRessource(requiredFor, ResourceType.Production, hubAgent));
-        // 
-        //     // agent.Send(BasicInstruction.Initialize.Create(HubBehaviour.Default(), hubAgent));
-        //     agent.Send(HubAgent.Instruction.AddMachineToHub.Create(new HubInformation(ResourceType.Machine, requiredFor, agent.Sender), hubAgent));
-        // };
-
         private void RequestRessourceAgent(Directory agent, string descriminator)
         {
             // debug

@@ -2,6 +2,7 @@
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,25 +56,47 @@ namespace Master40.DB.Data.Context
             });
             return rs;
         }
-        
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, int creationTime, int dueTime)
+
+        public List<int> GetProductIds()
+        {
+            return this.ArticleBoms
+                        .Where(b => b.ArticleParentId == null)
+                        .Select(a => a.ArticleChildId)
+                        .ToList();
+        }
+
+        /// <summary>
+        /// To Try with DB Context
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <param name="amount"></param>
+        /// <param name="creationTime"></param>
+        /// <param name="dueTime"></param>
+        /// <returns></returns>
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(new T_CustomerOrderPart
             {
+                Article = Articles.First(x => x.Id == articleId),
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
             });
 
+            var bp = BusinessPartners.First(x => x.Debitor);
             var order = new T_CustomerOrder()
             {
-                BusinessPartnerId = BusinessPartners.First(x => x.Debitor).Id,
-                DueTime = dueTime,
-                CreationTime = creationTime,
+                BusinessPartnerId = bp.Id,
+                BusinessPartner = bp,
+                DueTime = (int)dueTime,
+                CreationTime = (int)creationTime,
                 Name = Articles.Single(x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
             };
+
+            this.CustomerOrders.Add(order);
+            SaveChanges();
             return order;
         }
 
@@ -91,7 +114,6 @@ namespace Master40.DB.Data.Context
             return article;
 
         }
-
 
         public int GetEarliestStart(ResultContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationWorkschedule> schedules = null)
         {
