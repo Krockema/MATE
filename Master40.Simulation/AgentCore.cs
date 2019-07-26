@@ -1,8 +1,6 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.ReportingModel;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Agents;
 using Master40.Tools.Messages;
@@ -40,7 +38,7 @@ namespace Master40.Simulation
                                         , MessageType.info);
             //In-memory database only exists while the connection is open
             var _inMemory = InMemoryContext.CreateInMemoryContext();
-            // InMemoryContext.LoadData(_context, _inMemory);
+            //InMemoryContext.LoadData(_context, _inMemory);
             MasterDBInitializerSmall.DbInitialize(_inMemory);
             PrepareModel(_inMemory);
             

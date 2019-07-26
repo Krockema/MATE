@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+
+using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Akka.Actor;
 using AkkaSim;
+using Akka.Actor;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using MathNet.Numerics.Statistics;
@@ -62,7 +62,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }
 
-        private void UpdateFeed(Collector agent, bool logToDb)
+        private void UpdateFeed(Collector agent, bool writeToDatabase)
         {
             if (machines.Count == 0)
             {
@@ -76,14 +76,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             lastIntervalStart = agent.Time;
 
 
-            LogToDB(agent);
+            LogToDB(agent, writeToDatabase);
             
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
 
-        private void LogToDB(Collector agent)
+        private void LogToDB(Collector agent, bool writeToDatabase)
         {
-            if (agent.saveToDB.Value)
+            if (agent.saveToDB.Value && writeToDatabase)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {
@@ -215,9 +215,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             W = mg.Sum(x => x.W)
                         };
 
-
-            
-
             foreach (var item in final.OrderBy(x => x.M))
             {
                 var value = Math.Round(item.W / divisor, 3).ToString(_cultureInfo);
@@ -275,9 +272,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 WorkScheduleName = ws.Operation.Name,
                 DueTime = (int)ws.DueTime,
                 EstimatedEnd = (int)ws.EstimatedEnd,
-                SimulationConfigurationId = agent.simulationId.Value,
-                SimulationNumber = agent.simulationNumber.Value,
-                SimulationType = agent.simulationKind.Value,
+                SimulationConfigurationId = -1,
                 OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.Operation.HierarchyNumber,
                 ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
@@ -317,7 +312,19 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
-        
+
+        private void UpdateSimulationId(Collector agent, int simulationId, SimulationType simluationType, int simNumber)
+        {
+
+            var simItems = simulationWorkschedules.Where(x => x.SimulationConfigurationId == -1).ToList();
+            foreach (var item in simItems)
+            {
+                item.SimulationConfigurationId = simulationId;
+                item.SimulationType = simluationType;
+                item.SimulationNumber = simNumber;
+            }
+        }
+
         private void UpdateSimulationWorkItemProvider(UpdateSimulationWorkProvider uswp)
         {
             foreach (var agentId in uswp.ProductionAgents)
