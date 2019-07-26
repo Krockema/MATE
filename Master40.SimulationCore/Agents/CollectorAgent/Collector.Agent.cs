@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal IMessageHub messageHub { get; }
         internal MasterDBContext DBContext;
         internal Configuration Config;
-        
+        internal ActorPaths actorPaths;
         internal SimulationId simulationId;
         internal SimulationNumber simulationNumber;
         internal SimulationKind simulationKind;
@@ -30,7 +30,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
-        public Collector(ActorPaths actorPaths
+        public Collector(ActorPaths paths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
@@ -44,6 +44,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             messageHub = msgHub;
             DBContext = dBContext;
             Config = configuration;
+            actorPaths = paths;
             simulationId = Config.GetOption<SimulationId>();
             simulationNumber = Config.GetOption<SimulationNumber>();
             simulationKind = Config.GetOption<SimulationKind>();

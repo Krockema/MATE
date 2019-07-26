@@ -10,5 +10,10 @@ namespace Master40.SimulationCore.Environment.Options
         {
             _value = value;
         }
+
+        public void Set(long time)
+        {
+            _value = time;
+        }
     }
 }

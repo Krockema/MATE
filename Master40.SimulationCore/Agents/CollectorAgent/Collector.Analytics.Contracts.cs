@@ -5,7 +5,7 @@ using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
-using Master40.SimulationCore.Agents.SupervisorAegnt;
+using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;

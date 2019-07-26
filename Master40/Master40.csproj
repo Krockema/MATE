@@ -16,12 +16,6 @@
     <LangVersion>7.3</LangVersion>
     <UserSecretsId>8704d405-f8e4-4ac1-bc7f-a240f95a29a5</UserSecretsId>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="BusinessLogic\**" />
-    <Content Remove="BusinessLogic\**" />
-    <EmbeddedResource Remove="BusinessLogic\**" />
-    </ItemGroup>
   <ItemGroup>
     <PackageReference Include="bootstrap" Version="4.3.1" />
     <PackageReference Include="Chart.js" Version="2.8.0" />

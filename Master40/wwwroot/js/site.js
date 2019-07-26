@@ -30,7 +30,7 @@ $(function () {
         // remove the bs.modal data attribute from it
         $(this).removeData('bs.modal');
         // and empty the modal-content element
-        $('#modal-container .modal-content').empty().html("<div class='loading center-div' />");
+        $('#modal-container .modal-body').empty().html("<div class='loading center-div' />");
     });
 });
 
@@ -90,6 +90,15 @@ $(document).ready(function () {
         selector: "[data-toggle='popover']",
         container: "body",
         html: true
+    });
+
+    $('#modal-container').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var url = button.attr("href");
+        var modal = $(this);
+
+        // note that this will replace the content of modal-content ever time the modal is opened
+        modal.find('.modal-content').load(url);
     });
 });
 

@@ -44,8 +44,7 @@ namespace Master40.Simulation
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
 
-            _agentSimulation = new AgentSimulation(_configuration.GetOption<DebugAgents>().Value // Activates Debugging for all Agents
-                                                   , DBContext: _inMemory
+            _agentSimulation = new AgentSimulation(DBContext: _inMemory
                                                    ,messageHub: _messageHub); // Defines the status output
             
             var simulation = _agentSimulation.InitializeSimulation(_configuration).Result;
