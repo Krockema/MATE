@@ -11,12 +11,12 @@ namespace Master40.DB.DataModel
         /*
          * Defines a list of Skills that can be 
          */
-        public int MachineGroupId { get; set; }
-        public M_MachineGroup MachineGroup { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<M_ResourceToResourceTool> ResourceToResourceTools { get; set; }
+        public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
+        public virtual ICollection<M_ResourceSkill> ResourceSkills { get; set; }
+
         public int Capacity { get; set; }
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderWorkSchedules { get; set; }
+
     }
 }

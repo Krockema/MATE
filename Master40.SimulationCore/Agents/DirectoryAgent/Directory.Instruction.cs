@@ -47,14 +47,14 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
             public class CreateMachineAgents : SimulationMessage
             {
-                public static CreateMachineAgents Create(FRessourceDefinition message, IActorRef target)
+                public static CreateMachineAgents Create(FResourceSetupDefinition message, IActorRef target)
                 {
                     return new CreateMachineAgents(message, target);
                 }
                 private CreateMachineAgents(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FRessourceDefinition GetObjectFromMessage { get => Message as FRessourceDefinition; }
+                public FResourceSetupDefinition GetObjectFromMessage { get => Message as FResourceSetupDefinition; }
             }
             public class CreateStorageAgents : SimulationMessage
             {

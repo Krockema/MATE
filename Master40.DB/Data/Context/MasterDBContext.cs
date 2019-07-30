@@ -11,17 +11,15 @@ namespace Master40.DB.Data.Context
         public MasterDBContext(DbContextOptions<MasterDBContext> options) : base(options) { }
         [JsonIgnore]
         public bool InMemory { get; internal set; }
-
         public DbSet<M_Article> Articles { get; set; }
         public DbSet<M_ArticleBom> ArticleBoms { get; set; }
         public DbSet<M_ArticleType> ArticleTypes { get; set; }
         public DbSet<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public DbSet<M_BusinessPartner> BusinessPartners { get; set; }
         public DbSet<M_Resource> Resources { get; set; }
-        public DbSet<M_MachineGroup> MachineGroups { get; set; }
         public DbSet<M_ResourceTool> ResourceTools { get; set; }
         public DbSet<M_ResourceSkill> ResourceSkills { get; set; }
-        public DbSet<M_ResourceToResourceTool> ResourceToResourceTools { get; set; }
+        public DbSet<M_ResourceSetup> ResourceSetups { get; set; }
         public DbSet<M_Stock> Stocks { get; set; }
         public DbSet<M_Unit> Units { get; set; }
         public DbSet<M_Operation> Operations { get; set; }
@@ -83,9 +81,6 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_ArticleToBusinessPartner>()
                 .ToTable("M_ArticleToBusinessPartner");
 
-            modelBuilder.Entity<M_MachineGroup>()
-                .ToTable("M_MachineGroup");
-
             modelBuilder.Entity<M_Resource>()
                 .ToTable("M_Resource");
 
@@ -95,18 +90,22 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_ResourceSkill>()
                 .ToTable("M_ResourceSkill");
 
-            modelBuilder.Entity<M_ResourceToResourceTool>()
+            modelBuilder.Entity<M_ResourceSetup>()
                 .ToTable("M_ResourceToResourceTool")
                 .HasOne(re => re.Resource)
-                .WithMany(r => r.ResourceToResourceTools)
+                .WithMany(r => r.ResourceSetups)
                 .HasForeignKey(re => re.ResourceId);
 
-            modelBuilder.Entity<M_ResourceToResourceTool>()
-                .ToTable("M_ResourceToResourceTool")
+            modelBuilder.Entity<M_ResourceSetup>()
                 .HasOne(re => re.ResourceTool)
-                .WithMany(r => r.ResourceToResourceTools)
+                .WithMany(r => r.ResourceSetups)
                 .HasForeignKey(re => re.ResourceToolId);
 
+            modelBuilder.Entity<M_ResourceSetup>()
+                .HasOne(re => re.ResourceSkill)
+                .WithMany(r => r.ResourceSetups)
+                .HasForeignKey(re => re.ResourceSkillId);
+                
             modelBuilder.Entity<M_Stock>()
                 .ToTable("M_Stock");
 

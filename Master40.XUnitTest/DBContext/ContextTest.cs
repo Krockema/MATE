@@ -39,7 +39,8 @@ namespace Master40.XUnitTest.DBContext
         {
             _ctx.Database.EnsureDeleted();
             _ctx.Database.EnsureCreated();
-            MasterDBInitializerLarge.DbInitialize(_ctx);
+            MasterDBInitializerSimple.DbInitialize(_ctx);
+            //MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
             // _productionDomainContext.Database.EnsureDeleted();
             // _productionDomainContext.Database.EnsureCreated();
@@ -47,20 +48,19 @@ namespace Master40.XUnitTest.DBContext
 
         }
 
-        //[Fact]
+        [Fact]
         public void DBCreationTest()
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            MasterDBInitializerSmall.DbInitialize(_masterDBContext);
+            MasterDBInitializerSimple.DbInitialize(_masterDBContext);
+            //MasterDBInitializerSmall.DbInitialize(_masterDBContext);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
             // _productionDomainContext.Database.EnsureDeleted();
             // _productionDomainContext.Database.EnsureCreated();
             // MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
 
         }
-
-
 
         public static SimulationConfiguration TestConfiguration()
         {

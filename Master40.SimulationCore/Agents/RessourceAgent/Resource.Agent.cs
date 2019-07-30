@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Master40.DB.DataModel;
@@ -19,29 +20,28 @@ namespace Master40.SimulationCore.Agents.Ressource
 
         public Resource(ActorPaths actorPaths, M_Resource machine, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
-            this.Set(Properties.MACHINE, machine);
+            this.Set(Properties.RESOURCE, machine);
             this.Set(Properties.WORK_TIME_GENERATOR, workTimeGenerator);
             this.Set(Properties.HUB_AGENT_REF, principal);
             //this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.MachineGroup.Name, this.Self), principal));
-            this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, this.Name, this.Self), principal));
+            this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.ResourceSetups.First().ResourceSkill.Name, this.Self), principal));
         }
 
         
-        internal void UpdateProcessingQueue(FWorkItem workItem)
+        internal void UpdateProcessingQueue(FBucket bucketItem)
         {
-            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
-            var queue = Get<List<FWorkItem>>(Properties.QUEUE);
+            var processingQueue = Get<LimitedQueue<FBucket>>(Properties.PROCESSING_QUEUE);
+            var queue = Get<List<FBucket>>(Properties.QUEUE);
             var hub = Get<IActorRef>(Properties.HUB_AGENT_REF);
-            if (processingQueue.CapacitiesLeft && workItem != null)
+            if (processingQueue.CapacitiesLeft && bucketItem != null)
             {
-                if (workItem.Operation.HierarchyNumber == 10)
-                    Send(Hub.Instruction.ProductionStarted.Create(workItem, hub));
-                processingQueue.Enqueue(workItem);
-                queue.Remove(workItem);
+                Send(Hub.Instruction.ProductionStarted.Create(bucketItem, hub));
+                processingQueue.Enqueue(bucketItem);
+                queue.Remove(bucketItem);
             }
         }
 
-        internal void CallToReQueue(List<FWorkItem> queue, List<FWorkItem> toRequeue)
+        internal void CallToReQueue(List<FBucket> queue, List<FBucket> toRequeue)
         {
             foreach (var reqItem in toRequeue)
             {
@@ -51,7 +51,7 @@ namespace Master40.SimulationCore.Agents.Ressource
                 queue.Remove(reqItem);
 
                 // Call Comunication Agent to Requeue
-                Send(Hub.Instruction.EnqueueWorkItem.Create(reqItem.UpdateStatus(ElementStatus.Created), reqItem.HubAgent));
+                Send(Hub.Instruction.EnqueueBucket.Create(reqItem.UpdateStatus(ElementStatus.Created), reqItem.HubAgent));
             }
         }
 
@@ -67,9 +67,8 @@ namespace Master40.SimulationCore.Agents.Ressource
             }
 
             // Dequeue
-            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
+            var processingQueue = Get<LimitedQueue<FBucket>>(Properties.PROCESSING_QUEUE);
             var item = processingQueue.Dequeue();
-
 
             // Wait if nothing More todo.
             if (item == null)
@@ -79,11 +78,39 @@ namespace Master40.SimulationCore.Agents.Ressource
                 return;
             }
 
-            DebugMessage("Start with " + item.Operation.Name);
+            
+            DebugMessage("Start with Bucket " + item.Key);
             Set(Properties.ITEMS_IN_PROGRESS, true);
             item = item.UpdateStatus(ElementStatus.Processed);
 
+            //Check if Setup
+            var resource = this.Get<M_Resource>(Properties.RESOURCE);
+            var equippdedResourceTool = Get<M_ResourceTool>(Properties.EQUP_RESOURCETOOL);
 
+            var neededresourcetool = item.Operations.FirstOrDefault().Operation.ResourceSkill.ResourceSetups.Where(x => x.Resource.ResourceId == resource.ResourceId).Select(y => y.ResourceTool) as M_ResourceTool;
+            
+            if (equippdedResourceTool == neededresourcetool)
+            {
+                processWorkItemsFromBucket(item);
+            }
+            else
+            {
+                startSetupResource(neededresourcetool, item);
+            }            
+        }
+
+        private void startSetupResource(M_ResourceTool resourceTool, FBucket bucket)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void processWorkItemsFromBucket(FBucket bucket)
+        {
+
+
+            var workItemsInBucket = bucket.Operations.OrderBy(bucket.Operations.Select(x => x.Priority));
+
+ 
             // TODO: Roll delay here
             var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
             var duration = workTimeGenerator.GetRandomWorkTime(item.Operation.Duration);
@@ -97,28 +124,29 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             // get item = ready and lowest priority
             Send(Instruction.FinishWork.Create(item, Context.Self), duration);
+
         }
 
         /// <summary>
         /// Send Proposal to Comunication Client
         /// </summary>
         /// <param name="workItem"></param>
-        internal void SendProposalTo(FWorkItem workItem)
+        internal void SendProposalTo(FBucket bucket)
         {
             long max = 0;
-            var queue = this.Get<List<FWorkItem>>(Properties.QUEUE);
+            var queue = Get<List<FBucket>>(Properties.QUEUE);
             var queueLength = this.Get<int>(Properties.QUEUE_LENGTH);
 
-            if (queue.Any(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)))
+            if (queue.Any(e => e.Priority(this.CurrentTime) <= bucket.Priority(this.CurrentTime)))
             {
-                max = queue.Where(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)).Max(e => e.EstimatedEnd);
+                max = queue.Where(e => e.Priority(this.CurrentTime) <= bucket.Priority(this.CurrentTime)).Max(e => e.EstimatedEnd);
             }
 
             // calculat Proposal.
             var proposal = new FProposal(possibleSchedule: max
-                                            , postponed: (max > queueLength && workItem.Status != ElementStatus.Ready)
+                                            , postponed: (max > queueLength && bucket.Status != ElementStatus.Ready)
                                             , postponedFor: queueLength
-                                            , workItemId: workItem.Key
+                                            , bucketId: bucket.Key
                                             , resourceAgent: this.Context.Self);
 
             // callback 

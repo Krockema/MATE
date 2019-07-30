@@ -87,12 +87,6 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.MachineGroups)
-            {
-                target.MachineGroups.Add(item.CopyProperties());
-            }
-            target.SaveChanges();
-
             foreach (var item in source.Resources)
             {
                 target.Resources.Add(item.CopyProperties());
@@ -111,9 +105,9 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.ResourceToResourceTools)
+            foreach (var item in source.ResourceSetups)
             {
-                target.ResourceToResourceTools.Add(item.CopyProperties());
+                target.ResourceSetups.Add(item.CopyProperties());
             }
             target.SaveChanges();
 

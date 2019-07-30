@@ -61,7 +61,7 @@ namespace Master40.ViewComponents
 
                 // use available hight in Chart
                 var data = new Data { Labels = GetRangeForSchedulingType(schedulingState, schedules) };
-                var machineGroups = _context.MachineGroups.Select(x => x.Id);
+                var machineGroups = _context.ResourceSkills.Select(x => x.Id);
                 var yMaxScale = 0;
 
                 // create Dataset for each Lable

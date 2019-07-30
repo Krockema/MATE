@@ -22,7 +22,7 @@ namespace Master40.DB.DataModel
          * Resources, who can provide the required ResourceSkill
          */
         [JsonIgnore]
-        public virtual ICollection<M_ResourceToResourceTool> ResourceToResourceTools { get; set; }
+        public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
 
 
     }

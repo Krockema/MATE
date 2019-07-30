@@ -23,6 +23,11 @@ namespace Master40.SimulationCore.MessageTypes
             return func;
         }
 
+        public static Func<FBucket, long, double> CreateFunc(Func<FBucket, long, double> func)
+        {
+            return func;
+        }
+
         public static void Replace<T>(this List<T> list, T val) where T : IKey
         { 
             list.RemoveAt(list.FindIndex(x => x.Key == val.Key));

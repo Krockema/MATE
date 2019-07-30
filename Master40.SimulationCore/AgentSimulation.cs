@@ -20,6 +20,7 @@ using Master40.Tools.SignalR;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
+using System.Linq;
 
 namespace Master40.SimulationCore
 {
@@ -111,7 +112,7 @@ namespace Master40.SimulationCore
                 var timeMonitor = Props.Create(() => new TimeMonitor((timePeriod) => tm(timePeriod)));
                 _simulation.ActorSystem.ActorOf(timeMonitor, "TimeMonitor");
 
-                // #2 Create System Agent
+                // #2 Create Supervisor Agent
                 ActorPaths.SetSystemAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debug, _DBContext, _messageHub, configuration, ActorRefs.Nobody), "Supervisor"));
                 
                 // #3 Create DirectoryAgents
@@ -122,13 +123,23 @@ namespace Master40.SimulationCore
                 _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, DirectoryBehaviour.Get()));
 
                 // #4 Create Machines
-                foreach (var machine in _DBContext.Resources.Include(m => m.MachineGroup).AsNoTracking())
+                var setups = _DBContext.ResourceSetups.Include(m => m.Resource)
+                                                                 .Include(r => r.ResourceSkill)
+                                                                 .Include(t => t.ResourceTool)
+                                                                 .AsNoTracking().ToListAsync().Result;
+
+
+                var resourceList = _DBContext.Resources.ToList();
+
+                foreach (var resource in resourceList)
                 {
-                    var resource = new FRessourceDefinition(randomWorkTime, machine, _debug);
+                    var resourceSetups = setups.Where(x => x.ResourceId == resource.Id).ToList();
+
+                    var resourceSetupDefinition = new FResourceSetupDefinition(randomWorkTime, resourceSetups, _debug);
 
                     _simulation.SimulationContext.Tell(Directory.Instruction
                                                                 .CreateMachineAgents
-                                                                .Create(resource, ActorPaths.HubDirectory.Ref)
+                                                                .Create(resourceSetupDefinition, ActorPaths.HubDirectory.Ref)
                                                                 , ActorPaths.HubDirectory.Ref);
                 }
 

@@ -9,6 +9,6 @@ namespace Master40.DB.DataModel
 
         public string Discription { get; set; }
         [JsonIgnore]
-        public virtual ICollection<M_ResourceToResourceTool> ResourceToResourceTools { get; set; }
+        public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
     }
 }

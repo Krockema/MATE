@@ -7,6 +7,12 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Data\Initializer\MasterDBInitializerBasic.cs" />
+    <Compile Remove="Data\Initializer\MasterDBInitializerLarge.cs" />
+    <Compile Remove="Data\Initializer\MasterDBInitializerMedium.cs" />
+    <Compile Remove="Data\Initializer\MasterDBInitializerSmall.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.6.0" />
     <PackageReference Include="EntityFrameworkCore.Cacheable" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />

@@ -7,7 +7,8 @@ namespace Master40.SimulationCore.Agents.HubAgent
         public static class Properties
         {
             public const string WORK_ITEM_QUEUE = "WorkItemQueue";
-            public const string MACHINE_AGENTS = "MachineAgents";
+            public const string BUCKETS = "Buckets";
+            public const string RESOURCE_AGENTS = "ResourceAgents";
             public const string SKILL_GROUP = "SkillGroup";
         }
 

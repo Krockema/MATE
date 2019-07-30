@@ -23,7 +23,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> Index()
         {
             ViewData["machines"] = _context.Resources.Select(x => x.Name).ToList();
-            var masterDBContext = _context.Resources.Include(a => a.MachineGroup);
+            var masterDBContext = _context.Resources.Include(a => a.ResourceSkills);
             return View(await masterDBContext.ToListAsync());
         }
 

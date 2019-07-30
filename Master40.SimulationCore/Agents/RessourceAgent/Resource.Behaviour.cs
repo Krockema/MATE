@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.Ressource
             properties.Add(Resource.Properties.QUEUE, new List<FWorkItem>());
             properties.Add(Resource.Properties.PROCESSING_QUEUE, new LimitedQueue<FWorkItem>(processingQueueSize));
             properties.Add(Resource.Properties.ITEMS_IN_PROGRESS, false);
-
+            properties.Add(Resource.Properties.EQUP_RESOURCETOOL, null);
             return new ResourceBehaviour(properties);
         }
 
@@ -74,71 +74,72 @@ namespace Master40.SimulationCore.Agents.Ressource
         /// Is Called from Comunication Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="instructionSet"></param>
-        private void RequestProposal(Resource agent, FWorkItem workItem)
+        private void RequestProposal(Resource agent, FBucket bucket)
         {
-            if (workItem == null)
-                throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
+            if (bucket == null)
+                throw new InvalidCastException("Could not Cast Bucket on InstructionSet.ObjectToProcess");
 
             // debug
             agent.DebugMessage("Request for Proposal");
             // Send
 
-            agent.SendProposalTo(workItem);
+            agent.SendProposalTo(bucket);
         }
 
         /// <summary>
         /// is Called if The Proposal is accepted by Comunication Agent
         /// </summary>
         /// <param name="instructionSet"></param>
-        public void AcknowledgeProposal(Resource agent, FWorkItem workItem)
+        public void AcknowledgeProposal(Resource agent, FBucket bucket)
         {
-            var queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
-            if (queue.Any(e => e.Priority(agent.CurrentTime) <= workItem.Priority(agent.CurrentTime)))
+            var bucketQueue = agent.Get<List<FBucket>>(Resource.Properties.QUEUE);
+
+            if (bucketQueue.Any(e => e.Priority(agent.CurrentTime) <= bucket.Priority(agent.CurrentTime)))
             {
                 // Get item Latest End.
-                var maxItem = queue.Where(e => e.Priority(agent.CurrentTime) <= workItem.Priority(agent.CurrentTime)).Max(e => e.EstimatedEnd);
+                var maxItem = bucketQueue.Where(e => e.Priority(agent.CurrentTime) <= bucket.Priority(agent.CurrentTime)).Max(e => e.EstimatedEnd);
 
                 // check if Queuable
-                if (maxItem > workItem.EstimatedStart)
+                if (maxItem > bucket.EstimatedStart)
                 {
                     // reset Agent Status
-                    workItem = workItem.UpdateStatus(ElementStatus.Created);
-                    agent.SendProposalTo(workItem);
+                    bucket = bucket.UpdateStatus(ElementStatus.Created);
+                    agent.SendProposalTo(bucket);
                     return;
                 }
             }
 
-            agent.DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.Operation.Name);
-            queue.Add(workItem);
+            agent.DebugMessage("AcknowledgeProposal and Enqueued Bucket: " + bucket.Key.ToString());
+            bucketQueue.Add(bucket);
 
             // Enqued before another item?
-            var position = queue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().IndexOf(workItem);
-            agent.DebugMessage("Position: " + position + " Priority:" + workItem.Priority(agent.CurrentTime) + " Queue length " + queue.Count());
+            var position = bucketQueue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().IndexOf(bucket);
+            agent.DebugMessage("Position: " + position + " Priority:" + bucket.Priority(agent.CurrentTime) + " Queue length " + bucketQueue.Count());
 
             // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < queue.Count)
+            if (position + 1 < bucketQueue.Count)
             {
-                var toRequeue = queue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().GetRange(position + 1, queue.Count() - position - 1);
+                var toRequeue = bucketQueue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().GetRange(position + 1, bucketQueue.Count() - position - 1);
 
-                agent.CallToReQueue(queue, toRequeue);
+                agent.CallToReQueue(bucketQueue, toRequeue);
 
-                agent.DebugMessage("New Queue length = " + queue.Count);
+                agent.DebugMessage("New Queue length = " + bucketQueue.Count);
             }
 
 
-            if (workItem.Status == ElementStatus.Ready)
+            if (bucket.Status == ElementStatus.Ready)
             {
                 // update Processing queue
-                agent.UpdateProcessingQueue(workItem);
+                agent.UpdateProcessingQueue(bucket);
 
                 // there is at least Something Ready so Start Work
                 agent.DoWork();
             }
         }
 
-        private void FinishWork(Resource agent, FWorkItem workItem)
+        private void FinishWork(Resource agent, FBucket bucket)
         {
-            if (workItem == null)
+            if (bucket == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
@@ -202,10 +203,10 @@ namespace Master40.SimulationCore.Agents.Ressource
         {
             agent.Set(Resource.Properties.BROKEN, breakdown.IsBroken);
             // requeue all
-            var queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
-            var Processing = agent.Get<LimitedQueue<FWorkItem>>(Resource.Properties.PROCESSING_QUEUE);
-            agent.CallToReQueue(Processing, new List<FWorkItem>(Processing));
-            agent.CallToReQueue(queue, new List<FWorkItem>(queue));
+            var queue = agent.Get<List<FBucket>>(Resource.Properties.QUEUE);
+            var Processing = agent.Get<LimitedQueue<FBucket>>(Resource.Properties.PROCESSING_QUEUE);
+            agent.CallToReQueue(Processing, new List<FBucket>(Processing));
+            agent.CallToReQueue(queue, new List<FBucket>(queue));
             // set Self Recovery
             agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakdown.SetIsBroken(false), agent.Context.Self), 1440);
         }

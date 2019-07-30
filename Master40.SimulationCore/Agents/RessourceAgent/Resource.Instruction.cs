@@ -22,26 +22,26 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             public class RequestProposal : SimulationMessage
             {
-                public static RequestProposal Create(FWorkItem message, IActorRef target)
+                public static RequestProposal Create(FBucket message, IActorRef target)
                 {
                     return new RequestProposal(message, target);
                 }
                 private RequestProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+                public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
 
             public class AcknowledgeProposal : SimulationMessage
             {
-                public static AcknowledgeProposal Create(FWorkItem message, IActorRef target)
+                public static AcknowledgeProposal Create(FBucket message, IActorRef target)
                 {
                     return new AcknowledgeProposal(message, target);
                 }
                 private AcknowledgeProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+                public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
 
             public class StartWorkWith : SimulationMessage
@@ -69,14 +69,14 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             public class FinishWork : SimulationMessage
             {
-                public static FinishWork Create(FWorkItem message, IActorRef target)
+                public static FinishWork Create(FBucket message, IActorRef target)
                 {
                     return new FinishWork(message, target);
                 }
                 private FinishWork(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+                public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
         }
     }

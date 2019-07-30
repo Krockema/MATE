@@ -7,7 +7,7 @@ open System.Linq
 
 type public ElementStatus = Created=0 | Ready=1 | InQueue=2 | Processed=3 | Finished=4
 type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Production=4 | Hub=5
-//module Message = 
+//module SimulationMessage = 
 
     type public IKey = 
         abstract member Key : Guid with get
@@ -62,7 +62,7 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             Postponed : bool 
             PostponedFor : int64
             ResourceAgent : IActorRef
-            WorkItemId : Guid
+            BucketId : Guid
         }
 
     type public FStockReservation =
@@ -80,11 +80,12 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             RequiredFor : string
             Ref : IActorRef
         } with member this.UpdateRef r = { this with Ref = r }
+
         
     type public FWorkItem =
         { Key : Guid
           DueTime : int64 
-          EstimatedStart : int64 
+          EstimatedStart : int64
           EstimatedEnd : int64
           MaterialsProvided : bool 
           //public double Priority { get; set; }
@@ -100,6 +101,11 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
           Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with 
                 member this.Key  with get() = this.Key
+            interface IComparable with 
+                member this.CompareTo fWorkItem = 
+                    match fWorkItem with 
+                    | :? FWorkItem as other -> compare other.Key this.Key
+                    | _ -> invalidArg "WorkItem" "cannot compare value of different types" 
         // Returns new Object with Updated Due
         member this.Priority time = this.ItemPriority <- this.PrioRule(time) // Recalculate ItemPriority
                                     this.ItemPriority                        // Return new Priority
@@ -116,6 +122,44 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
                // member this.Priority(currentTime) = (double)(this.DueTime - this.WorkSchedule.Duration - currentTime)
                // member this.Priority(currentTime : int, setUp : StockReservation) = (double)(this.DueTime - this.WorkSchedule.Duration - currentTime - (int)setUp.DueTime)
 
+    type public FBucket =
+        { Key : Guid
+          EstimatedStart : int64
+          EstimatedEnd : int64
+          //public double Priority { get; set; }
+          PrioRule :  FSharpFunc<FBucket, FSharpFunc<int64, double>>
+          mutable ItemPriority : double
+          DueTime : int64
+          //Priority : double
+          ResourceAgent : IActorRef
+          HubAgent : IActorRef
+          Status : ElementStatus
+          Operations : Set<FWorkItem>
+          Setups: System.Collections.Generic.List<M_ResourceSetup>
+          MaxBucketSize : double
+          MinBucketSize : double
+          Proposals : System.Collections.Generic.List<FProposal> 
+          WasSetReady : bool
+          } interface IKey with 
+                member this.Key  with get() = this.Key
+        // Returns new Object with Updated Due
+        member this.Priority time = this.ItemPriority <- this.PrioRule this time // Recalculate ItemPriority
+                                    this.ItemPriority                        // Return new Priority
+        member this.UpdateStatus s = { this with Status = s }
+        member this.UpdateResourceAgent r = { this with ResourceAgent = r }
+        member this.UpdateHubAgent hub = { this with HubAgent = hub }
+        member this.AddOperation op = { this with Operations = this.Operations.Add(op);
+                                                  DueTime = if this.DueTime > op.DueTime then op.DueTime else this.DueTime
+                                        }
+        member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op);
+                                                     DueTime = this.Operations.Min(fun y -> y.DueTime)        
+                                        }
+        member this.UpdateDueTime = { this with DueTime = this.Operations.Min(fun y -> y.DueTime)}
+        member this.SetReady = { this with Status = ElementStatus.Ready; WasSetReady = true }
+        member this.UpdateEstimations estimatedStart resourceAgent = { this with EstimatedEnd = estimatedStart + (int64)(this.Operations.Sum(fun x -> x.Operation.Duration));
+                                                                                     EstimatedStart = (int64)estimatedStart;
+                                                                                     ResourceAgent = resourceAgent } 
+
     type public FItemStatus =
         {
             ItemId : Guid 
@@ -123,9 +167,9 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             CurrentPriority : double 
         }
 
-    type public FRessourceDefinition = {
+    type public FResourceSetupDefinition = {
         WorkTimeGenerator : obj
-        Resource : obj
+        ResourceSetup : obj
         Debug : bool
     }
 

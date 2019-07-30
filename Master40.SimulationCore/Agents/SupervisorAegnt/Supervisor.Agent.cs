@@ -119,7 +119,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAegnt
             {
                 article = Queryable.SingleOrDefault(source: _productionDomainContext.Articles
                                                         .Include(x => x.WorkSchedules)
-                                                        .ThenInclude(x => x.MachineGroup)
+                                                        .ThenInclude(x => x.ResourceSkill)
                                                         .Include(x => x.ArticleBoms)
                                                         .ThenInclude(x => x.ArticleChild), 
                                                     predicate: (x => x.Id == requestItem.Article.Id));

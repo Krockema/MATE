@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Master40.SimulationCore.Agents.Guardian;
 using Xunit;
 using Master40.XUnitTest.Moc;
+using System.Collections.Generic;
 
 namespace Master40.XUnitTest.Agents
 {
@@ -33,7 +34,8 @@ namespace Master40.XUnitTest.Agents
         public ContractAgent()
         {
             //_ctx.Database.EnsureDeleted();
-            MasterDBInitializerSmall.DbInitialize(_ctx);
+            //MasterDBInitializerSmall.DbInitialize(_ctx);
+            MasterDBInitializerSimple.DbInitialize(_ctx);
             ResultDBInitializerBasic.DbInitialize(_resultContext);
         }
 
@@ -52,28 +54,8 @@ namespace Master40.XUnitTest.Agents
             contextProbe.ExpectMsg<TestMessage>(a => (bool)a.Message == true);
         }
 
-        [Fact]
-        public async Task PriorityRule()
-        {
-            await Task.Run(() =>
-            {
-                var probe = this.CreateTestProbe();
 
-                var wi = MessageFactory.ToWorkItem(new M_Operation() { Duration = 5 }, 15, ElementStatus.Created, probe, 0);
-
-                var w1 = wi.Priority(10);
-                var w2 = wi.GetPriority(10);
-                var w3 = wi.ItemPriority;
-                Debug.WriteLine(w1);
-                Debug.WriteLine(w2);
-
-                Assert.Equal(w1, w2);
-                Assert.Equal(w1, w3);
-            });
-        }
-
-                                                                                       
-        [Fact]
+        //[Fact]
         public void ContractTestCreateDispoAgent()
         {
             // Prepare the System Mocup
@@ -104,7 +86,8 @@ namespace Master40.XUnitTest.Agents
             simContext.Tell(Contract.Instruction.StartOrder.Create(orderPart, contract));
 
             // check if Child is Created correctly and sending its fist Request to the StorageProbe
-            dynamic item = directoryProbe.ReceiveOne(TimeSpan.FromSeconds(50));
+            AwaitCondition(() => directoryProbe.HasMessages);
+            dynamic item = directoryProbe.LastMessage;
             Assert.Equal(item.Message, "Bear");
         }
 

@@ -18,7 +18,8 @@ namespace Master40.SimulationCore.Agents.HubAgent
             var properties = new Dictionary<string, object>();
 
             properties.Add(Hub.Properties.WORK_ITEM_QUEUE, new List<FWorkItem>());
-            properties.Add(Hub.Properties.MACHINE_AGENTS, new Dictionary<IActorRef, string>());
+            properties.Add(Hub.Properties.BUCKETS, new List<FBucket>());
+            properties.Add(Hub.Properties.RESOURCE_AGENTS, new Dictionary<IActorRef, string>());
             properties.Add(Hub.Properties.SKILL_GROUP, skillGroup);
 
             return new HubBehaviour(properties);
@@ -28,7 +29,8 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             switch (message)
             {
-                case Hub.Instruction.EnqueueWorkItem msg: EnqueueWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
+                case Hub.Instruction.AddWorkItemToBucket msg: AddWorkItemToBucket((Hub)agent, msg.GetObjectFromMessage); break;
+                case Hub.Instruction.EnqueueBucket msg: EnqueueBucket((Hub)agent, msg.GetObjectFromMessage); break;
                 case Hub.Instruction.ProductionStarted msg: ProductionStarted((Hub)agent, msg.GetObjectfromMessage); break;
                 case Hub.Instruction.FinishWorkItem msg: FinishWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
                 case Hub.Instruction.ProposalFromMachine msg: ProposalFromMachine((Hub)agent, msg.GetObjectFromMessage); break;
@@ -42,7 +44,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
         private void ResourceBreakDown(Hub agent, FBreakDown breakDown)
         {
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
             var brockenMachine = machineAgents.Single(x => breakDown.Machine == x.Value).Key;
             machineAgents.Remove(brockenMachine);
             agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, brockenMachine, true), 45);
@@ -50,50 +52,68 @@ namespace Master40.SimulationCore.Agents.HubAgent
             System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Machine, "Hub");
         }
 
-        private void EnqueueWorkItem(Hub agent, FWorkItem workItem)
+        private void AddWorkItemToBucket(Hub agent, FWorkItem workItem)
         {
             if (workItem == null)
             {
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
             }
 
-
             var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
-            var localItem = workItemQueue.Find(x => x.Key == workItem.Key);
+            var bucketList = agent.Get<List<FBucket>>(Hub.Properties.BUCKETS);
+
+            var localWorkItem = workItemQueue.Find(x => x.Key == workItem.Key);
+
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
-            if (localItem == null)
+            if (localWorkItem == null)
             {
+
                 // Set Comunication agent.
-                localItem = workItem.UpdateHubAgent(agent.Context.Self);
+                localWorkItem = workItem.UpdateHubAgent(agent.Context.Self);
+
                 // add TO queue
-                workItemQueue.Add(localItem);
-                agent.DebugMessage("Got Item to Enqueue: " + workItem.Operation.Name + " | with status:" + workItem.Status);
+                workItemQueue.Add(localWorkItem);
+
+                //ad to bucket
+                agent.findBucketForWorkItem(localWorkItem);
+
+                agent.DebugMessage("Got Item to Add: " + workItem.Operation.Name + " | with status:" + workItem.Status);
             }
             else
             {
                 // reset Item.
                 agent.DebugMessage("Got Item to Requeue: " + workItem.Operation.Name + " | with status:" + workItem.Status);
-                localItem.Proposals.Clear();
+                localWorkItem.Proposals.Clear();
             }
 
-            foreach (var actorRef in machineAgents)
-            {
-                agent.Send(instruction: Resource.Instruction.RequestProposal.Create(localItem, actorRef.Key));
-            }
         }
 
-        public void ProductionStarted(Hub agent, FWorkItem workItem)
+        public void EnqueueBucket(Hub agent, FBucket bucket)
         {
-            var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
-            var temp = workItemQueue.Single(x => x.Key == workItem.Key);
-            var tempItem = workItem.UpdatePoductionAgent(temp.ProductionAgent);
-            agent.Send(Production.Instruction
-                                      .ProductionStarted
-                                      .Create(message: tempItem
-                                             , target: temp.ProductionAgent));
-            workItemQueue.Replace(tempItem);
+            if (bucket == null)
+            {
+                throw new InvalidCastException("Could not Cast Bucket on InstructionSet.ObjectToProcess");
+            }
+
+            agent.enqueueBucket(bucket);
+
+        }
+
+        public void ProductionStarted(Hub agent, FBucket bucketItem)
+        {
+            var bucketQueue = agent.Get<List<FBucket>>(Hub.Properties.BUCKETS);
+            var temp = bucketQueue.Single(x => x.Key == bucketItem.Key);
+            
+            foreach (var item in temp.Operations)
+            {
+                agent.Send(Production.Instruction
+                                          .ProductionStarted
+                                          .Create(message: item
+                                                 , target: item.ProductionAgent));
+            }
+
+            bucketQueue.Replace(temp);
         }
 
         public void FinishWorkItem(Hub agent, FWorkItem workItem)
@@ -149,62 +169,64 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
         private void ProposalFromMachine(Hub agent, FProposal proposal)
         {
-            var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var bucketQueue = agent.Get<List<FBucket>>(Hub.Properties.BUCKETS);
+            var resourceAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
 
             if (proposal == null)
             {
                 throw new InvalidCastException("Could not Cast Proposal on InstructionSet.ObjectToProcess");
             }
+
             // get releated workitem and add Proposal.
-            var workItem = workItemQueue.Find(x => x.Key == proposal.WorkItemId);
-            var proposalToRemove = workItem.Proposals.Find(x => x.ResourceAgent == proposal.ResourceAgent);
+            var bucketItem = bucketQueue.Find(x => x.Key == proposal.BucketId);
+            var proposalToRemove = bucketItem.Proposals.Find(x => x.ResourceAgent == proposal.ResourceAgent);
             if (proposalToRemove != null)
             {
-                workItem.Proposals.Remove(proposalToRemove);
+                bucketItem.Proposals.Remove(proposalToRemove);
             }
 
-            workItem.Proposals.Add(proposal);
+            bucketItem.Proposals.Add(proposal);
 
             agent.DebugMessage("Proposal for Schedule: " + proposal.PossibleSchedule + " from: " + proposal.ResourceAgent + "!");
 
 
             // if all Machines Answered
-            if (workItem.Proposals.Count == machineAgents.Count)
+            if (bucketItem.Proposals.Count == resourceAgents.Count)
             {
 
                 // item Postponed by All Machines ? -> reque after given amount of time.
-                if (workItem.Proposals.TrueForAll(x => x.Postponed))
+                if (bucketItem.Proposals.TrueForAll(x => x.Postponed))
                 {
                     // Call Hub Agent to Requeue
-                    workItem = workItem.UpdateResourceAgent(ActorRefs.NoSender)
+                    bucketItem = bucketItem.UpdateResourceAgent(ActorRefs.NoSender)
                                        .UpdateStatus(ElementStatus.Created);
-                    workItemQueue.Replace(workItem);
-                    agent.Send(Hub.Instruction.EnqueueWorkItem.Create(workItem, agent.Context.Self), proposal.PostponedFor);
+                    bucketQueue.Replace(bucketItem);
+
+                    agent.Send(Hub.Instruction.EnqueueBucket.Create(bucketItem, agent.Context.Self), proposal.PostponedFor);
                     return;
                 }
                 else // updateStatus
                 {
-                    
-                    workItem = workItem.UpdateStatus(workItem.WasSetReady? ElementStatus.Ready : ElementStatus.InQueue);
+
+                    bucketItem = bucketItem.UpdateStatus(bucketItem.WasSetReady ? ElementStatus.Ready : ElementStatus.InQueue);
                 }
 
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = workItem.Proposals.First(x => x.PossibleSchedule == workItem.Proposals.Where(y => y.Postponed == false)
+                var acknowledgement = bucketItem.Proposals.First(x => x.PossibleSchedule == bucketItem.Proposals.Where(y => y.Postponed == false)
                                                                                                             .Min(p => p.PossibleSchedule)
                                                                  && x.Postponed == false);
 
                 // set Proposal Start for Machine to Reque if time slot is closed.
-                workItem = workItem.UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent);
-                workItemQueue.Replace(workItem);
-                agent.Send(Resource.Instruction.AcknowledgeProposal.Create(workItem, acknowledgement.ResourceAgent));
+                bucketItem = bucketItem.UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent);
+                bucketQueue.Replace(bucketItem);
+                agent.Send(Resource.Instruction.AcknowledgeProposal.Create(bucketItem, acknowledgement.ResourceAgent));
             }
         }
 
-        
+
         private void AddMachineToHub(Hub agent, FHubInformation hubInformation)
         {
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
             if (hubInformation == null)
             {
                 throw new InvalidCastException("Could not Cast MachineAgent on InstructionSet.ObjectToProcess - From:" + agent.Sender.Path.Name);

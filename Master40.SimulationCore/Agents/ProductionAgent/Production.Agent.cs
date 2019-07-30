@@ -84,14 +84,14 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
 
         internal void RequestHubAgentFor(ICollection<M_Operation> workSchedules)
         {
-            // Request Comunication Agent for my Workschedules
-            var machineGroups = workSchedules.Select(x => x.MachineGroup.Name).Distinct().ToList();
-            foreach (var machineGroupName in machineGroups)
+            // Request Hub Agent for my Workschedules
+            var resourceSkills = workSchedules.Select(x => x.ResourceSkill.Name).Distinct().ToList();
+            foreach (var resourceSkillName in resourceSkills)
             {   
                 Send(Directory.Instruction
                             .RequestRessourceAgent
-                            .Create(descriminator: machineGroupName
-                                    ,target: ActorPaths.HubDirectory.Ref));
+                            .Create(descriminator: resourceSkillName
+                                    , target: ActorPaths.HubDirectory.Ref));
             }
         }
 
@@ -142,17 +142,19 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 DebugMessage("Cannot start next.");
                 return;
             }
-            nextItem = nextItem.SetReady;
 
+            nextItem = nextItem.SetReady;
+            workItems.Replace(nextItem);
+            
             if (hubAgents.Count == 0) return;
-            var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.Operation.MachineGroup.Name);
+            var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.Operation.ResourceSkill.Name);
 
             SendWorkItemStatusMsg(hubAgent, nextItem);
         }
 
         private void SendWorkItemStatusMsg(KeyValuePair<IActorRef, string> hubAgent, FWorkItem nextItem)
         {
-            DebugMessage("Set next WorkItem Ready from Status " + nextItem.Status + " Time " + TimePeriod);
+            DebugMessage("Set next WorkItem to Status " + nextItem.Status + " Time " + TimePeriod);
 
 
             // create StatusMsg

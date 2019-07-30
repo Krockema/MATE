@@ -22,7 +22,7 @@ namespace Master40.Controllers
         // GET: Machines
         public async Task<IActionResult> Index()
         {
-            var machines = _context.Resources.Include(m => m.MachineGroup);
+            var machines = _context.Resources.Include(m => m.ResourceSkills);
             
             var mermaid = @"graph LR;
                 p>Production Line]
@@ -31,11 +31,11 @@ namespace Master40.Controllers
                 ";
 
 
-            var machineGroups = _context.MachineGroups.OrderBy(x => x.Stage).ToList();
+            var machineGroups = _context.ResourceSkills.OrderBy(x => x.Stage).ToList();
             for (int g = 0; g < machineGroups.Count; g++)
             {
                 var start = (g == 0) ? "Start-->" : "\r\n";
-                var machine = machines.Where(x => machineGroups[g].Name == x.MachineGroup.Name);
+                var machine = machines.Where(x => machineGroups[g].Name == x.ResourceSkills.SingleOrDefault().Name);
                 var i = 1;
                 var thisGroup = machineGroups[g].Name;
                 var nextGroup = (g+1 < machineGroups.Count)? machineGroups[g+1].Name : "Finish";
@@ -67,7 +67,7 @@ namespace Master40.Controllers
             }
 
             var machine = await _context.Resources
-                .Include(m => m.MachineGroup)
+                .Include(m => m.ResourceSkills)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (machine == null)
             {
@@ -80,7 +80,7 @@ namespace Master40.Controllers
         // GET: Machines/Create
         public IActionResult Create()
         {
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name");
+            ViewData["MachineGroupId"] = new SelectList(_context.ResourceSkills, "Id", "Name");
             return View();
         }
 
@@ -97,7 +97,7 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.Name);
+            ViewData["MachineGroupId"] = new SelectList(_context.ResourceSkills, "Id", "Name", machine.Name);
             return View(machine);
         }
 
@@ -114,7 +114,7 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.Name);
+            ViewData["MachineGroupId"] = new SelectList(_context.ResourceSkills, "Id", "Name", machine.Name);
             return View(machine);
         }
 
@@ -150,7 +150,7 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewData["MachineGroupId"] = new SelectList(_context.MachineGroups, "Id", "Name", machine.Name);
+            ViewData["MachineGroupId"] = new SelectList(_context.ResourceSkills, "Id", "Name", machine.Name);
             return View(machine);
         }
 
@@ -163,7 +163,7 @@ namespace Master40.Controllers
             }
 
             var machine = await _context.Resources
-                .Include(m => m.MachineGroup)
+                .Include(m => m.ResourceSkills)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (machine == null)
             {
@@ -198,16 +198,16 @@ namespace Master40.Controllers
             if (setup == "Large")
             {
                 var machines = new M_Resource[] {
-                    new M_Resource{Capacity=0, Name="Saw 3", Count = 1, MachineGroupId = 1 },
-                    new M_Resource{Capacity=0, Name="Saw 4", Count = 1, MachineGroupId = 1 },
-                    new M_Resource{Capacity=0, Name="Saw 5", Count = 1, MachineGroupId = 1 },
-                    new M_Resource{Capacity=0, Name="Saw 6", Count = 1, MachineGroupId = 1 },
-                    new M_Resource{Capacity=0, Name="Drill 2", Count = 1, MachineGroupId = 2 },
-                    new M_Resource{Capacity=0, Name="Drill 3", Count = 1, MachineGroupId = 2 },
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 3", Count=1, MachineGroupId = 3 },
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 4", Count=1, MachineGroupId = 3 },
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 5", Count=1, MachineGroupId = 3 },
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 6", Count=1, MachineGroupId = 3 }
+                    new M_Resource{Capacity=0, Name="Saw 3", Count = 1},
+                    new M_Resource{Capacity=0, Name="Saw 4", Count = 1},
+                    new M_Resource{Capacity=0, Name="Saw 5", Count = 1},
+                    new M_Resource{Capacity=0, Name="Saw 6", Count = 1},
+                    new M_Resource{Capacity=0, Name="Drill 2", Count = 1},
+                    new M_Resource{Capacity=0, Name="Drill 3", Count = 1},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 3", Count=1},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 4", Count=1},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 5", Count=1},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 6", Count=1}
                 };
                 _context.Resources.AddRange(machines);
 

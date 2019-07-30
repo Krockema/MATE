@@ -1,5 +1,11 @@
 ﻿using Akka.Actor;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.Ressource;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationImmutables;
+using System;
+using System.Collections.Generic;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -19,5 +25,92 @@ namespace Master40.SimulationCore.Agents.HubAgent
             DebugMessage("I'm Alive:" + Context.Self.Path);
             this.Do(BasicInstruction.Initialize.Create(Self, HubBehaviour.Get(skillGroup)));
         }
+
+        internal void findBucketForWorkItem(FWorkItem workItem)
+        {
+            if (workItem == null)
+            {
+                throw new InvalidCastException("Could not Cast WorkItem on InstructionSet.ObjectToProcess");
+            }
+
+            var bucketList = Get<List<FBucket>>(Properties.BUCKETS);
+            //TODO: Do somethine really smart 
+            // for now: create bucket for each workItem - lot size 1
+
+            createNewBucket(workItem);
+            /*
+            foreach (FBucket bucket in bucketList)
+            {
+
+                if (bucket.Operations.Count + 1 <= bucket.MaxBucketSize)
+                {
+                    //Fits to any Bucket do
+                    if (true)
+                    {
+                        addWorkItemToBucket(workItem, bucket);
+                    }
+                }
+                else
+                {
+                    //Need new Bucket
+                    
+                }
+
+            }
+            */
+
+        }
+
+        internal void createNewBucket(FWorkItem workItem)
+        {
+            if (workItem == null)
+                {
+                    throw new InvalidCastException("Could not Cast WorkItem on InstructionSet.ObjectToProcess");
+                }
+
+            var bucketList = Get<List<FBucket>>(Properties.BUCKETS);
+
+            var newBucket = MessageFactory.ToBucketItem(workItem, TimePeriod);
+            bucketList.Add(newBucket);
+
+            DebugMessage("New Bucket: " + newBucket.Key + " for Item: " + workItem.Operation.Name + " created");
+
+            enqueueBucket(newBucket);
+        }
+
+
+        internal void addWorkItemToBucket(FWorkItem workItem, FBucket bucket)
+        {
+            if (bucket == null)
+            {
+                throw new InvalidCastException("Could not Cast Bucket on InstructionSet.ObjectToProcess");
+            }
+
+            bucket = bucket.AddOperation(workItem);
+            bucket.Priority(TimePeriod);
+            bucket = bucket.UpdateDueTime;
+
+            DebugMessage("Item: " + workItem.Operation.Name + "added to Bucket: " + bucket.Key);
+
+            enqueueBucket(bucket);
+
+        }
+
+        internal void enqueueBucket(FBucket bucket)
+        {
+            if (bucket == null)
+            {
+                throw new InvalidCastException("Could not Cast Bucket on InstructionSet.ObjectToProcess");
+            }
+
+            var resourceAgents = Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
+
+            foreach (var actorRef in resourceAgents)
+            {
+                //Only send to Resources for the bucket
+                 Send(instruction: Resource.Instruction.RequestProposal.Create(bucket, actorRef.Key));
+            }
+        }
+
     }
 }

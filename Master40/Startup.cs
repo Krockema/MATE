@@ -102,8 +102,10 @@ namespace Master40
                             , ProductionDomainContext productionDomainContext)
         {
 
-                //MasterDBInitializerLarge.DbInitialize(context);
-            MasterDBInitializerLarge.DbInitialize(context);
+            //MasterDBInitializerLarge.DbInitialize(context);
+            //MasterDBInitializerLarge.DbInitialize(context);
+            MasterDBInitializerSimple.DbInitialize(context);
+
             ResultDBInitializerBasic.DbInitialize(contextResults);
 
             HangfireDBInitializer.DbInitialize(hangfireContext);

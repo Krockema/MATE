@@ -90,7 +90,7 @@ namespace Master40.Simulation
 
         public void ResourceBreakDown(string name)
         {
-            var machineGroup = _context.Resources.Include(x => x.MachineGroup).Single(x => x.Name.Replace(" ", "") == name).MachineGroup.Name;
+            var machineGroup = _context.Resources.Include(x => x.ResourceSkills).Single(x => x.Name.Replace(" ", "") == name).ResourceSkills.SingleOrDefault().Name;
             SimulationContext.Tell(BasicInstruction.ResourceBrakeDown.Create(message: new SimulationImmutables.FBreakDown("Machine(" + name + ")", machineGroup, true, 0),
                                                                               target: _agentSimulation.ActorPaths.HubDirectory.Ref));
         }

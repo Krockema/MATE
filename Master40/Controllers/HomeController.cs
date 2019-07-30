@@ -32,11 +32,11 @@ namespace Master40.Controllers
                             break;
                         case "medium":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerMedium.DbInitialize(_context);
+                            //MasterDBInitializerMedium.DbInitialize(_context);
                             break;
                         default:
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerSmall.DbInitialize(_context);
+                            //MasterDBInitializerSmall.DbInitialize(_context);
                             break;
                     }
                     

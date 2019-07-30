@@ -4,6 +4,8 @@ using Master40.FunctionConverter;
 using Akka.Actor;
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Microsoft.FSharp.Collections;
+using System.Linq;
 
 namespace Master40.SimulationCore.MessageTypes
 {
@@ -36,6 +38,35 @@ namespace Master40.SimulationCore.MessageTypes
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , operation: operation
+                                , proposals: new List<FProposal>());
+        }
+
+        public static FBucket ToBucketItem(this FWorkItem workItem,long time)
+        {
+            var prioRule = Extension.CreateFunc(
+                    // Lamda zur Func.
+                    (bucket, currentTime) => bucket.Operations.Min(x => x.Priority(currentTime))
+                    // ENDE
+                );
+            var workItems = new List<FWorkItem>();
+            workItems.Add(workItem);
+
+            var setupList = workItem.Operation.ResourceSkill.ResourceSetups.ToList();
+
+            return new FBucket(key: Guid.NewGuid()
+                                , dueTime: workItem.DueTime
+                                , estimatedStart: 0
+                                , estimatedEnd: 0
+                                , status: workItem.Status
+                                , prioRule: prioRule.ToFSharpFunc()
+                                , itemPriority: workItem.Priority(time)
+                                , wasSetReady: false
+                                , maxBucketSize: 10
+                                , minBucketSize: 1
+                                , resourceAgent: ActorRefs.NoSender
+                                , hubAgent: ActorRefs.NoSender
+                                , operations: new FSharpSet<FWorkItem>(workItems)
+                                , setups: new List<M_ResourceSetup>(setupList)
                                 , proposals: new List<FProposal>());
         }
 

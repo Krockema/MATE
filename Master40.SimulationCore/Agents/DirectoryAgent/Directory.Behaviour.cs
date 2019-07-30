@@ -64,56 +64,45 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
         }
 
 
-        public void CreateMachineAgents(Directory agent, FRessourceDefinition ressource)
+        public void CreateMachineAgents(Directory agent, FResourceSetupDefinition resourceSetupDefinition)
         {
-            var machine = ressource.Resource as M_Resource;
+            var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
 
-            // Create Hub If Required
+
             var hubAgents = agent.Get<List<FRequestRessource>>(Directory.Properties.RESSOURCE);
-            var hub = hubAgents.FirstOrDefault(x => x.Discriminator == machine.MachineGroup.Name && x.ResourceType == ResourceType.Hub);
-            if (hub == null)
+
+            // Create Skill based Hub Agent for each Skill of resource
+            foreach (var resourceSetup in resourceSetups)
             {
-                var hubAgent = agent.Context.ActorOf(Hub.Props(agent.ActorPaths
-                                                             , agent.CurrentTime
-                                                             , machine.MachineGroup.Name
-                                                             , agent.DebugThis
-                                                             , agent.Context.Self)
-                                                    , "Hub("+machine.MachineGroup.Name+")");
-                //agent.Send(BasicInstruction.Initialize.Create(agent.Context.Self, HubBehaviour.Get(machine.MachineGroup.Name)));
-                hub = new FRequestRessource(machine.MachineGroup.Name, ResourceType.Hub, hubAgent);
-                hubAgents.Add(hub);
-            } 
+                var hub = hubAgents.FirstOrDefault(x => x.Discriminator == resourceSetup.ResourceSkill.Name && x.ResourceType == ResourceType.Hub);
+                if (hub == null)
+                {
+                    var hubAgent = agent.Context.ActorOf(Hub.Props(agent.ActorPaths
+                                                                 , agent.CurrentTime
+                                                                 , resourceSetup.ResourceSkill.Name
+                                                                 , agent.DebugThis
+                                                                 , agent.Context.Self)
+                                                        , "Hub(" + resourceSetup.ResourceSkill.Name + ")");
+                    //agent.Send(BasicInstruction.Initialize.Create(agent.Context.Self, HubBehaviour.Get(machine.MachineGroup.Name)));
+                    hub = new FRequestRessource(resourceSetup.ResourceSkill.Name, ResourceType.Hub, hubAgent);
+                    hubAgents.Add(hub);
+                }
+            }
 
-
-            // Create Machine If Required
-            var machineAgent = agent.Context.ActorOf(Resource.Props(agent.ActorPaths
-                                            , machine
-                                            , ressource.WorkTimeGenerator as WorkTimeGenerator
-                                            , agent.CurrentTime
-                                            , agent.DebugThis
-                                            , hub.actorRef)
-                                            , ("Machine(" + machine.Name + ")").ToActorName());
-            agent.Send(BasicInstruction.Initialize.Create(machineAgent, ResourceBehaviour.Get()));
+            var resource = resourceSetups.FirstOrDefault().Resource as M_Resource;
+            // Create resource If Required
+            var resourceAgent = agent.Context.ActorOf(Resource.Props(agent.ActorPaths
+                                                                    , resource
+                                                                    , resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
+                                                                    , agent.CurrentTime
+                                                                    , agent.DebugThis
+                                                                    // TODO : 1 Machine N Hubs.
+                                                                    , hubAgents.FirstOrDefault(x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
+                                                                                                 && x.ResourceType == ResourceType.Hub).actorRef)
+                                                    , ("Machine(" + resource.Name + ")").ToActorName());
+            agent.Send(BasicInstruction.Initialize.Create(resourceAgent, ResourceBehaviour.Get()));
 
         }
-
-        // public static Action<Agent, ISimulationMessage> CreateHubAgent = (agent, item) =>
-        // {
-        //     var hubInfo = item.Message as RessourceDefinition;
-        //     var requiredFor = ((Machine)hubInfo.Resource).MachineGroup.Name;
-        //     // Create ComunicationAgent if not existent
-        //     var hubAgent = agent.Context.ActorOf(props: HubAgent.Props(actorPaths: agent.ActorPaths
-        //                                                             , time: agent.CurrentTime
-        //                                                             , skillGroup: requiredFor
-        //                                                             , debug: agent.DebugThis)
-        //                                                             , name: "Hub(" + requiredFor + ")");
-        // 
-        //     var ressourceCollection = agent.Get<List<RequestRessource>>(Ressource);
-        //     ressourceCollection.Add(new RequestRessource(requiredFor, ResourceType.Production, hubAgent));
-        // 
-        //     // agent.Send(BasicInstruction.Initialize.Create(HubBehaviour.Default(), hubAgent));
-        //     agent.Send(HubAgent.Instruction.AddMachineToHub.Create(new HubInformation(ResourceType.Machine, requiredFor, agent.Sender), hubAgent));
-        // };
 
         private void RequestRessourceAgent(Directory agent, string descriminator)
         {
