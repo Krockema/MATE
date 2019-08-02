@@ -188,6 +188,8 @@ namespace Zpp.Test
         private string removeIdsFromOrderGraph(string orderGraph)
         {
             string[] orderGraphLines = orderGraph.Split("\r\n");
+            // to have reproducible result
+            Array.Sort(orderGraphLines);
             List<string> orderGraphWithoutIds = new List<string>();
             foreach (var orderGraphLine in orderGraphLines)
             {

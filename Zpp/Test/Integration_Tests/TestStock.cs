@@ -24,7 +24,7 @@ namespace Zpp.Test
          * - 
          * - sum(stockExchangeDemands=withdrawal) <= sum(stockExchangeProviders=insert)
          * for every stock
-         * TODO: sync this describtion with the impl
+         * TODO: sync this description with the impl
          */
         [Fact]
         public void TestStockExchanges()
@@ -82,7 +82,7 @@ namespace Zpp.Test
                     $"({currentStockLevel}) must be greaterThan/EqualTo 0.");
 
                 decimal maxStock = originalStock.Max;
-                Assert.True(maxStock > 0, $"stock.max for {originalStock.Article} must be greater than zero.");
+                Assert.True(maxStock > 0, $"stock.max for {originalStock.Name} must be greater than zero.");
 
                 Assert.True(currentStockLevel < maxStock + new decimal(0.01),
                     $"Stock level for stock {originalStock.Id} must be " +

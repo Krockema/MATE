@@ -125,7 +125,7 @@ namespace Master40.DB.Data.Initializer
                     ArticleForeignKey = article.Id,
                     Name = "Stock: " + article.Name,
                     Min = (article.ToPurchase) ? 1000 : 0,
-                    Max = (article.ToPurchase) ? 2000 : 0,
+                    Max = (article.ToPurchase) ? 2000 : 100,
                     Current = (article.ToPurchase) ? 1000 : 0,
                     StartValue = (article.ToPurchase) ? 1000 : 0,
                 };
