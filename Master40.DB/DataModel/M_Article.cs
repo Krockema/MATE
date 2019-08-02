@@ -61,7 +61,7 @@ namespace Master40.DB.DataModel
 
         public override string ToString()
         {
-            return Id.ToString();
+            return $"{Id.ToString()}: {Name}";
         }
 
     }

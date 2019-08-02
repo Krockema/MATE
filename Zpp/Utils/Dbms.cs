@@ -34,8 +34,10 @@ namespace Zpp.Utils
                 productionDomainContext = new ProductionDomainContext(
                     new DbContextOptionsBuilder<MasterDBContext>()
                         .UseLoggerFactory(MyLoggerFactory).UseSqlServer(
-                            Constants.DbConnectionZppWindows)
+                            // Constants.DbConnectionZppLocalDb)
+                            Constants.DbConnectionZppSqlServer())
                         .Options);
+                Constants.IsLocalDb = false;
             }
             else
             {
@@ -44,7 +46,7 @@ namespace Zpp.Utils
                 // With Sql Server for Mac/Linux
                 productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                     .UseLoggerFactory(MyLoggerFactory).UseSqlServer(
-                        Constants.DbConnectionZppUnix())
+                        Constants.DbConnectionZppSqlServer())
                     .Options);
 
                 // sqlite

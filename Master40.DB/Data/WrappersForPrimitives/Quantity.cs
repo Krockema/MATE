@@ -30,6 +30,12 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             _quantity += quantity._quantity;
         }
+        
+        public void DecrementBy(Quantity quantity)
+        {
+            _quantity -= quantity._quantity;
+        }
+
 
         public bool IsGreaterThanOrEqualTo(Quantity quantity)
         {

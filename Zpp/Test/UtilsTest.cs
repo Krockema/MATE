@@ -62,7 +62,7 @@ namespace Zpp.Test
                          TreeTools<int>.AdjacencyListToString(expectedAdjacencyList));
             LOGGER.Debug("Actual: " + Environment.NewLine +
                          TreeTools<int>.AdjacencyListToString(actualAdjacencyList));
-            if (Constants.IsWindows)
+            if (Constants.IsLocalDb)
             {
                 Assert.Equal(expectedAdjacencyList, actualAdjacencyList);
             }

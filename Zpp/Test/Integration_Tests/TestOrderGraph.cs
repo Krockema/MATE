@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Master40.DB.Data.Initializer;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
@@ -19,10 +20,12 @@ namespace Zpp.Test
         private const int ORDER_QUANTITY = 6;
         private const int DEFAULT_LOT_SIZE = 2;
 
-        public TestOrderGraph()
+        public TestOrderGraph() // : base(MasterDBInitializerMedium.DbInitialize)
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
+            MasterDataExtension.ExtendByDesk(ProductionDomainContext);
+            MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,
+                ORDER_QUANTITY);
+            // OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
             LotSize.LotSize.SetDefaultLotSize(new Quantity(DEFAULT_LOT_SIZE));
 
             MrpRun.RunMrp(ProductionDomainContext);
@@ -41,19 +44,19 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            
-                IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
 
-                Assert.True(orderGraph.GetAllToNodes().Count > 0,
-                    "There are no toNodes in the orderGraph.");
+            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
 
-                int sumDemandToProviderAndProviderToDemand =
-                    dbTransactionData.DemandToProviderGetAll().Count() +
-                    dbTransactionData.ProviderToDemandGetAll().Count();
+            Assert.True(orderGraph.GetAllToNodes().Count > 0,
+                "There are no toNodes in the orderGraph.");
 
-                Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.CountEdges(),
-                    $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
-                    $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.CountEdges()}");
+            int sumDemandToProviderAndProviderToDemand =
+                dbTransactionData.DemandToProviderGetAll().Count() +
+                dbTransactionData.ProviderToDemandGetAll().Count();
+
+            Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.CountEdges(),
+                $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
+                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.CountEdges()}");
         }
 
         /**
@@ -63,8 +66,8 @@ namespace Zpp.Test
          *
          * Verifies that,
          * for demand (parent) --> provider (child) direction following takes effect:
-         * - COP  --> PuOP | PrO | SE:W
-         * - PrOB --> PuOP | PrO | SE:W
+         * - COP  --> SE:W
+         * - PrOB --> SE:W
          * - SE:I --> PuOP | PrO
          *
          * for provider (parent) --> demand (child) direction following takes effect:
@@ -86,14 +89,12 @@ namespace Zpp.Test
                     typeof(CustomerOrderPart),
                     new Type[]
                     {
-                        typeof(PurchaseOrderPart), typeof(ProductionOrder),
                         typeof(StockExchangeProvider)
                     }
                 },
                 {
                     typeof(ProductionOrderBom), new Type[]
                     {
-                        typeof(PurchaseOrderPart), typeof(ProductionOrder),
                         typeof(StockExchangeProvider)
                     }
                 },
@@ -121,7 +122,7 @@ namespace Zpp.Test
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
-            
+
             // verify edgeTypes
             foreach (var customerOrderPart in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll()
             )
@@ -142,22 +143,67 @@ namespace Zpp.Test
             }
         }
 
+        /**
+         * In case of failing (and the orderGraph change is expected by you):
+         * delete corresponding ordergraph_cop_*.txt files ind Folder Test/OrderGraphs
+         */
         [Fact]
         public void TestOrderGraphStaysTheSame()
         {
-            string orderGraphFileName = $"..\\..\\..\\Test\\Ordergraphs\\ordergraph_cop_{ORDER_QUANTITY}_lotsize_{DEFAULT_LOT_SIZE}.txt";
-            
+            string orderGraphFileName =
+                $"../../../Test/Ordergraphs/ordergraph_cop_{ORDER_QUANTITY}_lotsize_{DEFAULT_LOT_SIZE}.txt";
+            string orderGraphFileNameWithIds =
+                $"../../../Test/Ordergraphs/ordergraph_cop_{ORDER_QUANTITY}_lotsize_{DEFAULT_LOT_SIZE}_with_ids.txt";
+
             // build orderGraph up
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
             
-            // for initial creating of the file
-            // File.WriteAllText(orderGraphFileName, orderGraph.ToString(), Encoding.UTF8);
+            // with ids
+            string actualOrderGraphWithIds = orderGraph.ToString();
+            if (File.Exists(orderGraphFileName) == false)
+            {
+                File.WriteAllText(orderGraphFileNameWithIds, actualOrderGraphWithIds,
+                    Encoding.UTF8);
+            }
+
+            // without ids: for initial creating of the file (remove ids so it's comparable)
+            string actualOrderGraph = removeIdsFromOrderGraph(actualOrderGraphWithIds);
+            
+            // create initial file, if it doesn't exists (must be committed then)
+            if (File.Exists(orderGraphFileName) == false)
+            {
+                File.WriteAllText(orderGraphFileName, actualOrderGraph, Encoding.UTF8);
+            }
             
             string expectedOrderGraph = File.ReadAllText(orderGraphFileName, Encoding.UTF8);
-            Assert.True(expectedOrderGraph.Equals(orderGraph.ToString()), "OrderGraph has changed.");
+            string expectedOrderGraphWithIds = File.ReadAllText(orderGraphFileNameWithIds, Encoding.UTF8);
+
+            Assert.True(expectedOrderGraph.Equals(actualOrderGraph), "OrderGraph without ids has changed.");
+            Assert.True(expectedOrderGraphWithIds.Equals(actualOrderGraphWithIds), "OrderGraph with ids has changed.");
+        }
+
+        private string removeIdsFromOrderGraph(string orderGraph)
+        {
+            string[] orderGraphLines = orderGraph.Split("\r\n");
+            List<string> orderGraphWithoutIds = new List<string>();
+            foreach (var orderGraphLine in orderGraphLines)
+            {
+                string newString = "";
+                string[] splitted = orderGraphLine.Split("->");
+                if (splitted.Length == 2)
+                {
+                    newString += "\"" + splitted[0].Substring(7, splitted[0].Length - 7);
+                    newString += " -> ";
+                    newString += "\"" + splitted[1].Substring(8, splitted[1].Length - 8);
+
+                    orderGraphWithoutIds.Add(newString);
+                }
+            }
+
+            return String.Join("\r\n", orderGraphWithoutIds);
         }
     }
 }

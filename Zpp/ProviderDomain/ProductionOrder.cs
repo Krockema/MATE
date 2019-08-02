@@ -38,7 +38,6 @@ namespace Zpp.ProviderDomain
             tProductionOrder.Article = demand.GetArticle();
             tProductionOrder.ArticleId = demand.GetArticle().Id;
             tProductionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
-            // connects this provider with table T_Provider
             tProductionOrder.Quantity = lotSize.GetValue();
 
             ProductionOrder productionOrder =
@@ -97,13 +96,12 @@ namespace Zpp.ProviderDomain
             return articleId;
         }
 
-        public override Demands CreateNeededDemands(M_Article article,
+        public override void CreateNeededDemands(M_Article article,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Provider parentProvider, Quantity quantity)
         {
             _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData, dbMasterDataCache,
                 parentProvider, quantity);
-            return _dependingDemands;
         }
 
         public override string GetGraphizString()

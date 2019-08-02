@@ -27,7 +27,12 @@ namespace Zpp.DemandDomain
 
         public override DueTime GetDueTime( )
         {
-            Id customerOrderId = new Id(((T_CustomerOrderPart) _demand).CustomerOrderId);
+            T_CustomerOrderPart customerOrderPart = ((T_CustomerOrderPart) _demand);
+            if (customerOrderPart.CustomerOrder != null)
+            {
+                return new DueTime(customerOrderPart.CustomerOrder.DueTime);
+            }
+            Id customerOrderId = new Id(customerOrderPart.CustomerOrderId);
             DueTime dueTime = new DueTime(_dbMasterDataCache.T_CustomerOrderGetById(customerOrderId).DueTime);
             return dueTime;
         }

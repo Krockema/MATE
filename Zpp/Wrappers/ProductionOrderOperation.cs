@@ -22,6 +22,7 @@ namespace Zpp
             productionOrderOperation.Name = articleBom.Operation.Name;
             productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
             productionOrderOperation.Duration = articleBom.Operation.Duration;
+            // Tool has no meaning yet, ignore it
             productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
             productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;
             productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;

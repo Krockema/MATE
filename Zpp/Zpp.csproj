@@ -13,6 +13,9 @@
     <None Update="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>    
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />

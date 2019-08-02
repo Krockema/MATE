@@ -11,8 +11,8 @@ namespace Zpp
 {
     public class OrderGraph : IGraph<INode>
     {
-        private readonly Dictionary<INode, List<INode>> _adjacencyList =
-            new Dictionary<INode, List<INode>>();
+        private readonly Dictionary<INode, List<IEdge>> _adjacencyList =
+            new Dictionary<INode, List<IEdge>>();
 
         public OrderGraph(IDbTransactionData dbTransactionData)
         {
@@ -23,8 +23,10 @@ namespace Zpp
                     dbTransactionData.ProvidersGetById(new Id(demandToProvider.ProviderId));
                 Assert.True(demand != null || provider != null,
                     "Demand/Provider should not be null.");
-                AddEdge(new Node(demand, demandToProvider.GetDemandId()),
-                    new Node(provider, demandToProvider.GetProviderId()));
+                INode fromNode = new Node(demand, demandToProvider.GetDemandId());
+                INode toNode = new Node(provider, demandToProvider.GetProviderId());
+                AddEdge(fromNode, new Edge(demandToProvider, fromNode, toNode)
+                );
             }
 
             foreach (var providerToDemand in dbTransactionData.ProviderToDemandGetAll().GetAll())
@@ -34,8 +36,11 @@ namespace Zpp
                     dbTransactionData.ProvidersGetById(new Id(providerToDemand.ProviderId));
                 Assert.True(demand != null || provider != null,
                     "Demand/Provider should not be null.");
-                AddEdge(new Node(provider, providerToDemand.GetProviderId()),
-                    new Node(demand, providerToDemand.GetDemandId()));
+
+                INode fromNode = new Node(provider, providerToDemand.GetProviderId());
+                INode toNode = new Node(demand, providerToDemand.GetDemandId());
+                AddEdge(fromNode, new Edge(providerToDemand.ToDemandToProvider(), fromNode, toNode)
+                );
             }
         }
 
@@ -46,28 +51,28 @@ namespace Zpp
                 return null;
             }
 
-            return _adjacencyList[fromNode];
+            return _adjacencyList[fromNode].Select(x => x.GetToNode()).ToList();
         }
 
-        public void AddEdges(INode fromNode, List<INode> toNodes)
+        public void AddEdges(INode fromNode, List<IEdge> edges)
         {
             if (!_adjacencyList.ContainsKey(fromNode))
             {
-                _adjacencyList.Add(fromNode, toNodes);
+                _adjacencyList.Add(fromNode, edges);
                 return;
             }
 
-            _adjacencyList[fromNode].AddRange(toNodes);
+            _adjacencyList[fromNode].AddRange(edges);
         }
 
-        public void AddEdge(INode fromNode, INode toNode)
+        public void AddEdge(INode fromNode, IEdge edge)
         {
             if (!_adjacencyList.ContainsKey(fromNode))
             {
-                _adjacencyList.Add(fromNode, new List<INode>());
+                _adjacencyList.Add(fromNode, new List<IEdge>());
             }
 
-            _adjacencyList[fromNode].Add(toNode);
+            _adjacencyList[fromNode].Add(edge);
         }
 
         public int CountEdges()
@@ -75,38 +80,23 @@ namespace Zpp
             return GetAllToNodes().Count;
         }
 
-        public List<INode> GetAllNodes()
-        {
-            // TODO: use Set here
-            List<INode> nodes = new List<INode>();
-            nodes.AddRange(_adjacencyList.Keys.ToList());
-            foreach (var nodeList in _adjacencyList.Values.ToList())
-            {
-                foreach (var node in nodeList)
-                {
-                    if (nodes.Contains(node) == false)
-                    {
-                        nodes.Add(node);
-                    }    
-                }
-                
-            }
-
-            return nodes;
-        }
-
         public override string ToString()
         {
             string mystring = "";
             foreach (var fromNode in _adjacencyList.Keys)
             {
-                foreach (var toNode in _adjacencyList[fromNode])
+                foreach (var edge in _adjacencyList[fromNode])
                 {
-                    // TODO: <Type>, <Menge>, <ItemName>
+                    // <Type>, <Menge>, <ItemName> and on edges: <Menge>
+                    Quantity quantity = new Quantity(edge.GetDemandToProvider().Quantity);
                     mystring +=
-                        $"\"{fromNode.GetId()};{fromNode.GetGraphizString()}\" -> " + 
-                        $"\"{toNode.GetId()};{toNode.GetGraphizString()}\";" +
-                        Environment.NewLine;
+                        $"\"{fromNode.GetId()};{fromNode.GetGraphizString()}\" -> " +
+                        $"\"{edge.GetToNode().GetId()};{edge.GetToNode().GetGraphizString()}\"";
+                    if (quantity.IsNull() == false)
+                    {
+                        mystring += $" [ label=\" {quantity}\" ]";    
+                    }
+                    mystring += ";" + Environment.NewLine;
                 }
             }
 
@@ -115,16 +105,19 @@ namespace Zpp
 
         public List<INode> GetAllToNodes()
         {
-           List<INode> toNodes = new List<INode>();
+            List<INode> toNodes = new List<INode>();
 
-           foreach (var nodeList in _adjacencyList.Values.ToList())
-           {
-               toNodes.AddRange(nodeList);
-           }
+            foreach (var edges in _adjacencyList.Values.ToList())
+            {
+                foreach (var edge in edges)
+                {
+                    toNodes.Add(edge.GetToNode());
+                }
+            }
 
-           return toNodes;
+            return toNodes;
         }
-        
+
         // 
         // TODO: Switch this to iterative depth search (with dfs limit default set to max depth of given truck examples)
         ///
@@ -135,7 +128,7 @@ namespace Zpp
         /// <returns>
         ///    The List of the traversed nodes in exact order
         /// </returns>
-        public List<INode> TraverseDepthFirst(Action<INode,List<INode>> action, CustomerOrderPart startNode)
+        public List<INode> TraverseDepthFirst(Action<INode, List<INode>> action, CustomerOrderPart startNode)
         {
             var stack = new Stack<INode>();
 
@@ -144,10 +137,9 @@ namespace Zpp
 
             stack.Push(startNode);
             INode parentNode;
-            
+
             while (stack.Any())
             {
-                
                 INode poppedNode = stack.Pop();
 
                 // init dict if node not yet exists

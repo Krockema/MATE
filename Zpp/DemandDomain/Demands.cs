@@ -32,7 +32,9 @@ namespace Zpp.DemandDomain
             {
                 throw new MrpRunException("Given list should not be null.");
             }
-            _demands = demands;
+            // here is a copy created of given demands
+            _demands = new List<Demand>();
+            _demands.AddRange(demands);
         }
 
         public void Add(Demand demand)

@@ -5,7 +5,6 @@ using Zpp.ProviderDomain;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.DemandToProviderDomain;
 
 namespace Zpp.DemandDomain
 {
@@ -28,18 +27,20 @@ namespace Zpp.DemandDomain
 
         Id GetId();
 
-        IProviders Satisfy(IDemandToProvidersMap demandToProvidersMap,
+        void SatisfyStockExchangeDemand(IProviderManager providerManager,
             IDbTransactionData dbTransactionData);
 
         /**
          * For convenience
          */
-        Provider SatisfyByExistingNonExhaustedProvider(IDemandToProvidersMap demandToProvidersMap,
-            M_Article article);
+        Quantity SatisfyByExistingNonExhaustedProvider(IProviderManager providerManager,
+            Demand demand, Quantity remainingQuantity);
 
-        IProviders SatisfyByStock(Quantity missingQuantity, IDbTransactionData dbTransactionData);
+        Quantity SatisfyByStock(Quantity remainingQuantity, IDbTransactionData dbTransactionData,
+            IProviderManager providerManager, Demand demand);
 
-        IProviders SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity quantity);
+        Quantity SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity remainingQuantity,
+            IProviderManager providerManager, Demand demand);
 
     }
 }

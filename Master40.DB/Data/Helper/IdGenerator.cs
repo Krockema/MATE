@@ -1,3 +1,6 @@
+using System;
+using Master40.DB.Data.WrappersForPrimitives;
+
 namespace Master40.DB.Data.Helper
 {
     public class IdGenerator
@@ -12,6 +15,11 @@ namespace Master40.DB.Data.Helper
                 _currentId++;
                 return _currentId;
             }
+        }
+
+        public static Id GetRandomId(int minValue, int maxValue)
+        {
+            return new Id(new Random().Next(minValue, maxValue));
         }
     }
 }

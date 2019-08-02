@@ -18,6 +18,7 @@ namespace Zpp.ProviderDomain
     {
         protected Demands _dependingDemands;
         protected readonly IProvider _provider;
+        protected readonly DemandToProviderTable _demandToProviderTable = new DemandToProviderTable();
         protected readonly IDbMasterDataCache _dbMasterDataCache;
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -77,7 +78,7 @@ namespace Zpp.ProviderDomain
             return GetQuantity().IsGreaterThanOrEqualTo(quantity);
         }
 
-        public abstract Demands CreateNeededDemands(M_Article article,
+        public abstract void CreateNeededDemands(M_Article article,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Provider parentProvider, Quantity quantity);
         

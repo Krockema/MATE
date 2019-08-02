@@ -22,5 +22,13 @@ namespace Master40.DB.DataModel
         {
             return new Id(DemandId);
         }
+
+        public T_DemandToProvider ToDemandToProvider()
+        {
+            T_DemandToProvider demandToProvider = new T_DemandToProvider();
+            demandToProvider.DemandId = DemandId;
+            demandToProvider.ProviderId = ProviderId;
+            return demandToProvider;
+        }
     }
 }

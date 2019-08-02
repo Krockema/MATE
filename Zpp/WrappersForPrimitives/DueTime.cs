@@ -21,5 +21,16 @@ namespace Zpp.WrappersForPrimitives
             return _dueTime.CompareTo(that.GetValue());
 
         }
+
+        public override bool Equals(object obj)
+        {
+            DueTime otherDueTime = (DueTime) obj;
+            return _dueTime.Equals(otherDueTime._dueTime);
+        }
+
+        public override int GetHashCode()
+        {
+            return _dueTime.GetHashCode();
+        }
     }
 }

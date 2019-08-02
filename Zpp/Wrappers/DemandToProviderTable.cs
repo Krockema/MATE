@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DemandDomain;
-using Zpp.DemandToProviderDomain;
 using Zpp.ProviderDomain;
-using Zpp.Utils;
 
 namespace Zpp
 {
@@ -25,47 +25,36 @@ namespace Zpp
         {
         }
 
-        public DemandToProviderTable(IDemandToProvidersMap demandToProvidersMap)
-        {
-            _demandToProviderEntities.AddRange(demandToProvidersMap.ToT_DemandToProvider());
-        }
-
         public List<T_DemandToProvider> GetAll()
         {
             return _demandToProviderEntities;
         }
 
-        public void AddAll(IDemandToProvidersMap demandToProvidersMap)
+        public void AddAll(IDemandToProviderTable demandToProviderTable)
         {
-            _demandToProviderEntities.AddRange(demandToProvidersMap.ToT_DemandToProvider());
-        }
-
-        public IDemandToProvidersMap ToDemandToProvidersMap(IDbTransactionData dbTransactionData)
-        {
-            IDemandToProvidersMap demandToProvidersMap = new DemandToProvidersMap();
-
-            foreach (var demandToProviderEntity in _demandToProviderEntities)
-            {
-                Demand demand =
-                    dbTransactionData.DemandsGetById(demandToProviderEntity.GetDemandId());
-                Provider provider =
-                    dbTransactionData.ProvidersGetById(demandToProviderEntity.GetProviderId());
-                if (demand == null || provider == null)
-                {
-                    throw new MrpRunException(
-                        $"Could not find demand ({demand}) or provider ({provider}) of demandToProvider" +
-                        $"({demandToProviderEntity.GetDemandId()}->{demandToProviderEntity.GetProviderId()}).");
-                }
-
-                demandToProvidersMap.AddProviderForDemand(demand, provider);
-            }
-
-            return demandToProvidersMap;
+            _demandToProviderEntities.AddRange(demandToProviderTable.GetAll());
         }
 
         public int Count()
         {
             return _demandToProviderEntities.Count;
+        }
+
+        public void Add(T_DemandToProvider demandToProvider)
+        {
+            _demandToProviderEntities.Add(demandToProvider);
+        }
+
+        public bool Contains(Demand demand)
+        {
+            return _demandToProviderEntities.Select(x => x.DemandId).ToList()
+                .Contains(demand.GetId().GetValue());
+        }
+
+        public bool Contains(Provider provider)
+        {
+            return _demandToProviderEntities.Select(x => x.ProviderId).ToList()
+                .Contains(provider.GetId().GetValue());
         }
     }
 }

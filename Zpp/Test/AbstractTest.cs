@@ -27,7 +27,24 @@ namespace Zpp.Test
                 {
                     LOGGER.Error("Database could not be deleted.");    
                 }
-                MasterDBInitializerSmall.DbInitialize(ProductionDomainContext);
+                // MasterDBInitializerSmall.DbInitialize(ProductionDomainContext);
+                MasterDBInitializerLarge.DbInitialize(ProductionDomainContext);
+            }
+        }
+
+        public AbstractTest(Action<ProductionDomainContext> dbInitializer)
+        {
+            ProductionDomainContext = Dbms.getDbContext();
+
+            if (resetDb)
+            {
+                bool isDeleted = ProductionDomainContext.Database.EnsureDeleted();
+                if (!isDeleted)
+                {
+                    LOGGER.Error("Database could not be deleted.");    
+                }
+
+                dbInitializer(ProductionDomainContext);
             }
         }
 

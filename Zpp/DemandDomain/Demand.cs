@@ -4,7 +4,6 @@ using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.DemandToProviderDomain;
 
 namespace Zpp.DemandDomain
 {
@@ -28,38 +27,36 @@ namespace Zpp.DemandDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public IProviders SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity quantity)
+        public Quantity SatisfyByOrders(IDbTransactionData dbTransactionData,
+            Quantity demandedQuantity, IProviderManager providerManager, Demand demand)
         {
             Logger.Debug($"Satisfy by order for article {this}:");
-            
-            M_Article article = GetArticle();
-            IProviders providers = new Providers();
+            Quantity remainingQuantity = new Quantity(demandedQuantity);
 
             // make or buy
-            if (article.ToBuild)
+            if (demand.GetArticle().ToBuild)
             {
-                LotSize.LotSize lotSizes = new LotSize.LotSize(quantity, GetArticleId());
+                LotSize.LotSize lotSizes = new LotSize.LotSize(demandedQuantity, GetArticleId());
                 foreach (var lotSize in lotSizes.GetCalculatedQuantity())
                 {
                     ProductionOrder productionOrder =
                         ProductionOrder.CreateProductionOrder(this, dbTransactionData,
                             _dbMasterDataCache, lotSize);
                     Logger.Debug("ProductionOrder created.");
-                    providers.Add(productionOrder);
+                     remainingQuantity = providerManager.AddProvider(this,
+                        productionOrder);
                 }
 
-                return providers;
+                return remainingQuantity;
             }
 
             // TODO: revisit all methods that have this as parameter
             // TODO: here is no lotSize used !
-            PurchaseOrderPart purchaseOrderPart =
-                (PurchaseOrderPart) PurchaseOrderPart.CreatePurchaseOrderPart(GetId(), GetArticle(),
-                    GetDueTime(), quantity, _dbMasterDataCache);
+            remainingQuantity = PurchaseOrderPart.CreatePurchaseOrderPart(this, GetArticle(),
+                GetDueTime(), demandedQuantity, _dbMasterDataCache, providerManager);
             Logger.Debug("PurchaseOrderPart created.");
-            providers.Add(purchaseOrderPart);
 
-            return providers;
+            return remainingQuantity;
         }
 
 
@@ -109,88 +106,54 @@ namespace Zpp.DemandDomain
 
         public Id GetArticleId()
         {
-            return new Id(GetArticle().Id);
+            return GetArticle().GetId();
         }
 
-        public IProviders Satisfy(IDemandToProvidersMap demandToProvidersMap,
-            IDbTransactionData dbTransactionData)
+        public void SatisfyStockExchangeDemand(IProviderManager providerManager, IDbTransactionData dbTransactionData)
         {
-            IProviders finalProviders = new Providers();
             Quantity remainingQuantity = GetQuantity();
 
             // satisfy by existing provider
-            Provider providersByExisting =
-                SatisfyByExistingNonExhaustedProvider(demandToProvidersMap, GetArticle());
-            if (providersByExisting != null)
+            remainingQuantity = SatisfyByExistingNonExhaustedProvider(providerManager, this, remainingQuantity);
+            if (remainingQuantity.IsNull())
             {
-                finalProviders.Add(providersByExisting);
-                if (finalProviders.IsSatisfied(remainingQuantity, GetArticleId()))
-                {
-                    return finalProviders;
-                }
-                remainingQuantity =
-                    finalProviders.GetMissingQuantity(remainingQuantity, GetArticleId());
+                return;
             }
 
-            // satisfy by stock only if it's NOT a StockExchangeDemand with ExchangeType Insert
-            if (GetType() != typeof(StockExchangeDemand) ||
-                ((StockExchangeDemand) this).IsTypeOfInsert() == false)
-            {
-                IProviders providersByStock = SatisfyByStock(remainingQuantity, dbTransactionData);
-                finalProviders.AddAll(providersByStock);
-            
-                if (finalProviders.IsSatisfied(remainingQuantity, GetArticleId()))
-                {
-                    return finalProviders;
-                }
-                remainingQuantity =
-                    finalProviders.GetMissingQuantity(remainingQuantity, GetArticleId());
-            }
-            
-            
             // satisfy by order
-            IProviders createdProviders = SatisfyByOrders(dbTransactionData, remainingQuantity);
-            finalProviders.AddAll(createdProviders);
-            // increase stock
-            _dbMasterDataCache.M_StockGetByArticleId(GetArticleId()).Current +=
-                createdProviders.GetProvidedQuantity(GetArticleId()).GetValue();
-
-            remainingQuantity =
-                finalProviders.GetMissingQuantity(remainingQuantity, GetArticleId());
+            Quantity quantityBeforeOrder = new Quantity(remainingQuantity);
+            remainingQuantity = SatisfyByOrders(dbTransactionData, remainingQuantity,
+                providerManager, this);
 
             if (remainingQuantity.IsGreaterThan(Quantity.Null()))
             {
                 throw new MrpRunException($"The demand({this}) was NOT satisfied.");
             }
-            
-            return finalProviders;
+
+            // increase stock
+            _dbMasterDataCache.M_StockGetByArticleId(GetArticleId()).Current +=
+                quantityBeforeOrder.Minus(remainingQuantity).GetValue();
         }
 
-        public Provider SatisfyByExistingNonExhaustedProvider(IDemandToProvidersMap demandToProvidersMap,
-            M_Article article)
+        public Quantity SatisfyByExistingNonExhaustedProvider(IProviderManager providerManager,
+            Demand demand, Quantity remainingQuantity)
         {
-            return demandToProvidersMap.FindNonExhaustedProvider(article);
+            return providerManager.ReserveQuantityOfExistingProvider(demand.GetId(), demand.GetArticle(),
+                remainingQuantity);
         }
 
-        public IProviders SatisfyByStock(Quantity missingQuantity,
-            IDbTransactionData dbTransactionData)
+        public Quantity SatisfyByStock(Quantity missingQuantity,
+            IDbTransactionData dbTransactionData, IProviderManager providerManager, Demand demand)
         {
-            IProviders finalProviders = new Providers();
-
             // satisfy by stock
-            Provider stockExchangeProvider = StockExchangeProvider.CreateStockProvider(GetArticle(), GetDueTime(),
-                missingQuantity, _dbMasterDataCache, dbTransactionData);
+            Provider stockExchangeProvider = StockExchangeProvider.CreateStockExchangeProvider(GetArticle(),
+                GetDueTime(), missingQuantity, _dbMasterDataCache, dbTransactionData);
             if (stockExchangeProvider != null)
             {
-                finalProviders.Add(stockExchangeProvider);
-                missingQuantity = finalProviders.GetMissingQuantity(missingQuantity, GetArticleId());
-                if (missingQuantity.IsNull())
-                {
-                    return finalProviders;
-                }
+                return providerManager.AddProvider(demand, stockExchangeProvider);
             }
 
-            return finalProviders;
+            return missingQuantity;
         }
 
         public NodeType GetNodeType()
@@ -204,6 +167,5 @@ namespace Zpp.DemandDomain
         }
 
         public abstract string GetGraphizString();
-
     }
 }

@@ -5,8 +5,6 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp;
 using Zpp.DemandDomain;
-using Zpp.DemandToProviderDomain;
-using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -35,8 +33,6 @@ namespace Zpp.ProviderDomain
 
         bool AnyDependingDemands();
 
-        IProviderToDemandsMap GetAllDependingDemandsAsMap();
-
         bool IsSatisfied(Quantity demandedQuantity, Id articleId);
         
         IDemands CalculateUnsatisfiedDemands(IDemands demands);
@@ -45,5 +41,9 @@ namespace Zpp.ProviderDomain
 
         // TODO: performance: use it less and cache it
         Quantity GetProvidedQuantity(Id articleId);
+
+        Provider GetProviderById(Id id);
+
+        List<Provider> GetAllByArticleId(Id id);
     }
 }

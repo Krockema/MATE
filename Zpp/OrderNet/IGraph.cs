@@ -17,9 +17,9 @@ namespace Zpp
          */
         List<TNode> GetChildNodes(TNode fromNode);
 
-        void AddEdges(TNode fromNode, List<TNode> toNodes);
+        void AddEdges(TNode fromNode, List<IEdge> edges);
         
-        void AddEdge(TNode fromNode, TNode toNode);
+        void AddEdge(TNode fromNode, IEdge edge);
 
         int CountEdges();
 

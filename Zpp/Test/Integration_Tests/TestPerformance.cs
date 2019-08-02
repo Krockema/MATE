@@ -9,7 +9,7 @@ namespace Zpp.Test
     public class TestPerformance : AbstractTest
     {
         private const int ORDER_QUANTITY = 6;
-        private const int MAX_TIME_FOR_MRP_RUN = 60;
+        private const int MAX_TIME_FOR_MRP_RUN = 90;
         private const int DEFAULT_LOT_SIZE = 2;
 
         public TestPerformance()
@@ -27,9 +27,10 @@ namespace Zpp.Test
             MrpRun.RunMrp(ProductionDomainContext);
 
             DateTime endTime = DateTime.UtcNow;
-            Assert.True((endTime - startTime).TotalMilliseconds / 1000 < MAX_TIME_FOR_MRP_RUN,
+            double neededTime = (endTime - startTime).TotalMilliseconds / 1000;
+            Assert.True( neededTime < MAX_TIME_FOR_MRP_RUN,
                 $"MrpRun for example use case ({ORDER_QUANTITY} customerOrder) " +
-                $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds");
+                $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds: {neededTime}");
         }
     }
 }

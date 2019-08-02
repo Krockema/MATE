@@ -4,9 +4,6 @@ using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Interfaces;
-using Zpp;
-using Zpp.DemandToProviderDomain;
 
 namespace Zpp
 {
@@ -29,7 +26,7 @@ namespace Zpp
         /// 
         /// </summary>
         /// <param name="demandToProvidersMap">is used to generate T_Demand and T_Provider tables</param>
-        void PersistDbCache(IDemandToProvidersMap demandToProvidersMap);
+        void PersistDbCache(IProviderManager providerManager);
 
         void DemandsAdd(Demand demand);
         
@@ -52,10 +49,6 @@ namespace Zpp
 
         IDemands DemandsGetAll();
 
-        void DemandToProviderAddAll(IDemandToProvidersMap demandToProvidersMap);
-        
-        void ProviderToDemandAddAll(IProviderToDemandsMap providerToDemands);
-
         IProviderToDemandTable ProviderToDemandGetAll();
         
         IDemandToProviderTable DemandToProviderGetAll();
@@ -63,6 +56,8 @@ namespace Zpp
         Demand DemandsGetById(Id id);
         
         Provider ProvidersGetById(Id id);
-        
+
+        IProviderManager GetProviderManager();
+
     }
 }

@@ -7,8 +7,6 @@ using Master40.DB.DataModel;
 using Zpp;
 using Zpp.Utils;
 using Zpp.DemandDomain;
-using Zpp.DemandToProviderDomain;
-using Zpp.WrappersForPrimitives;
 
 namespace Zpp.ProviderDomain
 {
@@ -146,18 +144,6 @@ namespace Zpp.ProviderDomain
             return missingQuantity;
         }
 
-        public IProviderToDemandsMap GetAllDependingDemandsAsMap()
-        {
-            IProviderToDemandsMap providerToDemandsMap = new ProviderToDemandsMap();
-            foreach (var provider in _providers)
-            {
-                providerToDemandsMap.AddDemandsForProvider(provider,
-                    provider.GetAllDependingDemands());
-            }
-
-            return providerToDemandsMap;
-        }
-
         public IDemands CalculateUnsatisfiedDemands(IDemands demands)
         {
             List<Demand> unSatisfiedDemands = new List<Demand>();
@@ -197,6 +183,40 @@ namespace Zpp.ProviderDomain
             }
             
             return new Demands(unSatisfiedDemands);
+        }
+
+        public Provider GetProviderById(Id id)
+        {
+            // performance: cache this in a dictionary
+            foreach (var provider in _providers)
+            {
+                if (provider.GetId().Equals(id))
+                {
+                    return provider;
+                }
+            }
+
+            return null;
+        }
+
+        public List<Provider> GetAllByArticleId(Id id)
+        {
+            List<Provider> providers = new List<Provider>();
+            // performance: cache this in a dictionary
+            foreach (var provider in _providers)
+            {
+                if (provider.GetArticleId().Equals(id))
+                {
+                    providers.Add(provider);
+                }
+            }
+
+            if (providers.Any() == false)
+            {
+                return null;
+            }
+
+            return providers;
         }
     }
 }

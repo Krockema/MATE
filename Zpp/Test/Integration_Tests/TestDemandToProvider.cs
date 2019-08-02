@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
 using Xunit;
 using Zpp.DemandDomain;
-using Zpp.DemandToProviderDomain;
 using Zpp.ProviderDomain;
 
 namespace Zpp.Test
@@ -35,16 +31,14 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
             // TODO: let T_Demand, T_Provider have an own Id and a foreign as reference
-
-            IDemandToProvidersMap demandToProvidersMap = dbTransactionData.DemandToProviderGetAll()
-                .ToDemandToProvidersMap(dbTransactionData);
+            
             IDemands allDbDemands = dbTransactionData.DemandsGetAll();
-            Demands demandsInDemandToProviderTable = demandToProvidersMap.GetDemands();
+            IDemandToProviderTable demandToProviderTable = dbTransactionData.GetProviderManager().GetDemandToProviderTable();
 
             foreach (var demand in allDbDemands.GetAll())
             {
                 bool isInDemandToProviderTable =
-                    demandsInDemandToProviderTable.GetAll().Contains(demand);
+                    demandToProviderTable.Contains(demand);
                 Assert.True(isInDemandToProviderTable,
                     $"Demand {demand} is NOT in demandToProviderTable.");
             }
@@ -79,13 +73,11 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-
-            IDemandToProvidersMap demandToProvidersMap = dbTransactionData.DemandToProviderGetAll()
-                .ToDemandToProvidersMap(dbTransactionData);
+            
             IDemands allDbDemands = dbTransactionData.DemandsGetAll();
             foreach (var demand in allDbDemands.GetAll())
             {
-                bool isSatisfied = demandToProvidersMap.IsSatisfied(demand);
+                bool isSatisfied = dbTransactionData.GetProviderManager().IsSatisfied(demand);
                 Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
             }
         }

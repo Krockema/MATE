@@ -12,7 +12,6 @@ using Master40.DB.Interfaces;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using Zpp;
-using Zpp.DemandToProviderDomain;
 using Zpp.Utils;
 
 namespace Zpp
@@ -33,11 +32,7 @@ namespace Zpp
         private readonly List<M_BusinessPartner> _businessPartners;
 
         // T_*
-        private readonly IDemandToProviderTable
-            _demandToProviderTable = new DemandToProviderTable();
-
-        private readonly IProviderToDemandTable
-            _providerToDemandTable = new ProviderToDemandTable();
+        private IProviderManager _providerManager;
 
         // demands
         private readonly ProductionOrderBoms _productionOrderBoms;
@@ -89,11 +84,16 @@ namespace Zpp
                 new PurchaseOrderParts(_productionDomainContext.PurchaseOrderParts.ToList(),
                     _dbMasterDataCache);
 
-            _demandToProviderTable =
+            IDemandToProviderTable demandToProviderTable =
                 new DemandToProviderTable(_productionDomainContext.DemandToProviders.ToList());
-            _providerToDemandTable =
+            IProviderToDemandTable providerToDemandTable =
                 new ProviderToDemandTable(_productionDomainContext.ProviderToDemand.ToList());
-            
+
+            IProviders providers = new Providers();
+            providers.AddAll(_purchaseOrderParts);
+            providers.AddAll(_productionOrders);
+            providers.AddAll(_stockExchangeProviders);
+            _providerManager = new ProviderManager(demandToProviderTable, providerToDemandTable, providers);
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -117,8 +117,10 @@ namespace Zpp
                 .DemandToProviders);
         }
 
-        public void PersistDbCache(IDemandToProvidersMap demandToProvidersMap)
+        public void PersistDbCache(IProviderManager providerManager)
         {
+            _providerManager = providerManager;
+            
             // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
             // TODO: SaveChanges at the end only once
 
@@ -155,15 +157,16 @@ namespace Zpp
             InsertOrUpdateRange(tProductionOrderOperations,
                 _productionDomainContext.ProductionOrderOperations);
             InsertOrUpdateRange(tStockExchangeDemands, _productionDomainContext.StockExchanges);
+            // providers
             InsertOrUpdateRange(tStockExchangesProviders, _productionDomainContext.StockExchanges);
             InsertOrUpdateRange(tProductionOrders, _productionDomainContext.ProductionOrders);
             InsertOrUpdateRange(tPurchaseOrderParts, _productionDomainContext.PurchaseOrderParts);
             InsertOrUpdateRange(tPurchaseOrders, _productionDomainContext.PurchaseOrders);
 
             // at the end: T_DemandToProvider & T_ProviderToDemand
-            InsertOrUpdateRange(_demandToProviderTable.GetAll(),
+            InsertOrUpdateRange(_providerManager.GetDemandToProviderTable().GetAll(),
                 _productionDomainContext.DemandToProviders);
-            InsertOrUpdateRange(_providerToDemandTable.GetAll(),
+            InsertOrUpdateRange(_providerManager.GetProviderToDemandTable().GetAll(),
                 _productionDomainContext.ProviderToDemand);
 
             try
@@ -184,15 +187,15 @@ namespace Zpp
             {
                 throw new MrpRunException("Collection to persist is empty.");
             }
+
             // dbSet.AddRange(entities);
             foreach (var entity in entities)
             {
                 // e.g. if it is a PrBom which is toPurchase
                 if (entity != null)
                 {
-                    InsertOrUpdate(entity, dbSet);    
+                    InsertOrUpdate(entity, dbSet);
                 }
-                
             }
         }
 
@@ -341,14 +344,9 @@ namespace Zpp
             }
         }
 
-        public void DemandToProviderAddAll(IDemandToProvidersMap demandToProvidersMap)
-        {
-            _demandToProviderTable.AddAll(demandToProvidersMap);
-        }
-
         public IDemandToProviderTable DemandToProviderGetAll()
         {
-            return _demandToProviderTable;
+            return _providerManager.GetDemandToProviderTable();
         }
 
         public Demand DemandsGetById(Id id)
@@ -361,14 +359,14 @@ namespace Zpp
             return ProvidersGetAll().GetAll().Find(x => x.GetId().Equals(id));
         }
 
-        public void ProviderToDemandAddAll(IProviderToDemandsMap providerToDemands)
-        {
-            _providerToDemandTable.AddAll(providerToDemands);
-        }
-
         public IProviderToDemandTable ProviderToDemandGetAll()
         {
-            return _providerToDemandTable;
+            return _providerManager.GetProviderToDemandTable();
+        }
+
+        public IProviderManager GetProviderManager()
+        {
+            return _providerManager;
         }
     }
 }

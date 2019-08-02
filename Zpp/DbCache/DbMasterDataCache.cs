@@ -200,5 +200,10 @@ namespace Zpp
         {
             return _articleBoms.GetAll().Where(x => x.ArticleParentId == null).ToList();
         }
+
+        public List<M_Article> M_ArticleGetAll()
+        {
+            return _articles.GetAll();
+        }
     }
 }

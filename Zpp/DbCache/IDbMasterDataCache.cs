@@ -16,6 +16,8 @@ namespace Zpp
     public interface IDbMasterDataCache
     {
         M_Article M_ArticleGetById(Id id);
+        
+        List<M_Article> M_ArticleGetAll();
 
         M_ArticleBom M_ArticleBomGetById(Id id);
 

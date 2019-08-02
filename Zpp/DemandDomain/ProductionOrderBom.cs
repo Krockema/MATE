@@ -34,7 +34,7 @@ namespace Zpp.DemandDomain
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent = (T_ProductionOrder) parentProductionOrder.ToIProvider();
             productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
-            // bom is toPurchase
+            // bom is toPurchase if it's null
             if (articleBom.Operation != null)
             {
                 productionOrderBom.ProductionOrderOperation =
