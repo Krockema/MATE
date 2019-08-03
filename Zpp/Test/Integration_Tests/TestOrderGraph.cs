@@ -183,19 +183,26 @@ namespace Zpp.Test
             string expectedOrderGraphWithIds =
                 File.ReadAllText(orderGraphFileNameWithIds, Encoding.UTF8);
 
+            bool orderGraphHasNotChanged = expectedOrderGraph.Equals(actualOrderGraph);
+            bool orderGraphWithIdsHasNotChanged =
+                expectedOrderGraphWithIds.Equals(actualOrderGraphWithIds);
+            // for debugging: write the changed graphs to files
+            if (orderGraphWithIdsHasNotChanged == false)
+            {
+                File.WriteAllText(orderGraphFileName, actualOrderGraph, Encoding.UTF8);
+            }
+
+            if (orderGraphWithIdsHasNotChanged == false)
+            {
+                File.WriteAllText(orderGraphFileNameWithIds, actualOrderGraphWithIds,
+                    Encoding.UTF8);
+            }
+
             // asserts Fail always when executing with 'dotnet test' -->
             // TODO: why? write orderGraphs to file if changed and analyze
-            if (Constants.IsWindows)
-            {
-                Assert.True(expectedOrderGraph.Equals(actualOrderGraph),
-                    "OrderGraph without ids has changed.");
-                Assert.True(expectedOrderGraphWithIds.Equals(actualOrderGraphWithIds),
-                    "OrderGraph with ids has changed.");
-            }
-            else
-            {
-                Assert.True(true);
-            }
+            
+            Assert.True(orderGraphHasNotChanged, "OrderGraph has changed.");
+            // Assert.True(orderGraphWithIdsHasNotChanged,"OrderGraph with ids has changed.");
         }
 
         private string removeIdsFromOrderGraph(string orderGraph)
