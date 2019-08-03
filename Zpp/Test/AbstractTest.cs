@@ -27,7 +27,7 @@ namespace Zpp.Test
         public AbstractTest() : this(TestConfigurationFileNames.DUMP_TRUCK_COP_6_LOTSIZE_2)
         {
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, TestConfiguration.Quantity);
+                ContextTest.TestConfiguration(), 1, true, TestConfiguration.CustomerOrderPartQuantity);
             LotSize.LotSize.SetDefaultLotSize(new Quantity(TestConfiguration.LotSize));
         }
 

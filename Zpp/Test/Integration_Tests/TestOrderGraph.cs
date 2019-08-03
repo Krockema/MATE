@@ -24,7 +24,7 @@ namespace Zpp.Test
         public TestOrderGraph(): base(TestConfigurationFileNames.TISCH_COP_1_LOTSIZE_1) // : base(MasterDBInitializerMedium.DbInitialize)
         {
             MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,
-                TestConfiguration.Quantity);
+                TestConfiguration.CustomerOrderPartQuantity);
 
             MrpRun.RunMrp(ProductionDomainContext);
         }
