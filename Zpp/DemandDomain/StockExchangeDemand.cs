@@ -75,7 +75,7 @@ namespace Zpp.DemandDomain
         {
             // Demand(CustomerOrder);20;Truck
             string exchangeType = Constants.EnumToString(((T_StockExchange)_demand).ExchangeType, typeof(ExchangeType));
-            string graphizString = $"D(SE:{exchangeType[0]});{GetQuantity()};{GetArticle().Name}";
+            string graphizString = $"D(SE:{exchangeType[0]});{base.GetGraphizString()}";
             return graphizString;
         }
 

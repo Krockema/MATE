@@ -126,6 +126,9 @@ namespace Zpp.ProviderDomain
             return this;
         }
 
-        public abstract string GetGraphizString();
+        public virtual string GetGraphizString()
+        {
+            return $"{GetQuantity()};{GetArticle().Name};{GetDueTime()}";
+        }
     }
 }

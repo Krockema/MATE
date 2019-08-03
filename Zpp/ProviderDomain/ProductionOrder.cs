@@ -107,7 +107,7 @@ namespace Zpp.ProviderDomain
         public override string GetGraphizString()
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"P(PrO);{GetQuantity()};{GetArticle().Name}";
+            string graphizString = $"P(PrO);{base.GetGraphizString()}";
             return graphizString;
         }
     }

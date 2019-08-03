@@ -40,7 +40,7 @@ namespace Zpp.DemandDomain
         public override string GetGraphizString()
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"D(COP);{GetQuantity()};{GetArticle().Name}";
+            string graphizString = $"D(COP);{base.GetGraphizString()}";
             return graphizString;
         }
     }
