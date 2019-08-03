@@ -16,10 +16,8 @@ namespace Zpp.Test
         }
         
         [Fact]
-        public void TestPurchaseQuantityIsAVielfachesOfPacksize()
+        public void TestPurchaseQuantityIsAMultipleOfPackSize()
         {
-            // TODO: Vielfaches in method name and assert
-
             MrpRun.RunMrp(ProductionDomainContext);
 
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
@@ -44,7 +42,7 @@ namespace Zpp.Test
                 Quantity expectedPurchaseQuantity = new Quantity(multiplier.GetValue() *
                                                                  articleToBusinessPartner.PackSize);
                 Assert.True(tPurchaseOrderPart.GetQuantity().Equals(expectedPurchaseQuantity),
-                    $"Quantity of PurchaseOrderPart ({tPurchaseOrderPart}) ist not a Vielfaches of packSize.");
+                    $"Quantity of PurchaseOrderPart ({tPurchaseOrderPart}) ist not a multiple of packSize.");
             }
         }
         

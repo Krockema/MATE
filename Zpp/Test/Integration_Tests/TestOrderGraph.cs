@@ -21,7 +21,7 @@ namespace Zpp.Test
     {
 
 
-        public TestOrderGraph(): base(TestConfigurationFileNames.TISCH_COP_1_LOTSIZE_1) // : base(MasterDBInitializerMedium.DbInitialize)
+        public TestOrderGraph(): base(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1) // : base(MasterDBInitializerMedium.DbInitialize)
         {
             MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,
                 TestConfiguration.CustomerOrderPartQuantity);
