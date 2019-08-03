@@ -24,7 +24,7 @@ namespace Zpp.DemandDomain
             return _dbMasterDataCache.M_ArticleGetById(articleId);
         }
 
-        public override DueTime GetDueTime( )
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
         {
             T_CustomerOrderPart customerOrderPart = ((T_CustomerOrderPart) _demand);
             if (customerOrderPart.CustomerOrder != null)
@@ -36,10 +36,10 @@ namespace Zpp.DemandDomain
             return dueTime;
         }
 
-        public override string GetGraphizString()
+        public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"D(COP);{base.GetGraphizString()}";
+            string graphizString = $"D(COP);{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
         }
     }

@@ -30,7 +30,7 @@ namespace Zpp.DemandDomain
             return _dbMasterDataCache.M_ArticleGetById(articleId);
         }
 
-        public override DueTime GetDueTime( )
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
         {
             DueTime dueTime = new DueTime(((T_StockExchange) _demand).RequiredOnTime);
             return dueTime;
@@ -71,11 +71,11 @@ namespace Zpp.DemandDomain
             return stockExchangeDemand;
         }
 
-        public override string GetGraphizString()
+        public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
             string exchangeType = Constants.EnumToString(((T_StockExchange)_demand).ExchangeType, typeof(ExchangeType));
-            string graphizString = $"D(SE:{exchangeType[0]});{base.GetGraphizString()}";
+            string graphizString = $"D(SE:{exchangeType[0]});{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
         }
 

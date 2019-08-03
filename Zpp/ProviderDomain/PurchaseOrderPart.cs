@@ -38,18 +38,19 @@ namespace Zpp.ProviderDomain
             throw new System.NotImplementedException();
         }
 
-        public static Quantity CreatePurchaseOrderPart(Demand demand, M_Article article, DueTime dueTime, Quantity lotSize,
-            IDbMasterDataCache dbMasterDataCache, IProviderManager providerManager)
+        public static Quantity CreatePurchaseOrderPart(Demand demand, M_Article article,
+            DueTime dueTime, Quantity lotSize, IDbMasterDataCache dbMasterDataCache,
+            IProviderManager providerManager)
         {
             if (article.ToBuild)
             {
-                throw new MrpRunException("You try to create a purchaseOrderPart for a articleToBuild.");
+                throw new MrpRunException(
+                    "You try to create a purchaseOrderPart for a articleToBuild.");
             }
-            
+
             // currently only one businessPartner per article TODO: This could be changing
             M_ArticleToBusinessPartner articleToBusinessPartner =
-                dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(article.GetId())
-                    [0];
+                dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(article.GetId())[0];
             M_BusinessPartner businessPartner =
                 dbMasterDataCache.M_BusinessPartnerGetById(new Id(articleToBusinessPartner
                     .BusinessPartnerId));
@@ -77,29 +78,42 @@ namespace Zpp.ProviderDomain
             tPurchaseOrderPart.Article = article;
             tPurchaseOrderPart.ArticleId = article.Id;
             tPurchaseOrderPart.Quantity =
-                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner,
-                    lotSize) *
+                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner, lotSize) *
                 articleToBusinessPartner
                     .PackSize; // TODO: is amount*packSize in var quantity correct?
             if (tPurchaseOrderPart.Quantity < lotSize.GetValue())
             {
                 throw new MrpRunException("You cannot purchase less than you need!");
             }
-            
+
             tPurchaseOrderPart.State = State.Created;
 
             Logger.Debug("PurchaseOrderPart created.");
-            PurchaseOrderPart purchaseOrderPart = new PurchaseOrderPart(tPurchaseOrderPart, null, dbMasterDataCache);
+            PurchaseOrderPart purchaseOrderPart =
+                new PurchaseOrderPart(tPurchaseOrderPart, null, dbMasterDataCache);
             Quantity remainingQuantity = providerManager.AddProvider(demand, purchaseOrderPart);
-            
+
             return remainingQuantity;
         }
 
-        public override string GetGraphizString()
+        public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"P(PuOP);{base.GetGraphizString()}";
+            string graphizString = $"P(PuOP);{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
+        }
+
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
+        {
+            T_PurchaseOrderPart purchaseOrderPart = ((T_PurchaseOrderPart) _provider);
+            if (purchaseOrderPart.PurchaseOrder == null)
+            {
+                purchaseOrderPart.PurchaseOrder =
+                    dbTransactionData.PurchaseOrderGetById(
+                        new Id(purchaseOrderPart.PurchaseOrderId));
+            }
+
+            return new DueTime(purchaseOrderPart.PurchaseOrder.DueTime);
         }
     }
 }

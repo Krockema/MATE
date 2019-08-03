@@ -44,7 +44,7 @@ namespace Zpp.ProviderDomain
 
             _dependingDemands = new Demands();
             Demand stockExchangeDemand =
-                StockExchangeDemand.CreateStockExchangeStockDemand(article, GetDueTime(), quantity,
+                StockExchangeDemand.CreateStockExchangeStockDemand(article, GetDueTime(dbTransactionData), quantity,
                     _dbMasterDataCache);
             if (stockExchangeDemand.GetQuantity().IsSmallerThan(quantity))
             {
@@ -110,13 +110,19 @@ namespace Zpp.ProviderDomain
             return stockExchangeProvider;
         }
 
-        public override string GetGraphizString()
+        public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
             string exchangeType =
                 Constants.EnumToString(((T_StockExchange) _provider).ExchangeType, typeof(ExchangeType));
-            string graphizString = $"P(SE:{exchangeType[0]});{base.GetGraphizString()}";
+            string graphizString = $"P(SE:{exchangeType[0]});{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
+        }
+
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
+        {
+            T_StockExchange stockExchange = (T_StockExchange) _provider;
+            return new DueTime(stockExchange.RequiredOnTime);
         }
     }
 }

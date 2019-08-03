@@ -34,7 +34,7 @@ namespace Zpp.ProviderDomain
 
             T_ProductionOrder tProductionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            tProductionOrder.DueTime = demand.GetDueTime().GetValue();
+            tProductionOrder.DueTime = demand.GetDueTime(dbTransactionData).GetValue();
             tProductionOrder.Article = demand.GetArticle();
             tProductionOrder.ArticleId = demand.GetArticle().Id;
             tProductionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
@@ -102,11 +102,17 @@ namespace Zpp.ProviderDomain
                 parentProvider, quantity);
         }
 
-        public override string GetGraphizString()
+        public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"P(PrO);{base.GetGraphizString()}";
+            string graphizString = $"P(PrO);{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
+        }
+
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
+        {
+            T_ProductionOrder productionOrder = (T_ProductionOrder) _provider;
+            return new DueTime(productionOrder.DueTime);
         }
     }
 }

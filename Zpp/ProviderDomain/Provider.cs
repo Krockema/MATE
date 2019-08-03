@@ -36,11 +36,8 @@ namespace Zpp.ProviderDomain
         {
             return _dependingDemands;
         }
-        
-        public DueTime GetDueTime()
-        {
-            return new DueTime(_provider.GetDueTime());
-        }
+
+        public abstract DueTime GetDueTime(IDbTransactionData dbTransactionData);
 
         public abstract IProvider ToIProvider();
         
@@ -126,9 +123,9 @@ namespace Zpp.ProviderDomain
             return this;
         }
 
-        public virtual string GetGraphizString()
+        public virtual string GetGraphizString(IDbTransactionData dbTransactionData)
         {
-            return $"{GetQuantity()};{GetArticle().Name};{GetDueTime()}";
+            return $"{GetQuantity()};{GetArticle().Name};{GetDueTime(dbTransactionData)}";
         }
     }
 }

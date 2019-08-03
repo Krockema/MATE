@@ -32,5 +32,10 @@ namespace Zpp.WrappersForPrimitives
         {
             return _dueTime.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return _dueTime.ToString();
+        }
     }
 }

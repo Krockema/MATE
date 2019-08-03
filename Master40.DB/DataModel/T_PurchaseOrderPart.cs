@@ -18,10 +18,7 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public State State { get; set; }
 
-        public int GetDueTime()
-        {
-            return PurchaseOrder.DueTime;
-        }
+        
         
         public M_Article GetArticle()
         {

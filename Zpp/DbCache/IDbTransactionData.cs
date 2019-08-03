@@ -43,6 +43,10 @@ namespace Zpp
         StockExchangeProviders StockExchangeGetAll();
         
         PurchaseOrderParts PurchaseOrderPartGetAll();
+        
+        T_PurchaseOrder PurchaseOrderGetById(Id id);
+        
+        List<T_PurchaseOrder> PurchaseOrderGetAll();
 
         ProductionOrders ProductionOrderGetAll();
 

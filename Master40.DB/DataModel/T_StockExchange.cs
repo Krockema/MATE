@@ -32,11 +32,6 @@ namespace Master40.DB.DataModel
             return new Quantity(Quantity);
         }
 
-        public int GetDueTime()
-        {
-            return RequiredOnTime;
-        }
-
         public T_StockExchange()
         {
         }

@@ -21,6 +21,7 @@ namespace Zpp.Test
     {
 
 
+        // TODO: this class should not use a custom config, consider outsourcing writeGraph to have also the desk graph to file
         public TestOrderGraph(): base(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1) // : base(MasterDBInitializerMedium.DbInitialize)
         {
             MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,

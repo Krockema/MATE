@@ -43,9 +43,9 @@ namespace Zpp
             return _id.GetHashCode();
         }
 
-        public string GetGraphizString()
+        public string GetGraphizString(IDbTransactionData dbTransactionData)
         {
-            return _entity.GetGraphizString();
+            return _entity.GetGraphizString(dbTransactionData);
         }
     }
 }

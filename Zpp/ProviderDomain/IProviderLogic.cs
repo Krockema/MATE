@@ -31,7 +31,7 @@ namespace Zpp.ProviderDomain
         void CreateNeededDemands(M_Article article, IDbTransactionData dbTransactionData,
             IDbMasterDataCache dbMasterDataCache, Provider parentProvider, Quantity quantity);
 
-        DueTime GetDueTime();
+        DueTime GetDueTime(IDbTransactionData dbTransactionData);
 
         Id GetId();
 

@@ -31,16 +31,20 @@ namespace Zpp.DemandDomain
             // TODO: Terminierung+Maschinenbelegung
             productionOrderBom.Quantity = articleBom.Quantity * quantity.GetValue();
             productionOrderBom.State = State.Created;
-            productionOrderBom.ProductionOrderParent = (T_ProductionOrder) parentProductionOrder.ToIProvider();
-            productionOrderBom.ProductionOrderParentId = productionOrderBom.ProductionOrderParent.Id;
+            productionOrderBom.ProductionOrderParent =
+                (T_ProductionOrder) parentProductionOrder.ToIProvider();
+            productionOrderBom.ProductionOrderParentId =
+                productionOrderBom.ProductionOrderParent.Id;
             // bom is toPurchase if it's null
             if (articleBom.Operation != null)
             {
                 productionOrderBom.ProductionOrderOperation =
-                    ProductionOrderOperation.CreateProductionOrderOperation(articleBom, parentProductionOrder);
+                    ProductionOrderOperation.CreateProductionOrderOperation(articleBom,
+                        parentProductionOrder);
                 productionOrderBom.ProductionOrderOperationId =
                     productionOrderBom.ProductionOrderOperation.Id;
             }
+
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
             productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
 
@@ -58,17 +62,24 @@ namespace Zpp.DemandDomain
             return _dbMasterDataCache.M_ArticleGetById(articleId);
         }
 
-        public override DueTime GetDueTime()
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
         {
-            DueTime dueTime =
-                new DueTime(((T_ProductionOrderBom) _demand).ProductionOrderParent.DueTime);
+            T_ProductionOrderBom productionOrderBom = ((T_ProductionOrderBom) _demand);
+            if (productionOrderBom.ProductionOrderParent == null)
+            {
+                Id productionOrderId = new Id(productionOrderBom.ProductionOrderParentId);
+                productionOrderBom.ProductionOrderParent = (T_ProductionOrder) dbTransactionData
+                    .ProvidersGetById(productionOrderId).ToIProvider();
+            }
+
+            DueTime dueTime = new DueTime(productionOrderBom.ProductionOrderParent.DueTime);
             return dueTime;
         }
 
-        public override string GetGraphizString()
+        public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"D(PrOB);{base.GetGraphizString()}";
+            string graphizString = $"D(PrOB);{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
         }
     }

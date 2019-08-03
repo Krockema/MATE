@@ -53,7 +53,7 @@ namespace Zpp.DemandDomain
             // TODO: revisit all methods that have this as parameter
             // TODO: here is no lotSize used !
             remainingQuantity = PurchaseOrderPart.CreatePurchaseOrderPart(this, GetArticle(),
-                GetDueTime(), demandedQuantity, _dbMasterDataCache, providerManager);
+                GetDueTime(dbTransactionData), demandedQuantity, _dbMasterDataCache, providerManager);
             Logger.Debug("PurchaseOrderPart created.");
 
             return remainingQuantity;
@@ -96,7 +96,7 @@ namespace Zpp.DemandDomain
 
         public abstract M_Article GetArticle();
 
-        public abstract DueTime GetDueTime();
+        public abstract DueTime GetDueTime(IDbTransactionData dbTransactionData);
 
         public Id GetId()
         {
@@ -146,7 +146,7 @@ namespace Zpp.DemandDomain
         {
             // satisfy by stock
             Provider stockExchangeProvider = StockExchangeProvider.CreateStockExchangeProvider(GetArticle(),
-                GetDueTime(), missingQuantity, _dbMasterDataCache, dbTransactionData);
+                GetDueTime(dbTransactionData), missingQuantity, _dbMasterDataCache, dbTransactionData);
             if (stockExchangeProvider != null)
             {
                 return providerManager.AddProvider(demand, stockExchangeProvider);
@@ -165,9 +165,9 @@ namespace Zpp.DemandDomain
             return this;
         }
 
-        public virtual string GetGraphizString()
+        public virtual string GetGraphizString(IDbTransactionData dbTransactionData)
         {
-            return $"{GetQuantity()};{GetArticle().Name};{GetDueTime()}";
+            return $"{GetQuantity()};{GetArticle().Name};{GetDueTime(dbTransactionData)}";
         }
     }
 }

@@ -14,8 +14,12 @@ namespace Zpp
         private readonly Dictionary<INode, List<IEdge>> _adjacencyList =
             new Dictionary<INode, List<IEdge>>();
 
+        private readonly IDbTransactionData _dbTransactionData;
+
         public OrderGraph(IDbTransactionData dbTransactionData)
         {
+            _dbTransactionData = dbTransactionData;
+            
             foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll().GetAll())
             {
                 Demand demand = dbTransactionData.DemandsGetById(new Id(demandToProvider.DemandId));
@@ -90,8 +94,8 @@ namespace Zpp
                     // <Type>, <Menge>, <ItemName> and on edges: <Menge>
                     Quantity quantity = new Quantity(edge.GetDemandToProvider().Quantity);
                     mystring +=
-                        $"\"{fromNode.GetId()};{fromNode.GetGraphizString()}\" -> " +
-                        $"\"{edge.GetToNode().GetId()};{edge.GetToNode().GetGraphizString()}\"";
+                        $"\"{fromNode.GetId()};{fromNode.GetGraphizString(_dbTransactionData)}\" -> " +
+                        $"\"{edge.GetToNode().GetId()};{edge.GetToNode().GetGraphizString(_dbTransactionData)}\"";
                     if (quantity.IsNull() == false)
                     {
                         mystring += $" [ label=\" {quantity}\" ]";    

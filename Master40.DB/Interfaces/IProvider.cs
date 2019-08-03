@@ -7,8 +7,6 @@ namespace Master40.DB.Interfaces
     {
         int Id { get; set; }
         
-        int GetDueTime();
-        
         M_Article GetArticle();
 
         Quantity GetQuantity();

@@ -62,7 +62,7 @@ namespace Zpp
                 while (true)
                 {
                     IDemands currentDemandManager = levelDemandManagers[0];
-                    currentDemandManager.OrderDemandsByUrgency();
+                    currentDemandManager.OrderDemandsByUrgency(dbTransactionData);
                     // add new level for next creating demands (evolving tree of demands)
                     hierarchyNumber.increment();
                     IDemands nextDemandManager = new Demands(hierarchyNumber);

@@ -22,7 +22,7 @@ namespace Zpp.DemandDomain
         
         Id GetArticleId();
 
-        DueTime GetDueTime();
+        DueTime GetDueTime(IDbTransactionData dbTransactionData);
 
         Id GetId();
 

@@ -86,14 +86,14 @@ namespace Zpp.DemandDomain
             return productionOrderBoms;
         }
         
-        public void OrderDemandsByUrgency()
+        public void OrderDemandsByUrgency(IDbTransactionData dbTransactionData)
         {
             // sort only, if there are more than one element
             if (_demands.Count > 1)
             {
                 _demands.Sort((x, y) =>
                 {
-                    return x.GetDueTime().CompareTo(y.GetDueTime());
+                    return x.GetDueTime(dbTransactionData).CompareTo(y.GetDueTime(dbTransactionData));
                 });
             }
         }

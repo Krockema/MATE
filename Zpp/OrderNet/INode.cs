@@ -10,6 +10,6 @@ namespace Zpp
 
         INode GetEntity();
 
-        string GetGraphizString();
+        string GetGraphizString(IDbTransactionData dbTransactionData);
     }
 }

@@ -50,13 +50,13 @@ namespace Zpp.Test
                 decimal oldCurrentStock = stock.Current;
 
                 Provider providerStockExchange = StockExchangeProvider.CreateStockExchangeProvider(
-                    demand.GetArticle(), demand.GetDueTime(), demand.GetQuantity(),
+                    demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
                     dbMasterDataCache, dbTransactionData);
                 Assert.True(providerStockExchange.GetQuantity().Equals(demand.GetQuantity()),
                     "Quantity is not correct.");
                 Assert.True(providerStockExchange.GetArticle().Equals(demand.GetArticle()),
                     "Article is not correct.");
-                Assert.True(providerStockExchange.GetDueTime().Equals(demand.GetDueTime()),
+                Assert.True(providerStockExchange.GetDueTime(dbTransactionData).Equals(demand.GetDueTime(dbTransactionData)),
                     "DueTime is not correct.");
                 // depending demands
                 decimal newCurrentStock = stock.Current;
@@ -97,5 +97,7 @@ namespace Zpp.Test
                 // ProductionOrderBom TODO
             }
         }
+        
+        
     }
 }
