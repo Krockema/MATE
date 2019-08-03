@@ -29,7 +29,6 @@ namespace Zpp.Utils
             while (stack.Any())
             {
                 Node<TEntity> poppedNode = stack.Pop();
-                
 
                 // init dict if node not yet exists
                 if (!discovered.ContainsKey(poppedNode))

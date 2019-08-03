@@ -23,7 +23,6 @@ namespace Zpp.Utils
         public static readonly String DbConnectionZppLocalDb =
             $"Server=(localdb)\\mssqllocaldb;Database=zpp{GetDateString()};Trusted_Connection=True;MultipleActiveResultSets=true";
 
-
         public static String DbConnectionZppSqlServer()
         {
             return $"Server=localhost,1433;Database=zpp{GetDateString()};" +

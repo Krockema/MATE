@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 
-
 namespace Zpp.DemandDomain
 {
     /**

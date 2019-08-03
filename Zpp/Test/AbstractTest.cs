@@ -1,11 +1,17 @@
 using System;
 using System.Data.SqlClient;
+using System.IO;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.Data.WrappersForPrimitives;
+using Master40.SimulationCore.Helper;
+using Master40.XUnitTest.DBContext;
 using Zpp.Utils;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
+using Zpp.Test.Configurations;
 
 namespace Zpp.Test
 {
@@ -15,24 +21,20 @@ namespace Zpp.Test
         protected readonly ProductionDomainContext ProductionDomainContext;
         private readonly bool resetDb = true;
 
-        // @before
-        public AbstractTest()
-        {
-            ProductionDomainContext = Dbms.getDbContext();
+        protected static TestConfiguration TestConfiguration =
+            ReadTestConfiguration(TestConfigurationFileNames.DUMP_TRUCK_COP_6_LOTSIZE_2);
 
-            if (resetDb)
-            {
-                bool isDeleted = ProductionDomainContext.Database.EnsureDeleted();
-                if (!isDeleted)
-                {
-                    LOGGER.Error("Database could not be deleted.");    
-                }
-                MasterDBInitializerSmall.DbInitialize(ProductionDomainContext);
-            }
+        public AbstractTest() : this(TestConfigurationFileNames.DUMP_TRUCK_COP_6_LOTSIZE_2)
+        {
+            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
+                ContextTest.TestConfiguration(), 1, true, TestConfiguration.Quantity);
+            LotSize.LotSize.SetDefaultLotSize(new Quantity(TestConfiguration.LotSize));
         }
 
-        public AbstractTest(Action<ProductionDomainContext> dbInitializer)
+        // @before
+        public AbstractTest(string testConfiguration)
         {
+            TestConfiguration = ReadTestConfiguration(testConfiguration);
             ProductionDomainContext = Dbms.getDbContext();
 
             if (resetDb)
@@ -40,10 +42,12 @@ namespace Zpp.Test
                 bool isDeleted = ProductionDomainContext.Database.EnsureDeleted();
                 if (!isDeleted)
                 {
-                    LOGGER.Error("Database could not be deleted.");    
+                    LOGGER.Error("Database could not be deleted.");
                 }
 
-                dbInitializer(ProductionDomainContext);
+                Type dbSetInitializer = Type.GetType(TestConfiguration.DbSetInitializer);
+                dbSetInitializer.GetMethod("DbInitialize")
+                    .Invoke(null, new[] {ProductionDomainContext});
             }
         }
 
@@ -51,6 +55,12 @@ namespace Zpp.Test
         public void Dispose()
         {
             ProductionDomainContext.Database.CloseConnection();
+        }
+
+        private static TestConfiguration ReadTestConfiguration(string testConfigurationFileNames)
+        {
+            return JsonConvert.DeserializeObject<TestConfiguration>(
+                File.ReadAllText(testConfigurationFileNames));
         }
     }
 }

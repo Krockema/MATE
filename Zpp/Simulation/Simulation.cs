@@ -12,21 +12,16 @@ using Zpp.Utils;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Helper;
 
-
 namespace Zpp.Simulation
 {
     public class Simulation
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-
         private ProductionDomainContext _productionDomainContext;
-
 
         // MRP modules
         private readonly DbTransactionData _dbTransactionData;
-
-        
 
         // private readonly PurchaseManager _purchaseManager;
 
@@ -53,9 +48,7 @@ namespace Zpp.Simulation
             // .UseInMemoryDatabase(databaseName: "InMemoryDB")
             // .Options); // InMemoryDB
 
-
             _productionDomainContext = Dbms.getDbContext();
-
 
             if (resetDb || !_productionDomainContext.CustomerOrders.Any())
             {
@@ -71,7 +64,6 @@ namespace Zpp.Simulation
                 LOGGER.Debug("Orders created.");
             }
         }
-        
 
         public void Start()
         {

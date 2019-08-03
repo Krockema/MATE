@@ -8,7 +8,6 @@ using Zpp.ProviderDomain;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
-
 namespace Zpp
 {
     public static class MrpRun
@@ -59,7 +58,6 @@ namespace Zpp
                 IDemands firstLevelDemandManager = new Demands(hierarchyNumber);
                 firstLevelDemandManager.Add(oneDbDemand);
                 levelDemandManagers.Add(firstLevelDemandManager);
-
 
                 while (true)
                 {

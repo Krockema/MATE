@@ -60,7 +60,6 @@ namespace Zpp.ProviderDomain
             purchaseOrder.Name = $"PurchaseOrder{article.Name} for " +
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";
 
-
             // demand cannot be fulfilled in time
             if (articleToBusinessPartner.DueTime > dueTime.GetValue())
             {

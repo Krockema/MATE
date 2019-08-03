@@ -59,7 +59,6 @@ namespace Zpp.DemandDomain
             return remainingQuantity;
         }
 
-
         // TODO: use this method
         private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
         {

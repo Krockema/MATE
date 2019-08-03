@@ -14,7 +14,6 @@ namespace Zpp.DemandDomain
             demand, dbMasterDataCache)
         {
         }
-        
 
         /// <summary>
         /// 

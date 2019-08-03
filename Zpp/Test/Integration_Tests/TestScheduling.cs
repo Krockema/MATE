@@ -10,14 +10,11 @@ namespace Zpp.Test
 {
     public class TestScheduling : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
-        private const int DEFAULT_LOT_SIZE = 2;
+
 
         public TestScheduling()
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
-            LotSize.LotSize.SetDefaultLotSize(new Quantity(DEFAULT_LOT_SIZE));
+
         }
 
         [Fact(Skip = "not implemented yet")]
@@ -35,7 +32,6 @@ namespace Zpp.Test
                 // TODO: traverse the demandToProviders, not the articleTree
                 // --> therefore fill the new T_ProviderToDemand table
                 ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
-
 
                 // traverse tree and execute an action
                 TreeTools<M_Article>.traverseDepthFirst(articleTree, article =>

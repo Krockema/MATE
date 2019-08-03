@@ -16,7 +16,6 @@ namespace Zpp.Test
         const string
             skipThisTestClass =
                 "ObjectCalisthenicsTest is currenctly disabled."; // TODO: change to null to enable this class
-        
 
         [Fact(Skip = skipThisTestClass)]
         /**
@@ -81,7 +80,6 @@ namespace Zpp.Test
                         fileCountInDirectory++;
                     }
                 }
-
 
                 Assert.False(fileCountInDirectory > maxClassesPerPackage,
                     $"{directoryInfo.Name}: has more than {maxClassesPerPackage} classes.");

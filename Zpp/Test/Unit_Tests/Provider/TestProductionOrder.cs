@@ -8,12 +8,11 @@ namespace Zpp.Test
 {
     public class TestProductionOrder : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
-        private const int DEFAULT_LOT_SIZE = 2;
+
 
         public TestProductionOrder()
         {
-            LotSize.LotSize.SetDefaultLotSize(new Quantity(DEFAULT_LOT_SIZE));
+            
         }
         
         /**

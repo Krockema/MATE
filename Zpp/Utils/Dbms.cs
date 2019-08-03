@@ -27,7 +27,6 @@ namespace Zpp.Utils
                 .UseInMemoryDatabase(databaseName: "InMemoryDB")
                 .Options);*/
 
-
             if (Constants.IsWindows)
             {
                 // Windows
@@ -41,8 +40,7 @@ namespace Zpp.Utils
             }
             else
             {
-                
-                
+
                 // With Sql Server for Mac/Linux
                 productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                     .UseLoggerFactory(MyLoggerFactory).UseSqlServer(

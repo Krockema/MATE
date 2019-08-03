@@ -10,12 +10,10 @@ namespace Zpp.Test
 {
     public class TestStock : AbstractTest
     {
-        private const int ORDER_QUANTITY = 1;
 
         public TestStock()
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
+            
         }
     
         /**
@@ -100,6 +98,5 @@ namespace Zpp.Test
             }
         }
 
-        
     }
 }

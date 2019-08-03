@@ -219,7 +219,6 @@ namespace Zpp
             }
         }
 
-
         private static void CopyProperties<T, TU>(T source, TU destination)
         {
             var sourceProps = typeof(T).GetProperties().Where(x => x.CanRead).ToList();
@@ -238,7 +237,6 @@ namespace Zpp
                 }
             }
         }
-
 
         public void DemandsAdd(Demand demand)
         {
@@ -297,7 +295,6 @@ namespace Zpp
 
             return demands;
         }
-
 
         public IProviders ProvidersGetAll()
         {

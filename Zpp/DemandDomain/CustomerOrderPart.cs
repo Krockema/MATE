@@ -3,7 +3,6 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.WrappersForPrimitives;
 
-
 namespace Zpp.DemandDomain
 {
     public class CustomerOrderPart : Demand 

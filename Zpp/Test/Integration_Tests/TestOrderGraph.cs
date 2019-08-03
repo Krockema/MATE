@@ -11,6 +11,7 @@ using Master40.XUnitTest.DBContext;
 using Xunit;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
+using Zpp.Test.Configurations;
 using Zpp.Test.WrappersForPrimitives;
 using Zpp.Utils;
 
@@ -18,16 +19,13 @@ namespace Zpp.Test
 {
     public class TestOrderGraph : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
-        private const int DEFAULT_LOT_SIZE = 2;
 
-        public TestOrderGraph() // : base(MasterDBInitializerMedium.DbInitialize)
+
+        public TestOrderGraph(): base(TestConfigurationFileNames.TISCH_COP_1_LOTSIZE_1) // : base(MasterDBInitializerMedium.DbInitialize)
         {
-            MasterDataExtension.ExtendByDesk(ProductionDomainContext);
             MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,
-                ORDER_QUANTITY);
+                TestConfiguration.Quantity);
             // OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
-            LotSize.LotSize.SetDefaultLotSize(new Quantity(DEFAULT_LOT_SIZE));
 
             MrpRun.RunMrp(ProductionDomainContext);
         }
@@ -152,9 +150,9 @@ namespace Zpp.Test
         public void TestOrderGraphStaysTheSame()
         {
             string orderGraphFileName =
-                $"../../../Test/Ordergraphs/ordergraph_cop_{ORDER_QUANTITY}_lotsize_{DEFAULT_LOT_SIZE}.txt";
+                $"../../../Test/Ordergraphs/ordergraph_{TestConfiguration.Name}.txt";
             string orderGraphFileNameWithIds =
-                $"../../../Test/Ordergraphs/ordergraph_cop_{ORDER_QUANTITY}_lotsize_{DEFAULT_LOT_SIZE}_with_ids.txt";
+                $"../../../Test/Ordergraphs/ordergraph_{TestConfiguration.Name}_with_ids.txt";
 
             // build orderGraph up
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);

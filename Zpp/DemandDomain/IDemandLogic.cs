@@ -13,7 +13,6 @@ namespace Zpp.DemandDomain
      */
     public interface IDemandLogic
     {
-        
 
         IDemand ToIDemand();
 

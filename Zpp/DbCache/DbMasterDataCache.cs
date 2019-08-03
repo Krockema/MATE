@@ -59,8 +59,6 @@ namespace Zpp
 
         }
 
-        
-        
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
         {
             return _businessPartners.GetAll();

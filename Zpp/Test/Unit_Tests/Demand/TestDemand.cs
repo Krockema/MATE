@@ -16,14 +16,11 @@ namespace Zpp.Test
 {
     public class TestDemand : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
-        private const int DEFAULT_LOT_SIZE = 2;
+
 
         public TestDemand()
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
-            LotSize.LotSize.SetDefaultLotSize(new Quantity(DEFAULT_LOT_SIZE));
+
         }
 
         /**
@@ -86,6 +83,5 @@ namespace Zpp.Test
             Assert.True(false);
         }                 
 
-         
     }
 }

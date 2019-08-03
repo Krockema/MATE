@@ -37,7 +37,6 @@ namespace Zpp.Utils
             SortedDictionary<int, List<int>> adjacencyListWithArticleIds =
                 new SortedDictionary<int, List<int>>();
 
-
             foreach (int articleId in _adjacencyList.getAsDictionary().Keys)
             {
                 if (_adjacencyList.getAsDictionary()[articleId] != null)

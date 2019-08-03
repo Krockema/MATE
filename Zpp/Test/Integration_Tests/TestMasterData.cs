@@ -9,12 +9,10 @@ namespace Zpp.Test
 {
     public class TestMasterData : AbstractTest
     {
-        private const int ORDER_QUANTITY = 1;
 
         public TestMasterData()
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
+            
         }
     
         [Fact]
@@ -36,7 +34,6 @@ namespace Zpp.Test
                 $"\nBefore: {String.Join(", ", countsMasterDataBefore)}" +
                 $"\nAfter: {String.Join(", ", countsMasterDataAfter)}");
         }
-
 
         private List<int> CountMasterData()
         {

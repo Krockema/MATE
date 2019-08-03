@@ -46,7 +46,6 @@ namespace Zpp.ProviderDomain
             productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData,
                 dbMasterDataCache, productionOrder, productionOrder.GetQuantity());
 
-
             return productionOrder;
         }
 
@@ -74,7 +73,6 @@ namespace Zpp.ProviderDomain
                     M_Article childArticle = dbMasterDataCache.M_ArticleGetById(articleChildId);
                     Demand newDemand = ProductionOrderBom.CreateProductionOrderBom(articleBom,
                             parentProductionOrder, dbMasterDataCache, quantity);
-                    
 
                     newDemands.Add(newDemand);
                 }

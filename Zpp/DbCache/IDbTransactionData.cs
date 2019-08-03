@@ -31,8 +31,7 @@ namespace Zpp
         void DemandsAdd(Demand demand);
         
         void DemandsAddAll(IDemands demands);
-        
-        
+
         IProviders ProvidersGetAll();
 
         void ProvidersAdd(Provider provider);

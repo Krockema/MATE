@@ -13,15 +13,12 @@ namespace Zpp.Test
 {
     public class TestStockExchangeProvider : AbstractTest
     {
-        private const int ORDER_QUANTITY = 6;
-        private const int DEFAULT_LOT_SIZE = 2;
+
         private Random random = new Random();
 
         public TestStockExchangeProvider()
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
-            LotSize.LotSize.SetDefaultLotSize(new Quantity(DEFAULT_LOT_SIZE));
+
         }
 
         /**
@@ -96,7 +93,6 @@ namespace Zpp.Test
                         $"Provider {providerStockExchange} for demand {demand} " +
                         $"has depending Demands.");
                 }
-
 
                 // ProductionOrderBom TODO
             }

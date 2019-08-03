@@ -8,12 +8,10 @@ namespace Zpp.Test
 {
     public class TestDemandToProvider : AbstractTest
     {
-        private const int ORDER_QUANTITY = 1;
 
         public TestDemandToProvider()
         {
-            OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
-                ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
+            
         }
         
         [Fact]
@@ -81,7 +79,6 @@ namespace Zpp.Test
                 Assert.True(isSatisfied, $"Demand {demand} is not satisfied.");
             }
         }
-        
-        
+
     }
 }
