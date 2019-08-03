@@ -20,7 +20,7 @@ namespace Zpp.Test
         {
             List<int> countsMasterDataBefore = CountMasterData();
 
-            Assert.True(ProductionDomainContext.CustomerOrders.Count() == ORDER_QUANTITY,
+            Assert.True(ProductionDomainContext.CustomerOrders.Count() == TestConfiguration.Quantity,
                 "No customerOrders are initially available.");
 
             MrpRun.RunMrp(ProductionDomainContext);

@@ -25,7 +25,6 @@ namespace Zpp.Test
         {
             MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,
                 TestConfiguration.Quantity);
-            // OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,ContextTest.TestConfiguration(), 1, true, ORDER_QUANTITY);
 
             MrpRun.RunMrp(ProductionDomainContext);
         }

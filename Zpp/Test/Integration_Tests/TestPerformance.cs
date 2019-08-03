@@ -26,7 +26,7 @@ namespace Zpp.Test
             DateTime endTime = DateTime.UtcNow;
             double neededTime = (endTime - startTime).TotalMilliseconds / 1000;
             Assert.True( neededTime < MAX_TIME_FOR_MRP_RUN,
-                $"MrpRun for example use case ({ORDER_QUANTITY} customerOrder) " +
+                $"MrpRun for example use case ({TestConfiguration.Name}) " +
                 $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds: {neededTime}");
         }
     }
