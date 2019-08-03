@@ -10,6 +10,8 @@ namespace Zpp.Test.Configurations
     {
         public static void DbInitialize(ProductionDomainContext productionDomainContext)
         {
+            productionDomainContext.Database.EnsureCreated();
+            
             // Article Types
             var articleTypes = new M_ArticleType[]
             {
