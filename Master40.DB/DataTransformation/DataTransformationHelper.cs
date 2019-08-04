@@ -235,10 +235,10 @@ namespace Master40.DB.DataTransformation
             return destTupleData;
         }
 
-        public List<Dictionary<string, object>> TransformAgentDataToMaster()
+        public List<List<Dictionary<string, object>>> TransformAgentDataToMaster()
         {
             List<List<Dictionary<string, object>>> agentData = ProcessAgentSourceRuleGroupsReversed(GpContext, this.AgentDataRuleGroupsReversed);
-            return new List<Dictionary<string, object>>();
+            return agentData;
         }
 
         private List<List<Dictionary<string, object>>> ProcessAgentSourceRuleGroupsReversed(DbContext fromContext, Dictionary<string, SourceRuleGroup> sourceRuleGroups)
@@ -279,8 +279,14 @@ namespace Master40.DB.DataTransformation
                 Type tupleType = srcTuple.GetType();
                 PropertyInfo tupelProp = tupleType.GetProperty(rule.GetFromColumn());
                 dynamic sourcePropData = tupelProp.GetValue(srcTuple);
-                destTupleData[rule.To] = Conversion.DoConvert(rule.ConversionFunc,
+                try
+                {
+                    destTupleData[rule.To] = Conversion.DoConvert(rule.ConversionFunc,
                     rule.ConversionArgs, sourcePropData, true);
+                }catch
+                {
+                    continue;
+                }
             }
 
             return destTupleData;
@@ -306,7 +312,7 @@ namespace Master40.DB.DataTransformation
             return destProp.PropertyType.GetTypeInfo().GenericTypeArguments[0];
         }
 
-        public object SearchOrCreateDestinationObject(DbContext toContext, dynamic destTable, 
+        private object SearchOrCreateDestinationObject(DbContext toContext, dynamic destTable, 
             Dictionary<string, object> srcTupleData, Type destinationObjectType)
         {
             object destDataObject = null;
