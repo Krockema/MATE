@@ -90,16 +90,14 @@ namespace Zpp.Test
             }
             else
             {
-                bool wasDropped = Dbms.DropDatabase(Constants.DbName);
+                bool wasDropped = Dbms.DropDatabase(Constants.GetDbName());
                 if (wasDropped == false)
                 {
-                    LOGGER.Warn($"Database {Constants.DbName} could not be dropped.");
+                    LOGGER.Warn($"Database {Constants.GetDbName()} could not be dropped.");
                 }
             }
 
             Type dbSetInitializer = Type.GetType(TestConfiguration.DbSetInitializer);
-            // wait a bit, since on linux EnsureCreated fails with "SqlException : Timeout expired"
-            Thread.Sleep(5000);
             dbSetInitializer.GetMethod("DbInitialize")
                 .Invoke(null, new[] {ProductionDomainContext});
         }

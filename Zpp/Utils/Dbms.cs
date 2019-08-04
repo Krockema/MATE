@@ -74,7 +74,6 @@ namespace Zpp.Utils
                 try
                 {
                     con.Open();
-                    Thread.Sleep(5000);
                     canConnect = con.State == ConnectionState.Open;
                 }
                 catch (SqlException e)
@@ -82,7 +81,6 @@ namespace Zpp.Utils
                     canConnect = false;
                 }
             }
-            Thread.Sleep(5000);
             return canConnect;
         }
 

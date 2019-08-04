@@ -13,8 +13,19 @@ namespace Zpp.Utils
         // TODO: the random/dateTime is a workaround, remove this if drop database query in Dispose() in TestClasses is added
         private static readonly string random = $"{new Random().Next(1, 1000000)}";
 
-        // public readonly static string DbName = $"zpp{GetDateString()}";
-        public readonly static string DbName = "zpp2";
+        public static string GetDbName()
+        {
+            if (IsWindows)
+            {
+                // use always the same databaseName and drop db before the next test
+                return "zpp2";
+            }
+            else
+            {
+                // never got this feature working: use always the same databaseName and drop db before the next test
+                return $"zpp{GetDateString()}";
+            }
+        }
 
         private static string GetDateString()
         {
@@ -28,7 +39,7 @@ namespace Zpp.Utils
 
         public static String DbConnectionZppSqlServer()
         {
-            return $"Server=localhost,1433;Database={DbName};" +
+            return $"Server=localhost,1433;Database={GetDbName()};" +
                    $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
         }
         

@@ -20,9 +20,8 @@ namespace Zpp.Test
             }
             productionDomainContext.Database.CloseConnection();
             
-            bool wasDropped = Dbms.DropDatabase(Constants.DbName);
+            bool wasDropped = Dbms.DropDatabase(Constants.GetDbName());
             Assert.True(wasDropped, "Db could not be dropped.");
-            Thread.Sleep(5000);
             Assert.False(productionDomainContext.Database.CanConnect(),
                 "Can still connect to database.");
         }
