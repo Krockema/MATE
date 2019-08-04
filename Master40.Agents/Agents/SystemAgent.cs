@@ -9,6 +9,7 @@ using Master40.DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Master40.MessageSystem.SignalR;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Master40.Agents.Agents
 {

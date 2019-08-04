@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Master40.Agents.Agents.DataTransformation;
 using Master40.Agents.Agents.Model;
 using NSimulate.Instruction;
 using Process = NSimulate.Process;
@@ -206,9 +207,10 @@ namespace Master40.Agents.Agents.Internal
         {
             List<Dictionary<string, object>> dataList = new List<Dictionary<string, object>>();
             Dictionary<string, object> data = new Dictionary<string, object>();
+            data.Add("AgentId", AgentId);
             data.Add("AgentType", this.GetType());
-
-            DataCollectionHelper.CollectProps(this, ref data, this.GetType().Name + ".");
+            
+            DataCollectionHelper.CollectPropsTree(this, ref data, this.GetType().Name + ".");
 
             dataList.Add(data);
             return dataList;

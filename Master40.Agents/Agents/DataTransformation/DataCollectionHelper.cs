@@ -1,4 +1,5 @@
-﻿using Master40.Agents.Agents.Model;
+﻿using Master40.Agents.Agents.DataTransformation;
+using Master40.Agents.Agents.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,23 +56,27 @@ namespace Master40.Agents.Agents
             System.IO.File.WriteAllText(@"C:\source\agentdata\other.csv", otherCsv);
         }
 
-        public static void CollectProps(object obj, ref Dictionary<string, object> props, String prefix = "")
+        public static void CollectPropsTree(object obj, ref Dictionary<string, object> props, String prefix = "")
         {
             Type type = obj.GetType();
-            foreach (PropertyInfo prop in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+            List<AgentPropertyBase> propTree = AgentPropertyManager.GetPropertiesByAgentName(type.Name);
+
+            CollectPropsTreeRecursion(propTree, obj, ref props, prefix);
+        }
+
+        private static void CollectPropsTreeRecursion(List<AgentPropertyBase> propTree, object obj, ref Dictionary<string, object> props, String prefix = "")
+        {
+            Type type = obj.GetType();
+
+            foreach (AgentPropertyBase agentProp in propTree)
             {
-                if (new[] { typeof(RequestItem), typeof(DB.Models.Machine), typeof(DB.Models.Article) }.Contains(prop.PropertyType))
-                {
-                    CollectProps(prop.GetValue(obj), ref props, prefix + prop.Name + ".");
-                }
-                //else if (prop.PropertyType == typeof(List<WorkItem>))
-                //{
-                //    // TODO
-                //}
+                PropertyInfo propInfo = type.GetProperty(agentProp.GetPropertyName(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                object propertyValue = propInfo.GetValue(obj);
+
+                if(agentProp.GetType() == typeof(AgentProperty))
+                    props.Add(prefix + propInfo.Name, propertyValue);
                 else
-                {
-                    props.Add(prefix + prop.Name, prop.GetValue(obj));
-                }
+                    CollectPropsTreeRecursion(((AgentPropertyNode)agentProp).GetProperties(), propertyValue, ref props, prefix + propInfo.Name + ".");
             }
         }
     }
