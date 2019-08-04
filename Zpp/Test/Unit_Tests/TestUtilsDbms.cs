@@ -1,3 +1,4 @@
+using System.Threading;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -19,6 +20,7 @@ namespace Zpp.Test
             
             productionDomainContext.Database.CloseConnection();
             Dbms.DropDatabase(Constants.DbName);
+            Thread.Sleep(5000);
             Assert.False(productionDomainContext.Database.CanConnect(),
                 "Can still connect to database.");
         }

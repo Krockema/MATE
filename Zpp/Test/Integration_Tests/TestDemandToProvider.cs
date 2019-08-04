@@ -28,8 +28,6 @@ namespace Zpp.Test
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
-            // TODO: let T_Demand, T_Provider have an own Id and a foreign as reference
-            
             IDemands allDbDemands = dbTransactionData.DemandsGetAll();
             IDemandToProviderTable demandToProviderTable = dbTransactionData.GetProviderManager().GetDemandToProviderTable();
 

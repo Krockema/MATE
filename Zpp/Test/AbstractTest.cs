@@ -17,7 +17,7 @@ using Zpp.Test.Configurations.Scenarios;
 namespace Zpp.Test
 {
     /**
-     * A test can be initialized on three ways:
+     * A test can be initialized via base() constructor on three ways:
      * - no dbInit: use base(false)
      * - dbInit: default db (truck scenario) use base(true) else use base(TestConfigurationFileNames.X)
      * - dbInit + CO/COP: use base(false) and call InitTestScenario(TestConfigurationFileNames.X)
@@ -81,7 +81,11 @@ namespace Zpp.Test
 
             if (Constants.IsLocalDb)
             {
-                
+                bool isDeleted = ProductionDomainContext.Database.EnsureDeleted();
+                if (!isDeleted)
+                {
+                    LOGGER.Error("Database could not be deleted.");
+                }
             }
             else
             {
@@ -97,12 +101,6 @@ namespace Zpp.Test
                 }
                 
             }
-            bool isDeleted = ProductionDomainContext.Database.EnsureDeleted();
-            if (!isDeleted)
-            {
-                LOGGER.Error("Database could not be deleted.");
-            }
-
 
             Type dbSetInitializer = Type.GetType(TestConfiguration.DbSetInitializer);
             dbSetInitializer.GetMethod("DbInitialize")
