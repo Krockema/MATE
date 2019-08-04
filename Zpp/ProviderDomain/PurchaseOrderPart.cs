@@ -56,7 +56,7 @@ namespace Zpp.ProviderDomain
                     .BusinessPartnerId));
             T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
             // [Name],[DueTime],[BusinessPartnerId]
-            purchaseOrder.DueTime = dueTime.GetValue();
+            purchaseOrder.DueTime = dueTime.GetValue() - articleToBusinessPartner.DueTime;
             purchaseOrder.BusinessPartner = businessPartner;
             purchaseOrder.Name = $"PurchaseOrder{article.Name} for " +
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";
@@ -80,7 +80,7 @@ namespace Zpp.ProviderDomain
             tPurchaseOrderPart.Quantity =
                 PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner, lotSize) *
                 articleToBusinessPartner
-                    .PackSize; // TODO: is amount*packSize in var quantity correct?
+                    .PackSize;
             if (tPurchaseOrderPart.Quantity < lotSize.GetValue())
             {
                 throw new MrpRunException("You cannot purchase less than you need!");

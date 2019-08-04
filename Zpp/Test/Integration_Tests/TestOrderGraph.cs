@@ -20,12 +20,14 @@ namespace Zpp.Test
     public class TestOrderGraph : AbstractTest
     {
 
-
-        // TODO: this class should not use a custom config, consider outsourcing writeGraph to have also the desk graph to file
-        public TestOrderGraph(): base(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1) // : base(MasterDBInitializerMedium.DbInitialize)
+        public TestOrderGraph(): base(false)
         {
-            MasterDataExtension.CreateCustomerOrdersWithDesks(ProductionDomainContext,
-                TestConfiguration.CustomerOrderPartQuantity);
+            
+        }
+
+        private void InitThisTest(string testConfiguration)
+        {
+            InitTestScenario(testConfiguration);
 
             MrpRun.RunMrp(ProductionDomainContext);
         }
@@ -36,9 +38,14 @@ namespace Zpp.Test
          * - is a top down graph TODO is not done yet<br>
          * - has all demandToProvider and providerToDemand edges
          */
-        [Fact]
-        public void TestAllEdgesAreInOrderGraph()
+        [Theory]
+        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_6_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_6_LOTSIZE_2)]
+        public void TestAllEdgesAreInOrderGraph(string testConfigurationFileName)
         {
+            InitThisTest(testConfigurationFileName);
+            
             // build orderGraph up
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
@@ -78,9 +85,14 @@ namespace Zpp.Test
          * and SE:W = StockExchangeProvider
          * TODO: remove StockExchangeType from T_StockExchange since it's exactly specified by Withdrawal/Insert
          */
-        [Fact]
-        public void TestEdgeTypes()
+        [Theory]
+        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_6_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_6_LOTSIZE_2)]
+        public void TestEdgeTypes(string testConfigurationFileName)
         {
+            InitThisTest(testConfigurationFileName);
+            
             IDictionary<Type, Type[]> allowedEdges = new Dictionary<Type, Type[]>()
             {
                 // demand --> provider
@@ -146,9 +158,15 @@ namespace Zpp.Test
          * In case of failing (and the orderGraph change is expected by you):
          * delete corresponding ordergraph_cop_*.txt files ind Folder Test/OrderGraphs
          */
-        [Fact]
-        public void TestOrderGraphStaysTheSame()
+        [Theory]
+        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_6_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_6_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_1_LOTSIZE_1)]
+        public void TestOrderGraphStaysTheSame(string testConfigurationFileName)
         {
+            InitThisTest(testConfigurationFileName);
+            
             string orderGraphFileName =
                 $"../../../Test/Ordergraphs/ordergraph_{TestConfiguration.Name}.txt";
             string orderGraphFileNameWithIds =

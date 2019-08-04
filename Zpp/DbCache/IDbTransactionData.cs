@@ -62,5 +62,7 @@ namespace Zpp
 
         IProviderManager GetProviderManager();
 
+        T_ProductionOrderOperation ProductionOrderOperationGetById(Id id);
+
     }
 }

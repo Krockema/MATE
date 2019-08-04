@@ -128,12 +128,12 @@ namespace Master40.ViewComponents
             switch (_schedulingState)
             {
                 case 1:
-                    start = (_today + item.StartBackward * 60000);
-                    end = (_today + item.EndBackward * 60000);
+                    start = (_today + item.StartBackward.GetValueOrDefault() * 60000);
+                    end = (_today + item.EndBackward.GetValueOrDefault() * 60000);
                     break;
                 case 2:
-                    start = (_today + item.StartForward * 60000);
-                    end = (_today + item.EndForward * 60000);
+                    start = (_today + item.StartForward.GetValueOrDefault() * 60000);
+                    end = (_today + item.EndForward.GetValueOrDefault() * 60000);
                     break;
                 default:
                     start = (_today + item.Start * 60000);

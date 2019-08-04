@@ -25,10 +25,10 @@ namespace Master40.DB.DataModel
         public T_ProductionOrder ProductionOrder { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
-        public int StartBackward { get; set; }
-        public int EndBackward { get; set; }
-        public int StartForward { get; set; }
-        public int EndForward { get; set; }
+        public int? StartBackward { get; set; }
+        public int? EndBackward { get; set; }
+        public int? StartForward { get; set; }
+        public int? EndForward { get; set; }
         
         public ProducingState ProducingState { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }

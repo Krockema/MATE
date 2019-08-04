@@ -13,6 +13,9 @@ namespace Zpp.Utils
         // TODO: the random/dateTime is a workaround, remove this if drop database query in Dispose() in TestClasses is added
         private static readonly string random = $"{new Random().Next(1, 1000000)}";
 
+        // public readonly static string DbName = $"zpp{GetDateString()}";
+        public readonly static string DbName = "zpp2";
+
         private static string GetDateString()
         {
             string ticks = DateTime.UtcNow.Ticks.ToString();
@@ -25,7 +28,13 @@ namespace Zpp.Utils
 
         public static String DbConnectionZppSqlServer()
         {
-            return $"Server=localhost,1433;Database=zpp{GetDateString()};" +
+            return $"Server=localhost,1433;Database={DbName};" +
+                   $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
+        }
+        
+        public static String DbConnectionZppSqlServerMaster()
+        {
+            return $"Server=localhost,1433;Database=master;" +
                    $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
         }
 

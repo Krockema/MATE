@@ -65,6 +65,27 @@ namespace Zpp.DemandDomain
         public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
         {
             T_ProductionOrderBom productionOrderBom = ((T_ProductionOrderBom) _demand);
+
+            if (productionOrderBom.ProductionOrderOperation == null)
+            {
+                Id productionOrderOperationId =
+                    new Id(productionOrderBom.ProductionOrderOperationId.GetValueOrDefault());
+                productionOrderBom.ProductionOrderOperation = dbTransactionData
+                    .ProductionOrderOperationGetById(productionOrderOperationId);
+            }
+
+
+            DueTime dueTime;
+            if (productionOrderBom.ProductionOrderOperation != null &&
+                productionOrderBom.ProductionOrderOperation.StartBackward != null)
+            {
+                // backwards scheduling was already done
+                dueTime = new DueTime(productionOrderBom.ProductionOrderOperation.StartBackward
+                    .GetValueOrDefault());
+                return dueTime;
+            }
+            // backwards scheduling was not yet done
+
             if (productionOrderBom.ProductionOrderParent == null)
             {
                 Id productionOrderId = new Id(productionOrderBom.ProductionOrderParentId);
@@ -72,15 +93,55 @@ namespace Zpp.DemandDomain
                     .ProvidersGetById(productionOrderId).ToIProvider();
             }
 
-            DueTime dueTime = new DueTime(productionOrderBom.ProductionOrderParent.DueTime);
+            dueTime = new DueTime(productionOrderBom.ProductionOrderParent.DueTime);
             return dueTime;
         }
 
         public override string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             // Demand(CustomerOrder);20;Truck
-            string graphizString = $"D(PrOB);{base.GetGraphizString(dbTransactionData)}";
+
+            string graphizString;
+            T_ProductionOrderBom tProductionOrderBom = ((T_ProductionOrderBom) _demand);
+            if (tProductionOrderBom.ProductionOrderOperationId != null)
+            {
+                if (tProductionOrderBom.ProductionOrderOperation == null)
+                {
+                    tProductionOrderBom.ProductionOrderOperation =
+                        dbTransactionData.ProductionOrderOperationGetById(new Id(tProductionOrderBom
+                            .ProductionOrderOperationId.GetValueOrDefault()));
+                }
+
+                T_ProductionOrderOperation tProductionOrderOperation =
+                    tProductionOrderBom.ProductionOrderOperation;
+                graphizString = $"D(PrOB);{base.GetGraphizString(dbTransactionData)};" +
+                                $"bs({tProductionOrderOperation.StartBackward});" +
+                                $"be({tProductionOrderOperation.EndBackward})";
+            }
+            else
+            {
+                graphizString = $"D(PrOB);{base.GetGraphizString(dbTransactionData)}";
+            }
+
             return graphizString;
+        }
+
+        public bool HasOperation()
+        {
+            return ((T_ProductionOrderBom) _demand).ProductionOrderOperation != null;
+        }
+
+        /**
+         * return (given dueTime) - (duration of operation) == startTime
+         */
+        public DueTime ScheduleBackwards(DueTime dueTime)
+        {
+            T_ProductionOrderBom tProductionOrderBom = (T_ProductionOrderBom) _demand;
+            tProductionOrderBom.ProductionOrderOperation.EndBackward = dueTime.GetValue();
+            tProductionOrderBom.ProductionOrderOperation.StartBackward =
+                dueTime.GetValue() - tProductionOrderBom.ProductionOrderOperation.Duration;
+            return new DueTime(tProductionOrderBom.ProductionOrderOperation.StartBackward
+                .GetValueOrDefault());
         }
     }
 }

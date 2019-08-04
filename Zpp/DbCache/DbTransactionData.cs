@@ -49,8 +49,9 @@ namespace Zpp
         // providers
         private readonly ProductionOrders _productionOrders;
         
-        // other
+        // others
         private readonly List<T_PurchaseOrder> _purchaseOrders;
+        private readonly List<T_ProductionOrderOperation> _productionOrderOperations;
 
         public DbTransactionData(ProductionDomainContext productionDomainContext,
             IDbMasterDataCache dbMasterDataCache)
@@ -87,13 +88,18 @@ namespace Zpp
                 new PurchaseOrderParts(_productionDomainContext.PurchaseOrderParts.ToList(),
                     _dbMasterDataCache);
 
+            // others
             _purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
+            _productionOrderOperations = _productionDomainContext.ProductionOrderOperations.ToList();
+            
+            // demandToProvider
 
             IDemandToProviderTable demandToProviderTable =
                 new DemandToProviderTable(_productionDomainContext.DemandToProviders.ToList());
             IProviderToDemandTable providerToDemandTable =
                 new ProviderToDemandTable(_productionDomainContext.ProviderToDemand.ToList());
 
+            // providerManager
             IProviders providers = new Providers();
             providers.AddAll(_purchaseOrderParts);
             providers.AddAll(_productionOrders);
@@ -379,6 +385,11 @@ namespace Zpp
         public List<T_PurchaseOrder> PurchaseOrderGetAll()
         {
             return _purchaseOrders;
+        }
+
+        public T_ProductionOrderOperation ProductionOrderOperationGetById(Id id)
+        {
+            return _productionOrderOperations.SingleOrDefault(x => x.Id.Equals(id.GetValue()));
         }
     }
 }

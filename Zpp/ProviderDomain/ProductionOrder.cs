@@ -42,7 +42,7 @@ namespace Zpp.ProviderDomain
 
             ProductionOrder productionOrder =
                 new ProductionOrder(tProductionOrder, dbMasterDataCache);
-            
+
             productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData,
                 dbMasterDataCache, productionOrder, productionOrder.GetQuantity());
 
@@ -67,15 +67,34 @@ namespace Zpp.ProviderDomain
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 List<Demand> newDemands = new List<Demand>();
+                // for backward scheduling
+                List<ProductionOrderBom> productionOrderBoms = new List<ProductionOrderBom>();
+
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
                     Id articleChildId = new Id(articleBom.ArticleChildId);
                     M_Article childArticle = dbMasterDataCache.M_ArticleGetById(articleChildId);
                     Demand newDemand = ProductionOrderBom.CreateProductionOrderBom(articleBom,
-                            parentProductionOrder, dbMasterDataCache, quantity);
+                        parentProductionOrder, dbMasterDataCache, quantity);
+                    // for backwards scheduling
+                    ProductionOrderBom newProductionOrderBom = (ProductionOrderBom) newDemand;
+                    if (newProductionOrderBom.HasOperation())
+                    {
+                        productionOrderBoms.Add(newProductionOrderBom);
+                    }
 
                     newDemands.Add(newDemand);
                 }
+
+                // backwards scheduling
+                DueTime currentDueTime = parentProductionOrder.GetDueTime(dbTransactionData);
+                foreach (var productionOrderBom in productionOrderBoms.OrderBy(x =>
+                    ((T_ProductionOrderBom) x.ToIDemand()).ProductionOrderOperation
+                    .HierarchyNumber))
+                {
+                    currentDueTime = productionOrderBom.ScheduleBackwards(currentDueTime);
+                }
+
 
                 return new ProductionOrderBoms(newDemands);
             }
@@ -98,8 +117,8 @@ namespace Zpp.ProviderDomain
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Provider parentProvider, Quantity quantity)
         {
-            _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData, dbMasterDataCache,
-                parentProvider, quantity);
+            _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData,
+                dbMasterDataCache, parentProvider, quantity);
         }
 
         public override string GetGraphizString(IDbTransactionData dbTransactionData)

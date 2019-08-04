@@ -1,3 +1,5 @@
+using System;
+using System.Data.SqlClient;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -60,6 +62,36 @@ namespace Zpp.Utils
             productionDomainContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             
             return productionDomainContext;
+        }
+        
+        public static int DropDatabase(string dbName)
+        {
+            String connectionstring = Constants.DbConnectionZppSqlServerMaster();
+            int result = 0;
+
+            using (SqlConnection con = new SqlConnection(connectionstring))
+            {
+                con.Open();
+                /*String sqlCommandText = $@"
+                GO
+                    ALTER DATABASE {dbName} 
+                SET OFFLINE WITH ROLLBACK IMMEDIATE
+                GO
+                    ALTER DATABASE {dbName} SET ONLINE
+                GO
+                    DROP DATABASE {dbName}
+                GO";*/
+                
+                String sqlCommandText = @"
+        ALTER DATABASE " + dbName + @" SET OFFLINE WITH ROLLBACK IMMEDIATE;
+        ALTER DATABASE " + dbName + @" SET ONLINE;
+        DROP DATABASE [" + dbName + "]";
+                
+                SqlCommand sqlCommand = new SqlCommand(sqlCommandText, con);
+                result = sqlCommand.ExecuteNonQuery();
+            }
+
+            return result;
         }
     }
 }

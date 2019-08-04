@@ -2,7 +2,7 @@ using System;
 
 namespace Zpp.WrappersForPrimitives
 {
-    public class DueTime : IComparable<DueTime>
+    public class DueTime : IComparable<DueTime>,IComparable 
     {
         private int _dueTime;
 
@@ -18,8 +18,13 @@ namespace Zpp.WrappersForPrimitives
         
         public int CompareTo(DueTime that)
         {
-            return _dueTime.CompareTo(that.GetValue());
+                return _dueTime.CompareTo(that.GetValue());
+        }
 
+        public int CompareTo(object obj)
+        {
+            DueTime otherDueTime = (DueTime)obj;
+            return _dueTime.CompareTo(otherDueTime.GetValue());
         }
 
         public override bool Equals(object obj)
@@ -36,6 +41,11 @@ namespace Zpp.WrappersForPrimitives
         public override string ToString()
         {
             return _dueTime.ToString();
+        }
+
+        public bool IsNull()
+        {
+            return _dueTime.Equals(0);
         }
     }
 }
