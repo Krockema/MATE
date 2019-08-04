@@ -27,8 +27,7 @@ namespace Zpp.Test
             Assert.False(productionDomainContext.Database.CanConnect(),
                 "Can still connect to database.");
         }
-
-        [Fact(Skip = "Sql server 'drop database' does not work on non-Windows-systems.")]
+        
         public void TestDropNonExistingDatabase()
         {
             bool wasDropped = Dbms.DropDatabase("bla");
