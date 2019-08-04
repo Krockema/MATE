@@ -19,11 +19,14 @@ using Master40.DB.GanttplanDB.Models;
 using Master40.DB.Models;
 using Master40.DB.DataTransformation;
 using System.Reflection;
+using Xunit.Abstractions;
 
 namespace Master40.XUnitTest.DBContext
 {
     public class ContextTest
     {
+        private readonly ITestOutputHelper output;
+
         ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseInMemoryDatabase(databaseName: "InMemoryDB")
             .Options);
@@ -44,8 +47,9 @@ namespace Master40.XUnitTest.DBContext
             .UseSqlite("Filename=C:\\source\\repo\\Master-4.0\\Master40.DB\\GanttplanDB\\GPSzenario.gpsx")
             .Options);
 
-        public ContextTest()
+        public ContextTest(ITestOutputHelper outputHelper)
         {
+            this.output = outputHelper;
             //_ctx.Database.EnsureDeleted();
             //MasterDBInitializerLarge.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
@@ -88,12 +92,12 @@ namespace Master40.XUnitTest.DBContext
                     //{ "StorageAgent.StockElement.Current", 3.0m },
                     //{ "StorageAgent.StockElement.Article.UnitId", 3 },
                     { "ProductionAgent.RequestItem.Article.Id", 1 },
-                    { "ProductionAgent.RequestItem.DueTime", 7200 },
+                    { "ProductionAgent.RequestItem.DueTime", 9000 },
                     { "ProductionAgent.RequestItem.OrderId", 123 },
                     { "ProductionAgent.RequestItem.Quantity", 2 },
                     { "ProductionAgent.RequestItem.Article.UnitId", 3 },
-                    { "ProductionAgent.WorkItems.EstimatedStart", 25},  // Workitems ist eigentlich Liste
-                    { "ProductionAgent.WorkItems.EstimatedEnd", 10000},
+                    { "ProductionAgent.WorkItems.EstimatedStart", 9000},  // Workitems ist eigentlich Liste
+                    { "ProductionAgent.WorkItems.EstimatedEnd", 10200},
                     { "ProductionAgent.WorkItems.WorkSchedule.Id", 1},
                     //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000001")},
 
@@ -103,12 +107,12 @@ namespace Master40.XUnitTest.DBContext
 
                 new Dictionary<string, object>{
                     { "ProductionAgent.RequestItem.Article.Id", 2 },
-                    { "ProductionAgent.RequestItem.DueTime", 6600 },
+                    { "ProductionAgent.RequestItem.DueTime", 7200 },
                     { "ProductionAgent.RequestItem.OrderId", 124 },
                     { "ProductionAgent.RequestItem.Quantity", 2 },
                     { "ProductionAgent.RequestItem.Article.UnitId", 3 },
-                    { "ProductionAgent.WorkItems.EstimatedStart", 25},  // Workitems ist eigentlich Liste
-                    { "ProductionAgent.WorkItems.EstimatedEnd", 10000},
+                    { "ProductionAgent.WorkItems.EstimatedStart", 5400},  // Workitems ist eigentlich Liste
+                    { "ProductionAgent.WorkItems.EstimatedEnd", 8400},
                     { "ProductionAgent.WorkItems.WorkSchedule.Id", 2},
                     //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000002")},
                 },
@@ -119,8 +123,8 @@ namespace Master40.XUnitTest.DBContext
                     { "ProductionAgent.RequestItem.OrderId", 125 },
                     { "ProductionAgent.RequestItem.Quantity", 8 },
                     { "ProductionAgent.RequestItem.Article.UnitId", 3 },
-                    { "ProductionAgent.WorkItems.EstimatedStart", 25},  // Workitems ist eigentlich Liste
-                    { "ProductionAgent.WorkItems.EstimatedEnd", 10000},
+                    { "ProductionAgent.WorkItems.EstimatedStart", 1800},  // Workitems ist eigentlich Liste
+                    { "ProductionAgent.WorkItems.EstimatedEnd", 5160},
                     { "ProductionAgent.WorkItems.WorkSchedule.Id", 3},
                     //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000003")},
                 }
@@ -130,8 +134,29 @@ namespace Master40.XUnitTest.DBContext
             //helper.TransformCoreData();
             helper.TransformAgentDataToGp(dummyAgentData);
             //List<Dictionary<string, object>> receivedAgentData = helper.TransformAgentDataToMaster();
+        }
 
-            // Assert.Equal()
+        [Fact]
+        public void ClearProductionOrdersTest()
+        {
+            foreach (Productionorder po in _gpSzenarioContext.Productionorder)
+            {
+                _gpSzenarioContext.Productionorder.Remove(po);
+                _gpSzenarioContext.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public void RetransformAgentDataTest()
+        {
+            DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
+            List<List<Dictionary<string, object>>> receivedAgentData = helper.TransformAgentDataToMaster();
+            foreach (Dictionary<string, object> dict in receivedAgentData[1])
+            {
+                output.WriteLine(string.Join("\n", dict.Select(x => x.Key + "=" + x.Value).ToArray()));
+                output.WriteLine("----------");
+            }
+            return;
         }
 
         /// <summary>
@@ -159,9 +184,9 @@ namespace Master40.XUnitTest.DBContext
         [Fact]
         public async Task AgentSimulationTestAsync()
         {
-            _productionDomainContext.Database.EnsureDeleted();
-            MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
-            _productionDomainContext.Database.EnsureCreated();
+            //_productionDomainContext.Database.EnsureDeleted();
+            //MasterDBInitializerBasic.DbInitialize(_productionDomainContext);
+            //_productionDomainContext.Database.EnsureCreated();
 
             // In-memory database only exists while the connection is open
             var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };

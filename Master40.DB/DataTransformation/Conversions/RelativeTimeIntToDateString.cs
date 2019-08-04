@@ -15,18 +15,17 @@ namespace Master40.DB.DataTransformation.Conversions
                 throw new ArgumentException(String.Format("Input data must be of type '{0}' if reversed is {1}", expType, reversed));
 
             string DateFormat = "yyyyMMdd HH:mm:ss";
+            DateTime baseDate = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
             if (!reversed)
             {
-                DateTime date = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                date = date.AddSeconds((int)inputData);
+                DateTime date = baseDate.AddSeconds((int)inputData);
                 return date.ToString(DateFormat);
             }
             else
             {
                 DateTime date = DateTime.ParseExact((string)inputData, DateFormat, CultureInfo.InvariantCulture);
-                DateTime startDate = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                TimeSpan seconds = date.Subtract(startDate);
+                TimeSpan seconds = date.Subtract(baseDate);
                 return System.Convert.ToInt32(seconds.TotalSeconds);
             }
         }

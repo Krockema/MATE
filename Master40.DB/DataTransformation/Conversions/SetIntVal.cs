@@ -8,7 +8,7 @@ namespace Master40.DB.DataTransformation.Conversions
     {
         // Arg          Type        Name        Default
         // ================================================
-        // args[0]      int        value       0
+        // args[0]      int         value       0
         public static new object Convert(string[] args, object inputData, bool reversed = false)
         {
             if (reversed == true)
