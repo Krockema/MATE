@@ -121,7 +121,14 @@ namespace Zpp.Utils
         DROP DATABASE [" + dbName + "]";
 
                 SqlCommand sqlCommand = new SqlCommand(sqlCommandText, con);
-                result = sqlCommand.ExecuteNonQuery();
+                try
+                {
+                    result = sqlCommand.ExecuteNonQuery();
+                }
+                catch (SqlException sqlException)
+                {
+                    return false;
+                }
             }
 
             // For UPDATE, INSERT, and DELETE statements, the return value is the number of rows
