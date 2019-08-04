@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.IO;
+using System.Threading;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -92,11 +93,13 @@ namespace Zpp.Test
                 bool wasDropped = Dbms.DropDatabase(Constants.DbName);
                 if (wasDropped == false)
                 {
-                    LOGGER.Error($"DataBase {Constants.DbName} could not be dropped.");
+                    LOGGER.Error($"Database {Constants.DbName} could not be dropped.");
                 }
             }
 
             Type dbSetInitializer = Type.GetType(TestConfiguration.DbSetInitializer);
+            // wait a bit, since on linux EnsureCreated fails with "SqlException : Timeout expired"
+            Thread.Sleep(5000);
             dbSetInitializer.GetMethod("DbInitialize")
                 .Invoke(null, new[] {ProductionDomainContext});
         }
