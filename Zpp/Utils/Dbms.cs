@@ -70,8 +70,17 @@ namespace Zpp.Utils
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                con.Open();
-                Thread.Sleep(5000);
+                try
+                {
+                    con.Open();
+                }
+                catch (SqlException e)
+                {
+                    return false;
+
+                }
+                
+                Thread.Sleep(1000);
                 return con.State == ConnectionState.Open;
             }
         }
