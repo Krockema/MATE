@@ -68,21 +68,25 @@ namespace Zpp.Utils
 
         public static bool CanConnect(string connectionString)
         {
+            bool canConnect = false;
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 try
                 {
                     con.Open();
+                    Thread.Sleep(5000);
+                    canConnect = con.State == ConnectionState.Open;
                 }
                 catch (SqlException e)
                 {
-                    return false;
+                    canConnect = false;
 
                 }
                 
-                Thread.Sleep(1000);
-                return con.State == ConnectionState.Open;
+                
             }
+            Thread.Sleep(5000);
+            return canConnect;
         }
 
         /**

@@ -93,7 +93,7 @@ namespace Zpp.Test
                 bool wasDropped = Dbms.DropDatabase(Constants.DbName);
                 if (wasDropped == false)
                 {
-                    LOGGER.Error($"Database {Constants.DbName} could not be dropped.");
+                    LOGGER.Warn($"Database {Constants.DbName} could not be dropped.");
                 }
             }
 
