@@ -89,17 +89,11 @@ namespace Zpp.Test
             }
             else
             {
-
-                if (ProductionDomainContext.Database.CanConnect())
+                bool wasDropped = Dbms.DropDatabase(Constants.DbName);
+                if (wasDropped == false)
                 {
-                    ProductionDomainContext.Database.CloseConnection();
-                    int result = Dbms.DropDatabase(Constants.DbName);
-                    if (result != 1)
-                    {
-                        LOGGER.Error($"DataBase {Constants.DbName} could not be dropped.");
-                    }
+                    LOGGER.Error($"DataBase {Constants.DbName} could not be dropped.");
                 }
-                
             }
 
             Type dbSetInitializer = Type.GetType(TestConfiguration.DbSetInitializer);
@@ -115,8 +109,9 @@ namespace Zpp.Test
             InitDb(testConfiguration);
 
             Type testScenarioType = Type.GetType(TestConfiguration.TestScenario);
-            TestScenario testScenario = (TestScenario)Activator.CreateInstance(testScenarioType);
-            testScenario.CreateCustomerOrders(new Quantity(TestConfiguration.CustomerOrderPartQuantity), ProductionDomainContext);
+            TestScenario testScenario = (TestScenario) Activator.CreateInstance(testScenarioType);
+            testScenario.CreateCustomerOrders(
+                new Quantity(TestConfiguration.CustomerOrderPartQuantity), ProductionDomainContext);
         }
 
         private static TestConfiguration ReadTestConfiguration(string testConfigurationFileNames)

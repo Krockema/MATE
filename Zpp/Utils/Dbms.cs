@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -63,13 +64,28 @@ namespace Zpp.Utils
             
             return productionDomainContext;
         }
-        
-        public static int DropDatabase(string dbName)
+
+        public static bool CanConnect(string connectionString)
         {
-            String connectionstring = Constants.DbConnectionZppSqlServerMaster();
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                return con.State == ConnectionState.Open;
+            }
+        }
+        
+        /**
+         * @return: true, if db was succesfully dropped
+         */
+        public static bool DropDatabase(string dbName)
+        {
+            if (CanConnect(Constants.DbConnectionZppSqlServer()) == false)
+            {
+                return false;
+            }
+            String connectionString = Constants.DbConnectionZppSqlServerMaster();
             int result = 0;
 
-            using (SqlConnection con = new SqlConnection(connectionstring))
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
                 /*String sqlCommandText = $@"
@@ -91,7 +107,7 @@ namespace Zpp.Utils
                 result = sqlCommand.ExecuteNonQuery();
             }
 
-            return result;
+            return result == 1;
         }
     }
 }

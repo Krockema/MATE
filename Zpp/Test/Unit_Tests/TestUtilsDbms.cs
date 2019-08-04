@@ -14,12 +14,12 @@ namespace Zpp.Test
             ProductionDomainContext productionDomainContext = Dbms.getDbContext();
             if (productionDomainContext.Database.CanConnect() == false)
             {
-                productionDomainContext.Database.EnsureDeleted();
                 productionDomainContext.Database.EnsureCreated();
             }
             
             productionDomainContext.Database.CloseConnection();
-            Dbms.DropDatabase(Constants.DbName);
+            bool wasDropped = Dbms.DropDatabase(Constants.DbName);
+            Assert.True(wasDropped, "Db could not be dropped.");
             Thread.Sleep(5000);
             Assert.False(productionDomainContext.Database.CanConnect(),
                 "Can still connect to database.");
