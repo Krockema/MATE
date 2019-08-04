@@ -80,10 +80,7 @@ namespace Zpp.Utils
                 catch (SqlException e)
                 {
                     canConnect = false;
-
                 }
-                
-                
             }
             Thread.Sleep(5000);
             return canConnect;
@@ -105,16 +102,6 @@ namespace Zpp.Utils
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                /*String sqlCommandText = $@"
-                GO
-                    ALTER DATABASE {dbName} 
-                SET OFFLINE WITH ROLLBACK IMMEDIATE
-                GO
-                    ALTER DATABASE {dbName} SET ONLINE
-                GO
-                    DROP DATABASE {dbName}
-                GO";*/
-
                 String sqlCommandText = @"
         ALTER DATABASE " + dbName + @" SET OFFLINE WITH ROLLBACK IMMEDIATE;
         ALTER DATABASE " + dbName + @" SET ONLINE;
