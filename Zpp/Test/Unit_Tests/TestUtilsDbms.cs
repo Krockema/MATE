@@ -10,7 +10,8 @@ namespace Zpp.Test
 {
     public class TestUtilsDbms
     {
-        [Fact]
+
+        [Fact(Skip = "Sql server 'drop database' does not work on non-Windows-systems.")]
         public void TestDropExistingDatabase()
         {
             ProductionDomainContext productionDomainContext = Dbms.getDbContext();
@@ -18,18 +19,19 @@ namespace Zpp.Test
             {
                 productionDomainContext.Database.EnsureCreated();
             }
+
             productionDomainContext.Database.CloseConnection();
-            
+
             bool wasDropped = Dbms.DropDatabase(Constants.GetDbName());
             Assert.True(wasDropped, "Db could not be dropped.");
             Assert.False(productionDomainContext.Database.CanConnect(),
                 "Can still connect to database.");
         }
-        
-        [Fact]
+
+        [Fact(Skip = "Sql server 'drop database' does not work on non-Windows-systems.")]
         public void TestDropNonExistingDatabase()
         {
-            bool wasDropped = Dbms.DropDatabase( "bla" );
+            bool wasDropped = Dbms.DropDatabase("bla");
             Assert.False(wasDropped, "Db could be dropped, although it doesn't exist.");
         }
     }
