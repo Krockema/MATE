@@ -129,13 +129,11 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
           //public double Priority { get; set; }
           PrioRule :  FSharpFunc<FBucket, FSharpFunc<int64, double>>
           mutable ItemPriority : double
-          DueTime : int64
           //Priority : double
           ResourceAgent : IActorRef
           HubAgent : IActorRef
           Status : ElementStatus
           Operations : Set<FWorkItem>
-          Setups: System.Collections.Generic.List<M_ResourceSetup>
           MaxBucketSize : double
           MinBucketSize : double
           Proposals : System.Collections.Generic.List<FProposal> 
@@ -148,13 +146,9 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
         member this.UpdateStatus s = { this with Status = s }
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }
-        member this.AddOperation op = { this with Operations = this.Operations.Add(op);
-                                                  DueTime = if this.DueTime > op.DueTime then op.DueTime else this.DueTime
-                                        }
-        member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op);
-                                                     DueTime = this.Operations.Min(fun y -> y.DueTime)        
-                                        }
-        member this.UpdateDueTime = { this with DueTime = this.Operations.Min(fun y -> y.DueTime)}
+        member this.AddOperation op = { this with Operations = this.Operations.Add(op) }
+        member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
+        member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
         member this.SetReady = { this with Status = ElementStatus.Ready; WasSetReady = true }
         member this.UpdateEstimations estimatedStart resourceAgent = { this with EstimatedEnd = estimatedStart + (int64)(this.Operations.Sum(fun x -> x.Operation.Duration));
                                                                                      EstimatedStart = (int64)estimatedStart;

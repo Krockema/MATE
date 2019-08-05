@@ -51,8 +51,6 @@ namespace Master40.SimulationCore.MessageTypes
             var workItems = new List<FWorkItem>();
             workItems.Add(workItem);
 
-            var setupList = workItem.Operation.ResourceSkill.ResourceSetups.ToList();
-
             return new FBucket(key: Guid.NewGuid()
                                 , dueTime: workItem.DueTime
                                 , estimatedStart: 0
@@ -66,7 +64,6 @@ namespace Master40.SimulationCore.MessageTypes
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , operations: new FSharpSet<FWorkItem>(workItems)
-                                , setups: new List<M_ResourceSetup>(setupList)
                                 , proposals: new List<FProposal>());
         }
 

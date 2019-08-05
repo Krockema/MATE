@@ -51,7 +51,7 @@ namespace Master40.SimulationCore.Agents.Ressource
                 queue.Remove(reqItem);
 
                 // Call Comunication Agent to Requeue
-                Send(Hub.Instruction.EnqueueBucket.Create(reqItem.UpdateStatus(ElementStatus.Created), reqItem.HubAgent));
+                Send(Hub.Instruction.EnqueueBucket.Create(reqItem.UpdateStatus(ElementStatus.Created), reqItem.Operations.FirstOrDefault().HubAgent));
             }
         }
 
@@ -87,44 +87,60 @@ namespace Master40.SimulationCore.Agents.Ressource
             var resource = this.Get<M_Resource>(Properties.RESOURCE);
             var equippdedResourceTool = Get<M_ResourceTool>(Properties.EQUP_RESOURCETOOL);
 
-            var neededresourcetool = item.Operations.FirstOrDefault().Operation.ResourceSkill.ResourceSetups.Where(x => x.Resource.ResourceId == resource.ResourceId).Select(y => y.ResourceTool) as M_ResourceTool;
+            var neededResourceSetup = item.Operations.FirstOrDefault().Operation.ResourceSkill.ResourceSetups.Where(x => x.Resource.ResourceId == resource.ResourceId).Single() as M_ResourceSetup;
             
-            if (equippdedResourceTool == neededresourcetool)
+            if (equippdedResourceTool == neededResourceSetup.ResourceTool)
             {
                 processWorkItemsFromBucket(item);
             }
             else
             {
-                startSetupResource(neededresourcetool, item);
+                startSetupResource(neededResourceSetup, item);
             }            
         }
 
-        private void startSetupResource(M_ResourceTool resourceTool, FBucket bucket)
+        private void startSetupResource(M_ResourceSetup resourceSetup, FBucket bucket)
         {
-            throw new NotImplementedException();
+            DebugMessage("Do Setup to " + resourceSetup.ResourceTool.Name);
+
+            var pub = new UpdateSimulationWork(bucket.Key.ToString(), resourceSetup.SetupTime - 1, (int)this.TimePeriod, this.Name);
+            this.Context.System.EventStream.Publish(pub);
+
+            // get item = ready and lowest priority
+            Send(Instruction.FinishSetup.Create(bucket, Context.Self), resourceSetup.SetupTime);
+
         }
 
         internal void processWorkItemsFromBucket(FBucket bucket)
         {
+           
+            var firstWorkItemsInBucket = bucket.Operations.MinimumElement;
 
+            if (firstWorkItemsInBucket == null)
+            {
+                throw new InvalidCastException("No Item in in bucket to process");
+            }
 
-            var workItemsInBucket = bucket.Operations.OrderBy(bucket.Operations.Select(x => x.Priority));
-
- 
             // TODO: Roll delay here
             var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
-            var duration = workTimeGenerator.GetRandomWorkTime(item.Operation.Duration);
+            var duration = workTimeGenerator.GetRandomWorkTime(firstWorkItemsInBucket.Operation.Duration);
 
-            //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
+            bucket.RemoveOperation(firstWorkItemsInBucket);
 
-            // TODO !
-            var pub = new UpdateSimulationWork(item.Key.ToString(), duration - 1, (int)this.TimePeriod, this.Name);
+            var pub = new UpdateSimulationWork(firstWorkItemsInBucket.Key.ToString(), duration - 1, (int)this.TimePeriod, this.Name);
             this.Context.System.EventStream.Publish(pub);
-            // Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
 
-            // get item = ready and lowest priority
-            Send(Instruction.FinishWork.Create(item, Context.Self), duration);
+            bucket.RemoveOperation(firstWorkItemsInBucket);
 
+            Send(Instruction.FinishWorkItem.Create(firstWorkItemsInBucket, Context.Self), duration);
+
+            if(bucket.Operations.IsEmpty == false) { 
+                Send(Instruction.StartWorkWithNextItem.Create(bucket, Context.Self), duration);
+            }
+            else
+            {
+                Send(Instruction.FinishWorkBucket.Create(bucket, Context.Self));
+            }
         }
 
         /// <summary>
@@ -133,8 +149,19 @@ namespace Master40.SimulationCore.Agents.Ressource
         /// <param name="workItem"></param>
         internal void SendProposalTo(FBucket bucket)
         {
+
+            var _bucket = bucket;
+
+            if (bucket.GetType() != typeof(FBucket))
+            {
+                throw new InvalidCastException("Could not Cast >Bucket< on InstructionSet.ObjectToProcess");
+            }
+
             long max = 0;
-            var queue = Get<List<FBucket>>(Properties.QUEUE);
+
+            var limitedqueue = this.Get<LimitedQueue<FBucket>>(Properties.PROCESSING_QUEUE);
+            var queue = this.Get<List<FBucket>>(Properties.QUEUE);
+            
             var queueLength = this.Get<int>(Properties.QUEUE_LENGTH);
 
             if (queue.Any(e => e.Priority(this.CurrentTime) <= bucket.Priority(this.CurrentTime)))

@@ -22,8 +22,8 @@ namespace Master40.SimulationCore.Agents.Ressource
             var processingQueueSize = 1;
             properties.Add(Resource.Properties.QUEUE_LENGTH, 45); // plaing forecast
             properties.Add(Resource.Properties.PROGRESS_QUEUE_SIZE, processingQueueSize); // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
-            properties.Add(Resource.Properties.QUEUE, new List<FWorkItem>());
-            properties.Add(Resource.Properties.PROCESSING_QUEUE, new LimitedQueue<FWorkItem>(processingQueueSize));
+            properties.Add(Resource.Properties.QUEUE, new List<FBucket>());
+            properties.Add(Resource.Properties.PROCESSING_QUEUE, new LimitedQueue<FBucket>(processingQueueSize));
             properties.Add(Resource.Properties.ITEMS_IN_PROGRESS, false);
             properties.Add(Resource.Properties.EQUP_RESOURCETOOL, null);
             return new ResourceBehaviour(properties);
@@ -38,36 +38,48 @@ namespace Master40.SimulationCore.Agents.Ressource
                 case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.StartWorkWithNextItem msg: StartWorkWithNextWorkItem((Resource)agent, msg.GetObjectFromMessage); break;
                 case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
                 case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
-                case Resource.Instruction.FinishWork msg: FinishWork((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.FinishSetup msg: FinishSetup((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.FinishWorkItem msg: FinishWorkItem((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.FinishWorkBucket msg: FinishWorkBucket((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
+
         public void StartWorkWith(Resource agent, FItemStatus workItemStatus)
         {
             if (workItemStatus == null)
-                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+                throw new InvalidCastException("Could not Cast >BuucketItemStatus< on InstructionSet.ObjectToProcess");
             
-            var Queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
+            var Queue = agent.Get<List<FBucket>>(Resource.Properties.QUEUE);
             // update Status
-            var workItem = Queue.FirstOrDefault(x => x.Key == workItemStatus.ItemId);
+            var bucketItem = Queue.FirstOrDefault(x => x.Key == workItemStatus.ItemId);
 
-            if (workItem != null && workItemStatus.Status == ElementStatus.Ready)
+            if (bucketItem != null && workItemStatus.Status == ElementStatus.Ready)
             {
-                Queue.Remove(workItem);
-                workItem = workItem.UpdateStatus(workItemStatus.Status);
-                Queue.Add(workItem);
+                Queue.Remove(bucketItem);
+                bucketItem = bucketItem.UpdateStatus(workItemStatus.Status);
+                Queue.Add(bucketItem);
 
-                agent.DebugMessage("Set Item: " + workItem.Operation.Name + " | Status to: " + workItem.Status);
+                agent.DebugMessage("Set Item: " + bucketItem.Key + " | Status to: " + bucketItem.Status);
                 // upate Processing queue
-                agent.UpdateProcessingQueue(workItem);
+                agent.UpdateProcessingQueue(bucketItem);
 
                 // there is at least Something Ready so Start Work
                 agent.DoWork();
             }
+        }
+
+        private void StartWorkWithNextWorkItem(Resource agent, FBucket bucket)
+        {
+
+
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -76,13 +88,14 @@ namespace Master40.SimulationCore.Agents.Ressource
         /// <param name="instructionSet"></param>
         private void RequestProposal(Resource agent, FBucket bucket)
         {
-            if (bucket == null)
-                throw new InvalidCastException("Could not Cast Bucket on InstructionSet.ObjectToProcess");
-
+            if (bucket.GetType() != typeof(FBucket))
+            {
+                throw new InvalidCastException("Could not Cast >Bucket< on InstructionSet.ObjectToProcess");
+            }
             // debug
             agent.DebugMessage("Request for Proposal");
+            
             // Send
-
             agent.SendProposalTo(bucket);
         }
 
@@ -137,24 +150,23 @@ namespace Master40.SimulationCore.Agents.Ressource
             }
         }
 
-        private void FinishWork(Resource agent, FBucket bucket)
+        private void FinishSetup(Resource agent, FBucket bucket)
         {
             if (bucket == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
-            var Queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
 
-            // Set next Ready Element from Queue
-            var itemFromQueue = Queue.Where(x => x.Status == ElementStatus.Ready)
-                                     .OrderBy(x => x.Priority(agent.CurrentTime))
-                                        .ThenBy<FWorkItem, int>(x => x.Operation.Duration)
-                                     .FirstOrDefault();
-            agent.UpdateProcessingQueue(itemFromQueue);
+            agent.processWorkItemsFromBucket(bucket);
 
-            // Set Machine State to Ready for next
-            agent.Set(Resource.Properties.ITEMS_IN_PROGRESS, false);
-            agent.DebugMessage("Finished Work with " + workItem.Operation.Name + " take next...");
+        }
+
+        private void FinishWorkItem(Resource agent, FWorkItem workItem)
+        {
+            if (workItem == null)
+            {
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+            }
 
             workItem = workItem.UpdateStatus(ElementStatus.Finished);
 
@@ -162,10 +174,33 @@ namespace Master40.SimulationCore.Agents.Ressource
             agent.Send(Hub.Instruction.FinishWorkItem.Create(workItem, workItem.HubAgent));
 
 
-            // Reorganize List
-            agent.CallToReQueue(Queue, Queue.Where(x => x.Status == ElementStatus.Created || x.Status == ElementStatus.InQueue).ToList());
+          
             // do Do Work in next Timestep.
             agent.Send(Resource.Instruction.DoWork.Create(null, agent.Context.Self));
+
+        }
+
+        private void FinishWorkBucket(Resource agent, FBucket bucket)
+        {
+            if (bucket == null)
+            {
+                throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
+            }
+
+            var bucketQueue = agent.Get<List<FBucket>>(Resource.Properties.QUEUE);
+
+            // Set next Ready Element from Queue
+            FBucket itemFromQueue = bucketQueue.Where(x => x.Status == ElementStatus.Ready)
+                                     .OrderBy(x => x.Priority(agent.CurrentTime)).FirstOrDefault();
+
+            agent.UpdateProcessingQueue(itemFromQueue);
+
+            // Reorganize List
+            agent.CallToReQueue(bucketQueue, bucketQueue.Where(x => x.Status == ElementStatus.Created || x.Status == ElementStatus.InQueue).ToList());
+
+            // Set Machine State to Ready for next
+            agent.Set(Resource.Properties.ITEMS_IN_PROGRESS, false);
+            agent.DebugMessage("Finished Work with " + itemFromQueue.Key + " take next...");
         }
 
 

@@ -60,7 +60,7 @@ namespace Master40.Simulation
                                                     new DBConnectionString(ConfigurationManager.AppSettings[1])
                                                     , new SimulationId(results.ConfigId)
                                                     , new SimulationNumber(1)
-                                                    , new SimulationKind(SimulationType.Decentral)
+                                                    , new SimulationKind(SimulationType.Decentral) //SimulationType.Bucket 
                                                     , new OrderArrivalRate(0.0275)
                                                     , new OrderQuantity(550)
                                                     , new EstimatedThroughPut(800)

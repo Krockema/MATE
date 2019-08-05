@@ -63,7 +63,7 @@ namespace Master40.XUnitTest.Agents
                                                     new DBConnectionString(localresultdb)
                                                     , new SimulationId(1)
                                                     , new SimulationNumber(simNr)
-                                                    , new SimulationKind(SimulationType.Decentral)
+                                                    , new SimulationKind(SimulationType.Decentral) // SimulationType.Bucket
                                                     , new OrderArrivalRate(0.0275)
                                                     , new OrderQuantity(1)
                                                     , new EstimatedThroughPut(800)

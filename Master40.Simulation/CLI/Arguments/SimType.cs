@@ -27,6 +27,10 @@ namespace Master40.Simulation.CLI.Arguments
                 {
                     result.SimulationType = SimulationType.Central;
                 }
+                else if (arg.Equals(SimulationType.Bucket.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    result.SimulationType = SimulationType.Bucket;
+                }
                 else
                 {
                     throw  new Exception("Unknown argument.");

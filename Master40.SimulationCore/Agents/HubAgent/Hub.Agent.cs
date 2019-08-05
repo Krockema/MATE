@@ -4,8 +4,10 @@ using Master40.SimulationCore.Agents.Ressource;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
+using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -34,10 +36,13 @@ namespace Master40.SimulationCore.Agents.HubAgent
             }
 
             var bucketList = Get<List<FBucket>>(Properties.BUCKETS);
+
             //TODO: Do somethine really smart 
             // for now: create bucket for each workItem - lot size 1
 
+
             createNewBucket(workItem);
+
             /*
             foreach (FBucket bucket in bucketList)
             {
@@ -53,12 +58,11 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 else
                 {
                     //Need new Bucket
-                    
+                    createNewBucket(workItem);
                 }
 
             }
             */
-
         }
 
         internal void createNewBucket(FWorkItem workItem)
@@ -110,6 +114,17 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 //Only send to Resources for the bucket
                  Send(instruction: Resource.Instruction.RequestProposal.Create(bucket, actorRef.Key));
             }
+        }
+
+        internal FBucket getBucketByWorkItemId(int workItemKey)
+        {
+            var bucketList = Get<List<FBucket>>(Properties.BUCKETS);
+
+            //FBucket bucket = bucketList.Where(b => b.Operations.Where(y => y.Key.Equals(workItemKey));
+
+            FBucket bucket = bucketList.Find(b => b.Operations.Any(c => c.Operation.Id == workItemKey));
+
+            return bucket;
         }
 
     }
