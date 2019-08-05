@@ -210,7 +210,7 @@ namespace Master40.Agents.Agents.Internal
             data.Add("AgentId", AgentId);
             data.Add("AgentType", this.GetType());
             
-            DataCollectionHelper.CollectPropsTree(this, ref data, this.GetType().Name + ".");
+            DataCollectionHelper.CollectProps(this, ref data, this.GetType().Name + ".");
 
             dataList.Add(data);
             return dataList;

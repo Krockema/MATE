@@ -22,16 +22,15 @@ namespace Master40.Agents.Agents.DataTransformation
                         new AgentProperty("Quantity", PropertyType.None),
                         new AgentProperty("DueTime", PropertyType.None),
                     }),
-                    // Lists don't work yet
-                    //new AgentPropertyNode("WorkItems", new List<AgentPropertyBase>
-                    //{
-                    //    new AgentProperty("EstimatedStart", PropertyType.Retransform),
-                    //    new AgentProperty("EstimatedEnd", PropertyType.Retransform),
-                    //    new AgentPropertyNode("WorkSchedule", new List<AgentPropertyBase>
-                    //    {
-                    //        new AgentProperty("Id", PropertyType.Id)
-                    //    })
-                    //}),
+                    new AgentPropertyNode("WorkItems", new List<AgentPropertyBase>
+                    {
+                        new AgentProperty("EstimatedStart", PropertyType.Retransform),
+                        new AgentProperty("EstimatedEnd", PropertyType.Retransform),
+                        new AgentPropertyNode("WorkSchedule", new List<AgentPropertyBase>
+                        {
+                            new AgentProperty("Id", PropertyType.Id)
+                        })
+                    }),
                 }
             },
             { "ContractAgent", new List<AgentPropertyBase>

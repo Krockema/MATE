@@ -160,7 +160,7 @@ namespace Master40.Agents.Agents
             if (CheckAllChildrenResponded())
             {
                 DataCollectionHelper.WriteDataGrouped(allChildData);
-                //allChildData = null;
+                allChildData = null;
             }
         }
     }
