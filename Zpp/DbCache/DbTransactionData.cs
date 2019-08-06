@@ -391,5 +391,10 @@ namespace Zpp
         {
             return _productionOrderOperations.SingleOrDefault(x => x.Id.Equals(id.GetValue()));
         }
+
+        public List<T_ProductionOrderOperation> ProductionOrderOperationGetAll()
+        {
+            return _productionOrderOperations;
+        }
     }
 }

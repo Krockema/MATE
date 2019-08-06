@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Zpp.DemandDomain;
 
 namespace Zpp.ProviderDomain
@@ -31,6 +32,8 @@ namespace Zpp.ProviderDomain
 
         public Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity)
         {
+            // TODO: Must read providers from db
+            
             List<Provider> providersForDemand = _providers.GetAllByArticleId(demandedArticle.GetId());
             if (providersForDemand == null)
             {

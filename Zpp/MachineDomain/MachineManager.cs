@@ -13,7 +13,7 @@ namespace Zpp.MachineDomain
                 productionOrderBoms.GetAll();
             while (operationsToPlan.Count > 0)
             {
-                T_ProductionOrderBom productionOrderBom = (T_ProductionOrderBom) operationsToPlan[0].ToIDemand();
+                T_ProductionOrderBom productionOrderBom = (T_ProductionOrderBom) operationsToPlan[0].GetIDemand();
                 if (productionOrderBom.ProductionOrderOperationId == null)
                 {
                     operationsToPlan.RemoveAt(0);

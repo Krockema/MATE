@@ -68,7 +68,6 @@ namespace Zpp.Test
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
                 ContextTest.TestConfiguration(), 1, true,
                 TestConfiguration.CustomerOrderPartQuantity);
-            LotSize.LotSize.SetDefaultLotSize(new Quantity(TestConfiguration.LotSize));
         }
 
         /**
@@ -100,6 +99,8 @@ namespace Zpp.Test
             Type dbSetInitializer = Type.GetType(TestConfiguration.DbSetInitializer);
             dbSetInitializer.GetMethod("DbInitialize")
                 .Invoke(null, new[] {ProductionDomainContext});
+            
+            LotSize.LotSize.SetDefaultLotSize(new Quantity(TestConfiguration.LotSize));
         }
 
         /**

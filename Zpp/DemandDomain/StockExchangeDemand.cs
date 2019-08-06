@@ -17,7 +17,7 @@ namespace Zpp.DemandDomain
         {
         }
 
-        public override IDemand ToIDemand()
+        public override IDemand GetIDemand()
         {
             return (T_StockExchange)_demand;
         }

@@ -9,7 +9,7 @@ namespace Zpp.ProviderDomain
     public interface IProviderManager
     {
         /**
-         * @returns: the quantity that could be NOT reserved
+         * @returns: the quantity that could be NOT reserved. Must read providers from db.
          */
         Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity);
 
@@ -48,5 +48,6 @@ namespace Zpp.ProviderDomain
         IProviderToDemandTable GetProviderToDemandTable();
 
         IProviders GetProviders();
+     
     }
 }

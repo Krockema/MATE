@@ -94,7 +94,7 @@ namespace Zpp.ProviderDomain
 
                 IEnumerable<ProductionOrderBom> sortedProductionOrderBoms =
                     productionOrderBoms.OrderBy(x =>
-                        ((T_ProductionOrderBom) x.ToIDemand()).ProductionOrderOperation
+                        ((T_ProductionOrderBom) x.GetIDemand()).ProductionOrderOperation
                         .HierarchyNumber);
 
                 foreach (var productionOrderBom in sortedProductionOrderBoms)

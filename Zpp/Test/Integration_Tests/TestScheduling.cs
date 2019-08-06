@@ -10,18 +10,14 @@ namespace Zpp.Test
 {
     public class TestScheduling : AbstractTest
     {
-
-
         public TestScheduling()
         {
-
+            MrpRun.RunMrp(ProductionDomainContext);
         }
 
         [Fact(Skip = "not implemented yet")]
         public void TestBackwardScheduling()
         {
-            MrpRun.RunMrp(ProductionDomainContext);
-
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
@@ -41,5 +37,40 @@ namespace Zpp.Test
             }
         }
 
+        [Fact]
+        public void TestForwardScheduling()
+        {
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            foreach (var productionOrderOperation in dbTransactionData
+                .ProductionOrderOperationGetAll())
+            {
+                if (productionOrderOperation.StartBackward < 0)
+                {
+                    Assert.True(
+                        productionOrderOperation.StartForward != null &&
+                        productionOrderOperation.EndForward != null,
+                        $"Operation ({productionOrderOperation}) is not scheduled forward.");
+                    Assert.True(
+                        productionOrderOperation.StartForward >= 0 &&
+                        productionOrderOperation.EndForward >= 0,
+                        "Forward schedule times of operation ({productionOrderOperation}) are negative.");
+                }
+            }
+
+            foreach (var demand in dbTransactionData.DemandsGetAll().GetAll())
+            {
+                Assert.True(demand.GetDueTime(dbTransactionData).GetValue() >= 0,
+                    $"DueTime of demand ({demand}) is negative.");
+            }
+            
+            foreach (var provider in dbTransactionData.ProvidersGetAll().GetAll())
+            {
+                Assert.True(provider.GetDueTime(dbTransactionData).GetValue() >= 0,
+                    $"DueTime of provider ({provider}) is negative.");
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace Zpp.DemandDomain
             
         }
 
-        public override IDemand ToIDemand()
+        public override IDemand GetIDemand()
         {
             return (T_CustomerOrderPart)_demand;
         }
@@ -32,7 +32,9 @@ namespace Zpp.DemandDomain
                 return new DueTime(customerOrderPart.CustomerOrder.DueTime);
             }
             Id customerOrderId = new Id(customerOrderPart.CustomerOrderId);
-            DueTime dueTime = new DueTime(_dbMasterDataCache.T_CustomerOrderGetById(customerOrderId).DueTime);
+            customerOrderPart.CustomerOrder =
+                _dbMasterDataCache.T_CustomerOrderGetById(customerOrderId);
+            DueTime dueTime = new DueTime(customerOrderPart.CustomerOrder.DueTime);
             return dueTime;
         }
 
