@@ -26,7 +26,7 @@ namespace Master40.Simulation.CLI.Arguments
                 }
                 else if (arg.Equals(SimulationType.Bucket.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    result.SimulationType = SimulationType.Bucket;
+                    result.AddOption(new SimulationCore.Environment.Options.SimulationKind(SimulationType.Bucket));
                 }
                 else
                 {

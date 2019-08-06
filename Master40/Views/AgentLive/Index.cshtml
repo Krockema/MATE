@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.DB.DataModel.M_Machine>
+@model IEnumerable<Master40.DB.DataModel.M_Resource>
 
 @{
     ViewBag.Title = "Agent Basic";
@@ -112,7 +112,7 @@
                                     .textLayer {
                                         padding-top:" + textPadding + @"px;
                                         font: bold"+ fontSize + @"px Helvetica;
-                                </style>") } @foreach (var section in Model.OrderBy(x => x.MachineGroup.Stage))
+                                </style>") } @foreach (var section in Model.OrderBy(x => x.ResourceId))
                                                         {@await Html.PartialAsync("~/Views/AgentLive/PartialMachine.cshtml",
                                                       section)}
                             </div>
