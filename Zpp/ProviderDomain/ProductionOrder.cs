@@ -8,6 +8,7 @@ using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.SchedulingDomain;
 using Zpp.Utils;
 
 namespace Zpp.ProviderDomain
@@ -87,12 +88,18 @@ namespace Zpp.ProviderDomain
                 }
 
                 // backwards scheduling
-                DueTime currentDueTime = parentProductionOrder.GetDueTime(dbTransactionData);
-                foreach (var productionOrderBom in productionOrderBoms.OrderBy(x =>
-                    ((T_ProductionOrderBom) x.ToIDemand()).ProductionOrderOperation
-                    .HierarchyNumber))
+                OperationBackwardsSchedule lastOperationBackwardsSchedule =
+                    new OperationBackwardsSchedule(parentProductionOrder.GetDueTime(dbTransactionData), null,
+                        null);
+
+                IEnumerable<ProductionOrderBom> sortedProductionOrderBoms =
+                    productionOrderBoms.OrderBy(x =>
+                        ((T_ProductionOrderBom) x.ToIDemand()).ProductionOrderOperation
+                        .HierarchyNumber);
+
+                foreach (var productionOrderBom in sortedProductionOrderBoms)
                 {
-                    currentDueTime = productionOrderBom.ScheduleBackwards(currentDueTime);
+                    lastOperationBackwardsSchedule = productionOrderBom.ScheduleBackwards(lastOperationBackwardsSchedule);
                 }
 
 

@@ -13,5 +13,10 @@ namespace Zpp.WrappersForPrimitives
         {
             _hierarchyNumber++;
         }
+
+        public int GetValue()
+        {
+            return _hierarchyNumber;
+        }
     }
 }

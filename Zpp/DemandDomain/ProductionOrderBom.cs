@@ -4,6 +4,8 @@ using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
 using Zpp.ProviderDomain;
+using Zpp.SchedulingDomain;
+using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.DemandDomain
@@ -131,17 +133,46 @@ namespace Zpp.DemandDomain
             return ((T_ProductionOrderBom) _demand).ProductionOrderOperation != null;
         }
 
-        /**
-         * return (given dueTime) - (duration of operation) == startTime
-         */
-        public DueTime ScheduleBackwards(DueTime dueTime)
+        public OperationBackwardsSchedule ScheduleBackwards(OperationBackwardsSchedule lastOperationBackwardsSchedule)
         {
             T_ProductionOrderBom tProductionOrderBom = (T_ProductionOrderBom) _demand;
-            tProductionOrderBom.ProductionOrderOperation.EndBackward = dueTime.GetValue();
-            tProductionOrderBom.ProductionOrderOperation.StartBackward =
-                dueTime.GetValue() - tProductionOrderBom.ProductionOrderOperation.Duration;
-            return new DueTime(tProductionOrderBom.ProductionOrderOperation.StartBackward
-                .GetValueOrDefault());
+            int? startBackwards;
+            int? endBackwards;
+            // case: equal hierachyNumber --> PrOO runs in parallel
+            if (lastOperationBackwardsSchedule.HierarchyNumber == null || (lastOperationBackwardsSchedule.HierarchyNumber != null &&
+                tProductionOrderBom.ProductionOrderOperation.HierarchyNumber.Equals(
+                    lastOperationBackwardsSchedule.HierarchyNumber.GetValue())))
+            {
+                endBackwards = lastOperationBackwardsSchedule.EndBackwards.GetValue();
+                startBackwards = lastOperationBackwardsSchedule.EndBackwards.GetValue() -
+                                 tProductionOrderBom.ProductionOrderOperation.Duration;
+            }
+            // case: greaterHierachyNumer --> PrOO runs after the last PrOO
+            else
+            {
+                if (lastOperationBackwardsSchedule.HierarchyNumber.GetValue() >
+                    tProductionOrderBom.ProductionOrderOperation.HierarchyNumber)
+                {
+                    throw new MrpRunException(
+                        "This is not allowed: hierarchyNumber of lastBackwardsSchedule " +
+                        "is greater than hierarchyNumber of current PrOO.");
+                }
+                endBackwards = lastOperationBackwardsSchedule.StartBackwards.GetValue();
+                startBackwards = lastOperationBackwardsSchedule.StartBackwards.GetValue() -
+                                 tProductionOrderBom.ProductionOrderOperation.Duration;
+            }
+
+            tProductionOrderBom.ProductionOrderOperation.EndBackward = endBackwards;
+            tProductionOrderBom.ProductionOrderOperation.StartBackward = startBackwards;
+
+            // create return value
+            OperationBackwardsSchedule newOperationBackwardsSchedule = new OperationBackwardsSchedule();
+            newOperationBackwardsSchedule.StartBackwards = new DueTime(startBackwards.GetValueOrDefault());
+            newOperationBackwardsSchedule.EndBackwards = new DueTime(endBackwards.GetValueOrDefault());
+            newOperationBackwardsSchedule.HierarchyNumber = new HierarchyNumber(tProductionOrderBom
+                .ProductionOrderOperation.HierarchyNumber);
+
+            return newOperationBackwardsSchedule;
         }
     }
 }
