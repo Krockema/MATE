@@ -171,6 +171,7 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             // calculat Proposal.
             var proposal = new FProposal(possibleSchedule: max
+                                            ,workItemId: bucket.Key
                                             , postponed: (max > queueLength && bucket.Status != ElementStatus.Ready)
                                             , postponedFor: queueLength
                                             , bucketId: bucket.Key

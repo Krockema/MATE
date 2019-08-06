@@ -21,13 +21,37 @@ namespace Master40.SimulationCore.Agents.Ressource
                 public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
             }
 
+            public class RequestProposalBucket : SimulationMessage
+            {
+                public static RequestProposalBucket Create(FBucket message, IActorRef target)
+                {
+                    return new RequestProposalBucket(message, target);
+                }
+                private RequestProposalBucket(object message, IActorRef target) : base(message, target)
+                {
+                }
+                public FBucket GetObjectFromMessage { get => Message as FBucket; }
+            }
+
             public class RequestProposal : SimulationMessage
             {
-                public static RequestProposal Create(FBucket message, IActorRef target)
+                public static RequestProposal Create(FWorkItem message, IActorRef target)
                 {
                     return new RequestProposal(message, target);
                 }
                 private RequestProposal(object message, IActorRef target) : base(message, target)
+                {
+                }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+            }
+
+            public class AcknowledgeProposalBucket : SimulationMessage
+            {
+                public static AcknowledgeProposalBucket Create(FBucket message, IActorRef target)
+                {
+                    return new AcknowledgeProposalBucket(message, target);
+                }
+                private AcknowledgeProposalBucket(object message, IActorRef target) : base(message, target)
                 {
                 }
                 public FBucket GetObjectFromMessage { get => Message as FBucket; }
@@ -35,14 +59,14 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             public class AcknowledgeProposal : SimulationMessage
             {
-                public static AcknowledgeProposal Create(FBucket message, IActorRef target)
+                public static AcknowledgeProposal Create(FWorkItem message, IActorRef target)
                 {
                     return new AcknowledgeProposal(message, target);
                 }
                 private AcknowledgeProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
             }
 
             public class StartWorkWith : SimulationMessage

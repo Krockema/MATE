@@ -64,7 +64,6 @@ namespace Master40.XUnitTest.SimulationImmutables
 
                 bucket1 = bucket1.RemoveOperation(w2);
                 bucket1.Priority(time);
-                bucket1 = bucket1.UpdateDueTime;
                 Assert.Equal(bucket1.ItemPriority, (double)40);
                 Assert.Equal(bucket1.DueTime, (double)50);
             });

@@ -98,12 +98,18 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
         public void SetWorkItemStatus(Hub agent, FItemStatus workItemStatus)
         {
+            var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE); 
             var bucketQueue = agent.Get<List<FBucket>>(Hub.Properties.BUCKETS);
 
             if (workItemStatus == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
+
+            var workItem = workItemQueue.Find(x => x.Key == workItemStatus.ItemId)
+                                         .UpdateStatus(workItemStatus.Status);
+
+            agent.DebugMessage("Set Item: " + workItem.Operation.Name + " | Status to: " + workItem.Status);
 
             //bucketQueue.ForEach(x => x.Operations.ToList().Find(x => x.Key == workItemStatus.ItemId).UpdateStatus(workItemStatus.Status));
 
@@ -184,7 +190,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 // set Proposal Start for Machine to Reque if time slot is closed.
                 bucketItem = bucketItem.UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent);
                 bucketQueue.Replace(bucketItem);
-                agent.Send(Resource.Instruction.AcknowledgeProposal.Create(bucketItem, acknowledgement.ResourceAgent));
+                agent.Send(Resource.Instruction.AcknowledgeProposalBucket.Create(bucketItem, acknowledgement.ResourceAgent));
             }
         }
 

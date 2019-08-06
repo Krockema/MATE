@@ -47,6 +47,18 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 }
                 public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
+            public class EnqueueWorkItem : SimulationMessage
+            {
+                public static EnqueueWorkItem Create(FWorkItem message, IActorRef target)
+                {
+                    return new EnqueueWorkItem(message, target);
+                }
+                private EnqueueWorkItem(object message, IActorRef target) : base(message, target)
+                {
+
+                }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+            }
 
             public class ProposalFromMachine : SimulationMessage
             {

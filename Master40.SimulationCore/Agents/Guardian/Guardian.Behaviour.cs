@@ -7,7 +7,7 @@ namespace Master40.SimulationCore.Agents.Guardian
 {
     public class GuardianBehaviour : Behaviour
     {
-        private GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker) : base(childMaker) { }
+        internal GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker) : base(childMaker) { }
 
         public static GuardianBehaviour Get(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker)
         {
@@ -24,7 +24,7 @@ namespace Master40.SimulationCore.Agents.Guardian
             return true;
         }
 
-        private void CreateChild(Agent agent, AgentSetup setup)
+        internal void CreateChild(Agent agent, AgentSetup setup)
         {
             var childRef = agent.Behaviour.ChildMaker(agent.Context, setup);
             agent.Send(BasicInstruction.Initialize.Create(childRef, setup.Behaviour));

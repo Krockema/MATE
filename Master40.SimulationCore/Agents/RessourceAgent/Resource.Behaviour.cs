@@ -35,8 +35,8 @@ namespace Master40.SimulationCore.Agents.Ressource
             {
                 //case BasicInstruction.Initialize i: RegisterService(); break;
                 case Resource.Instruction.SetHubAgent msg: SetHubAgent((Resource)agent, msg.GetObjectFromMessage.Ref); break;
-                case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
-                case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.RequestProposalBucket msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.AcknowledgeProposalBucket msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
                 case Resource.Instruction.StartWorkWithNextItem msg: StartWorkWithNextWorkItem((Resource)agent, msg.GetObjectFromMessage); break;
                 case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;

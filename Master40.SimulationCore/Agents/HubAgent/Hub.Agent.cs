@@ -92,7 +92,6 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
             bucket = bucket.AddOperation(workItem);
             bucket.Priority(TimePeriod);
-            bucket = bucket.UpdateDueTime;
 
             DebugMessage("Item: " + workItem.Operation.Name + "added to Bucket: " + bucket.Key);
 
@@ -112,7 +111,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
             foreach (var actorRef in resourceAgents)
             {
                 //Only send to Resources for the bucket
-                 Send(instruction: Resource.Instruction.RequestProposal.Create(bucket, actorRef.Key));
+                 Send(instruction: Resource.Instruction.RequestProposalBucket.Create(bucket, actorRef.Key));
             }
         }
 

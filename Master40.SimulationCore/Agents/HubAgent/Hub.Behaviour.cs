@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
             var properties = new Dictionary<string, object>();
 
             properties.Add(Hub.Properties.WORK_ITEM_QUEUE, new List<FWorkItem>());
-            properties.Add(Hub.Properties.MACHINE_AGENTS, new Dictionary<IActorRef, string>());
+            properties.Add(Hub.Properties.RESOURCE_AGENTS, new Dictionary<IActorRef, string>());
             properties.Add(Hub.Properties.SKILL_GROUP, skillGroup);
 
             return new HubBehaviour(properties);
@@ -28,8 +28,8 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             switch (message)
             {
-                case Hub.Instruction.EnqueueWorkItem msg: EnqueueWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
-                case Hub.Instruction.ProductionStarted msg: ProductionStarted((Hub)agent, msg.GetObjectfromMessage); break;
+                case HubAgent.Buckets.Instructions.AddWorkItemToBucket msg: EnqueueWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
+               // case Hub.Instruction.ProductionStarted msg: ProductionStarted((Hub)agent, msg.GetObjectfromMessage); break;
                 case Hub.Instruction.FinishWorkItem msg: FinishWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
                 case Hub.Instruction.ProposalFromMachine msg: ProposalFromMachine((Hub)agent, msg.GetObjectFromMessage); break;
                 case Hub.Instruction.SetWorkItemStatus msg: SetWorkItemStatus((Hub)agent, msg.GetObjectFromMessage); break;
@@ -42,7 +42,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
         private void ResourceBreakDown(Hub agent, FBreakDown breakDown)
         {
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
             var brockenMachine = machineAgents.Single(x => breakDown.Machine == x.Value).Key;
             machineAgents.Remove(brockenMachine);
             agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, brockenMachine, true), 45);
@@ -57,9 +57,8 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
             }
 
-
             var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
             var localItem = workItemQueue.Find(x => x.Key == workItem.Key);
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
@@ -150,7 +149,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
         private void ProposalFromMachine(Hub agent, FProposal proposal)
         {
             var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
 
             if (proposal == null)
             {
@@ -204,7 +203,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
         private void AddMachineToHub(Hub agent, FHubInformation hubInformation)
         {
-            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.MACHINE_AGENTS);
+            var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);
             if (hubInformation == null)
             {
                 throw new InvalidCastException("Could not Cast MachineAgent on InstructionSet.ObjectToProcess - From:" + agent.Sender.Path.Name);

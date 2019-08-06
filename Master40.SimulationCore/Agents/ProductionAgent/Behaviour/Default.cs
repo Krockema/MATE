@@ -9,27 +9,11 @@ using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents.ProductionAgent
+namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
-    public class ProductionBehaviour : Behaviour
+    public class Default : MessageTypes.Behaviour
     {
-        private ProductionBehaviour(Dictionary<string, object> properties) : base(null, properties) { }
-
-        public static ProductionBehaviour Get()
-        {
-            var properties = new Dictionary<string, object>();
-
-            //properties.Add(REQUEST_ITEM, new object()); // RequestItem
-            properties.Add(Production.Properties.WORK_ITEMS, new List<FWorkItem>());
-            properties.Add(Production.Properties.REQUESTED_ITEMS, new List<FRequestItem>());
-            properties.Add(Production.Properties.HUB_AGENTS, new Dictionary<IActorRef, string>());
-            properties.Add(Production.Properties.ELEMENT_STATUS, ElementStatus.Created);
-            properties.Add(Production.Properties.NEXT_WORK_ITEM, new object());
-            properties.Add(Production.Properties.CHILD_WORKITEMS, new Queue<FRequestItem>()); 
-
-            return new ProductionBehaviour(properties);
-        }
-
+        internal Default(Dictionary<string, object> properties) : base(null, properties) { }
         public override bool Action(Agent agent, object message)
         {
             switch (message)
@@ -70,7 +54,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 childItems.Enqueue(MessageFactory.ToRequestItem(articleBom, requestItem, agent.Context.Self));
 
                 // create Dispo Agents for to Provide Required Articles
-                var agentSetup = AgentSetup.Create(agent, DispoBehaviour.Get());
+                var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.BehaviourFactory.Get(DB.Enums.SimulationType.None));
                 var instruction = Guardian.Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
                 agent.Send(instruction);
             }
@@ -96,7 +80,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
 
 
-                agent.Send(Hub.Instruction.AddWorkItemToBucket.Create(workItem, hub.Ref));
+                agent.Send(HubAgent.Buckets.Instructions.AddWorkItemToBucket.Create(workItem, hub.Ref));
             }
         }
         private void ProductionStarted(Production agent, FWorkItem workItem)

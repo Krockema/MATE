@@ -11,6 +11,7 @@ namespace Master40.SimulationCore.Helper
         private static int contractCount = 0;
         private static int productionCount = 0;
         private static int dispoCount = 0;
+
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ContractCreator = (ctx, setup) =>
         {
             return ctx.ActorOf(Contract.Props(setup.ActorPaths, setup.Time, setup.Debug), "ContractAgent(" + contractCount++ + ")");

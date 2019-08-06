@@ -52,7 +52,6 @@ namespace Master40.SimulationCore.MessageTypes
             workItems.Add(workItem);
 
             return new FBucket(key: Guid.NewGuid()
-                                , dueTime: workItem.DueTime
                                 , estimatedStart: 0
                                 , estimatedEnd: 0
                                 , status: workItem.Status

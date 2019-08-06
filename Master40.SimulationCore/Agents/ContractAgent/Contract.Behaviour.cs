@@ -43,7 +43,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         {
 
             // Tell Guadian to create Dispo Agent
-            var agentSetup = AgentSetup.Create(agent, DispoBehaviour.Get());
+            var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.BehaviourFactory.Get(DB.Enums.SimulationType.None));
             var instruction = Guardian.Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
             agent.Send(instruction);
             // init
