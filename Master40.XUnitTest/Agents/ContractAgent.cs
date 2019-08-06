@@ -66,7 +66,7 @@ namespace Master40.XUnitTest.Agents
             var inbox = Inbox.Create(Sys);
             var simContext = Sys.ActorOf(Moc.SimulationContext.Props(testProbe));
             var agentPaths = new ActorPaths(simContext, inbox.Receiver);
-            agentPaths.SetSystemAgent(systemProbe);
+            agentPaths.SetSupervisorAgent(systemProbe);
             agentPaths.SetStorageDirectory(directoryProbe);
             var contractGuard = Sys.ActorOf(Guardian.Props(agentPaths, 0, true), "ContractGuard");
                 simContext.Tell(BasicInstruction.Initialize.Create(contractGuard, GuardianBehaviour.Get(CreatorOptions.ContractCreator)));
@@ -99,7 +99,7 @@ namespace Master40.XUnitTest.Agents
             var simSystem = this.CreateTestProbe();
             var inbox = Inbox.Create(Sys);
             var agentPaths = new ActorPaths(simContext, inbox.Receiver);
-            agentPaths.SetSystemAgent(simSystem);
+            agentPaths.SetSupervisorAgent(simSystem);
             agentPaths.SetHubDirectoryAgent(this.TestActor);
 
             // init Stock 
@@ -120,7 +120,7 @@ namespace Master40.XUnitTest.Agents
             var contractGuard = this.CreateTestProbe();
             var inbox = Inbox.Create(Sys);
             var agentPaths = new ActorPaths(simContext, inbox.Receiver);
-            agentPaths.SetSystemAgent(simSystem);
+            agentPaths.SetSupervisorAgent(simSystem);
             agentPaths.SetHubDirectoryAgent(this.TestActor);
             agentPaths.AddGuardian(GuardianType.Contract, contractGuard);
             // init Contract

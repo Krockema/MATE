@@ -14,5 +14,6 @@ script:
   - dotnet build
 
 notifications:
-  email:
+  email: 
   - krockert@htw-dresden.de
+  slack: infocomhtw:7H5jePcDELUv916neaRS3LQ1

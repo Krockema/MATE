@@ -5,7 +5,7 @@ using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
-using Master40.SimulationCore.Agents.SupervisorAegnt;
+using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
@@ -131,9 +131,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             toUpdate.FinishingTime = (int)item.FinishedAt;
         }
 
-        private void WriteToDB(Collector agent, bool saveNow)
+        private void WriteToDB(Collector agent,bool writeResultsToDB)
         {
-            if (agent.saveToDB.Value && saveNow)
+            if (agent.saveToDB.Value && writeResultsToDB)
             {
                 using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
                 {
