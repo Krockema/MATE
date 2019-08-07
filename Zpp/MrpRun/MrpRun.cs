@@ -45,8 +45,6 @@ namespace Zpp
             IDemands finalAllDemands = new Demands();
             StockManager stockManager = new StockManager(globalStockManager);
             IProviderManager providerManager = new ProviderManager(stockManager, dbTransactionData);
-            StockState stockState = new StockState();
-            stockState.BackupStockState(dbMasterDataCache.M_StockGetAll());
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
@@ -120,8 +118,6 @@ namespace Zpp
                 providerManager.GetProviders(), dbTransactionData);
             if (minDueTime.GetValue() < 0)
             {
-                // reset stock.currents
-                dbMasterDataCache.M_StockSetAll(stockState.ResetStockState());
 
                 T_CustomerOrderPart thisCustomerOrderPart =
                     (T_CustomerOrderPart) oneCustomerOrderPart.GetIDemand();

@@ -48,7 +48,6 @@ namespace Zpp.Test
             foreach (var demand in demands)
             {
                 M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(demand.GetArticleId());
-                decimal oldCurrentStock = stock.Current;
 
                 Provider providerStockExchange = StockExchangeProvider.CreateStockExchangeProvider(
                     demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
@@ -60,43 +59,6 @@ namespace Zpp.Test
                 Assert.True(
                     providerStockExchange.GetDueTime(dbTransactionData)
                         .Equals(demand.GetDueTime(dbTransactionData)), "DueTime is not correct.");
-                // depending demands
-                decimal newCurrentStock = stock.Current;
-                Assert.True(newCurrentStock == oldCurrentStock - demand.GetQuantity().GetValue(),
-                    "stock.Current ist not correct.");
-                // stock provided less than needed
-                if (newCurrentStock < stock.Min)
-                {
-                    Assert.True(providerStockExchange.AnyDependingDemands(),
-                        $"Provider {providerStockExchange} for demand {demand} " +
-                        $"has no depending Demands.");
-
-                    Assert.True(providerStockExchange.GetAllDependingDemands().GetAll().Count == 1,
-                        $"Provider {providerStockExchange} for demand {demand} " +
-                        $"must have exact one depending Demand.");
-
-                    // no inventory article
-                    if (stock.Min.Equals(0))
-                    {
-                        providerStockExchange.GetAllDependingDemands().GetAll()[0].GetQuantity()
-                            .GetValue().Equals(1);
-                    }
-                    // inventory article
-                    else
-                    {
-                        providerStockExchange.GetAllDependingDemands().GetAll()[0].GetQuantity()
-                            .GetValue().Equals(stock.Min + stock.Current * (-1));
-                    }
-                }
-                // stock provided more or equal to than needed 
-                else
-                {
-                    Assert.True(providerStockExchange.AnyDependingDemands() == false,
-                        $"Provider {providerStockExchange} for demand {demand} " +
-                        $"has depending Demands.");
-                }
-
-                // ProductionOrderBom TODO
             }
         }
 
