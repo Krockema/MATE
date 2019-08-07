@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.ProviderDomain;
+using Zpp.Utils;
 
 namespace Zpp.StockDomain
 {
@@ -22,6 +25,10 @@ namespace Zpp.StockDomain
         
         public void DecrementBy(Quantity quantity)
         {
+            if (quantity.IsNegative())
+            {
+                throw new MrpRunException("This is not what you intended to do.");
+            }
             _quantity.DecrementBy(quantity);
         }
         

@@ -9,7 +9,7 @@ namespace Zpp.StockDomain
     public class StockManager
     {
         private readonly Dictionary<Id, Stock> _stocks = new Dictionary<Id, Stock>();
-        private readonly HashSet<Provider> _alreadyConsideredProviders = new HashSet<Provider>();
+        private HashSet<Provider> _alreadyConsideredProviders = new HashSet<Provider>();
 
         public StockManager(StockManager stockManager)
         {
@@ -41,9 +41,9 @@ namespace Zpp.StockDomain
             _alreadyConsideredProviders.Add(provider);
             
             // SE:W decrements stock
+            Stock stock = _stocks[provider.GetArticleId()];
             if (provider.GetType() == typeof(StockExchangeProvider))
             {
-                Stock stock = _stocks[provider.GetArticleId()];
                 stock.DecrementBy(provider.GetQuantity());
                 Quantity currentQuantity = stock.GetQuantity();
                 if (currentQuantity.IsSmallerThan(stock.GetMinStockLevel()))
@@ -55,15 +55,19 @@ namespace Zpp.StockDomain
             // PrO, PuOP increases stock
             else
             {
-                _stocks[provider.GetArticleId()].IncrementBy(provider.GetQuantity());
+                stock.IncrementBy(provider.GetQuantity());
             }
         }
 
+        /**
+         * overrides (copy) stocks (including quantity) from given stockManager to this
+         */
         public void AdaptStock(StockManager stockManager)
         {
             foreach (var stock in stockManager.GetStocks())
             {
-                _stocks[stock.GetArticleId()].IncrementBy(stock.GetQuantity());
+                _stocks[stock.GetArticleId()] = stock;
+                _alreadyConsideredProviders = stockManager._alreadyConsideredProviders;
             }
         }
 
