@@ -162,7 +162,7 @@ namespace Zpp.DemandDomain
 
         public virtual string GetGraphizString(IDbTransactionData dbTransactionData)
         {
-            return $"{GetQuantity()};{GetArticle().Name};{GetDueTime(dbTransactionData)}";
+            return $"{GetQuantity()};\\n{GetArticle().Name};{GetDueTime(dbTransactionData)}";
         }
     }
 }
