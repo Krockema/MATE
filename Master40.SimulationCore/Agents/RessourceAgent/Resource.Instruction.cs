@@ -8,7 +8,6 @@ namespace Master40.SimulationCore.Agents.Ressource
     {
         public class Instruction
         {
-
             public class SetHubAgent : SimulationMessage
             {
                 public static SetHubAgent Create(FHubInformation message, IActorRef target)
@@ -21,18 +20,6 @@ namespace Master40.SimulationCore.Agents.Ressource
                 public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
             }
 
-            public class RequestProposalBucket : SimulationMessage
-            {
-                public static RequestProposalBucket Create(FBucket message, IActorRef target)
-                {
-                    return new RequestProposalBucket(message, target);
-                }
-                private RequestProposalBucket(object message, IActorRef target) : base(message, target)
-                {
-                }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
-            }
-
             public class RequestProposal : SimulationMessage
             {
                 public static RequestProposal Create(FWorkItem message, IActorRef target)
@@ -43,18 +30,6 @@ namespace Master40.SimulationCore.Agents.Ressource
                 {
                 }
                 public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
-            }
-
-            public class AcknowledgeProposalBucket : SimulationMessage
-            {
-                public static AcknowledgeProposalBucket Create(FBucket message, IActorRef target)
-                {
-                    return new AcknowledgeProposalBucket(message, target);
-                }
-                private AcknowledgeProposalBucket(object message, IActorRef target) : base(message, target)
-                {
-                }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
 
             public class AcknowledgeProposal : SimulationMessage
@@ -81,18 +56,6 @@ namespace Master40.SimulationCore.Agents.Ressource
                 public FItemStatus GetObjectFromMessage { get => Message as FItemStatus; }
             }
 
-            public class StartWorkWithNextItem : SimulationMessage
-            {
-                public static StartWorkWithNextItem Create(FBucket message, IActorRef target)
-                {
-                    return new StartWorkWithNextItem(message, target);
-                }
-                private StartWorkWithNextItem(object message, IActorRef target) : base(message, target)
-                {
-                }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
-            }
-
             public class DoWork : SimulationMessage
             {
                 public static DoWork Create(object message, IActorRef target)
@@ -104,40 +67,16 @@ namespace Master40.SimulationCore.Agents.Ressource
                 }
             }
 
-            public class FinishSetup : SimulationMessage
+            public class FinishWork : SimulationMessage
             {
-                public static FinishSetup Create(FBucket message, IActorRef target)
+                public static FinishWork Create(FWorkItem message, IActorRef target)
                 {
-                    return new FinishSetup(message, target);
+                    return new FinishWork(message, target);
                 }
-                private FinishSetup(object message, IActorRef target) : base(message, target)
-                {
-                }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
-            }
-
-            public class FinishWorkItem : SimulationMessage
-            {
-                public static FinishWorkItem Create(FWorkItem message, IActorRef target)
-                {
-                    return new FinishWorkItem(message, target);
-                }
-                private FinishWorkItem(object message, IActorRef target) : base(message, target)
+                private FinishWork(object message, IActorRef target) : base(message, target)
                 {
                 }
                 public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
-            }
-
-            public class FinishWorkBucket : SimulationMessage
-            {
-                public static FinishWorkBucket Create(FBucket message, IActorRef target)
-                {
-                    return new FinishWorkBucket(message, target);
-                }
-                private FinishWorkBucket(object message, IActorRef target) : base(message, target)
-                {
-                }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
         }
     }

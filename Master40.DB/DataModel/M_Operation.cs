@@ -16,5 +16,8 @@ namespace Master40.DB.DataModel
         public int ResourceSkillId { get; set; }
         public M_ResourceSkill ResourceSkill { get; set; }
         public ICollection<M_ArticleBom> ArticleBoms { get; set; }
+        public int ResourceToolId { get; set; }
+        public M_ResourceTool ResourceTool { get; set;}
+
     }
 }

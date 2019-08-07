@@ -8,7 +8,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
     {
         public class Instruction
         {
-            public class AddMachineToHub: SimulationMessage
+            public class AddMachineToHub : SimulationMessage
             {
                 public static AddMachineToHub Create(FHubInformation message, IActorRef target, bool logThis = false)
                 {
@@ -23,7 +23,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
             public class ProductionStarted : SimulationMessage
             {
-                public static ProductionStarted Create(FBucket message, IActorRef target)
+                public static ProductionStarted Create(FWorkItem message, IActorRef target)
                 {
                     return new ProductionStarted(message, target);
                 }
@@ -31,10 +31,21 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 {
 
                 }
-                public FBucket GetObjectfromMessage { get => Message as FBucket; }
+                public FWorkItem GetObjectfromMessage { get => Message as FWorkItem; }
             }
 
+            public class EnqueueWorkItem : SimulationMessage
+            {
+                public static EnqueueWorkItem Create(FWorkItem message, IActorRef target)
+                {
+                    return new EnqueueWorkItem(message, target);
+                }
+                private EnqueueWorkItem(object message, IActorRef target) : base(message, target)
+                {
 
+                }
+                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+            }
             public class EnqueueBucket : SimulationMessage
             {
                 public static EnqueueBucket Create(FBucket message, IActorRef target)
@@ -47,13 +58,14 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 }
                 public FBucket GetObjectFromMessage { get => Message as FBucket; }
             }
-            public class EnqueueWorkItem : SimulationMessage
+
+            public class AddWorkItemToBucket : SimulationMessage
             {
-                public static EnqueueWorkItem Create(FWorkItem message, IActorRef target)
+                public static AddWorkItemToBucket Create(FWorkItem message, IActorRef target)
                 {
-                    return new EnqueueWorkItem(message, target);
+                    return new AddWorkItemToBucket(message, target);
                 }
-                private EnqueueWorkItem(object message, IActorRef target) : base(message, target)
+                private AddWorkItemToBucket(object message, IActorRef target) : base(message, target)
                 {
 
                 }

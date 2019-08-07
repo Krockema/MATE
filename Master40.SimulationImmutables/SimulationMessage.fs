@@ -62,7 +62,6 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
             Postponed : bool 
             PostponedFor : int64
             ResourceAgent : IActorRef
-            BucketId : Guid
             WorkItemId: Guid
         }
 

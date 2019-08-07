@@ -26,6 +26,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private int orderCount = 0;
         private int _configID;
         private int _orderMaxQuantity;
+        private SimulationType _simulationType;
         private Dictionary<string, EstimatedThroughPut> _estimatedThroughPuts = new Dictionary<string, EstimatedThroughPut>();
         private OrderGenerator _orderGenerator;
         private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
@@ -62,6 +63,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             _orderGenerator = new OrderGenerator(configuration, _productionDomainContext, productIds);
             _orderMaxQuantity = configuration.GetOption<OrderQuantity>().Value;
             _configID = configuration.GetOption<SimulationId>().Value;
+            _simulationType = configuration.GetOption<SimulationKind>().Value;
             SetInitialThroughput(configuration.GetOption<EstimatedThroughPut>().Value);
             Send(Instruction.PopOrder.Create("Pop", Self), 1);
             Send(Instruction.EndSimulation.Create(true, Self), configuration.GetOption<SimulationEnd>().Value);

@@ -63,7 +63,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 }
                 public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
             }
-            
+
             public class FinishWorkItem : SimulationMessage
             {
                 public static FinishWorkItem Create(FWorkItem message, IActorRef target)

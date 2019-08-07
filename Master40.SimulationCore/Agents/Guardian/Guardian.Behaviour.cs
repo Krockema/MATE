@@ -1,5 +1,6 @@
 ﻿using System;
 using Akka.Actor;
+using Master40.DB.Enums;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 
@@ -7,11 +8,13 @@ namespace Master40.SimulationCore.Agents.Guardian
 {
     public class GuardianBehaviour : Behaviour
     {
-        internal GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker) : base(childMaker) { }
+        internal GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker, SimulationType simulationType) 
+            : base(childMaker: childMaker
+                 , simulationType: simulationType) { }
 
-        public static GuardianBehaviour Get(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker)
+        public static GuardianBehaviour Get(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker, SimulationType simulationType)
         {
-            return new GuardianBehaviour(childMaker);
+            return new GuardianBehaviour(childMaker, simulationType);
         }
 
         public override bool Action(Agent agent, object message)

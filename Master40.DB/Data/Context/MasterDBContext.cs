@@ -72,6 +72,10 @@ namespace Master40.DB.Data.Context
                 .ToTable("M_Operation")
                 .HasOne(m => m.ResourceSkill);
 
+            modelBuilder.Entity<M_Operation>()
+                .ToTable("M_Operation")
+                .HasOne(m => m.ResourceTool);
+
             modelBuilder.Entity<M_ArticleType>()
                 .ToTable("M_ArticleType");
 
@@ -91,7 +95,7 @@ namespace Master40.DB.Data.Context
                 .ToTable("M_ResourceSkill");
 
             modelBuilder.Entity<M_ResourceSetup>()
-                .ToTable("M_ResourceToResourceTool")
+                .ToTable("M_ResourceSetup")
                 .HasOne(re => re.Resource)
                 .WithMany(r => r.ResourceSetups)
                 .HasForeignKey(re => re.ResourceId);

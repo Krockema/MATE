@@ -28,8 +28,8 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             switch (message)
             {
-                case HubAgent.Buckets.Instructions.AddWorkItemToBucket msg: EnqueueWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
-               // case Hub.Instruction.ProductionStarted msg: ProductionStarted((Hub)agent, msg.GetObjectfromMessage); break;
+                case Hub.Instruction.EnqueueWorkItem msg: EnqueueWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
+                case Hub.Instruction.ProductionStarted msg: ProductionStarted((Hub)agent, msg.GetObjectfromMessage); break;
                 case Hub.Instruction.FinishWorkItem msg: FinishWorkItem((Hub)agent, msg.GetObjectFromMessage); break;
                 case Hub.Instruction.ProposalFromMachine msg: ProposalFromMachine((Hub)agent, msg.GetObjectFromMessage); break;
                 case Hub.Instruction.SetWorkItemStatus msg: SetWorkItemStatus((Hub)agent, msg.GetObjectFromMessage); break;
@@ -56,6 +56,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
             }
+
 
             var workItemQueue = agent.Get<List<FWorkItem>>(Hub.Properties.WORK_ITEM_QUEUE);
             var machineAgents = agent.Get<Dictionary<IActorRef, string>>(Hub.Properties.RESOURCE_AGENTS);

@@ -16,7 +16,8 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
     public class Default : MessageTypes.Behaviour
     {
-        internal Default(Dictionary<string, object> properties) : base(null, properties) { }
+        internal Default(Dictionary<string, object> properties, SimulationType simulationType = SimulationType.None) 
+                        : base(null, properties, simulationType) { }
         public override bool Action(Agent agent, object message)
         {
             switch (message)

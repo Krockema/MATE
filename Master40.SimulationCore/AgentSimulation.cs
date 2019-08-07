@@ -23,6 +23,7 @@ using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Reporting;
 using Akka.Event;
 using System.Linq;
+using Master40.DB.Enums;
 
 namespace Master40.SimulationCore
 {
@@ -64,6 +65,7 @@ namespace Master40.SimulationCore
                 // #1 Init Simulation
                 SimulationConfig = configuration.GetContextConfiguration();
                 _debug = configuration.GetOption<DebugAgents>().Value;
+                var _simType = configuration.GetOption<SimulationKind>().Value;
                 _simulation = new Simulation(SimulationConfig);
                 ActorPaths = new ActorPaths(_simulation.SimulationContext, SimulationConfig.Inbox.Receiver);
                 // Create DataCollector
@@ -87,15 +89,15 @@ namespace Master40.SimulationCore
 
                 // Create Guardians and Inject Childcreators
                 var contractGuard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "ContractGuard");
-                var contractBehaveiour = GuardianBehaviour.Get(CreatorOptions.ContractCreator);
+                var contractBehaveiour = GuardianBehaviour.Get(CreatorOptions.ContractCreator, _simType);
                 _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(contractGuard, contractBehaveiour));
 
                 var dispoGuard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "DispoGuard");
-                var dispoBehaviour = GuardianBehaviour.Get(CreatorOptions.DispoCreator);
+                var dispoBehaviour = GuardianBehaviour.Get(CreatorOptions.DispoCreator, _simType);
                 _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(dispoGuard, dispoBehaviour));
 
                 var productionGuard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debug), "ProductionGuard");
-                var productionBehaviour = GuardianBehaviour.Get(CreatorOptions.ProductionCreator);
+                var productionBehaviour = GuardianBehaviour.Get(CreatorOptions.ProductionCreator, _simType);
                 _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(productionGuard, productionBehaviour));
 
                 ActorPaths.AddGuardian(GuardianType.Contract, contractGuard);

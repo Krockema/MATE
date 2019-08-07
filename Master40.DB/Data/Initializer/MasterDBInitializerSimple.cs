@@ -92,6 +92,7 @@ namespace Master40.DB.Data.Initializer
             resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit2_Screwdriver universal cross size 2"));
 
             context.ResourceSkills.AddRange(resourceSkills);
+            context.ResourceSetups.AddRange(resourceSetups);
             context.SaveChanges();
 
             // Articles
@@ -132,16 +133,16 @@ namespace Master40.DB.Data.Initializer
             var operations = new M_Operation[]
             {
                 // Final Product Tisch 
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15,ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnitSkill"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnitSkill"), HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15,ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 20 },
 
                 // Bom For Tischbein
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSkill"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="DrillSkill"), HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Saw blade big"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
                 // Bom For Tischplatte
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSkill"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="DrillSkill"), HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
 
             };

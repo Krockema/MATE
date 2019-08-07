@@ -12,7 +12,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
     public class Bucket : Default
     {
-        internal Bucket(Dictionary<string, object> properties) : base(properties) { }
+        internal Bucket(Dictionary<string, object> properties) : base(properties, SimulationType.Bucket) { }
 
         public override bool Action(Agent agent, object message)
         {

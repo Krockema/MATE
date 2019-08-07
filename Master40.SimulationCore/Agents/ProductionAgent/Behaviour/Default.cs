@@ -74,13 +74,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
             // add agent to current Scope.
             hubAgents.Add(hub.Ref, hub.RequiredFor);
-
             // foreach fitting WorkSchedule
             foreach (var workItem in workItems.Where(x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
             {
-
-
-                agent.Send(HubAgent.Buckets.Instructions.AddWorkItemToBucket.Create(workItem, hub.Ref));
+                agent.Send(Hub.Instruction.EnqueueWorkItem.Create(workItem, hub.Ref));
             }
         }
         private void ProductionStarted(Production agent, FWorkItem workItem)
@@ -121,19 +118,19 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             }
         }
 
-        private void FinishWorkItem(Production agent, FWorkItem workItem )
+        private void FinishWorkItem(Production agent, FWorkItem workItem)
         {
             if (workItem == null)
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
-            agent.DebugMessage("Resource called finished with: " + workItem.Operation.Name + " !");
+            agent.DebugMessage("Machine called finished with: " + workItem.Operation.Name + " !");
 
             // Shortcut:
             //CreateAndEnqueue
             agent.Finished(new FItemStatus(workItem.Key
                                     , workItem.Status
                                     , workItem.ItemPriority));
-        }       
+        }
     }
 }

@@ -69,7 +69,7 @@ namespace Master40.XUnitTest.Agents
             agentPaths.SetSupervisorAgent(systemProbe);
             agentPaths.SetStorageDirectory(directoryProbe);
             var contractGuard = Sys.ActorOf(Guardian.Props(agentPaths, 0, true), "ContractGuard");
-                simContext.Tell(BasicInstruction.Initialize.Create(contractGuard, GuardianBehaviour.Get(CreatorOptions.ContractCreator)));
+                simContext.Tell(BasicInstruction.Initialize.Create(contractGuard, GuardianBehaviour.Get(CreatorOptions.ContractCreator, DB.Enums.SimulationType.None)));
                 agentPaths.Guardians.Add(GuardianType.Dispo, contractGuard);
 
             // create Contract Agent and inject behaviour

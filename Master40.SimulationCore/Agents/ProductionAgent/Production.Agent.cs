@@ -80,17 +80,17 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 SetWorkItemReady();
             }
         }
-    
+
 
         internal void RequestHubAgentFor(ICollection<M_Operation> workSchedules)
         {
-            // Request Hub Agent for my Workschedules
-            var resourceSkills = workSchedules.Select(x => x.ResourceSkill.Name).Distinct().ToList();
-            foreach (var resourceSkillName in resourceSkills)
-            {   
+            // Request Comunication Agent for my Workschedules
+            var machineGroups = workSchedules.Select(x => x.ResourceSkill.Name).Distinct().ToList();
+            foreach (var machineGroupName in machineGroups)
+            {
                 Send(Directory.Instruction
                             .RequestRessourceAgent
-                            .Create(descriminator: resourceSkillName
+                            .Create(descriminator: machineGroupName
                                     , target: ActorPaths.HubDirectory.Ref));
             }
         }
@@ -98,7 +98,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
         internal void CreateWorkItemsFromRequestItem(bool firstItemToBuild, FRequestItem requestItem)
         {
 
-            var workItems =  Get<List<FWorkItem>>(Properties.WORK_ITEMS);
+            var workItems = Get<List<FWorkItem>>(Properties.WORK_ITEMS);
             var lastDue = requestItem.DueTime;
             foreach (var workSchedule in Enumerable.OrderBy<M_Operation, int>(requestItem.Article.WorkSchedules, x => x.HierarchyNumber))
             {
@@ -130,7 +130,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 DebugMessage("Requirement Missmatch!");
                 return;
             }
-                
+
 
             // get next ready WorkItem
             // TODO Return Queing Status ? or Move method to Machine
@@ -142,10 +142,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 DebugMessage("Cannot start next.");
                 return;
             }
-
             nextItem = nextItem.SetReady;
-            workItems.Replace(nextItem);
-            
+
             if (hubAgents.Count == 0) return;
             var hubAgent = hubAgents.Single((KeyValuePair<IActorRef, string> x) => x.Value == nextItem.Operation.ResourceSkill.Name);
 
@@ -154,7 +152,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
 
         private void SendWorkItemStatusMsg(KeyValuePair<IActorRef, string> hubAgent, FWorkItem nextItem)
         {
-            DebugMessage("Set next WorkItem to Status " + nextItem.Status + " Time " + TimePeriod);
+            DebugMessage("Set next WorkItem Ready from Status " + nextItem.Status + " Time " + TimePeriod);
 
 
             // create StatusMsg

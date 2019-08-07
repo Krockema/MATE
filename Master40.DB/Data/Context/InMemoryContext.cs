@@ -51,10 +51,6 @@ namespace Master40.DB.Data.Context
             return _inMemmoryContext;
         }
 
-
-
-
-
         public static ProductionDomainContext CreateInMemoryContext_Old()
         {
             // In-memory database only exists while the connection is open

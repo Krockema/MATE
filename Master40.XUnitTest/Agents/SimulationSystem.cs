@@ -55,7 +55,7 @@ namespace Master40.XUnitTest.Agents
         public async Task SystemTestAsync()
         {
             
-            var simContext = new AgentSimulation(true, _ctx, new ConsoleHub());
+            var simContext = new AgentSimulation(_ctx, new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(new object[]
                                                 {
