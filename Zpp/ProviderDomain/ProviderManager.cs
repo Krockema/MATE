@@ -6,6 +6,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Zpp.DemandDomain;
+using Zpp.StockDomain;
 
 namespace Zpp.ProviderDomain
 {
@@ -15,12 +16,14 @@ namespace Zpp.ProviderDomain
         private readonly IProviderToDemandTable _providerToDemandTable;
         private readonly IProviders _providers;
         private readonly List<Demand> _nextDemands = new List<Demand>();
+        private readonly StockManager _stockManager;
 
-        public ProviderManager()
+        public ProviderManager(StockManager stockManager)
         {
             _providers = new Providers();
             _demandToProviderTable = new DemandToProviderTable();
             _providerToDemandTable = new ProviderToDemandTable();
+            _stockManager = stockManager;
         }
 
         public ProviderManager(IDemandToProviderTable demandToProviderTable, IProviderToDemandTable providerToDemandTable, IProviders providers)
@@ -134,6 +137,8 @@ namespace Zpp.ProviderDomain
 
         public Quantity AddProvider(Demand demand, Provider provider)
         {
+            _stockManager.AdaptStock(provider);
+            
             return AddProvider(demand.GetId(), demand.GetQuantity(), provider);
         }
 

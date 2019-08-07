@@ -10,6 +10,7 @@ using Master40.XUnitTest.DBContext;
 using Xunit;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
+using Zpp.StockDomain;
 using Zpp.Test.WrappersForPrimitives;
 
 namespace Zpp.Test
@@ -32,8 +33,11 @@ namespace Zpp.Test
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
-            IProviderManager providerManager = new ProviderManager();
-            Demand customerOrderPart = EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 2);
+            StockManager stockManagerBefore = new StockManager(dbMasterDataCache.M_StockGetAll());
+            StockManager stockManagerAfter = new StockManager(dbMasterDataCache.M_StockGetAll());
+            IProviderManager providerManager = new ProviderManager(stockManagerAfter);
+            Demand customerOrderPart =
+                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 2);
             decimal stockCurrentBefore = dbMasterDataCache
                 .M_StockGetByArticleId(customerOrderPart.GetArticleId()).Current;
 
@@ -45,6 +49,13 @@ namespace Zpp.Test
             Assert.True(
                 stockCurrentAfter ==
                 stockCurrentBefore + customerOrderPart.GetQuantity().GetValue(),
+                "Stock was not correctly increased.");
+            Quantity beforeQuantity = stockManagerBefore
+                .GetStockById(customerOrderPart.GetArticleId()).GetQuantity();
+            Quantity afterQuantity = stockManagerAfter
+                .GetStockById(customerOrderPart.GetArticleId()).GetQuantity();
+            Assert.True(
+                afterQuantity.Equals(beforeQuantity.Plus(customerOrderPart.GetQuantity())),
                 "Stock was not correctly increased.");
         }
 

@@ -59,6 +59,11 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             return new Quantity(_quantity - quantity.GetValue());
         }
+        
+        public Quantity Plus(Quantity quantity)
+        {
+            return new Quantity(_quantity + quantity.GetValue());
+        }
 
         public Quantity AbsoluteValue()
         {

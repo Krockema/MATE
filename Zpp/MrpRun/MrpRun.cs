@@ -39,11 +39,12 @@ namespace Zpp
         }
 
         private static void ProcessNextCustomerOrderPart(IDbTransactionData dbTransactionData,
-            CustomerOrderPart oneCustomerOrderPart, IDbMasterDataCache dbMasterDataCache)
+            CustomerOrderPart oneCustomerOrderPart, IDbMasterDataCache dbMasterDataCache, StockManager globalStockManager)
         {
             // init
             IDemands finalAllDemands = new Demands();
-            IProviderManager providerManager = new ProviderManager();
+            StockManager stockManager = new StockManager(globalStockManager);
+            IProviderManager providerManager = new ProviderManager(stockManager);
             StockState stockState = new StockState();
             stockState.BackupStockState(dbMasterDataCache.M_StockGetAll());
 
@@ -126,11 +127,12 @@ namespace Zpp
                     (T_CustomerOrderPart) oneCustomerOrderPart.GetIDemand();
                 thisCustomerOrderPart.CustomerOrder.DueTime += Math.Abs(minDueTime.GetValue());
                 ProcessNextCustomerOrderPart(dbTransactionData, oneCustomerOrderPart,
-                    dbMasterDataCache);
+                    dbMasterDataCache, globalStockManager);
                 return;
             }
 
             // persisting data
+            globalStockManager.AdaptStock(stockManager);
             dbTransactionData.DemandsAddAll(finalAllDemands);
             dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
             dbTransactionData.PersistDbCache(providerManager);
@@ -140,16 +142,18 @@ namespace Zpp
             IDemands dbDemands, IDbMasterDataCache dbMasterDataCache)
         {
             // init
-
+            StockManager stockManager = new StockManager(dbMasterDataCache.M_StockGetAll());
 
             foreach (var oneDbDemand in dbDemands.GetAll())
             {
                 if (oneDbDemand.GetType() == typeof(CustomerOrderPart))
                 {
                     ProcessNextCustomerOrderPart(dbTransactionData, (CustomerOrderPart) oneDbDemand,
-                        dbMasterDataCache);
+                        dbMasterDataCache, stockManager);
                 }
             }
+
+            LOGGER.Info("MrpRun done.");
         }
     }
 }
