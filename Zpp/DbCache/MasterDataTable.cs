@@ -10,7 +10,7 @@ namespace Zpp
     public class MasterDataTable<T> : IMasterDataTable<T> where T : BaseEntity
     {
         private readonly Dictionary<Id, T> _entitesAsDictionary;
-        private readonly List<T> _entities;
+        private List<T> _entities;
 
         public MasterDataTable(DbSet<T> entitySet)
         {
@@ -33,7 +33,7 @@ namespace Zpp
         {
             if (!_entitesAsDictionary.ContainsKey(id))
             {
-                throw new MrpRunException("Given id is not present in this masterDataTable.");
+                throw new MrpRunException($"Given id ({id}) is not present in this masterDataTable.");
             }
             return _entitesAsDictionary[id];
         }
@@ -41,6 +41,11 @@ namespace Zpp
         public List<T> GetAll()
         {
             return _entities;
+        }
+
+        public void SetAll(List<T> entityList)
+        {
+            _entities = entityList;
         }
     }
 }

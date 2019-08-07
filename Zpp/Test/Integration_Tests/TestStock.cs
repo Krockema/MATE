@@ -36,7 +36,7 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, originalDbMasterData);
 
             List<int> stockIdsFromPersistedStockExchanges = persistedTransactionData
-                .StockExchangeGetAll().GetAllAs<T_StockExchange>().Select(x => x.StockId).ToList();
+                .StockExchangeProvidersGetAll().GetAllAs<T_StockExchange>().Select(x => x.StockId).ToList();
             List<M_Stock> originalStocks = originalDbMasterData.M_StockGetAll();
             foreach (var originalStock in originalStocks)
             {
@@ -53,7 +53,7 @@ namespace Zpp.Test
                     $"({currentStockLevel}) must be greaterThan/EqualTo 0.");
 
                 List<T_StockExchange> persistedStockExchanges = persistedTransactionData
-                    .StockExchangeGetAll().GetAllAs<T_StockExchange>()
+                    .StockExchangeProvidersGetAll().GetAllAs<T_StockExchange>()
                     .Where(x => x.StockId.Equals(originalStock.Id)).ToList();
                 decimal sumWithDrawal = 0;
                 decimal sumInsert = 0;

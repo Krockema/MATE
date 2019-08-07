@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
@@ -10,7 +11,7 @@ namespace Zpp.Test
     public class EntityFactory
     {
         private static Random random = new Random();
-        
+
         /*public static T_ProductionOrderBom CreateT_ProductionOrderBom(IDbMasterDataCache dbMasterDataCache)
         {
             T_ProductionOrderBom tProductionOrderBom = new T_ProductionOrderBom();
@@ -22,7 +23,8 @@ namespace Zpp.Test
         }*/
 
         public static T_ProductionOrder CreateT_ProductionOrder(
-            IDbMasterDataCache dbMasterDataCache, IDbTransactionData dbTransactionData, Demand demand, Quantity quantity)
+            IDbMasterDataCache dbMasterDataCache, IDbTransactionData dbTransactionData,
+            Demand demand, Quantity quantity)
         {
             T_ProductionOrder tProductionOrder = new T_ProductionOrder();
             // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
@@ -36,7 +38,7 @@ namespace Zpp.Test
             return tProductionOrder;
         }
 
-        public static T_CustomerOrder CreateCustomerOrder(IDbMasterDataCache dbMasterDataCache)
+        private static T_CustomerOrder CreateCustomerOrder(IDbMasterDataCache dbMasterDataCache)
         {
             var order = new T_CustomerOrder()
             {
@@ -44,20 +46,31 @@ namespace Zpp.Test
                 DueTime = random.Next(5, 1000),
                 CreationTime = 0,
                 Name = $"RandomProductionOrder{random.Next()}",
-                
             };
             return order;
         }
 
-        public static CustomerOrderPart CreateCustomerOrderPart(IDbMasterDataCache dbMasterDataCache, int quantity)
+        public static CustomerOrderPart CreateCustomerOrderPartRandomArticleToBuy(
+            IDbMasterDataCache dbMasterDataCache, int quantity)
+        {
+            List<M_Article> articlesToBuy = dbMasterDataCache.M_ArticleGetArticlesToBuy();
+
+            int randomArticleIndex = random.Next(0, articlesToBuy.Count - 1);
+            CustomerOrderPart customerOrderPart =
+                CreateCustomerOrderPartWithGivenArticle(dbMasterDataCache, quantity,
+                    articlesToBuy[randomArticleIndex]);
+
+            return customerOrderPart;
+        }
+
+        public static CustomerOrderPart CreateCustomerOrderPartWithGivenArticle(
+            IDbMasterDataCache dbMasterDataCache, int quantity, M_Article article)
         {
             T_CustomerOrder tCustomerOrder = CreateCustomerOrder(dbMasterDataCache);
             T_CustomerOrderPart tCustomerOrderPart = new T_CustomerOrderPart();
             tCustomerOrderPart.CustomerOrder = tCustomerOrder;
             tCustomerOrderPart.CustomerOrderId = tCustomerOrder.Id;
-            int randomArticleIndex =
-                random.Next(0, dbMasterDataCache.M_ArticleGetAll().Count - 1);
-            tCustomerOrderPart.Article = dbMasterDataCache.M_ArticleGetAll()[randomArticleIndex];
+            tCustomerOrderPart.Article = article;
             tCustomerOrderPart.ArticleId = tCustomerOrderPart.Article.Id;
             tCustomerOrderPart.Quantity = quantity;
             tCustomerOrderPart.State = State.Created;

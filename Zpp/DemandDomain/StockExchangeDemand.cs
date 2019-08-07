@@ -83,5 +83,10 @@ namespace Zpp.DemandDomain
         {
             return ((T_StockExchange) _demand).ExchangeType.Equals(ExchangeType.Insert);
         }
+        
+        public Id GetStockId()
+        {
+            return new Id(((T_StockExchange) _demand).StockId);
+        }
     }
 }

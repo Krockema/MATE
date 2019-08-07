@@ -7,6 +7,7 @@ using Master40.DB.DataModel;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 using Zpp.SchedulingDomain;
+using Zpp.StockDomain;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
@@ -33,15 +34,18 @@ namespace Zpp
             // remove all DemandToProvider entries
             dbTransactionData.DemandToProvidersRemoveAll();
 
-            ProcessDbDemands(dbTransactionData, dbMasterDataCache.T_CustomerOrderPartGetAll());
+            ProcessDbDemands(dbTransactionData, dbMasterDataCache.T_CustomerOrderPartGetAll(),
+                dbMasterDataCache);
         }
 
         private static void ProcessNextCustomerOrderPart(IDbTransactionData dbTransactionData,
-            CustomerOrderPart oneCustomerOrderPart)
+            CustomerOrderPart oneCustomerOrderPart, IDbMasterDataCache dbMasterDataCache)
         {
             // init
             IDemands finalAllDemands = new Demands();
             IProviderManager providerManager = new ProviderManager();
+            StockState stockState = new StockState();
+            stockState.BackupStockState(dbMasterDataCache.M_StockGetAll());
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
@@ -115,9 +119,14 @@ namespace Zpp
                 providerManager.GetProviders(), dbTransactionData);
             if (minDueTime.GetValue() < 0)
             {
-                T_CustomerOrderPart thisCustomerOrderPart = (T_CustomerOrderPart)oneCustomerOrderPart.GetIDemand();
-                thisCustomerOrderPart.CustomerOrder.DueTime += Math.Abs(minDueTime.GetValue()); 
-                ProcessNextCustomerOrderPart(dbTransactionData, oneCustomerOrderPart);
+                // reset stock.currents
+                dbMasterDataCache.M_StockSetAll(stockState.ResetStockState());
+
+                T_CustomerOrderPart thisCustomerOrderPart =
+                    (T_CustomerOrderPart) oneCustomerOrderPart.GetIDemand();
+                thisCustomerOrderPart.CustomerOrder.DueTime += Math.Abs(minDueTime.GetValue());
+                ProcessNextCustomerOrderPart(dbTransactionData, oneCustomerOrderPart,
+                    dbMasterDataCache);
                 return;
             }
 
@@ -128,19 +137,19 @@ namespace Zpp
         }
 
         private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
-            IDemands dbDemands)
+            IDemands dbDemands, IDbMasterDataCache dbMasterDataCache)
         {
             // init
-            
+
 
             foreach (var oneDbDemand in dbDemands.GetAll())
             {
                 if (oneDbDemand.GetType() == typeof(CustomerOrderPart))
                 {
-                    ProcessNextCustomerOrderPart(dbTransactionData, (CustomerOrderPart)oneDbDemand);    
+                    ProcessNextCustomerOrderPart(dbTransactionData, (CustomerOrderPart) oneDbDemand,
+                        dbMasterDataCache);
                 }
             }
-
         }
     }
 }

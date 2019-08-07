@@ -40,7 +40,9 @@ namespace Zpp
         
         ProductionOrderBoms ProductionOrderBomGetAll();
         
-        StockExchangeProviders StockExchangeGetAll();
+        StockExchangeProviders StockExchangeProvidersGetAll();
+        
+        StockExchangeDemands StockExchangeDemandsGetAll();
         
         PurchaseOrderParts PurchaseOrderPartGetAll();
         

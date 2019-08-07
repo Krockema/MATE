@@ -203,5 +203,29 @@ namespace Zpp
         {
             return _articles.GetAll();
         }
+
+        public List<M_Article> M_ArticleGetArticlesToBuy()
+        {
+            List<M_Article> articlesToBuy = new List<M_Article>();
+            List<M_ArticleBom> articleBomsToBuy = _articleBoms.GetAll()
+                .Where(x => x.ArticleParentId == null).ToList();
+            foreach (var articleBom in articleBomsToBuy)
+            {
+                articlesToBuy.Add(M_ArticleGetById(new Id(articleBom.ArticleChildId)));
+            }
+
+            return articlesToBuy;
+        }
+
+        public M_Article M_ArticleGetByName(string name)
+        {
+            return _articles.GetAll().SingleOrDefault(x=> String.Equals(x.Name, name, 
+                StringComparison.OrdinalIgnoreCase) );
+        }
+
+        public void M_StockSetAll(List<M_Stock> stocks)
+        {
+            _stocks.SetAll(stocks);
+        }
     }
 }

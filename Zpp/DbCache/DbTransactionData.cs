@@ -321,7 +321,7 @@ namespace Zpp
             return _productionOrderBoms;
         }
 
-        public StockExchangeProviders StockExchangeGetAll()
+        public StockExchangeProviders StockExchangeProvidersGetAll()
         {
             return _stockExchangeProviders;
         }
@@ -395,6 +395,11 @@ namespace Zpp
         public List<T_ProductionOrderOperation> ProductionOrderOperationGetAll()
         {
             return _productionOrderOperations;
+        }
+
+        public StockExchangeDemands StockExchangeDemandsGetAll()
+        {
+            return _stockExchangeDemands;
         }
     }
 }

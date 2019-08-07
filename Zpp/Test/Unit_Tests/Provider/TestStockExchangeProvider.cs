@@ -13,12 +13,10 @@ namespace Zpp.Test
 {
     public class TestStockExchangeProvider : AbstractTest
     {
-
         private Random random = new Random();
 
         public TestStockExchangeProvider()
         {
-
         }
 
         /**
@@ -38,11 +36,14 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
             // CustomerOrderPart
+            Demand randomCustomerOrderPart =
+                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache,
+                    new Random().Next(3, 99));
             Demand[] demands = new[]
             {
-                EntityFactory.CreateCustomerOrderPart(dbMasterDataCache, new Random().Next(1, 100)),
-                EntityFactory.CreateCustomerOrderPart(dbMasterDataCache,
-                    new Random().Next(1000, 2000))
+                randomCustomerOrderPart,
+                EntityFactory.CreateCustomerOrderPartWithGivenArticle(dbMasterDataCache,
+                    new Random().Next(1001, 1999), dbMasterDataCache.M_ArticleGetByName("Button")),
             };
             foreach (var demand in demands)
             {
@@ -56,8 +57,9 @@ namespace Zpp.Test
                     "Quantity is not correct.");
                 Assert.True(providerStockExchange.GetArticle().Equals(demand.GetArticle()),
                     "Article is not correct.");
-                Assert.True(providerStockExchange.GetDueTime(dbTransactionData).Equals(demand.GetDueTime(dbTransactionData)),
-                    "DueTime is not correct.");
+                Assert.True(
+                    providerStockExchange.GetDueTime(dbTransactionData)
+                        .Equals(demand.GetDueTime(dbTransactionData)), "DueTime is not correct.");
                 // depending demands
                 decimal newCurrentStock = stock.Current;
                 Assert.True(newCurrentStock == oldCurrentStock - demand.GetQuantity().GetValue(),
@@ -97,7 +99,29 @@ namespace Zpp.Test
                 // ProductionOrderBom TODO
             }
         }
-        
-        
+
+        [Fact]
+        public void TestNoDependingDemandsIfStockHasEnough()
+        {
+            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+            IDbTransactionData dbTransactionData =
+                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+
+            // CustomerOrderPart
+            Demand demand =
+                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache,
+                    new Random().Next(1, 9));
+
+            M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(demand.GetArticleId());
+            // increase stock
+            stock.Current = 10;
+            
+            Provider providerStockExchange = StockExchangeProvider.CreateStockExchangeProvider(
+                demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
+                dbMasterDataCache, dbTransactionData);
+
+            
+            Assert.True(providerStockExchange.AnyDependingDemands() == false, "Provider should have no depending demands.");
+        }
     }
 }

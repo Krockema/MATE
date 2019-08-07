@@ -63,7 +63,7 @@ namespace Zpp.Test
 
         private void InitDefaultDb()
         {
-            InitDb(TestConfigurationFileNames.TRUCK_COP_6_LOTSIZE_2);
+            InitDb(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2);
 
             OrderGenerator.GenerateOrdersSyncron(ProductionDomainContext,
                 ContextTest.TestConfiguration(), 1, true,

@@ -9,5 +9,7 @@ namespace Zpp
         T GetById(Id id);
 
         List<T> GetAll();
+
+        void SetAll(List<T> entityList);
     }
 }

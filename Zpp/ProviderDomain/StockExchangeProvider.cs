@@ -124,5 +124,10 @@ namespace Zpp.ProviderDomain
             T_StockExchange stockExchange = (T_StockExchange) _provider;
             return new DueTime(stockExchange.RequiredOnTime);
         }
+        
+        public Id GetStockId()
+        {
+            return new Id(((T_StockExchange) _provider).StockId);
+        }
     }
 }

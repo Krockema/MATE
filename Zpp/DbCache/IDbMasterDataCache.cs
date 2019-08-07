@@ -17,7 +17,11 @@ namespace Zpp
     {
         M_Article M_ArticleGetById(Id id);
         
+        M_Article M_ArticleGetByName(string name);
+        
         List<M_Article> M_ArticleGetAll();
+        
+        List<M_Article> M_ArticleGetArticlesToBuy();
 
         M_ArticleBom M_ArticleBomGetById(Id id);
 
@@ -44,6 +48,8 @@ namespace Zpp
         M_Stock M_StockGetById(Id id);
         
         List<M_Stock> M_StockGetAll();
+        
+        void M_StockSetAll(List<M_Stock> stocks);
         
         /**
          * returns the stock for given article if such exist, else null

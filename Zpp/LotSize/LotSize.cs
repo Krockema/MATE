@@ -20,12 +20,11 @@ namespace Zpp.LotSize
             List<Quantity> lotSizes = new List<Quantity>();
             
             // you work on a copy here
-            Quantity calculatedQuantity = new Quantity(_defaultLotSize);
-            lotSizes.Add(calculatedQuantity);
-            while (calculatedQuantity.IsSmallerThan(_neededQuantity))
+            Quantity currentQuantity = new Quantity(_neededQuantity);
+            while (currentQuantity.IsGreaterThan(Quantity.Null()))
             {
                 lotSizes.Add(_defaultLotSize);
-                calculatedQuantity.IncrementBy(_defaultLotSize);
+                currentQuantity.DecrementBy(_defaultLotSize);
             }
             
             return lotSizes;
