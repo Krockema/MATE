@@ -38,18 +38,9 @@ namespace Zpp.Test
             IProviderManager providerManager = new ProviderManager(stockManagerAfter, dbTransactionData);
             Demand customerOrderPart =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 2);
-            decimal stockCurrentBefore = dbMasterDataCache
-                .M_StockGetByArticleId(customerOrderPart.GetArticleId()).Current;
 
             customerOrderPart.SatisfyStockExchangeDemand(providerManager, dbTransactionData);
-
-            decimal stockCurrentAfter = dbMasterDataCache
-                .M_StockGetByArticleId(customerOrderPart.GetArticleId()).Current;
-
-            Assert.True(
-                stockCurrentAfter ==
-                stockCurrentBefore + customerOrderPart.GetQuantity().GetValue(),
-                "Stock was not correctly increased.");
+            
             Quantity beforeQuantity = stockManagerBefore
                 .GetStockById(customerOrderPart.GetArticleId()).GetQuantity();
             Quantity afterQuantity = stockManagerAfter

@@ -82,6 +82,8 @@ namespace Zpp.ProviderDomain
 
         public Quantity AddProvider(Id demandId, Quantity demandedQuantity, Provider oneProvider)
         {
+            _stockManager.AdaptStock(oneProvider, _dbTransactionData);
+            
             _providers.Add(oneProvider);
             T_DemandToProvider demandToProvider = new T_DemandToProvider();
             demandToProvider.DemandId = demandId.GetValue();
@@ -139,8 +141,6 @@ namespace Zpp.ProviderDomain
 
         public Quantity AddProvider(Demand demand, Provider provider)
         {
-            _stockManager.AdaptStock(provider, _dbTransactionData);
-            
             return AddProvider(demand.GetId(), demand.GetQuantity(), provider);
         }
 
