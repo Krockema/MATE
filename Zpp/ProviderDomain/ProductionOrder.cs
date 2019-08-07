@@ -45,7 +45,7 @@ namespace Zpp.ProviderDomain
                 new ProductionOrder(tProductionOrder, dbMasterDataCache);
 
             productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData,
-                dbMasterDataCache, productionOrder, productionOrder.GetQuantity());
+                productionOrder, productionOrder.GetQuantity());
 
             return productionOrder;
         }
@@ -121,11 +121,10 @@ namespace Zpp.ProviderDomain
         }
 
         public override void CreateNeededDemands(M_Article article,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProvider, Quantity quantity)
+            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
             _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData,
-                dbMasterDataCache, parentProvider, quantity);
+                _dbMasterDataCache, parentProvider, quantity);
         }
 
         public override string GetGraphizString(IDbTransactionData dbTransactionData)

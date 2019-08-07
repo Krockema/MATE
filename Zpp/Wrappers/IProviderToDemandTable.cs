@@ -12,5 +12,7 @@ namespace Zpp
         List<T_ProviderToDemand> GetAll();
 
         int Count();
+
+        bool Any();
     }
 }

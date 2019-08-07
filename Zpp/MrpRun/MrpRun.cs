@@ -44,7 +44,7 @@ namespace Zpp
             // init
             IDemands finalAllDemands = new Demands();
             StockManager stockManager = new StockManager(globalStockManager);
-            IProviderManager providerManager = new ProviderManager(stockManager);
+            IProviderManager providerManager = new ProviderManager(stockManager, dbTransactionData);
             StockState stockState = new StockState();
             stockState.BackupStockState(dbMasterDataCache.M_StockGetAll());
 

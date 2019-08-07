@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DemandDomain;
@@ -37,6 +38,11 @@ namespace Zpp
             providerToDemand.ProviderId = provider.GetId().GetValue();
             
             _providerToDemandEntities.Add(providerToDemand);
+        }
+
+        public bool Any()
+        {
+            return _providerToDemandEntities.Any();
         }
     }
 }

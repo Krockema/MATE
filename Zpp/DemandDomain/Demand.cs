@@ -128,10 +128,6 @@ namespace Zpp.DemandDomain
             {
                 throw new MrpRunException($"The demand({this}) was NOT satisfied.");
             }
-
-            // increase stock
-            _dbMasterDataCache.M_StockGetByArticleId(GetArticleId()).Current +=
-                quantityBeforeOrder.Minus(remainingQuantity).GetValue();
         }
 
         public Quantity SatisfyByExistingNonExhaustedProvider(IProviderManager providerManager,

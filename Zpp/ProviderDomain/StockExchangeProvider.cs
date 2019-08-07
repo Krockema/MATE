@@ -34,8 +34,7 @@ namespace Zpp.ProviderDomain
         }
 
         public override void CreateNeededDemands(M_Article article,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProvider, Quantity quantity)
+            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
             if (quantity.IsNull())
             {
@@ -76,36 +75,6 @@ namespace Zpp.ProviderDomain
             stockExchange.ExchangeType = ExchangeType.Withdrawal;
             StockExchangeProvider stockExchangeProvider =
                 new StockExchangeProvider(stockExchange, dbMasterDataCache);
-
-            // Update stock
-            Quantity currentStockQuantity = new Quantity(stock.Current);
-
-            stock.Current = currentStockQuantity.Minus(demandedQuantity).GetValue();
-            if (stock.Current < stock.Min)
-            {
-                Quantity missingQuantity;
-                if (stock.Min.Equals(0))
-                {
-                    missingQuantity = new Quantity(stock.Current * (-1));
-                }
-                else
-                {
-                    missingQuantity = new Quantity(stock.Min + stock.Current * (-1));
-                }
-                    
-                if (missingQuantity.IsNegative() || missingQuantity.IsNull())
-                {
-                    throw new MrpRunException("Should not happen.");
-                }
-
-                if (stock.Current + missingQuantity.GetValue() < stock.Min)
-                {
-                    throw new MrpRunException($"Stock will not be refilled correctly for {article} with demanded quantity {demandedQuantity}.");
-                }
-
-                stockExchangeProvider.CreateNeededDemands(article, dbTransactionData,
-                    dbMasterDataCache, stockExchangeProvider, missingQuantity);
-            }
 
             return stockExchangeProvider;
         }

@@ -177,9 +177,12 @@ namespace Zpp
             // at the end: T_DemandToProvider & T_ProviderToDemand
             InsertOrUpdateRange(_providerManager.GetDemandToProviderTable().GetAll(),
                 _productionDomainContext.DemandToProviders);
-            InsertOrUpdateRange(_providerManager.GetProviderToDemandTable().GetAll(),
-                _productionDomainContext.ProviderToDemand);
-
+            if (_providerManager.GetProviderToDemandTable().Any())
+            {
+                InsertOrUpdateRange(_providerManager.GetProviderToDemandTable().GetAll(),
+                    _productionDomainContext.ProviderToDemand);
+            }
+            
             try
             {
                 _productionDomainContext.SaveChanges();

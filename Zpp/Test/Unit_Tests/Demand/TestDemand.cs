@@ -35,7 +35,7 @@ namespace Zpp.Test
 
             StockManager stockManagerBefore = new StockManager(dbMasterDataCache.M_StockGetAll());
             StockManager stockManagerAfter = new StockManager(dbMasterDataCache.M_StockGetAll());
-            IProviderManager providerManager = new ProviderManager(stockManagerAfter);
+            IProviderManager providerManager = new ProviderManager(stockManagerAfter, dbTransactionData);
             Demand customerOrderPart =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 2);
             decimal stockCurrentBefore = dbMasterDataCache

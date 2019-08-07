@@ -76,8 +76,7 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract void CreateNeededDemands(M_Article article,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProvider, Quantity quantity);
+            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity);
         
         /**
          * returns Quantity.Null or higher

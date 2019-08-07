@@ -32,8 +32,7 @@ namespace Zpp.ProviderDomain
         }
 
         public override void CreateNeededDemands(M_Article article,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProvider, Quantity quantity)
+            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
             throw new System.NotImplementedException();
         }

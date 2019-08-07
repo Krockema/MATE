@@ -4,13 +4,15 @@ namespace Zpp.StockDomain
 {
     public class Stock
     {
-        private Quantity _quantity;
-        private Id _articleId;
+        private readonly Quantity _quantity;
+        private readonly Id _articleId;
+        private readonly Quantity _minStockLevel;
 
-        public Stock(Quantity initialQuantity, Id articleId)
+        public Stock(Quantity initialQuantity, Id articleId, Quantity minStockLevel)
         {
             _quantity = new Quantity(initialQuantity);
             _articleId = articleId;
+            _minStockLevel = minStockLevel;
         }
 
         public void IncrementBy(Quantity quantity)
@@ -36,6 +38,11 @@ namespace Zpp.StockDomain
         public override string ToString()
         {
             return $"ArticleId: {_articleId}, Quantity: {_quantity}";
+        }
+
+        public Quantity GetMinStockLevel()
+        {
+            return _minStockLevel;
         }
     }
 }

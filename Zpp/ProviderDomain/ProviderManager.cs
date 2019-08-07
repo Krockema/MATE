@@ -17,13 +17,15 @@ namespace Zpp.ProviderDomain
         private readonly IProviders _providers;
         private readonly List<Demand> _nextDemands = new List<Demand>();
         private readonly StockManager _stockManager;
+        private readonly IDbTransactionData _dbTransactionData;
 
-        public ProviderManager(StockManager stockManager)
+        public ProviderManager(StockManager stockManager, IDbTransactionData dbTransactionData)
         {
             _providers = new Providers();
             _demandToProviderTable = new DemandToProviderTable();
             _providerToDemandTable = new ProviderToDemandTable();
             _stockManager = stockManager;
+            _dbTransactionData = dbTransactionData;
         }
 
         public ProviderManager(IDemandToProviderTable demandToProviderTable, IProviderToDemandTable providerToDemandTable, IProviders providers)
@@ -137,7 +139,7 @@ namespace Zpp.ProviderDomain
 
         public Quantity AddProvider(Demand demand, Provider provider)
         {
-            _stockManager.AdaptStock(provider);
+            _stockManager.AdaptStock(provider, _dbTransactionData);
             
             return AddProvider(demand.GetId(), demand.GetQuantity(), provider);
         }
