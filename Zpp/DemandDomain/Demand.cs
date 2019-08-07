@@ -147,12 +147,11 @@ namespace Zpp.DemandDomain
             // satisfy by stock
             Provider stockExchangeProvider = StockExchangeProvider.CreateStockExchangeProvider(GetArticle(),
                 GetDueTime(dbTransactionData), missingQuantity, _dbMasterDataCache, dbTransactionData);
-            if (stockExchangeProvider != null)
+            if (stockExchangeProvider == null)
             {
-                return providerManager.AddProvider(demand, stockExchangeProvider);
+                throw new MrpRunException("No stockExchangeProvider was created."); 
             }
-
-            return missingQuantity;
+            return providerManager.AddProvider(demand, stockExchangeProvider);
         }
 
         public NodeType GetNodeType()

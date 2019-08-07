@@ -32,7 +32,11 @@ namespace Zpp.ProviderDomain
 
         public Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity)
         {
-            // TODO: Must read providers from db
+            // TODO: Must read providers from db, this method is not working anyway
+            if (true)
+            {
+                return demandedQuantity;
+            }
             
             List<Provider> providersForDemand = _providers.GetAllByArticleId(demandedArticle.GetId());
             if (providersForDemand == null)

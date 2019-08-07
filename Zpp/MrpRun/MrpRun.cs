@@ -73,7 +73,7 @@ namespace Zpp
 
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
-                    // satisfy by stock only if it's NOT a StockExchangeDemand with ExchangeType Insert
+                    // SE:I
                     if (demand.GetType() == typeof(StockExchangeDemand))
                     {
                         demand.SatisfyStockExchangeDemand(providerManager, dbTransactionData);
