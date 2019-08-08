@@ -75,7 +75,7 @@ namespace Zpp.MachineDomain
                 {
                     /*while R not empty:
                         Entnehme R eine Maschine r (soll aus R entfernt werden)
-                        Alle Ops dieser Maschine r bilden Menge K
+                        Menge K: alle Ops der Maschine r
                         Wähle aus K eine Operation O_lr mittels einer Prioritätsregel aus, die folgende 
                         Eigenschaft erfüllt:
                           s_lr < (s_kr+t_kr), da sonst die Operation O_kr noch vor der Operation O_lr liegt
@@ -83,7 +83,8 @@ namespace Zpp.MachineDomain
                         Alle übrigen Operationen der Maschine r: addiere Laufzeit t_ij von O_lr auf s_ij der Operationen, addiere Laufzeit t_ij auf g_r von Maschine r
                     */
                     Machine machine = machines.PopAny();
-                    // TODO
+                    // TODO prioRule
+                    
                 }
             }
 
