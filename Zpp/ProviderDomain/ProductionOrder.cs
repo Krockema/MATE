@@ -93,7 +93,7 @@ namespace Zpp.ProviderDomain
                         null);
 
                 IEnumerable<ProductionOrderBom> sortedProductionOrderBoms =
-                    productionOrderBoms.OrderBy(x =>
+                    productionOrderBoms.OrderByDescending(x =>
                         ((T_ProductionOrderBom) x.GetIDemand()).ProductionOrderOperation
                         .HierarchyNumber);
 

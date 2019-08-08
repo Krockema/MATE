@@ -33,6 +33,7 @@ namespace Zpp.Test.Configurations
             productionDomainContext.SaveChanges();
 
             var machineGroupMontage = new M_MachineGroup {Name = "Montage"};
+            var machineGroupSchweißen = new M_MachineGroup {Name = "Schweißen"};
             var machineGroupVerpacken = new M_MachineGroup {Name = "Verpacken"};
             var machines = new M_Machine[]
             {
@@ -50,12 +51,21 @@ namespace Zpp.Test.Configurations
                 // Schweißen
                 new M_Machine
                 {
+                    Capacity = 1, Name = "Schweißen 1", Count = 1, MachineGroup = machineGroupSchweißen
+                },
+                new M_Machine
+                {
+                    Capacity = 1, Name = "Schweißen 2", Count = 1, MachineGroup = machineGroupSchweißen
+                },
+                // Montage der Beine an Tisch
+                new M_Machine
+                {
                     Capacity = 1, Name = "Montage 1", Count = 1, MachineGroup = machineGroupMontage
                 },
                 new M_Machine
                 {
                     Capacity = 1, Name = "Montage 2", Count = 1, MachineGroup = machineGroupMontage
-                }
+                },
             };
             productionDomainContext.Machines.AddRange(machines);
             productionDomainContext.SaveChanges();
@@ -122,15 +132,7 @@ namespace Zpp.Test.Configurations
                     CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 3,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
                     ToPurchase = true
-                },
-                new M_Article
-                {
-                    Name = "Montageanleitung",
-                    ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
-                    CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 1,
-                    UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
-                    ToPurchase = true
-                },
+                }
             };
             productionDomainContext.Articles.AddRange(articles);
             productionDomainContext.SaveChanges();
@@ -211,8 +213,15 @@ namespace Zpp.Test.Configurations
                 new M_Operation
                 {
                     ArticleId = articles.Single(a => a.Name == "Tisch").Id,
+                    Name = "Tischbeine anschrauben", Duration = 10,
+                    MachineGroupId = machineGroupMontage.Id, HierarchyNumber = 10,
+                    MachineToolId = machineTool
+                },                  
+                new M_Operation
+                {
+                    ArticleId = articles.Single(a => a.Name == "Tisch").Id,
                     Name = "Tisch verpacken", Duration = 10,
-                    MachineGroupId = machineGroupVerpacken.Id, HierarchyNumber = 10,
+                    MachineGroupId = machineGroupVerpacken.Id, HierarchyNumber = 20,
                     MachineToolId = machineTool
                 },
                 // Tischbeine 
@@ -220,7 +229,7 @@ namespace Zpp.Test.Configurations
                 {
                     ArticleId = articles.Single(a => a.Name == "Tischbein").Id,
                     Name = "Anschraubplatte anschweißen", Duration = 20,
-                    MachineGroupId = machineGroupMontage.Id, HierarchyNumber = 10,
+                    MachineGroupId = machineGroupSchweißen.Id, HierarchyNumber = 10,
                     MachineToolId = machineTool
                 },
                 // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Löcher vorbohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 20 },
