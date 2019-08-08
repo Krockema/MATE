@@ -66,7 +66,7 @@ namespace Zpp
 
         T_ProductionOrderOperation ProductionOrderOperationGetById(Id id);
         
-        List<T_ProductionOrderOperation> ProductionOrderOperationGetAll();
+        List<ProductionOrderOperation> ProductionOrderOperationGetAll();
 
     }
 }

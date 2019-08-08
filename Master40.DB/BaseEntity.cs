@@ -22,6 +22,16 @@ namespace Master40.DB
             return new Id(Id);
         }
 
+        public override bool Equals(object obj)
+        {
+            BaseEntity other = (BaseEntity)obj;
+            return Id.Equals(other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 
 }

@@ -8,6 +8,6 @@ namespace Zpp.MachineDomain
         /**
          * Giffler-Thomson
          */
-        IMachine GetNextFreeMachine(ProductionOrderBoms productionOrderBoms);
+        
     }
 }

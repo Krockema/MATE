@@ -1,7 +1,32 @@
+using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
+
 namespace Zpp.MachineDomain
 {
     public class Machine : IMachine
     {
-        
+        private M_Machine _machine;
+        private int _idleStartTime = 0;
+
+        public Machine(M_Machine machine)
+        {
+            _machine = machine;
+        }
+
+        public Id GetMachineGroupId()
+        {
+            return new Id(_machine.MachineGroupId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            Machine other = (Machine) obj;
+            return _machine.Equals(other._machine);
+        }
+
+        public override int GetHashCode()
+        {
+            return _machine.GetHashCode();
+        }
     }
 }

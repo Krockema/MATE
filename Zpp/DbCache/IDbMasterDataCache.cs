@@ -3,6 +3,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DemandDomain;
+using Zpp.MachineDomain;
 
 namespace Zpp
 {
@@ -37,7 +38,9 @@ namespace Zpp
 
         M_ArticleType M_ArticleTypeGetById(Id id);
 
-        M_Machine M_MachineGetById(Id id);
+        Machine M_MachineGetById(Id id);
+        
+        List<Machine> M_MachineGetAll();
 
         M_MachineGroup M_MachineGroupGetById(Id id);
 

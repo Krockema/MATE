@@ -145,7 +145,7 @@ namespace Zpp.DemandDomain
             T_ProductionOrderBom tProductionOrderBom = (T_ProductionOrderBom) _demand;
             int? startBackwards;
             int? endBackwards;
-            // case: equal hierachyNumber --> PrOO runs in parallel
+            // case: equal hierarchyNumber --> PrOO runs in parallel
             if (lastOperationBackwardsSchedule.HierarchyNumber == null ||
                 (lastOperationBackwardsSchedule.HierarchyNumber != null &&
                  tProductionOrderBom.ProductionOrderOperation.HierarchyNumber.Equals(
@@ -155,15 +155,15 @@ namespace Zpp.DemandDomain
                 startBackwards = lastOperationBackwardsSchedule.EndBackwards.GetValue() -
                                  tProductionOrderBom.ProductionOrderOperation.Duration;
             }
-            // case: greaterHierachyNumer --> PrOO runs after the last PrOO
+            // case: greaterHierarchyNumber --> PrOO runs after the last PrOO
             else
             {
-                if (lastOperationBackwardsSchedule.HierarchyNumber.GetValue() >
+                if (lastOperationBackwardsSchedule.HierarchyNumber.GetValue() <
                     tProductionOrderBom.ProductionOrderOperation.HierarchyNumber)
                 {
                     throw new MrpRunException(
                         "This is not allowed: hierarchyNumber of lastBackwardsSchedule " +
-                        "is greater than hierarchyNumber of current PrOO.");
+                        "is smaller than hierarchyNumber of current PrOO.");
                 }
 
                 endBackwards = lastOperationBackwardsSchedule.StartBackwards.GetValue();
@@ -185,6 +185,11 @@ namespace Zpp.DemandDomain
                 .ProductionOrderOperation.HierarchyNumber);
 
             return newOperationBackwardsSchedule;
+        }
+
+        public ProductionOrderOperation GetProductionOrderOperation()
+        {
+            return ((T_ProductionOrderBom) _demand).ProductionOrderOperation;
         }
     }
 }

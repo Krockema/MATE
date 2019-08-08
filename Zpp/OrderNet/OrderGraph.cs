@@ -132,7 +132,7 @@ namespace Zpp
         /// <returns>
         ///    The List of the traversed nodes in exact order
         /// </returns>
-        public List<INode> TraverseDepthFirst(Action<INode, List<INode>> action, CustomerOrderPart startNode)
+        public List<INode> TraverseDepthFirst(Action<INode, List<INode>, List<INode>> action, CustomerOrderPart startNode)
         {
             var stack = new Stack<INode>();
 
@@ -158,7 +158,7 @@ namespace Zpp
                     traversed.Add(poppedNode);
                     discovered[poppedNode] = true;
                     List<INode> childNodes = GetChildNodes(poppedNode);
-                    action(poppedNode, childNodes);
+                    action(poppedNode, childNodes, traversed);
 
                     if (childNodes != null)
                     {

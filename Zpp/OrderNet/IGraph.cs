@@ -25,6 +25,6 @@ namespace Zpp
 
         List<INode> GetAllToNodes();
         
-        List<INode> TraverseDepthFirst(Action<INode, List<INode>> action, CustomerOrderPart startNode);
+        List<INode> TraverseDepthFirst(Action<INode, List<INode>, List<INode>> action, CustomerOrderPart startNode);
     }
 }

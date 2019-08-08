@@ -7,6 +7,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DemandDomain;
+using Zpp.MachineDomain;
 
 namespace Zpp
 {
@@ -85,9 +86,9 @@ namespace Zpp
             return _articleTypes.GetById(id);
         }
 
-        public M_Machine M_MachineGetById(Id id)
+        public Machine M_MachineGetById(Id id)
         {
-            return _machines.GetById(id);
+            return new Machine(_machines.GetById(id));
         }
 
         public M_MachineGroup M_MachineGroupGetById(Id id)
@@ -226,6 +227,16 @@ namespace Zpp
         public void M_StockSetAll(List<M_Stock> stocks)
         {
             _stocks.SetAll(stocks);
+        }
+
+        public List<Machine> M_MachineGetAll()
+        {
+            List<Machine> machines = new List<Machine>();
+            foreach (var machine in _machines.GetAll())
+            {
+                machines.Add(new Machine(machine));
+            }
+            return machines;
         }
     }
 }

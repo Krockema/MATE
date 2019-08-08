@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Zpp.MachineDomain;
 using Zpp.ProviderDomain;
 using Zpp.Utils;
 
@@ -7,14 +10,18 @@ namespace Zpp
 {
     public class ProductionOrderOperation
     {
-        private T_ProductionOrderOperation _productionOrderOperation;
+        private readonly T_ProductionOrderOperation _productionOrderOperation;
+        private readonly IDbMasterDataCache _dbMasterDataCache;
 
-        public ProductionOrderOperation(T_ProductionOrderOperation productionOrderOperation)
+        public ProductionOrderOperation(T_ProductionOrderOperation productionOrderOperation,
+            IDbMasterDataCache dbMasterDataCache)
         {
             _productionOrderOperation = productionOrderOperation;
+            _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public static T_ProductionOrderOperation CreateProductionOrderOperation(M_ArticleBom articleBom, Provider parentProductionOrder)
+        public static T_ProductionOrderOperation CreateProductionOrderOperation(
+            M_ArticleBom articleBom, Provider parentProductionOrder)
         {
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation = new T_ProductionOrderOperation();
@@ -28,7 +35,8 @@ namespace Zpp
             productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
             productionOrderOperation.MachineGroupId = articleBom.Operation.MachineGroupId;
             productionOrderOperation.ProducingState = ProducingState.Created;
-            productionOrderOperation.ProductionOrder = (T_ProductionOrder)parentProductionOrder.ToIProvider();
+            productionOrderOperation.ProductionOrder =
+                (T_ProductionOrder) parentProductionOrder.ToIProvider();
             productionOrderOperation.ProductionOrderId =
                 productionOrderOperation.ProductionOrder.Id;
 
@@ -52,6 +60,25 @@ namespace Zpp
         public T_ProductionOrderOperation GetValue()
         {
             return _productionOrderOperation;
+        }
+
+        public List<Machine> GetMachines()
+        {
+            List<Machine> machines = new List<Machine>();
+            return _dbMasterDataCache.M_MachineGetAll().Where(x =>
+                x.GetMachineGroupId().GetValue().Equals(_productionOrderOperation.MachineGroupId)).ToList();
+            return machines;
+        }
+
+        public override bool Equals(object obj)
+        {
+            ProductionOrderOperation productionOrderOperation = (ProductionOrderOperation) obj;
+            return _productionOrderOperation.GetId().Equals(productionOrderOperation._productionOrderOperation.GetId());
+        }
+
+        public override int GetHashCode()
+        {
+            return _productionOrderOperation.Id.GetHashCode();
         }
     }
 }
