@@ -47,15 +47,17 @@ namespace Zpp.Test
             foreach (var productionOrderOperation in dbTransactionData
                 .ProductionOrderOperationGetAll())
             {
-                if (productionOrderOperation.StartBackward < 0)
+                T_ProductionOrderOperation tProductionOrderOperation =
+                    productionOrderOperation.GetValue();
+                if (tProductionOrderOperation.StartBackward < 0)
                 {
                     Assert.True(
-                        productionOrderOperation.StartForward != null &&
-                        productionOrderOperation.EndForward != null,
-                        $"Operation ({productionOrderOperation}) is not scheduled forward.");
+                        tProductionOrderOperation.StartForward != null &&
+                        tProductionOrderOperation.EndForward != null,
+                        $"Operation ({tProductionOrderOperation}) is not scheduled forward.");
                     Assert.True(
-                        productionOrderOperation.StartForward >= 0 &&
-                        productionOrderOperation.EndForward >= 0,
+                        tProductionOrderOperation.StartForward >= 0 &&
+                        tProductionOrderOperation.EndForward >= 0,
                         "Forward schedule times of operation ({productionOrderOperation}) are negative.");
                 }
             }

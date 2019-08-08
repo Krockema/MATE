@@ -400,7 +400,7 @@ namespace Zpp
             List<ProductionOrderOperation> productionOrderOperations = new List<ProductionOrderOperation>();
             foreach (var productionOrderOperation in _productionOrderOperations)
             {
-                productionOrderOperations.Add(new ProductionOrderOperation(productionOrderOperation));
+                productionOrderOperations.Add(new ProductionOrderOperation(productionOrderOperation, _dbMasterDataCache));
             }
             return productionOrderOperations;
         }

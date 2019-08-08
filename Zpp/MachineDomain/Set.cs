@@ -62,5 +62,10 @@ namespace Zpp.MachineDomain
                 Add(element);
             }
         }
+
+        public int Count()
+        {
+            return _count;
+        }
     }
 }

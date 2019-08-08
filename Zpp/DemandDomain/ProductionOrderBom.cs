@@ -189,7 +189,8 @@ namespace Zpp.DemandDomain
 
         public ProductionOrderOperation GetProductionOrderOperation()
         {
-            return ((T_ProductionOrderBom) _demand).ProductionOrderOperation;
+            return new ProductionOrderOperation(((T_ProductionOrderBom) _demand)
+                .ProductionOrderOperation, _dbMasterDataCache);
         }
     }
 }

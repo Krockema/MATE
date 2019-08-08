@@ -16,11 +16,11 @@ namespace Zpp.MachineDomain
              S: einplanbare Operationen 
              */
             ISet<Machine> machines;
-            HashSet<ProductionOrderOperation> schedulableOperations =
-                new HashSet<ProductionOrderOperation>();
+            ISet<ProductionOrderOperation> schedulableOperations =
+                new Set<ProductionOrderOperation>();
             // must only contain unstarted operations (= schedulable),
             // which is not the case, will be sorted out in loop (performance reason)
-            schedulableOperations.UnionWith(dbTransactionData.ProductionOrderOperationGetAll());
+            schedulableOperations.AddAll(dbTransactionData.ProductionOrderOperationGetAll());
 
             /* R_k hat Attribute (Maschine):
              g_j: Startzeitgrenze = _idleStartTime, ist der früheste Zeitpunkt, an dem eine Operation auf der Maschine starten kann

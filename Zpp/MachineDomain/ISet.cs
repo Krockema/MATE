@@ -21,5 +21,7 @@ namespace Zpp.MachineDomain
         T PopAny();
 
         T GetAny();
+
+        int Count();
     }
 }
