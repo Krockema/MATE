@@ -23,9 +23,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
     {
         private ProductionDomainContext _productionDomainContext;
         private IMessageHub _messageHub;
-        private int orderCount = 0;
+        private int orderCount { get; set; } = 0;
         private int _configID;
         private int _orderMaxQuantity;
+        private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType;
         private Dictionary<string, EstimatedThroughPut> _estimatedThroughPuts = new Dictionary<string, EstimatedThroughPut>();
         private OrderGenerator _orderGenerator;
@@ -194,6 +195,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
         private void PopOrder()
         {
+            if (_createdOrders >= _orderMaxQuantity)
+                return;
+            _createdOrders++;
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
             Send(Instruction.PopOrder.Create("PopNext", Self), order.CreationTime - CurrentTime);
             _estimatedThroughPuts.TryGetValue(order.CustomerOrderParts.First().Article.Name, out EstimatedThroughPut eta);

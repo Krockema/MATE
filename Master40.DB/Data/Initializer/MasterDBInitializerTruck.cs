@@ -61,15 +61,9 @@ namespace Master40.DB.Data.Initializer
             var resources = new M_Resource[] {
                 new M_Resource{Name="Saw 1", Count = 1, ResourceSetups = new List<M_ResourceSetup>() },
                 new M_Resource{Name="Saw 2", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="Saw 3", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="Saw 4", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
                 new M_Resource{Name="Drill 1", Count = 1 , ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="Drill 2", Count = 1 , ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="Drill 3", Count = 1 , ResourceSetups = new List<M_ResourceSetup>()},
                 new M_Resource{Name="AssemblyUnit 1", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
                 new M_Resource{Name="AssemblyUnit 2", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="AssemblyUnit 3", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="AssemblyUnit 4", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
             };
             context.Resources.AddRange(resources);
             context.SaveChanges();
@@ -78,21 +72,13 @@ namespace Master40.DB.Data.Initializer
             new M_ResourceSetup { Name = "Saw1_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 1"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
             new M_ResourceSetup { Name = "Saw2_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
             new M_ResourceSetup { Name = "Saw2_Sawbladesmall", Resource = resources.Single(s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade small"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw3_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 3"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw3_Sawbladesmall", Resource = resources.Single(s => s.Name == "Saw 3"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade small"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw4_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 4"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw4_Sawbladesmall", Resource = resources.Single(s => s.Name == "Saw 4"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade small"), SetupTime = 5 },
             
             new M_ResourceSetup { Name = "Drill1_M4", Resource = resources.Single(s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(s => s.Name == "M4 head"), SetupTime = 10 },
             new M_ResourceSetup { Name = "Drill1_M6", Resource = resources.Single(s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(s => s.Name == "M6 head"), SetupTime = 10 },
-            new M_ResourceSetup { Name = "Drill2_M6", Resource = resources.Single(s => s.Name == "Drill 2"), ResourceTool = resourceTools.Single(s => s.Name == "M6 head"), SetupTime = 10 },
-            new M_ResourceSetup { Name = "Drill3_M6", Resource = resources.Single(s => s.Name == "Drill 3"), ResourceTool = resourceTools.Single(s => s.Name == "M6 head"), SetupTime = 10 },
-
+            
             new M_ResourceSetup { Name = "AssemblyUnit1_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 1"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
             new M_ResourceSetup { Name = "AssemblyUnit2_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 2"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
-             new M_ResourceSetup { Name = "AssemblyUnit3_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 3"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "AssemblyUnit4_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 4"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
-
+            
             };
 
             // register resourceToResourceTool at the resourceSkill
@@ -100,16 +86,13 @@ namespace Master40.DB.Data.Initializer
             resourceSkills.Single(s => s.Name == "CuttingSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Saw2_Sawbladebig"));
             resourceSkills.Single(s => s.Name == "CuttingSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Saw2_Sawbladesmall"));
 
+
             resourceSkills.Single(s => s.Name == "DrillSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Drill1_M4"));
             resourceSkills.Single(s => s.Name == "DrillSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Drill1_M6"));
-            resourceSkills.Single(s => s.Name == "DrillSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Drill2_M6"));
-            resourceSkills.Single(s => s.Name == "DrillSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Drill3_M6"));
-
+            
             resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit1_Screwdriver universal cross size 2"));
             resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit2_Screwdriver universal cross size 2"));
-            resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit3_Screwdriver universal cross size 2"));
-            resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit4_Screwdriver universal cross size 2"));
-
+            
             context.ResourceSkills.AddRange(resourceSkills);
             context.SaveChanges();
 

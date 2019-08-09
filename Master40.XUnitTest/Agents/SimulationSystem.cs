@@ -27,10 +27,10 @@ namespace Master40.XUnitTest.Agents
                                                             .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                             .Options);
         
-        /*ProductionDomainContext _masterDBContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+        ProductionDomainContext _masterDBContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
-        */
+        
         ResultContext _ctxResult = new ResultContext(new DbContextOptionsBuilder<ResultContext>()
             .UseInMemoryDatabase(databaseName: "InMemoryResults")
             .Options);
@@ -40,7 +40,7 @@ namespace Master40.XUnitTest.Agents
             _ctx.Database.EnsureCreated();
             //MasterDBInitializerMedium.DbInitialize(_ctx);
             //MasterDBInitializerSmall.DbInitialize(_ctx);
-            MasterDBInitializerSimple.DbInitialize(_ctx);
+            //MasterDBInitializerTruck.DbInitialize(_ctx);
 
             _ctxResult.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(_ctxResult);
@@ -54,7 +54,8 @@ namespace Master40.XUnitTest.Agents
         [Fact]
         public async Task SystemTestAsync()
         {
-            
+            InMemoryContext.LoadData(_masterDBContext, _ctx);
+
             var simContext = new AgentSimulation(_ctx, new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(new object[]
@@ -64,10 +65,10 @@ namespace Master40.XUnitTest.Agents
                                                     , new SimulationId(1)
                                                     , new SimulationNumber(simNr)
                                                     , new SimulationKind(SimulationType.Decentral) // SimulationType.Bucket
-                                                    , new OrderArrivalRate(0.0275)
-                                                    , new OrderQuantity(1)
-                                                    , new EstimatedThroughPut(800)
-                                                    , new DebugAgents(false)
+                                                    , new OrderArrivalRate(0.025)
+                                                    , new OrderQuantity(20)
+                                                    , new EstimatedThroughPut(600)
+                                                    , new DebugAgents(true)
                                                     , new DebugSystem(false)
                                                     , new KpiTimeSpan(480)
                                                     , new Seed(1337)

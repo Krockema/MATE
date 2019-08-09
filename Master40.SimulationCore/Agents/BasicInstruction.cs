@@ -55,5 +55,16 @@ namespace Master40.SimulationCore.Agents
             }
             public FBreakDown GetObjectFromMessage { get => Message as FBreakDown; }
         }
+
+        public class RemoveVirtualChild : SimulationMessage
+        {
+            public static RemoveVirtualChild Create(IActorRef target, bool logThis = false)
+            {
+                return new RemoveVirtualChild(null, target, logThis);
+            }
+            private RemoveVirtualChild(object message, IActorRef target, bool logThis) : base(message, target, logThis)
+            {
+            }
+        }
     }
 }

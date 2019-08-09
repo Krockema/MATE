@@ -5,8 +5,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FProsponed.fs" />
+    <Compile Include="Message\FProposal.fs" />
+    <Compile Include="Message\FResourceType.fs" />
+    <Compile Include="Message\FStartConditions.fs" />
+    <Compile Include="Interface\IKey.fs" />
+    <Compile Include="Interface\IJob.fs" />
     <Compile Include="FunctionConverter.fs" />
-    <Compile Include="SimulationMessage.fs" />
+    <Compile Include="Message\FOperation.fs" />
+    <Compile Include="Message\FArticle.fs" />
+    <Compile Include="Message\FBucket.fs" />
+    <Compile Include="Message\FRequestResource.fs" />
+    <Compile Include="Message\FHubInformation.fs" />
+    <Compile Include="Message\FUpdateStockValues.fs" />
+    <Compile Include="Message\FStockReservation.fs" />
+    <Compile Include="Message\FSetEstimatedThroughputTime.fs" />
+    <Compile Include="Message\FBreakDown.fs" />
+    <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
+    <Compile Include="Message\FUpdateSimulationWork.fs" />
+    <Compile Include="Message\FCreateSimulationWork.fs" />
+    <Compile Include="Message\FResourceSetupDefinition.fs" />
   </ItemGroup>
 
   <ItemGroup>

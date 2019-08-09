@@ -33,7 +33,6 @@ namespace Master40.SimulationCore.MessageTypes
                                 , status: status
                                 , prioRule: prioRule.ToFSharpFunc()
                                 , itemPriority: prioRule(time)
-                                , wasSetReady: false
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent

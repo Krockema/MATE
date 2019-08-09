@@ -19,24 +19,22 @@ namespace Master40.Controllers
         }
 
 
-        [HttpGet("[Controller]/ReloadDb/{size}")]
-        public async Task<IActionResult> ReloadDb(string size)
+        [HttpGet("[Controller]/ReloadDb/{products}")]
+        public async Task<IActionResult> ReloadDb(string products)
         {
             await Task.Run(() =>
                 {
-                    switch (size)
+                    switch (products)
                     {
-                        case "small":
+                        case "Tables":
                             _context.Database.EnsureDeleted();
                             MasterDBInitializerSimple.DbInitialize(_context);
                             break;
-                        case "medium":
+                        case "Trucks":
                             _context.Database.EnsureDeleted();
-                            //MasterDBInitializerMedium.DbInitialize(_context);
+                            MasterDBInitializerTruck.DbInitialize(_context);
                             break;
                         default:
-                            _context.Database.EnsureDeleted();
-                            //MasterDBInitializerSmall.DbInitialize(_context);
                             break;
                     }
                     

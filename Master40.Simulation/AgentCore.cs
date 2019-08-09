@@ -40,13 +40,8 @@ namespace Master40.Simulation
                                         , MessageType.info);
             //In-memory database only exists while the connection is open
             var _inMemory = InMemoryContext.CreateInMemoryContext();
-            // InMemoryContext.LoadData(_context, _inMemory);
-            // MMT 01.07.2019
-            //MasterDBInitializerSmall.DbInitialize(_inMemory);
-
-            MasterDBInitializerSimple.DbInitialize(_inMemory);
-
-            PrepareModel(_inMemory);
+            InMemoryContext.LoadData(_context, _inMemory);
+            //MasterDBInitializerSimple.DbInitialize(_inMemory);
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
 
@@ -55,8 +50,7 @@ namespace Master40.Simulation
             
             var simulation = _agentSimulation.InitializeSimulation(_configuration).Result;
             SimulationContext = simulation.SimulationContext;
-
-            
+ 
             
             if (simulation.IsReady())
             {
@@ -77,14 +71,6 @@ namespace Master40.Simulation
                                     , _configuration.GetOption<SimulationId>().Value.ToString()
                                     , _configuration.GetOption<SimulationNumber>().Value.ToString());
             return;
-        }
-
-        private void PrepareModel(ProductionDomainContext inMemory)
-        {
-            inMemory.Resources.RemoveRange(inMemory.Resources.ToList());
-            inMemory.SaveChanges();
-            inMemory.AddRange(_context.Resources.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList());
-            inMemory.SaveChanges();
         }
 
         public void ResourceBreakDown(string name)

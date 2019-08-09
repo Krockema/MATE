@@ -57,11 +57,8 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             if (workItem != null && workItemStatus.Status == ElementStatus.Ready)
             {
-                Queue.Remove(workItem);
-                workItem = workItem.UpdateStatus(workItemStatus.Status);
-                Queue.Add(workItem);
-
-                agent.DebugMessage("Set Item: " + workItem.Operation.Name + " | Status to: " + workItem.Status);
+                Queue.Replace(workItem.UpdateStatus(workItem.Status));
+                agent.DebugMessage("Set Item: " + workItem.Operation.Name + " | Status to: " + workItem.Status + " with Id: " + workItem.Key);
                 // upate Processing queue
                 agent.UpdateProcessingQueue(workItem);
 
@@ -80,7 +77,7 @@ namespace Master40.SimulationCore.Agents.Ressource
                 throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
 
             // debug
-            agent.DebugMessage("Request for Proposal");
+            agent.DebugMessage("Request for Proposal: " + workItem.Operation.Name + " with Id: " + workItem.Key + ")");
             // Send
 
             agent.SendProposalTo(workItem);
@@ -92,6 +89,8 @@ namespace Master40.SimulationCore.Agents.Ressource
         /// <param name="instructionSet"></param>
         public void AcknowledgeProposal(Resource agent, FWorkItem workItem)
         {
+
+            agent.DebugMessage("AcknowledgeProposal Item: " + workItem.Operation.Name + " WorkItemId: " + workItem.Key);
             var queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
             if (queue.Any(e => e.Priority(agent.CurrentTime) <= workItem.Priority(agent.CurrentTime)))
             {
@@ -108,7 +107,8 @@ namespace Master40.SimulationCore.Agents.Ressource
                 }
             }
 
-            agent.DebugMessage("AcknowledgeProposal and Enqueued Item: " + workItem.Operation.Name);
+            agent.DebugMessage("AcknowledgeProposal Accepted Item: " + workItem.Operation.Name + " with Id: " + workItem.Key);
+            workItem = workItem.UpdateStatus(ElementStatus.InQueue);
             queue.Add(workItem);
 
             // Enqued before another item?
@@ -126,7 +126,7 @@ namespace Master40.SimulationCore.Agents.Ressource
             }
 
 
-            if (workItem.Status == ElementStatus.Ready)
+            if (workItem.Status == ElementStatus.InQueue && workItem.MaterialsProvided == true)
             {
                 // update Processing queue
                 agent.UpdateProcessingQueue(workItem);
@@ -142,27 +142,31 @@ namespace Master40.SimulationCore.Agents.Ressource
             {
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
             }
-            var Queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
-
-            // Set next Ready Element from Queue
-            var itemFromQueue = Queue.Where(x => x.Status == ElementStatus.Ready)
-                                     .OrderBy(x => x.Priority(agent.CurrentTime))
-                                        .ThenBy<FWorkItem, int>(x => x.Operation.Duration)
-                                     .FirstOrDefault();
-            agent.UpdateProcessingQueue(itemFromQueue);
-
-            // Set Machine State to Ready for next
-            agent.Set(Resource.Properties.ITEMS_IN_PROGRESS, false);
-            agent.DebugMessage("Finished Work with " + workItem.Operation.Name + " take next...");
-
-            workItem = workItem.UpdateStatus(ElementStatus.Finished);
 
             // Call Hub Agent that item has ben processed.
+            workItem = workItem.UpdateStatus(ElementStatus.Finished);
+            agent.DebugMessage("Finished Work with " + workItem.Operation.Name + " with Id: " + workItem.Key + " take next...");
             agent.Send(Hub.Instruction.FinishWorkItem.Create(workItem, workItem.HubAgent));
+            // Set Machine State to Ready for next
+            agent.Set(Resource.Properties.ITEMS_IN_PROGRESS, false);
 
+            // Set next Ready Element from Queue
+            var Queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
+            var itemFromQueue = Queue.Where(x => x.Status == ElementStatus.Ready)
+                                     .OrderBy(x => x.Priority(agent.CurrentTime))
+                                        .ThenBy(x => x.Operation.Duration)
+                                     .FirstOrDefault();
+
+            //get next ready element and put it to processing queue
+            if (itemFromQueue != null) { 
+                agent.UpdateProcessingQueue(itemFromQueue);
+                agent.DebugMessage("After Finish Work with " + workItem.Key + " start working Id " + itemFromQueue.Key + " take next...");
+            }
 
             // Reorganize List
-            agent.CallToReQueue(Queue, Queue.Where(x => x.Status == ElementStatus.Created || x.Status == ElementStatus.InQueue).ToList());
+            agent.CallToReQueue(Queue, Queue.Where(x => x.Status == ElementStatus.Created 
+                                                     || x.Status == ElementStatus.InQueue
+                                                     || x.Status == ElementStatus.Ready).ToList());
             // do Do Work in next Timestep.
             agent.Send(Resource.Instruction.DoWork.Create(null, agent.Context.Self));
         }

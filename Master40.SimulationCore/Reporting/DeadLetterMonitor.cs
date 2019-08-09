@@ -16,7 +16,7 @@ namespace Master40.SimulationCore.Reporting
 
         private void HandleDeadletter(DeadLetter dl)
         {
-            Console.WriteLine($"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
+            System.Diagnostics.Debug.WriteLine($"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
         }
     }
 }

@@ -83,9 +83,9 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.Resources)
+            foreach (var item in source.ResourceSkills)
             {
-                target.Resources.Add(item.CopyProperties());
+                target.ResourceSkills.Add(item.CopyProperties());
             }
             target.SaveChanges();
 
@@ -95,9 +95,9 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.ResourceSkills)
+            foreach (var item in source.Resources)
             {
-                target.ResourceSkills.Add(item.CopyProperties());
+                target.Resources.Add(item.CopyProperties());
             }
             target.SaveChanges();
 
@@ -152,6 +152,12 @@ namespace Master40.DB.Data.Context
             foreach (var item in source.CustomerOrderParts)
             {
                 target.CustomerOrderParts.Add(item.CopyProperties());
+            }
+            target.SaveChanges();
+
+            foreach (var item in source.ProductionOrders)
+            {
+                target.ProductionOrders.Add(item.CopyProperties());
             }
             target.SaveChanges();
         }

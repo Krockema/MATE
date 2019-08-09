@@ -44,19 +44,5 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             this.Send(Production.Instruction.StartProduction.Create(requestItem, Sender));
             this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") > ProductionStart has been send.");
         }
-
-        internal void ShutdownAgent()
-        {
-            this.Finish();
-        }
-
-        protected override void Finish()
-        {
-            var children = this.Context.GetChildren();
-            if (this.Get<FRequestItem>(Properties.REQUEST_ITEM).Provided == true && children.Count() == 0)
-            {
-                base.Finish();
-            }
-        }
     }
 }

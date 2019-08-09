@@ -42,7 +42,6 @@ namespace Master40.SimulationCore
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
 
-
         /// <summary>
         /// Prepare Simulation Environment
         /// </summary>
@@ -105,10 +104,10 @@ namespace Master40.SimulationCore
                 ActorPaths.AddGuardian(GuardianType.Production, productionGuard);
 
                 /// // #1.2 Setup DeadLetter Monitor for Debugging
-                /// var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
-                /// var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
-                /// //subscribe to the event stream for messages of type "DeadLetter"
-                /// _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
+                 var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
+                 var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
+                 //subscribe to the event stream for messages of type "DeadLetter"
+                 _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
 
                 // #1.3 Setup a TimeMonitor to watch wallclock progress
                 Action<long> tm = (timePeriod) => _messageHub.SendToClient("clockListener", timePeriod.ToString());
@@ -151,8 +150,9 @@ namespace Master40.SimulationCore
                 foreach (var stock in _DBContext.Stocks
                                                 .Include(x => x.StockExchanges)
                                                 .Include(x => x.Article).ThenInclude(x => x.ArticleToBusinessPartners)
-                                                                        .ThenInclude(x => x.BusinessPartner).AsNoTracking()
-                                                .Include(x => x.Article).ThenInclude(x => x.ArticleType))
+                                                                        .ThenInclude(x => x.BusinessPartner)
+                                                .Include(x => x.Article).ThenInclude(x => x.ArticleType)
+                                                .AsNoTracking().ToList()) 
                 {
                     _simulation.SimulationContext.Tell(Directory.Instruction
                                                                 .CreateStorageAgents

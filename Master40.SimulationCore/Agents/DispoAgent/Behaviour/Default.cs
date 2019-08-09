@@ -33,7 +33,6 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             return true;
         }
 
-
         internal void RequestArticle(Dispo agent, FRequestItem requestItem)
         {
             var hubInformation = new FHubInformation(ResourceType.Dispo, requestItem.Article.Name, ActorRefs.Nobody);
@@ -58,7 +57,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             var quantityToProduce = requestItem.Quantity - reservation.Quantity;
             agent.Set(Dispo.Properties.QUANTITY_TO_PRODUCE, quantityToProduce);
             // TODO -> Logic
-            agent.DebugMessage((string)("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!"));
+            agent.DebugMessage(("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!"));
 
             // check If is In Stock
             if (reservation.IsInStock == true)
@@ -70,6 +69,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                                        .Finish.Create(requestItem
                                                     , agent.VirtualParent
                                                     , false));
+                    agent.TryToFinish();
                 }
                 else
                 {
@@ -170,7 +170,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                               .WithdrawlMaterial
                               .Create(message: requestItem.StockExchangeId
                                      , target: stockAgent));
-            agent.ShutdownAgent();
+            agent.TryToFinish();
         }
     }
 }

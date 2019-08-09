@@ -52,15 +52,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (requestItem.DueTime >= requestItem.FinishedAt)
             {
-                // agent.messageHub.SendToAllClients("Oder No:" + message.OrderId  + " finished in time at " + agent.Time
-                //                                 , MessageSystem.Messages.MessageType.success);
+                agent.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester  + " finished in time at " + agent.Time);
 
                 agent.messageHub.SendToClient("orderListener", totalOrders.ToString());
                 inTime++;
             }else
             {
-                // agent.messageHub.SendToAllClients("Oder No:" + message.OrderId + " finished to late at " + agent.Time
-                //                                 , MessageSystem.Messages.MessageType.warning);
+                agent.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester + " finished to late at " + agent.Time);
                 toLate++;
             }
 
