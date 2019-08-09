@@ -5,6 +5,6 @@ namespace Zpp.LotSize
 {
     public interface ILotSize
     {
-        List<Quantity> GetCalculatedQuantity();
+        List<Quantity> GetLotSizes();
     }
 }

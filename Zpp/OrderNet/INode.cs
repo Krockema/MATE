@@ -11,5 +11,7 @@ namespace Zpp
         INode GetEntity();
 
         string GetGraphizString(IDbTransactionData dbTransactionData);
+        
+        string GetJsonString(IDbTransactionData dbTransactionData);
     }
 }

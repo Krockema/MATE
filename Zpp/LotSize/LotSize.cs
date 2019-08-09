@@ -5,9 +5,10 @@ namespace Zpp.LotSize
 {
     public class LotSize : ILotSize
     {
-        private static Quantity _defaultLotSize = new Quantity(1);
+        private static Quantity _defaultFixedLotSize = new Quantity(1);
         private readonly Quantity _neededQuantity;
         private readonly Id _articleId;
+        private readonly LotSizeNames _lotSizeNames = LotSizeNames.LotForLotOrderQuantity;
 
         public LotSize(Quantity neededQuantity, Id articleId)
         {
@@ -15,7 +16,24 @@ namespace Zpp.LotSize
             _articleId = articleId;
         }
 
-        public List<Quantity> GetCalculatedQuantity()
+        public List<Quantity> GetLotSizes()
+        {
+            if (_lotSizeNames.Equals(LotSizeNames.LotForLotOrderQuantity))
+            {
+                return GetLotForLotOrderQuantity();
+            }
+            else
+            {
+                return GetFixedLotSize();
+            }
+        }
+
+        private List<Quantity> GetLotForLotOrderQuantity()
+        {
+            return new List<Quantity>(){_neededQuantity};
+        }
+
+        private List<Quantity> GetFixedLotSize()
         {
             List<Quantity> lotSizes = new List<Quantity>();
             
@@ -23,19 +41,21 @@ namespace Zpp.LotSize
             Quantity currentQuantity = new Quantity(_neededQuantity);
             while (currentQuantity.IsGreaterThan(Quantity.Null()))
             {
-                lotSizes.Add(_defaultLotSize);
-                currentQuantity.DecrementBy(_defaultLotSize);
+                lotSizes.Add(_defaultFixedLotSize);
+                currentQuantity.DecrementBy(_defaultFixedLotSize);
             }
             
             return lotSizes;
         }
+        
+        
 
         /**
          * should be used by tests only
          */
         public static void SetDefaultLotSize(Quantity defaultLotSize)
         {
-            _defaultLotSize = defaultLotSize;
+            _defaultFixedLotSize = defaultLotSize;
         }
     }
 }

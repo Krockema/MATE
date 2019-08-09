@@ -126,5 +126,10 @@ namespace Zpp.ProviderDomain
         {
             return $"{GetQuantity()};\\n{GetArticle().Name};{GetDueTime(dbTransactionData)}";
         }
+
+        public virtual string GetJsonString(IDbTransactionData dbTransactionData)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

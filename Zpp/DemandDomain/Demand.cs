@@ -37,7 +37,7 @@ namespace Zpp.DemandDomain
             if (demand.GetArticle().ToBuild)
             {
                 LotSize.LotSize lotSizes = new LotSize.LotSize(demandedQuantity, GetArticleId());
-                foreach (var lotSize in lotSizes.GetCalculatedQuantity())
+                foreach (var lotSize in lotSizes.GetLotSizes())
                 {
                     ProductionOrder productionOrder =
                         ProductionOrder.CreateProductionOrder(this, dbTransactionData,
@@ -163,6 +163,11 @@ namespace Zpp.DemandDomain
         public virtual string GetGraphizString(IDbTransactionData dbTransactionData)
         {
             return $"{GetQuantity()};\\n{GetArticle().Name};{GetDueTime(dbTransactionData)}";
+        }
+
+        public string GetJsonString(IDbTransactionData dbTransactionData)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

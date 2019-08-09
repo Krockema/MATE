@@ -14,7 +14,7 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             LotSize.LotSize lotSize = new LotSize.LotSize(new Quantity(6),
                 dbMasterDataCache.M_ArticleGetAll()[0].GetId());
-            foreach (var quantity in lotSize.GetCalculatedQuantity())
+            foreach (var quantity in lotSize.GetLotSizes())
             {
                 Assert.True(quantity.GetValue() == TestConfiguration.LotSize, $"Quantity ({quantity}) is not correct.");
             }
