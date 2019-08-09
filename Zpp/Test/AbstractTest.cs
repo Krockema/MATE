@@ -101,7 +101,8 @@ namespace Zpp.Test
                 .Invoke(null, new[] {ProductionDomainContext});
             
             LotSize.LotSize.SetDefaultLotSize(new Quantity(TestConfiguration.LotSize));
-        }
+            LotSize.LotSize.SetLotSizeType(TestConfiguration.LotSizeType);
+            }
 
         /**
          * init db and customerOrders

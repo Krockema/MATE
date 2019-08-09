@@ -8,7 +8,7 @@ namespace Zpp.LotSize
         private static Quantity _defaultFixedLotSize = new Quantity(1);
         private readonly Quantity _neededQuantity;
         private readonly Id _articleId;
-        private readonly LotSizeNames _lotSizeNames = LotSizeNames.LotForLotOrderQuantity;
+        private static LotSizeType _lotSizeType = LotSizeType.LotForLotOrderQuantity;
 
         public LotSize(Quantity neededQuantity, Id articleId)
         {
@@ -18,7 +18,7 @@ namespace Zpp.LotSize
 
         public List<Quantity> GetLotSizes()
         {
-            if (_lotSizeNames.Equals(LotSizeNames.LotForLotOrderQuantity))
+            if (_lotSizeType.Equals(LotSizeType.LotForLotOrderQuantity))
             {
                 return GetLotForLotOrderQuantity();
             }
@@ -56,6 +56,14 @@ namespace Zpp.LotSize
         public static void SetDefaultLotSize(Quantity defaultLotSize)
         {
             _defaultFixedLotSize = defaultLotSize;
+        }
+        
+        /**
+         * should be used by tests only
+         */
+        public static void SetLotSizeType(LotSizeType lotSizeType)
+        {
+            _lotSizeType = lotSizeType;
         }
     }
 }

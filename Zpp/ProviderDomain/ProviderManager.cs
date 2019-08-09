@@ -26,6 +26,8 @@ namespace Zpp.ProviderDomain
             _providerToDemandTable = new ProviderToDemandTable();
             _stockManager = stockManager;
             _dbTransactionData = dbTransactionData;
+            
+            
         }
 
         public ProviderManager(IDemandToProviderTable demandToProviderTable, IProviderToDemandTable providerToDemandTable, IProviders providers)
