@@ -8,7 +8,7 @@ namespace Zpp.LotSize
         private static Quantity _defaultFixedLotSize = new Quantity(1);
         private readonly Quantity _neededQuantity;
         private readonly Id _articleId;
-        private static LotSizeType _lotSizeType = LotSizeType.LotForLotOrderQuantity;
+        private static LotSizeType _lotSizeType = LotSizeType.FixedLotSize;
 
         public LotSize(Quantity neededQuantity, Id articleId)
         {

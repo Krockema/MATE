@@ -51,6 +51,11 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
             return _quantity < quantity.GetValue();
         }
+        
+        public bool IsSmallerThanOrEqualTo(Quantity quantity)
+        {
+            return _quantity <= quantity.GetValue();
+        }
 
         /**
          * Consider using AbsoluteValue() after this function

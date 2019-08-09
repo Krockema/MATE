@@ -6,6 +6,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Zpp.DemandDomain;
+using Zpp.MachineDomain;
 using Zpp.StockDomain;
 
 namespace Zpp.ProviderDomain
@@ -18,6 +19,8 @@ namespace Zpp.ProviderDomain
         private readonly List<Demand> _nextDemands = new List<Demand>();
         private readonly StockManager _stockManager;
         private readonly IDbTransactionData _dbTransactionData;
+        
+        private readonly OpenProviders _openProviders = new OpenProviders();
 
         public ProviderManager(StockManager stockManager, IDbTransactionData dbTransactionData)
         {
@@ -26,8 +29,6 @@ namespace Zpp.ProviderDomain
             _providerToDemandTable = new ProviderToDemandTable();
             _stockManager = stockManager;
             _dbTransactionData = dbTransactionData;
-            
-            
         }
 
         public ProviderManager(IDemandToProviderTable demandToProviderTable, IProviderToDemandTable providerToDemandTable, IProviders providers)
@@ -39,59 +40,53 @@ namespace Zpp.ProviderDomain
 
         public Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity)
         {
-            // TODO: Must read providers from db, this method is not working anyway
-            if (true)
+            if (_openProviders.AnyOpenProvider(demandedArticle))
+            {
+                OpenProvider openProvider = _openProviders.GetOpenProvider(demandedArticle);
+                Quantity remainingQuantity = demandedQuantity.Minus(openProvider.GetOpenQuantity());
+                openProvider.GetOpenQuantity().DecrementBy(demandedQuantity);
+                
+                if (openProvider.GetOpenQuantity().IsNegative())
+                {
+                    _openProviders.Remove(openProvider);
+                }
+                if (remainingQuantity.IsNegative())
+                {
+                    remainingQuantity = Quantity.Null();
+                }
+                ConnectDemandWithProvider(demandId, openProvider.GetOpenProvider(), demandedQuantity.Minus(remainingQuantity));
+                return remainingQuantity;
+            }
+            else
             {
                 return demandedQuantity;
             }
-            
-            List<Provider> providersForDemand = _providers.GetAllByArticleId(demandedArticle.GetId());
-            if (providersForDemand == null)
-            {
-                return demandedQuantity;
-            }
-            // TODO: performance: naive impl must replaced by one with caching
-            foreach (var provider in providersForDemand)
-            {
-                List<T_DemandToProvider> possibleDemandToProviders = _demandToProviderTable.GetAll()
-                    .Where(x => x.ProviderId.Equals(provider.GetId().GetValue())).ToList();
-                Quantity alreadyReservedQuantity = Quantity.Null();
-                foreach (var possibleDemandToProvider in possibleDemandToProviders)
-                {
-                    alreadyReservedQuantity.IncrementBy(new Quantity(possibleDemandToProvider.Quantity));
-                }
-                Quantity freeQuantity = provider.GetQuantity().Minus(alreadyReservedQuantity);
-                if (freeQuantity.IsGreaterThan(Quantity.Null()))
-                {
-                    T_DemandToProvider newDemandToProvider = new T_DemandToProvider();
-                    newDemandToProvider.DemandId = demandId.GetValue();
-                    newDemandToProvider.ProviderId = provider.GetId().GetValue();
-                    _demandToProviderTable.Add(newDemandToProvider);
-                    if (freeQuantity.IsGreaterThanOrEqualTo(demandedQuantity))
-                    {
-                        newDemandToProvider.Quantity = demandedQuantity.GetValue();
-                        return Quantity.Null();
-                    }
-                    Quantity reservedQuantity = demandedQuantity.Minus(freeQuantity);
-                    newDemandToProvider.Quantity = reservedQuantity.GetValue();
-                    
-                    return reservedQuantity;
-                }
-            }
+        }
 
-            return demandedQuantity;
+        private void ConnectDemandWithProvider(Id demandId, Provider provider, Quantity usedQuantity)
+        {
+            T_DemandToProvider demandToProvider = new T_DemandToProvider();
+            demandToProvider.DemandId = demandId.GetValue();
+            demandToProvider.ProviderId = provider.GetId().GetValue();
+            demandToProvider.Quantity = usedQuantity.GetValue();
+            _demandToProviderTable.Add(demandToProvider);
         }
 
         public Quantity AddProvider(Id demandId, Quantity demandedQuantity, Provider oneProvider)
         {
             _stockManager.AdaptStock(oneProvider, _dbTransactionData);
             
+            // if it has quantity that is not reserved, remember it for later reserving
+            if (demandedQuantity.IsSmallerThan(oneProvider.GetQuantity()))
+            {
+                _openProviders.Add(oneProvider.GetArticle(), new OpenProvider(oneProvider, oneProvider.GetQuantity().Minus(demandedQuantity), oneProvider.GetArticle()));
+            }
+            
+            // save provider
             _providers.Add(oneProvider);
-            T_DemandToProvider demandToProvider = new T_DemandToProvider();
-            demandToProvider.DemandId = demandId.GetValue();
-            demandToProvider.ProviderId = oneProvider.GetId().GetValue();
-            demandToProvider.Quantity = oneProvider.GetQuantity().GetValue();
-            _demandToProviderTable.Add(demandToProvider);
+            
+            // connect demandToProvider
+            ConnectDemandWithProvider(demandId, oneProvider, oneProvider.GetQuantity().Minus(demandedQuantity));
             
             // save depending demands
             Demands dependingDemands = oneProvider.GetAllDependingDemands();

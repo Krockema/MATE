@@ -120,7 +120,6 @@ namespace Zpp.DemandDomain
             }
 
             // satisfy by order
-            Quantity quantityBeforeOrder = new Quantity(remainingQuantity);
             remainingQuantity = SatisfyByOrders(dbTransactionData, remainingQuantity,
                 providerManager, this);
 
@@ -140,14 +139,26 @@ namespace Zpp.DemandDomain
         public Quantity SatisfyByStock(Quantity missingQuantity,
             IDbTransactionData dbTransactionData, IProviderManager providerManager, Demand demand)
         {
+            Quantity remainingQuantity = missingQuantity;
+
+            // satisfy by existing provider
+            remainingQuantity = SatisfyByExistingNonExhaustedProvider(providerManager, this, remainingQuantity);
+            if (remainingQuantity.IsNull())
+            {
+                return remainingQuantity;
+            }
+            
             // satisfy by stock
             Provider stockExchangeProvider = StockExchangeProvider.CreateStockExchangeProvider(GetArticle(),
-                GetDueTime(dbTransactionData), missingQuantity, _dbMasterDataCache, dbTransactionData);
+                GetDueTime(dbTransactionData), remainingQuantity, _dbMasterDataCache, dbTransactionData);
+            remainingQuantity.DecrementBy(stockExchangeProvider.GetQuantity());
             if (stockExchangeProvider == null)
             {
                 throw new MrpRunException("No stockExchangeProvider was created."); 
             }
-            return providerManager.AddProvider(demand, stockExchangeProvider);
+
+            providerManager.AddProvider(demand, stockExchangeProvider);
+            return remainingQuantity;
         }
 
         public NodeType GetNodeType()

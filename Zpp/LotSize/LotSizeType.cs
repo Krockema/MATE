@@ -2,7 +2,8 @@ namespace Zpp.LotSize
 {
     public enum LotSizeType
     {
-        LotForLotOrderQuantity = 0,
-        FixedLotSize
+        FixedLotSize = 0, // default if none is set in property ("null")
+        LotForLotOrderQuantity
+        
     }
 }
