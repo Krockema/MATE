@@ -132,7 +132,24 @@ namespace Zpp.Test.Configurations
                     CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 3,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
                     ToPurchase = true
-                }
+                },
+                new M_Article
+                {
+                    Name = "Filzgleiter",
+                    ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
+                    CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 3,
+                    UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
+                    ToPurchase = true
+                },
+                new M_Article
+                {
+                    Name = "Montageanleitung",
+                    ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
+                    CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 1,
+                    UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
+                    ToPurchase = true
+                },
+
             };
             productionDomainContext.Articles.AddRange(articles);
             productionDomainContext.SaveChanges();
@@ -150,13 +167,36 @@ namespace Zpp.Test.Configurations
                         ArticleForeignKey = article.Value,
                         Name = "Stock: " + article.Key,
                         Min = (article.Key == "Schrauben") ? 50 : 0,
-                        Max = 100,
+                        Max = 1000,
                         Current = (article.Key == "Schrauben") ? 100 : 0
                     }
                 };
                 productionDomainContext.Stocks.AddRange(stocks);
                 productionDomainContext.SaveChanges();
             }
+            
+            // Tool has no meaning yet, ignore it
+            int machineTool = machineTools.Single(a => a.Name == "Schweißgerät").Id;
+
+                // Tischbeine 
+                M_Operation operationTischbeinAnschraubplatte = new M_Operation
+                {
+                    ArticleId = articles.Single(a => a.Name == "Tischbein").Id,
+                    Name = "Anschraubplatte anschweißen", Duration = 20,
+                    MachineGroupId = machineGroupSchweißen.Id, HierarchyNumber = 10,
+                    MachineToolId = machineTool
+                };
+                M_Operation operationTischbeinFilzgleiter = new M_Operation
+                {
+                    ArticleId = articles.Single(a => a.Name == "Tischbein").Id,
+                    Name = "Flizgleiter anstecken", Duration = 10,
+                    MachineGroupId = machineGroupMontage.Id, HierarchyNumber = 20,
+                    MachineToolId = machineTool
+                };
+ 
+            productionDomainContext.Operations.Add(operationTischbeinAnschraubplatte);
+            productionDomainContext.Operations.Add(operationTischbeinFilzgleiter);
+            productionDomainContext.SaveChanges();
 
             var articleBom = new List<M_ArticleBom>
             {
@@ -167,13 +207,13 @@ namespace Zpp.Test.Configurations
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Tischplatte").Id,
                     Name = "Tischplatte",
-                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id
+                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
                 },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Tischbein").Id,
                     Name = "Tischbein", Quantity = 4,
-                    ArticleParentId = articles.Single(a => a.Name == "Tisch").Id
+                    ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
                 },
                 new M_ArticleBom
                 {
@@ -184,8 +224,8 @@ namespace Zpp.Test.Configurations
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Montageanleitung").Id,
-                    Name = "Montageanleitung", Quantity = 1,
-                    ArticleParentId = articles.Single(a => a.Name == "Tisch").Id
+                    Name = "Montageanleitung",
+                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
                 },
 
                 // Tischbein
@@ -193,48 +233,25 @@ namespace Zpp.Test.Configurations
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Anschraubplatte").Id,
                     Name = "Anschraubplatte",
-                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tischbein").Id
+                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tischbein").Id,
+                    OperationId = operationTischbeinAnschraubplatte.Id
                 },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Stahlrohr").Id,
                     Name = "Stahlrohr",
-                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tischbein").Id
+                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tischbein").Id,
+                    OperationId = operationTischbeinAnschraubplatte.Id
+                },
+                new M_ArticleBom
+                {
+                    ArticleChildId = articles.Single(a => a.Name == "Filzgleiter").Id,
+                    Name = "Filzgleiter",
+                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tischbein").Id,
+                    OperationId = operationTischbeinFilzgleiter.Id
                 },
             };
             productionDomainContext.ArticleBoms.AddRange(articleBom);
-            productionDomainContext.SaveChanges();
-
-            // Tool has no meaning yet, ignore it
-            int machineTool = machineTools.Single(a => a.Name == "Schweißgerät").Id;
-            var workSchedule = new M_Operation[]
-            {
-                // Tisch 
-                new M_Operation
-                {
-                    ArticleId = articles.Single(a => a.Name == "Tisch").Id,
-                    Name = "Tischbeine anschrauben", Duration = 10,
-                    MachineGroupId = machineGroupMontage.Id, HierarchyNumber = 10,
-                    MachineToolId = machineTool
-                },                  
-                new M_Operation
-                {
-                    ArticleId = articles.Single(a => a.Name == "Tisch").Id,
-                    Name = "Tisch verpacken", Duration = 10,
-                    MachineGroupId = machineGroupVerpacken.Id, HierarchyNumber = 20,
-                    MachineToolId = machineTool
-                },
-                // Tischbeine 
-                new M_Operation
-                {
-                    ArticleId = articles.Single(a => a.Name == "Tischbein").Id,
-                    Name = "Anschraubplatte anschweißen", Duration = 20,
-                    MachineGroupId = machineGroupSchweißen.Id, HierarchyNumber = 10,
-                    MachineToolId = machineTool
-                },
-                // new WorkSchedule{ ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Löcher vorbohren", Duration=2, MachineGroupId=machines.Single(n=> n.Name=="Montage 1").MachineGroupId, HierarchyNumber = 20 },
-            };
-            productionDomainContext.Operations.AddRange(workSchedule);
             productionDomainContext.SaveChanges();
 
             // TODO
@@ -257,36 +274,44 @@ namespace Zpp.Test.Configurations
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == "Tischplatte").Id, PackSize = 1,
                     Price = 20,
-                    DueTime = 2
+                    DueTime = 1000
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == "Schrauben").Id, PackSize = 100,
                     Price = 5,
-                    DueTime = 2
+                    DueTime = 1000
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == "Anschraubplatte").Id, PackSize = 10,
                     Price = 10,
-                    DueTime = 2
+                    DueTime = 1000
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == "Stahlrohr").Id, PackSize = 10,
                     Price = 20,
-                    DueTime = 2
+                    DueTime = 1000
+                },
+                new M_ArticleToBusinessPartner
+                {
+                    BusinessPartnerId = businessPartnerWholeSale.Id,
+                    ArticleId = articles.Single(x => x.Name == "Filzgleiter").Id, PackSize = 10,
+                    Price = 2,
+                    DueTime = 1000
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerPrintShop.Id,
-                    ArticleId = articles.Single(x => x.Name == "Montageanleitung").Id,
-                    PackSize = 10, Price = 1,
-                    DueTime = 2
+                    ArticleId = articles.Single(x => x.Name == "Montageanleitung").Id, PackSize = 100,
+                    Price = 0.05,
+                    DueTime = 1000
                 },
+
             };
             productionDomainContext.ArticleToBusinessPartners.AddRange(articleToBusinessPartner);
             productionDomainContext.SaveChanges();

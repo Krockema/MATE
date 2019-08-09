@@ -19,18 +19,18 @@ namespace Zpp.MachineDomain
         /**
          * starting by 0
          */
-        public ISet<T> PopLevel()
+        public IStackSet<T> PopLevel()
         {
-            ISet<T> set = new Set<T>();
+            IStackSet<T> stackSet = new StackSet<T>();
             foreach (var path in _paths)
             {
                 if (path.Count > 0)
                 {
-                    set.Add(path.Pop());
+                    stackSet.Add(path.Pop());
                 }
             }
 
-            return set;
+            return stackSet;
         }
     }
 }

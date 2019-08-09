@@ -12,6 +12,7 @@ using Master40.DB.Interfaces;
 using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using Zpp;
+using Zpp.MachineDomain;
 using Zpp.Utils;
 
 namespace Zpp
@@ -148,15 +149,19 @@ namespace Zpp
                 _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>();
 
             // T_ProductionOrderOperation
-            List<T_ProductionOrderOperation> tProductionOrderOperations =
-                new List<T_ProductionOrderOperation>();
+            IStackSet<T_ProductionOrderOperation> tProductionOrderOperations =
+                new StackSet<T_ProductionOrderOperation>();
             foreach (var tProductionOrderBom in tProductionOrderBoms)
             {
-                tProductionOrderOperations.Add(tProductionOrderBom.ProductionOrderOperation);
+                if (tProductionOrderBom.ProductionOrderOperation != null)
+                {
+                    tProductionOrderOperations.Add(tProductionOrderBom.ProductionOrderOperation);    
+                }
             }
 
             // T_PurchaseOrders
             List<T_PurchaseOrder> tPurchaseOrders = new List<T_PurchaseOrder>();
+            
             foreach (var tPurchaseOrderPart in tPurchaseOrderParts)
             {
                 tPurchaseOrders.Add(tPurchaseOrderPart.PurchaseOrder);
@@ -194,7 +199,7 @@ namespace Zpp
             }
         }
 
-        private void InsertOrUpdateRange<TEntity>(List<TEntity> entities, DbSet<TEntity> dbSet)
+        private void InsertOrUpdateRange<TEntity>(IEnumerable<TEntity> entities, DbSet<TEntity> dbSet)
             where TEntity : BaseEntity
         {
             if (entities.Any() == false)

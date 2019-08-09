@@ -8,77 +8,77 @@ namespace Zpp.Test
         [Fact]
         public void TestAdd()
         {
-            ISet<int> set = new Set<int>();
+            IStackSet<int> stackSet = new StackSet<int>();
             int testNumber = 1;
-            set.Add(testNumber);
-            set.Add(testNumber);
-            Assert.True(set.Count().Equals(testNumber), "Set contains a duplicate.");
-            Assert.True(set.PopAny().Equals(testNumber), "Value was not correctly added.");
+            stackSet.Add(testNumber);
+            stackSet.Add(testNumber);
+            Assert.True(stackSet.Count().Equals(testNumber), "Set contains a duplicate.");
+            Assert.True(stackSet.PopAny().Equals(testNumber), "Value was not correctly added.");
         }
 
         [Fact]
         public void TestAny()
         {
-            ISet<int> set = new Set<int>();
-            Assert.False(set.Any(), "Set should not contain any.");
+            IStackSet<int> stackSet = new StackSet<int>();
+            Assert.False(stackSet.Any(), "Set should not contain any.");
 
             int testNumber = 1;
-            set.Add(testNumber);
-            Assert.True(set.Any(), "Set should contain any.");
+            stackSet.Add(testNumber);
+            Assert.True(stackSet.Any(), "Set should contain any.");
         }
 
 
         [Fact]
         public void TestRemove()
         {
-            ISet<int> set = new Set<int>();
+            IStackSet<int> stackSet = new StackSet<int>();
             int testNumber = 1;
             int testNumber2 = 5;
-            set.Add(testNumber);
-            set.Add(testNumber2);
-            set.Remove(testNumber);
-            Assert.True(set.GetAny().Equals(testNumber2) && set.Count() == 1,
+            stackSet.Add(testNumber);
+            stackSet.Add(testNumber2);
+            stackSet.Remove(testNumber);
+            Assert.True(stackSet.GetAny().Equals(testNumber2) && stackSet.Count() == 1,
                 "Remove didn't work.");
         }
 
         [Fact]
         public void TestPopAny()
         {
-            ISet<int> set = new Set<int>();
+            IStackSet<int> stackSet = new StackSet<int>();
             int testNumber = 1;
             int testNumber2 = 5;
-            set.Add(testNumber);
-            set.Add(testNumber2);
-            int poppedElement = set.PopAny();
+            stackSet.Add(testNumber);
+            stackSet.Add(testNumber2);
+            int poppedElement = stackSet.PopAny();
             Assert.True(
                 (poppedElement.Equals(testNumber2) || poppedElement.Equals(testNumber)) &&
-                set.Count() == 1, "PopAny didn't work.");
+                stackSet.Count() == 1, "PopAny didn't work.");
         }
 
         [Fact]
         public void TestGetAny()
         {
-            ISet<int> set = new Set<int>();
+            IStackSet<int> stackSet = new StackSet<int>();
             int testNumber = 1;
             int testNumber2 = 5;
-            set.Add(testNumber);
-            set.Add(testNumber2);
-            int poppedElement = set.GetAny();
+            stackSet.Add(testNumber);
+            stackSet.Add(testNumber2);
+            int poppedElement = stackSet.GetAny();
             Assert.True(
                 (poppedElement.Equals(testNumber2) || poppedElement.Equals(testNumber)) &&
-                set.Count() == 2, "PopAny didn't work.");
+                stackSet.Count() == 2, "PopAny didn't work.");
         }
 
         [Fact]
         public void TestCount()
         {
-            ISet<int> set = new Set<int>();
+            IStackSet<int> stackSet = new StackSet<int>();
             int testNumber = 1;
             int testNumber2 = 5;
-            set.Add(testNumber);
-            set.Add(testNumber2);
+            stackSet.Add(testNumber);
+            stackSet.Add(testNumber2);
             Assert.True(
-                set.Count().Equals(2), "PopAny didn't work.");
+                stackSet.Count().Equals(2), "PopAny didn't work.");
         }
     }
 }

@@ -32,6 +32,10 @@ namespace Master40.DB.DataModel
         
         public ProducingState ProducingState { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
-        
+
+        public override string ToString()
+        {
+            return $"{Id}: {Name}";
+        }
     }
 }

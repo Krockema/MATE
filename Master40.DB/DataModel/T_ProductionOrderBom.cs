@@ -24,5 +24,10 @@ namespace Master40.DB.DataModel
         {
             return new Quantity(Quantity);
         }
+
+        public override string ToString()
+        {
+            return $"{ArticleChild.Name}: {ProductionOrderOperation}";
+        }
     }
 }

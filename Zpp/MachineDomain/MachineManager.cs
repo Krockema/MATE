@@ -15,9 +15,9 @@ namespace Zpp.MachineDomain
              R: enthält die zubelegenden Maschinen (resources)
              S: einplanbare Operationen 
              */
-            ISet<Machine> machines;
-            ISet<ProductionOrderOperation> schedulableOperations =
-                new Set<ProductionOrderOperation>();
+            IStackSet<Machine> machines;
+            IStackSet<ProductionOrderOperation> schedulableOperations =
+                new StackSet<ProductionOrderOperation>();
             // must only contain unstarted operations (= schedulable),
             // which is not the case, will be sorted out in loop (performance reason)
             schedulableOperations.AddAll(dbTransactionData.ProductionOrderOperationGetAll());
@@ -62,7 +62,7 @@ namespace Zpp.MachineDomain
             // start algorithm
             while (schedulableOperations.Any())
             {
-                machines = new Set<Machine>();
+                machines = new StackSet<Machine>();
                 foreach (var productionOrderOperationOfLastLevel in productionOrderOperationPaths
                     .PopLevel())
                 {

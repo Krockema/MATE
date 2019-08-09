@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Zpp.MachineDomain
 {
-    public class Set<T>:ISet<T>
+    public class StackSet<T>:IStackSet<T>
     {
         private List<T> _list = new List<T>();
         private int _count = 0;

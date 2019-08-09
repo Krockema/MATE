@@ -69,22 +69,41 @@ namespace Zpp.ProviderDomain
             {
                 List<Demand> newDemands = new List<Demand>();
                 // for backward scheduling
-                List<ProductionOrderBom> productionOrderBoms = new List<ProductionOrderBom>();
+                List<ProductionOrderBom> productionOrderBomsWithOperations = new List<ProductionOrderBom>();
+                Dictionary<M_Operation, ProductionOrderOperation> alreadyCreatedProductionOrderOperations = new Dictionary<M_Operation, ProductionOrderOperation>();
 
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
-                    Id articleChildId = new Id(articleBom.ArticleChildId);
-                    M_Article childArticle = dbMasterDataCache.M_ArticleGetById(articleChildId);
-                    Demand newDemand = ProductionOrderBom.CreateProductionOrderBom(articleBom,
-                        parentProductionOrder, dbMasterDataCache, quantity);
-                    // for backwards scheduling
-                    ProductionOrderBom newProductionOrderBom = (ProductionOrderBom) newDemand;
+                    ProductionOrderOperation productionOrderOperation = null;
+                    if (articleBom.OperationId != null)
+                    {
+                        if (articleBom.Operation == null)
+                        {
+                            articleBom.Operation = dbMasterDataCache.M_OperationGetById(new Id(articleBom.OperationId.GetValueOrDefault()));
+                        }
+
+                        if (alreadyCreatedProductionOrderOperations.ContainsKey(articleBom.Operation))
+                        {
+                            productionOrderOperation = alreadyCreatedProductionOrderOperations[articleBom.Operation];
+                        }
+                    }
+                    
+                    ProductionOrderBom newProductionOrderBom = ProductionOrderBom.CreateProductionOrderBom(articleBom,
+                        parentProductionOrder, dbMasterDataCache, quantity, productionOrderOperation);
+ 
+
                     if (newProductionOrderBom.HasOperation())
                     {
-                        productionOrderBoms.Add(newProductionOrderBom);
+                        if (alreadyCreatedProductionOrderOperations.ContainsKey(articleBom.Operation) == false)
+                        {
+                            alreadyCreatedProductionOrderOperations.Add(articleBom.Operation, newProductionOrderBom.GetProductionOrderOperation());
+                            // for backwards scheduling
+                            productionOrderBomsWithOperations.Add(newProductionOrderBom);
+                        }
                     }
 
-                    newDemands.Add(newDemand);
+
+                    newDemands.Add(newProductionOrderBom);
                 }
 
                 // backwards scheduling
@@ -93,7 +112,7 @@ namespace Zpp.ProviderDomain
                         null);
 
                 IEnumerable<ProductionOrderBom> sortedProductionOrderBoms =
-                    productionOrderBoms.OrderByDescending(x =>
+                    productionOrderBomsWithOperations.OrderByDescending(x =>
                         ((T_ProductionOrderBom) x.GetIDemand()).ProductionOrderOperation
                         .HierarchyNumber);
 

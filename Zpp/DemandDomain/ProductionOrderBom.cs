@@ -25,9 +25,10 @@ namespace Zpp.DemandDomain
         /// <param name="dbMasterDataCache"></param>
         /// <param name="quantity">of production article to produce
         /// --> is used for childs as: articleBom.Quantity * quantity</param>
+        /// <param name="productionOrderOperation">use already created, null if no one was created before</param>
         /// <returns></returns>
         public static ProductionOrderBom CreateProductionOrderBom(M_ArticleBom articleBom,
-            Provider parentProductionOrder, IDbMasterDataCache dbMasterDataCache, Quantity quantity)
+            Provider parentProductionOrder, IDbMasterDataCache dbMasterDataCache, Quantity quantity, ProductionOrderOperation productionOrderOperation)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
@@ -37,8 +38,16 @@ namespace Zpp.DemandDomain
                 (T_ProductionOrder) parentProductionOrder.ToIProvider();
             productionOrderBom.ProductionOrderParentId =
                 productionOrderBom.ProductionOrderParent.Id;
-            // bom is toPurchase if it's null
-            if (articleBom.Operation != null)
+            
+            // bom is toPurchase if articleBom.Operation == null
+            if (productionOrderOperation != null)
+            {
+                productionOrderBom.ProductionOrderOperation =
+                    productionOrderOperation.GetValue();
+                productionOrderBom.ProductionOrderOperationId =
+                    productionOrderBom.ProductionOrderOperation.Id;
+            }            
+            if (productionOrderOperation == null && articleBom.Operation != null)
             {
                 productionOrderBom.ProductionOrderOperation =
                     ProductionOrderOperation.CreateProductionOrderOperation(articleBom,
@@ -46,6 +55,7 @@ namespace Zpp.DemandDomain
                 productionOrderBom.ProductionOrderOperationId =
                     productionOrderBom.ProductionOrderOperation.Id;
             }
+            
 
             productionOrderBom.ArticleChild = articleBom.ArticleChild;
             productionOrderBom.ArticleChildId = articleBom.ArticleChildId;
@@ -124,7 +134,7 @@ namespace Zpp.DemandDomain
                     tProductionOrderBom.ProductionOrderOperation;
                 graphizString = $"D(PrOB);{base.GetGraphizString(dbTransactionData)};" +
                                 $"bs({tProductionOrderOperation.StartBackward});" +
-                                $"be({tProductionOrderOperation.EndBackward})";
+                                $"be({tProductionOrderOperation.EndBackward});\\n{tProductionOrderOperation}";
             }
             else
             {

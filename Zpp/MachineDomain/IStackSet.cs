@@ -8,7 +8,7 @@ namespace Zpp.MachineDomain
      * - pop any element with O(1)
      * but remains the ide of a mathematical set: every item exists only once
      */
-    public interface ISet<T>: IEnumerable<T>
+    public interface IStackSet<T>: IEnumerable<T>
     {
         void Add(T element);
         
