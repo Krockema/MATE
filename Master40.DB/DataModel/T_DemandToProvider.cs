@@ -29,5 +29,10 @@ namespace Master40.DB.DataModel
         {
             return new Id(DemandId);
         }
+
+        public Quantity GetQuantity()
+        {
+            return new Quantity(Quantity);
+        }
     }
 }

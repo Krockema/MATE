@@ -23,33 +23,6 @@ namespace Zpp.ProviderDomain
         {
         }
 
-        public static ProductionOrder CreateProductionOrder(Demand demand,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Quantity lotSize)
-        {
-            if (!demand.GetArticle().ToBuild)
-            {
-                throw new MrpRunException(
-                    "You are trying to create a productionOrder for a purchaseArticle.");
-            }
-
-            T_ProductionOrder tProductionOrder = new T_ProductionOrder();
-            // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            tProductionOrder.DueTime = demand.GetDueTime(dbTransactionData).GetValue();
-            tProductionOrder.Article = demand.GetArticle();
-            tProductionOrder.ArticleId = demand.GetArticle().Id;
-            tProductionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
-            tProductionOrder.Quantity = lotSize.GetValue();
-
-            ProductionOrder productionOrder =
-                new ProductionOrder(tProductionOrder, dbMasterDataCache);
-
-            productionOrder.CreateDependingDemands(demand.GetArticle(), dbTransactionData,
-                productionOrder, productionOrder.GetQuantity());
-
-            return productionOrder;
-        }
-
         /// <summary>
         ///
         /// </summary>

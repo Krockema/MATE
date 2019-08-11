@@ -7,10 +7,6 @@ namespace Master40.DB.Data.WrappersForPrimitives
         // TODO: T_PurchaseOrderPart, T_CustomerOrderPart uses int, ensure correct rounding.
         private decimal _quantity;
 
-        public Quantity()
-        {
-        }
-
         public Quantity(Quantity quantity)
         {
             _quantity = quantity.GetValue();

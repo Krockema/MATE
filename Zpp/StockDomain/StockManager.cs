@@ -9,7 +9,7 @@ using Zpp.WrappersForPrimitives;
 
 namespace Zpp.StockDomain
 {
-    public class StockManager
+    public class StockManager : IProvidingManager
     {
         private readonly Dictionary<Id, Stock> _stocks = new Dictionary<Id, Stock>();
         private HashSet<Provider> _alreadyConsideredProviders = new HashSet<Provider>();
@@ -96,8 +96,7 @@ namespace Zpp.StockDomain
             return _stocks[id];
         }
 
-        public Quantity Satisfy(Quantity demandedQuantity, IDbTransactionData dbTransactionData,
-            IProviderManager providerManager, Demand demand)
+        public Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
         {
             Stock stock = _stocks[demand.GetArticleId()];
             if (stock.GetQuantity().IsGreaterThan(Quantity.Null()))
@@ -115,13 +114,18 @@ namespace Zpp.StockDomain
                 Provider stockProvider = CreateStockExchangeProvider(demand.GetArticle(),
                     demand.GetDueTime(dbTransactionData), reservedQuantity, _dbMasterDataCache,
                     dbTransactionData);
-                // this implicitly adapts the stock, createNeededDemands
-                providerManager.AddProvider(demand, stockProvider, reservedQuantity);
-                return demandedQuantity.Minus(stockProvider.GetQuantity());
+
+                T_DemandToProvider demandToProvider = new T_DemandToProvider()
+                {
+                    DemandId = demand.GetId().GetValue(),
+                    ProviderId = stockProvider.GetId().GetValue(),
+                    Quantity = stockProvider.GetQuantity().GetValue()
+                };
+                return new Response(stockProvider, demandToProvider, demandedQuantity);
             }
             else
             {
-                return demandedQuantity;
+                return new Response((Provider) null, null, demandedQuantity);
             }
         }
 

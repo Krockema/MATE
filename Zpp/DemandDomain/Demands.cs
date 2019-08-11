@@ -125,7 +125,7 @@ namespace Zpp.DemandDomain
 
         public Quantity GetQuantityOfAll()
         {
-            Quantity sumQuantity = new Quantity();
+            Quantity sumQuantity = Quantity.Null();
             foreach (var demand in _demands)
             {
                 sumQuantity.IncrementBy(demand.GetQuantity());

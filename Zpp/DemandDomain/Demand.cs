@@ -27,48 +27,7 @@ namespace Zpp.DemandDomain
             _demand = demand;
             _dbMasterDataCache = dbMasterDataCache;
         }
-
-        public Quantity SatisfyByOrders(IDbTransactionData dbTransactionData,
-            Quantity demandedQuantity, IProviderManager providerManager, Demand demand)
-        {
-            Logger.Debug($"Satisfy by order for article {this}:");
-            Quantity remainingQuantity = new Quantity(demandedQuantity);
-
-            // make or buy
-            if (demand.GetArticle().ToBuild)
-            {
-                LotSize.LotSize lotSizes = new LotSize.LotSize(demandedQuantity, GetArticleId());
-                foreach (var lotSize in lotSizes.GetLotSizes())
-                {
-                    ProductionOrder productionOrder =
-                        ProductionOrder.CreateProductionOrder(this, dbTransactionData,
-                            _dbMasterDataCache, lotSize);
-                    Logger.Debug("ProductionOrder created.");
-                    remainingQuantity.DecrementBy(lotSize);
-                    Quantity quantityToReserve = lotSize;
-                    if (remainingQuantity.IsNegative())
-                    {
-                        quantityToReserve = remainingQuantity.Plus(lotSize);
-                        remainingQuantity = null;
-                    }
-
-                    providerManager.AddProvider(this,
-                        productionOrder, quantityToReserve);
-                }
-
-                return remainingQuantity;
-            }
-
-            // TODO: revisit all methods that have this as parameter
-            // TODO: here is no lotSize used !
-            remainingQuantity = PurchaseOrderPart.CreatePurchaseOrderPart(this, GetArticle(),
-                GetDueTime(dbTransactionData), demandedQuantity, _dbMasterDataCache,
-                providerManager);
-            Logger.Debug("PurchaseOrderPart created.");
-
-            return remainingQuantity;
-        }
-
+        
         // TODO: use this method
         private int CalculatePriority(int dueTime, int operationDuration, int currentTime)
         {
@@ -117,20 +76,7 @@ namespace Zpp.DemandDomain
         {
             return GetArticle().GetId();
         }
-
-        public Quantity SatisfyByExistingNonExhaustedProvider(IProviderManager providerManager,
-            Demand demand, Quantity remainingQuantity)
-        {
-            return providerManager.ReserveQuantityOfExistingProvider(demand.GetId(),
-                demand.GetArticle(), remainingQuantity);
-        }
-
-        public Quantity SatisfyByStock(Quantity demandQuantity,
-            IDbTransactionData dbTransactionData, IProviderManager providerManager, Demand demand, StockManager stockManager)
-        {
-            return stockManager.Satisfy(demandQuantity, dbTransactionData, providerManager, demand);
-        }
-
+        
         public NodeType GetNodeType()
         {
             return NodeType.Demand;

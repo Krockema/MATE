@@ -86,7 +86,7 @@ namespace Zpp.ProviderDomain
 
         public Quantity GetProvidedQuantity(Id articleId)
         {
-            Quantity providedQuantity = new Quantity();
+            Quantity providedQuantity = new Quantity(Quantity.Null());
 
             foreach (var provider in _providers)
             {

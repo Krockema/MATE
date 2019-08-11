@@ -26,18 +26,7 @@ namespace Zpp.DemandDomain
         DueTime GetDueTime(IDbTransactionData dbTransactionData);
 
         Id GetId();
-
-        /**
-         * For convenience
-         */
-        Quantity SatisfyByExistingNonExhaustedProvider(IProviderManager providerManager,
-            Demand demand, Quantity remainingQuantity);
-
-        Quantity SatisfyByStock(Quantity remainingQuantity, IDbTransactionData dbTransactionData,
-            IProviderManager providerManager, Demand demand, StockManager stockManager);
-
-        Quantity SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity remainingQuantity,
-            IProviderManager providerManager, Demand demand);
+        
 
     }
 }

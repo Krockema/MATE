@@ -11,23 +11,21 @@ using Zpp.StockDomain;
 
 namespace Zpp.ProviderDomain
 {
-    public class ProviderManager : IProviderManager
+    public class ProviderManager : IProviderManager, IProvidingManager
     {
         private readonly IDemandToProviderTable _demandToProviderTable;
         private readonly IProviderToDemandTable _providerToDemandTable;
         private readonly IProviders _providers;
         private readonly List<Demand> _nextDemands = new List<Demand>();
-        private readonly StockManager _stockManager;
         private readonly IDbTransactionData _dbTransactionData;
         
         private readonly OpenProviders _openProviders = new OpenProviders();
 
-        public ProviderManager(StockManager stockManager, IDbTransactionData dbTransactionData)
+        public ProviderManager(IDbTransactionData dbTransactionData)
         {
             _providers = new Providers();
             _demandToProviderTable = new DemandToProviderTable();
             _providerToDemandTable = new ProviderToDemandTable();
-            _stockManager = stockManager;
             _dbTransactionData = dbTransactionData;
         }
 
@@ -38,11 +36,14 @@ namespace Zpp.ProviderDomain
             _providers = providers;
         }
 
-        public Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity)
+        /**
+         * aka ReserveQuantityOfExistingProvider
+         */
+        public Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
         {
-            if (_openProviders.AnyOpenProvider(demandedArticle))
+            if (_openProviders.AnyOpenProvider(demand.GetArticle()))
             {
-                OpenProvider openProvider = _openProviders.GetOpenProvider(demandedArticle);
+                OpenProvider openProvider = _openProviders.GetOpenProvider(demand.GetArticle());
                 Quantity remainingQuantity = demandedQuantity.Minus(openProvider.GetOpenQuantity());
                 openProvider.GetOpenQuantity().DecrementBy(demandedQuantity);
                 
@@ -54,41 +55,40 @@ namespace Zpp.ProviderDomain
                 {
                     remainingQuantity = Quantity.Null();
                 }
-                ConnectDemandWithProvider(demandId, openProvider.GetOpenProvider(), demandedQuantity.Minus(remainingQuantity));
-                return remainingQuantity;
+
+                T_DemandToProvider demandToProvider = new T_DemandToProvider()
+                {
+                    DemandId = demand.GetId().GetValue(),
+                    ProviderId = openProvider.GetOpenProvider().GetId().GetValue(),
+                    Quantity = demandedQuantity.Minus(remainingQuantity).GetValue()
+                };
+
+                return new Response(null, demandToProvider, demandedQuantity);
             }
             else
             {
-                return demandedQuantity;
+                return new Response((Provider)null, null, demandedQuantity);
             }
         }
 
-        private void ConnectDemandWithProvider(Id demandId, Provider provider, Quantity usedQuantity)
+        public void AddDemandToProvider(T_DemandToProvider demandToProvider)
         {
-            T_DemandToProvider demandToProvider = new T_DemandToProvider();
-            demandToProvider.DemandId = demandId.GetValue();
-            demandToProvider.ProviderId = provider.GetId().GetValue();
-            demandToProvider.Quantity = usedQuantity.GetValue();
             _demandToProviderTable.Add(demandToProvider);
         }
-
-        // TODO: split reserve and add mechanism
-        public void AddProvider(Id demandId, Quantity demandedQuantity, Provider oneProvider, Quantity reservedQuantity)
+        
+        public void AddProvider(Id demandId, Provider oneProvider, Quantity reservedQuantity)
         {
-            _stockManager.AdaptStock(oneProvider, _dbTransactionData);
-            
+
             // if it has quantity that is not reserved, remember it for later reserving
-            if (demandedQuantity.IsSmallerThan(oneProvider.GetQuantity()))
+            if (reservedQuantity.IsSmallerThan(oneProvider.GetQuantity()))
             {
-                _openProviders.Add(oneProvider.GetArticle(), new OpenProvider(oneProvider, oneProvider.GetQuantity().Minus(demandedQuantity), oneProvider.GetArticle()));
+                _openProviders.Add(oneProvider.GetArticle(), new OpenProvider(oneProvider, oneProvider.GetQuantity().Minus(reservedQuantity), oneProvider.GetArticle()));
             }
 
             // save provider
             _providers.Add(oneProvider);
-            
-            // connect demandToProvider
-            ConnectDemandWithProvider(demandId, oneProvider, reservedQuantity);
-            
+
+            // TODO: this should be done in separate method and be controlled by MrpRun
             // save depending demands
             Demands dependingDemands = oneProvider.GetAllDependingDemands();
             if (dependingDemands != null)
@@ -128,11 +128,6 @@ namespace Zpp.ProviderDomain
             }
 
             return sum;
-        }
-
-        public void AddProvider(Demand demand, Provider provider, Quantity reservedQuantity)
-        {
-            AddProvider(demand.GetId(), demand.GetQuantity(), provider, reservedQuantity);
         }
 
         public Demands GetNextDemands()

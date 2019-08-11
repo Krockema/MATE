@@ -5,7 +5,9 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DemandDomain;
+using Zpp.ProductionDomain;
 using Zpp.ProviderDomain;
+using Zpp.PurchaseDomain;
 using Zpp.SchedulingDomain;
 using Zpp.StockDomain;
 using Zpp.Utils;
@@ -38,6 +40,39 @@ namespace Zpp
                 dbMasterDataCache);
         }
 
+        /**
+         * - save providers
+         * - save dependingDemands
+         */
+        private static void ProcessProvidingResponse(Response response,
+            IProviderManager providerManager, StockManager stockManager,
+            IDbTransactionData dbTransactionData)
+        {
+            if (response == null)
+            {
+                return;
+            }
+
+            if (response.GetDemandToProviders() != null)
+            {
+                foreach (var demandToProvider in response.GetDemandToProviders())
+                {
+                    providerManager.AddDemandToProvider(demandToProvider);
+
+                    if (response.GetProviders() != null)
+                    {
+                        Provider provider = response.GetProviders()
+                                .GetProviderById(demandToProvider.GetProviderId());
+                        
+                        stockManager.AdaptStock(provider, dbTransactionData);
+                        providerManager.AddProvider(response.GetDemandId(), provider,
+                            demandToProvider.GetQuantity());
+                        
+                    }
+                }
+            }
+        }
+
         private static void ProcessNextCustomerOrderPart(IDbTransactionData dbTransactionData,
             CustomerOrderPart oneCustomerOrderPart, IDbMasterDataCache dbMasterDataCache,
             StockManager globalStockManager)
@@ -45,7 +80,10 @@ namespace Zpp
             // init
             IDemands finalAllDemands = new Demands();
             StockManager stockManager = new StockManager(globalStockManager, dbMasterDataCache);
-            IProviderManager providerManager = new ProviderManager(stockManager, dbTransactionData);
+
+            IProviderManager providerManager = new ProviderManager(dbTransactionData);
+            IProvidingManager providingManager = (IProvidingManager) providerManager;
+            IProvidingManager orderManager = new OrderManager(dbMasterDataCache);
 
             // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
             // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
@@ -78,30 +116,36 @@ namespace Zpp
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
                     // satisfy by existing provider
-                    Quantity remainingQuantity =
-                        demand.SatisfyByExistingNonExhaustedProvider(providerManager, demand,
-                            demand.GetQuantity());
-                    if (remainingQuantity.IsNull() == false)
+                    Response response = providingManager.Satisfy(demand, demand.GetQuantity(),
+                        dbTransactionData);
+                    ProcessProvidingResponse(response, (IProviderManager) providingManager,
+                        stockManager, dbTransactionData);
+
+
+                    if (response.IsSatisfied() == false)
                     {
-                        // SE:I
-                        if (demand.GetType() == typeof(StockExchangeDemand))
-                        {
-                            remainingQuantity = demand.SatisfyByOrders(dbTransactionData,
-                                demand.GetQuantity(), providerManager, demand);
-                        }
                         // COP or PrOB
-                        else
+                        if (demand.GetType() != typeof(StockExchangeDemand))
                         {
-                            remainingQuantity = demand.SatisfyByStock(demand.GetQuantity(),
-                                dbTransactionData, providerManager, demand, stockManager);
-                            remainingQuantity = demand.SatisfyByOrders(dbTransactionData,
-                                remainingQuantity, providerManager, demand);
+                            response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
+                                dbTransactionData);
+
+                            ProcessProvidingResponse(response, (IProviderManager) providingManager,
+                                stockManager, dbTransactionData);
                         }
+                        // SE:I or COP or PrOB 
+
+                        response = orderManager.Satisfy(demand, response.GetRemainingQuantity(),
+                            dbTransactionData);
+
+                        ProcessProvidingResponse(response, (IProviderManager) providingManager,
+                            stockManager, dbTransactionData);
                     }
 
-                    if (remainingQuantity.IsNull() == false)
+                    if (response.GetRemainingQuantity().IsNull() == false)
                     {
-                        throw new MrpRunException($"'{demand}' was NOT satisfied.");
+                        throw new MrpRunException(
+                            $"'{demand}' was NOT satisfied: remaining is {response.GetRemainingQuantity()}");
                     }
 
                     Demands nextDemands = providerManager.GetNextDemands();
@@ -149,7 +193,8 @@ namespace Zpp
             IDemands dbDemands, IDbMasterDataCache dbMasterDataCache)
         {
             // init
-            StockManager stockManager = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+            StockManager stockManager =
+                new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
 
             foreach (var oneDbDemand in dbDemands.GetAll())
             {

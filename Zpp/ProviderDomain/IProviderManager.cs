@@ -8,22 +8,11 @@ namespace Zpp.ProviderDomain
 {
     public interface IProviderManager
     {
-        /**
-         * @returns: the quantity that could be NOT reserved. Must read providers from db.
-         */
-        Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity);
-
-        /**
-         * @returns: (demandedQuantity - provider.getQuantity()), Quantity.Null if provider.getQuantity() is bigger than demandedQuantity
-         */
-        void AddProvider(Id demandId, Quantity demandedQuantity, Provider provider, Quantity reservedQuantity);
+     /**
+      * @returns: (demandedQuantity - provider.getQuantity()), Quantity.Null if provider.getQuantity() is bigger than demandedQuantity
+      */
+        void AddProvider(Id demandId, Provider provider, Quantity reservedQuantity);
         
-        /**
-        * - adapts the stock: StockExchangeProvider decrement, else increment
-        * @returns: the quantity that is still NOT satisfied
-        */
-        void AddProvider(Demand demand, Provider provider, Quantity reservedQuantity);
-
         /**
          * sum(quantity) over given demandId
          * aka select count(Quantity) where DemandId=demandId
@@ -49,6 +38,8 @@ namespace Zpp.ProviderDomain
         IProviderToDemandTable GetProviderToDemandTable();
 
         IProviders GetProviders();
-     
+
+        void AddDemandToProvider(T_DemandToProvider demandToProvider);
+
     }
 }
