@@ -75,7 +75,7 @@ namespace Zpp.ProviderDomain
             return GetQuantity().IsGreaterThanOrEqualTo(quantity);
         }
 
-        public abstract void CreateNeededDemands(M_Article article,
+        public abstract void CreateDependingDemands(M_Article article,
             IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity);
         
         /**

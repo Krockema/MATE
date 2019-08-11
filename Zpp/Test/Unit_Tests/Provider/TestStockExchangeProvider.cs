@@ -8,6 +8,7 @@ using Master40.XUnitTest.DBContext;
 using Xunit;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
+using Zpp.StockDomain;
 
 namespace Zpp.Test
 {
@@ -49,7 +50,8 @@ namespace Zpp.Test
             {
                 M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(demand.GetArticleId());
 
-                Provider providerStockExchange = StockExchangeProvider.CreateStockExchangeProvider(
+                StockManager stockManager = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+                Provider providerStockExchange = stockManager.CreateStockExchangeProvider(
                     demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
                     dbMasterDataCache, dbTransactionData);
                 Assert.True(providerStockExchange.GetQuantity().Equals(demand.GetQuantity()),
@@ -77,8 +79,8 @@ namespace Zpp.Test
             M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(demand.GetArticleId());
             // increase stock
             stock.Current = 10;
-            
-            Provider providerStockExchange = StockExchangeProvider.CreateStockExchangeProvider(
+            StockManager stockManager = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+            Provider providerStockExchange = stockManager.CreateStockExchangeProvider(
                 demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
                 dbMasterDataCache, dbTransactionData);
 

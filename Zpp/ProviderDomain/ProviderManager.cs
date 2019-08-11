@@ -72,7 +72,8 @@ namespace Zpp.ProviderDomain
             _demandToProviderTable.Add(demandToProvider);
         }
 
-        public Quantity AddProvider(Id demandId, Quantity demandedQuantity, Provider oneProvider)
+        // TODO: split reserve and add mechanism
+        public void AddProvider(Id demandId, Quantity demandedQuantity, Provider oneProvider, Quantity reservedQuantity)
         {
             _stockManager.AdaptStock(oneProvider, _dbTransactionData);
             
@@ -81,12 +82,12 @@ namespace Zpp.ProviderDomain
             {
                 _openProviders.Add(oneProvider.GetArticle(), new OpenProvider(oneProvider, oneProvider.GetQuantity().Minus(demandedQuantity), oneProvider.GetArticle()));
             }
-            
+
             // save provider
             _providers.Add(oneProvider);
             
             // connect demandToProvider
-            ConnectDemandWithProvider(demandId, oneProvider, oneProvider.GetQuantity().Minus(demandedQuantity));
+            ConnectDemandWithProvider(demandId, oneProvider, reservedQuantity);
             
             // save depending demands
             Demands dependingDemands = oneProvider.GetAllDependingDemands();
@@ -99,13 +100,6 @@ namespace Zpp.ProviderDomain
                 }
             }
             
-            Quantity unsatisfiedQuantity =
-                demandedQuantity.Minus(GetSatisfiedQuantityOfDemand(demandId));
-            if (unsatisfiedQuantity.IsNegative())
-            {
-                return Quantity.Null();
-            }
-            return unsatisfiedQuantity;
         }
 
         public Quantity GetSatisfiedQuantityOfDemand(Id demandId)
@@ -136,9 +130,9 @@ namespace Zpp.ProviderDomain
             return sum;
         }
 
-        public Quantity AddProvider(Demand demand, Provider provider)
+        public void AddProvider(Demand demand, Provider provider, Quantity reservedQuantity)
         {
-            return AddProvider(demand.GetId(), demand.GetQuantity(), provider);
+            AddProvider(demand.GetId(), demand.GetQuantity(), provider, reservedQuantity);
         }
 
         public Demands GetNextDemands()

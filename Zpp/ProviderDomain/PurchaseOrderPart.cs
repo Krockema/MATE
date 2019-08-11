@@ -31,14 +31,14 @@ namespace Zpp.ProviderDomain
             return articleId;
         }
 
-        public override void CreateNeededDemands(M_Article article,
+        public override void CreateDependingDemands(M_Article article,
             IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
             throw new System.NotImplementedException();
         }
 
         public static Quantity CreatePurchaseOrderPart(Demand demand, M_Article article,
-            DueTime dueTime, Quantity lotSize, IDbMasterDataCache dbMasterDataCache,
+            DueTime dueTime, Quantity demandeQuantity, IDbMasterDataCache dbMasterDataCache,
             IProviderManager providerManager)
         {
             if (article.ToBuild)
@@ -77,10 +77,10 @@ namespace Zpp.ProviderDomain
             tPurchaseOrderPart.Article = article;
             tPurchaseOrderPart.ArticleId = article.Id;
             tPurchaseOrderPart.Quantity =
-                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner, lotSize) *
+                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner, demandeQuantity) *
                 articleToBusinessPartner
                     .PackSize;
-            if (tPurchaseOrderPart.Quantity < lotSize.GetValue())
+            if (tPurchaseOrderPart.Quantity < demandeQuantity.GetValue())
             {
                 throw new MrpRunException("You cannot purchase less than you need!");
             }
@@ -90,8 +90,13 @@ namespace Zpp.ProviderDomain
             Logger.Debug("PurchaseOrderPart created.");
             PurchaseOrderPart purchaseOrderPart =
                 new PurchaseOrderPart(tPurchaseOrderPart, null, dbMasterDataCache);
-            Quantity remainingQuantity = providerManager.AddProvider(demand, purchaseOrderPart);
+            providerManager.AddProvider(demand, purchaseOrderPart, demandeQuantity);
 
+            Quantity remainingQuantity = demandeQuantity.Minus(purchaseOrderPart.GetQuantity());
+            if (remainingQuantity.IsNegative())
+            {
+                remainingQuantity = Quantity.Null();
+            }
             return remainingQuantity;
         }
 

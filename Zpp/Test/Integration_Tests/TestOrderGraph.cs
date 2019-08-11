@@ -40,6 +40,7 @@ namespace Zpp.Test
          */
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestAllEdgesAreInOrderGraph(string testConfigurationFileName)
@@ -87,6 +88,7 @@ namespace Zpp.Test
          */
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestEdgeTypes(string testConfigurationFileName)
@@ -160,6 +162,7 @@ namespace Zpp.Test
          */
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.TRUCK_COP_1_LOTSIZE_1)]

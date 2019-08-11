@@ -4,6 +4,7 @@ using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.StockDomain;
 
 namespace Zpp.DemandDomain
 {
@@ -43,8 +44,16 @@ namespace Zpp.DemandDomain
                         ProductionOrder.CreateProductionOrder(this, dbTransactionData,
                             _dbMasterDataCache, lotSize);
                     Logger.Debug("ProductionOrder created.");
-                     remainingQuantity = providerManager.AddProvider(this,
-                        productionOrder);
+                    remainingQuantity.DecrementBy(lotSize);
+                    Quantity quantityToReserve = lotSize;
+                    if (remainingQuantity.IsNegative())
+                    {
+                        quantityToReserve = remainingQuantity.Plus(lotSize);
+                        remainingQuantity = null;
+                    }
+
+                    providerManager.AddProvider(this,
+                        productionOrder, quantityToReserve);
                 }
 
                 return remainingQuantity;
@@ -53,7 +62,8 @@ namespace Zpp.DemandDomain
             // TODO: revisit all methods that have this as parameter
             // TODO: here is no lotSize used !
             remainingQuantity = PurchaseOrderPart.CreatePurchaseOrderPart(this, GetArticle(),
-                GetDueTime(dbTransactionData), demandedQuantity, _dbMasterDataCache, providerManager);
+                GetDueTime(dbTransactionData), demandedQuantity, _dbMasterDataCache,
+                providerManager);
             Logger.Debug("PurchaseOrderPart created.");
 
             return remainingQuantity;
@@ -108,57 +118,17 @@ namespace Zpp.DemandDomain
             return GetArticle().GetId();
         }
 
-        public void SatisfyStockExchangeDemand(IProviderManager providerManager, IDbTransactionData dbTransactionData)
-        {
-            Quantity remainingQuantity = GetQuantity();
-
-            // satisfy by existing provider
-            remainingQuantity = SatisfyByExistingNonExhaustedProvider(providerManager, this, remainingQuantity);
-            if (remainingQuantity.IsNull())
-            {
-                return;
-            }
-
-            // satisfy by order
-            remainingQuantity = SatisfyByOrders(dbTransactionData, remainingQuantity,
-                providerManager, this);
-
-            if (remainingQuantity.IsGreaterThan(Quantity.Null()))
-            {
-                throw new MrpRunException($"The demand({this}) was NOT satisfied.");
-            }
-        }
-
         public Quantity SatisfyByExistingNonExhaustedProvider(IProviderManager providerManager,
             Demand demand, Quantity remainingQuantity)
         {
-            return providerManager.ReserveQuantityOfExistingProvider(demand.GetId(), demand.GetArticle(),
-                remainingQuantity);
+            return providerManager.ReserveQuantityOfExistingProvider(demand.GetId(),
+                demand.GetArticle(), remainingQuantity);
         }
 
-        public Quantity SatisfyByStock(Quantity missingQuantity,
-            IDbTransactionData dbTransactionData, IProviderManager providerManager, Demand demand)
+        public Quantity SatisfyByStock(Quantity demandQuantity,
+            IDbTransactionData dbTransactionData, IProviderManager providerManager, Demand demand, StockManager stockManager)
         {
-            Quantity remainingQuantity = missingQuantity;
-
-            // satisfy by existing provider
-            remainingQuantity = SatisfyByExistingNonExhaustedProvider(providerManager, this, remainingQuantity);
-            if (remainingQuantity.IsNull())
-            {
-                return remainingQuantity;
-            }
-            
-            // satisfy by stock
-            Provider stockExchangeProvider = StockExchangeProvider.CreateStockExchangeProvider(GetArticle(),
-                GetDueTime(dbTransactionData), remainingQuantity, _dbMasterDataCache, dbTransactionData);
-            remainingQuantity.DecrementBy(stockExchangeProvider.GetQuantity());
-            if (stockExchangeProvider == null)
-            {
-                throw new MrpRunException("No stockExchangeProvider was created."); 
-            }
-
-            providerManager.AddProvider(demand, stockExchangeProvider);
-            return remainingQuantity;
+            return stockManager.Satisfy(demandQuantity, dbTransactionData, providerManager, demand);
         }
 
         public NodeType GetNodeType()

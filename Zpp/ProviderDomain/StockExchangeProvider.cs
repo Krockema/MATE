@@ -33,7 +33,7 @@ namespace Zpp.ProviderDomain
             return new Id(stock.ArticleForeignKey);
         }
 
-        public override void CreateNeededDemands(M_Article article,
+        public override void CreateDependingDemands(M_Article article,
             IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
             if (quantity.IsNull())
@@ -53,30 +53,6 @@ namespace Zpp.ProviderDomain
             }
 
             _dependingDemands.Add(stockExchangeDemand);
-        }
-
-        /**
-         * returns a provider, which can be a stockExchangeProvider, if article can be fulfilled by stock, else
-         * a productionOrder/purchaseOrderPart
-         */
-        public static Provider CreateStockExchangeProvider(M_Article article, DueTime dueTime,
-            Quantity demandedQuantity, IDbMasterDataCache dbMasterDataCache,
-            IDbTransactionData dbTransactionData)
-        {
-            M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(article.GetId());
-            T_StockExchange stockExchange = new T_StockExchange();
-            stockExchange.StockExchangeType = StockExchangeType.Provider;
-            stockExchange.Quantity = demandedQuantity.GetValue();
-            stockExchange.State = State.Created;
-
-            stockExchange.Stock = stock;
-            stockExchange.StockId = stock.Id;
-            stockExchange.RequiredOnTime = dueTime.GetValue();
-            stockExchange.ExchangeType = ExchangeType.Withdrawal;
-            StockExchangeProvider stockExchangeProvider =
-                new StockExchangeProvider(stockExchange, dbMasterDataCache);
-
-            return stockExchangeProvider;
         }
 
         public override string GetGraphizString(IDbTransactionData dbTransactionData)

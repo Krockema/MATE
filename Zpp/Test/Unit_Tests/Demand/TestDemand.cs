@@ -33,20 +33,21 @@ namespace Zpp.Test
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
-            StockManager stockManagerBefore = new StockManager(dbMasterDataCache.M_StockGetAll());
-            StockManager stockManagerAfter = new StockManager(dbMasterDataCache.M_StockGetAll());
-            IProviderManager providerManager = new ProviderManager(stockManagerAfter, dbTransactionData);
+            StockManager stockManagerBefore = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+            StockManager stockManagerAfter = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+            IProviderManager providerManager =
+                new ProviderManager(stockManagerAfter, dbTransactionData);
             Demand customerOrderPart =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 2);
 
-            customerOrderPart.SatisfyStockExchangeDemand(providerManager, dbTransactionData);
-            
+            customerOrderPart.SatisfyByOrders(dbTransactionData, customerOrderPart.GetQuantity(),
+                providerManager, customerOrderPart);
+
             Quantity beforeQuantity = stockManagerBefore
                 .GetStockById(customerOrderPart.GetArticleId()).GetQuantity();
             Quantity afterQuantity = stockManagerAfter
                 .GetStockById(customerOrderPart.GetArticleId()).GetQuantity();
-            Assert.True(
-                afterQuantity.Equals(beforeQuantity.Plus(customerOrderPart.GetQuantity())),
+            Assert.True(afterQuantity.Equals(beforeQuantity.Plus(customerOrderPart.GetQuantity())),
                 "Stock was not correctly increased.");
         }
 

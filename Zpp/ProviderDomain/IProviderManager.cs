@@ -14,14 +14,15 @@ namespace Zpp.ProviderDomain
         Quantity ReserveQuantityOfExistingProvider(Id demandId, M_Article demandedArticle, Quantity demandedQuantity);
 
         /**
-         * @returns: the quantity that is still NOT satisfied
+         * @returns: (demandedQuantity - provider.getQuantity()), Quantity.Null if provider.getQuantity() is bigger than demandedQuantity
          */
-        Quantity AddProvider(Id demandId, Quantity demandedQuantity, Provider provider);
+        void AddProvider(Id demandId, Quantity demandedQuantity, Provider provider, Quantity reservedQuantity);
         
         /**
+        * - adapts the stock: StockExchangeProvider decrement, else increment
         * @returns: the quantity that is still NOT satisfied
         */
-        Quantity AddProvider(Demand demand, Provider provider);
+        void AddProvider(Demand demand, Provider provider, Quantity reservedQuantity);
 
         /**
          * sum(quantity) over given demandId

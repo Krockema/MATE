@@ -5,6 +5,7 @@ using Zpp.ProviderDomain;
 using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.StockDomain;
 
 namespace Zpp.DemandDomain
 {
@@ -26,9 +27,6 @@ namespace Zpp.DemandDomain
 
         Id GetId();
 
-        void SatisfyStockExchangeDemand(IProviderManager providerManager,
-            IDbTransactionData dbTransactionData);
-
         /**
          * For convenience
          */
@@ -36,7 +34,7 @@ namespace Zpp.DemandDomain
             Demand demand, Quantity remainingQuantity);
 
         Quantity SatisfyByStock(Quantity remainingQuantity, IDbTransactionData dbTransactionData,
-            IProviderManager providerManager, Demand demand);
+            IProviderManager providerManager, Demand demand, StockManager stockManager);
 
         Quantity SatisfyByOrders(IDbTransactionData dbTransactionData, Quantity remainingQuantity,
             IProviderManager providerManager, Demand demand);

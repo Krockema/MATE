@@ -44,7 +44,7 @@ namespace Zpp.ProviderDomain
             ProductionOrder productionOrder =
                 new ProductionOrder(tProductionOrder, dbMasterDataCache);
 
-            productionOrder.CreateNeededDemands(demand.GetArticle(), dbTransactionData,
+            productionOrder.CreateDependingDemands(demand.GetArticle(), dbTransactionData,
                 productionOrder, productionOrder.GetQuantity());
 
             return productionOrder;
@@ -139,7 +139,7 @@ namespace Zpp.ProviderDomain
             return articleId;
         }
 
-        public override void CreateNeededDemands(M_Article article,
+        public override void CreateDependingDemands(M_Article article,
             IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
             _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData,
