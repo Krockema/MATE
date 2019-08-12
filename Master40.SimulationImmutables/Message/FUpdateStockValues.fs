@@ -1,7 +1,7 @@
 ﻿module FUpdateStockValues
 
 
-    type public FUpdateStockValues = {
+    type public FUpdateStockValue = {
         StockName : string
         NewValue : double
         ArticleType : string

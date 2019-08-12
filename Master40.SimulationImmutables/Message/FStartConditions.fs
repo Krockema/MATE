@@ -1,6 +1,6 @@
 ﻿module FStartConditions
 
-    type public FStartConditions = 
+    type public FStartCondition = 
         {
             mutable PreCondition : bool
             mutable MaterialsProvided : bool

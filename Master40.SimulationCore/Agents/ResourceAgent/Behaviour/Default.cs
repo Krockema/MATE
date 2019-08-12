@@ -1,56 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Akka.Actor;
-using Master40.SimulationCore.Agents.HubAgent;
+﻿using Master40.DB.Enums;
+using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
+using Akka.Actor;
 
-namespace Master40.SimulationCore.Agents.Ressource
+namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
-
-
-    public class ResourceBehaviour : Behaviour
+    public class Default : MessageTypes.Behaviour
     {
-        public ResourceBehaviour(Dictionary<string, object> properties) : base(null, properties) { }
-        public static ResourceBehaviour Get()
+        public Default(int planingJobQueueLength, int fixedJobQueueSize, SimulationType simulationType = SimulationType.None) : base(null, simulationType)
         {
-            
-            var properties = new Dictionary<string, object>();
-
-            var processingQueueSize = 1;
-            properties.Add(Resource.Properties.QUEUE_LENGTH, 45); // plaing forecast
-            properties.Add(Resource.Properties.PROGRESS_QUEUE_SIZE, processingQueueSize); // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore
-            properties.Add(Resource.Properties.QUEUE, new List<FWorkItem>());
-            properties.Add(Resource.Properties.PROCESSING_QUEUE, new LimitedQueue<FWorkItem>(processingQueueSize));
-            properties.Add(Resource.Properties.ITEMS_IN_PROGRESS, false);
-
-            return new ResourceBehaviour(properties);
+            this.processingQueue = new JobQueueItemLimited(fixedJobQueueSize);
+            this.queue = new JobQueueTimeLimited(planingJobQueueLength);
+            AgentDictionary = new AgentDictionary();
+            this.queueLength = queueLength;
         }
 
+        internal int queueLength { get; set; }
+        internal JobQueueTimeLimited queue { get; set; }
+        internal JobQueueItemLimited processingQueue { get; set; }
+        internal bool operationInProgress { get; set; } = false;
+        internal WorkTimeGenerator workTimeGenerator { get; }
+        internal AgentDictionary AgentDictionary { get; }
+        
         public override bool Action(Agent agent, object message)
         {
             switch (message)
             {
                 //case BasicInstruction.Initialize i: RegisterService(); break;
-                case Resource.Instruction.SetHubAgent msg: SetHubAgent((Resource)agent, msg.GetObjectFromMessage.Ref); break;
-                case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
-                case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
-                case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
-                case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
-                case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
-                case Resource.Instruction.FinishWork msg: FinishWork((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.SetHubAgent msg: SetHubAgent(agent, msg.GetObjectFromMessage.Ref); break;
+                // case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
+                // case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
+                // case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
+                // case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
+                // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
+                // case Resource.Instruction.FinishWork msg: FinishWork((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
+        /*
         public void StartWorkWith(Resource agent, FItemStatus workItemStatus)
         {
             if (workItemStatus == null)
                 throw new InvalidCastException("Could not Cast >WorkItemStatus< on InstructionSet.ObjectToProcess");
-            
+
             var Queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
             // update Status
             var workItem = Queue.FirstOrDefault(x => x.Key == workItemStatus.ItemId);
@@ -158,44 +152,40 @@ namespace Master40.SimulationCore.Agents.Ressource
                                      .FirstOrDefault();
 
             //get next ready element and put it to processing queue
-            if (itemFromQueue != null) { 
+            if (itemFromQueue != null)
+            {
                 agent.UpdateProcessingQueue(itemFromQueue);
                 agent.DebugMessage("After Finish Work with " + workItem.Key + " start working Id " + itemFromQueue.Key + " take next...");
             }
 
             // Reorganize List
-            agent.CallToReQueue(Queue, Queue.Where(x => x.Status == ElementStatus.Created 
+            agent.CallToReQueue(Queue, Queue.Where(x => x.Status == ElementStatus.Created
                                                      || x.Status == ElementStatus.InQueue
                                                      || x.Status == ElementStatus.Ready).ToList());
             // do Do Work in next Timestep.
             agent.Send(Resource.Instruction.DoWork.Create(null, agent.Context.Self));
         }
 
-
+        */
         /// <summary>
         /// Register the Machine in the System on Startup and Save the Hub agent.
         /// </summary>
-        private void SetHubAgent(Resource agent, IActorRef hubAgent)
+        private void SetHubAgent(Agent agent, IActorRef hubAgent)
         {
-            // save Cast to expected object
-            var _hub = hubAgent as IActorRef;
-
-            // throw if cast failed.
-            if (_hub == null)
-                throw new ArgumentException("Could not Cast Communication ActorRef from Instruction");
-
             // Save to Value Store
-            agent.Set(Resource.Properties.HUB_AGENT_REF, hubAgent);
+            AgentDictionary.Add(hubAgent, "Default");
             // Debug Message
-            agent.DebugMessage("Successfull Registred Service at : " + _hub.Path.Name);
+            agent.DebugMessage("Successfull Registred Service at : " + hubAgent.Path.Name);
         }
 
+        /*
         private void BreakDown(Resource agent, FBreakDown breakDwon)
         {
             if (breakDwon.IsBroken)
             {
                 Break(agent, breakDwon);
-            } else
+            }
+            else
             {
                 RecoverFromBreakDown(agent);
             }
@@ -220,5 +210,103 @@ namespace Master40.SimulationCore.Agents.Ressource
             agent.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, agent.Name, agent.Context.Self), agent.VirtualParent, true));
         }
 
+         internal void UpdateProcessingQueue(FWorkItem workItem)
+        {
+            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
+            var queue = Get<List<FWorkItem>>(Properties.QUEUE);
+            var hub = Get<IActorRef>(Properties.HUB_AGENT_REF);
+            if (processingQueue.CapacitiesLeft && workItem != null)
+            {
+                if (workItem.Operation.HierarchyNumber == 10)
+                    Send(Hub.Instruction.ProductionStarted.Create(workItem, hub));
+                processingQueue.Enqueue(workItem);
+                queue.Remove(workItem);
+            }
+        }
+
+        internal void CallToReQueue(List<FWorkItem> queue, List<FWorkItem> toRequeue)
+        {
+            foreach (var reqItem in toRequeue)
+            {
+                DebugMessage("-> ToRequeue " + reqItem.Priority(TimePeriod) + " Current Possition: " + queue.OrderBy(x => x.Priority(TimePeriod)).ToList().IndexOf(reqItem) + " Id " + reqItem.Key);
+
+                // remove item from current Queue
+                queue.Remove(reqItem);
+
+                // Call Comunication Agent to Requeue
+                Send(Hub.Instruction.EnqueueWorkItem.Create(reqItem.UpdateStatus(ElementStatus.Created), reqItem.HubAgent));
+            }
+        }
+
+        /// <summary>
+        /// Starts the next WorkItem
+        /// </summary>
+        internal void DoWork()
+        {
+            if (Get<bool>(Properties.ITEMS_IN_PROGRESS))
+            {
+                DebugMessage("Im still working....");
+                return; // still working
+            }
+
+            // Dequeue
+            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
+            var item = processingQueue.Dequeue();
+
+
+            // Wait if nothing More todo.
+            if (item == null)
+            {
+                // No more work 
+                DebugMessage("Nothing more Ready in Queue!");
+                return;
+            }
+
+            DebugMessage("Start with " + item.Operation.Name);
+            Set(Properties.ITEMS_IN_PROGRESS, true);
+            item = item.UpdateStatus(ElementStatus.Processed);
+
+
+            // TODO: Roll delay here
+            var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
+            var duration = workTimeGenerator.GetRandomWorkTime(item.Operation.Duration);
+
+            //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
+
+            // TODO !
+            var pub = new UpdateSimulationWork(item.Key.ToString(), duration - 1, (int)this.TimePeriod, this.Name);
+            this.Context.System.EventStream.Publish(pub);
+            // Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
+
+            // get item = ready and lowest priority
+            Send(Instruction.FinishWork.Create(item, Context.Self), duration);
+        }
+
+        /// <summary>
+        /// Send Proposal to Comunication Client
+        /// </summary>
+        /// <param name="workItem"></param>
+        internal void SendProposalTo(FWorkItem workItem)
+        {
+            long max = 0;
+            var queue = this.Get<List<FWorkItem>>(Properties.QUEUE);
+            var queueLength = this.Get<int>(Properties.QUEUE_LENGTH);
+
+            if (queue.Any(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)))
+            {
+                max = queue.Where(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)).Max(e => e.EstimatedEnd);
+            }
+
+            // calculat Proposal.
+            var proposal = new FProposal(possibleSchedule: max
+                                            , postponed: (max > queueLength && workItem.Status != ElementStatus.Ready)
+                                            , postponedFor: queueLength
+                                            , workItemId: workItem.Key
+                                            , resourceAgent: this.Context.Self);
+
+            // callback 
+            this.Send(Hub.Instruction.ProposalFromMachine.Create(proposal, this.Context.Sender));
+        }
+        */
     }
 }

@@ -11,10 +11,13 @@
     <Compile Include="Message\FStartConditions.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
+    <Compile Include="Interface\IJobResults.fs" />
     <Compile Include="FunctionConverter.fs" />
     <Compile Include="Message\FOperation.fs" />
+    <Compile Include="Message\FOperationResults.fs" />
     <Compile Include="Message\FArticle.fs" />
-    <Compile Include="Message\FBucket.fs" />
+    <Compile Include="Message\FProductionResults.fs" />
+	<Compile Include="Message\FBucket.fs" />
     <Compile Include="Message\FRequestResource.fs" />
     <Compile Include="Message\FHubInformation.fs" />
     <Compile Include="Message\FUpdateStockValues.fs" />

@@ -1,7 +1,8 @@
 ﻿using System;
 using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.SimulationImmutables;
+using static FArticles;
+using static FProductionResults;
 
 namespace Master40.SimulationCore.Agents.StorageAgent
 {
@@ -11,25 +12,25 @@ namespace Master40.SimulationCore.Agents.StorageAgent
         {
             public class RequestArticle : SimulationMessage
             {
-                public static RequestArticle Create(FRequestItem message, IActorRef target)
+                public static RequestArticle Create(FArticle message, IActorRef target)
                 {
                     return new RequestArticle(message, target);
                 }
                 private RequestArticle(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
+                public FArticle GetObjectFromMessage { get => Message as FArticle; }
             }
             public class ProvideArticleAtDue : SimulationMessage
             {
-                public static ProvideArticleAtDue Create(FRequestItem message, IActorRef target)
+                public static ProvideArticleAtDue Create(Guid message, IActorRef target)
                 {
                     return new ProvideArticleAtDue(message, target);
                 }
                 private ProvideArticleAtDue(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
+                public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
             public class StockRefill : SimulationMessage
             {
@@ -57,14 +58,14 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             
             public class ResponseFromProduction : SimulationMessage
             {
-                public static ResponseFromProduction Create(FRequestItem message, IActorRef target)
+                public static ResponseFromProduction Create(FProductionResult message, IActorRef target)
                 {
                     return new ResponseFromProduction(message, target);
                 }
                 private ResponseFromProduction(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
+                public FProductionResult GetObjectFromMessage { get => Message as FProductionResult; }
             }
         }
     }

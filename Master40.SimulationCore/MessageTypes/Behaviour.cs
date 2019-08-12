@@ -10,12 +10,10 @@ namespace Master40.SimulationCore.MessageTypes
     public abstract class Behaviour: IBehaviour
     {
         public Behaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker = null
-                          , Dictionary<string, object> properties = null
                           , object obj = null
                           , SimulationType simulationType = SimulationType.None)
         {
             ChildMaker = childMaker;
-            Properties = (properties == null) ? new Dictionary<string, object>() : properties;
             Object = obj;
             SimulationType = simulationType;
         }

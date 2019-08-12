@@ -3,7 +3,6 @@ using Akka.Actor;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
 
 namespace Master40.SimulationCore.Agents.ContractAgent
 {
@@ -33,15 +32,15 @@ namespace Master40.SimulationCore.Agents.ContractAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
-            this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
-            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ")>");
+            var fArticle = ((Behaviour.Default)Behaviour).fArticle;
+            this.Send(Dispo.Instruction.RequestArticle.Create(fArticle, childRef));
+            this.DebugMessage("Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
         }
 
         protected override void Finish()
         {
-            var r = this.Get<FRequestItem>(Properties.REQUEST_ITEM);
-            if (r.Provided && VirtualChilds.Count() == 0)
+            var fArticle = ((Behaviour.Default)Behaviour).fArticle;
+            if (fArticle.IsProvided && VirtualChilds.Count() == 0)
             {
                 base.Finish();
             }

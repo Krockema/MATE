@@ -2,7 +2,6 @@
 using AkkaSim;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Master40.SimulationImmutables;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
 using System;
@@ -22,16 +21,13 @@ namespace Master40.SimulationCore.Agents
         /// <summary>
         /// Holds the last Known Status for each Child Entity
         /// </summary>
-        internal Dictionary<IActorRef, ElementStatus> VirtualChilds { get; }
-        internal ElementStatus Status { get; set; }
+        internal HashSet<IActorRef> VirtualChilds { get; }
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }
         internal new IUntypedActorContext Context => UntypedActor.Context;
         internal long CurrentTime { get => TimePeriod; }
         internal void TryToFinish() => Finish();
         internal new IActorRef Sender { get => base.Sender; }
-        private dynamic ValueStore { get; }
-            = new ExpandoObject();
         // Diagnostic Tools
         private Stopwatch _stopwatch = new Stopwatch();
         public bool DebugThis { get; private set; }
@@ -50,7 +46,7 @@ namespace Master40.SimulationCore.Agents
             Name = Self.Path.Name;
             ActorPaths = actorPaths;
             VirtualParent = principal;
-            VirtualChilds = new Dictionary<IActorRef, ElementStatus>();
+            VirtualChilds = new HashSet<IActorRef>();
             DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
@@ -67,35 +63,10 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
-        /// <summary>
-        /// Returns the requested Property, if null an empty new property is returned
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public T Get<T>(string propertyName)
-        {
-            var expandoDict = ValueStore as IDictionary<string, object>;
-
-            if (expandoDict.ContainsKey(propertyName))            
-                return (T)expandoDict[propertyName];
-
-            throw new Exception("Propertie not Found!");
-        }
-        public void Set(string propertyName, object obj)
-        {
-            var expandoDict = ValueStore as IDictionary<string, object>;
-
-            if (expandoDict.ContainsKey(propertyName))
-                expandoDict[propertyName] = obj;
-            else
-                expandoDict.Add(propertyName, obj);
-        }
-
         private void AddChild(IActorRef childRef)
         {
             DebugMessage("Try to add child: " + childRef.Path.Name);
-            VirtualChilds.Add(childRef, ElementStatus.Created);
+            VirtualChilds.Add(childRef);
             
             OnChildAdd(childRef);
         }
@@ -112,7 +83,6 @@ namespace Master40.SimulationCore.Agents
         private void InitializeAgent(IBehaviour behaviour)
         {
             this.Behaviour = behaviour;
-            foreach (var propertie in behaviour.Properties) ((IDictionary<string, object>)ValueStore).Add(propertie.Key, propertie.Value);
             DebugMessage(" INITIALIZED ");
             if (VirtualParent != ActorRefs.Nobody)
             {

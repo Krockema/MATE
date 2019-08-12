@@ -1,29 +1,31 @@
 ﻿using Akka.Actor;
+using Akka.Event;
+using AkkaSim;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.SimulationCore.Agents;
-using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AkkaSim;
-using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.CollectorAgent;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
-using Master40.Tools.SignalR;
-using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
+using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Reporting;
-using Akka.Event;
+using Master40.Tools.SignalR;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.Enums;
+using System.Threading.Tasks;
+using static FCreateSimulationWorks;
+using static FResourceSetupDefinitions;
+using static FUpdateSimulationWorkProviders;
+using static FUpdateSimulationWorks;
+using static FUpdateStockValues;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore
 {
@@ -70,15 +72,15 @@ namespace Master40.SimulationCore
                 // Create DataCollector
                 WorkCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsWorkSchedule.Get()
                                                         , _messageHub, _DBContext, configuration, 0, _debug
-                                                        , new List<Type> { typeof(CreateSimulationWork),
-                                                                           typeof(UpdateSimulationWork),
-                                                                           typeof(UpdateSimulationWorkProvider),
+                                                        , new List<Type> { typeof(FCreateSimulationWork),
+                                                                           typeof(FUpdateSimulationWork),
+                                                                           typeof(FUpdateSimulationWorkProvider),
                                                                            typeof(UpdateLiveFeed),
                                                                            typeof(Hub.Instruction.AddMachineToHub),
                                                                            typeof(BasicInstruction.ResourceBrakeDown)}));
                 StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
                                                         , _messageHub, _DBContext, configuration, 0, _debug
-                                                        , new List<Type> { typeof(UpdateStockValues),
+                                                        , new List<Type> { typeof(FUpdateStockValue),
                                                                            typeof(UpdateLiveFeed)}));
                 ContractCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsContracts.Get()
                                                         , _messageHub, _DBContext, configuration, 0, _debug
@@ -120,10 +122,10 @@ namespace Master40.SimulationCore
                 
                 // #3 Create DirectoryAgents
                 ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "HubDirectory"));
-                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.HubDirectory.Ref, DirectoryBehaviour.Get()));
+                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.HubDirectory.Ref, Agents.DirectoryAgent.Behaviour.BehaviourFactory.Get(_simType)));
 
                 ActorPaths.SetStorageDirectory(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "StorageDirectory"));
-                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, DirectoryBehaviour.Get()));
+                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, Agents.DirectoryAgent.Behaviour.BehaviourFactory.Get(_simType)));
 
                 // #4 Create Machines
                 var setups = _DBContext.ResourceSetups.Include(m => m.Resource)

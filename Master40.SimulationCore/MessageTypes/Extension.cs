@@ -1,6 +1,8 @@
-﻿using Master40.SimulationImmutables;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using static FBuckets;
+using static IJobs;
+using static IKeys;
 
 namespace Master40.SimulationCore.MessageTypes
 {
@@ -12,7 +14,7 @@ namespace Master40.SimulationCore.MessageTypes
         /// <param name="w"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public static double GetPriority(this FWorkItem w, long currentTime)
+        public static double GetPriority(this IJob w, long currentTime)
         {
             return w.Priority(currentTime);
         }

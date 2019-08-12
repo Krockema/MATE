@@ -1,13 +1,13 @@
-﻿module FBucket
+﻿module FBuckets
 
 open System
 open Akka.Actor
-open FOperation
-open FProposal
+open FOperations
+open FProposals
 open System.Linq
 open FStartConditions
-open IKey
-open IJob
+open IKeys
+open IJobs
 
     type public FBucket =
         { Key : Guid
@@ -18,8 +18,7 @@ open IJob
           ForwardEnd : int64 
           ForwardStart : int64 
           Start : int64
-          Priority : int64
-          StartConditions : FStartConditions
+          StartConditions : FStartCondition
           PrioRule :  FSharpFunc<FBucket, FSharpFunc<int64, double>>
           ResourceAgent : IActorRef
           HubAgent : IActorRef
@@ -29,11 +28,11 @@ open IJob
           Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with
                 member this.Key  with get() = this.Key
-                member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
                 member this.CreationTime with get() = this.CreationTime
             interface IJob with
                 member this.BackwardEnd with get() = this.BackwardEnd
                 member this.BackwardStart with get() = this.BackwardStart
+                member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
                 member this.ForwardStart with get() = this.ForwardStart
@@ -43,6 +42,7 @@ open IJob
                 member this.Priority time = this.PrioRule this time
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
+                member this.Duration = this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }

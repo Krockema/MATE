@@ -21,25 +21,15 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         private static IBehaviour Default()
         { 
-            var properties = new Dictionary<string, object>
-            {
-                { Dispo.Properties.STORAGE_AGENT_REF, ActorRefs.Nobody }
-                ,{ Dispo.Properties.QUANTITY_TO_PRODUCE, 0.0 }
-                // ,{ Dispo.Properties.REQUEST_ITEM, null }
-            };
-            return new Default(properties);
+
+            return new Default();
 
         }
 
         private static IBehaviour Bucket()
         {
-            var properties = new Dictionary<string, object>
-            {
-                { Dispo.Properties.STORAGE_AGENT_REF, ActorRefs.Nobody }
-                ,{ Dispo.Properties.QUANTITY_TO_PRODUCE, 0.0 }
-                // ,{ Dispo.Properties.REQUEST_ITEM, null }
-            };
-            return new Bucket(properties);
+
+            return new Bucket();
 
         }
     }

@@ -1,4 +1,4 @@
-﻿module FBreakDown
+﻿module FBreakDowns
 
     type public FBreakDown = {
         Resource : string

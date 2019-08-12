@@ -1,4 +1,4 @@
-﻿module FStockReservation
+﻿module FStockReservations
 
 open System
 

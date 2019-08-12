@@ -1,9 +1,9 @@
-﻿module FArticle
+﻿module FArticles
 
 open System
 open Master40.DB.DataModel
 open Akka.Actor
-open IKey
+open IKeys
 
     type public FArticle =         
         {   Key : Guid
@@ -17,13 +17,11 @@ open IKey
             DispoRequester : IActorRef
             ProviderList : System.Collections.Generic.List<IActorRef> 
             CustomerOrderId : int
-            Providable : int 
-            Provided : bool
+            IsProvided : bool
             IsHeadDemand : bool 
             FinishedAt : int64 } 
             interface IKey with
                 member this.Key with get() = this.Key
-                member this.DueTime with get() = this.DueTime
                 member this.CreationTime with get() = this.CreationTime
             member this.UpdateFinishedAt f = { this with FinishedAt = f }
             member this.UpdateOriginRequester r = { this with OriginRequester = r }
@@ -33,5 +31,5 @@ open IKey
             member this.UpdateStorageAgent s = { this with StorageAgent = s }
             member this.UpdateStockExchangeId i = { this with StockExchangeId  = i }
             member this.UpdateProviderList p = { this with ProviderList = p }
-            member this.SetProvided = { this with Provided = true }
+            member this.SetProvided = { this with IsProvided = true }
 

@@ -1,4 +1,4 @@
-﻿module FUpdateSimulationWork
+﻿module FUpdateSimulationWorks
 
     type public FUpdateSimulationWork = {
         WorkScheduleId : string

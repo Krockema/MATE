@@ -1,14 +1,14 @@
-﻿module FProposal
+﻿module FProposals
 
 open Akka.Actor
 open System
-open FPostponed
+open FPostponeds
 
     type public FProposal =
         {
             PossibleSchedule : int64 
-            Postponed : FPostponed 
+            Postponed : FPostponed
             ResourceAgent : IActorRef
-            Key: Guid
+            JobKey: Guid
         }
 

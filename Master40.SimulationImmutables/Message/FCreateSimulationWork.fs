@@ -1,6 +1,6 @@
-﻿module FCreateSimulationWork
+﻿module FCreateSimulationWorks
 
-open FOperation
+open FOperations
 
     type public FCreateSimulationWork = {
         Operation : FOperation

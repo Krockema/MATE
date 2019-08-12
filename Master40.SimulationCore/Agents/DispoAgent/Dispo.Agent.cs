@@ -4,7 +4,6 @@ using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
 
 namespace Master40.SimulationCore.Agents.DispoAgent
 {
@@ -40,7 +39,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
+            var requestItem = ((Behaviour.Default)Behaviour).fArticle;
             this.Send(Production.Instruction.StartProduction.Create(requestItem, Sender));
             this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") > ProductionStart has been send.");
         }

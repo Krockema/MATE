@@ -1,8 +1,8 @@
-﻿module FPostponed
+﻿module FPostponeds
 
 type public FPostponed =
     {
-        PostponedFor : int64
+       Offset : int64
     }
-    member this.Postponed = this.PostponedFor <> 0L
+    member this.IsPostponed = this.Offset <> 0L
     

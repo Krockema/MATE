@@ -1,7 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
+using static FBreakDowns;
+using static FHubInformations;
 
 namespace Master40.SimulationCore.Agents
 {

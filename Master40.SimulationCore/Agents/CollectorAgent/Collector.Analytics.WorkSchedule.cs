@@ -12,9 +12,14 @@ using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
 using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
+using static FUpdateSimulationWorks;
+using static FUpdateSimulationWorkProviders;
+using static FBreakDowns;
+using static FHubInformations;
+using static FSetEstimatedThroughputTimes;
+using static FCreateSimulationWorks;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -25,7 +30,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
-        private List<UpdateSimulationWork> _updatedSimulationWork = new List<UpdateSimulationWork>();
+        private List<FUpdateSimulationWork> _updatedSimulationWork = new List<FUpdateSimulationWork>();
         private List<string> machines = new List<string>();
         private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
         private List<Kpi> Kpis = new List<Kpi>();
@@ -41,9 +46,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             switch (message)
             {
-                case CreateSimulationWork m: CreateSimulationWorkSchedule((Collector)simulationMonitor,m); break;
-                case UpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
-                case UpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
+                case FCreateSimulationWork m: CreateSimulationWorkSchedule((Collector)simulationMonitor,m); break;
+                case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
+                case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 case Hub.Instruction.AddMachineToHub m: RecoverFromBreak((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn((Collector)simulationMonitor, m.GetObjectFromMessage); break;
@@ -54,7 +59,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void BreakDwn(Collector agent, FBreakDown item)
         {
-            agent.messageHub.SendToClient(item.Machine + "_State", "offline");
+            agent.messageHub.SendToClient(item.Resource + "_State", "offline");
         }
 
         private void RecoverFromBreak(Collector agent, FHubInformation item)
@@ -262,16 +267,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Kpis.Add(k);
         }
 
-        private void CreateSimulationWorkSchedule(Collector agent, CreateSimulationWork cws)
+        private void CreateSimulationWorkSchedule(Collector agent, FCreateSimulationWork cws)
         {
-            var ws = cws.WorkItem;
+            var ws = cws.Operation;
             var sws = new SimulationWorkschedule
             {
                 WorkScheduleId = ws.Key.ToString(),
                 Article = ws.Operation.Article.Name,
                 WorkScheduleName = ws.Operation.Name,
                 DueTime = (int)ws.DueTime,
-                EstimatedEnd = (int)ws.EstimatedEnd,
                 SimulationConfigurationId = agent.simulationId.Value,
                 SimulationNumber = agent.simulationNumber.Value,
                 SimulationType = agent.simulationKind.Value,
@@ -299,7 +303,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
 
-        private void UpdateSimulationWorkSchedule(UpdateSimulationWork uws)
+        private void UpdateSimulationWorkSchedule(FUpdateSimulationWork uws)
         {
 
             var edit = simulationWorkschedules.FirstOrDefault(x => x.WorkScheduleId.Equals(uws.WorkScheduleId));
@@ -315,7 +319,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
 
-        private void UpdateSimulationWorkItemProvider(UpdateSimulationWorkProvider uswp)
+        private void UpdateSimulationWorkItemProvider(FUpdateSimulationWorkProvider uswp)
         {
             foreach (var agentId in uswp.ProductionAgents)
             {

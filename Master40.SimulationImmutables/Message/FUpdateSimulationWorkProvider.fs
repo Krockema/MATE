@@ -1,4 +1,4 @@
-﻿module FUpdateSimulationWorkProvider
+﻿module FUpdateSimulationWorkProviders
 
 open Akka.Actor
 

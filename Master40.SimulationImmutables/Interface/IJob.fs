@@ -1,7 +1,7 @@
-﻿module IJob
+﻿module IJobs
 
 open FStartConditions
-open FProposal
+open FProposals
 open Akka.Actor
 
 type public IJob = 
@@ -11,8 +11,10 @@ type public IJob =
     abstract member BackwardEnd : int64 with get
     abstract member Start : int64 with get
     abstract member End : int64 with get
-    abstract member StartConditions : FStartConditions with get
+    abstract member StartConditions : FStartCondition with get
     abstract member Priority : int64 -> double 
     abstract member Proposals : System.Collections.Generic.List<FProposal> 
     abstract member ResourceAgent : IActorRef
     abstract member HubAgent : IActorRef
+    abstract member DueTime : int64 with get
+    abstract member Duration : int64 with get

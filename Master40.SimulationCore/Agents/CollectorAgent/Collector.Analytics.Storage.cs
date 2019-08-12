@@ -3,19 +3,19 @@ using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static FUpdateStockValues;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsStorage : Behaviour, ICollectorBehaviour
     {
         private CollectorAnalyticsStorage() : base() {
-            CurrentStockValues = new Dictionary<string, UpdateStockValues>();
+            CurrentStockValues = new Dictionary<string, FUpdateStockValue>();
         }
-        private Dictionary<string, UpdateStockValues> CurrentStockValues;
+        private Dictionary<string, FUpdateStockValue> CurrentStockValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
 
         public static CollectorAnalyticsStorage Get()
@@ -29,7 +29,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             switch (message)
             {
-                case UpdateStockValues m: UpdateStock((Collector)simulationMonitor, m); break;
+                case FUpdateStockValue m: UpdateStock((Collector)simulationMonitor, m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
 
-        private void UpdateStock(Collector agent, UpdateStockValues values)
+        private void UpdateStock(Collector agent, FUpdateStockValue values)
         {
             if (CurrentStockValues.ContainsKey(values.StockName))
                 CurrentStockValues.Remove(values.StockName);
@@ -68,7 +68,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             UpdateKPI(agent, values);
         }
 
-        private void UpdateKPI(Collector agent, UpdateStockValues values)
+        private void UpdateKPI(Collector agent, FUpdateStockValue values)
         {
             var k = new Kpi { Name = values.StockName
                             , Value = values.NewValue

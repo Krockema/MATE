@@ -1,7 +1,7 @@
-﻿module FRequestResource
+﻿module FRequestResources
 
 open Akka.Actor
-open FResourceType
+open FResourceTypes
 
     type public FRequestResource =
         {

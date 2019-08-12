@@ -1,8 +1,12 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.SimulationImmutables;
+using System;
+using static FHubInformations;
+using static FOperations;
+using static IJobs;
+using static FOperationResults;
 
-namespace Master40.SimulationCore.Agents.Ressource
+namespace Master40.SimulationCore.Agents.ResourceAgent
 {
     public partial class Resource
     {
@@ -22,38 +26,38 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             public class RequestProposal : SimulationMessage
             {
-                public static RequestProposal Create(FWorkItem message, IActorRef target)
+                public static RequestProposal Create(IJob message, IActorRef target)
                 {
                     return new RequestProposal(message, target);
                 }
                 private RequestProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+                public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
             public class AcknowledgeProposal : SimulationMessage
             {
-                public static AcknowledgeProposal Create(FWorkItem message, IActorRef target)
+                public static AcknowledgeProposal Create(FOperation message, IActorRef target)
                 {
                     return new AcknowledgeProposal(message, target);
                 }
                 private AcknowledgeProposal(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+                public FOperation GetObjectFromMessage { get => Message as FOperation; }
             }
 
             public class StartWorkWith : SimulationMessage
             {
-                public static StartWorkWith Create(FItemStatus message, IActorRef target)
+                public static StartWorkWith Create(Guid message, IActorRef target)
                 {
                     return new StartWorkWith(message, target);
                 }
                 private StartWorkWith(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FItemStatus GetObjectFromMessage { get => Message as FItemStatus; }
+                public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
 
             public class DoWork : SimulationMessage
@@ -69,14 +73,14 @@ namespace Master40.SimulationCore.Agents.Ressource
 
             public class FinishWork : SimulationMessage
             {
-                public static FinishWork Create(FWorkItem message, IActorRef target)
+                public static FinishWork Create(FOperationResult message, IActorRef target)
                 {
                     return new FinishWork(message, target);
                 }
                 private FinishWork(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
+                public FOperationResult GetObjectFromMessage { get => Message as FOperationResult; }
             }
         }
     }

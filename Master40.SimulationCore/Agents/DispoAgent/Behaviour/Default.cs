@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Master40.DB.DataModel;
@@ -10,14 +9,23 @@ using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
+using static FArticles;
+using static FHubInformations;
+using static FResourceTypes;
+using static FStockReservations;
 
 namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
     public class Default : MessageTypes.Behaviour
     {
-        internal Default(Dictionary<string, object> properties, SimulationType simulationType = SimulationType.None) 
-                        : base(null, properties, simulationType) { }
+        internal Default(SimulationType simulationType = SimulationType.None) 
+                        : base(null, simulationType) { }
+
+
+        internal FArticle fArticle { get; set; }
+        internal int quantityToProduce { get; set; }
+        internal IActorRef storageAgentReference { get; set; }
+
         public override bool Action(Agent agent, object message)
         {
             switch (message)
@@ -33,36 +41,35 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             return true;
         }
 
-        internal void RequestArticle(Dispo agent, FRequestItem requestItem)
+        internal void RequestArticle(Dispo agent, FArticle requestItem)
         {
-            var hubInformation = new FHubInformation(ResourceType.Dispo, requestItem.Article.Name, ActorRefs.Nobody);
+            var hubInformation = new FHubInformation(FResourceType.Dispo, requestItem.Article.Name, ActorRefs.Nobody);
             // get Related Storage Agent
             agent.Send(Directory.Instruction
                                      .RequestRessourceAgent
                                      .Create(descriminator: (string)requestItem.Article.Name
                                             , target: agent.ActorPaths.StorageDirectory.Ref));
             // Save Request Item.
-            agent.Set(Dispo.Properties.REQUEST_ITEM, requestItem);
+            fArticle = requestItem;
         }
 
         internal void ResponseFromStock(Dispo agent, FStockReservation reservation)
         {
-            var requestItem = agent.Get<FRequestItem>(Dispo.Properties.REQUEST_ITEM);
-            requestItem = requestItem.UpdateStockExchangeId(reservation.TrackingId);
+            var requestItem = fArticle.UpdateStockExchangeId(reservation.TrackingId);
             if (reservation == null)
             {
                 throw new InvalidCastException("Could not Cast Stockreservation on Item.");
             }
 
-            var quantityToProduce = requestItem.Quantity - reservation.Quantity;
-            agent.Set(Dispo.Properties.QUANTITY_TO_PRODUCE, quantityToProduce);
+            quantityToProduce = requestItem.Quantity - reservation.Quantity;
             // TODO -> Logic
             agent.DebugMessage(("Returned with " + quantityToProduce + " " + requestItem.Article.Name + " Reserved!"));
 
             // check If is In Stock
             if (reservation.IsInStock == true)
             {
-                agent.Set(Dispo.Properties.REQUEST_ITEM, requestItem.SetProvided.UpdateFinishedAt(agent.CurrentTime));
+                requestItem.SetProvided.UpdateFinishedAt(agent.CurrentTime);
+                fArticle = requestItem;
                 if (requestItem.IsHeadDemand)
                 {
                     agent.Send(Contract.Instruction
@@ -75,8 +82,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 {
                     agent.Send(Production.Instruction
                                          .ProvideRequest
-                                         .Create(message: new FItemStatus(requestItem.Key
-                                                                        , ElementStatus.Finished, 1)
+                                         .Create(message: fArticle.Key
                                                 , target: agent.VirtualParent));
                 }
                 return;
@@ -92,46 +98,37 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 {
                     agent.DebugMessage("Agent Id: " + agent.Key + "Request From Stroage at due : " + (requestItem.DueTime - agent.CurrentTime));
 
-                    var stockAgent = agent.Get<IActorRef>(Dispo.Properties.STORAGE_AGENT_REF);
-                    agent.Send(instruction: Storage.Instruction.ProvideArticleAtDue.Create(requestItem, stockAgent)
+                    agent.Send(instruction: Storage.Instruction.ProvideArticleAtDue.Create(requestItem.Key, storageAgentReference)
                                  , waitFor: requestItem.DueTime - agent.CurrentTime);
                 }
             }
-            agent.Set(Dispo.Properties.REQUEST_ITEM, requestItem);
+            fArticle = requestItem;
             // Not in Stock and Not ToBuild Agent has to Wait for Stock To Provide Materials
         }
 
         internal void ResponseFromHub(Dispo agent, FHubInformation hubInfo)
         {
-            var stockAgent = agent.Get<IActorRef>(Dispo.Properties.STORAGE_AGENT_REF);
 
-            //    agent.Get<IActorRef>(STORAGE_AGENT_REF);
-            var requestItem = agent.Get<FRequestItem>(Dispo.Properties.REQUEST_ITEM);
-            agent.Set(Dispo.Properties.STORAGE_AGENT_REF, hubInfo.Ref);
+            storageAgentReference = hubInfo.Ref;
             // debug
             agent.DebugMessage("Aquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + agent.Sender.Path.Name);
-            requestItem = requestItem.UpdateStorageAgent(hubInfo.Ref);
-            agent.Set(Dispo.Properties.REQUEST_ITEM, requestItem);
+            fArticle = fArticle.UpdateStorageAgent(hubInfo.Ref);
             // Create Request 
-            agent.Send(Storage.Instruction.RequestArticle.Create(requestItem, hubInfo.Ref));
+            agent.Send(Storage.Instruction.RequestArticle.Create(fArticle, hubInfo.Ref));
 
         }
 
         internal void ResponseFromSystemForBom(Dispo agent, M_Article article)
         {
-            // Update 
-            var requestItem = agent.Get<FRequestItem>(Dispo.Properties.REQUEST_ITEM);
-            var stockAgent = agent.Get<IActorRef>(Dispo.Properties.STORAGE_AGENT_REF);
-            var quantityToProduce = agent.Get<int>(Dispo.Properties.QUANTITY_TO_PRODUCE);
-            long dueTime = requestItem.DueTime;
+            // Update
+            long dueTime = fArticle.DueTime;
 
             if (article.WorkSchedules != null)
-                dueTime = requestItem.DueTime - article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
+                dueTime = fArticle.DueTime - article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
 
 
-            FRequestItem newItem = requestItem.UpdateCustomerOrderAndDue(requestItem.CustomerOrderId, dueTime, stockAgent)
+            fArticle = fArticle.UpdateCustomerOrderAndDue(fArticle.CustomerOrderId, dueTime, storageAgentReference)
                                              .UpdateArticle(article);
-            agent.Set(Dispo.Properties.REQUEST_ITEM, newItem);
 
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < quantityToProduce; i++)
@@ -142,12 +139,12 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             }
         }
 
-        internal void RequestProvided(Dispo agent, FRequestItem requestItem)
+        internal void RequestProvided(Dispo agent, FArticle requestItem)
         {
             agent.DebugMessage("Request Provided from " + agent.Sender);
             requestItem = requestItem.SetProvided.UpdateFinishedAt(agent.CurrentTime);
 
-            agent.Set(Dispo.Properties.REQUEST_ITEM, requestItem);
+            fArticle = requestItem;
 
             if (requestItem.IsHeadDemand)
             {
@@ -157,19 +154,17 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             {
                 agent.Send(Production.Instruction
                                      .ProvideRequest
-                                     .Create(message: new FItemStatus(requestItem.Key, ElementStatus.Finished, 0)
+                                     .Create(message: fArticle.Key
                                             , target: agent.VirtualParent));
             }
         }
 
         internal void WithdrawMaterial(Dispo agent)
         {
-            var requestItem = agent.Get<FRequestItem>(Dispo.Properties.REQUEST_ITEM);
-            var stockAgent = agent.Get<IActorRef>(Dispo.Properties.STORAGE_AGENT_REF);
             agent.Send(Storage.Instruction
                               .WithdrawlMaterial
-                              .Create(message: requestItem.StockExchangeId
-                                     , target: stockAgent));
+                              .Create(message: fArticle.StockExchangeId
+                                     , target: storageAgentReference));
             agent.TryToFinish();
         }
     }

@@ -1,7 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
-using Master40.SimulationImmutables;
+using static FHubInformations;
+using static FResourceSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
 {

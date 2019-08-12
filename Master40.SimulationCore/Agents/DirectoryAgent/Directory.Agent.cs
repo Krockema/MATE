@@ -5,7 +5,6 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
     public partial class Directory : Agent
     {
-
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug)
         {

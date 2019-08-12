@@ -2,7 +2,7 @@
 using AkkaSim.Definitions;
 using AkkaSim.Interfaces;
 using Master40.DB.DataModel;
-using Master40.SimulationImmutables;
+using static FArticles;
 
 namespace Master40.SimulationCore.Agents.ContractAgent
 {
@@ -28,11 +28,11 @@ namespace Master40.SimulationCore.Agents.ContractAgent
                 {
                 }
 
-                public static ISimulationMessage Create(FRequestItem requestItem, IActorRef target, bool logThis)
+                public static ISimulationMessage Create(FArticle requestItem, IActorRef target, bool logThis)
                 {
                     return new Finish(requestItem, target, logThis);
                 }
-                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
+                public FArticle GetObjectFromMessage { get => Message as FArticle; }
 
             }
         }

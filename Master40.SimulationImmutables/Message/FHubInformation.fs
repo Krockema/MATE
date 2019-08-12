@@ -1,7 +1,7 @@
-﻿module FHubInformation
+﻿module FHubInformations
 
 open Akka.Actor
-open FResourceType
+open FResourceTypes
 
     type public FHubInformation = 
         {

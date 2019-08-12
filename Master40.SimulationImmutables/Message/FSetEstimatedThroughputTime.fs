@@ -1,4 +1,4 @@
-﻿module FSetEstimatedThroughputTime
+﻿module FSetEstimatedThroughputTimes
 
     type public FSetEstimatedThroughputTime = {
         Time : int64

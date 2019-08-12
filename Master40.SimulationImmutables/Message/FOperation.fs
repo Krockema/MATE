@@ -1,12 +1,12 @@
-﻿module FOperation
+﻿module FOperations
 
 open System
 open Akka.Actor
 open Master40.DB.DataModel
-open FProposal
+open FProposals
 open FStartConditions
-open IKey
-open IJob
+open IKeys
+open IJobs
 
     type public FOperation =
         { Key : Guid
@@ -18,8 +18,8 @@ open IJob
           ForwardEnd : int64 
           ForwardStart : int64 
           Start : int64
-          Priority : int64
-          StartConditions : FStartConditions
+          StartConditions : FStartCondition
+          Priority : double
           PrioRule :  FSharpFunc<int64, double> 
           ProductionAgent : IActorRef
           ResourceAgent : IActorRef
@@ -28,11 +28,11 @@ open IJob
           Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with
                 member this.Key  with get() = this.Key
-                member this.DueTime with get() = this.DueTime
                 member this.CreationTime with get() = this.CreationTime
             interface IJob with
                 member this.BackwardEnd with get() = this.BackwardEnd
                 member this.BackwardStart with get() = this.BackwardStart
+                member this.DueTime with get() = this.DueTime
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
                 member this.ForwardStart with get() = this.ForwardStart
@@ -42,6 +42,7 @@ open IJob
                 member this.Priority time = this.PrioRule(time)
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
+                member this.Duration = (int64)this.Operation.Duration // Theoretisch muss hier die Slacktime noch rein also , +3*duration bzw aus dem operationElement
             interface IComparable with 
                 member this.CompareTo fWorkItem = 
                     match fWorkItem with 

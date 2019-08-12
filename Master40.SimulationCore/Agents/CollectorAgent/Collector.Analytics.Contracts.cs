@@ -7,10 +7,9 @@ using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
 using Newtonsoft.Json;
+using static FArticles;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -48,7 +47,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             return true;
         }
 
-        private void ProvideOrder(Collector agent, FRequestItem requestItem)
+        private void ProvideOrder(Collector agent, FArticle requestItem)
         {
             if (requestItem.DueTime >= requestItem.FinishedAt)
             {
@@ -117,7 +116,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
 
-        private void UpdateOrder(FRequestItem item)
+        private void UpdateOrder(FArticle item)
         {
             var toUpdate = simulationOrders.Where(x => x.OriginId == item.CustomerOrderId).SingleOrDefault();
             if (toUpdate == null)

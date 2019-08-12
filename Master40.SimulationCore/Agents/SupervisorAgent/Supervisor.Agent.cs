@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Akka.Actor;
 using AkkaSim.Definitions;
@@ -13,9 +12,10 @@ using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
+using static FArticles;
+using static FSetEstimatedThroughputTimes;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent
 {
@@ -114,7 +114,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         {
             _orderQueue.Enqueue(orderPart);
             DebugMessage(" Creating Contract Agent");
-            var agentSetup = AgentSetup.Create(this, ContractBehaviour.Get());
+            var agentSetup = AgentSetup.Create(this, ContractAgent.Behaviour.BehaviourFactory.Get(simType: _simulationType));
             var instruction = Guardian.Guardian.Instruction
                                       .CreateChild
                                       .Create(agentSetup, ActorPaths.Guardians
@@ -131,11 +131,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         /// <param name="childRef"></param>
         protected override void OnChildAdd(IActorRef childRef)
         {
-            VirtualChilds.Add(childRef, ElementStatus.Created);
+            VirtualChilds.Add(childRef);
             Send(Contract.Instruction.StartOrder.Create(_orderQueue.Dequeue(), childRef, true));
         }
 
-        private void RequestArticleBom(FRequestItem requestItem)
+        private void RequestArticleBom(FArticle requestItem)
         {
             //  Check 0 ref
             if (requestItem == null)
@@ -165,7 +165,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
         private void OrderProvided(Instruction.OrderProvided instruction)
         {
-            if (!(instruction.Message is FRequestItem requestItem))
+            if (!(instruction.Message is FArticle requestItem))
             {
                 throw new InvalidCastException(this.Name + " Cast to RequestItem Failed");
             }
