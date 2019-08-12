@@ -26,10 +26,11 @@ namespace Master40.Agents.Agents.DataTransformation
                     {
                         new AgentProperty("EstimatedStart", PropertyType.Retransform),
                         new AgentProperty("EstimatedEnd", PropertyType.Retransform),
-                        new AgentPropertyNode("WorkSchedule", new List<AgentPropertyBase>
-                        {
-                            new AgentProperty("Id", PropertyType.Id)
-                        })
+                        //new AgentPropertyNode("WorkSchedule", new List<AgentPropertyBase>
+                        //{
+                        //    new AgentProperty("Id", PropertyType.Id)
+                        //})
+                        new AgentProperty("Id", PropertyType.Id),
                     }),
                 }
             },

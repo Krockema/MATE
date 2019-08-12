@@ -65,7 +65,7 @@ namespace Master40.Agents.Agents
             CollectPropsRecursion(propTree, obj, ref props, prefix);
         }
 
-        private static void CollectPropsRecursion(List<AgentPropertyBase> propTree, object obj, ref Dictionary<string, object> props, String prefix = "")
+        public static void CollectPropsRecursion(List<AgentPropertyBase> propTree, object obj, ref Dictionary<string, object> props, String prefix = "")
         {
             Type type = obj.GetType();
 
@@ -76,20 +76,29 @@ namespace Master40.Agents.Agents
 
                 if (propertyValue is IList)
                 {
-                    for (int i = 0; i < ((IList)propertyValue).Count; i++)
+                    // Only save first list element for now
+                    if(((IList)propertyValue).Count > 0)
                     {
-                        if (agentProp.GetType() == typeof(AgentProperty))
-                            props.Add(prefix + propInfo.Name + i, ((IList)propertyValue)[i]);
+                        if (agentProp.IsNode())
+                            CollectPropsRecursion(((AgentPropertyNode)agentProp).GetProperties(), ((IList)propertyValue)[0], ref props, prefix + propInfo.Name + ".");
                         else
-                            CollectPropsRecursion(((AgentPropertyNode)agentProp).GetProperties(), ((IList)propertyValue)[i], ref props, prefix + propInfo.Name + i + ".");
+                            props.Add(prefix + propInfo.Name, ((IList)propertyValue)[0]);
                     }
+
+                    //for (int i = 0; i < ((IList)propertyValue).Count; i++)
+                    //{
+                    //    if (agentProp.GetType() == typeof(AgentProperty))
+                    //        props.Add(prefix + propInfo.Name + i, ((IList)propertyValue)[i]);
+                    //    else
+                    //        CollectPropsRecursion(((AgentPropertyNode)agentProp).GetProperties(), ((IList)propertyValue)[i], ref props, prefix + propInfo.Name + i + ".");
+                    //}
                 }
                 else
                 {
-                    if (agentProp.GetType() == typeof(AgentProperty))
-                        props.Add(prefix + propInfo.Name, propertyValue);
-                    else
+                    if (agentProp.IsNode())
                         CollectPropsRecursion(((AgentPropertyNode)agentProp).GetProperties(), propertyValue, ref props, prefix + propInfo.Name + ".");
+                    else
+                        props.Add(prefix + propInfo.Name, propertyValue);
                 }
             }
         }

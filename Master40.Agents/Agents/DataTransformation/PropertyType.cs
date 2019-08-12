@@ -9,6 +9,6 @@ namespace Master40.Agents.Agents.DataTransformation
     {
         None = 0,
         Id = 1,             // Property is used to identify an object
-        Retransform = 2,    // Property has needs to be overwritten with new value
+        Retransform = 2,    // Property needs to be overwritten with new value
     }
 }

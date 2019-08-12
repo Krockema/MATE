@@ -12,5 +12,7 @@ namespace Master40.Agents.Agents.DataTransformation
         {
             return PropertyName;
         }
+
+        abstract public bool IsNode();
     }
 }

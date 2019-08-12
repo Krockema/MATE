@@ -339,13 +339,15 @@ namespace Master40.DB.Data.Initializer
                 new Mapping { From = "ProductionAgent.RequestItem.DueTime", To = "Productionorder.Duedate", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.RequestItem.Article.UnitId", To = "Productionorder.QuantityUnitId", ConversionFunc = "IntToString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.RequestItem.OrderId", To = "ProductionorderOperationActivity.ProductionorderId", ConversionFunc = "IntToString", IsAgentData = true},
-                new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "ProductionorderOperationActivity.OperationId", ConversionFunc = "IntToString", IsAgentData = true},
+                //new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "ProductionorderOperationActivity.OperationId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.WorkItems.Id", To = "ProductionorderOperationActivity.OperationId", ConversionFunc = "GuidToString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.ActivityId", ConversionFunc = "SetIntVal", ConversionArgs = "3", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.AlternativeId", ConversionFunc = "SetStringVal", ConversionArgs = "", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.SplitId", ConversionFunc = "SetIntVal", ConversionArgs = "0", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.WorkItems.EstimatedStart", To = "ProductionorderOperationActivity.DateStart", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.WorkItems.EstimatedEnd", To = "ProductionorderOperationActivity.DateEnd", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "Productionorder.RoutingId", ConversionFunc = "IntToString", IsAgentData = true},
+                new Mapping { From = "ProductionAgent.WorkItems.Id", To = "Productionorder.RoutingId", ConversionFunc = "GuidToString", IsAgentData = true},
             };
             context.AddRange(productionAgentMapping);
             context.SaveChanges();

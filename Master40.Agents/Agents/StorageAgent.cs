@@ -42,6 +42,7 @@ namespace Master40.Agents.Agents
         {
             ReturnData = BaseInstuctionsMethods.ReturnData,
             ReceiveData = BaseInstuctionsMethods.ReceiveData,
+            InjectData = BaseInstuctionsMethods.InjectData,
             // Create and Return a Reservation for Article
             RequestArticle,
             ProvideArticleAtDue,

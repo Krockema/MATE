@@ -14,6 +14,16 @@ namespace Master40.Agents.Agents.DataTransformation
             this.Type = type;
         }
 
+        public override bool IsNode()
+        {
+            return false;
+        }
+
+        public PropertyType GetPropertyType()
+        {
+            return Type;
+        }
+
         public bool IsId()
         {
             return (Type & PropertyType.Id) == PropertyType.Id;

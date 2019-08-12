@@ -54,7 +54,8 @@ namespace Master40.Agents.Agents.Internal
         public enum BaseInstuctionsMethods
         {
             ReturnData,
-            ReceiveData
+            ReceiveData,
+            InjectData
         }
 
         public override IEnumerator<InstructionBase> Simulate()
@@ -265,7 +266,91 @@ namespace Master40.Agents.Agents.Internal
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(),
                     allChildData, this.Creator);
                 // Delete data
-                allChildData = null;
+                //allChildData = null;
+            }
+        }
+
+        protected void InjectData(InstructionSet instructionSet)
+        {
+            var data = instructionSet.ObjectToProcess as List<Dictionary<string, object>>;
+            List<Dictionary<string, object>> agentData = data ?? throw new InvalidCastException(
+                this.Name + " failed to Cast Dictionary<string, object> on Instruction.ObjectToProcess");
+
+            List<AgentPropertyBase> propTree = AgentPropertyManager.GetPropertiesByAgentName(this.GetType().Name);
+            foreach(AgentPropertyBase prop in propTree)
+            {
+                InjectDataRecursion(prop, "", agentData);
+            }
+
+            foreach (Agent child in ChildAgents)
+                CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.InjectData.ToString(), data, child);
+        }
+
+        private void InjectDataRecursion(AgentPropertyBase prop, string propPath, List<Dictionary<string, object>> data)
+        {
+            if(prop.IsNode())
+            {
+                AgentPropertyNode propNode = (AgentPropertyNode)prop;
+                List<AgentPropertyNode> propNodes = propNode.GetPropertyNodes();
+                foreach(AgentPropertyNode node in propNodes)
+                {
+                    InjectDataRecursion(node, propPath + "." + prop.GetPropertyName(), data);
+                }
+
+                List<AgentProperty> idProps = propNode.GetDirectProperties(PropertyType.Id);
+                List<AgentProperty> retransformProps = propNode.GetDirectProperties(PropertyType.Retransform);
+
+                // Collect Id values
+                List<AgentPropertyBase> idPropsBase = new List<AgentPropertyBase>();
+                foreach(AgentProperty idProp in idProps)
+                {
+                    idPropsBase.Add((AgentPropertyBase)idProp);
+                }
+                Dictionary<string, object> idValues = new Dictionary<string, object>();
+                DataCollectionHelper.CollectPropsRecursion((List<AgentPropertyBase>)idPropsBase, this, ref idValues, propPath);
+
+                // Iterate over data, find dict with matching idProps, inject Data
+                Dictionary<string, object> matchingData = new Dictionary<string, object>();
+                foreach(Dictionary<string, object> dataSet in data)
+                {
+                    bool found = false;
+                    foreach(KeyValuePair<string, object> pair in idValues)
+                    {
+                        object dataValue;
+                        if (dataSet.TryGetValue(propPath + "." + pair.Key, out dataValue) && !(dataValue == pair.Value))
+                        {
+                            break;
+                        }
+                        found = true;
+                    }
+                    if(found)
+                    {
+                        matchingData = dataSet;
+                        break;
+                    }
+                }
+
+                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
+                foreach (AgentProperty retransformProp in retransformProps)
+                {
+                    string[] propPathArray = propPath.Split(".");
+                    PropertyInfo propInfo;
+                    object injectionObject = this;
+                    // TODO: does not work, every GetValue creates a new instance of the object
+                    // Solution is a recursive approach, unpacking all properties while descending, changing value, then ascending again
+                    foreach(string pathElement in propPathArray)
+                    {
+                        propInfo = injectionObject.GetType().GetProperty(pathElement, bindingFlags);
+                        injectionObject = propInfo.GetValue(injectionObject);
+                    }
+                    propInfo = injectionObject.GetType().GetProperty(retransformProp.GetPropertyName(), bindingFlags);
+                    propInfo.SetValue(injectionObject, matchingData[propPath + "." + retransformProp.GetPropertyName()]);
+                }
+            }
+            else
+            {
+                // Ignore, since since at least 2 props are needed for Id + Data
             }
         }
     }

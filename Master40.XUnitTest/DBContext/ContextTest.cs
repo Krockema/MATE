@@ -99,7 +99,7 @@ namespace Master40.XUnitTest.DBContext
                     { "ProductionAgent.WorkItems.EstimatedStart", 9000},  // Workitems ist eigentlich Liste
                     { "ProductionAgent.WorkItems.EstimatedEnd", 10200},
                     { "ProductionAgent.WorkItems.WorkSchedule.Id", 1},
-                    //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000001")},
+                    { "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000001")},
 
                     //{ "ProductionAgent.WorkItems.WorkSchedule.HierarchyNumber", 1},
                     //{ "ProductionAgent.WorkItems.WorkSchedule.Duration", 600},
@@ -114,7 +114,7 @@ namespace Master40.XUnitTest.DBContext
                     { "ProductionAgent.WorkItems.EstimatedStart", 5400},  // Workitems ist eigentlich Liste
                     { "ProductionAgent.WorkItems.EstimatedEnd", 8400},
                     { "ProductionAgent.WorkItems.WorkSchedule.Id", 2},
-                    //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000002")},
+                    { "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000002")},
                 },
 
                 new Dictionary<string, object>{
@@ -126,7 +126,7 @@ namespace Master40.XUnitTest.DBContext
                     { "ProductionAgent.WorkItems.EstimatedStart", 1800},  // Workitems ist eigentlich Liste
                     { "ProductionAgent.WorkItems.EstimatedEnd", 5160},
                     { "ProductionAgent.WorkItems.WorkSchedule.Id", 3},
-                    //{ "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000003")},
+                    { "ProductionAgent.WorkItems.Id", Guid.Parse("00000000-0000-0000-0000-000000000003")},
                 }
             };
 
@@ -144,6 +144,11 @@ namespace Master40.XUnitTest.DBContext
                 _gpSzenarioContext.Productionorder.Remove(po);
                 _gpSzenarioContext.SaveChanges();
             }
+            foreach (ProductionorderOperationActivity pooa in _gpSzenarioContext.ProductionorderOperationActivity)
+            {
+                _gpSzenarioContext.ProductionorderOperationActivity.Remove(pooa);
+                _gpSzenarioContext.SaveChanges();
+            }
         }
 
         [Fact]
@@ -151,10 +156,14 @@ namespace Master40.XUnitTest.DBContext
         {
             DataTransformationHelper helper = new DataTransformationHelper(_masterDBContext, _gpSzenarioContext);
             List<List<Dictionary<string, object>>> receivedAgentData = helper.TransformAgentDataToMaster();
-            foreach (Dictionary<string, object> dict in receivedAgentData[1])
+            foreach (List<Dictionary<string, object>> list in receivedAgentData)
             {
-                output.WriteLine(string.Join("\n", dict.Select(x => x.Key + "=" + x.Value).ToArray()));
-                output.WriteLine("----------");
+                foreach (Dictionary<string, object> dict in list)
+                {
+                    output.WriteLine(string.Join("\n", dict.Select(x => x.Key + "=" + x.Value).ToArray()));
+                    output.WriteLine("----------");
+                }
+                output.WriteLine("==========");
             }
             return;
         }

@@ -31,6 +31,7 @@ namespace Master40.Agents.Agents
         {
             ReturnData = BaseInstuctionsMethods.ReturnData,
             ReceiveData = BaseInstuctionsMethods.ReceiveData,
+            InjectData = BaseInstuctionsMethods.InjectData,
             CreateContractAgent,
             RequestArticleBom,
             OrderProvided,
@@ -160,7 +161,7 @@ namespace Master40.Agents.Agents
             if (CheckAllChildrenResponded())
             {
                 DataCollectionHelper.WriteDataGrouped(allChildData);
-                allChildData = null;
+                //allChildData = null;
             }
         }
     }
