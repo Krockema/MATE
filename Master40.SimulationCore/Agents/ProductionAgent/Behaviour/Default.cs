@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using Akka.Actor;
 using Master40.DB.DataModel;
@@ -20,10 +21,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal Default(SimulationType simulationType = SimulationType.None)
                 : base(null, simulationType) { }
 
-        internal List<FOperation> opertionList { get; set; } = new List<FOperation>();
+        internal List<FOperation> operationList { get; set; } = new List<FOperation>();
         internal FOperation nextOperation { get; set; }
-        internal Dictionary<IActorRef, string> hubAgents { get; set; } = new Dictionary<IActorRef, string>();
-        internal FArticle fArticle;
+        internal AgentDictionary hubAgents { get; set; } = new AgentDictionary();
+        internal FArticle fArticle { get; set; }
         internal List<FArticle> requestedItemList { get; set; } = new List<FArticle>();
         internal Queue<FArticle> childOperations { get; set; } = new Queue<FArticle>();
 
@@ -83,7 +84,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             // add agent to current Scope.
             hubAgents.Add(hub.Ref, hub.RequiredFor);
             // foreach fitting WorkSchedule
-            foreach (var workItem in opertionList.Where(x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
+            foreach (var workItem in operationList.Where(x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
             {
                 agent.Send(Hub.Instruction.EnqueueJob.Create(workItem, hub.Ref));
             }

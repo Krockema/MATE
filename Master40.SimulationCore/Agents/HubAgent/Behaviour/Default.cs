@@ -3,6 +3,7 @@ using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
         internal List<FOperation> operationList { get; set; } = new List<FOperation>();
-        internal Dictionary<IActorRef, string> resourceAgents { get; set; } = new Dictionary<IActorRef, string>();
+        internal AgentDictionary resourceAgents { get; set; } = new AgentDictionary();
 
         public override bool Action(Agent agent, object message)
         {
