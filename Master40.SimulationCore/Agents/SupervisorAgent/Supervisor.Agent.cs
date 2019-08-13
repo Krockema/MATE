@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
@@ -9,11 +6,16 @@ using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Agents.Types;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 
@@ -21,18 +23,19 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 {
     public partial class Supervisor : Agent
     {
-        private ProductionDomainContext _productionDomainContext;
-        private IMessageHub _messageHub;
+        private ProductionDomainContext _productionDomainContext { get; set; }
+        private DbConnection _dataBaseConnection { get; set; }
+        private IMessageHub _messageHub { get; set; }
         private int orderCount { get; set; } = 0;
-        private int _configID;
-        private int _orderMaxQuantity;
+        private int _configID { get; set; }
+        private int _orderMaxQuantity { get; set; }
         private int _createdOrders { get; set; } = 0;
-        private SimulationType _simulationType;
-        private Dictionary<string, EstimatedThroughPut> _estimatedThroughPuts = new Dictionary<string, EstimatedThroughPut>();
-        private OrderGenerator _orderGenerator;
-        private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
-        private Queue<T_CustomerOrderPart> _orderQueue = new Queue<T_CustomerOrderPart>();
-        private List<T_CustomerOrder> _openOrders = new List<T_CustomerOrder>();
+        private SimulationType _simulationType { get; set; }
+        private OrderGenerator _orderGenerator { get; set; }
+        private ArticleCache _articleCache { get; set; }
+        private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
+        private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
+        private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
 
 
         // public Constructor
@@ -60,6 +63,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             : base(actorPaths, time, debug, principal)
         {
             _productionDomainContext = productionDomainContext;
+            _dataBaseConnection = _productionDomainContext.Database.GetDbConnection();
+            _articleCache = new ArticleCache(_dataBaseConnection.ConnectionString);
             _messageHub = messageHub;
             _orderGenerator = new OrderGenerator(configuration, _productionDomainContext, productIds);
             _orderMaxQuantity = configuration.GetOption<OrderQuantity>().Value;
@@ -106,7 +111,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTime getObjectFromMessage)
         {
-            _estimatedThroughPuts.TryGetValue(getObjectFromMessage.ArticleName, out EstimatedThroughPut eta);
+            var eta = _estimatedThroughPuts.GetThroughPut(getObjectFromMessage.ArticleName);
             eta.Set(getObjectFromMessage.Time);
         }
 
@@ -137,28 +142,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
         private void RequestArticleBom(FArticle requestItem)
         {
-            //  Check 0 ref
-            if (requestItem == null)
-            {
-                throw new InvalidCastException(this.Name + " Cast to RequestItem Failed");
-            }
-
-            // debug
             DebugMessage(" Request details for article: " + requestItem.Article.Name + " from  " + Sender.Path);
-
-            // get BOM from Context
-            _cache.TryGetValue((int)requestItem.Article.Id, out M_Article article);
-
-            if (article == null)
-            {
-                article = Queryable.SingleOrDefault(source: _productionDomainContext.Articles
-                                                        .Include(x => x.WorkSchedules)
-                                                        .ThenInclude(x => x.ResourceSkill)
-                                                        .Include(x => x.ArticleBoms)
-                                                            .ThenInclude(x => x.ArticleChild), 
-                                                    predicate: (x => x.Id == requestItem.Article.Id));
-                _cache.Add(requestItem.Article.Id, article);
-            }
+            // get BOM from cached context 
+            var article = _articleCache.GetArticleById(requestItem.Article.Id);
             // calback with po.bom
             Send(Dispo.Instruction.ResponseFromSystemForBom.Create(article, Sender));                        
         }
@@ -200,7 +186,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             _createdOrders++;
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
             Send(Instruction.PopOrder.Create("PopNext", Self), order.CreationTime - CurrentTime);
-            _estimatedThroughPuts.TryGetValue(order.CustomerOrderParts.First().Article.Name, out EstimatedThroughPut eta);
+            var eta = _estimatedThroughPuts.GetThroughPut(order.CustomerOrderParts.First().Article.Name);
 
             long period = order.DueTime - (eta.Value); // 1 Tag un 1 Schich
             if (period < 0)
@@ -215,9 +201,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private void SystemCheck()
         {
             Send(Instruction.SystemCheck.Create("CheckForOrders", Self), 1);
-            var orders = _openOrders.Where(x => x.DueTime - _estimatedThroughPuts
-                                                    .Single(y => y.Key == x.CustomerOrderParts.First().Article.Name)
-                                                        .Value.Value <= this.TimePeriod).ToList();
+
+            // TODO Loop Through all CustomerOrderParts
+            var orders = _openOrders.Where(x => x.DueTime - _estimatedThroughPuts.GetThroughPut(x.CustomerOrderParts.First().Article.Name).Value <= this.TimePeriod).ToList();
            // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {

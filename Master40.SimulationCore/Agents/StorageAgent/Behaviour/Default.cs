@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.StorageAgent.Types;
+using Master40.SimulationCore.Agents.Types;
 using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;

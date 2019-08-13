@@ -1,13 +1,20 @@
 ﻿using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
 
 namespace Master40.DB.Data.Context
 {
     public class MasterDBContext : DbContext
     {
         private DbContextOptions<ProductionDomainContext> options;
-
+        public static MasterDBContext GetContext(string connectionString)
+        {
+            return new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+                .UseSqlServer(connectionString)
+                .Options);
+        }
         public MasterDBContext(DbContextOptions<MasterDBContext> options) : base(options) { }
         [JsonIgnore]
         public bool InMemory { get; internal set; }

@@ -14,6 +14,7 @@ using static FOperationResults;
 using static FOperations;
 using static FProposals;
 using static IJobs;
+using Master40.SimulationCore.Agents.Types;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {

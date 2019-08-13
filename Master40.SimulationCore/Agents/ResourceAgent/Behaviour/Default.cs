@@ -2,6 +2,7 @@
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper;
 using Akka.Actor;
+using Master40.SimulationCore.Agents.Types;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {

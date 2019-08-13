@@ -1,9 +1,7 @@
 ﻿using Akka.Actor;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Master40.SimulationCore.Helper
+namespace Master40.SimulationCore.Agents.Types
 {
     public class AgentDictionary : Dictionary<IActorRef, object>
     {

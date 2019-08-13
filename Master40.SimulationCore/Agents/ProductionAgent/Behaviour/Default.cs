@@ -7,6 +7,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.Types;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using static FArticles;
