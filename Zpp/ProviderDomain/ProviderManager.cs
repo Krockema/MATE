@@ -38,7 +38,7 @@ namespace Zpp.ProviderDomain
         }
 
         /**
-         * aka ReserveQuantityOfExistingProvider
+         * aka ReserveQuantityOfExistingProvider or satisfyByAlreadyExistingProvider
          */
         public Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
         {
