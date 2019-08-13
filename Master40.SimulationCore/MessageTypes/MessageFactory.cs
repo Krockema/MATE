@@ -4,6 +4,7 @@ using Akka.Actor;
 using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Microsoft.FSharp.Collections;
+using System.Linq;
 using static FArticles;
 using static FOperations;
 using static FProposals;
@@ -21,7 +22,7 @@ namespace Master40.SimulationCore.MessageTypes
         /// <param name="dueTime"></param>
         /// <param name="prio"></param>
         /// <returns></returns>
-        public static FOperation ToWorkItem(this M_Operation operation
+        public static FOperation ToOperationItem(this M_Operation operation
                                             , long dueTime
                                             , IActorRef productionAgent
                                             , bool lastLeaf 
@@ -43,8 +44,7 @@ namespace Master40.SimulationCore.MessageTypes
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: lastLeaf, materialsProvided: false)
-                                , priority: prioRule(time)
-                                , prioRule: prioRule.ToFSharpFunc()
+                                , priority: prioRule.ToFSharpFunc()
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
@@ -57,14 +57,15 @@ namespace Master40.SimulationCore.MessageTypes
             // TO BE TESTET
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    (bucket, currentTime) => ((IJob)bucket).Priority(currentTime)
+                    (bucket, currentTime) => bucket.Operations.Min(y => ((IJob)y).Priority(time))
                     // ENDE
                 );
             var operations = new List<FOperation>();
             operations.Add(operation);
 
             return new FBucket(key: Guid.NewGuid()
-                                , prioRule: prioRule.ToFSharpFunc()
+                                //, prioRule: prioRule.ToFSharpFunc()
+                                , priority: prioRule.ToFSharpFunc()
                                 , creationTime: time
                                 , forwardStart: 0
                                 , forwardEnd: 0

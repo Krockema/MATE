@@ -7,9 +7,8 @@ using System.Text;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {
-    class BehaviourFactory
+    public static class BehaviourFactory
     {
-
         public static IBehaviour Get(M_Stock stockElement, SimulationType simType)
         {
             switch (simType)

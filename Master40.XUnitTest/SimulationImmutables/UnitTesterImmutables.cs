@@ -1,9 +1,11 @@
 ﻿using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.MessageTypes;
-using System.Diagnostics;s
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
+using static FBuckets;
+using static IJobs;
 
 namespace Master40.XUnitTest.SimulationImmutables
 {
@@ -17,16 +19,12 @@ namespace Master40.XUnitTest.SimulationImmutables
             {
                 var probe = this.CreateTestProbe();
 
-                var wi = MessageFactory.ToWorkItem(new M_Operation() { Duration = 5 }, 15, ElementStatus.Created, probe, 0);
+                var wi = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5 }, 15, productionAgent: probe, lastLeaf: false, 0);
 
-                var w1 = wi.Priority(10);
-                var w2 = wi.GetPriority(10);
-                var w3 = wi.ItemPriority;
+                var w1 = ((IJob)wi).Priority(0);
                 Debug.WriteLine(w1);
-                Debug.WriteLine(w2);
 
-                Assert.Equal(w1, w2);
-                Assert.Equal(w1, w3);
+                Assert.Equal(10, w1);
             });
         }
 
@@ -35,34 +33,30 @@ namespace Master40.XUnitTest.SimulationImmutables
         {
             await Task.Run(() =>
             {
-
-                var time = 0;
+                var time = 0L;
                 var probe = this.CreateTestProbe();
 
-                var w1 = MessageFactory.ToWorkItem(new M_Operation() { Duration = 10 }, 50, ElementStatus.Created, probe, 0);
-                var w2 = MessageFactory.ToWorkItem(new M_Operation() { Duration = 5 }, 20, ElementStatus.Ready, probe, 0);
-                var w3 = MessageFactory.ToWorkItem(new M_Operation() { Duration = 15 }, 100, ElementStatus.Created, probe, 0);
-
+                var w1 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 10 }, 50, productionAgent: probe, lastLeaf: false, 0);
+                var w2 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5 }, 20, productionAgent: probe, lastLeaf: false, 0);
+                var w3 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 15 }, 100, productionAgent: probe, lastLeaf: false, 0);
 
                 var bucket1 = MessageFactory.ToBucketItem(w1, time);
-                bucket1.Priority(time);
+                var prio1 = ((IJob)bucket1).Priority(time);
+                Assert.Equal(prio1, (double)40);
 
                 bucket1 = bucket1.AddOperation(w2);
-                bucket1.Priority(time);
-                Assert.Equal(bucket1.ItemPriority, (double)15);
-                //Assert.Equal(bucket1.DueTime, (double)20);
+                var prio2 = ((IJob)bucket1).Priority(time);
+                Assert.Equal(prio2, (double)15);
 
                 bucket1 = bucket1.AddOperation(w3);
-                bucket1.Priority(time);
-                Assert.Equal(bucket1.ItemPriority, (double)15);
-                //Assert.Equal(bucket1.DueTime, (double)20);
+                var prio3 = ((IJob)bucket1).Priority(time);
+                Assert.Equal(prio3, (double)15);
 
                 bucket1 = bucket1.RemoveOperation(w2);
-                bucket1.Priority(time);
-                Assert.Equal(bucket1.ItemPriority, (double)40);
-                //Assert.Equal(bucket1.DueTime, (double)50);
+                var prio4 = ((IJob)bucket1).Priority(time);
+                Assert.Equal(prio4, (double)40);
             });
         }
 
     }
-    }
+}

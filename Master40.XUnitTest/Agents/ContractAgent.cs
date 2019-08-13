@@ -5,18 +5,13 @@ using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.ContractAgent;
+using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
+using Master40.XUnitTest.Moc;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Master40.SimulationCore.Agents.Guardian;
 using Xunit;
-using Master40.XUnitTest.Moc;
-using System.Collections.Generic;
 
 namespace Master40.XUnitTest.Agents
 {
@@ -76,7 +71,7 @@ namespace Master40.XUnitTest.Agents
             var contract = Sys.ActorOf(Contract.Props(actorPaths: agentPaths
                                                        , time: 1
                                                        , debug: true), "Contract-Test-Agent");
-            simContext.Tell(BasicInstruction.Initialize.Create(contract, ContractBehaviour.Get()));
+            simContext.Tell(BasicInstruction.Initialize.Create(contract, SimulationCore.Agents.ContractAgent.Behaviour.BehaviourFactory.Get(DB.Enums.SimulationType.None)));
 
 
             // Create a Order with custom Article
@@ -105,7 +100,7 @@ namespace Master40.XUnitTest.Agents
             // init Stock 
             var stock = new M_Stock { Article = new M_Article { Name = "Bär" } };
             var storageAgent = Sys.ActorOf(Storage.Props(agentPaths, 0, true, simSystem));
-            storageAgent.Tell(BasicInstruction.Initialize.Create(this.TestActor, StorageBehaviour.Get(stock)));
+            storageAgent.Tell(BasicInstruction.Initialize.Create(this.TestActor, SimulationCore.Agents.StorageAgent.Behaviour.BehaviourFactory.Get(stock, DB.Enums.SimulationType.None)));
 
             Within(TimeSpan.FromSeconds(5), () => simContext.HasMessages);
            
@@ -127,7 +122,7 @@ namespace Master40.XUnitTest.Agents
             var contract = Sys.ActorOf(Contract.Props(actorPaths: agentPaths
                                                                    , time: 1
                                                                    , debug: true), "Contract-Test-Agent");
-            simContext.Tell(BasicInstruction.Initialize.Create(contract, ContractBehaviour.Get()));
+            simContext.Tell(BasicInstruction.Initialize.Create(contract, SimulationCore.Agents.ContractAgent.Behaviour.BehaviourFactory.Get(DB.Enums.SimulationType.None)));
 
 
             // Create a Order with custom Article

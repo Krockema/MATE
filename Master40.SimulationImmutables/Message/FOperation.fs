@@ -19,8 +19,7 @@ open IJobs
           ForwardStart : int64 
           Start : int64
           StartConditions : FStartCondition
-          Priority : double
-          PrioRule :  FSharpFunc<int64, double> 
+          Priority : int64 -> double
           ProductionAgent : IActorRef
           ResourceAgent : IActorRef
           HubAgent : IActorRef
@@ -39,7 +38,7 @@ open IJobs
                 member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
-                member this.Priority time = this.PrioRule(time)
+                member this.Priority time = this.Priority time 
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
                 member this.Duration = (int64)this.Operation.Duration // Theoretisch muss hier die Slacktime noch rein also , +3*duration bzw aus dem operationElement
@@ -48,6 +47,6 @@ open IJobs
                     match fWorkItem with 
                     | :? FOperation as other -> compare other.Key this.Key
                     | _ -> invalidArg "Operation" "cannot compare value of different types" 
-        member this.UpdatePoductionAgent p = { this with ProductionAgent = p }
+        member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }

@@ -3,7 +3,7 @@ using Master40.SimulationCore.MessageTypes;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
-    class BehaviourFactory
+    public static class BehaviourFactory
     {
 
         public static IBehaviour Get(SimulationType simType)

@@ -19,7 +19,7 @@ open IJobs
           ForwardStart : int64 
           Start : int64
           StartConditions : FStartCondition
-          PrioRule :  FSharpFunc<FBucket, FSharpFunc<int64, double>>
+          Priority : FBucket -> int64 -> double
           ResourceAgent : IActorRef
           HubAgent : IActorRef
           Operations : Set<FOperation>
@@ -39,7 +39,7 @@ open IJobs
                 member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
-                member this.Priority time = this.PrioRule this time
+                member this.Priority time = this.Priority this time 
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
                 member this.Duration = this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
