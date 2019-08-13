@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -11,6 +12,8 @@ namespace Zpp.StockDomain
 {
     public class StockManager : IProvidingManager
     {
+        private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
+        
         private readonly Dictionary<Id, Stock> _stocks = new Dictionary<Id, Stock>();
         private HashSet<Provider> _alreadyConsideredProviders = new HashSet<Provider>();
         private readonly IDbMasterDataCache _dbMasterDataCache;
@@ -50,14 +53,15 @@ namespace Zpp.StockDomain
 
             // SE:W decrements stock
             Stock stock = _stocks[provider.GetArticleId()];
+
             if (provider.GetType() == typeof(StockExchangeProvider))
             {
                 stock.DecrementBy(provider.GetQuantity());
                 Quantity currentQuantity = stock.GetQuantity();
                 if (currentQuantity.IsSmallerThan(stock.GetMinStockLevel()))
                 {
-                    provider.CreateDependingDemands(provider.GetArticle(), dbTransactionData, provider,
-                        stock.GetMinStockLevel().Minus(currentQuantity));
+                    provider.CreateDependingDemands(provider.GetArticle(), dbTransactionData,
+                        provider, provider.GetQuantity());
                 }
             }
             // PrO, PuOP increases stock
@@ -96,7 +100,45 @@ namespace Zpp.StockDomain
             return _stocks[id];
         }
 
-        public Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
+        public Response Satisfy(Demand demand, Quantity demandedQuantity,
+            IDbTransactionData dbTransactionData)
+        {
+            Stock stock = _stocks[demand.GetArticleId()];
+
+            Providers providers = new Providers();
+            List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
+            Quantity remainingQuantity = new Quantity(demandedQuantity);
+            
+            LotSize.LotSize lotSizes = new LotSize.LotSize(demandedQuantity, demand.GetArticleId(), _dbMasterDataCache);
+            foreach (var lotSize in lotSizes.GetLotSizes())
+            {
+                Provider stockProvider = CreateStockExchangeProvider(demand.GetArticle(),
+                    demand.GetDueTime(dbTransactionData), lotSize, _dbMasterDataCache,
+                    dbTransactionData);
+                providers.Add(stockProvider);
+                remainingQuantity.DecrementBy(lotSize);
+                Quantity reservedQuantity = lotSize;
+                if (remainingQuantity.IsNegative())
+                {
+                    reservedQuantity = remainingQuantity.Plus(lotSize);
+
+                }
+
+                T_DemandToProvider demandToProvider = new T_DemandToProvider()
+                {
+                    DemandId = demand.GetId().GetValue(),
+                    ProviderId = stockProvider.GetId().GetValue(),
+                    Quantity = reservedQuantity.GetValue()
+                };
+                demandToProviders.Add(demandToProvider);
+            }
+
+            
+            return new Response(providers, demandToProviders, demandedQuantity);
+        }
+
+        public Response SatisfyByAvailableStockQuantity(Demand demand, Quantity demandedQuantity,
+            IDbTransactionData dbTransactionData)
         {
             Stock stock = _stocks[demand.GetArticleId()];
             if (stock.GetQuantity().IsGreaterThan(Quantity.Null()))
@@ -110,7 +152,7 @@ namespace Zpp.StockDomain
                 {
                     reservedQuantity = demandedQuantity;
                 }
-                    
+
                 Provider stockProvider = CreateStockExchangeProvider(demand.GetArticle(),
                     demand.GetDueTime(dbTransactionData), reservedQuantity, _dbMasterDataCache,
                     dbTransactionData);

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Zpp.DemandDomain;
 using Zpp.MachineDomain;
 using Zpp.StockDomain;
+using Zpp.Utils;
 
 namespace Zpp.ProviderDomain
 {
@@ -78,7 +79,12 @@ namespace Zpp.ProviderDomain
         
         public void AddProvider(Id demandId, Provider oneProvider, Quantity reservedQuantity)
         {
-
+            if (_providers.GetProviderById(oneProvider.GetId()) != null)
+            {
+                throw new MrpRunException("You cannot add an already added provider.");
+            }
+            
+            
             // if it has quantity that is not reserved, remember it for later reserving
             if (reservedQuantity.IsSmallerThan(oneProvider.GetQuantity()))
             {

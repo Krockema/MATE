@@ -9,11 +9,13 @@ namespace Zpp.LotSize
         private readonly Quantity _neededQuantity;
         private readonly Id _articleId;
         private static LotSizeType _lotSizeType = LotSizeType.FixedLotSize;
+        private readonly IDbMasterDataCache _dbMasterDataCache;
 
-        public LotSize(Quantity neededQuantity, Id articleId)
+        public LotSize(Quantity neededQuantity, Id articleId, IDbMasterDataCache dbMasterDataCache)
         {
             _neededQuantity = neededQuantity;
             _articleId = articleId;
+            _dbMasterDataCache = dbMasterDataCache;
         }
 
         public List<Quantity> GetLotSizes()
@@ -36,13 +38,19 @@ namespace Zpp.LotSize
         private List<Quantity> GetFixedLotSize()
         {
             List<Quantity> lotSizes = new List<Quantity>();
+            Quantity fixedLotSize = _defaultFixedLotSize;
+            int? articleLotSize = _dbMasterDataCache.M_ArticleGetById(_articleId).LotSize;
+            if (articleLotSize != null)
+            {
+                fixedLotSize = new Quantity(articleLotSize.GetValueOrDefault());
+            }
             
             // you work on a copy here
             Quantity currentQuantity = new Quantity(_neededQuantity);
             while (currentQuantity.IsGreaterThan(Quantity.Null()))
             {
-                lotSizes.Add(_defaultFixedLotSize);
-                currentQuantity.DecrementBy(_defaultFixedLotSize);
+                lotSizes.Add(fixedLotSize);
+                currentQuantity.DecrementBy(fixedLotSize);
             }
             
             return lotSizes;

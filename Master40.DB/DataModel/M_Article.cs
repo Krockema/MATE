@@ -18,6 +18,7 @@ namespace Master40.DB.DataModel
         public virtual M_ArticleType ArticleType { get; set; }
         //[DisplayFormat(DataFormatString = "{0:0,0}")]
         // 
+        public int? LotSize { get; set; }
         [DataType(DataType.Currency)]
         public double Price { get; set; }
         public int DeliveryPeriod { get; set; }

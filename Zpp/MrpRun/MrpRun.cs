@@ -62,12 +62,13 @@ namespace Zpp
                     if (response.GetProviders() != null)
                     {
                         Provider provider = response.GetProviders()
-                                .GetProviderById(demandToProvider.GetProviderId());
-                        
-                        stockManager.AdaptStock(provider, dbTransactionData);
-                        providerManager.AddProvider(response.GetDemandId(), provider,
-                            demandToProvider.GetQuantity());
-                        
+                            .GetProviderById(demandToProvider.GetProviderId());
+                        if (provider != null)
+                        {
+                            stockManager.AdaptStock(provider, dbTransactionData);
+                            providerManager.AddProvider(response.GetDemandId(), provider,
+                                demandToProvider.GetQuantity());
+                        }
                     }
                 }
             }
@@ -124,8 +125,17 @@ namespace Zpp
 
                     if (response.IsSatisfied() == false)
                     {
-                        // COP or PrOB
-                        if (demand.GetType() != typeof(StockExchangeDemand))
+                        // SE:I
+                        if (demand.GetType() == typeof(StockExchangeDemand))
+                        {
+                            response = orderManager.Satisfy(demand, response.GetRemainingQuantity(),
+                                dbTransactionData);
+
+                            ProcessProvidingResponse(response, (IProviderManager) providingManager,
+                                stockManager, dbTransactionData);
+                        }
+                        // COP or PrOB 
+                        else
                         {
                             response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
                                 dbTransactionData);
@@ -133,13 +143,6 @@ namespace Zpp
                             ProcessProvidingResponse(response, (IProviderManager) providingManager,
                                 stockManager, dbTransactionData);
                         }
-                        // SE:I or COP or PrOB 
-
-                        response = orderManager.Satisfy(demand, response.GetRemainingQuantity(),
-                            dbTransactionData);
-
-                        ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                            stockManager, dbTransactionData);
                     }
 
                     if (response.GetRemainingQuantity().IsNull() == false)

@@ -25,37 +25,20 @@ namespace Zpp.ProductionDomain
                 throw new MrpRunException("Must be a build article.");
             }
 
-            Quantity remainingQuantity = new Quantity(demandedQuantity);
-            Providers providers = new Providers();
-            List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
+            ProductionOrder productionOrder = CreateProductionOrder(demand, dbTransactionData,
+                _dbMasterDataCache, demandedQuantity);
 
-            LotSize.LotSize lotSizes = new LotSize.LotSize(demandedQuantity, demand.GetArticleId());
-            foreach (var lotSize in lotSizes.GetLotSizes())
+            Logger.Debug("ProductionOrder created.");
+
+
+            T_DemandToProvider demandToProvider = new T_DemandToProvider()
             {
-                ProductionOrder productionOrder = CreateProductionOrder(demand, dbTransactionData,
-                    _dbMasterDataCache, lotSize);
+                DemandId = demand.GetId().GetValue(),
+                ProviderId = productionOrder.GetId().GetValue(),
+                Quantity = demandedQuantity.GetValue()
+            };
 
-                Logger.Debug("ProductionOrder created.");
-                remainingQuantity.DecrementBy(lotSize);
-                Quantity quantityToReserve = lotSize;
-                if (remainingQuantity.IsNegative())
-                {
-                    quantityToReserve = remainingQuantity.Plus(lotSize);
-                    remainingQuantity = null;
-                }
-                
-                providers.Add(productionOrder);
-
-                T_DemandToProvider demandToProvider = new T_DemandToProvider()
-                {
-                    DemandId = demand.GetId().GetValue(),
-                    ProviderId = productionOrder.GetId().GetValue(),
-                    Quantity = quantityToReserve.GetValue()
-                };
-                demandToProviders.Add(demandToProvider);
-            }
-
-            return new Response(providers, demandToProviders, demandedQuantity);
+            return new Response(productionOrder, demandToProvider, demandedQuantity);
         }
 
         private ProductionOrder CreateProductionOrder(Demand demand,

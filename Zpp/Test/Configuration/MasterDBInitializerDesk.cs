@@ -85,6 +85,8 @@ namespace Zpp.Test.Configurations
             // Articles
             var articles = new M_Article[]
             {
+                // TODO: add lotsizes when useful
+                
                 // no prices except for articles that are sold
                 new M_Article
                 {
