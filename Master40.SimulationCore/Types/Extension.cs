@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using static FBuckets;
 using static IKeys;
 
-namespace Master40.SimulationCore.MessageTypes
+namespace Master40.SimulationCore.Types
 {
     public static class Extension
     {

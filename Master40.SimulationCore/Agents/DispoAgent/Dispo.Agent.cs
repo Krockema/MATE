@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.DispoAgent
 {
@@ -30,11 +29,6 @@ namespace Master40.SimulationCore.Agents.DispoAgent
         {
             DebugMessage("I'm Alive: " + Context.Self.Path);
             //this.Do(BasicInstruction.Initialize.Create(Self, DispoBehaviour.Get()));
-        }
-
-        protected override void OnInit(IBehaviour o)
-        {
-
         }
 
         protected override void OnChildAdd(IActorRef childRef)

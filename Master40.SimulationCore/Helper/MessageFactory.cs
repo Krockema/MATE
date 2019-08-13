@@ -11,8 +11,9 @@ using static FProposals;
 using static FStartConditions;
 using static FBuckets;
 using static IJobs;
+using Master40.SimulationCore.Types;
 
-namespace Master40.SimulationCore.MessageTypes
+namespace Master40.SimulationCore.Helper
 {
     public static class MessageFactory
     {

@@ -1,12 +1,9 @@
-﻿using Akka.Actor;
-using Master40.DB.Enums;
-using Master40.SimulationCore.MessageTypes;
-using System.Collections.Generic;
+﻿using Master40.DB.Enums;
+using Master40.SimulationCore.Types;
 
-
-namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
+namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 {
-    public static class BehaviourFactory
+    public static class Factory
     {
         public static IBehaviour Get(SimulationType simType)
         {
@@ -19,9 +16,10 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 
         private static IBehaviour Default()
         {
-
             return new Default();
         }
 
     }
+
 }
+

@@ -122,10 +122,10 @@ namespace Master40.SimulationCore
                 
                 // #3 Create DirectoryAgents
                 ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "HubDirectory"));
-                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.HubDirectory.Ref, Agents.DirectoryAgent.Behaviour.BehaviourFactory.Get(_simType)));
+                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.HubDirectory.Ref, Agents.DirectoryAgent.Behaviour.Factory.Get(_simType)));
 
                 ActorPaths.SetStorageDirectory(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debug), "StorageDirectory"));
-                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, Agents.DirectoryAgent.Behaviour.BehaviourFactory.Get(_simType)));
+                _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, Agents.DirectoryAgent.Behaviour.Factory.Get(_simType)));
 
                 // #4 Create Machines
                 var setups = _DBContext.ResourceSetups.Include(m => m.Resource)

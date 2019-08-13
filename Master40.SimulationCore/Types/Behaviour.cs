@@ -5,7 +5,7 @@ using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 
-namespace Master40.SimulationCore.MessageTypes
+namespace Master40.SimulationCore.Types
 {
     public abstract class Behaviour: IBehaviour
     {

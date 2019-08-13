@@ -2,11 +2,11 @@
 using Akka.Actor;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
+using static Master40.SimulationCore.Agents.Guardian.Instruction;
 
 namespace Master40.SimulationCore.Agents.Guardian
 {
-    public class GuardianBehaviour : Behaviour
+    public class GuardianBehaviour : SimulationCore.Types.Behaviour
     {
         internal GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker, SimulationType simulationType) 
             : base(childMaker: childMaker
@@ -21,7 +21,7 @@ namespace Master40.SimulationCore.Agents.Guardian
         {
             switch (message)
             {
-                case Guardian.Instruction.CreateChild m: CreateChild(agent, m.GetObjectFromMessage); break;
+                case CreateChild m: CreateChild(agent, m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;

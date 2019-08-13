@@ -1,12 +1,12 @@
-﻿using Master40.DB.Enums;
+﻿using Akka.Actor;
+using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper;
-using Akka.Actor;
-using Master40.SimulationCore.Agents.Types;
+using Master40.SimulationCore.Types;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
-    public class Default : MessageTypes.Behaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         public Default(int planingJobQueueLength, int fixedJobQueueSize, SimulationType simulationType = SimulationType.None) : base(null, simulationType)
         {

@@ -1,8 +1,9 @@
-﻿using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
+using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.ContractAgent
 {
@@ -17,7 +18,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         /// '--->Dispo
         /// '----->Production
         /// </summary>
-        internal IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Dispo).Value;
+        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Dispo).Value;
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug)
         {
@@ -32,14 +33,14 @@ namespace Master40.SimulationCore.Agents.ContractAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var fArticle = ((Behaviour.Default)Behaviour).fArticle;
+            var fArticle = ((IDefaultProperties)Behaviour).fArticle;
             this.Send(Dispo.Instruction.RequestArticle.Create(fArticle, childRef));
             this.DebugMessage("Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
         }
 
         protected override void Finish()
         {
-            var fArticle = ((Behaviour.Default)Behaviour).fArticle;
+            var fArticle = ((IDefaultProperties)Behaviour).fArticle;
             if (fArticle.IsProvided && VirtualChilds.Count() == 0)
             {
                 base.Finish();

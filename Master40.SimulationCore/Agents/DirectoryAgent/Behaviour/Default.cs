@@ -4,10 +4,8 @@ using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using static FBreakDowns;
 using static FHubInformations;
 using static FRequestResources;
@@ -16,7 +14,7 @@ using static FResourceTypes;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 {
-    partial class Default : MessageTypes.Behaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None)
                        : base(null, simulationType) { }
@@ -60,7 +58,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             var ressourceCollection = fRequestResources;
             ressourceCollection.Add(new FRequestResource(stock.Article.Name, FResourceType.Storage, storage));
 
-            agent.Send(BasicInstruction.Initialize.Create(storage, StorageAgent.Behaviour.BehaviourFactory.Get(stock, SimulationType)));
+            agent.Send(BasicInstruction.Initialize.Create(storage, StorageAgent.Behaviour.Factory.Get(stock, SimulationType)));
         }
 
 
@@ -100,7 +98,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , hubAgents.FirstOrDefault(x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , ("Machine(" + resource.Name + ")").ToActorName());
-            agent.Send(BasicInstruction.Initialize.Create(resourceAgent, ResourceAgent.Behaviour.BehaviourFactory.Get(SimulationType)));
+            agent.Send(BasicInstruction.Initialize.Create(resourceAgent, ResourceAgent.Behaviour.Factory.Get(SimulationType)));
 
         }
 

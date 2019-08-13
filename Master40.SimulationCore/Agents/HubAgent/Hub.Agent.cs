@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
         public Hub(ActorPaths actorPaths, long time, SimulationType simtype, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
             DebugMessage("I'm Alive:" + Context.Self.Path);
-            this.Do(BasicInstruction.Initialize.Create(Self, HubAgent.Behaviour.BehaviourFactory.Get(simtype )));
+            this.Do(BasicInstruction.Initialize.Create(Self, HubAgent.Behaviour.Factory.Get(simtype )));
         }
     }
 }

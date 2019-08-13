@@ -1,12 +1,11 @@
 ﻿using Akka.Actor;
 using AkkaSim;
-using System.Collections.Generic;
-using System.Diagnostics;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Types;
 using System;
-using Master40.SimulationCore.MessageTypes;
-using System.Dynamic;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -21,6 +20,7 @@ namespace Master40.SimulationCore.Agents
         /// <summary>
         /// Holds the last Known Status for each Child Entity
         /// </summary>
+        internal IActorRef Guardian { get; }
         internal HashSet<IActorRef> VirtualChilds { get; }
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }

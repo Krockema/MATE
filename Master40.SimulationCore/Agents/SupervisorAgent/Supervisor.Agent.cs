@@ -6,10 +6,12 @@ using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
+using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using Master40.SimulationCore.Agents.Types;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -119,10 +121,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         {
             _orderQueue.Enqueue(orderPart);
             DebugMessage(" Creating Contract Agent");
-            var agentSetup = AgentSetup.Create(this, ContractAgent.Behaviour.BehaviourFactory.Get(simType: _simulationType));
-            var instruction = Guardian.Guardian.Instruction
-                                      .CreateChild
-                                      .Create(agentSetup, ActorPaths.Guardians
+            var agentSetup = AgentSetup.Create(this, ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
+            var instruction = CreateChild
+                              .Create(agentSetup, ActorPaths.Guardians
                                                                     .Single(x => x.Key == GuardianType.Contract)
                                                                     .Value);
 

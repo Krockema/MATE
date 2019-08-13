@@ -2,7 +2,7 @@
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;

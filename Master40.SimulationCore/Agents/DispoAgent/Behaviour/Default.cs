@@ -5,6 +5,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DirectoryAgent;
+using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
@@ -16,7 +17,7 @@ using static FStockReservations;
 
 namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
-    public class Default : MessageTypes.Behaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None) 
                         : base(null, simulationType) { }
@@ -133,8 +134,8 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             // Creates a Production Agent for each element that has to be produced
             for (int i = 0; i < quantityToProduce; i++)
             {
-                var agentSetup = AgentSetup.Create(agent, ProductionAgent.Behaviour.BehaviourFactory.Get(SimulationType.None));
-                var instruction = Guardian.Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
+                var agentSetup = AgentSetup.Create(agent, ProductionAgent.Behaviour.Factory.Get(SimulationType.None));
+                var instruction = CreateChild.Create(agentSetup, agent.Guardian);
                 agent.Send(instruction);
             }
         }

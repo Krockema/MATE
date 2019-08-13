@@ -3,8 +3,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.StorageAgent.Types;
-using Master40.SimulationCore.Agents.Types;
-using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,7 @@ using static FUpdateStockValues;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {
-    public class Default : MessageTypes.Behaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         public Default(M_Stock stockElement, SimulationType simType) : base(simulationType: simType)
         {

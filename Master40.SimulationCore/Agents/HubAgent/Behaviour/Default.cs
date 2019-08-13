@@ -2,23 +2,19 @@
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
-using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static FArticles;
 using static FBreakDowns;
 using static FHubInformations;
 using static FOperationResults;
 using static FOperations;
 using static FProposals;
-using static IJobs;
-using Master40.SimulationCore.Agents.Types;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
-    public class Default : MessageTypes.Behaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None)
                         : base(null, simulationType) { }

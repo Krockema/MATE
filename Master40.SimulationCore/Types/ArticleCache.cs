@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Master40.SimulationCore.Agents.Types
+namespace Master40.SimulationCore.Types
 {
     public class ArticleCache
     {

@@ -1,6 +1,6 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationCore.Types;
 using static FBreakDowns;
 using static FHubInformations;
 

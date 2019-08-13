@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.HubAgent;
-using Master40.SimulationCore.Agents.Types;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationCore.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FArticles;
 using static FHubInformations;
 using static FOperationResults;
@@ -17,7 +15,7 @@ using static FOperations;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
-    public class Default : MessageTypes.Behaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None)
                 : base(null, simulationType) { }
@@ -70,8 +68,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 childOperations.Enqueue(MessageFactory.ToRequestItem(articleBom, requestItem, agent.Context.Self, agent.CurrentTime));
 
                 // create Dispo Agents for to Provide Required Articles
-                var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.BehaviourFactory.Get(SimulationType.None));
-                var instruction = Guardian.Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
+                var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.Factory.Get(SimulationType.None));
+                var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
                 agent.Send(instruction);
             }
             fArticle = requestItem;

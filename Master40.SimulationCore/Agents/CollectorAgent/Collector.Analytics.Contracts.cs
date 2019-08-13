@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AkkaSim;
+﻿using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationCore.Types;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FArticles;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
