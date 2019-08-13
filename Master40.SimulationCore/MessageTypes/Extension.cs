@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using static FBuckets;
-using static IJobs;
 using static IKeys;
 
 namespace Master40.SimulationCore.MessageTypes

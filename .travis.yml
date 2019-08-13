@@ -12,6 +12,7 @@ install:
 
 script:
   - dotnet build
+  - dotnet test --filter Master40.XUnitTest.SimulationImmutables.Immutables
 
 notifications:
   email: 
