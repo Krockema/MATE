@@ -5,6 +5,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Zpp.DemandDomain;
+using Zpp.ProviderDomain;
 
 namespace Zpp.Test
 {
@@ -22,7 +23,7 @@ namespace Zpp.Test
             tProductionOrderBom.ProductionOrderParent = CreateT_ProductionOrder(dbMasterDataCache, )
         }*/
 
-        public static T_ProductionOrder CreateT_ProductionOrder(
+        public static ProductionOrder CreateT_ProductionOrder(
             IDbMasterDataCache dbMasterDataCache, IDbTransactionData dbTransactionData,
             Demand demand, Quantity quantity)
         {
@@ -35,7 +36,7 @@ namespace Zpp.Test
             // connects this provider with table T_Provider
             tProductionOrder.Quantity = quantity.GetValue();
 
-            return tProductionOrder;
+            return new ProductionOrder(tProductionOrder, dbMasterDataCache);
         }
 
         private static T_CustomerOrder CreateCustomerOrder(IDbMasterDataCache dbMasterDataCache)

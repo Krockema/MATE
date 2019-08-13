@@ -17,7 +17,7 @@ namespace Master40.DB.DataModel
 
         public override string ToString()
         {
-            return $"demand: {DemandId}, provider: {ProviderId}";
+            return $"demand: {DemandId}, provider: {ProviderId}, quantity: {Quantity}";
         }
 
         public Id GetProviderId()

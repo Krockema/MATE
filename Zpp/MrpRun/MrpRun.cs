@@ -44,9 +44,9 @@ namespace Zpp
          * - save providers
          * - save dependingDemands
          */
-        private static void ProcessProvidingResponse(Response response,
+        public static void ProcessProvidingResponse(Response response,
             IProviderManager providerManager, StockManager stockManager,
-            IDbTransactionData dbTransactionData)
+            IDbTransactionData dbTransactionData, Demand demand)
         {
             if (response == null)
             {
@@ -57,6 +57,12 @@ namespace Zpp
             {
                 foreach (var demandToProvider in response.GetDemandToProviders())
                 {
+                    if (demandToProvider.GetDemandId().Equals(demand.GetId()) == false)
+                    {
+                        throw new MrpRunException(
+                            "This demandToProvider does not fit to given demand.");
+                    }
+
                     providerManager.AddDemandToProvider(demandToProvider);
 
                     if (response.GetProviders() != null)
@@ -120,28 +126,27 @@ namespace Zpp
                     Response response = providingManager.Satisfy(demand, demand.GetQuantity(),
                         dbTransactionData);
                     ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                        stockManager, dbTransactionData);
-
+                        stockManager, dbTransactionData, demand);
 
                     if (response.IsSatisfied() == false)
                     {
-                        // SE:I
+                        // SE:I --> satisfy by orders (PuOP/PrOBom)
                         if (demand.GetType() == typeof(StockExchangeDemand))
                         {
-                            response = orderManager.Satisfy(demand, response.GetRemainingQuantity(),
+                            response = orderManager.Satisfy(demand, demand.GetQuantity(),
                                 dbTransactionData);
 
                             ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                                stockManager, dbTransactionData);
+                                stockManager, dbTransactionData, demand);
                         }
-                        // COP or PrOB 
+                        // COP or PrOB --> satisfy by SE:W
                         else
                         {
                             response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
                                 dbTransactionData);
 
                             ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                                stockManager, dbTransactionData);
+                                stockManager, dbTransactionData, demand);
                         }
                     }
 
