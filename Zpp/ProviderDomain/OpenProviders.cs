@@ -11,7 +11,11 @@ namespace Zpp.ProviderDomain
 
         public void Add(M_Article article, OpenProvider openProvider)
         {
-            InitArticle(article);
+            if (openProvider.GetOpenProvider().GetType() != typeof(StockExchangeProvider))
+            {
+                throw new MrpRunException("An open provider can only be a StockExchangeProvider.");
+            }
+            InitOpenProvidersDictionary(article);
             if (AnyOpenProvider(article))
             {
                 throw new MrpRunException($"Only one open provider is allowed: already open: \"{GetOpenProvider(article)}\" , cannot add: \"{openProvider}\"");
@@ -21,7 +25,7 @@ namespace Zpp.ProviderDomain
 
         public bool AnyOpenProvider(M_Article article)
         {
-            InitArticle(article);
+            InitOpenProvidersDictionary(article);
             return _openProviders[article].Any();
         }
 
@@ -40,7 +44,7 @@ namespace Zpp.ProviderDomain
             _openProviders[provider.GetArticle()].RemoveAt(0);
         }
 
-        private void InitArticle(M_Article article)
+        private void InitOpenProvidersDictionary(M_Article article)
         {
             if (_openProviders.ContainsKey(article) == false)
             {

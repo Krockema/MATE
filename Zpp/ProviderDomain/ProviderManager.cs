@@ -86,7 +86,7 @@ namespace Zpp.ProviderDomain
             
             
             // if it has quantity that is not reserved, remember it for later reserving
-            if (reservedQuantity.IsSmallerThan(oneProvider.GetQuantity()))
+            if (oneProvider.GetType() == typeof(StockExchangeProvider) && reservedQuantity.IsSmallerThan(oneProvider.GetQuantity()))
             {
                 _openProviders.Add(oneProvider.GetArticle(), new OpenProvider(oneProvider, oneProvider.GetQuantity().Minus(reservedQuantity), oneProvider.GetArticle()));
             }

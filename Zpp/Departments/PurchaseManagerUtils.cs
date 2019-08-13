@@ -10,7 +10,11 @@ namespace Zpp
             Quantity demandQuantity)
         {
             // force round up the decimal demandQuantity
-            int demandQuantityInt = (int) decimal.Truncate(demandQuantity.GetValue()) + 1;
+            int demandQuantityInt = (int) decimal.Truncate(demandQuantity.GetValue());
+            if (demandQuantityInt < demandQuantity.GetValue())
+            {
+                demandQuantityInt++;
+            }
             int purchaseQuantity = 0;
             
             for (int quantity = 0;

@@ -85,8 +85,6 @@ namespace Zpp.Test.Configurations
             // Articles
             var articles = new M_Article[]
             {
-                // TODO: add lotsizes when useful
-                
                 // no prices except for articles that are sold
                 new M_Article
                 {
@@ -101,14 +99,16 @@ namespace Zpp.Test.Configurations
                     Name = "Tischplatte",
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     DeliveryPeriod = 10, UnitId = units.Single(s => s.Name == "Pieces").Id,
-                    ToBuild = false, ToPurchase = true
+                    ToBuild = false, ToPurchase = true,
+                    LotSize = 2
                 },
                 new M_Article
                 {
                     Name = "Tischbein",
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Assembly").Id,
                     DeliveryPeriod = 10, UnitId = units.Single(s => s.Name == "Pieces").Id,
-                    ToBuild = true, ToPurchase = false
+                    ToBuild = true, ToPurchase = false,
+                    LotSize = 4
                 },
                 new M_Article
                 {
@@ -116,7 +116,7 @@ namespace Zpp.Test.Configurations
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod = 3,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
-                    ToPurchase = true
+                    ToPurchase = true, LotSize = 100
                 },
                 // Anschraubplatte, Stahlrohr, Montageanleitung
                 new M_Article
@@ -125,7 +125,7 @@ namespace Zpp.Test.Configurations
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 3,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
-                    ToPurchase = true
+                    ToPurchase = true, LotSize = 10
                 },
                 new M_Article
                 {
@@ -133,7 +133,7 @@ namespace Zpp.Test.Configurations
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 3,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
-                    ToPurchase = true
+                    ToPurchase = true, LotSize = 10
                 },
                 new M_Article
                 {
@@ -141,7 +141,7 @@ namespace Zpp.Test.Configurations
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 3,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
-                    ToPurchase = true
+                    ToPurchase = true, LotSize = 10
                 },
                 new M_Article
                 {
@@ -149,7 +149,7 @@ namespace Zpp.Test.Configurations
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 1,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
-                    ToPurchase = true
+                    ToPurchase = true, LotSize = 100
                 },
 
             };

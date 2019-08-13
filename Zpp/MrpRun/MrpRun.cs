@@ -122,25 +122,27 @@ namespace Zpp
 
                 foreach (Demand demand in currentDemandManager.GetAll())
                 {
-                    // satisfy by existing provider
-                    Response response = providingManager.Satisfy(demand, demand.GetQuantity(),
-                        dbTransactionData);
-                    ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                        stockManager, dbTransactionData, demand);
-
-                    if (response.IsSatisfied() == false)
+                    Response response;
+                    
+                    // SE:I --> satisfy by orders (PuOP/PrOBom)
+                    if (demand.GetType() == typeof(StockExchangeDemand))
                     {
-                        // SE:I --> satisfy by orders (PuOP/PrOBom)
-                        if (demand.GetType() == typeof(StockExchangeDemand))
-                        {
-                            response = orderManager.Satisfy(demand, demand.GetQuantity(),
-                                dbTransactionData);
+                        response = orderManager.Satisfy(demand, demand.GetQuantity(),
+                            dbTransactionData);
 
-                            ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                                stockManager, dbTransactionData, demand);
-                        }
-                        // COP or PrOB --> satisfy by SE:W
-                        else
+                        ProcessProvidingResponse(response, (IProviderManager) providingManager,
+                            stockManager, dbTransactionData, demand);
+                    }
+                    // COP or PrOB --> satisfy by SE:W
+                    else
+                    {
+                        // satisfy by existing provider
+                        response = providingManager.Satisfy(demand, demand.GetQuantity(),
+                            dbTransactionData);
+                        ProcessProvidingResponse(response, (IProviderManager) providingManager,
+                            stockManager, dbTransactionData, demand);
+                        
+                        if (response.IsSatisfied() == false)
                         {
                             response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
                                 dbTransactionData);
