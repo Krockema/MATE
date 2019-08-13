@@ -13,7 +13,8 @@ install:
 script:
   - dotnet build
   - dotnet test --filter Master40.XUnitTest.SimulationImmutables.Immutables
-
+  - dotnet test --filter Master40.XUnitTest.Agents
+  - dotnet test --filter Master40.XUnitTest.SimulationEnvironment
 notifications:
   email: 
   - krockert@htw-dresden.de

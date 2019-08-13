@@ -3,8 +3,6 @@ using Akka.TestKit.Xunit;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
-using System;
-using System.Collections.Generic;
 
 namespace Master40.XUnitTest.Moc
 {

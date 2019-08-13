@@ -1,11 +1,11 @@
 ﻿using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
-using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using Master40.XUnitTest.Moc;
 using System;
 using Xunit;
 using static Master40.SimulationCore.Agents.ContractAgent.Contract;
+using static Master40.SimulationCore.Agents.Guardian.Instruction;
 
 namespace Master40.XUnitTest.Agents.Contract.Behaviour
 {

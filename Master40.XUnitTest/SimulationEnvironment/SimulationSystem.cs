@@ -1,22 +1,18 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
-using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.Enums;
+using Master40.Simulation.CLI;
 using Master40.SimulationCore;
-using Master40.XUnitTest.DBContext;
+using Master40.SimulationCore.Environment.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.Simulation.CLI;
-using Master40.SimulationCore.Helper;
 using Xunit;
-using Master40.SimulationCore.Environment.Options;
-using Master40.DB.Enums;
 
-namespace Master40.XUnitTest.Agents
+namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class SimulationSystem : TestKit
     {
@@ -26,15 +22,15 @@ namespace Master40.XUnitTest.Agents
         ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
                                                             .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                             .Options);
-        
+
         ProductionDomainContext _masterDBContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
             .UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
-        
+
         ResultContext _ctxResult = new ResultContext(new DbContextOptionsBuilder<ResultContext>()
             .UseInMemoryDatabase(databaseName: "InMemoryResults")
             .Options);
-        
+
         public SimulationSystem()
         {
             _ctx.Database.EnsureCreated();
@@ -81,7 +77,7 @@ namespace Master40.XUnitTest.Agents
                                                     , new SaveToDB(false)
                                                 });
             // simConfig.OrderQuantity = 0;
-   
+
             //var simModelConfig = new SimulationConfig(false, 480);
             var simulation = await simContext.InitializeSimulation(simConfig);
 
@@ -106,7 +102,7 @@ namespace Master40.XUnitTest.Agents
                                             });
                 await sim;
             }
-            
+
             Assert.True(simWasReady);
         }
 
