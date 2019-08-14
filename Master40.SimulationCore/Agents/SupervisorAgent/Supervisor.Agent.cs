@@ -79,23 +79,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             DebugMessage("Agent-System ready for Work");
         }
 
-        private void SetInitialThroughput(long eta, string productName)
-        {
-            //var names = _productionDomainContext.ArticleBoms
-            //                                    .Include(c => c.ArticleChild)
-            //                                    .Where(b => b.ArticleParentId == null)
-            //                                    .AsNoTracking()
-            //                                    .Select(a => new { a.ArticleChild.Name, a.ArticleChild.Id })
-            //                                    .ToList();
-            _estimatedThroughPuts.Add(productName, new EstimatedThroughPut(eta));   
-        }
-
         protected override void Do(object o)
         {
             switch (o)
             {
                 case BasicInstruction.ChildRef instruction: OnChildAdd(instruction.GetObjectFromMessage); break;
-                case Instruction.SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(instruction.GetObjectFromMessage); break; // ToDo Benammung : Sollte die Letzte nachricht zwischen Produktionsagent und Contract Agent abfangen und Inital setzen
+                case Instruction.SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(instruction.GetObjectFromMessage); break; // ToDo Benammung : Sollte die Letzte nachricht zwischen Produktionsagent und Contract Agent abfangen und Inital bei der ersten Forward Terminierung setzen
                 case Instruction.CreateContractAgent instruction: CreateContractAgent(instruction.GetObjectFromMessage); break;
                 case Instruction.RequestArticleBom instruction: RequestArticleBom(instruction.GetObjectFromMessage); break;
                 case Instruction.OrderProvided instruction: OrderProvided(instruction); break;

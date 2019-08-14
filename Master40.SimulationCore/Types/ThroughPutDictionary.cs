@@ -1,17 +1,15 @@
 ﻿using Master40.SimulationCore.Environment.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Master40.SimulationCore.Agents.Types
 {
-    public class ThroughPutDictionary : Dictionary<string, EstimatedThroughPut>
+    public class ThroughPutDictionary 
     {
-
+        private Dictionary<string, EstimatedThroughPut> dic = new Dictionary<string, EstimatedThroughPut>();
         public EstimatedThroughPut Get(string name)
         {
-            if (this.TryGetValue(name, out EstimatedThroughPut eta))
+            if (dic.TryGetValue(name, out EstimatedThroughPut eta))
             {
                 return eta;
             }
@@ -20,13 +18,13 @@ namespace Master40.SimulationCore.Agents.Types
 
         public bool UpdateOrCreate(string name, long time)
         {
-            if(this.TryGetValue(name, out EstimatedThroughPut eta))
+            if(dic.TryGetValue(name, out EstimatedThroughPut eta))
             {
                 eta.Set(time);
                 return false;
             }
             // else
-            this.Add(name, new EstimatedThroughPut(time));
+            dic.Add(name, new EstimatedThroughPut(time));
             return true;
         }
     }
