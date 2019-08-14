@@ -72,7 +72,7 @@ namespace Master40.SimulationCore.Agents
         }
         protected virtual void OnChildAdd(IActorRef childRef)
         {
-            DebugMessage(this.Name + "Child Created.");            
+            DebugMessage(this.Name + " Child created.");            
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Master40.SimulationCore.Agents
             DebugMessage(" INITIALIZED ");
             if (VirtualParent != ActorRefs.Nobody)
             {
-                DebugMessage(" PARRENT INFORMED ");
+                DebugMessage(" PARENT INFORMED ");
                 Send(BasicInstruction.ChildRef.Create(Self, VirtualParent));
             }
             
@@ -140,7 +140,7 @@ namespace Master40.SimulationCore.Agents
         /// </summary>
         protected override void Finish()
         {
-            DebugMessage(Self + " finish has been Called by . " + Sender);
+            DebugMessage(Self + " finish has been called by " + Sender);
             base.Finish();
         }
     }
