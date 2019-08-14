@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         {
             switch (message)
             {
-                case BasicInstruction.ResponseFromHub r: base.ResponseFromHub((Dispo)agent, r.GetObjectFromMessage); break;
+                case BasicInstruction.ResponseFromDirectory r: base.ResponseFromDirectory(agent, r.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;

@@ -21,6 +21,7 @@ using System.Linq;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 using Master40.SimulationCore.DistributionProvider;
+using Master40.SimulationCore.Agents.SupervisorAgent.Types;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent
 {
@@ -31,7 +32,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private IMessageHub _messageHub { get; set; }
         private int orderCount { get; set; } = 0;
         private int _configID { get; set; }
-        private int _orderMaxQuantity { get; set; }
+        private OrderCounter _orderCounter { get; set; }
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
         private OrderGenerator _orderGenerator { get; set; }
@@ -70,7 +71,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             _articleCache = new ArticleCache(_dataBaseConnection.ConnectionString);
             _messageHub = messageHub;
             _orderGenerator = new OrderGenerator(configuration, _productionDomainContext, productIds);
-            _orderMaxQuantity = configuration.GetOption<OrderQuantity>().Value;
+            _orderCounter = new OrderCounter(configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             Send(Instruction.PopOrder.Create("Pop", Self), 1);
@@ -104,12 +105,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private void CreateContractAgent(T_CustomerOrderPart orderPart)
         {
             _orderQueue.Enqueue(orderPart);
-            DebugMessage(" Creating Contract Agent");
+            DebugMessage("Creating Contract Agent for order " + orderPart.CustomerOrderId);
             var agentSetup = AgentSetup.Create(this, ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
-            var instruction = CreateChild
-                              .Create(agentSetup, ActorPaths.Guardians
-                                                                    .Single(x => x.Key == GuardianType.Contract)
-                                                                    .Value);
+            var instruction = CreateChild.Create(setup: agentSetup
+                                               ,target: ActorPaths.Guardians
+                                                                  .Single(x => x.Key == GuardianType.Contract)
+                                                                  .Value);
 
             Send(instruction);
         }
@@ -122,14 +123,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         protected override void OnChildAdd(IActorRef childRef)
         {
             VirtualChilds.Add(childRef);
-            Send(Contract.Instruction.StartOrder.Create(_orderQueue.Dequeue(), childRef, true));
+            Send(Contract.Instruction.StartOrder.Create(message: _orderQueue.Dequeue()
+                                                        ,target: childRef
+                                                      , logThis: true));
         }
 
-        private void RequestArticleBom(FArticle requestItem)
+        private void RequestArticleBom(int articleId)
         {
-            DebugMessage(" Request details for article: " + requestItem.Article.Name + " from  " + Sender.Path);
             // get BOM from cached context 
-            var article = _articleCache.GetArticleById(requestItem.Article.Id);
+            var article = _articleCache.GetArticleById(articleId);
+
+            DebugMessage("Request details for article: " + article.Name + " from  " + Sender.Path);
+
             // calback with po.bom
             Send(Dispo.Instruction.ResponseFromSystemForBom.Create(article, Sender));                        
         }
@@ -147,7 +152,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             order.FinishingTime = (int)this.TimePeriod;
             order.State = State.Finished;
             _productionDomainContext.SaveChanges();
-            _messageHub.ProcessingUpdate(_configID, ++orderCount, SimulationType.Decentral.ToString(), _orderMaxQuantity);
+            _messageHub.ProcessingUpdate(_configID, _orderCounter.ProvidedOrder(), SimulationType.Decentral.ToString(), _orderCounter.Max);
         }
 
         private void End()
@@ -166,15 +171,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
         private void PopOrder()
         {
-            if (_createdOrders >= _orderMaxQuantity)
-                return;
-            _createdOrders++;
+            if (!_orderCounter.TryAddOne()) return;
+
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
             Send(Instruction.PopOrder.Create("PopNext", Self), order.CreationTime - CurrentTime);
             var eta = _estimatedThroughPuts.Get(order.CustomerOrderParts.First().Article.Name);
 
-            long period = order.DueTime - (eta.Value); // 1 Tag un 1 Schich
-            if (period < 0)
+            long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
+            if (period < 0 || eta.Value == 0)
             {
                 order.CustomerOrderParts.ToList()
                      .ForEach(item => CreateContractAgent(item));

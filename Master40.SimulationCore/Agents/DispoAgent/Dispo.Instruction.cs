@@ -34,18 +34,6 @@ namespace Master40.SimulationCore.Agents.DispoAgent
                 }
                 public FStockReservation GetObjectFromMessage { get => this.Message as FStockReservation; }
             }
-            public class RequestProvided : SimulationMessage
-            {
-                public static RequestProvided Create(FArticle message, IActorRef target)
-                {
-                    return new RequestProvided(message, target);
-                }
-                private RequestProvided(object message, IActorRef target) : base(message, target)
-                {
-
-                }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
-            }
 
             public class ResponseFromSystemForBom : SimulationMessage
             {

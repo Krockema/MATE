@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
-using static FHubInformations;
+using static FAgentInformations;
 using static FProposals;
 using static IJobResults;
 using static IJobs;
@@ -14,7 +14,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             public class AddMachineToHub : SimulationMessage
             {
-                public static AddMachineToHub Create(FHubInformation message, IActorRef target, bool logThis = false)
+                public static AddMachineToHub Create(FAgentInformation message, IActorRef target, bool logThis = false)
                 {
                     return new AddMachineToHub(message, target, logThis);
                 }
@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 {
 
                 }
-                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
+                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
             }
 
             public class ProductionStarted : SimulationMessage

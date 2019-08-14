@@ -30,7 +30,7 @@ namespace Master40.XUnitTest.Agents.Contract.Behaviour
                                        , principal: null);
             behave.Action(agent, message);
 
-            Assert.Equal("Bear", ((IDefaultProperties)behave).fArticle.Article.Name);
+            Assert.Equal("Bear", ((IDefaultProperties)behave)._fArticle.Article.Name);
             var item = simContext.ReceiveOne(TimeSpan.FromSeconds(5)) as CreateChild;
             Assert.NotNull(item);
         }

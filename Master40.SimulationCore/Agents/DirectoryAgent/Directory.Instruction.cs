@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
-using static FHubInformations;
+using static FAgentInformations;
 using static FResourceSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
@@ -12,23 +12,23 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
         {
             public class CreateHubAgent : SimulationMessage
             {
-                public static CreateHubAgent Create(FHubInformation message, IActorRef target)
+                public static CreateHubAgent Create(FAgentInformation message, IActorRef target)
                 {
                     return new CreateHubAgent(message, target);
                 }
                 private CreateHubAgent(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
+                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
             }
 
-            public class RequestRessourceAgent : SimulationMessage
+            public class RequestAgent : SimulationMessage
             {
-                public static RequestRessourceAgent Create(string descriminator, IActorRef target)
+                public static RequestAgent Create(string descriminator, IActorRef target)
                 {
-                    return new RequestRessourceAgent(descriminator, target);
+                    return new RequestAgent(descriminator, target);
                 }
-                private RequestRessourceAgent(object message, IActorRef target) : base(message, target)
+                private RequestAgent(object message, IActorRef target) : base(message, target)
                 {
                 }
                 public string GetObjectFromMessage { get => Message as string; }

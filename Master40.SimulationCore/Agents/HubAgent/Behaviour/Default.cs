@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FBreakDowns;
-using static FHubInformations;
+using static FAgentInformations;
 using static FOperationResults;
 using static FOperations;
 using static FProposals;
@@ -139,7 +139,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        private void AddResourceToHub(Agent agent, FHubInformation hubInformation)
+        private void AddResourceToHub(Agent agent, FAgentInformation hubInformation)
         {
             // Add Machine to Pool
             resourceAgents.Add(hubInformation.Ref, hubInformation.RequiredFor);

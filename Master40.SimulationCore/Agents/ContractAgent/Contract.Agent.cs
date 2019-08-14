@@ -33,14 +33,14 @@ namespace Master40.SimulationCore.Agents.ContractAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var fArticle = ((IDefaultProperties)Behaviour).fArticle;
+            var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
             this.Send(Dispo.Instruction.RequestArticle.Create(fArticle, childRef));
             this.DebugMessage("Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
         }
 
         protected override void Finish()
         {
-            var fArticle = ((IDefaultProperties)Behaviour).fArticle;
+            var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
             if (fArticle.IsProvided && VirtualChilds.Count() == 0)
             {
                 base.Finish();

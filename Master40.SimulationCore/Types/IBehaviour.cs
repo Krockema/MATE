@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Akka.Actor;
+using Master40.DB.Enums;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 
@@ -15,5 +16,6 @@ namespace Master40.SimulationCore.Types
         /// Returns ChildReference
         /// </summary>
         Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
+        SimulationType SimulationType { get; }
     }
 }

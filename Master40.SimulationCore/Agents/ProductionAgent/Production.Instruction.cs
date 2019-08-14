@@ -2,7 +2,7 @@
 using AkkaSim.Definitions;
 using System;
 using static FArticles;
-using static FHubInformations;
+using static FAgentInformations;
 using static FOperationResults;
 using static FOperations;
 
@@ -57,7 +57,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             }
             public class SetHubAgent : SimulationMessage
             {
-                public static SetHubAgent Create(FHubInformation message, IActorRef target)
+                public static SetHubAgent Create(FAgentInformation message, IActorRef target)
                 {
                     return new SetHubAgent(message, target);
                 }
@@ -65,7 +65,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 {
 
                 }
-                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
+                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
             }
 
             public class FinishWorkItem : SimulationMessage

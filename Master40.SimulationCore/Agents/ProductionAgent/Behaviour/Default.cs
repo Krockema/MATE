@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FArticles;
-using static FHubInformations;
+using static FAgentInformations;
 using static FOperationResults;
 using static FOperations;
 
@@ -31,19 +31,20 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
             switch (message)
             {
-                case Production.Instruction.StartProduction i: StartProductionAgent((Production)agent, i.GetObjectFromMessage); break;
-                case BasicInstruction.ResponseFromHub s: SetHubAgent((Production)agent, s.GetObjectFromMessage); break;
-                case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
-                case Production.Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
-                case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
-                case Production.Instruction.Finished f:
-                    agent.VirtualChilds.Remove(agent.Sender);
-                    ((Production)agent).TryToFinish(); break;
+                case Production.Instruction.StartProduction i: StartProductionAgent(agent, i.GetObjectFromMessage); break;
+                // case BasicInstruction.ResponseFromHub s: SetHubAgent((Production)agent, s.GetObjectFromMessage); break;
+                // case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
+                // case Production.Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
+                // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
+                // case Production.Instruction.Finished f:
+                //     agent.VirtualChilds.Remove(agent.Sender);
+                //     ((Production)agent).TryToFinish(); break;
                 default: return false;
             }
             return true;
         }
-        private void StartProductionAgent(Production agent, FArticle requestItem)
+
+        private void StartProductionAgent(Agent agent, FArticle requestItem)
         {
             var firstToEnqueue = false;
             // check for Children
@@ -75,7 +76,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             fArticle = requestItem;
         }
 
-        private void SetHubAgent(Production agent, FHubInformation hub)
+        private void SetHubAgent(Agent agent, FAgentInformation hub)
         {
             // Enque my Element at Comunication Agent
             agent.DebugMessage("Recived Agent from Directory: " + agent.Sender.Path.Name);
@@ -130,7 +131,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             foreach (var machineGroupName in machineGroups)
             {
                 agent.Send(Directory.Instruction
-                            .RequestRessourceAgent
+                            .RequestAgent
                             .Create(descriminator: machineGroupName
                                     , target: agent.ActorPaths.HubDirectory.Ref));
             }

@@ -17,7 +17,7 @@ using System.Globalization;
 using System.Linq;
 using static FBreakDowns;
 using static FCreateSimulationWorks;
-using static FHubInformations;
+using static FAgentInformations;
 using static FSetEstimatedThroughputTimes;
 using static FUpdateSimulationWorkProviders;
 using static FUpdateSimulationWorks;
@@ -78,7 +78,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             agent.messageHub.SendToClient(item.Resource + "_State", "offline");
         }
 
-        private void RecoverFromBreak(Collector agent, FHubInformation item)
+        private void RecoverFromBreak(Collector agent, FAgentInformation item)
         {
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }

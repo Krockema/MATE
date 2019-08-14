@@ -1,9 +1,9 @@
-﻿module FHubInformations
+﻿module FAgentInformations
 
 open Akka.Actor
 open FResourceTypes
 
-    type public FHubInformation = 
+    type public FAgentInformation = 
         {
             FromType : FResourceType
             RequiredFor : string

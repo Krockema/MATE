@@ -39,7 +39,7 @@ namespace Master40.Simulation.CLI
             Console.WriteLine(msg);
         }
 
-        public void ProcessingUpdate(int simId, int timer, string simType, int max)
+        public void ProcessingUpdate(int simId, int finished, string simType, int max)
         {
             //Do nothing 
         }

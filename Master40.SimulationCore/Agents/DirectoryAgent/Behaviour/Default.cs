@@ -8,7 +8,7 @@ using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
 using static FBreakDowns;
-using static FHubInformations;
+using static FAgentInformations;
 using static FRequestResources;
 using static FResourceSetupDefinitions;
 using static FResourceTypes;
@@ -32,23 +32,23 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         {
             switch (message)
             {
-                case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents((Directory)agent, msg.GetObjectFromMessage); break;
-                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents((Directory)agent, msg.GetObjectFromMessage); break;
-                case Directory.Instruction.RequestRessourceAgent msg: RequestRessourceAgent((Directory)agent, msg.GetObjectFromMessage); break;
-                case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown((Directory)agent, msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents(agent, msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(agent, msg.GetObjectFromMessage); break;
+                case Directory.Instruction.RequestAgent msg: RequestAgent(agent, msg.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void ResourceBrakeDown(Directory agent, FBreakDown breakDown)
+        private void ResourceBrakeDown(Agent agent, FBreakDown breakDown)
         {
             var hub = fRequestResources.Single(x => x.Discriminator == breakDown.ResourceSkill && x.ResourceType == FResourceType.Hub);
             agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, hub.actorRef));
             System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Resource, "Directory");
         }
 
-        public void CreateStorageAgents(Directory agent, M_Stock stock)
+        public void CreateStorageAgents(Agent agent, M_Stock stock)
         {
             var storage = agent.Context.ActorOf(Storage.Props(agent.ActorPaths
                                             , agent.CurrentTime
@@ -63,7 +63,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         }
 
 
-        public void CreateMachineAgents(Directory agent, FResourceSetupDefinition resourceSetupDefinition)
+        public void CreateMachineAgents(Agent agent, FResourceSetupDefinition resourceSetupDefinition)
         {
             var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
 
@@ -103,20 +103,20 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         }
 
-        private void RequestRessourceAgent(Directory agent, string descriminator)
+        private void RequestAgent(Agent agent, string descriminator)
         {
             // debug
-            agent.DebugMessage(" got Called for Storage by -> " + agent.Sender.Path.Name);
+            agent.DebugMessage(" got called for Agent by:  " + agent.Sender.Path.Name + " for: " + descriminator);
 
             // find the related Comunication Agent
-            var ressource = fRequestResources.First(x => x.Discriminator == descriminator);
+            var agentToProvide = fRequestResources.First(x => x.Discriminator == descriminator);
 
-            var hubInfo = new FHubInformation(ressource.ResourceType
+            var hubInfo = new FAgentInformation(agentToProvide.ResourceType
                                                 , descriminator
-                                                , ressource.actorRef);
+                                                , agentToProvide.actorRef);
 
-            // Tell the Requester the corrosponding Comunication Agent.
-            agent.Send(BasicInstruction.ResponseFromHub
+            // Tell the Requester the corrosponding Agent
+            agent.Send(BasicInstruction.ResponseFromDirectory
                                        .Create(message: hubInfo, target: agent.Sender));
         }
 

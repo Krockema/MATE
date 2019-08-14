@@ -2,7 +2,8 @@
 using AkkaSim.Definitions;
 using Master40.SimulationCore.Types;
 using static FBreakDowns;
-using static FHubInformations;
+using static FAgentInformations;
+using static FArticles;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -33,16 +34,29 @@ namespace Master40.SimulationCore.Agents
         }
 
 
-        public class ResponseFromHub : SimulationMessage
+        public class ResponseFromDirectory : SimulationMessage
         {
-            public static ResponseFromHub Create(FHubInformation message, IActorRef target)
+            public static ResponseFromDirectory Create(FAgentInformation message, IActorRef target)
             {
-                return new ResponseFromHub(message, target);
+                return new ResponseFromDirectory(message, target);
             }
-            private ResponseFromHub(object message, IActorRef target) : base(message, target)
+            private ResponseFromDirectory(object message, IActorRef target) : base(message, target)
             {
             }
-            public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
+            public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
+        }
+
+        public class ProvideArticle : SimulationMessage
+        {
+            public static ProvideArticle Create(FArticle message, IActorRef target, bool logThis)
+            {
+                return new ProvideArticle(message, target, logThis);
+            }
+            private ProvideArticle(object message, IActorRef target, bool logThis) : base(message, target, logThis)
+            {
+
+            }
+            public FArticle GetObjectFromMessage { get => Message as FArticle; }
         }
 
         public class ResourceBrakeDown : SimulationMessage

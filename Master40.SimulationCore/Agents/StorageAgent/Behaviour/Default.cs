@@ -45,7 +45,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             switch (message)
             {
-                case Storage.Instruction.RequestArticle msg: RequestArticle((Storage)agent, msg.GetObjectFromMessage); break;
+                case Storage.Instruction.RequestArticle msg: RequestArticle(agent, msg.GetObjectFromMessage); break;
                 case Storage.Instruction.StockRefill msg: StockRefill((Storage)agent, msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction((Storage)agent, msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue((Storage)agent, msg.GetObjectFromMessage); break;
@@ -58,11 +58,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             return true;
         }
 
-        private void RequestArticle(Storage agent, FArticle requestItem)
+        private void RequestArticle(Agent agent, FArticle requestItem)
         {
-
-            // debug
-            agent.DebugMessage(" requests Article " + _stockElement.Name + " from Storage Agent ->" + agent.Sender.Path.Name);
+            agent.DebugMessage(" requests Article " + _stockElement.Name + " from Agent: " + agent.Sender.Path.Name);
 
             // try to make Reservation
             var item = requestItem.UpdateStockExchangeId(Guid.NewGuid()).UpdateDispoRequester(agent.Sender);
@@ -103,7 +101,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 notServed.State = State.Finished;
                 notServed.Time = (int)agent.CurrentTime;
 
-                agent.Send(Dispo.Instruction.RequestProvided.Create(request, request.DispoRequester));
+                agent.Send(BasicInstruction.ProvideArticle.Create(request, request.DispoRequester, false));
                 _requestedArticles.Remove(request);
             }
         }
@@ -189,7 +187,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 requestProvidable = requestProvidable.SetProvided;
                 // Create Callback for Production
-                agent.Send(Dispo.Instruction.RequestProvided.Create(requestProvidable, requestProvidable.DispoRequester));
+                agent.Send(BasicInstruction.ProvideArticle.Create(requestProvidable, requestProvidable.DispoRequester, false));
 
 
                 // Update Work Item with Provider For

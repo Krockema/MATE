@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
 
     public partial class Dispo : Agent
     {
-        internal IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Production).Value;
+        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Production).Value;
 
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
@@ -33,7 +33,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var requestItem = ((Behaviour.Default)Behaviour).fArticle;
+            var requestItem = ((Behaviour.Default)Behaviour)._fArticle;
             this.Send(Production.Instruction.StartProduction.Create(requestItem, Sender));
             this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") > ProductionStart has been send.");
         }

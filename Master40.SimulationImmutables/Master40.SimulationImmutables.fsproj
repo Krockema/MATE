@@ -19,7 +19,7 @@
     <Compile Include="Message\FProductionResults.fs" />
 	<Compile Include="Message\FBucket.fs" />
     <Compile Include="Message\FRequestResource.fs" />
-    <Compile Include="Message\FHubInformation.fs" />
+    <Compile Include="Message\FAgentInformation.fs" />
     <Compile Include="Message\FUpdateStockValues.fs" />
     <Compile Include="Message\FStockReservation.fs" />
     <Compile Include="Message\FSetEstimatedThroughputTime.fs" />

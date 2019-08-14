@@ -5,7 +5,7 @@ using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Helper;
-using static FHubInformations;
+using static FAgentInformations;
 using static FResourceTypes;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
         public Resource(ActorPaths actorPaths, M_Resource resource, WorkTimeGenerator workTimeGenerator, long time, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
         {
             //this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.MachineGroup.Name, this.Self), principal));
-            this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(FResourceType.Machine, this.Name, this.Self), principal));
+            this.Send(Hub.Instruction.AddMachineToHub.Create(new FAgentInformation(FResourceType.Machine, this.Name, this.Self), principal));
         }
     }
 }

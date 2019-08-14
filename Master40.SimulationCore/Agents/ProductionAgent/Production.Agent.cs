@@ -8,7 +8,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
 {
     public partial class Production : Agent
     {
-        internal IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Dispo).Value;
+        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Dispo).Value;
 
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
@@ -28,9 +28,5 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             this.DebugMessage("Production<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") >");
         }
 
-        protected override void Finish()
-        {
-
-        }
     }
 }

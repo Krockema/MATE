@@ -29,14 +29,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             }
             public class RequestArticleBom : SimulationMessage
             {
-                public static RequestArticleBom Create(FArticle message, IActorRef target)
+                public static RequestArticleBom Create(int message, IActorRef target)
                 {
                     return new RequestArticleBom(message, target);
                 }
                 private RequestArticleBom(object message, IActorRef target) : base(message, target)
                 {
                 }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                public int GetObjectFromMessage { get => (int)Message; }
             }
             public class OrderProvided : SimulationMessage
             {
