@@ -8,11 +8,11 @@ using static IJobs;
 
 namespace Master40.XUnitTest.SimulationImmutables
 {
-    public class Immutables : TestKit
+    public class JobPriorityRules : TestKit
     {
 
         [Fact]
-        public async Task PriorityRule()
+        public async Task FArticleRule()
         {
             await Task.Run(() =>
             {
@@ -28,7 +28,7 @@ namespace Master40.XUnitTest.SimulationImmutables
         }
 
         [Fact]
-        public async Task PriorityRuleBucket()
+        public async Task FBucketPriority()
         {
             await Task.Run(() =>
             {

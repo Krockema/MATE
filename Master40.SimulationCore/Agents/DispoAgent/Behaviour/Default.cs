@@ -102,7 +102,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             long dueTime = _fArticle.DueTime;
 
             if (article.WorkSchedules != null)
-                dueTime = _fArticle.DueTime - article.WorkSchedules.Sum(x => x.Duration); //- Calculations.GetTransitionTimeForWorkSchedules(item.Article.WorkSchedules);
+                dueTime = _fArticle.DueTime - article.WorkSchedules.Sum(x => x.Duration) - Calculations;
 
 
             _fArticle = _fArticle.UpdateCustomerOrderAndDue(_fArticle.CustomerOrderId, dueTime, _fArticle.StorageAgent)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Master40.SimulationCore.Agents.SupervisorAgent.Types
+﻿namespace Master40.SimulationCore.Agents.SupervisorAgent.Types
 {
     public class OrderCounter
     {
