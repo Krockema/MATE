@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using Master40.DB.Data.Context;
-using System.Linq;
-using MathNet.Numerics.Random;
-using MathNet.Numerics.Distributions;
-using System.Threading.Tasks;
+﻿using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
+using MathNet.Numerics.Distributions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Master40.SimulationCore.Helper
+namespace Master40.SimulationCore.DistributionProvider
 {
     public class OrderGenerator
     {
-        private long _currentTime { get; set; }
-        private Configuration _simConfig { get; set; }
         private bool _debug { get; set; }
-        private int _samples { get; set; }
         private List<int> _productIds { get; set; }
         private Random _seededRandom { get; set; }
         private Exponential _exponential { get; set; }
@@ -26,16 +21,12 @@ namespace Master40.SimulationCore.Helper
 
         public OrderGenerator(Configuration simConfig, ProductionDomainContext productionDomainContext, List<int> productIds)
         {
-            _currentTime = 0;
-            _simConfig = simConfig;
-            _samples = simConfig.GetOption<OrderQuantity>().Value;
             _seededRandom = new Random(simConfig.GetOption<Seed>().Value
                                      + simConfig.GetOption<SimulationNumber>().Value);
             _exponential = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value
                                          , randomSource: _seededRandom);
             _productIds = productIds;
             _productionDomainContext = productionDomainContext;
-
 
             //get equal distribution from 0 to 1
             _prodVariation = new DiscreteUniform(0, _productIds.Count() - 1, _seededRandom);
@@ -44,7 +35,6 @@ namespace Master40.SimulationCore.Helper
             _duetime = new DiscreteUniform(simConfig.GetOption<MinDeliveryTime>().Value
                                                     , simConfig.GetOption<MaxDeliveryTime>().Value
                                                     , _seededRandom);
-            // 1160, 1600, _seededRandom); //2160,3600
         }
 
 

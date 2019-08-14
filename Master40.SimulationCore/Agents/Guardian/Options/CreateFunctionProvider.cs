@@ -3,13 +3,17 @@ using System;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.ProductionAgent;
+using Master40.SimulationCore.Helper;
 
-namespace Master40.SimulationCore.Helper
+namespace Master40.SimulationCore.Agents.Guardian.Options
 {
-    public static class CreatorOptions
+    public static class CreateFunctionProvider
     {
+        [ThreadStatic]
         private static int contractCount = 0;
+        [ThreadStatic]
         private static int productionCount = 0;
+        [ThreadStatic]
         private static int dispoCount = 0;
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ContractCreator = (ctx, setup) =>

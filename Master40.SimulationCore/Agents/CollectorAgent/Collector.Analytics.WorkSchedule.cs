@@ -4,6 +4,7 @@ using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Types;
@@ -25,19 +26,21 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsWorkSchedule : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticsWorkSchedule() : base() { }
+        private CollectorAnalyticsWorkSchedule(ResourceList resources) : base() {
+            _resources = resources;
+        }
 
         private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
         private List<FUpdateSimulationWork> _updatedSimulationWork = new List<FUpdateSimulationWork>();
-        private List<string> machines = new List<string>();
+        private ResourceList _resources { get; set; } = new ResourceList();
         private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
         private List<Kpi> Kpis = new List<Kpi>();
 
-        public static CollectorAnalyticsWorkSchedule Get()
+        public static CollectorAnalyticsWorkSchedule Get(ResourceList resources)
         {
-            return new CollectorAnalyticsWorkSchedule();
+            return new CollectorAnalyticsWorkSchedule(resources);
         }
 
         public override bool Action(Agent agent, object message) => throw new Exception("Please use EventHandle method to process Messages");
@@ -69,11 +72,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateFeed(Collector agent, bool writeResultsToDB)
         {
-            if (machines.Count == 0)
-            {
-                machines.AddRange(agent.DBContext.Resources.Select(x => "Machine(" + x.Name.Replace(" ", "") + ")"));
-            }
-
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             MachineUtilization(agent);
@@ -208,7 +206,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                 C = mg.Count(),
                                 W = (long)mg.Sum(x => x.End - x.Start)
                             };
-            var machineList = machines.Select(x => new { M = x, C = 0, W = (long)0 });
+            var machineList = _resources.Select(x => new { M = x, C = 0, W = (long)0 });
             var merge = from_work.Union(lower_borders).Union(upper_borders).Union(machineList).ToList();
 
             var final = from m in merge

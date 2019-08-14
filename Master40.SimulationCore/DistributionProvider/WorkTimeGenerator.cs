@@ -1,13 +1,13 @@
 ﻿using System;
 using MathNet.Numerics.Distributions;
 
-namespace Master40.SimulationCore.Helper
+namespace Master40.SimulationCore.DistributionProvider
 {
     public class WorkTimeGenerator
     {
         public WorkTimeGenerator(int seed, double deviation, int simNumber)
         {
-            var source = new Random(seed+simNumber);
+            var source = new Random(seed + simNumber);
             _distribution = new LogNormal(0, deviation, source);
         }
 

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Akka.Actor;
+﻿using Akka.Actor;
 using AkkaSim;
-using Master40.DB.Data.Context;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
+using System;
+using System.Collections.Generic;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -15,7 +14,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal long Time => this._Time;
         private ICollectorBehaviour Behaviour;
         internal IMessageHub messageHub { get; }
-        internal MasterDBContext DBContext;
         internal Configuration Config;
         internal ActorPaths actorPaths;
         internal SimulationId simulationId;
@@ -33,7 +31,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         public Collector(ActorPaths paths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
-            , MasterDBContext dBContext
             , Configuration configuration
             , long time
             , List<Type> streamTypes)
@@ -42,7 +39,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Console.WriteLine("I'm alive: " + Self.Path.ToStringWithAddress());
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
-            DBContext = dBContext;
             Config = configuration;
             actorPaths = paths;
             simulationId = Config.GetOption<SimulationId>();
@@ -54,14 +50,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         public static Props Props(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
-            , MasterDBContext dBContext
             , Configuration configuration
             , long time
             , bool debug
             , List<Type> streamTypes)
         {
             return Akka.Actor.Props.Create(
-                () => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, configuration, time, streamTypes));
+                () => new Collector(actorPaths, collectorBehaviour, msgHub, configuration, time, streamTypes));
         }
 
         protected override void EventHandle(object o)
