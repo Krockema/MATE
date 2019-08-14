@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FArticles;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -31,6 +32,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         public static CollectorAnalyticsContracts Get()
         {
             return new CollectorAnalyticsContracts();
+        }
+
+        internal static List<Type> GetStreamTypes()
+        {
+            return new List<Type> { typeof(Contract.Instruction.StartOrder),
+                                    typeof(Supervisor.Instruction.OrderProvided),
+                                    typeof(UpdateLiveFeed)};
         }
 
         public override bool Action(Agent agent, object message) => throw new Exception("Please use EventHandle method to process Messages");

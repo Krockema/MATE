@@ -21,6 +21,7 @@ using static FHubInformations;
 using static FSetEstimatedThroughputTimes;
 using static FUpdateSimulationWorkProviders;
 using static FUpdateSimulationWorks;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -37,6 +38,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private ResourceList _resources { get; set; } = new ResourceList();
         private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
         private List<Kpi> Kpis = new List<Kpi>();
+
+        internal static List<Type> GetStreamTypes()
+        {
+            return new List<Type> { typeof(FCreateSimulationWork),
+                                     typeof(FUpdateSimulationWork),
+                                     typeof(FUpdateSimulationWorkProvider),
+                                     typeof(UpdateLiveFeed),
+                                     typeof(Hub.Instruction.AddMachineToHub),
+                                     typeof(BasicInstruction.ResourceBrakeDown)
+
+            };
+        }
 
         public static CollectorAnalyticsWorkSchedule Get(ResourceList resources)
         {

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FUpdateStockValues;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -15,6 +16,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private CollectorAnalyticsStorage() : base() {
             CurrentStockValues = new Dictionary<string, FUpdateStockValue>();
         }
+        internal static List<Type> GetStreamTypes()
+        {
+            return new List<Type> { typeof(FUpdateStockValue),
+                                    typeof(UpdateLiveFeed)};
+        }
+
         private Dictionary<string, FUpdateStockValue> CurrentStockValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
 
