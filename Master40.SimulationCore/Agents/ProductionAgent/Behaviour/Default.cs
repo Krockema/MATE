@@ -55,10 +55,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             }
 
             // if item hase Workschedules Request ComClient for them
-            if (requestItem.Article.WorkSchedules != null)
+            if (requestItem.Article.Operations != null)
             {
                 // Ask the Directory Agent for Service
-                RequestHubAgentFor(agent, workSchedules: fArticle.Article.WorkSchedules);
+                RequestHubAgentFor(agent, workSchedules: fArticle.Article.Operations);
                 // And Create workItems
                 CreateWorkItemsFromRequestItem(firstItemToBuild: firstToEnqueue, requestItem);
             }

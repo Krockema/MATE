@@ -103,7 +103,7 @@ namespace Master40.DB.Data.Context
         public async Task<M_Article> GetArticleBomRecursive(M_Article article, int articleId)
         {
             article.ArticleChilds = ArticleBoms.Include(a => a.ArticleChild)
-                .ThenInclude(w => w.WorkSchedules)
+                .ThenInclude(w => w.Operations)
                 .Where(a => a.ArticleParentId == articleId).ToList();
 
             foreach (var item in article.ArticleChilds)

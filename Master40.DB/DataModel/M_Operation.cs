@@ -10,6 +10,7 @@ namespace Master40.DB.DataModel
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
+        public int AverageTransitionDuration { get; set; }
         public int ArticleId { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }

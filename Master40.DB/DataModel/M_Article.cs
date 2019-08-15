@@ -31,7 +31,7 @@ namespace Master40.DB.DataModel
         public virtual ICollection<M_ArticleBom> ArticleChilds { get; set; }
         [JsonIgnore]
         // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 
-        public virtual ICollection<M_Operation> WorkSchedules { get; set; }
+        public virtual ICollection<M_Operation> Operations { get; set; }
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrder> ProductionOrders { get; set; }
         [JsonIgnore]

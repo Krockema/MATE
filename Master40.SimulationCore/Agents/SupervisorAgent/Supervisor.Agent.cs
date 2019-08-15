@@ -35,6 +35,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private OrderCounter _orderCounter { get; set; }
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
+        private decimal _transitionFactor { get; set; }
         private OrderGenerator _orderGenerator { get; set; }
         private ArticleCache _articleCache { get; set; }
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
@@ -74,6 +75,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             _orderCounter = new OrderCounter(configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
+            _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
             Send(Instruction.PopOrder.Create("Pop", Self), 1);
             Send(Instruction.EndSimulation.Create(true, Self), configuration.GetOption<SimulationEnd>().Value);
             Send(Instruction.SystemCheck.Create("CheckForOrders", Self), 1);
@@ -131,7 +133,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private void RequestArticleBom(int articleId)
         {
             // get BOM from cached context 
-            var article = _articleCache.GetArticleById(articleId);
+            var article = _articleCache.GetArticleById(articleId, _transitionFactor);
 
             DebugMessage("Request details for article: " + article.Name + " from  " + Sender.Path);
 

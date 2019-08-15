@@ -101,9 +101,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             // Update
             long dueTime = _fArticle.DueTime;
 
-            if (article.WorkSchedules != null)
-                dueTime = _fArticle.DueTime - article.WorkSchedules.Sum(x => x.Duration) - Calculations;
-
+            if (article.Operations != null)
+                dueTime = _fArticle.DueTime - article.Operations.Sum(x => x.Duration + x.AverageTransitionDuration);
+            // TODO: Object that handles the diffrent operations- current asumption is all operations are handled as a sequence (no alternative/parallel plans) 
 
             _fArticle = _fArticle.UpdateCustomerOrderAndDue(_fArticle.CustomerOrderId, dueTime, _fArticle.StorageAgent)
                                              .UpdateArticle(article);
