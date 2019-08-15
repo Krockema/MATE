@@ -57,7 +57,7 @@
                 @Html.DisplayNameFor(model => model.Unit)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.WorkSchedules)
+                @Html.DisplayNameFor(model => model.Operations)
             </th>
             <th>Action</th>
             <th>Preview</th>
@@ -86,7 +86,7 @@
                     @Html.DisplayFor(modelItem => item.Unit.Name)
                 </td>
                 <td>
-                    @foreach (var ag in item.WorkSchedules.OrderBy(x => x.HierarchyNumber))
+                    @foreach (var ag in item.Operations.OrderBy(x => x.HierarchyNumber))
                     {
                         <table>
                             <tr>

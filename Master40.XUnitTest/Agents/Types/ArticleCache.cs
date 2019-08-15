@@ -1,62 +1,53 @@
-﻿using Master40.DB.DataModel;
-using System;
-using System.Collections.Generic;
-using Master40.SimulationCore.Types;
-using System.Text;
-using Xunit;
-using static FArticles;
-using Akka.TestKit.Xunit;
-using Akka.Actor;
+﻿using Akka.TestKit.Xunit;
 using Master40.DB.Data.Context;
-using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Initializer;
+using Master40.XUnitTest.Preparations;
+using Microsoft.EntityFrameworkCore;
+using System;
+using Xunit;
 
 namespace Master40.XUnitTest.Agents.Types
 {
     public class ArticleCache : TestKit
     {
-        static ProductionDomainContext _ctx = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                                                    .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                                                    .Options);
-
-        SimulationCore.Types.ArticleCache _articleCache = new SimulationCore.Types.ArticleCache(_ctx.Database.GetDbConnection().ConnectionString);
-
+        private ProductionDomainContext _masterDBContext;
+        private string _dbConnectionString;
         public ArticleCache()
         {
-            _ctx.Database.EnsureCreated();
-            MasterDBInitializerSimple.DbInitialize(_ctx);
+            _dbConnectionString = Dbms.getDbContextString();
+            _masterDBContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                                .UseSqlServer(_dbConnectionString)
+                                .Options);
+            _masterDBContext.Database.EnsureDeleted();
+            _masterDBContext.Database.EnsureCreated();
+            MasterDBInitializerSimple.DbInitialize(_masterDBContext);
          }
 
 
         [Fact]
         public void AddArticle()
         {
-            var storageAgentRef = CreateTestProbe();
-            var originAgentRef = CreateTestProbe();
-            var dispoAgentRef = CreateTestProbe();
-            List<IActorRef> providerList = new List<IActorRef>();
-            providerList.Add(CreateTestProbe());
-            providerList.Add(CreateTestProbe());
+            var _articleCache = new SimulationCore.Types.ArticleCache(_dbConnectionString);
+            var article = _articleCache.GetArticleById(id: 1, transitionFactor: 3);
+            Assert.Equal(actual: article.Name, expected: "Tisch");
+        }
 
-            //FArticle fArticle = new FArticle(Guid.NewGuid(), 0, _ctx.Articles. Guid.NewGuid(), storageAgentRef, 2, 30, originAgentRef, dispoAgentRef, providerList, 1, false, false, 0L); ;
-
-            //_articleCache.GetArticleById(fArticle.Article.Id);
-
-
-            Assert.Equal(0,0);
+        [Fact]
+        public void AddArticleWithoutOperation()
+        {
+            var _articleCache = new SimulationCore.Types.ArticleCache(_dbConnectionString);
+            var article = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
+            Assert.Equal(actual: article.Name, expected: "Schrauben");
         }
 
         [Fact]
         public void AddExistingArticle()
         {
-            throw new Exception("Not Testet Yet.");
-        }
+            var _articleCache = new SimulationCore.Types.ArticleCache(_dbConnectionString);
+            var article = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
+            var article2 = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
 
-        [Fact]
-        public void GetArticle()
-        {
-            throw new Exception("Not Testet Yet.");
+            Assert.Equal(article2.Name, article.Name);
         }
-
     }
 }

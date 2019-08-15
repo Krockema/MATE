@@ -5,7 +5,7 @@ using AkkaSim.Definitions;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
 
-namespace Master40.XUnitTest.Moc
+namespace Master40.XUnitTest.Preparations
 {
     public class SimulationContext : ReceiveActor
     {

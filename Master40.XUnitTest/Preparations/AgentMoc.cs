@@ -4,7 +4,7 @@ using AkkaSim.Interfaces;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 
-namespace Master40.XUnitTest.Moc
+namespace Master40.XUnitTest.Preparations
 {
     public class AgentMoc : Agent
     {

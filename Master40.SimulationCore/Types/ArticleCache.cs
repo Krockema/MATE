@@ -23,13 +23,13 @@ namespace Master40.SimulationCore.Types
             {
                 using (var ctx = MasterDBContext.GetContext(_connectionString))
                 {
-                    var article = Queryable.SingleOrDefault(source: ctx.Articles
+                    obj = Queryable.SingleOrDefault(source: ctx.Articles
                                         .Include(x => x.Operations)
                                         .ThenInclude(x => x.ResourceSkill)
                                         .Include(x => x.ArticleBoms)
                                             .ThenInclude(x => x.ArticleChild),
                                     predicate: (x => x.Id == id));
-                    _cache.Add(id, article);
+                    _cache.Add(id, obj);
                     ctx.Dispose();
                 }
             }

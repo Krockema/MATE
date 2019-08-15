@@ -27,7 +27,7 @@
                 @Html.DisplayFor(modelItem => item.ArticleParent.Id)
             </td>
             <td>
-                @foreach (var ag in item.ArticleChild.WorkSchedules)
+                @foreach (var ag in item.ArticleChild.Operations)
                 {
                     <table>
                         <tr>
