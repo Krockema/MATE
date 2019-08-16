@@ -1,22 +1,29 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 
 namespace Master40.XUnitTest.Agents.Types
 {
     public class OrderCounter
     {
+        SimulationCore.Agents.SupervisorAgent.Types.OrderCounter _orderCounter = new SimulationCore.Agents.SupervisorAgent.Types.OrderCounter(2);
 
         [Fact]
         public void AddOrder()
         {
-            throw new Exception("Not Testet Yet.");
+            bool addNewOrderSuccessful = _orderCounter.TryAddOne();
+            Assert.True(addNewOrderSuccessful);
         }
 
 
         [Fact]
         public void AddOrderOverMax()
         {
-            throw new Exception("Not Testet Yet.");
+            //add 2
+            _orderCounter.TryAddOne();
+            bool addNewOrderSuccessful = _orderCounter.TryAddOne();
+            Assert.True(addNewOrderSuccessful);
+            //add more than 2
+            bool addNewOrderOverMaxExeeded = _orderCounter.TryAddOne();
+            Assert.False(addNewOrderOverMaxExeeded);
         }
     }
 }

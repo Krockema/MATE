@@ -13,12 +13,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// To Be Testet
         /// </summary>
         /// <param name="item"></param>
-        public void Enqueue(IJob item)
+        public bool Enqueue(IJob item)
         {
-            if (Limit > this.jobs.Sum(x => x.Duration))
-                this.jobs.Add(item);
-            else
-                throw new Exception("Queue Limit Exeeds");
+            if (Limit <= this.jobs.Sum(x => x.Duration)) return false;
+            this.jobs.Add(item);
+            return true;
+
         }
     }
 }

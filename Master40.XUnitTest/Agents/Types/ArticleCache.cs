@@ -3,7 +3,6 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.XUnitTest.Preparations;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Xunit;
 
 namespace Master40.XUnitTest.Agents.Types

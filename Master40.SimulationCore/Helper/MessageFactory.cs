@@ -20,24 +20,27 @@ namespace Master40.SimulationCore.Helper
         /// <summary>
         /// TODO: Fulfill Creator
         /// </summary>
+        /// <param name="operation"></param>
         /// <param name="dueTime"></param>
-        /// <param name="prio"></param>
+        /// <param name="productionAgent"></param>
+        /// <param name="lastLeaf"></param>
+        /// <param name="currentTime"></param>
         /// <returns></returns>
         public static FOperation ToOperationItem(this M_Operation operation
                                             , long dueTime
                                             , IActorRef productionAgent
                                             , bool lastLeaf 
-                                            , long time)
+                                            , long currentTime)
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    (currentTime) => dueTime - operation.Duration - currentTime
+                    (time) => dueTime - operation.Duration - time
                     // ENDE
                 );
 
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
-                                , creationTime: time
+                                , creationTime: currentTime
                                 , forwardStart: 0
                                 , forwardEnd: 0
                                 , backwardStart: 0

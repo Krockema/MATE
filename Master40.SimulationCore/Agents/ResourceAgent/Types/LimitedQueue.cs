@@ -10,7 +10,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     {
         internal List<IJob> jobs = new List<IJob>();
         public int Limit { get; set; }
-        public bool CapacitiesLeft => (Limit > jobs.Count) ? true : false;
+        public int Count => jobs.Count;
 
         public LimitedQueue(int limit)
         {
@@ -20,7 +20,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             if (this.jobs.Count == 0) return null;
 
-            var item = this.jobs.OrderBy(x => x.Priority(currentTime)).Single();
+            var item = this.jobs.OrderBy(x => x.Priority(currentTime)).First();
             this.jobs.Remove(item);
             return item;
         }
