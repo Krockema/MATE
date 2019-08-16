@@ -12,7 +12,7 @@ namespace Master40.Simulation.CLI.Arguments
         public Help()
         {
             Action = (result, str) => { 
-                new Commands().ForEach(x => { Console.WriteLine(x.Description); });
+                new Commands().ForEach(action: x => { Console.WriteLine(value: x.Description); });
             };
         }
     }

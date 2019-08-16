@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public SettlingStart()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.SettlingStart(int.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.SettlingStart(value: int.Parse(s: argument)));
             };
         }
     }

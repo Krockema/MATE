@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public WorkTimeDeviation()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.WorkTimeDeviation(double.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.WorkTimeDeviation(value: double.Parse(s: argument)));
             };
         }
     }

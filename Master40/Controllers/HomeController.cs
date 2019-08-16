@@ -19,20 +19,20 @@ namespace Master40.Controllers
         }
 
 
-        [HttpGet("[Controller]/ReloadDb/{products}")]
+        [HttpGet(template: "[Controller]/ReloadDb/{products}")]
         public async Task<IActionResult> ReloadDb(string products)
         {
-            await Task.Run(() =>
+            await Task.Run(action: () =>
                 {
                     switch (products)
                     {
                         case "Tables":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerSimple.DbInitialize(_context);
+                            MasterDBInitializerSimple.DbInitialize(context: _context);
                             break;
                         case "Trucks":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerTruck.DbInitialize(_context);
+                            MasterDBInitializerTruck.DbInitialize(context: _context);
                             break;
                         default:
                             break;
@@ -41,19 +41,19 @@ namespace Master40.Controllers
                 }
             );
 
-            return View("Index");
+            return View(viewName: "Index");
         }
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData[index: "Message"] = "Your application description page.";
 
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData[index: "Message"] = "Your contact page.";
 
             return View();
         }

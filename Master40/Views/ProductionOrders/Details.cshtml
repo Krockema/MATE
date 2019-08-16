@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.T_ProductionOrder
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData[index: "Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,22 +12,22 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Quantity)
+            @Html.DisplayNameFor(expression: model => model.Quantity)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Quantity)
+            @Html.DisplayFor(expression: model => model.Quantity)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Article)
+            @Html.DisplayNameFor(expression: model => model.Article)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Article.Id)
+            @Html.DisplayFor(expression: model => model.Article.Id)
         </dd>
     </dl>
 </div>

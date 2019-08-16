@@ -16,9 +16,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 public static AddMachineToHub Create(FAgentInformation message, IActorRef target, bool logThis = false)
                 {
-                    return new AddMachineToHub(message, target, logThis);
+                    return new AddMachineToHub(message: message, target: target, logThis: logThis);
                 }
-                private AddMachineToHub(object message, IActorRef target, bool logThis) : base(message, target, logThis)
+                private AddMachineToHub(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
                 {
 
                 }
@@ -29,9 +29,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 public static ProductionStarted Create(Guid message, IActorRef target)
                 {
-                    return new ProductionStarted(message, target);
+                    return new ProductionStarted(message: message, target: target);
                 }
-                private ProductionStarted(object message, IActorRef target) : base(message, target)
+                private ProductionStarted(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -42,9 +42,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 public static EnqueueJob Create(IJob message, IActorRef target)
                 {
-                    return new EnqueueJob(message, target);
+                    return new EnqueueJob(message: message, target: target);
                 }
-                private EnqueueJob(object message, IActorRef target) : base(message, target)
+                private EnqueueJob(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -55,9 +55,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 public static ProposalFromMachine Create(FProposal message, IActorRef target)
                 {
-                    return new ProposalFromMachine(message, target);
+                    return new ProposalFromMachine(message: message, target: target);
                 }
-                private ProposalFromMachine(object message, IActorRef target) : base(message, target)
+                private ProposalFromMachine(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -68,9 +68,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 public static SetWorkItemStatus Create(Guid message, IActorRef target)
                 {
-                    return new SetWorkItemStatus(message, target);
+                    return new SetWorkItemStatus(message: message, target: target);
                 }
-                private SetWorkItemStatus(object message, IActorRef target) : base(message, target)
+                private SetWorkItemStatus(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -81,9 +81,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
             {
                 public static FinishJob Create(IJobResult message, IActorRef target)
                 {
-                    return new FinishJob(message, target);
+                    return new FinishJob(message: message, target: target);
                 }
-                private FinishJob(object message, IActorRef target) : base(message, target)
+                private FinishJob(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

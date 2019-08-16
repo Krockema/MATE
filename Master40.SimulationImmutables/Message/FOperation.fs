@@ -50,3 +50,5 @@ open IJobs
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }
+        member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
+                                                                   ForwardEnd = earliestStart + (int64)this.Operation.Duration; } 

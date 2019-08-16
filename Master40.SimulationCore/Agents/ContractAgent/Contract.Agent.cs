@@ -18,24 +18,24 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         /// '--->Dispo
         /// '----->Production
         /// </summary>
-        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Dispo).Value;
+        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug)
         {
-            return Akka.Actor.Props.Create(() => new Contract(actorPaths, time, debug));   
+            return Akka.Actor.Props.Create(factory: () => new Contract(actorPaths, time, debug));   
         }
         
         public Contract(ActorPaths actorPaths, long time, bool debug) 
-            : base(actorPaths, time, debug, actorPaths.SystemAgent.Ref)
+            : base(actorPaths: actorPaths, time: time, debug: debug, principal: actorPaths.SystemAgent.Ref)
         {
-            DebugMessage("I'm Alive:" + Context.Self.Path);
+            DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
         }
 
         protected override void OnChildAdd(IActorRef childRef)
         {
             var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
-            this.Send(Dispo.Instruction.RequestArticle.Create(fArticle, childRef));
-            this.DebugMessage("Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
+            this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: fArticle, target: childRef));
+            this.DebugMessage(msg: "Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
         }
 
         protected override void Finish()

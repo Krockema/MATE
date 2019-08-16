@@ -20,25 +20,25 @@ namespace Master40.Controllers
             return View();
         }
 
-        [HttpGet("[Controller]/ReloadGantt/{orderId}/{stateId}")]
+        [HttpGet(template: "[Controller]/ReloadGantt/{orderId}/{stateId}")]
         public IActionResult ReloadGantt(int orderId, int stateId)
         {
             //call to ReloadGantt Diagramm
-            return ViewComponent("ProductionTimeline", new List<int> { orderId, stateId });
+            return ViewComponent(componentName: "ProductionTimeline", arguments: new List<int> { orderId, stateId });
         }
         
-        [HttpGet("[Controller]/ReloadChart/{stateId}")]
+        [HttpGet(template: "[Controller]/ReloadChart/{stateId}")]
         public IActionResult ReloadChart(int stateId)
         {
             //call to ReloadChart Diagramm
-            return ViewComponent("MachineGroupCapacity", stateId);
+            return ViewComponent(componentName: "MachineGroupCapacity", arguments: stateId);
         }
-        [HttpGet("[Controller]/ReloadGantt/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}/{simulationPage}")]
+        [HttpGet(template: "[Controller]/ReloadGantt/{orderId}/{simulationType}/{state}/{simulationConfigurationId}/{simNumber}/{simulationPage}")]
         public IActionResult ReloadGantt(string orderId, string simulationType, string state, string simulationConfigurationId, string simNumber, string simulationPage)
         {
             //call to ReloadChart Diagramm 
             //return ViewComponent("ProductionSchedule");
-            return ViewComponent("SimulationTimeline", new List<string> {orderId, simulationType, state, simulationConfigurationId, simNumber, simulationPage });
+            return ViewComponent(componentName: "SimulationTimeline", arguments: new List<string> {orderId, simulationType, state, simulationConfigurationId, simNumber, simulationPage });
         }
     }
 }

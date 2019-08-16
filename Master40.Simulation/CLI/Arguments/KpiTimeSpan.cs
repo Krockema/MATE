@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public KpiTimeSpan()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.KpiTimeSpan(int.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.KpiTimeSpan(value: int.Parse(s: argument)));
             };
         }
     }

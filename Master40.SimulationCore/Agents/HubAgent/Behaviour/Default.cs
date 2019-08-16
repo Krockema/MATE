@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
     public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None)
-                        : base(null, simulationType) { }
+                        : base(childMaker: null, obj: simulationType) { }
 
 
         internal List<FOperation> operationList { get; set; } = new List<FOperation>();
@@ -27,12 +27,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             switch (message)
             {
-                case Hub.Instruction.EnqueueJob msg: EnqueueJob(msg.GetObjectFromMessage as FOperation); break;
-                case Hub.Instruction.ProductionStarted msg: ProductionStarted(msg.GetObjectfromMessage); break;
-                case Hub.Instruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage as FOperationResult); break;
-                case Hub.Instruction.ProposalFromMachine msg: ProposalFromMachine(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.AddMachineToHub msg: AddResourceToHub(msg.GetObjectFromMessage); break;
-                case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.EnqueueJob msg: EnqueueJob(workItem: msg.GetObjectFromMessage as FOperation); break;
+                case Hub.Instruction.ProductionStarted msg: ProductionStarted(key: msg.GetObjectfromMessage); break;
+                case Hub.Instruction.FinishJob msg: FinishJob(operationResult: msg.GetObjectFromMessage as FOperationResult); break;
+                case Hub.Instruction.ProposalFromMachine msg: ProposalFromMachine(proposal: msg.GetObjectFromMessage); break;
+                case Hub.Instruction.AddMachineToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -40,58 +40,58 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void ResourceBreakDown(FBreakDown breakDown)
         {
-            var brockenMachine = resourceAgents.Single(x => breakDown.Resource == x.Value).Key;
-            resourceAgents.Remove(brockenMachine);
-            Agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, brockenMachine, true), 45);
+            var brockenMachine = resourceAgents.Single(predicate: x => breakDown.Resource == x.Value).Key;
+            resourceAgents.Remove(key: brockenMachine);
+            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: brockenMachine, logThis: true), waitFor: 45);
 
-            System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Resource, "Hub");
+            System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Hub");
         }
 
         private void EnqueueJob(FOperation workItem)
         {
-            var localItem = operationList.Find(x => x.Key == workItem.Key);
+            var localItem = operationList.Find(match: x => x.Key == workItem.Key);
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
             if (localItem == null)
             {
                 // Set Comunication Agent.
-                localItem = workItem.UpdateHubAgent(Agent.Context.Self);
+                localItem = workItem.UpdateHubAgent(hub: Agent.Context.Self);
                 // add TO queue
-                operationList.Add(localItem);
-                Agent.DebugMessage("Got New Item to Enqueue: " + workItem.Operation.Name + " | with start condition:" + workItem.StartConditions.Satisfied + " with Id: " + workItem.Key);
+                operationList.Add(item: localItem);
+                Agent.DebugMessage(msg: "Got New Item to Enqueue: " + workItem.Operation.Name + " | with start condition:" + workItem.StartConditions.Satisfied + " with Id: " + workItem.Key);
             }
             else
             {
                 // reset Item.
-                Agent.DebugMessage("Got Item to Requeue: " + workItem.Operation.Name + " | with start condition:" + workItem.StartConditions.Satisfied + " with Id: " + workItem.Key);
+                Agent.DebugMessage(msg: "Got Item to Requeue: " + workItem.Operation.Name + " | with start condition:" + workItem.StartConditions.Satisfied + " with Id: " + workItem.Key);
                 workItem.Proposals.Clear();
-                localItem = workItem.UpdateHubAgent(Agent.Context.Self);
-                operationList.Replace(localItem);
+                localItem = workItem.UpdateHubAgent(hub: Agent.Context.Self);
+                operationList.Replace(val: localItem);
             }
 
             foreach (var actorRef in resourceAgents)
             {
-                Agent.Send(instruction: Resource.Instruction.RequestProposal.Create(localItem, actorRef.Key));
+                Agent.Send(instruction: Resource.Instruction.RequestProposal.Create(message: localItem, target: actorRef.Key));
             }
         }
 
         public void ProductionStarted(Guid key)
         {
-            var temp = operationList.Single(x => x.Key == key);
-            Agent.Send(Production.Instruction
+            var temp = operationList.Single(predicate: x => x.Key == key);
+            Agent.Send(instruction: Production.Instruction
                                  .ProductionStarted
                                  .Create(message: temp.Key
                                         , target: temp.ProductionAgent));
-            operationList.Replace(temp);
+            operationList.Replace(val: temp);
         }
 
         public void FinishJob(FOperationResult operationResult)
         {
-            var item = operationList.Find(x => x.Key == operationResult.Key);
+            var item = operationList.Find(match: x => x.Key == operationResult.Key);
 
-            Agent.DebugMessage("Machine called Item " + item.Operation.Name + " with Id: " + operationResult.Key + " finished.");
-            Agent.Send(Production.Instruction.FinishWorkItem.Create(operationResult, item.ProductionAgent));
-            operationList.Remove(item);
+            Agent.DebugMessage(msg: "Machine called Item " + item.Operation.Name + " with Id: " + operationResult.Key + " finished.");
+            Agent.Send(instruction: Production.Instruction.FinishWorkItem.Create(message: operationResult, target: item.ProductionAgent));
+            operationList.Remove(item: item);
         }
 
         /// <summary>
@@ -102,12 +102,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         private void ProposalFromMachine(FProposal proposal)
         {
             // get releated workitem and add Proposal.
-            var operation = operationList.SingleOrDefault(x => x.Key == proposal.JobKey);
-            operation.Proposals.RemoveAll(x => x.ResourceAgent == proposal.ResourceAgent);
+            var operation = operationList.SingleOrDefault(predicate: x => x.Key == proposal.JobKey);
+            operation.Proposals.RemoveAll(match: x => x.ResourceAgent == proposal.ResourceAgent);
             // add New Proposal
-            operation.Proposals.Add(proposal);
+            operation.Proposals.Add(item: proposal);
 
-            Agent.DebugMessage("Proposal for Schedule: " + proposal.PossibleSchedule + " Id: " + proposal.JobKey + " from:" + proposal.ResourceAgent + "!");
+            Agent.DebugMessage(msg: "Proposal for Schedule: " + proposal.PossibleSchedule + " Id: " + proposal.JobKey + " from:" + proposal.ResourceAgent + "!");
 
 
             // if all Machines Answered
@@ -115,26 +115,26 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
 
                 // item Postponed by All Machines ? -> reque after given amount of time.
-                if (operation.Proposals.TrueForAll(x => x.Postponed.IsPostponed))
+                if (operation.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
                 {
                     // Call Hub Agent to Requeue
-                    operation = operation.UpdateResourceAgent(ActorRefs.NoSender);
-                    operationList.Replace(operation);
-                    Agent.Send(Hub.Instruction.EnqueueJob.Create(operation, Agent.Context.Self), proposal.Postponed.Offset);
+                    operation = operation.UpdateResourceAgent(r: ActorRefs.NoSender);
+                    operationList.Replace(val: operation);
+                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: Agent.Context.Self), waitFor: proposal.Postponed.Offset);
                     return;
                 }
 
 
                 // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = operation.Proposals.First(x => x.PossibleSchedule == operation.Proposals.Where(y => y.Postponed.IsPostponed == false)
-                                                                                                            .Min(p => p.PossibleSchedule)
+                var acknowledgement = operation.Proposals.First(predicate: x => x.PossibleSchedule == operation.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
+                                                                                                            .Min(selector: p => p.PossibleSchedule)
                                                                  && x.Postponed.IsPostponed == false);
 
-                Agent.DebugMessage("Start AcknowledgeProposal for " + proposal.JobKey + " on resource " + acknowledgement.ResourceAgent);
+                Agent.DebugMessage(msg: "Start AcknowledgeProposal for " + proposal.JobKey + " on resource " + acknowledgement.ResourceAgent);
 
                 // set Proposal Start for Machine to Reque if time slot is closed.
-                operationList.Replace(operation);
-                Agent.Send(Resource.Instruction.AcknowledgeProposal.Create(operation, acknowledgement.ResourceAgent));
+                operationList.Replace(val: operation);
+                Agent.Send(instruction: Resource.Instruction.AcknowledgeProposal.Create(message: operation, target: acknowledgement.ResourceAgent));
             }
         }
 
@@ -142,9 +142,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         private void AddResourceToHub(FAgentInformation hubInformation)
         {
             // Add Machine to Pool
-            resourceAgents.Add(hubInformation.Ref, hubInformation.RequiredFor);
+            resourceAgents.Add(key: hubInformation.Ref, value: hubInformation.RequiredFor);
             // Added Machine Agent To Machine Pool
-            Agent.DebugMessage("Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);
+            Agent.DebugMessage(msg: "Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);
         }
     }
 }

@@ -53,33 +53,33 @@ namespace Master40.SimulationCore
         }
         public Task<Simulation> InitializeSimulation(Configuration configuration)
         {
-            return Task.Run(() =>
+            return Task.Run(function: () =>
             {
-                _messageHub.SendToAllClients("Initializing Simulation...");
+                _messageHub.SendToAllClients(msg: "Initializing Simulation...");
                 // Init Simulation
                 SimulationConfig = configuration.GetContextConfiguration();
                 _debugAgents = configuration.GetOption<DebugAgents>().Value;
                 _simulationType = configuration.GetOption<SimulationKind>().Value;
-                _simulation = new Simulation(SimulationConfig);
-                ActorPaths = new ActorPaths(_simulation.SimulationContext, SimulationConfig.Inbox.Receiver);
+                _simulation = new Simulation(simConfig: SimulationConfig);
+                ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext, systemMailBox: SimulationConfig.Inbox.Receiver);
 
                 // Create DataCollectors
-                CreateCollectorAgents(configuration);
+                CreateCollectorAgents(configuration: configuration);
                 if (_debugAgents) AddDeadLetterMonitor();
                 AddTimeMonitor();
 
                 // Create Guardians and Inject Childcreators
-                GenerateGuadians();
+                GenerateGuardians();
 
                 // Create Supervisor Agent
                 var productIds = _dBContext.GetProductIds();
-                ActorPaths.SetSupervisorAgent(_simulation.ActorSystem.ActorOf(Supervisor.Props(ActorPaths, 0, _debugAgents, _dBContext, _messageHub, configuration, productIds, ActorRefs.Nobody), "Supervisor"));
+                ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem.ActorOf(props: Supervisor.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents, productionDomainContext: _dBContext, messageHub: _messageHub, configuration: configuration, productIds: productIds, principal: ActorRefs.Nobody), name: "Supervisor"));
 
                 // Create DirectoryAgents
                 CreateDirectoryAgents();
 
                 // Create Resources
-                CreateResourceAgents(configuration);
+                CreateResourceAgents(configuration: configuration);
 
                 // Create Storages
                 CreateStorageAgents();
@@ -90,41 +90,41 @@ namespace Master40.SimulationCore
 
         private void CreateDirectoryAgents()
         {
-            ActorPaths.SetHubDirectoryAgent(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debugAgents), "HubDirectory"));
-            _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.HubDirectory.Ref, Agents.DirectoryAgent.Behaviour.Factory.Get(_simulationType)));
+            ActorPaths.SetHubDirectoryAgent(hubAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "HubDirectory"));
+            _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.HubDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
 
-            ActorPaths.SetStorageDirectory(_simulation.ActorSystem.ActorOf(Directory.Props(ActorPaths, 0, _debugAgents), "StorageDirectory"));
-            _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(ActorPaths.StorageDirectory.Ref, Agents.DirectoryAgent.Behaviour.Factory.Get(_simulationType)));
+            ActorPaths.SetStorageDirectory(storageAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "StorageDirectory"));
+            _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.StorageDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
         }
 
         private void CreateCollectorAgents(Configuration configuration)
         {
             var resourcelist = new ResourceList();
-            resourcelist.AddRange(_dBContext.Resources.Select(x => "Resources(" + x.Name.Replace(" ", "") + ")"));
+            resourcelist.AddRange(collection: _dBContext.Resources.Select(selector: x => "Resources(" + x.Name.Replace(" ", "") + ")"));
 
-            WorkCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsWorkSchedule.Get(resourcelist)
-                                                            , _messageHub, configuration, 0, _debugAgents
-                                                            , CollectorAnalyticsWorkSchedule.GetStreamTypes()));
-            StorageCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsStorage.Get()
-                                                            , _messageHub, configuration, 0, _debugAgents
-                                                            , CollectorAnalyticsStorage.GetStreamTypes()));
-            ContractCollector = _simulation.ActorSystem.ActorOf(Collector.Props(ActorPaths, CollectorAnalyticsContracts.Get()
-                                                            , _messageHub, configuration, 0, _debugAgents
-                                                            , CollectorAnalyticsContracts.GetStreamTypes()));
+            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsWorkSchedule.Get(resources: resourcelist)
+                                                            , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                                                            , streamTypes: CollectorAnalyticsWorkSchedule.GetStreamTypes()));
+            StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
+                                                            , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                                                            , streamTypes: CollectorAnalyticsStorage.GetStreamTypes()));
+            ContractCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
+                                                            , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                                                            , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()));
         }
 
-        private void GenerateGuadians()
+        private void GenerateGuardians()
         {
-            CreateGuard(GuardianType.Contract, GuardianBehaviour.Get(ChildMaker.ContractCreator, _simulationType));
-            CreateGuard(GuardianType.Dispo, GuardianBehaviour.Get(ChildMaker.DispoCreator, _simulationType));
-            CreateGuard(GuardianType.Production, GuardianBehaviour.Get(ChildMaker.ProductionCreator, _simulationType));
+            CreateGuard(guardianType: GuardianType.Contract, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ContractCreator, simulationType: _simulationType));
+            CreateGuard(guardianType: GuardianType.Dispo, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.DispoCreator, simulationType: _simulationType));
+            CreateGuard(guardianType: GuardianType.Production, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ProductionCreator, simulationType: _simulationType));
         }
 
         private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour)
         {
-            var guard = _simulation.ActorSystem.ActorOf(Guardian.Props(ActorPaths, 0, _debugAgents), guardianType.ToString() + "Guard");
-            _simulation.SimulationContext.Tell(BasicInstruction.Initialize.Create(guard, guardianBehaviour));
-            ActorPaths.AddGuardian(guardianType, guard);
+            var guard = _simulation.ActorSystem.ActorOf(props: Guardian.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: guardianType.ToString() + "Guard");
+            _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: guard, message: guardianBehaviour));
+            ActorPaths.AddGuardian(guardianType: guardianType, actorRef: guard);
         }
 
         /// <summary>
@@ -132,17 +132,17 @@ namespace Master40.SimulationCore
         /// </summary>
         private void AddTimeMonitor()
         {
-            Action<long> tm = (timePeriod) => _messageHub.SendToClient("clockListener", timePeriod.ToString());
-            var timeMonitor = Props.Create(() => new TimeMonitor((timePeriod) => tm(timePeriod)));
-            _simulation.ActorSystem.ActorOf(timeMonitor, "TimeMonitor");
+            Action<long> tm = (timePeriod) => _messageHub.SendToClient(listener: "clockListener", msg: timePeriod.ToString());
+            var timeMonitor = Props.Create(factory: () => new TimeMonitor((timePeriod) => tm(timePeriod)));
+            _simulation.ActorSystem.ActorOf(props: timeMonitor, name: "TimeMonitor");
         }
 
         private void AddDeadLetterMonitor()
         {
-            var deadletterWatchMonitorProps = Props.Create(() => new DeadLetterMonitor());
-            var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
+            var deadletterWatchMonitorProps = Props.Create(factory: () => new DeadLetterMonitor());
+            var deadletterWatchActorRef = _simulation.ActorSystem.ActorOf(props: deadletterWatchMonitorProps, name: "DeadLetterMonitoringActor");
             //subscribe to the event stream for messages of type "DeadLetter"
-            _simulation.ActorSystem.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
+            _simulation.ActorSystem.EventStream.Subscribe(subscriber: deadletterWatchActorRef, channel: typeof(DeadLetter));
         }
 
         /// <summary>
@@ -151,16 +151,16 @@ namespace Master40.SimulationCore
         private void CreateStorageAgents()
         {
             foreach (var stock in _dBContext.Stocks
-                                            .Include(x => x.StockExchanges)
-                                            .Include(x => x.Article).ThenInclude(x => x.ArticleToBusinessPartners)
-                                                                    .ThenInclude(x => x.BusinessPartner)
-                                            .Include(x => x.Article).ThenInclude(x => x.ArticleType)
+                                            .Include(navigationPropertyPath: x => x.StockExchanges)
+                                            .Include(navigationPropertyPath: x => x.Article).ThenInclude(navigationPropertyPath: x => x.ArticleToBusinessPartners)
+                                                                    .ThenInclude(navigationPropertyPath: x => x.BusinessPartner)
+                                            .Include(navigationPropertyPath: x => x.Article).ThenInclude(navigationPropertyPath: x => x.ArticleType)
                                             .AsNoTracking().ToList())
             {
-                _simulation.SimulationContext.Tell(Directory.Instruction
+                _simulation.SimulationContext.Tell(message: Directory.Instruction
                                                             .CreateStorageAgents
-                                                            .Create(stock, ActorPaths.StorageDirectory.Ref)
-                                                        , ActorPaths.StorageDirectory.Ref);
+                                                            .Create(message: stock, target: ActorPaths.StorageDirectory.Ref)
+                                                        , sender: ActorPaths.StorageDirectory.Ref);
             }
         }
 
@@ -170,53 +170,53 @@ namespace Master40.SimulationCore
         /// <param name="configuration">Environment.Configuration</param>
         private void CreateResourceAgents(Configuration configuration)
         {
-            WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration);
+            WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
 
-            var setups = _dBContext.ResourceSetups.Include(m => m.Resource)
-                                                                 .Include(r => r.ResourceSkill)
-                                                                 .Include(t => t.ResourceTool)
+            var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
+                                                                 .Include(navigationPropertyPath: r => r.ResourceSkill)
+                                                                 .Include(navigationPropertyPath: t => t.ResourceTool)
                                                                  .AsNoTracking().ToListAsync().Result;
 
             var resourceList = _dBContext.Resources.ToList();
 
             foreach (var resource in resourceList)
             {
-                var resourceSetups = setups.Where(x => x.ResourceId == resource.Id).ToList();
+                var resourceSetups = setups.Where(predicate: x => x.ResourceId == resource.Id).ToList();
 
-                var resourceSetupDefinition = new FResourceSetupDefinition(randomWorkTime, resourceSetups, _debugAgents);
+                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, debug: _debugAgents);
 
-                _simulation.SimulationContext.Tell(Directory.Instruction
+                _simulation.SimulationContext.Tell(message: Directory.Instruction
                                                             .CreateMachineAgents
-                                                            .Create(resourceSetupDefinition, ActorPaths.HubDirectory.Ref)
-                                                            , ActorPaths.HubDirectory.Ref);
+                                                            .Create(message: resourceSetupDefinition, target: ActorPaths.HubDirectory.Ref)
+                                                            , sender: ActorPaths.HubDirectory.Ref);
             }
         }
 
         public static void Continuation(Inbox inbox, Simulation sim, List<IActorRef> collectors)
         {
 
-            var something = inbox.ReceiveAsync(TimeSpan.FromHours(1)).Result;
+            var something = inbox.ReceiveAsync(timeout: TimeSpan.FromHours(value: 1)).Result;
             switch (something)
             {
                 case SimulationMessage.SimulationState.Started:
-                    System.Diagnostics.Debug.WriteLine("AKKA:START AGENT SYSTEM", "AKKA-System:");
-                    Continuation(inbox, sim, collectors);
+                    System.Diagnostics.Debug.WriteLine(message: "AKKA:START AGENT SYSTEM", category: "AKKA-System:");
+                    Continuation(inbox: inbox, sim: sim, collectors: collectors);
                     break;
                 case SimulationMessage.SimulationState.Stopped:
-                    System.Diagnostics.Debug.WriteLine("AKKA:STOP AGENT SYSTEM", "AKKA-System:");
+                    System.Diagnostics.Debug.WriteLine(message: "AKKA:STOP AGENT SYSTEM", category: "AKKA-System:");
                     foreach (var item in collectors)
                     {
-                        var waitFor = item.Ask(UpdateLiveFeed.Create(false, inbox.Receiver),TimeSpan.FromHours(1)).Result;
+                        var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: false, target: inbox.Receiver),timeout: TimeSpan.FromHours(value: 1)).Result;
                     }
                     sim.Continue();
-                    Continuation(inbox, sim, collectors);
+                    Continuation(inbox: inbox, sim: sim, collectors: collectors);
                     break;
                 case SimulationMessage.SimulationState.Finished:
 
-                    System.Diagnostics.Debug.WriteLine("SHUTDOWN AGENT SYSTEM", "AKKA-System:");
+                    System.Diagnostics.Debug.WriteLine(message: "SHUTDOWN AGENT SYSTEM", category: "AKKA-System:");
                     foreach (var item in collectors)
                     {
-                        var waitFor = item.Ask(UpdateLiveFeed.Create(true, inbox.Receiver), TimeSpan.FromHours(1)).Result;
+                        var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: true, target: inbox.Receiver), timeout: TimeSpan.FromHours(value: 1)).Result;
                     }
                     sim.ActorSystem.Terminate();
                     break;

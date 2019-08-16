@@ -19,22 +19,23 @@ namespace Master40.SimulationCore.Types
 
         public M_Article GetArticleById(int id, decimal transitionFactor)
         {
-            if (!_cache.TryGetValue(id,out M_Article obj))
+            if (!_cache.TryGetValue(key: id,value: out M_Article obj))
             {
-                using (var ctx = MasterDBContext.GetContext(_connectionString))
+                using (var ctx = MasterDBContext.GetContext(connectionString: _connectionString))
                 {
-                    obj = Queryable.SingleOrDefault(source: ctx.Articles
-                                        .Include(x => x.Operations)
-                                        .ThenInclude(x => x.ResourceSkill)
-                                        .Include(x => x.ArticleBoms)
-                                            .ThenInclude(x => x.ArticleChild),
-                                    predicate: (x => x.Id == id));
-                    _cache.Add(id, obj);
+                    obj = ctx.Articles.Include(navigationPropertyPath: x => x.ArticleType)
+                                      .Include(navigationPropertyPath: x => x.Unit)
+                                      .Include(navigationPropertyPath: x => x.Operations)
+                                        .ThenInclude(navigationPropertyPath: x => x.ResourceSkill)
+                                      .Include(navigationPropertyPath: x => x.ArticleBoms)
+                                        .ThenInclude(navigationPropertyPath: x => x.ArticleChild)
+                                      .Single(predicate: (x => x.Id == id));
+                    _cache.Add(key: id, value: obj);
                     ctx.Dispose();
                 }
             }
             // TODO: Üpdate Transition Times more Granular.
-            UpdateTransitionTime(obj, transitionFactor);
+            UpdateTransitionTime(article: obj, factor: transitionFactor);
             return obj;
         }
 
@@ -42,7 +43,7 @@ namespace Master40.SimulationCore.Types
         {
             foreach (var operation in article.Operations)
             {
-                operation.AverageTransitionDuration = Convert.ToInt32(Math.Round(operation.Duration * factor, 0, MidpointRounding.AwayFromZero));
+                operation.AverageTransitionDuration = Convert.ToInt32(value: Math.Round(d: operation.Duration * factor, decimals: 0, mode: MidpointRounding.AwayFromZero));
             }
         }
     }

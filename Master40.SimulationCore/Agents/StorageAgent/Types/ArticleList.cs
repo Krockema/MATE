@@ -10,12 +10,12 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
     {
         public FArticle GetByKey(Guid key)
         {
-            return this.FirstOrDefault(r => r.Key == key);
+            return this.FirstOrDefault(predicate: r => r.Key == key);
         }
 
         public bool RemoveByKey(Guid key)
         {
-            return this.Remove(this.Single(x => x.Key == key));
+            return this.Remove(item: this.Single(predicate: x => x.Key == key));
         }
 
     }

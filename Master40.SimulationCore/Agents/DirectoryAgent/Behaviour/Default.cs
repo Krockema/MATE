@@ -18,10 +18,10 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
     public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None)
-                       : base(null, simulationType) { }
+                       : base(childMaker: null, obj: simulationType) { }
 
 
-        internal List<FRequestResource> fRequestResources { get; set; }
+        internal List<FRequestResource> fRequestResources { get; set; } = new List<FRequestResource>();
         /// <summary>
         /// Returns the Default Behaviour Set for Contract Agent.
         /// </summary>
@@ -32,10 +32,10 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         {
             switch (message)
             {
-                case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents(msg.GetObjectFromMessage); break;
-                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(msg.GetObjectFromMessage); break;
-                case Directory.Instruction.RequestAgent msg: RequestAgent(msg.GetObjectFromMessage); break;
-                case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents(stock: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(resourceSetupDefinition: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -43,23 +43,23 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         private void ResourceBrakeDown(FBreakDown breakDown)
         {
-            var hub = fRequestResources.Single(x => x.Discriminator == breakDown.ResourceSkill && x.ResourceType == FResourceType.Hub);
-            Agent.Send(BasicInstruction.ResourceBrakeDown.Create(breakDown, hub.actorRef));
-            System.Diagnostics.Debug.WriteLine("Break for " + breakDown.Resource, "Directory");
+            var hub = fRequestResources.Single(predicate: x => x.Discriminator == breakDown.ResourceSkill && x.ResourceType == FResourceType.Hub);
+            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: hub.actorRef));
+            System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Directory");
         }
 
         public void CreateStorageAgents(M_Stock stock)
         {
-            var storage = Agent.Context.ActorOf(Storage.Props(Agent.ActorPaths
-                                            , Agent.CurrentTime
-                                            , Agent.DebugThis
-                                            , Agent.Context.Self)
-                                            , ("Storage(" + stock.Name + ")").ToActorName());
+            var storage = Agent.Context.ActorOf(props: Storage.Props(actorPaths: Agent.ActorPaths
+                                            , time: Agent.CurrentTime
+                                            , debug: Agent.DebugThis
+                                            , principal: Agent.Context.Self)
+                                            , name: ("Storage(" + stock.Name + ")").ToActorName());
 
-            var ressourceCollection = fRequestResources;
-            ressourceCollection.Add(new FRequestResource(stock.Article.Name, FResourceType.Storage, storage));
+            var resourceCollection = fRequestResources;
+            resourceCollection.Add(item: new FRequestResource(discriminator: stock.Article.Name, resourceType: FResourceType.Storage, actorRef: storage));
 
-            Agent.Send(BasicInstruction.Initialize.Create(storage, StorageAgent.Behaviour.Factory.Get(stock, SimulationType)));
+            Agent.Send(instruction: BasicInstruction.Initialize.Create(target: storage, message: StorageAgent.Behaviour.Factory.Get(stockElement: stock, simType: SimulationType)));
         }
 
 
@@ -67,55 +67,52 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         {
             var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
 
-
-            var hubAgents = fRequestResources;
-
             // Create Skill based Hub Agent for each Skill of resource
             foreach (var resourceSetup in resourceSetups)
             {
-                var hub = hubAgents.FirstOrDefault(x => x.Discriminator == resourceSetup.ResourceSkill.Name && x.ResourceType == FResourceType.Hub);
+                var hub = fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resourceSetup.ResourceSkill.Name && x.ResourceType == FResourceType.Hub);
                 if (hub == null)
                 {
-                    var hubAgent = Agent.Context.ActorOf(Hub.Props(Agent.ActorPaths
-                                                                 , Agent.CurrentTime
-                                                                 , SimulationType
-                                                                 , Agent.DebugThis
-                                                                 , Agent.Context.Self)
-                                                        , "Hub(" + resourceSetup.ResourceSkill.Name + ")");
+                    var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
+                                                                 , time: Agent.CurrentTime
+                                                                 , simtype: SimulationType
+                                                                 , debug: Agent.DebugThis
+                                                                 , principal: Agent.Context.Self)
+                                                        , name: "Hub(" + resourceSetup.ResourceSkill.Name + ")");
                     //Agent.Send(BasicInstruction.Initialize.Create(Agent.Context.Self, HubBehaviour.Get(machine.MachineGroup.Name)));
-                    hub = new FRequestResource(resourceSetup.ResourceSkill.Name, FResourceType.Hub, hubAgent);
-                    hubAgents.Add(hub);
+                    hub = new FRequestResource(discriminator: resourceSetup.ResourceSkill.Name, resourceType: FResourceType.Hub, actorRef: hubAgent);
+                    fRequestResources.Add(item: hub);
                 }
             }
 
             var resource = resourceSetups.FirstOrDefault().Resource as M_Resource;
             // Create resource If Required
-            var resourceAgent = Agent.Context.ActorOf(Resource.Props(Agent.ActorPaths
-                                                                    , resource
-                                                                    , resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
-                                                                    , Agent.CurrentTime
-                                                                    , Agent.DebugThis
+            var resourceAgent = Agent.Context.ActorOf(props: Resource.Props(actorPaths: Agent.ActorPaths
+                                                                    , resource: resource
+                                                                    , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
+                                                                    , time: Agent.CurrentTime
+                                                                    , debug: Agent.DebugThis
                                                                     // TODO : 1 Machine N Hubs.
-                                                                    , hubAgents.FirstOrDefault(x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
+                                                                    , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
-                                                    , ("Machine(" + resource.Name + ")").ToActorName());
-            Agent.Send(BasicInstruction.Initialize.Create(resourceAgent, ResourceAgent.Behaviour.Factory.Get(SimulationType)));
+                                                    , name: ("Machine(" + resource.Name + ")").ToActorName());
+            Agent.Send(instruction: BasicInstruction.Initialize.Create(target: resourceAgent, message: ResourceAgent.Behaviour.Factory.Get(simType: SimulationType)));
 
         }
 
         private void RequestAgent(string discriminator)
         {
-            Agent.DebugMessage($" got called for Agent by:  {Agent.Sender.Path.Name} for: {discriminator}");
+            Agent.DebugMessage(msg: $" got called for Agent by:  {Agent.Sender.Path.Name} for: {discriminator}");
 
             // find the related Hub/Storage Agent
-            var agentToProvide = fRequestResources.First(x => x.Discriminator == discriminator);
+            var agentToProvide = fRequestResources.First(predicate: x => x.Discriminator == discriminator);
 
-            var hubInfo = new FAgentInformation(agentToProvide.ResourceType
-                                                , discriminator
-                                                , agentToProvide.actorRef);
+            var hubInfo = new FAgentInformation(fromType: agentToProvide.ResourceType
+                                                , requiredFor: discriminator
+                                                , @ref: agentToProvide.actorRef);
 
             // Tell the Requester the corresponding Agent
-            Agent.Send(BasicInstruction.ResponseFromDirectory
+            Agent.Send(instruction: BasicInstruction.ResponseFromDirectory
                                        .Create(message: hubInfo, target: Agent.Sender));
         }
 

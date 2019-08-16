@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public EstimatedThroughPut()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.EstimatedThroughPut(int.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.EstimatedThroughPut(value: int.Parse(s: argument)));
             };
         }
     }

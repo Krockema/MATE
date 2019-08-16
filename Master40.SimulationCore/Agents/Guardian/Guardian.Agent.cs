@@ -15,14 +15,14 @@ namespace Master40.SimulationCore.Agents.Guardian
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
         public Guardian(ActorPaths actorPaths, long time, bool debug)
-            : base(actorPaths, time, false, null)
+            : base(actorPaths: actorPaths, time: time, debug: false, principal: null)
         {
-            DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
+            DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
         public static Props Props(ActorPaths actorPaths, long time, bool debug)
         {
-            return Akka.Actor.Props.Create(() => new Guardian(actorPaths, time, debug));
+            return Akka.Actor.Props.Create(factory: () => new Guardian(actorPaths, time, debug));
         }
 
         protected override void Finish()

@@ -12,17 +12,17 @@ namespace Master40.XUnitTest.Preparations
             if (ConnectionsStrings.IsWindows)
             {
                 // Windows
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                _productionDomainContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(
-                        ConnectionsStrings.DbConnectionZppWindows)
+                        connectionString: ConnectionsStrings.DbConnectionZppWindows)
                     .Options);
             }
             else
             {
                 // With Sql Server for Mac/Linux
-                _productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                _productionDomainContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(
-                        ConnectionsStrings.DbConnectionZppUnix)
+                        connectionString: ConnectionsStrings.DbConnectionZppUnix)
                     .Options);
             }
 

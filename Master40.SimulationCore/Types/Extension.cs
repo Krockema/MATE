@@ -19,8 +19,8 @@ namespace Master40.SimulationCore.Types
 
         public static void Replace<T>(this List<T> list, T val) where T : IKey
         { 
-            list.RemoveAt(list.FindIndex(x => x.Key == val.Key));
-            list.Add(val);
+            list.RemoveAt(index: list.FindIndex(match: x => x.Key == val.Key));
+            list.Add(item: val);
         }
     }
 }

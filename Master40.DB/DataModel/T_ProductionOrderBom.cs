@@ -13,7 +13,7 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public decimal Quantity { get; set; }
         public State State { get; set; }
-        public int DemandID { get; set; }
+        public int? DemandID { get; set; }
         public T_Demand Demand { get; set; }
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }

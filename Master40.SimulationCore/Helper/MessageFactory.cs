@@ -29,12 +29,12 @@ namespace Master40.SimulationCore.Helper
         public static FOperation ToOperationItem(this M_Operation operation
                                             , long dueTime
                                             , IActorRef productionAgent
-                                            , bool lastLeaf 
+                                            , bool firstOperation
                                             , long currentTime)
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    (time) => dueTime - operation.Duration - time
+                    func: (time) => dueTime - operation.Duration - time
                     // ENDE
                 );
 
@@ -43,11 +43,11 @@ namespace Master40.SimulationCore.Helper
                                 , creationTime: currentTime
                                 , forwardStart: 0
                                 , forwardEnd: 0
-                                , backwardStart: 0
-                                , backwardEnd: 0
+                                , backwardStart: dueTime - operation.Duration
+                                , backwardEnd: dueTime
                                 , end: 0
                                 , start: 0
-                                , startConditions: new FStartCondition(preCondition: lastLeaf, materialsProvided: false)
+                                , startConditions: new FStartCondition(preCondition: firstOperation, materialsProvided: false)
                                 , priority: prioRule.ToFSharpFunc()
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
@@ -61,11 +61,11 @@ namespace Master40.SimulationCore.Helper
             // TO BE TESTET
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    (bucket, currentTime) => bucket.Operations.Min(y => ((IJob)y).Priority(time))
+                    func: (bucket, currentTime) => bucket.Operations.Min(selector: y => ((IJob)y).Priority(time))
                     // ENDE
                 );
             var operations = new List<FOperation>();
-            operations.Add(operation);
+            operations.Add(item: operation);
 
             return new FBucket(key: Guid.NewGuid()
                                 //, prioRule: prioRule.ToFSharpFunc()
@@ -82,7 +82,7 @@ namespace Master40.SimulationCore.Helper
                                 , minBucketSize: 1
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
-                                , operations: new FSharpSet<FOperation>(operations)
+                                , operations: new FSharpSet<FOperation>(elements: operations)
                                 , proposals: new List<FProposal>());
         }
 
@@ -115,7 +115,7 @@ namespace Master40.SimulationCore.Helper
                 , dueTime: requestItem.DueTime
                 , creationTime: currentTime
                 , isProvided: false
-                , quantity: Convert.ToInt32(articleBom.Quantity)
+                , quantity: Convert.ToInt32(value: articleBom.Quantity)
                 , article: articleBom.ArticleChild
                 , customerOrderId: requestItem.CustomerOrderId
                 , isHeadDemand: false

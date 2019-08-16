@@ -14,9 +14,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             {
                 public static RequestArticle Create(FArticle message, IActorRef target)
                 {
-                    return new RequestArticle(message, target);
+                    return new RequestArticle(message: message, target: target);
                 }
-                private RequestArticle(object message, IActorRef target) : base(message, target)
+                private RequestArticle(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
@@ -26,9 +26,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             {
                 public static ResponseFromStock Create(FStockReservation message, IActorRef target)
                 {
-                    return new ResponseFromStock(message, target);
+                    return new ResponseFromStock(message: message, target: target);
                 }
-                private ResponseFromStock(object message, IActorRef target) : base(message, target)
+                private ResponseFromStock(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -39,9 +39,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             {
                 public static ResponseFromSystemForBom Create(M_Article message, IActorRef target)
                 {
-                    return new ResponseFromSystemForBom(message, target);
+                    return new ResponseFromSystemForBom(message: message, target: target);
                 }
-                private ResponseFromSystemForBom(object message, IActorRef target) : base(message, target)
+                private ResponseFromSystemForBom(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public M_Article GetObjectFromMessage { get => Message as M_Article; }
@@ -50,9 +50,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent
             {
                 public static WithdrawMaterialsFromStock Create(object message, IActorRef target)
                 {
-                    return new WithdrawMaterialsFromStock(message, target);
+                    return new WithdrawMaterialsFromStock(message: message, target: target);
                 }
-                private WithdrawMaterialsFromStock(object message, IActorRef target) : base(message, target)
+                private WithdrawMaterialsFromStock(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

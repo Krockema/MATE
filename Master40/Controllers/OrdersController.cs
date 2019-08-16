@@ -21,7 +21,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> Index()
         {
             var orderDomainContext = _context.GetAllOrders;
-            return View(await orderDomainContext.ToListAsync());
+            return View(model: await orderDomainContext.ToListAsync());
         }
 
         // GET: Orders/Details/5
@@ -33,22 +33,22 @@ namespace Master40.Controllers
             }
 
             var order = await _context.CustomerOrders
-                .Include(o => o.BusinessPartner)
-                .Include(op => op.CustomerOrderParts)
-                    .ThenInclude(a => a.Article)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: o => o.BusinessPartner)
+                .Include(navigationPropertyPath: op => op.CustomerOrderParts)
+                    .ThenInclude(navigationPropertyPath: a => a.Article)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
             }
 
-            return PartialView("Details", order);
+            return PartialView(viewName: "Details", model: order);
         }
 
         // GET: Orders/Create
         public IActionResult Create()
         {
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Name");
+            ViewData[index: "BusinessPartnerId"] = new SelectList(items: _context.BusinessPartners, dataValueField: "Id", dataTextField: "Name");
             return PartialView();
         }
 
@@ -61,14 +61,14 @@ namespace Master40.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(order);
+                _context.Add(entity: order);
                 await _context.SaveChangesAsync();
                 var orders = await _context.GetAllOrders.ToListAsync();
-                ViewData["OrderId"] = order.Id;
-                return View("Index", orders);
+                ViewData[index: "OrderId"] = order.Id;
+                return View(viewName: "Index", model: orders);
             }
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Name", order.BusinessPartnerId);
-            return PartialView("Create", order);
+            ViewData[index: "BusinessPartnerId"] = new SelectList(items: _context.BusinessPartners, dataValueField: "Id", dataTextField: "Name", selectedValue: order.BusinessPartnerId);
+            return PartialView(viewName: "Create", model: order);
         }
 
         // GET: Orders/Edit/5
@@ -79,13 +79,13 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var order = await _context.CustomerOrders.SingleOrDefaultAsync(m => m.Id == id);
+            var order = await _context.CustomerOrders.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
             }
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Name", order.BusinessPartnerId);
-            return PartialView("Edit", order);
+            ViewData[index: "BusinessPartnerId"] = new SelectList(items: _context.BusinessPartners, dataValueField: "Id", dataTextField: "Name", selectedValue: order.BusinessPartnerId);
+            return PartialView(viewName: "Edit", model: order);
         }
 
         // POST: Orders/Edit/5
@@ -104,12 +104,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(order);
+                    _context.Update(entity: order);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderExists(order.Id))
+                    if (!OrderExists(id: order.Id))
                     {
                         return NotFound();
                     }
@@ -118,10 +118,10 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["BusinessPartnerId"] = new SelectList(_context.BusinessPartners, "Id", "Name", order.BusinessPartnerId);
-            return PartialView("Details", order);
+            ViewData[index: "BusinessPartnerId"] = new SelectList(items: _context.BusinessPartners, dataValueField: "Id", dataTextField: "Name", selectedValue: order.BusinessPartnerId);
+            return PartialView(viewName: "Details", model: order);
         }
 
         // GET: Orders/Delete/5
@@ -133,29 +133,29 @@ namespace Master40.Controllers
             }
 
             var order = await _context.CustomerOrders
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (order == null)
             {
                 return NotFound();
             }
 
-            return PartialView("Delete", order);
+            return PartialView(viewName: "Delete", model: order);
         }
 
         // POST: Orders/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.ById(id).SingleAsync();
-            _context.CustomerOrders.Remove(order);
+            var order = await _context.ById(id: id).SingleAsync();
+            _context.CustomerOrders.Remove(entity: order);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool OrderExists(int id)
         {
-            return _context.CustomerOrders.Any(e => e.Id == id);
+            return _context.CustomerOrders.Any(predicate: e => e.Id == id);
         }
     }
 }

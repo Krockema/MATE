@@ -19,9 +19,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             {
                 public static CreateContractAgent Create(T_CustomerOrderPart message, IActorRef target)
                 {
-                    return new CreateContractAgent(message, target);
+                    return new CreateContractAgent(message: message, target: target);
                 }
-                private CreateContractAgent(T_CustomerOrderPart message, IActorRef target) : base(message, target)
+                private CreateContractAgent(T_CustomerOrderPart message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public T_CustomerOrderPart GetObjectFromMessage { get => Message as T_CustomerOrderPart; }
@@ -31,9 +31,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             {
                 public static RequestArticleBom Create(int message, IActorRef target)
                 {
-                    return new RequestArticleBom(message, target);
+                    return new RequestArticleBom(message: message, target: target);
                 }
-                private RequestArticleBom(object message, IActorRef target) : base(message, target)
+                private RequestArticleBom(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public int GetObjectFromMessage { get => (int)Message; }
@@ -42,9 +42,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             {
                 public static OrderProvided Create(FArticle message, IActorRef target)
                 {
-                    return new OrderProvided(message, target);
+                    return new OrderProvided(message: message, target: target);
                 }
-                private OrderProvided(object message, IActorRef target) : base(message, target, true)
+                private OrderProvided(object message, IActorRef target) : base(message: message, target: target, logThis: true)
                 {
                 }
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
@@ -52,16 +52,16 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
             public class Inizialized : SimulationMessage
             {
-                public Inizialized() : base (true, ActorRefs.Nobody) { }
+                public Inizialized() : base (message: true, target: ActorRefs.Nobody) { }
             }
 
             public class EndSimulation : SimulationMessage
             {
                 public static EndSimulation Create(object message, IActorRef target)
                 {
-                    return new EndSimulation(message, target);
+                    return new EndSimulation(message: message, target: target);
                 }
-                private EndSimulation(object message, IActorRef target) : base(message, target)
+                private EndSimulation(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
             }
@@ -70,9 +70,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             {
                 public static PopOrder Create(string message, IActorRef target)
                 {
-                    return new PopOrder(message, target);
+                    return new PopOrder(message: message, target: target);
                 }
-                private PopOrder(object message, IActorRef target) : base(message, target)
+                private PopOrder(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
             }
@@ -81,9 +81,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             {
                 public static SystemCheck Create(string message, IActorRef target)
                 {
-                    return new SystemCheck(message, target);
+                    return new SystemCheck(message: message, target: target);
                 }
-                private SystemCheck(object message, IActorRef target) : base(message, target)
+                private SystemCheck(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
             }
@@ -92,9 +92,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             {
                 public static SetEstimatedThroughputTime Create(FSetEstimatedThroughputTime message, IActorRef target)
                 {
-                    return new SetEstimatedThroughputTime(message, target);
+                    return new SetEstimatedThroughputTime(message: message, target: target);
                 }
-                private SetEstimatedThroughputTime(object message, IActorRef target) : base(message, target)
+                private SetEstimatedThroughputTime(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

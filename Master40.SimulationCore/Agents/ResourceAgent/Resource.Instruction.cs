@@ -16,9 +16,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             {
                 public static SetHubAgent Create(FAgentInformation message, IActorRef target)
                 {
-                    return new SetHubAgent(message, target);
+                    return new SetHubAgent(message: message, target: target);
                 }
-                private SetHubAgent(object message, IActorRef target) : base(message, target)
+                private SetHubAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
@@ -28,9 +28,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             {
                 public static RequestProposal Create(IJob message, IActorRef target)
                 {
-                    return new RequestProposal(message, target);
+                    return new RequestProposal(message: message, target: target);
                 }
-                private RequestProposal(object message, IActorRef target) : base(message, target)
+                private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public IJob GetObjectFromMessage { get => Message as IJob; }
@@ -40,9 +40,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             {
                 public static AcknowledgeProposal Create(FOperation message, IActorRef target)
                 {
-                    return new AcknowledgeProposal(message, target);
+                    return new AcknowledgeProposal(message: message, target: target);
                 }
-                private AcknowledgeProposal(object message, IActorRef target) : base(message, target)
+                private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FOperation GetObjectFromMessage { get => Message as FOperation; }
@@ -52,9 +52,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             {
                 public static StartWorkWith Create(Guid message, IActorRef target)
                 {
-                    return new StartWorkWith(message, target);
+                    return new StartWorkWith(message: message, target: target);
                 }
-                private StartWorkWith(object message, IActorRef target) : base(message, target)
+                private StartWorkWith(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
@@ -64,9 +64,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             {
                 public static DoWork Create(object message, IActorRef target)
                 {
-                    return new DoWork(message, target);
+                    return new DoWork(message: message, target: target);
                 }
-                private DoWork(object message, IActorRef target) : base(message, target)
+                private DoWork(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
             }
@@ -75,9 +75,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             {
                 public static FinishWork Create(FOperationResult message, IActorRef target)
                 {
-                    return new FinishWork(message, target);
+                    return new FinishWork(message: message, target: target);
                 }
-                private FinishWork(object message, IActorRef target) : base(message, target)
+                private FinishWork(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FOperationResult GetObjectFromMessage { get => Message as FOperationResult; }

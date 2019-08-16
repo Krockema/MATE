@@ -12,13 +12,13 @@ namespace Master40.SimulationCore.Agents.HubAgent
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, SimulationType simtype, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(() => new Hub(actorPaths, time, simtype, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, time, simtype, debug, principal));
         }
 
-        public Hub(ActorPaths actorPaths, long time, SimulationType simtype, bool debug, IActorRef principal) : base(actorPaths, time, debug, principal)
+        public Hub(ActorPaths actorPaths, long time, SimulationType simtype, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
-            DebugMessage("I'm Alive:" + Context.Self.Path);
-            this.Do(BasicInstruction.Initialize.Create(Self, HubAgent.Behaviour.Factory.Get(simtype )));
+            DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
+            this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Get(simType: simtype )));
         }
     }
 }

@@ -14,9 +14,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             {
                 public static CreateHubAgent Create(FAgentInformation message, IActorRef target)
                 {
-                    return new CreateHubAgent(message, target);
+                    return new CreateHubAgent(message: message, target: target);
                 }
-                private CreateHubAgent(object message, IActorRef target) : base(message, target)
+                private CreateHubAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
@@ -26,9 +26,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             {
                 public static RequestAgent Create(string discriminator, IActorRef target)
                 {
-                    return new RequestAgent(discriminator, target);
+                    return new RequestAgent(message: discriminator, target: target);
                 }
-                private RequestAgent(object message, IActorRef target) : base(message, target)
+                private RequestAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public string GetObjectFromMessage { get => Message as string; }
@@ -38,9 +38,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {
-                    return new RegisterResources(descriminator, target);
+                    return new RegisterResources(message: descriminator, target: target);
                 }
-                private RegisterResources(object message, IActorRef target) : base(message, target)
+                private RegisterResources(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public string GetObjectFromMessage { get => Message as string; }
@@ -50,9 +50,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             {
                 public static CreateMachineAgents Create(FResourceSetupDefinition message, IActorRef target)
                 {
-                    return new CreateMachineAgents(message, target);
+                    return new CreateMachineAgents(message: message, target: target);
                 }
-                private CreateMachineAgents(object message, IActorRef target) : base(message, target)
+                private CreateMachineAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FResourceSetupDefinition GetObjectFromMessage { get => Message as FResourceSetupDefinition; }
@@ -61,9 +61,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             {
                 public static CreateStorageAgents Create(M_Stock message, IActorRef target)
                 {
-                    return new CreateStorageAgents(message, target);
+                    return new CreateStorageAgents(message: message, target: target);
                 }
-                private CreateStorageAgents(object message, IActorRef target) : base(message, target)
+                private CreateStorageAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public M_Stock GetObjectFromMessage { get => Message as M_Stock; }

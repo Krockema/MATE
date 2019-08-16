@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public OrderQuantity()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.OrderQuantity(int.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.OrderQuantity(value: int.Parse(s: argument)));
             };
         }
     }

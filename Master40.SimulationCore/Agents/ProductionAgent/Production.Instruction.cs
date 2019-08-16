@@ -21,9 +21,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 public static ProductionStarted Create(Guid message, IActorRef target)
                 {
-                    return new ProductionStarted(message, target);
+                    return new ProductionStarted(message: message, target: target);
                 }
-                private ProductionStarted(object message, IActorRef target) : base(message, target)
+                private ProductionStarted(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -34,9 +34,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 public static StartProduction Create(FArticle message, IActorRef target)
                 {
-                    return new StartProduction(message, target);
+                    return new StartProduction(message: message, target: target);
                 }
-                private StartProduction(object message, IActorRef target) : base(message, target)
+                private StartProduction(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -47,9 +47,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 public static Finished Create(Guid message, IActorRef target)
                 {
-                    return new Finished(message, target);
+                    return new Finished(message: message, target: target);
                 }
-                private Finished(object message, IActorRef target) : base(message, target)
+                private Finished(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -59,9 +59,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 public static SetHubAgent Create(FAgentInformation message, IActorRef target)
                 {
-                    return new SetHubAgent(message, target);
+                    return new SetHubAgent(message: message, target: target);
                 }
-                private SetHubAgent(object message, IActorRef target) : base(message, target)
+                private SetHubAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -72,9 +72,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 public static FinishWorkItem Create(FOperationResult message, IActorRef target)
                 {
-                    return new FinishWorkItem(message, target);
+                    return new FinishWorkItem(message: message, target: target);
                 }
-                private FinishWorkItem(object message, IActorRef target) : base(message, target)
+                private FinishWorkItem(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
@@ -84,9 +84,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             {
                 public static ProvideRequest Create(Guid message, IActorRef target)
                 {
-                    return new ProvideRequest(message, target);
+                    return new ProvideRequest(message: message, target: target);
                 }
-                private ProvideRequest(object message, IActorRef target) : base(message, target)
+                private ProvideRequest(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

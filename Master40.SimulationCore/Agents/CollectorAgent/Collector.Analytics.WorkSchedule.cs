@@ -37,7 +37,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<FUpdateSimulationWork> _updatedSimulationWork = new List<FUpdateSimulationWork>();
         private ResourceList _resources { get; set; } = new ResourceList();
         public Collector Collector { get; set; }
-        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
+        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo(name: "en-GB"); // Required to get Number output with . instead of ,
         private List<Kpi> Kpis = new List<Kpi>();
 
         internal static List<Type> GetStreamTypes()
@@ -54,21 +54,21 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         public static CollectorAnalyticsWorkSchedule Get(ResourceList resources)
         {
-            return new CollectorAnalyticsWorkSchedule(resources);
+            return new CollectorAnalyticsWorkSchedule(resources: resources);
         }
 
-        public override bool Action(object message) => throw new Exception("Please use EventHandle method to process Messages");
+        public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
         public bool EventHandle(SimulationMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case FCreateSimulationWork m: CreateSimulationWorkSchedule(m); break;
-                case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(m); break;
-                case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(m.GetObjectFromMessage); break;
-                case Hub.Instruction.AddMachineToHub m: RecoverFromBreak(m.GetObjectFromMessage); break;
-                case BasicInstruction.ResourceBrakeDown m: BreakDwn(m.GetObjectFromMessage); break;
+                case FCreateSimulationWork m: CreateSimulationWorkSchedule(cws: m); break;
+                case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(uws: m); break;
+                case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
+                case Hub.Instruction.AddMachineToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
+                case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -76,12 +76,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void BreakDwn(FBreakDown item)
         {
-            Collector.messageHub.SendToClient(item.Resource + "_State", "offline");
+            Collector.messageHub.SendToClient(listener: item.Resource + "_State", msg: "offline");
         }
 
         private void RecoverFromBreak(FAgentInformation item)
         {
-            Collector.messageHub.SendToClient(item.RequiredFor + "_State", "online");
+            Collector.messageHub.SendToClient(listener: item.RequiredFor + "_State", msg: "online");
         }
 
         private void UpdateFeed(bool writeResultsToDB)
@@ -93,19 +93,19 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             lastIntervalStart = Collector.Time;
 
 
-            LogToDB(writeResultsToDB);
+            LogToDB(writeResultsToDB: writeResultsToDB);
 
-            Collector.Context.Sender.Tell(true, Collector.Context.Self);
+            Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
         }
 
         private void LogToDB(bool writeResultsToDB)
         {
             if (Collector.saveToDB.Value &&  writeResultsToDB)
             {
-                using (var ctx = ResultContext.GetContext(Collector.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SimulationOperations.AddRange(simulationWorkschedules);
-                    ctx.Kpis.AddRange(Kpis);
+                    ctx.SimulationOperations.AddRange(entities: simulationWorkschedules);
+                    ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }
@@ -131,7 +131,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                            select new
                            {
                                OrderID = so.Key,
-                               Dlz = (double)(so.Max(x => x.End) - so.Min(x => x.Start))
+                               Dlz = (double)(so.Max(selector: x => x.End) - so.Min(selector: x => x.Start))
                            };
 
             var innerJoinQuery =
@@ -149,39 +149,39 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                         select new
                         {
                             agregat.Key,
-                            List = agregat.Select(x => x.Dlz).ToList()
+                            List = agregat.Select(selector: x => x.Dlz).ToList()
                         };
 
             foreach (var item in group)
             {
-                var thoughput = JsonConvert.SerializeObject(new { group });
-                Collector.messageHub.SendToClient("Throughput",  thoughput);
+                var thoughput = JsonConvert.SerializeObject(value: new { group });
+                Collector.messageHub.SendToClient(listener: "Throughput",  msg: thoughput);
 
                 var boxPlot = item.List.FiveNumberSummary();
-                var uperQuartile = Convert.ToInt64(boxPlot[3]);
+                var uperQuartile = Convert.ToInt64(value: boxPlot[3]);
                 Collector.actorPaths.SimulationContext.Ref.Tell(
-                    SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
-                        new FSetEstimatedThroughputTime(uperQuartile, item.Key)
-                        , Collector.actorPaths.SystemAgent.Ref
+                    message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
+                        message: new FSetEstimatedThroughputTime(time: uperQuartile, articleName: item.Key)
+                        , target: Collector.actorPaths.SystemAgent.Ref
                     )
-                    , ActorRefs.NoSender);
+                    , sender: ActorRefs.NoSender);
 
-                Debug.WriteLine("(" + Collector.Time + ")" + item.Key + ": " + uperQuartile); 
+                Debug.WriteLine(message: "(" + Collector.Time + ")" + item.Key + ": " + uperQuartile); 
             }
 
-            var v2 = simulationWorkschedules.Where(a => a.ArticleType == "Product"
+            var v2 = simulationWorkschedules.Where(predicate: a => a.ArticleType == "Product"
                                                    && a.HierarchyNumber == 20
                                                    && a.End == 0);
 
 
-            Collector.messageHub.SendToClient("ContractsV2", JsonConvert.SerializeObject(new { Time = Collector.Time, Processing = v2.Count().ToString() }));
+            Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = v2.Count().ToString() }));
         }
 
         private void MachineUtilization()
         {
             double divisor = Collector.Time - lastIntervalStart;
-            Collector.messageHub.SendToAllClients("(" + Collector.Time + ") Update Feed from DataCollection");
-            Collector.messageHub.SendToAllClients("(" + Collector.Time + ") Time since last Update: " + divisor + "min");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from DataCollection");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Time since last Update: " + divisor + "min");
 
             //simulationWorkschedules.WriteCSV( @"C:\Users\mtko\source\output.csv");
 
@@ -218,34 +218,34 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             {
                                 M = mg.Key,
                                 C = mg.Count(),
-                                W = (long)mg.Sum(x => x.End - x.Start)
+                                W = (long)mg.Sum(selector: x => x.End - x.Start)
                             };
-            var machineList = _resources.Select(x => new { M = x, C = 0, W = (long)0 });
-            var merge = from_work.Union(lower_borders).Union(upper_borders).Union(machineList).ToList();
+            var machineList = _resources.Select(selector: x => new { M = x, C = 0, W = (long)0 });
+            var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: machineList).ToList();
 
             var final = from m in merge
                         group m by m.M into mg
                         select new
                         {
                             M = mg.Key,
-                            C = mg.Sum(x => x.C),
-                            W = mg.Sum(x => x.W)
+                            C = mg.Sum(selector: x => x.C),
+                            W = mg.Sum(selector: x => x.W)
                         };
 
-            foreach (var item in final.OrderBy(x => x.M))
+            foreach (var item in final.OrderBy(keySelector: x => x.M))
             {
-                var value = Math.Round(item.W / divisor, 3).ToString(_cultureInfo);
+                var value = Math.Round(value: item.W / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                var machine = item.M.Replace(")", "").Replace("Machine(", "");
-                Collector.messageHub.SendToClient(machine, value);
-                CreateKpi(Collector, value, item.M, KpiType.MachineUtilization);
+                var machine = item.M.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Machine(", newValue: "");
+                Collector.messageHub.SendToClient(listener: machine, msg: value);
+                CreateKpi(agent: Collector, value: value, name: item.M, kpiType: KpiType.MachineUtilization);
             }
 
-            var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString(_cultureInfo);
+            var totalLoad = Math.Round(value: final.Sum(selector: x => x.W) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalLoad == "NaN")  totalLoad = "0";
-            Collector.messageHub.SendToClient("TotalWork", JsonConvert.SerializeObject(new { Time = Collector.Time, Load = totalLoad }));
-            CreateKpi(Collector, totalLoad, "TotalWork", KpiType.MachineUtilization);
+            Collector.messageHub.SendToClient(listener: "TotalWork", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Load = totalLoad }));
+            CreateKpi(agent: Collector, value: totalLoad, name: "TotalWork", kpiType: KpiType.MachineUtilization);
             // // Kontrolle
             // var from_work2 = from sw in tuples
             //                  group sw by sw.Item1 into mg
@@ -267,7 +267,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var k = new Kpi
             {
                 Name = name,
-                Value = Convert.ToDouble(value),
+                Value = Convert.ToDouble(value: value),
                 Time = (int)agent.Time,
                 KpiType = kpiType,
                 SimulationConfigurationId = agent.simulationId.Value,
@@ -276,7 +276,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 IsKpi = true,
                 SimulationType = agent.simulationKind.Value
             };
-            Kpis.Add(k);
+            Kpis.Add(item: k);
         }
 
         private void CreateSimulationWorkSchedule(FCreateSimulationWork cws)
@@ -300,25 +300,25 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ArticleType = cws.ArticleType
             };
 
-            var edit = _updatedSimulationWork.FirstOrDefault(x => x.WorkScheduleId.Equals(ws.Key.ToString()));
+            var edit = _updatedSimulationWork.FirstOrDefault(predicate: x => x.WorkScheduleId.Equals(value: ws.Key.ToString()));
             if (edit != null)
             {
                 sws.Start = (int)edit.Start;
                 sws.End = (int)(edit.Start + edit.Duration + 1);
                 sws.Machine = edit.Machine;
-                _updatedSimulationWork.Remove(edit);
+                _updatedSimulationWork.Remove(item: edit);
             }
 
 
 
-            simulationWorkschedules.Add(sws);
+            simulationWorkschedules.Add(item: sws);
         }
 
 
         private void UpdateSimulationWorkSchedule(FUpdateSimulationWork uws)
         {
 
-            var edit = simulationWorkschedules.FirstOrDefault(x => x.WorkScheduleId.Equals(uws.WorkScheduleId));
+            var edit = simulationWorkschedules.FirstOrDefault(predicate: x => x.WorkScheduleId.Equals(value: uws.WorkScheduleId));
             if (edit != null)
             {
                 edit.Start = (int)uws.Start;
@@ -326,7 +326,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 edit.Machine = uws.Machine;
                 return;
             }
-            _updatedSimulationWork.Add(uws);
+            _updatedSimulationWork.Add(item: uws);
 
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
@@ -335,10 +335,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var agentId in uswp.ProductionAgents)
             {
-                var items = simulationWorkschedules.Where(x => x.ProductionOrderId.Equals("[" + agentId.Path.Uid.ToString() + "]")).ToList();
+                var items = simulationWorkschedules.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + agentId.Path.Uid.ToString() + "]")).ToList();
                 foreach (var item in items)
                 {
-                    item.ParentId = item.Parent.Equals(false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
+                    item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + uswp.CustomerOrderId + "]";

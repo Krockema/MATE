@@ -43,15 +43,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                     typeof(UpdateLiveFeed)};
         }
 
-        public override bool Action(object message) => throw new Exception("Please use EventHandle method to process Messages");
+        public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
         public bool EventHandle(SimulationMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case Contract.Instruction.StartOrder m: AddOrder(m); break;
-                case Supervisor.Instruction.OrderProvided m: ProvideOrder(m.GetObjectFromMessage); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(m.GetObjectFromMessage); break;
+                case Contract.Instruction.StartOrder m: AddOrder(m: m); break;
+                case Supervisor.Instruction.OrderProvided m: ProvideOrder(requestItem: m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -61,17 +61,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (requestItem.DueTime >= requestItem.FinishedAt)
             {
-                Collector.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester  + " finished in time at " + Collector.Time);
+                Collector.messageHub.SendToAllClients(msg: "Oder No:" + requestItem.OriginRequester  + " finished in time at " + Collector.Time);
 
-                Collector.messageHub.SendToClient("orderListener", totalOrders.ToString());
+                Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
                 inTime++;
             }else
             {
-                Collector.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester + " finished to late at " + Collector.Time);
+                Collector.messageHub.SendToAllClients(msg: "Oder No:" + requestItem.OriginRequester + " finished to late at " + Collector.Time);
                 toLate++;
             }
 
-            UpdateOrder(requestItem);
+            UpdateOrder(item: requestItem);
 
             openOrderParts--;
             finishedOrderParts++;
@@ -84,26 +84,26 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //var open = openOrderParts.GroupBy(x => x.Article).Select(y => new { Article =  y.Key, Count = y.Sum(z => z.Quantity)} );
 
             Collector.messageHub
-                 .SendToClient("Contracts", 
-                                JsonConvert.SerializeObject(new { Input = newOrderParts,
+                 .SendToClient(listener: "Contracts", 
+                                msg: JsonConvert.SerializeObject(value: new { Input = newOrderParts,
                                                                   Processing = openOrderParts,
                                                                   Output = finishedOrderParts,
                                                                   Time = Collector.Time }));
 
             if (inTime != 0)
             {
-                var timeliness = (inTime / (inTime + toLate) * 100).ToString().Replace(",", ".");
+                var timeliness = (inTime / (inTime + toLate) * 100).ToString().Replace(oldValue: ",", newValue: ".");
                 Collector.messageHub
-                    .SendToClient("Timeliness", timeliness);
+                    .SendToClient(listener: "Timeliness", msg: timeliness);
             }
 
             newOrderParts = 0;
             finishedOrderParts = 0;
 
 
-            WriteToDB(Collector, writeResultsToDB);
+            WriteToDB(agent: Collector, writeResultsToDB: writeResultsToDB);
 
-            Collector.Context.Sender.Tell(true, Collector.Context.Self);
+            Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
         }
 
         private void AddOrder(Contract.Instruction.StartOrder m)
@@ -119,7 +119,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                 , SimulationType = Collector.simulationKind.Value
                                                 , SimulationConfigurationId = Collector.simulationId.Value };  // TODO
 
-            simulationOrders.Add(order);
+            simulationOrders.Add(item: order);
 
             openOrderParts++;
             newOrderParts++;
@@ -128,10 +128,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateOrder(FArticle item)
         {
-            var toUpdate = simulationOrders.SingleOrDefault(x => x.OriginId == item.CustomerOrderId);
+            var toUpdate = simulationOrders.SingleOrDefault(predicate: x => x.OriginId == item.CustomerOrderId);
             if (toUpdate == null)
             {
-                throw new Exception("OrderNotFound during Order update from Contract Collector Agent");
+                throw new Exception(message: "OrderNotFound during Order update from Contract Collector Agent");
             }
 
             toUpdate.State = DB.Enums.State.Finished;
@@ -142,9 +142,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (agent.saveToDB.Value && writeResultsToDB)
             {
-                using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SimulationOrders.AddRange(simulationOrders);
+                    ctx.SimulationOrders.AddRange(entities: simulationOrders);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

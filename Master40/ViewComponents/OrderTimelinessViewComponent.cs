@@ -24,12 +24,12 @@ namespace Master40.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             // Determine Type and Data
-            SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
-            var kpi = _context.Kpis.Where(x => x.KpiType == KpiType.Timeliness
+            SimulationType simType = (paramsList[index: 1].Equals(value: "Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            var kpi = _context.Kpis.Where(predicate: x => x.KpiType == KpiType.Timeliness
                                     && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                     && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                     && x.SimulationType == simType);
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
 
                 if (!_context.SimulationOperations.Any())
@@ -58,30 +58,30 @@ namespace Master40.ViewComponents
                         {
                             new PieDataset
                             {
-                                BackgroundColor = new[] { cc.Color[4].Substring(0, cc.Color[4].Length -4) + "0.3)",cc.Color[1].Substring(0, cc.Color[1].Length -4) + "0.3)" },
-                                BorderColor = new[] { cc.Color[4].Substring(0, cc.Color[4].Length - 4) + "0.8)", cc.Color[1].Substring(0, cc.Color[1].Length -4) + "0.8)" },
+                                BackgroundColor = new[] { cc.Color[index: 4].Substring(startIndex: 0, length: cc.Color[index: 4].Length -4) + "0.3)",cc.Color[index: 1].Substring(startIndex: 0, length: cc.Color[index: 1].Length -4) + "0.3)" },
+                                BorderColor = new[] { cc.Color[index: 4].Substring(startIndex: 0, length: cc.Color[index: 4].Length - 4) + "0.8)", cc.Color[index: 1].Substring(startIndex: 0, length: cc.Color[index: 1].Length -4) + "0.8)" },
                                 BorderWidth = 1,
                            }
                         },
                     Labels = new[] { "Early", "Overdue"},
                 };
 
-                var avg = kpi.Sum(x => x.Value) / kpi.Count() * 100;
+                var avg = kpi.Sum(selector: x => x.Value) / kpi.Count() * 100;
 
                 //var end = ((int)Math.Ceiling(max / 100.0)) * 100;
 
 
                 //data.Datasets[0].Data = new List<double> { 0, (int)(min/end*100), (int)(avg /end*100), (int)(max /end*100), end };
-                data.Datasets[0].Data = new List<double> { avg, 100-avg };
+                data.Datasets[index: 0].Data = new List<double> { avg, 100-avg };
                 chart.Data = data;
                 return chart;
             });
             // create JS to Render Chart.
-            ViewData["chart"] = await generateChartTask;
-            ViewData["Type"] = paramsList[1];
-            ViewData["Percentage"] = Math.Round(kpi.Sum(x => x.Value) / kpi.Count()*100, 0);
-            ViewData["Data"] = kpi.ToList();
-            return View($"OrderTimeliness");
+            ViewData[index: "chart"] = await generateChartTask;
+            ViewData[index: "Type"] = paramsList[index: 1];
+            ViewData[index: "Percentage"] = Math.Round(value: kpi.Sum(selector: x => x.Value) / kpi.Count()*100, digits: 0);
+            ViewData[index: "Data"] = kpi.ToList();
+            return View(viewName: $"OrderTimeliness");
 
         }
     }

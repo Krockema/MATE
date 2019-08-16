@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.M_Article
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData[index: "Title"] = "Delete";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -14,40 +14,40 @@
     <dl class="dl-horizontal">
         <input type="hidden" asp-for="Id" />
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Price)
+            @Html.DisplayNameFor(expression: model => model.Price)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Price)
+            @Html.DisplayFor(expression: model => model.Price)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.DeliveryPeriod)
+            @Html.DisplayNameFor(expression: model => model.DeliveryPeriod)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.DeliveryPeriod)
+            @Html.DisplayFor(expression: model => model.DeliveryPeriod)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.CreationDate)
+            @Html.DisplayNameFor(expression: model => model.CreationDate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.CreationDate)
+            @Html.DisplayFor(expression: model => model.CreationDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ArticleType)
+            @Html.DisplayNameFor(expression: model => model.ArticleType)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ArticleType.Id)
+            @Html.DisplayFor(expression: model => model.ArticleType.Id)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Unit)
+            @Html.DisplayNameFor(expression: model => model.Unit)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Unit.Id)
+            @Html.DisplayFor(expression: model => model.Unit.Id)
         </dd>
     </dl>
     

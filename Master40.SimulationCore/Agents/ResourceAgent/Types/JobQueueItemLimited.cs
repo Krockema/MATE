@@ -6,7 +6,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class JobQueueItemLimited : LimitedQueue
     {
 
-        public JobQueueItemLimited(int limit) : base(limit)
+        public JobQueueItemLimited(int limit) : base(limit: limit)
         {
             
         }
@@ -14,7 +14,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public bool Enqueue(IJob item)
         {
             if (Limit <= this.jobs.Count) return false;
-            this.jobs.Add(item);
+            this.jobs.Add(item: item);
             return true;
 
         }

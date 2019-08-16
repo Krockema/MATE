@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Types
             Object = obj;
             SimulationType = simulationType;
         }
-        public virtual bool Action(object message) { throw new Exception("No Action is implemented!"); }
+        public virtual bool Action(object message) { throw new Exception(message: "No Action is implemented!"); }
         //public Action<Agent, ISimulationMessage> Action { get; }
         public IReadOnlyDictionary<string, object> Properties { get; }
         public object Object { get; }

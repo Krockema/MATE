@@ -16,21 +16,21 @@ namespace Master40.Simulation.CLI.Arguments
         {
             Action = (result, arg) =>
             {
-                if (arg.Equals(SimulationType.Decentral.ToString(), StringComparison.OrdinalIgnoreCase))
+                if (arg.Equals(value: SimulationType.Decentral.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
-                    result.AddOption(new SimulationCore.Environment.Options.SimulationKind(SimulationType.Decentral));
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Decentral));
                 }
-                else if (arg.Equals(SimulationType.Central.ToString(), StringComparison.OrdinalIgnoreCase))
+                else if (arg.Equals(value: SimulationType.Central.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
-                    result.AddOption(new SimulationCore.Environment.Options.SimulationKind(SimulationType.Central));
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Central));
                 }
-                else if (arg.Equals(SimulationType.Bucket.ToString(), StringComparison.OrdinalIgnoreCase))
+                else if (arg.Equals(value: SimulationType.Bucket.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
-                    result.AddOption(new SimulationCore.Environment.Options.SimulationKind(SimulationType.Bucket));
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Bucket));
                 }
                 else
                 {
-                    throw  new Exception("Unknown argument.");
+                    throw  new Exception(message: "Unknown argument.");
                 }
             };
         }

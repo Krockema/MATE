@@ -8,9 +8,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void CreateAndRead()
         {
-            var config = SimulationCore.Environment.Configuration.Create(new object[] { new Seed(2) });
+            var config = SimulationCore.Environment.Configuration.Create(args: new object[] { new Seed(value: 2) });
             var seed = config.GetOption<Seed>();
-            Assert.Equal(2, actual: seed.Value);
+            Assert.Equal(expected: 2, actual: seed.Value);
         }
     }
 }

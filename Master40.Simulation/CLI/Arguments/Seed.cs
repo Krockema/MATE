@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public Seed()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.Seed(int.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.Seed(value: int.Parse(s: argument)));
             };
         }
     }

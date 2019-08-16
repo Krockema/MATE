@@ -72,7 +72,7 @@ namespace Master40.XUnitTest.Preparations
             {
                 foreach (var item2 in item)
                 {
-                    if(item2.Active) prunedValues.Add(item2.GetCurrentValue);
+                    if(item2.Active) prunedValues.Add(item: item2.GetCurrentValue);
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace Master40.XUnitTest.Preparations
     {
         public override void NodeValues(List<NodeValue> prunedValues)
         {
-            prunedValues.AddRange(Nodes[0][0].NodeValues);
+            prunedValues.AddRange(collection: Nodes[0][0].NodeValues);
         }
     }
 

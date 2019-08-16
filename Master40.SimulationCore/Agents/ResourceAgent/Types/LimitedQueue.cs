@@ -20,8 +20,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             if (this.jobs.Count == 0) return null;
 
-            var item = this.jobs.OrderBy(x => x.Priority(currentTime)).First();
-            this.jobs.Remove(item);
+            var item = this.jobs.OrderBy(keySelector: x => x.Priority(currentTime)).First();
+            this.jobs.Remove(item: item);
             return item;
         }
     }

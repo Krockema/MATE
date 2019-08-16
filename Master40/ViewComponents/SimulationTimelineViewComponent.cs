@@ -41,14 +41,14 @@ namespace Master40.ViewComponents
         {
             //.Definitions();
             var orders = new List<int>();
-            _orderId = Convert.ToInt32(paramsList[0]);
-            _schedulingState = Convert.ToInt32(paramsList[1]);
-            _schedulingPage = Convert.ToInt32(paramsList[2]);
-            _simulationConfigurationId = Convert.ToInt32(paramsList[4]);
-            _simulationNumber = Convert.ToInt32(paramsList[5]);
+            _orderId = Convert.ToInt32(value: paramsList[index: 0]);
+            _schedulingState = Convert.ToInt32(value: paramsList[index: 1]);
+            _schedulingPage = Convert.ToInt32(value: paramsList[index: 2]);
+            _simulationConfigurationId = Convert.ToInt32(value: paramsList[index: 4]);
+            _simulationNumber = Convert.ToInt32(value: paramsList[index: 5]);
             
             var folowLinks = false;
-            switch (paramsList[3])
+            switch (paramsList[index: 3])
             {
                 case "Decentral":
                     _simulationType = SimulationType.Decentral;
@@ -67,29 +67,29 @@ namespace Master40.ViewComponents
             }
             // refill ViewData
             // Fill Select Fields
-            var orderSelection = new SelectList(_context.CustomerOrders, "Id", "Name", _orderId);
-            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
-            ViewData["SchedulingState"] = SchedulingState(_schedulingState);
-            ViewData["SimulationPage"] = _schedulingPage.ToString();
-            ViewData["SimulationType"] = _simulationType.ToString();
-            ViewData["SimulationNumber"] = _simulationNumber.ToString();
-            ViewData["SimulationConfiguration"] = _simulationConfigurationId.ToString();
+            var orderSelection = new SelectList(items: _context.CustomerOrders, dataValueField: "Id", dataTextField: "Name", selectedValue: _orderId);
+            ViewData[index: "OrderId"] = orderSelection.AddFirstItem(firstItem: new SelectListItem { Value = "-1", Text = "All" });
+            ViewData[index: "SchedulingState"] = SchedulingState(selectedItem: _schedulingState);
+            ViewData[index: "SimulationPage"] = _schedulingPage.ToString();
+            ViewData[index: "SimulationType"] = _simulationType.ToString();
+            ViewData[index: "SimulationNumber"] = _simulationNumber.ToString();
+            ViewData[index: "SimulationConfiguration"] = _simulationConfigurationId.ToString();
             // - 1 caus we start with 0
-            ViewData["MaxPage"] = _maxPage;
+            ViewData[index: "MaxPage"] = _maxPage;
 
             // if no data 
             if (!_resultContext.SimulationOperations.Any())
             {
-                return View("SimulationTimeline", _ganttContext); ;
+                return View(viewName: "SimulationTimeline", model: _ganttContext); ;
             }
 
 
-            _timeSpan = _resultContext.SimulationConfigurations.Single(x => x.Id == _simulationConfigurationId).DynamicKpiTimeSpan;
+            _timeSpan = _resultContext.SimulationConfigurations.Single(predicate: x => x.Id == _simulationConfigurationId).DynamicKpiTimeSpan;
             ///// Needs some changes to Work. i.e. Reference SimulationOrder , Create SimulationOrderPart and writing it back
             // If Order is not selected.
             if (_orderId == -1)
             {   // for all Orders
-                await GetSchedulesForTimeSlotListAsync(_timeSpan * _schedulingPage, _timeSpan * _schedulingPage + _timeSpan, folowLinks);
+                await GetSchedulesForTimeSlotListAsync(pageStart: _timeSpan * _schedulingPage, pageEnd: _timeSpan * _schedulingPage + _timeSpan, folowLinks: folowLinks);
             }
             else
             {  // for the specified Order
@@ -98,12 +98,12 @@ namespace Master40.ViewComponents
                     ? SimulationType.BackwardPlanning
                     : _simulationType;
 
-                orders = _resultContext?.SimulationOrders.Where(x => x.OriginId == _orderId 
+                orders = _resultContext?.SimulationOrders.Where(predicate: x => x.OriginId == _orderId 
                                                         && x.SimulationType == tempType
                                                         && x.SimulationNumber == _simulationNumber
                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                        .Select(x => x.OriginId).ToList();
-                await GetSchedulesForOrderListAsync(orders);
+                                                        .Select(selector: x => x.OriginId).ToList();
+                await GetSchedulesForOrderListAsync(ordersParts: orders);
                 //orders = _context?.OrderParts.Where(x => x.OrderId == _orderId).Select(x => x.Id).ToList();
             }
             
@@ -111,9 +111,9 @@ namespace Master40.ViewComponents
 
 
 
-            _ganttContext.Tasks = _ganttContext.Tasks.OrderBy(x => x.type).ToList();
+            _ganttContext.Tasks = _ganttContext.Tasks.OrderBy(keySelector: x => x.type).ToList();
             // return schedule
-            return View("SimulationTimeline", _ganttContext);
+            return View(viewName: "SimulationTimeline", model: _ganttContext);
         }
         
         /// <summary>
@@ -123,37 +123,37 @@ namespace Master40.ViewComponents
         {
             foreach (var ordersPart in ordersParts)
             {
-                var pows = _resultContext.SimulationOperations.Where(x => x.OrderId == "[" + ordersPart.ToString() + "]"
+                var pows = _resultContext.SimulationOperations.Where(predicate: x => x.OrderId == "[" + ordersPart.ToString() + "]"
                                                                         && x.SimulationType == _simulationType
                                                                         && x.SimulationNumber == _simulationNumber
                                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                            .OrderBy(x => x.Machine).ThenBy(x => x.ProductionOrderId).ThenBy(x => x.Start);
+                                                            .OrderBy(keySelector: x => x.Machine).ThenBy(keySelector: x => x.ProductionOrderId).ThenBy(keySelector: x => x.Start);
 
 
                 foreach (var pow in pows)
                 {
                     // check if head element is Created,
-                    GanttTask timeline = GetOrCreateTimeline(pow, ordersPart);
+                    GanttTask timeline = GetOrCreateTimeline(pow: pow, orderId: ordersPart);
                     long start = 0, end = 0;
-                    DefineStartEnd(ref start, ref end, pow);
+                    DefineStartEnd(start: ref start, end: ref end, item: pow);
                     // Add Item To Timeline
                     _ganttContext.Tasks.Add(
-                        CreateGanttTask(
-                            pow,
-                            start,
-                            end,
-                            timeline.color,
-                            timeline.id
+                        item: CreateGanttTask(
+                            item: pow,
+                            start: start,
+                            end: end,
+                            gc: timeline.color,
+                            parent: timeline.id
                         )
                     );
-                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow, _simulationType, pows.ToList());
+                    var c = await _context.GetFollowerProductionOrderWorkSchedules(simulationWorkSchedule: pow, type: _simulationType, relevantItems: pows.ToList());
 
                     if (!c.Any()) continue;
                     // create Links for this pow
                     foreach (var link in c)
                     {
                         _ganttContext.Links.Add(
-                            new GanttLink
+                            item: new GanttLink
                             {
                                 id = Guid.NewGuid().ToString(),
                                 type = LinkType.finish_to_start,
@@ -168,43 +168,43 @@ namespace Master40.ViewComponents
 
         private async Task GetSchedulesForTimeSlotListAsync(int pageStart, int pageEnd, bool folowLinks)
         {
-            var pows = _resultContext.SimulationOperations.Where(x => x.Start >= pageStart && x.End <= pageEnd
+            var pows = _resultContext.SimulationOperations.Where(predicate: x => x.Start >= pageStart && x.End <= pageEnd
                                                                     && x.SimulationType == _simulationType
                                                                     && x.SimulationNumber == _simulationNumber
                                                                     && x.SimulationConfigurationId == _simulationConfigurationId);
-            _maxPage = (int)Math.Ceiling((double)_resultContext.SimulationOperations.Where(x => x.SimulationType == _simulationType
+            _maxPage = (int)Math.Ceiling(a: (double)_resultContext.SimulationOperations.Where(predicate: x => x.SimulationType == _simulationType
                                                                                       && x.SimulationNumber == _simulationNumber
                                                                                       && x.SimulationConfigurationId ==
-                                                                                      _simulationConfigurationId) .Max(m => m.End) / _timeSpan);
+                                                                                      _simulationConfigurationId) .Max(selector: m => m.End) / _timeSpan);
 
             foreach (var pow in pows)
             {
                 
                 // check if head element is Created,
-                GanttTask timeline = GetOrCreateTimeline(pow);
+                GanttTask timeline = GetOrCreateTimeline(pow: pow);
                 long start = 0, end = 0;
-                DefineStartEnd(ref start, ref end, pow);
+                DefineStartEnd(start: ref start, end: ref end, item: pow);
                 // Add Item To Timeline
                 _ganttContext.Tasks.Add(
-                    CreateGanttTask(
-                        pow,
-                        start,
-                        end,
-                        timeline.color,
-                        timeline.id
+                    item: CreateGanttTask(
+                        item: pow,
+                        start: start,
+                        end: end,
+                        gc: timeline.color,
+                        parent: timeline.id
                     )
                 );
 
                 if (folowLinks)
                 {
-                    var c = await _context.GetFollowerProductionOrderWorkSchedules(pow, _simulationType, pows.ToList());
+                    var c = await _context.GetFollowerProductionOrderWorkSchedules(simulationWorkSchedule: pow, type: _simulationType, relevantItems: pows.ToList());
 
                     if (!c.Any()) continue;
                     // create Links for this pow
                     foreach (var link in c)
                     {
                         _ganttContext.Links.Add(
-                            new GanttLink
+                            item: new GanttLink
                             {
                                 id = Guid.NewGuid().ToString(),
                                 type = LinkType.finish_to_start,
@@ -230,50 +230,50 @@ namespace Master40.ViewComponents
             {
                 case 3: // Machine Based
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "M_" + pow.Machine);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "M_" + pow.Machine);
                     if (project.Any())
                     {
                         return project.First();
                     }
                     else
                     {
-                        var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
+                        var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
                         //var mg = _context.MachineGroups.First(x => x.Id.ToString() == pow.Machine.ToString()).Name;
-                        var pt = CreateProjectTask("M_" + pow.Machine, pow.Machine, "", 0, (GanttColors)gc);
-                        _ganttContext.Tasks.Add(pt);
+                        var pt = CreateProjectTask(id: "M_" + pow.Machine, name: pow.Machine, desc: "", @group: 0, gc: (GanttColors)gc);
+                        _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
                     //break;
                 case 4: // Production Order Based
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "P" + pow.ProductionOrderId);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "P" + pow.ProductionOrderId);
                     if (project.Any())
                     {
                         return project.First();
                     }
                     else
                     {
-                        var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("P" + pow.ProductionOrderId, "PO Nr.: " + pow.ProductionOrderId, "", 0, (GanttColors)gc);
-                        _ganttContext.Tasks.Add(pt);
+                        var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
+                        var pt = CreateProjectTask(id: "P" + pow.ProductionOrderId, name: "PO Nr.: " + pow.ProductionOrderId, desc: "", @group: 0, gc: (GanttColors)gc);
+                        _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
                     //break;
                 default: // back and forward
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "O" + orderId);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "O" + orderId);
                     if (project.Any())
                     {
                         return project.First();
                     }
                     else
                     {
-                        var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("O" + orderId, _context.CustomerOrderParts.
-                                                                    Include(x => x.CustomerOrder)
-                                                                    .FirstOrDefault(x => x.Id == orderId)
-                                                                        .CustomerOrder.Name, "", 0, (GanttColors)gc);
-                        _ganttContext.Tasks.Add(pt);
+                        var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
+                        var pt = CreateProjectTask(id: "O" + orderId, name: _context.CustomerOrderParts.
+                                                                    Include(navigationPropertyPath: x => x.CustomerOrder)
+                                                                    .FirstOrDefault(predicate: x => x.Id == orderId)
+                                                                        .CustomerOrder.Name, desc: "", @group: 0, gc: (GanttColors)gc);
+                        _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
                    // break;
@@ -300,8 +300,8 @@ namespace Master40.ViewComponents
                 type = GanttType.task,
                 desc = item.WorkScheduleName,
                 text = _schedulingState == 4 ? item.Machine : "P.O.: " + item.ProductionOrderId,
-                start_date = start.GetDateFromMilliseconds().ToString("dd-MM-yyyy HH:mm"),
-                end_date = end.GetDateFromMilliseconds().ToString("dd-MM-yyyy HH:mm"),
+                start_date = start.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
+                end_date = end.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 IntFrom = start,
                 IntTo = end,
                 parent = parent,
@@ -330,13 +330,13 @@ namespace Master40.ViewComponents
         {
             // var itemList = new List<SelectListItem>();
             var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
-            if (_resultContext.SimulationOperations.Any(x => x.SimulationType == SimulationType.ForwardPlanning && x.Start > 0))
+            if (_resultContext.SimulationOperations.Any(predicate: x => x.SimulationType == SimulationType.ForwardPlanning && x.Start > 0))
             {
-                itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
+                itemList.Add(item: new SelectListItem() {Text = "Forward", Value = "2"});
             }
-            itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
-            itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
-            return new SelectList( itemList, "Value", "Text", selectedItem);
+            itemList.Add(item: new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
+            itemList.Add(item: new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
+            return new SelectList( items: itemList, dataValueField: "Value", dataTextField: "Text", selectedValue: selectedItem);
         }
 
     }

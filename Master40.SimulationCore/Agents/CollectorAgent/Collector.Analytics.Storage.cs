@@ -32,14 +32,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             return new CollectorAnalyticsStorage();
         }
 
-        public override bool Action(object message) => throw new Exception("Please use EventHandle method to process Messages");
+        public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
         public bool EventHandle(SimulationMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case FUpdateStockValue m: UpdateStock(m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(m.GetObjectFromMessage); break;
+                case FUpdateStockValue m: UpdateStock(values: m); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeToDatabase: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -48,33 +48,33 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void UpdateFeed(bool writeToDatabase)
         {
 
-            Collector.messageHub.SendToAllClients("(" + Collector.Time + ") Update Feed from Storage");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Storage");
             var groupedByType = from sw in CurrentStockValues
                                 group sw by sw.Value.ArticleType into grouped
                                 select new
                                 {
                                     GroupName = grouped.Key,
-                                    Value = grouped.Sum(x => x.Value.NewValue),
+                                    Value = grouped.Sum(selector: x => x.Value.NewValue),
                                     Time = Collector.Time
                                 };
 
             foreach (var item in groupedByType)
             {
-                Collector.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
+                Collector.messageHub.SendToClient(listener: "Storage", msg: Newtonsoft.Json.JsonConvert.SerializeObject(value: item));
             }
 
-            LogToDB(Collector, writeToDatabase);
-            Collector.Context.Sender.Tell(true, Collector.Context.Self);
+            LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
+            Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
         }
 
 
         private void UpdateStock(FUpdateStockValue values)
         {
-            if (CurrentStockValues.ContainsKey(values.StockName))
-                CurrentStockValues.Remove(values.StockName);
+            if (CurrentStockValues.ContainsKey(key: values.StockName))
+                CurrentStockValues.Remove(key: values.StockName);
 
-            CurrentStockValues.Add(values.StockName, values);
-            UpdateKPI(values);
+            CurrentStockValues.Add(key: values.StockName, value: values);
+            UpdateKPI(values: values);
         }
 
         private void UpdateKPI(FUpdateStockValue values)
@@ -89,7 +89,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             , IsKpi = true
                             , SimulationType = Collector.simulationKind.Value
             };
-            StockValuesOverTime.Add(k);
+            StockValuesOverTime.Add(item: k);
 
         }
 
@@ -97,9 +97,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (agent.saveToDB.Value && writeToDatabase)
             {
-                using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.Kpis.AddRange(StockValuesOverTime);
+                    ctx.Kpis.AddRange(entities: StockValuesOverTime);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

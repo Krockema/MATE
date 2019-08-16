@@ -27,7 +27,7 @@ namespace Master40.DB.Data.Initializer
                 new M_ArticleType {Name = "Product"}
             };
 
-            context.ArticleTypes.AddRange(articleTypes);
+            context.ArticleTypes.AddRange(entities: articleTypes);
             context.SaveChanges();
 
             // Units
@@ -37,7 +37,7 @@ namespace Master40.DB.Data.Initializer
                 new M_Unit {Name = "Litre"},
                 new M_Unit {Name = "Pieces"}
             };
-            context.Units.AddRange(units);
+            context.Units.AddRange(entities: units);
             context.SaveChanges();
 
             var resourceSkills = new M_ResourceSkill[]
@@ -55,7 +55,7 @@ namespace Master40.DB.Data.Initializer
                 new M_ResourceTool{ Name="M4 head", ResourceSetups = new List<M_ResourceSetup>()},
                 new M_ResourceTool{ Name="Screwdriver universal cross size 2", ResourceSetups = new List<M_ResourceSetup>()},
             };
-            context.ResourceTools.AddRange(resourceTools);
+            context.ResourceTools.AddRange(entities: resourceTools);
             context.SaveChanges();
 
             var resources = new M_Resource[] {
@@ -65,54 +65,54 @@ namespace Master40.DB.Data.Initializer
                 new M_Resource{Name="AssemblyUnit 1", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
                 new M_Resource{Name="AssemblyUnit 2", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
             };
-            context.Resources.AddRange(resources);
+            context.Resources.AddRange(entities: resources);
             context.SaveChanges();
 
             var resourceSetups = new M_ResourceSetup[]{
-            new M_ResourceSetup { Name = "Saw1_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 1"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw2_Sawbladebig", Resource = resources.Single(s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade big"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw2_Sawbladesmall", Resource = resources.Single(s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(s => s.Name == "Saw blade small"), SetupTime = 5 },
+            new M_ResourceSetup { Name = "Saw1_Sawbladebig", Resource = resources.Single(predicate: s => s.Name == "Saw 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Saw blade big"), SetupTime = 5 },
+            new M_ResourceSetup { Name = "Saw2_Sawbladebig", Resource = resources.Single(predicate: s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Saw blade big"), SetupTime = 5 },
+            new M_ResourceSetup { Name = "Saw2_Sawbladesmall", Resource = resources.Single(predicate: s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Saw blade small"), SetupTime = 5 },
 
-            new M_ResourceSetup { Name = "Drill1_M4", Resource = resources.Single(s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(s => s.Name == "M4 head"), SetupTime = 10 },
-            new M_ResourceSetup { Name = "Drill1_M6", Resource = resources.Single(s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(s => s.Name == "M6 head"), SetupTime = 10 },
+            new M_ResourceSetup { Name = "Drill1_M4", Resource = resources.Single(predicate: s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "M4 head"), SetupTime = 10 },
+            new M_ResourceSetup { Name = "Drill1_M6", Resource = resources.Single(predicate: s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "M6 head"), SetupTime = 10 },
 
-            new M_ResourceSetup { Name = "AssemblyUnit1_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 1"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "AssemblyUnit2_Screwdriver universal cross size 2", Resource = resources.Single(s => s.Name == "AssemblyUnit 2"), ResourceTool = resourceTools.Single(s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
+            new M_ResourceSetup { Name = "AssemblyUnit1_Screwdriver universal cross size 2", Resource = resources.Single(predicate: s => s.Name == "AssemblyUnit 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
+            new M_ResourceSetup { Name = "AssemblyUnit2_Screwdriver universal cross size 2", Resource = resources.Single(predicate: s => s.Name == "AssemblyUnit 2"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
             };
 
             // register resourceToResourceTool at the resourceSkill
-            resourceSkills.Single(s => s.Name == "CuttingSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Saw1_Sawbladebig"));
-            resourceSkills.Single(s => s.Name == "CuttingSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Saw2_Sawbladebig"));
-            resourceSkills.Single(s => s.Name == "CuttingSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Saw2_Sawbladesmall"));
+            resourceSkills.Single(predicate: s => s.Name == "CuttingSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Saw1_Sawbladebig"));
+            resourceSkills.Single(predicate: s => s.Name == "CuttingSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Saw2_Sawbladebig"));
+            resourceSkills.Single(predicate: s => s.Name == "CuttingSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Saw2_Sawbladesmall"));
 
-            resourceSkills.Single(s => s.Name == "DrillSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Drill1_M4"));
-            resourceSkills.Single(s => s.Name == "DrillSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "Drill1_M6"));
+            resourceSkills.Single(predicate: s => s.Name == "DrillSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Drill1_M4"));
+            resourceSkills.Single(predicate: s => s.Name == "DrillSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Drill1_M6"));
 
-            resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit1_Screwdriver universal cross size 2"));
-            resourceSkills.Single(s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(resourceSetups.Single(r => r.Name == "AssemblyUnit2_Screwdriver universal cross size 2"));
+            resourceSkills.Single(predicate: s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "AssemblyUnit1_Screwdriver universal cross size 2"));
+            resourceSkills.Single(predicate: s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "AssemblyUnit2_Screwdriver universal cross size 2"));
 
-            context.ResourceSkills.AddRange(resourceSkills);
-            context.ResourceSetups.AddRange(resourceSetups);
+            context.ResourceSkills.AddRange(entities: resourceSkills);
+            context.ResourceSetups.AddRange(entities: resourceSetups);
             context.SaveChanges();
 
             // Articles
             var articles = new M_Article[]
             {
                 // Final Products
-                new M_Article{Name="Tisch",  ArticleTypeId = articleTypes.Single( s => s.Name == "Product").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 25.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
+                new M_Article{Name="Tisch",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Product").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 25.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
 
                 // Intermediate Products
-                new M_Article{Name="Tischbein",  ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 2.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
-                new M_Article{Name="Tischplatte",  ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 10.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
+                new M_Article{Name="Tischbein",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 2.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
+                new M_Article{Name="Tischplatte",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 10.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
                 
                 // base Materials
-                new M_Article{Name="Holzplatte 1,5m x 3,0m x 0,03m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 3.00, ToPurchase = true, ToBuild = false},
-                new M_Article{Name="Holzpflock 1,20m x 0,15m x 0,15m", ArticleTypeId = articleTypes.Single( s => s.Name == "Material").Id, CreationDate = DateTime.Parse("2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( s => s.Name == "Pieces").Id, Price = 0.70, ToPurchase = true, ToBuild = false},
-                new M_Article{Name="Schrauben", ArticleTypeId = articleTypes.Single( s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse("2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( s => s.Name == "Kilo").Id, Price = 0.50, ToPurchase = true, ToBuild = false},
+                new M_Article{Name="Holzplatte 1,5m x 3,0m x 0,03m", ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 3.00, ToPurchase = true, ToBuild = false},
+                new M_Article{Name="Holzpflock 1,20m x 0,15m x 0,15m", ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 0.70, ToPurchase = true, ToBuild = false},
+                new M_Article{Name="Schrauben", ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Consumable").Id, CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod  = 4, UnitId = units.Single( predicate: s => s.Name == "Kilo").Id, Price = 0.50, ToPurchase = true, ToBuild = false},
 
             };
 
-            context.Articles.AddRange(articles);
+            context.Articles.AddRange(entities: articles);
             context.SaveChanges();
 
             // create Stock Entrys for each Article
@@ -127,26 +127,26 @@ namespace Master40.DB.Data.Initializer
                     Current = (article.ToPurchase) ? 1000 : 0,
                     StartValue = (article.ToPurchase) ? 1000 : 0,
                 };
-                context.Stocks.Add(stock);
+                context.Stocks.Add(entity: stock);
                 context.SaveChanges();
             }
             var operations = new M_Operation[]
             {
                 // Final Product Tisch 
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15,ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15,ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 20 },
 
                 // Bom For Tischbein
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Saw blade big"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(t => t.Name =="M6 head"), HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade big"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
                 // Bom For Tischplatte
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, ResourceSkill=resourceSkills.Single(s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(t => t.Name =="M6 head"), HierarchyNumber = 20 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
 
             };
-            context.Operations.AddRange(operations);
+            context.Operations.AddRange(entities: operations);
             context.SaveChanges();
 
             // !!! - Important NOTE - !!!
@@ -154,42 +154,42 @@ namespace Master40.DB.Data.Initializer
             var articleBom = new List<M_ArticleBom>
             {
                 // Final Product Tisch 
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch" },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch" },
 
                 // Bom For Tisch
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tischbein").Id, Name = "Tischbein", Quantity=4, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id, OperationId = operations.Single(x => x.Name == "Tisch verschrauben").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Tischplatte").Id, Name = "Tischplatte", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id, OperationId = operations.Single(x => x.Name == "Tisch zusammenstellen").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Schrauben").Id, Name = "Schrauben", Quantity=8, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id, OperationId = operations.Single(x => x.Name == "Tisch zusammenstellen").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein", Quantity=4, ArticleParentId = articles.Single(predicate: a => a.Name == "Tisch").Id, OperationId = operations.Single(predicate: x => x.Name == "Tisch verschrauben").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Tisch").Id, OperationId = operations.Single(predicate: x => x.Name == "Tisch zusammenstellen").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Schrauben").Id, Name = "Schrauben", Quantity=8, ArticleParentId = articles.Single(predicate: a => a.Name == "Tisch").Id, OperationId = operations.Single(predicate: x => x.Name == "Tisch zusammenstellen").Id },
               
                 // Bom For Tischplatte
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holzplatte 1,5m x 3,0m x 0,03m").Id, Name = "Holzplatte 1,5m x 3,0m x 0,03m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tischplatte").Id, OperationId = operations.Single(x => x.Name == "Tischplatte saegen").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Holzplatte 1,5m x 3,0m x 0,03m").Id, Name = "Holzplatte 1,5m x 3,0m x 0,03m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, OperationId = operations.Single(predicate: x => x.Name == "Tischplatte saegen").Id },
 
                 // Bom For Tischbein
-                new M_ArticleBom { ArticleChildId = articles.Single(a => a.Name == "Holzpflock 1,20m x 0,15m x 0,15m").Id, Name = "Holzpflock 1,20m x 0,15m x 0,15m", Quantity=1, ArticleParentId = articles.Single(a => a.Name == "Tischbein").Id, OperationId = operations.Single(x => x.Name == "Tischbein saegen").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Holzpflock 1,20m x 0,15m x 0,15m").Id, Name = "Holzpflock 1,20m x 0,15m x 0,15m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Tischbein").Id, OperationId = operations.Single(predicate: x => x.Name == "Tischbein saegen").Id },
 
             };
-            context.ArticleBoms.AddRange(articleBom);
+            context.ArticleBoms.AddRange(entities: articleBom);
             context.SaveChanges();
 
 
             //create Businesspartner
             var businessPartner = new M_BusinessPartner() { Debitor = true, Kreditor = false, Name = "Toys'R'us toy department" };
             var businessPartner2 = new M_BusinessPartner() { Debitor = false, Kreditor = true, Name = "Material wholesale" };
-            context.BusinessPartners.Add(businessPartner);
-            context.BusinessPartners.Add(businessPartner2);
+            context.BusinessPartners.Add(entity: businessPartner);
+            context.BusinessPartners.Add(entity: businessPartner2);
             context.SaveChanges();
 
             var artToBusinessPartner = new M_ArticleToBusinessPartner[]
             {
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Tisch").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Tischbein").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Tischplatte").Id, PackSize = 500,Price = 0.05, DueTime = 1440},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Schrauben").Id, PackSize = 50,Price = 2.50, DueTime = 1440},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Holzpflock 1,20m x 0,15m x 0,15m").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(x => x.Name=="Holzplatte 1,5m x 3,0m x 0,03m").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tisch").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tischbein").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tischplatte").Id, PackSize = 500,Price = 0.05, DueTime = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Schrauben").Id, PackSize = 50,Price = 2.50, DueTime = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Holzpflock 1,20m x 0,15m x 0,15m").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Holzplatte 1,5m x 3,0m x 0,03m").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
 
             };
-            context.ArticleToBusinessPartners.AddRange(artToBusinessPartner);
+            context.ArticleToBusinessPartners.AddRange(entities: artToBusinessPartner);
             context.SaveChanges();
 
         }

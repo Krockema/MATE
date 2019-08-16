@@ -7,7 +7,7 @@ namespace Master40.DB.Data.Context
     {
         private DbContextOptions<HangfireDBContext> options;
 
-        public HangfireDBContext(DbContextOptions<HangfireDBContext> options) : base(options)
+        public HangfireDBContext(DbContextOptions<HangfireDBContext> options) : base(options: options)
         {
         }
 

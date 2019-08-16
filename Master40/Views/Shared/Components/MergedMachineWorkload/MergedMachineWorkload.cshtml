@@ -1,12 +1,12 @@
 @{
     Layout = "_Layout";
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
     if (chart != null)
     {
-        raw = chart.CreateChartCode("MaschineChartMerged");
+        raw = chart.CreateChartCode(canvasId: "MaschineChartMerged");
         // buxfix in ChartJS Core
-        raw = raw.Replace("\"false\"", "false").Replace("yAxesID", "yAxisID");
+        raw = raw.Replace(oldValue: "\"false\"", newValue: "false").Replace(oldValue: "yAxesID", newValue: "yAxisID");
     }
 
 }
@@ -53,7 +53,7 @@
                 <tr>
                     <th>Machine</th>
                     @for(var j = 0; j < chart.Data.Datasets.Count; j++ ) { 
-                        <th> @chart.Data.Datasets[j].Label</th>
+                        <th> @chart.Data.Datasets[index: j].Label</th>
                     }
                 </tr>
                 </thead>
@@ -61,9 +61,9 @@
                 @for (int i = 0; i < 5; i++)
                 {
                     <tr>
-                        <td  style="width: 120px; display: block;">@chart.Data.Labels[i]</td>
+                        <td  style="width: 120px; display: block;">@chart.Data.Labels[index: i]</td>
                        @for(var j = 0; j < chart.Data.Datasets.Count; j++ ) { 
-                        <td>@chart.Data.Datasets[j].Data[i] %</td>
+                        <td>@chart.Data.Datasets[index: j].Data[index: i] %</td>
                        }
                     </tr>
                 }
@@ -71,5 +71,5 @@
         </div>   
 </div>
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
 </script>

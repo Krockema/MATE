@@ -6,7 +6,7 @@ namespace Master40.XUnitTest.Preparations
         public static class ConnectionsStrings
         {
             public static readonly bool IsWindows = RuntimeInformation
-                .IsOSPlatform(OSPlatform.Windows);
+                .IsOSPlatform(osPlatform: OSPlatform.Windows);
 
             public static readonly String DbConnectionZppWindows =
                 "Server=(localdb)\\mssqllocaldb;Database=UnitTestDB;Trusted_Connection=True;MultipleActiveResultSets=true";

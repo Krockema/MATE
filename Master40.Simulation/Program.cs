@@ -13,12 +13,12 @@ namespace Master40.Simulation
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Welcome to AkkaSim Cli");
+            Console.WriteLine(value: "Welcome to AkkaSim Cli");
             
 
-            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[0]);
+            var masterDb = ProductionDomainContext.GetContext(defaultCon: ConfigurationManager.AppSettings[index: 0]);
             var validCommands = new Commands();
-            var command = validCommands.Single(x => x.ArgLong == "Help");
+            var command = validCommands.Single(predicate: x => x.ArgLong == "Help");
             var lastArg = 0;
             var config = new SimulationCore.Environment.Configuration();
 
@@ -26,26 +26,26 @@ namespace Master40.Simulation
             {
                 if (args[lastArg] == "-?" || args[lastArg] == "/?")
                 {
-                    command.Action(null, null);
+                    command.Action(arg1: null, arg2: null);
                     return;
                 }
 
-                if (IsArg(validCommands, args[lastArg], ref command))
+                if (IsArg(validCommands: validCommands, argument: args[lastArg], command: ref command))
                 {
                     if (command.HasProperty)
                     {
                         lastArg++;
-                        command.Action(config, args[lastArg]);
+                        command.Action(arg1: config, arg2: args[lastArg]);
 
                     }
                     else
                     {
-                        command.Action(config, null);
+                        command.Action(arg1: config, arg2: null);
                     }
                 }
             }
 
-            RunSimulationTask(masterDb, config).Wait();
+            RunSimulationTask(masterDb: masterDb, config: config).Wait();
         }
 
         private static async Task RunSimulationTask(ProductionDomainContext masterDb
@@ -58,27 +58,27 @@ namespace Master40.Simulation
 
             try
             {
-                Console.WriteLine("Starting AkkaSim.");
-                var agentCore = new AgentCore(masterDb, new ConsoleHub());
-                await agentCore.RunAkkaSimulation(config);
+                Console.WriteLine(value: "Starting AkkaSim.");
+                var agentCore = new AgentCore(context: masterDb, messageHub: new ConsoleHub());
+                await agentCore.RunAkkaSimulation(configuration: config);
                 
             }
             catch (Exception)
             {
-                Console.WriteLine("Ooops. Something went wrong!");
+                Console.WriteLine(value: "Ooops. Something went wrong!");
                 throw;
             }
         }
 
         private static bool IsArg(List<ICommand> validCommands, string argument, ref ICommand command)
         {
-            if (null != (command = validCommands.SingleOrDefault(x => argument
-                                                    .Equals("-" + x.ArgShort, StringComparison.OrdinalIgnoreCase))))
+            if (null != (command = validCommands.SingleOrDefault(predicate: x => argument
+                                                    .Equals(value: "-" + x.ArgShort, comparisonType: StringComparison.OrdinalIgnoreCase))))
             {
                 return true;
             }
-            if (null != (command = validCommands.SingleOrDefault(x => argument
-                                                    .Equals("--" + x.ArgLong, StringComparison.OrdinalIgnoreCase))))
+            if (null != (command = validCommands.SingleOrDefault(predicate: x => argument
+                                                    .Equals(value: "--" + x.ArgLong, comparisonType: StringComparison.OrdinalIgnoreCase))))
             {
                 return true;
             }

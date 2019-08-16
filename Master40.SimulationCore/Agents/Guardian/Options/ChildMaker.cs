@@ -9,27 +9,27 @@ namespace Master40.SimulationCore.Agents.Guardian.Options
 {
     public static class ChildMaker
     {
-        [ThreadStatic]
+
         private static int contractCount = 0;
-        [ThreadStatic]
+
         private static int productionCount = 0;
-        [ThreadStatic]
+
         private static int dispoCount = 0;
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ContractCreator = (ctx, setup) =>
         {
-            return ctx.ActorOf(Contract.Props(setup.ActorPaths, setup.Time, setup.Debug), "ContractAgent(" + contractCount++ + ")");
+            return ctx.ActorOf(props: Contract.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug), name: "ContractAgent(" + contractCount++ + ")");
         };
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> DispoCreator = (ctx, setup) =>
         {
-            return ctx.ActorOf(Dispo.Props(setup.ActorPaths, setup.Time, setup.Debug, setup.Principal), "DispoAgent(" + productionCount++ + ")");
+            return ctx.ActorOf(props: Dispo.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "DispoAgent(" + productionCount++ + ")");
         };
 
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ProductionCreator = (ctx, setup) =>
         {
-            return ctx.ActorOf(Production.Props(setup.ActorPaths, setup.Time, setup.Debug, setup.Principal), "ProductionAgent(" + dispoCount++ + ")");
+            return ctx.ActorOf(props: Production.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "ProductionAgent(" + dispoCount++ + ")");
         };
     }
 }

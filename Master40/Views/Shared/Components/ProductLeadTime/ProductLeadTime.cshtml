@@ -3,14 +3,14 @@
 @{
     ViewBag.Title = "Product Lead Times";
     Layout = "_Layout";
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
-    string type = ViewData["Type"].ToString();
-    var kpis = (List<Kpi>)ViewData["Data"];
+    string type = ViewData[index: "Type"].ToString();
+    var kpis = (List<Kpi>)ViewData[index: "Data"];
     if (chart != null) {
-        raw = chart.CreateChartCode("ProductLeadTime_" + type);
+        raw = chart.CreateChartCode(canvasId: "ProductLeadTime_" + type);
         // bug fix Chart Js Core
-        raw = raw.Replace("\"false\"", "false").Replace("yAxesID", "yAxisID");
+        raw = raw.Replace(oldValue: "\"false\"", newValue: "false").Replace(oldValue: "yAxesID", newValue: "yAxisID");
     }
 }
 
@@ -67,9 +67,9 @@
                 {
                     <tr>
                         <td>@item.Name</td>
-                        <td>@(Math.Round(item.ValueMin, 0))</td>
-                        <td>@(Math.Round(item.ValueMax, 0))</td>
-                        <td>@(Math.Round(item.Value, 2))</td>
+                        <td>@(Math.Round(value: item.ValueMin, digits: 0))</td>
+                        <td>@(Math.Round(value: item.ValueMax, digits: 0))</td>
+                        <td>@(Math.Round(value: item.Value, digits: 2))</td>
                     </tr>
                 }
             </thead>
@@ -77,5 +77,5 @@
     </div>
 </div>
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
 </script>

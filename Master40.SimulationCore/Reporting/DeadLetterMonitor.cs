@@ -8,12 +8,12 @@ namespace Master40.SimulationCore.Reporting
     {
         public DeadLetterMonitor()
         {
-            Receive<DeadLetter>(dl => HandleDeadletter(dl));
+            Receive<DeadLetter>(handler: dl => HandleDeadletter(dl: dl));
         }
 
         private void HandleDeadletter(DeadLetter dl)
         {
-            System.Diagnostics.Debug.WriteLine($"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
+            System.Diagnostics.Debug.WriteLine(message: $"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
         }
     }
 }

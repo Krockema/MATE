@@ -6,7 +6,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class JobQueueTimeLimited : LimitedQueue
     {
-        public JobQueueTimeLimited(int limit) : base(limit)
+        public JobQueueTimeLimited(int limit) : base(limit: limit)
         {
         }
         /// <summary>
@@ -15,8 +15,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <param name="item"></param>
         public bool Enqueue(IJob item)
         {
-            if (Limit <= this.jobs.Sum(x => x.Duration)) return false;
-            this.jobs.Add(item);
+            if (Limit <= this.jobs.Sum(selector: x => x.Duration)) return false;
+            this.jobs.Add(item: item);
             return true;
 
         }

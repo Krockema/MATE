@@ -20,7 +20,7 @@ namespace Master40.XUnitTest.Agents.Contract.Behaviour
             var behave = Factory.Get(simType: DB.Enums.SimulationType.None);
             var simContext = CreateTestProbe();
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
-            var agent = AgentMoc.CreateAgent(actorPaths: actorPaths
+            AgentMoc.CreateAgent(actorPaths: actorPaths
                                            , principal: null,
                                              behaviour: behave);
             behave.Action(message: message);

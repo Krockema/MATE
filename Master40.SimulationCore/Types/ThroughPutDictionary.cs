@@ -15,22 +15,22 @@ namespace Master40.SimulationCore.Agents.Types
         /// <returns></returns>
         public EstimatedThroughPut Get(string name)
         {
-            if (dic.TryGetValue(name, out EstimatedThroughPut eta))
+            if (dic.TryGetValue(key: name, value: out EstimatedThroughPut eta))
             {
                 return eta;
             }
-            return new EstimatedThroughPut(0);
+            return new EstimatedThroughPut(value: 0);
         }
 
         public bool UpdateOrCreate(string name, long time)
         {
-            if(dic.TryGetValue(name, out EstimatedThroughPut eta))
+            if(dic.TryGetValue(key: name, value: out EstimatedThroughPut eta))
             {
-                eta.Set(time);
+                eta.Set(time: time);
                 return false;
             }
             // else
-            dic.Add(name, new EstimatedThroughPut(time));
+            dic.Add(key: name, value: new EstimatedThroughPut(value: time));
             return true;
         }
     }

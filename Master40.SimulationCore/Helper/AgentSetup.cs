@@ -8,7 +8,7 @@ namespace Master40.SimulationCore.Helper
     {
         public static AgentSetup Create(Agent agent, IBehaviour behaviour)
         {
-            return new AgentSetup(agent, behaviour);
+            return new AgentSetup(agent: agent, behaviour: behaviour);
         }
         public AgentSetup(Agent agent, IBehaviour behaviour)
         {

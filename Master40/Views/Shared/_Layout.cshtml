@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - Master ERP 4.0</title>
+    <title>@ViewData[index: "Title"] - Master ERP 4.0</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="~/css/site.css">
     <link rel="stylesheet" href="~/css/MenuV2.css">
@@ -58,7 +58,7 @@
         </div>
     </nav>
     <nav class="main-menu">
-        <ul>@await Component.InvokeAsync("Menu", new { menueId = 1 })</ul>
+        <ul>@await Component.InvokeAsync(name: "Menu", arguments: new { menueId = 1 })</ul>
     </nav>
     <!-- /#sidebar-wrapper -->
     <!-- Page Content -->
@@ -69,7 +69,7 @@
             </div>
             <!-- /#page-content-wrapper -->
         </div>
-    </div>@RenderSection("Scripts", required: false)
+    </div>@RenderSection(name: "Scripts", required: false)
     <!-- number validation
     fix for '.' -> ',' -->
     <footer class="footer">

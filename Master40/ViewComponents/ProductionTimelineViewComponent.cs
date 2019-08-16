@@ -34,31 +34,31 @@ namespace Master40.ViewComponents
 
             if (!_context.ProductionOrderOperations.Any())
             {
-                return View("ProductionTimeline", _ganttContext);
+                return View(viewName: "ProductionTimeline", model: _ganttContext);
             }
 
             //.Definitions();
             var orders = new List<int>();
-            _orderId = paramsList[0];
-            _schedulingState = paramsList[1];
+            _orderId = paramsList[index: 0];
+            _schedulingState = paramsList[index: 1];
 
                 // If Order is not selected.
                 if (_orderId == -1)
                 {   // for all Orders
-                    orders = _context?.CustomerOrderParts.Select(x => x.Id).ToList();
+                    orders = _context?.CustomerOrderParts.Select(selector: x => x.Id).ToList();
                 }
                 else
                 {  // for the specified Order
-                    orders = _context?.CustomerOrderParts.Where(x => x.CustomerOrderId == _orderId).Select(x => x.Id).ToList();
+                    orders = _context?.CustomerOrderParts.Where(predicate: x => x.CustomerOrderId == _orderId).Select(selector: x => x.Id).ToList();
                 }
 
             // Fill Select Fields
-            var orderSelection = new SelectList(_context.CustomerOrders, "Id", "Name", _orderId);
-            ViewData["OrderId"] = orderSelection.AddFirstItem(new SelectListItem { Value = "-1", Text = "All" });
-            ViewData["SchedulingState"] = SchedulingState(_schedulingState);
+            var orderSelection = new SelectList(items: _context.CustomerOrders, dataValueField: "Id", dataTextField: "Name", selectedValue: _orderId);
+            ViewData[index: "OrderId"] = orderSelection.AddFirstItem(firstItem: new SelectListItem { Value = "-1", Text = "All" });
+            ViewData[index: "SchedulingState"] = SchedulingState(selectedItem: _schedulingState);
 
             // return schedule
-            return View("ProductionTimeline", _ganttContext);
+            return View(viewName: "ProductionTimeline", model: _ganttContext);
         }
         
 
@@ -74,46 +74,46 @@ namespace Master40.ViewComponents
             {
                 case 3: // Machine Based
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "M" + (pow.MachineId ?? 0));
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "M" + (pow.MachineId ?? 0));
                     if (project.Any())
                     {
                         return project.First();
                     }
                     else
                     {
-                        var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("M" + pow.Resource.Id, pow.Resource.Name, "", 0, (GanttColors)gc);
-                        _ganttContext.Tasks.Add(pt);
+                        var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
+                        var pt = CreateProjectTask(id: "M" + pow.Resource.Id, name: pow.Resource.Name, desc: "", @group: 0, gc: (GanttColors)gc);
+                        _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
                     //break;
                 case 4: // Production Order Based
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "P" + pow.ProductionOrderId);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "P" + pow.ProductionOrderId);
                     if (project.Any())
                     {
                         return project.First();
                     }
                     else
                     {
-                        var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("P" + pow.ProductionOrderId, "PO Nr.: " + pow.ProductionOrderId, "", 0, (GanttColors)gc);
-                        _ganttContext.Tasks.Add(pt);
+                        var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
+                        var pt = CreateProjectTask(id: "P" + pow.ProductionOrderId, name: "PO Nr.: " + pow.ProductionOrderId, desc: "", @group: 0, gc: (GanttColors)gc);
+                        _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
                     //break;
                 default: // back and forward
                     project = _ganttContext.Tasks
-                        .Where(x => x.type == GanttType.project && x.id == "O" + orderId);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "O" + orderId);
                     if (project.Any())
                     {
                         return project.First();
                     }
                     else
                     {
-                        var gc = _ganttContext.Tasks.Count(x => x.type == GanttType.project) + 1;
-                        var pt = CreateProjectTask("O" + orderId, _context.CustomerOrders.FirstOrDefault(x => x.Id == orderId).Name, "", 0, (GanttColors)gc);
-                        _ganttContext.Tasks.Add(pt);
+                        var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
+                        var pt = CreateProjectTask(id: "O" + orderId, name: _context.CustomerOrders.FirstOrDefault(predicate: x => x.Id == orderId).Name, desc: "", @group: 0, gc: (GanttColors)gc);
+                        _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
                    // break;
@@ -153,8 +153,8 @@ namespace Master40.ViewComponents
                 type = GanttType.task,
                 desc = item.Name,
                 text = _schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId,
-                start_date = start.GetDateFromMilliseconds().ToString("dd-MM-yyyy HH:mm"),
-                end_date = end.GetDateFromMilliseconds().ToString("dd-MM-yyyy HH:mm"),
+                start_date = start.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
+                end_date = end.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 IntFrom = start,
                 IntTo = end,
                 parent = parent,
@@ -184,12 +184,12 @@ namespace Master40.ViewComponents
             var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
             if (_context.ProductionOrderOperations.Any())
             {
-                if (_context.ProductionOrderOperations.Max(x => x.StartForward) != 0)
-                    itemList.Add(new SelectListItem() {Text = "Forward", Value = "2"});
+                if (_context.ProductionOrderOperations.Max(selector: x => x.StartForward) != 0)
+                    itemList.Add(item: new SelectListItem() {Text = "Forward", Value = "2"});
             }
-            itemList.Add(new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
-            itemList.Add(new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
-            return new SelectList( itemList, "Value", "Text", selectedItem);
+            itemList.Add(item: new SelectListItem() { Text = "Capacity-Planning Machinebased", Value = "3" });
+            itemList.Add(item: new SelectListItem() { Text = "Capacity-Planning Productionorderbased", Value = "4" });
+            return new SelectList( items: itemList, dataValueField: "Value", dataTextField: "Text", selectedValue: selectedItem);
         }
     }
 }

@@ -48,18 +48,18 @@ namespace Master40.SimulationCore.Agents
             ActorPaths = actorPaths;
             VirtualParent = principal;
             VirtualChildren = new HashSet<IActorRef>();
-            DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
+            DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
         protected override void Do(object o)
         {
             switch (o)
             {
-                case BasicInstruction.Initialize i: InitializeAgent(i.GetObjectFromMessage); break;
-                case BasicInstruction.ChildRef c: AddChild(c.GetObjectFromMessage); break;
+                case BasicInstruction.Initialize i: InitializeAgent(behaviour: i.GetObjectFromMessage); break;
+                case BasicInstruction.ChildRef c: AddChild(childRef: c.GetObjectFromMessage); break;
                 default:
-                    if (!Behaviour.Action((ISimulationMessage)o))
-                        throw new Exception(this.Name + " is sorry, he doesn't know what to do!");
+                    if (!Behaviour.Action(message: (ISimulationMessage)o))
+                        throw new Exception(message: this.Name + " is sorry, he doesn't know what to do!");
                     break;
             }
         }
@@ -73,7 +73,7 @@ namespace Master40.SimulationCore.Agents
         }
         protected virtual void OnChildAdd(IActorRef childRef)
         {
-            DebugMessage(this.Name + " Child created.");            
+            DebugMessage(msg: this.Name + " Child created.");            
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Master40.SimulationCore.Agents
             if (!DebugThis) return;
             // else
             var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
-            Debug.WriteLine(logItem, "AgentMessage");
+            Debug.WriteLine(message: logItem, category: "AgentMessage");
             // TODO: Replace with Logging Agent
             // Statistics.Log.Add(logItem);
         }
@@ -141,7 +141,7 @@ namespace Master40.SimulationCore.Agents
         /// </summary>
         protected override void Finish()
         {
-            DebugMessage(Self + " finish has been called by " + Sender);
+            DebugMessage(msg: Self + " finish has been called by " + Sender);
             base.Finish();
         }
     }

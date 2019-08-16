@@ -1,7 +1,7 @@
 @model Master40.DB.ReportingModel.SimulationConfiguration
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData[index: "Title"] = "Details";
     Layout = null;
 }
 
@@ -12,76 +12,76 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Time)
+            @Html.DisplayNameFor(expression: model => model.Time)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Time)
+            @Html.DisplayFor(expression: model => model.Time)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.MaxCalculationTime)
+            @Html.DisplayNameFor(expression: model => model.MaxCalculationTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.MaxCalculationTime)
+            @Html.DisplayFor(expression: model => model.MaxCalculationTime)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Lotsize)
+            @Html.DisplayNameFor(expression: model => model.Lotsize)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Lotsize)
+            @Html.DisplayFor(expression: model => model.Lotsize)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.OrderQuantity)
+            @Html.DisplayNameFor(expression: model => model.OrderQuantity)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.OrderQuantity)
+            @Html.DisplayFor(expression: model => model.OrderQuantity)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.OrderRate)
+            @Html.DisplayNameFor(expression: model => model.OrderRate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.OrderRate)
+            @Html.DisplayFor(expression: model => model.OrderRate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ConsecutiveRuns)
+            @Html.DisplayNameFor(expression: model => model.ConsecutiveRuns)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ConsecutiveRuns)
+            @Html.DisplayFor(expression: model => model.ConsecutiveRuns)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.DynamicKpiTimeSpan)
+            @Html.DisplayNameFor(expression: model => model.DynamicKpiTimeSpan)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.DynamicKpiTimeSpan)
+            @Html.DisplayFor(expression: model => model.DynamicKpiTimeSpan)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Seed)
+            @Html.DisplayNameFor(expression: model => model.Seed)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Seed)
+            @Html.DisplayFor(expression: model => model.Seed)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.WorkTimeDeviation)
+            @Html.DisplayNameFor(expression: model => model.WorkTimeDeviation)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.WorkTimeDeviation)
+            @Html.DisplayFor(expression: model => model.WorkTimeDeviation)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.RecalculationTime)
+            @Html.DisplayNameFor(expression: model => model.RecalculationTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.RecalculationTime)
+            @Html.DisplayFor(expression: model => model.RecalculationTime)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.SimulationEndTime)
+            @Html.DisplayNameFor(expression: model => model.SimulationEndTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.SimulationEndTime)
+            @Html.DisplayFor(expression: model => model.SimulationEndTime)
         </dd>
     </dl>
 </div>

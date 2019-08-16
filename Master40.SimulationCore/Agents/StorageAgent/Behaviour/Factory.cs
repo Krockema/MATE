@@ -11,13 +11,13 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             switch (simType)
             {
                 default:
-                    return Default(stockElement);
+                    return Default(stockElement: stockElement);
             }
         }
 
         private static IBehaviour Default(M_Stock stockElement)
         {
-            return new Default(stockElement, SimulationType.None);
+            return new Default(stockElement: stockElement, simType: SimulationType.None);
 
         }
     }

@@ -1,6 +1,6 @@
 ﻿@model Master40.DB.DataModel.M_Resource
 @{ 
-    var name = Model.Name.Replace(" ", "");
+    var name = Model.Name.Replace(oldValue: " ", newValue: "");
     var percent = "0 %";
 }
 
@@ -26,7 +26,7 @@
 
     </style>
     <script>
-        var @name = document.getElementById("@Model.Name.Replace(" ", "")");
+        var @name = document.getElementById("@Model.Name.Replace(oldValue: " ", newValue: "")");
         var Workload_@name =
             new Chart(@name,
                 {

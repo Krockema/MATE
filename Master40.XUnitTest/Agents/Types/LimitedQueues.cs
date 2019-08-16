@@ -33,46 +33,46 @@ namespace Master40.XUnitTest.Agents.Types
                 Id = 1,
                 Name = jobName
             };
-            return operation.ToOperationItem(50, ActorRefs.Nobody, false, 0);
+            return operation.ToOperationItem(dueTime: 50, productionAgent: ActorRefs.Nobody, firstOperation: false, currentTime: 0);
         }
 
 
         [Fact]
         public void AddToTimeLimitedQueue()
         {
-            var jobQueueTimeLimited = new JobQueueTimeLimited(15);
-            var addItemStatus = jobQueueTimeLimited.Enqueue(CreateJobItem("Sample Operation 1", 10));
-            Assert.True(addItemStatus);
+            var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
+            var addItemStatus = jobQueueTimeLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10));
+            Assert.True(condition: addItemStatus);
 
-            addItemStatus = jobQueueTimeLimited.Enqueue(CreateJobItem("Sample Operation 2", 5));
-            Assert.True(addItemStatus);
+            addItemStatus = jobQueueTimeLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 2", jobDuration: 5));
+            Assert.True(condition: addItemStatus);
 
-            addItemStatus = jobQueueTimeLimited.Enqueue(CreateJobItem("Sample Operation 3", 10));
-            Assert.False(addItemStatus);
+            addItemStatus = jobQueueTimeLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 3", jobDuration: 10));
+            Assert.False(condition: addItemStatus);
 
         }
 
         [Fact]
         public void AddToItemLimitedQueue()
         {
-            var jobQueueItemLimited = new JobQueueItemLimited(1);
-            var addItemStatus = jobQueueItemLimited.Enqueue(CreateJobItem("Sample Operation 1", 10));
-            Assert.True(addItemStatus);
+            var jobQueueItemLimited = new JobQueueItemLimited(limit: 1);
+            var addItemStatus = jobQueueItemLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10));
+            Assert.True(condition: addItemStatus);
 
-            addItemStatus = jobQueueItemLimited.Enqueue(CreateJobItem("Sample Operation 2", 20));
-            Assert.False(addItemStatus);
+            addItemStatus = jobQueueItemLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 2", jobDuration: 20));
+            Assert.False(condition: addItemStatus);
         }
 
         [Theory]
         [InlineData(10, 50, 5, 35, 20, "SampleOne")]
         public void DequeueFromLimitedQueue(int durationItemOne , int dueTimeItemOne, int durationItemTwo, int dueTimeItemTwo, int currentTime, string expected)
         {
-            var jobQueueTimeLimited = new JobQueueTimeLimited(15);
-            jobQueueTimeLimited.Enqueue(CreateJobItem("SampleOne", durationItemOne, dueTimeItemOne));
+            var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
+            jobQueueTimeLimited.Enqueue(item: CreateJobItem(jobName: "SampleOne", jobDuration: durationItemOne, dueTime: dueTimeItemOne));
 
-            jobQueueTimeLimited.Enqueue(CreateJobItem("SampleTwo", durationItemTwo, dueTimeItemTwo));
+            jobQueueTimeLimited.Enqueue(item: CreateJobItem(jobName: "SampleTwo", jobDuration: durationItemTwo, dueTime: dueTimeItemTwo));
 
-            var dequeuedItem = jobQueueTimeLimited.Dequeue(currentTime);
+            var dequeuedItem = jobQueueTimeLimited.Dequeue(currentTime: currentTime);
             Assert.Equal(expected: expected, actual: ((FOperation)dequeuedItem).Operation.Name);
 
             Assert.Equal(expected: 1, actual: jobQueueTimeLimited.Count);

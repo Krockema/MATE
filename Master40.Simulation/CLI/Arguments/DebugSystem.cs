@@ -13,7 +13,7 @@ namespace Master40.Simulation.CLI.Arguments
         public DebugSystem()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.DebugSystem(bool.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.DebugSystem(value: bool.Parse(value: argument)));
             };
         }
     }

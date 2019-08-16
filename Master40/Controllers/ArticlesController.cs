@@ -20,8 +20,8 @@ namespace Master40.Controllers
         // GET: Articles
         public async Task<IActionResult> Index()
         {
-            var masterDBContext = _context.Articles.Include(a => a.ArticleType).Include(a => a.Unit);
-            return View(await masterDBContext.ToListAsync());
+            var masterDBContext = _context.Articles.Include(navigationPropertyPath: a => a.ArticleType).Include(navigationPropertyPath: a => a.Unit);
+            return View(model: await masterDBContext.ToListAsync());
         }
 
         // GET: Articles/Details/5
@@ -33,22 +33,22 @@ namespace Master40.Controllers
             }
 
             var article = await _context.Articles
-                .Include(a => a.ArticleType)
-                .Include(a => a.Unit)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: a => a.ArticleType)
+                .Include(navigationPropertyPath: a => a.Unit)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (article == null)
             {
                 return NotFound();
             }
 
-            return View(article);
+            return View(model: article);
         }
 
         // GET: Articles/Create
         public IActionResult Create()
         {
-            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name");
-            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name");
+            ViewData[index: "ArticleTypeId"] = new SelectList(items: _context.ArticleTypes, dataValueField: "ArticleTypeId", dataTextField: "Name");
+            ViewData[index: "UnitId"] = new SelectList(items: _context.Units, dataValueField: "UnitId", dataTextField: "Name");
             return View();
         }
 
@@ -61,13 +61,13 @@ namespace Master40.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(article);
+                _context.Add(entity: article);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name", article.ArticleTypeId);
-            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name", article.UnitId);
-            return View(article);
+            ViewData[index: "ArticleTypeId"] = new SelectList(items: _context.ArticleTypes, dataValueField: "ArticleTypeId", dataTextField: "Name", selectedValue: article.ArticleTypeId);
+            ViewData[index: "UnitId"] = new SelectList(items: _context.Units, dataValueField: "UnitId", dataTextField: "Name", selectedValue: article.UnitId);
+            return View(model: article);
         }
 
         // GET: Articles/Edit/5
@@ -78,14 +78,14 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var article = await _context.Articles.SingleOrDefaultAsync(m => m.Id == id);
+            var article = await _context.Articles.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (article == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name", article.ArticleTypeId);
-            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name", article.UnitId);
-            return View(article);
+            ViewData[index: "ArticleTypeId"] = new SelectList(items: _context.ArticleTypes, dataValueField: "ArticleTypeId", dataTextField: "Name", selectedValue: article.ArticleTypeId);
+            ViewData[index: "UnitId"] = new SelectList(items: _context.Units, dataValueField: "UnitId", dataTextField: "Name", selectedValue: article.UnitId);
+            return View(model: article);
         }
 
         // POST: Articles/Edit/5
@@ -104,12 +104,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(article);
+                    _context.Update(entity: article);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArticleExists(article.Id))
+                    if (!ArticleExists(id: article.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +118,11 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleTypeId"] = new SelectList(_context.ArticleTypes, "ArticleTypeId", "Name", article.ArticleTypeId);
-            ViewData["UnitId"] = new SelectList(_context.Units, "UnitId", "Name", article.UnitId);
-            return View(article);
+            ViewData[index: "ArticleTypeId"] = new SelectList(items: _context.ArticleTypes, dataValueField: "ArticleTypeId", dataTextField: "Name", selectedValue: article.ArticleTypeId);
+            ViewData[index: "UnitId"] = new SelectList(items: _context.Units, dataValueField: "UnitId", dataTextField: "Name", selectedValue: article.UnitId);
+            return View(model: article);
         }
 
         // GET: Articles/Delete/5
@@ -134,31 +134,31 @@ namespace Master40.Controllers
             }
 
             var article = await _context.Articles
-                .Include(a => a.ArticleType)
-                .Include(a => a.Unit)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: a => a.ArticleType)
+                .Include(navigationPropertyPath: a => a.Unit)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (article == null)
             {
                 return NotFound();
             }
 
-            return View(article);
+            return View(model: article);
         }
 
         // POST: Articles/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var article = await _context.Articles.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Articles.Remove(article);
+            var article = await _context.Articles.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _context.Articles.Remove(entity: article);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool ArticleExists(int id)
         {
-            return _context.Articles.Any(e => e.Id == id);
+            return _context.Articles.Any(predicate: e => e.Id == id);
         }
     }
 }

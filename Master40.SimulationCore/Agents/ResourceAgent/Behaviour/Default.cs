@@ -8,10 +8,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, SimulationType simulationType = SimulationType.None) : base(null, simulationType)
+        public Default(int planingJobQueueLength, int fixedJobQueueSize, SimulationType simulationType = SimulationType.None) : base(childMaker: null, obj: simulationType)
         {
-            this.processingQueue = new JobQueueItemLimited(fixedJobQueueSize);
-            this.queue = new JobQueueTimeLimited(planingJobQueueLength);
+            this.processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
+            this.queue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             AgentDictionary = new AgentDictionary();
             this.queueLength = queueLength;
         }
@@ -28,7 +28,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             switch (message)
             {
                 //case BasicInstruction.Initialize i: RegisterService(); break;
-                case Resource.Instruction.SetHubAgent msg: SetHubAgent(msg.GetObjectFromMessage.Ref); break;
+                case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
                 // case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
@@ -174,9 +174,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void SetHubAgent(IActorRef hubAgent)
         {
             // Save to Value Store
-            AgentDictionary.Add(hubAgent, "Default");
+            AgentDictionary.Add(key: hubAgent, value: "Default");
             // Debug Message
-            Agent.DebugMessage("Successfull Registred Service at : " + hubAgent.Path.Name);
+            Agent.DebugMessage(msg: "Successfull Registred Service at : " + hubAgent.Path.Name);
         }
 
         /*

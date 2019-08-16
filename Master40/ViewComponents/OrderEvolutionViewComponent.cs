@@ -21,7 +21,7 @@ namespace Master40.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
                 if (!_context.SimulationOperations.Any())
                 {
@@ -32,9 +32,9 @@ namespace Master40.ViewComponents
                 ChartColor cc = new ChartColor();
                 // charttype
                 chart.Type = Enums.ChartType.Scatter;
-                var simConfig = _context.SimulationConfigurations.Single(a => a.Id == Convert.ToInt32(paramsList[0]));
+                var simConfig = _context.SimulationConfigurations.Single(predicate: a => a.Id == Convert.ToInt32(paramsList[0]));
                 // use available hight in Chart
-                var maxY = Math.Floor((decimal)simConfig.SimulationEndTime / 1000) * 1000;
+                var maxY = Math.Floor(d: (decimal)simConfig.SimulationEndTime / 1000) * 1000;
                 var maxX = 100;
                 chart.Options = new LineOptions()
                 {
@@ -46,7 +46,7 @@ namespace Master40.ViewComponents
                                                 , Ticks = new CartesianLinearTick{ Max = maxX, Min = 0 , Display = true }
                                                 , ScaleLabel = new ScaleLabel { LabelString = "Quantity", Display = true, FontSize = 12 } } },
                         XAxes = new List<Scale> { new CartesianScale { Id = "first-x-axis", Type = "linear", Display = true
-                                                , Ticks = new CartesianLinearTick{ Max = Convert.ToInt32(maxY), Min = 0, Display = true }
+                                                , Ticks = new CartesianLinearTick{ Max = Convert.ToInt32(value: maxY), Min = 0, Display = true }
                                                 , ScaleLabel = new ScaleLabel { LabelString = "Time in min", Display = true, FontSize = 12 } } }
                     },
                     Legend = new Legend { Position = "bottom", Display = true, FullWidth = true },
@@ -54,8 +54,8 @@ namespace Master40.ViewComponents
                 };
 
 
-                SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
-                var kpis = _context.SimulationOrders.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                SimulationType simType = (paramsList[index: 1].Equals(value: "Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+                var kpis = _context.SimulationOrders.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                    && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                                    && x.SimulationType == simType
                                                    && x.FinishingTime != 0); // filter unfinished orders
@@ -69,27 +69,27 @@ namespace Master40.ViewComponents
                     var output = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
                     for (var i = ts; i < simConfig.SimulationEndTime; i = i + ts)
                     {
-                            input.AddRange(kpis.Where(x => x.CreationTime >= startVal
+                            input.AddRange(collection: kpis.Where(predicate: x => x.CreationTime >= startVal
                                                         && x.CreationTime < i)
-                                .Select(x => new { time = i , value = (decimal)x.Name.Count() })
-                                .GroupBy(g => g.time)
-                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
+                                .Select(selector: x => new { time = i , value = (decimal)x.Name.Count() })
+                                .GroupBy(keySelector: g => g.time)
+                                .Select(selector: n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
 
-                            progress.AddRange(kpis.Where(x => x.CreationTime <= i
+                            progress.AddRange(collection: kpis.Where(predicate: x => x.CreationTime <= i
                                                       && x.FinishingTime > i)
-                                .Select(x => new { time = i, value = x.Name.Count() })
-                                .GroupBy(g => g.time)
-                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
+                                .Select(selector: x => new { time = i, value = x.Name.Count() })
+                                .GroupBy(keySelector: g => g.time)
+                                .Select(selector: n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
 
-                            output.AddRange(kpis.Where(x => x.FinishingTime >= startVal
+                            output.AddRange(collection: kpis.Where(predicate: x => x.FinishingTime >= startVal
                                                       && x.FinishingTime < i)
-                                .Select(x => new { time = i, value = x.Name.Count() })
-                                .GroupBy(g => g.time)
-                                .Select(n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
+                                .Select(selector: x => new { time = i, value = x.Name.Count() })
+                                .GroupBy(keySelector: g => g.time)
+                                .Select(selector: n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
                             startVal = i;
                         }
 
-                data.Datasets.Add(new LineScatterDataset()
+                data.Datasets.Add(item: new LineScatterDataset()
                 {
                     Data = new List<LineScatterData> { new LineScatterData { x = "0", y = maxX.ToString() }, new LineScatterData { x = simConfig.SettlingStart.ToString(), y = maxX.ToString() } },
                     BorderWidth = 1,
@@ -103,39 +103,39 @@ namespace Master40.ViewComponents
                     PointRadius = new List<int> { 0, 0 }
                 });
 
-                data.Datasets.Add(new LineScatterDataset()
+                data.Datasets.Add(item: new LineScatterDataset()
                     {
                         Data = input,
                         BorderWidth = 3,
                         Label = "Input",
-                        BackgroundColor = cc.Color[3],
-                        BorderColor = cc.Color[3],
+                        BackgroundColor = cc.Color[index: 3],
+                        BorderColor = cc.Color[index: 3],
                         ShowLine = true,
                         Fill = "false",
                         //SteppedLine = false,
                         LineTension = 0.5
                     });
                     
-                    data.Datasets.Add(new LineScatterDataset()
+                    data.Datasets.Add(item: new LineScatterDataset()
                     {
                         Data = progress,
                         BorderWidth = 3,
                         Label = "Processing",
-                        BackgroundColor = cc.Color[0],
-                        BorderColor = cc.Color[0],
+                        BackgroundColor = cc.Color[index: 0],
+                        BorderColor = cc.Color[index: 0],
                         ShowLine = true,
                         Fill = "false",
                         //SteppedLine = false,
                         LineTension = 0.5
                     });
                     
-                    data.Datasets.Add(new LineScatterDataset()
+                    data.Datasets.Add(item: new LineScatterDataset()
                     {
                         Data = output,
                         BorderWidth = 3,
                         Label = "Output",
-                        BackgroundColor = cc.Color[2],
-                        BorderColor = cc.Color[2],
+                        BackgroundColor = cc.Color[index: 2],
+                        BorderColor = cc.Color[index: 2],
                         Fill = "false",
                         ShowLine = true,
                         //SteppedLine = false,
@@ -149,9 +149,9 @@ namespace Master40.ViewComponents
             });
 
             // create JS to Render Chart.
-            ViewData["chart"] = await generateChartTask;
-            ViewData["Type"] = paramsList[1];
-            return View($"OrderEvolution");
+            ViewData[index: "chart"] = await generateChartTask;
+            ViewData[index: "Type"] = paramsList[index: 1];
+            return View(viewName: $"OrderEvolution");
         }
     }
 }

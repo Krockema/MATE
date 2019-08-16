@@ -20,16 +20,16 @@ namespace Master40.XUnitTest.Preparations
         public static ActorPaths CreateActorPaths(TestKit testKit, IActorRef simContext)
         {
             var simSystem = testKit.CreateTestProbe();
-            var inbox = Inbox.Create(testKit.Sys);
-            var agentPaths = new ActorPaths(simContext, inbox.Receiver);
-            agentPaths.SetSupervisorAgent(simSystem);
+            var inbox = Inbox.Create(system: testKit.Sys);
+            var agentPaths = new ActorPaths(simulationContext: simContext, systemMailBox: inbox.Receiver);
+            agentPaths.SetSupervisorAgent(systemAgent: simSystem);
             return agentPaths;
         }
 
         private AgentMoc(ActorPaths actorPaths, long time, bool debug, IActorRef principal, IBehaviour behaviour)
-            : base(actorPaths, time, debug, principal)
+            : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
-            this.InitializeAgent(behaviour);
+            this.InitializeAgent(behaviour: behaviour);
         }
     }
 }

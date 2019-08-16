@@ -34,9 +34,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             , Configuration configuration
             , long time
             , List<Type> streamTypes)
-            : base(time, streamTypes)
+            : base(time: time, channels: streamTypes)
         {
-            Console.WriteLine("I'm alive: " + Self.Path.ToStringWithAddress());
+            Console.WriteLine(value: "I'm alive: " + Self.Path.ToStringWithAddress());
             collectorBehaviour.Collector = this;
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
@@ -57,12 +57,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             , List<Type> streamTypes)
         {
             return Akka.Actor.Props.Create(
-                () => new Collector(actorPaths, collectorBehaviour, msgHub, configuration, time, streamTypes));
+                factory: () => new Collector(actorPaths, collectorBehaviour, msgHub, configuration, time, streamTypes));
         }
 
         protected override void EventHandle(object o)
         {
-            Behaviour.EventHandle(this, o);
+            Behaviour.EventHandle(simulationMonitor: this, message: o);
         }
        
     }

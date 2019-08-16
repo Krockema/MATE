@@ -21,7 +21,7 @@ namespace Master40.SimulationCore.DistributionProvider
 
         public OrderGenerator(Configuration simConfig, ProductionDomainContext productionDomainContext, List<int> productIds)
         {
-            _seededRandom = new Random(simConfig.GetOption<Seed>().Value
+            _seededRandom = new Random(Seed: simConfig.GetOption<Seed>().Value
                                      + simConfig.GetOption<SimulationNumber>().Value);
             _exponential = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value
                                          , randomSource: _seededRandom);
@@ -29,29 +29,29 @@ namespace Master40.SimulationCore.DistributionProvider
             _productionDomainContext = productionDomainContext;
 
             //get equal distribution from 0 to 1
-            _prodVariation = new DiscreteUniform(0, _productIds.Count() - 1, _seededRandom);
+            _prodVariation = new DiscreteUniform(lower: 0, upper: _productIds.Count() - 1, randomSource: _seededRandom);
 
             //get equal distribution for duetime
-            _duetime = new DiscreteUniform(simConfig.GetOption<MinDeliveryTime>().Value
-                                                    , simConfig.GetOption<MaxDeliveryTime>().Value
-                                                    , _seededRandom);
+            _duetime = new DiscreteUniform(lower: simConfig.GetOption<MinDeliveryTime>().Value
+                                                    , upper: simConfig.GetOption<MaxDeliveryTime>().Value
+                                                    , randomSource: _seededRandom);
         }
 
 
 
         public T_CustomerOrder GetNewRandomOrder(long time)
         {
-            var creationTime = (long)Math.Round(_exponential.Sample(), MidpointRounding.AwayFromZero);
+            var creationTime = (long)Math.Round(value: _exponential.Sample(), mode: MidpointRounding.AwayFromZero);
 
             //get which product is to be ordered
-            var productId = _productIds.ElementAt(_prodVariation.Sample());
+            var productId = _productIds.ElementAt(index: _prodVariation.Sample());
 
             //create order and orderpart, duetime is creationtime + 1 day
             var due = time + creationTime + _duetime.Sample();
-            System.Diagnostics.Debug.WriteLineIf(_debug, "Product(" + productId + ")" + ";" + time + ";" + due);
+            System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + due);
 
             // only Returns new Order does not save context.
-            var order = _productionDomainContext.CreateNewOrder(productId, 1, time + creationTime, due);
+            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: 1, creationTime: time + creationTime, dueTime: due);
             return order;
         }
     }

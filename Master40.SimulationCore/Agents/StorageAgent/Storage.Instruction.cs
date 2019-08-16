@@ -14,9 +14,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             {
                 public static RequestArticle Create(FArticle message, IActorRef target)
                 {
-                    return new RequestArticle(message, target);
+                    return new RequestArticle(message: message, target: target);
                 }
-                private RequestArticle(object message, IActorRef target) : base(message, target)
+                private RequestArticle(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
@@ -25,9 +25,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             {
                 public static ProvideArticleAtDue Create(Guid message, IActorRef target)
                 {
-                    return new ProvideArticleAtDue(message, target);
+                    return new ProvideArticleAtDue(message: message, target: target);
                 }
-                private ProvideArticleAtDue(object message, IActorRef target) : base(message, target)
+                private ProvideArticleAtDue(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
@@ -36,9 +36,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             {
                 public static StockRefill Create(Guid message, IActorRef target)
                 {
-                    return new StockRefill(message, target);
+                    return new StockRefill(message: message, target: target);
                 }
-                private StockRefill(object message, IActorRef target) : base(message, target)
+                private StockRefill(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
@@ -48,9 +48,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             {
                 public static WithdrawlMaterial Create(Guid message, IActorRef target)
                 {
-                    return new WithdrawlMaterial(message, target);
+                    return new WithdrawlMaterial(message: message, target: target);
                 }
-                private WithdrawlMaterial(object message, IActorRef target) : base(message, target)
+                private WithdrawlMaterial(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
@@ -60,9 +60,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             {
                 public static ResponseFromProduction Create(FProductionResult message, IActorRef target)
                 {
-                    return new ResponseFromProduction(message, target);
+                    return new ResponseFromProduction(message: message, target: target);
                 }
-                private ResponseFromProduction(object message, IActorRef target) : base(message, target)
+                private ResponseFromProduction(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FProductionResult GetObjectFromMessage { get => Message as FProductionResult; }

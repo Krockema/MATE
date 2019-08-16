@@ -27,29 +27,29 @@ namespace Master40.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
             Task<Chart> generateChartTask; 
-            if (Convert.ToInt32(paramsList[3]) == 1)
+            if (Convert.ToInt32(value: paramsList[index: 3]) == 1)
             {
-                generateChartTask = GenerateChartTaskOverTime(paramsList);
+                generateChartTask = GenerateChartTaskOverTime(paramsList: paramsList);
             }
-            else  generateChartTask = GenerateChartTask(paramsList);
+            else  generateChartTask = GenerateChartTask(paramsList: paramsList);
 
             // create JS to Render Chart.
-            ViewData["chart"] = await generateChartTask;
-            ViewData["Type"] = paramsList[1];
-            ViewData["OverTime"] = paramsList[3];
-            return View($"MachinesWorkLoad");
+            ViewData[index: "chart"] = await generateChartTask;
+            ViewData[index: "Type"] = paramsList[index: 1];
+            ViewData[index: "OverTime"] = paramsList[index: 3];
+            return View(viewName: $"MachinesWorkLoad");
         }
 
         private Task<Chart> GenerateChartTask(List<string> paramsList)
         {
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
                 if (!_resultContext.SimulationOperations.Any())
                 {
                     return null;
                 }
 
-                SimulationType simType = (paramsList[1].Equals("Decentral"))
+                SimulationType simType = (paramsList[index: 1].Equals(value: "Decentral"))
                     ? SimulationType.Decentral
                     : SimulationType.Central;
 
@@ -62,14 +62,14 @@ namespace Master40.ViewComponents
 
                 // use available hight in Chart
                 // use available hight in Chart
-                var machines = _resultContext.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                var machines = _resultContext.Kpis.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                         && x.SimulationType == simType
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && x.IsKpi
                                                         && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
-                                           .OrderByDescending(g => g.Name)
+                                           .OrderByDescending(keySelector: g => g.Name)
                     .ToList();
-                var data = new Data {Labels = machines.Select(n => n.Name).ToList()};
+                var data = new Data {Labels = machines.Select(selector: n => n.Name).ToList()};
 
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
@@ -83,27 +83,27 @@ namespace Master40.ViewComponents
                 var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID ="y-diversity"};
                 foreach (var machine in machines)
                 {
-                    var percent = Math.Round(machine.Value * 100, 2);
+                    var percent = Math.Round(value: machine.Value * 100, digits: 2);
                     // var wait = max - work;
-                    barDataSet.Data.Add(percent);
-                    barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "0.4)");
-                    barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "0.7)");
+                    barDataSet.Data.Add(item: percent);
+                    barDataSet.BackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "0.4)");
+                    barDataSet.HoverBackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "0.7)");
 
                     var varianz = machine.Count * 100;
 
-                    barDiversityInvisSet.Data.Add(percent - Math.Round(varianz / 2, 2));
-                    barDiversityInvisSet.BackgroundColor.Add(ChartColor.Transparent);
-                    barDiversityInvisSet.HoverBackgroundColor.Add(ChartColor.Transparent);
+                    barDiversityInvisSet.Data.Add(item: percent - Math.Round(value: varianz / 2, digits: 2));
+                    barDiversityInvisSet.BackgroundColor.Add(item: ChartColor.Transparent);
+                    barDiversityInvisSet.HoverBackgroundColor.Add(item: ChartColor.Transparent);
 
-                    barDiversitySet.Data.Add(Math.Round(varianz, 2));
-                    barDiversitySet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "0.8)");
-                    barDiversitySet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[i].Length - 4) + "1)");
+                    barDiversitySet.Data.Add(item: Math.Round(value: varianz, digits: 2));
+                    barDiversitySet.BackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "0.8)");
+                    barDiversitySet.HoverBackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "1)");
                     i++;
                 }
 
-                data.Datasets.Add(barDataSet);
-                data.Datasets.Add(barDiversityInvisSet);
-                data.Datasets.Add(barDiversitySet);
+                data.Datasets.Add(item: barDataSet);
+                data.Datasets.Add(item: barDiversityInvisSet);
+                data.Datasets.Add(item: barDiversitySet);
                 
                 chart.Data = data;
 
@@ -134,14 +134,14 @@ namespace Master40.ViewComponents
 
         private Task<Chart> GenerateChartTaskOverTime(List<string> paramsList)
         {
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
                 if (!_resultContext.SimulationOperations.Any())
                 {
                     return null;
                 }
 
-                SimulationType simType = (paramsList[1].Equals("Decentral"))
+                SimulationType simType = (paramsList[index: 1].Equals(value: "Decentral"))
                     ? SimulationType.Decentral
                     : SimulationType.Central;
 
@@ -151,14 +151,14 @@ namespace Master40.ViewComponents
                 var cc = new ChartColor();
                 // use available hight in Chart
                 // use available hight in Chart
-                var machinesKpi = _resultContext.Kpis.Where(x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
+                var machinesKpi = _resultContext.Kpis.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                         && x.SimulationType == simType
                                                         && x.KpiType == KpiType.MachineUtilization
                                                         && !x.IsKpi
                                                         && !x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
                     .ToList();
-                var settlingTime = _resultContext.SimulationConfigurations.First(x => x.Id == Convert.ToInt32(paramsList[0])).SettlingStart;
-                var machines = machinesKpi.Select(n => n.Name).Distinct().ToList();
+                var settlingTime = _resultContext.SimulationConfigurations.First(predicate: x => x.Id == Convert.ToInt32(paramsList[0])).SettlingStart;
+                var machines = machinesKpi.Select(selector: n => n.Name).Distinct().ToList();
                 var data = new Data { Labels = machines };
 
                 // create Dataset for each Lable
@@ -169,8 +169,8 @@ namespace Master40.ViewComponents
                 {
                     // add zero to start
                     var kpis = new List<LineScatterData> { new LineScatterData {  x = "0", y = "0" } };
-                    kpis.AddRange(machinesKpi.Where(x => x.Name == machine).OrderBy(x => x.Time)
-                        .Select(x => new LineScatterData { x = x.Time.ToString() , y = (x.Value * 100).ToString() }).ToList());
+                    kpis.AddRange(collection: machinesKpi.Where(predicate: x => x.Name == machine).OrderBy(keySelector: x => x.Time)
+                        .Select(selector: x => new LineScatterData { x = x.Time.ToString() , y = (x.Value * 100).ToString() }).ToList());
 
                     var lds = new LineScatterDataset()
                     {
@@ -179,17 +179,17 @@ namespace Master40.ViewComponents
                         Label = machine,
                         ShowLine = true,
                         Fill = "false",
-                        BackgroundColor = cc.Color[i],
-                        BorderColor = cc.Color[i++],
+                        BackgroundColor = cc.Color[index: i],
+                        BorderColor = cc.Color[index: i++],
                         LineTension = 0
                     };
-                    data.Datasets.Add(lds);
+                    data.Datasets.Add(item: lds);
 
                 }
 
-                data.Datasets.Add(new LineScatterDataset()
+                data.Datasets.Add(item: new LineScatterDataset()
                 {
-                    Data = new List<LineScatterData> { new LineScatterData { x = "0", y = "100" }, new LineScatterData { x = Convert.ToDouble(settlingTime).ToString(), y = "100" } },
+                    Data = new List<LineScatterData> { new LineScatterData { x = "0", y = "100" }, new LineScatterData { x = Convert.ToDouble(value: settlingTime).ToString(), y = "100" } },
                     BorderWidth = 1,
                     Label = "Settling time",
                     BackgroundColor = "rgba(0, 0, 0, 0.1)",
