@@ -80,7 +80,7 @@ namespace Master40.SimulationCore.Agents
         /// Could be simplified, but may required later.
         /// </summary>
         /// <param name="behaviourSet"></param>
-        private void InitializeAgent(IBehaviour behaviour)
+        protected void InitializeAgent(IBehaviour behaviour)
         {
             this.Behaviour = behaviour;
             DebugMessage(" INITIALIZED ");

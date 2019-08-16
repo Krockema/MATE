@@ -27,13 +27,13 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// <summary>
         /// Startup with Creating Dispo Agent for current Item.
         /// </summary>
-        /// <param agent="ContractAgent"></param>
-        /// <param startOrder="ISimulationMessage"></param>
+        /// <param name="agent"></param>
+        /// <param name="orderItem"></param>
         public void StartOrder(Agent agent, T_CustomerOrderPart orderItem)
         {
             // create Request Item
             _fArticle = orderItem.ToRequestItem(requester: agent.Context.Self, agent.CurrentTime);
-            // Tell Guadian to create Dispo Agent
+            // Tell Guardian to create Dispo Agent
             var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.Factory.Get(agent.Behaviour.SimulationType));
             var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
             agent.Send(instruction);
@@ -43,7 +43,8 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// <summary>
         /// TODO: Test Finish.
         /// </summary>
-        /// <param name="instructionSet"></param>
+        /// <param name="agent"></param>
+        /// <param name="fArticle"></param>
         public void TryFinishOrder(Agent agent, FArticle fArticle)
         {
             agent.DebugMessage("Dispo Said Done.");
