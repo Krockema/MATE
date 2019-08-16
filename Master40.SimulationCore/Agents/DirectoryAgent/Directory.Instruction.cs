@@ -24,9 +24,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
             public class RequestAgent : SimulationMessage
             {
-                public static RequestAgent Create(string descriminator, IActorRef target)
+                public static RequestAgent Create(string discriminator, IActorRef target)
                 {
-                    return new RequestAgent(descriminator, target);
+                    return new RequestAgent(discriminator, target);
                 }
                 private RequestAgent(object message, IActorRef target) : base(message, target)
                 {

@@ -23,9 +23,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
         }
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var requestItem = ((Behaviour.Default)Behaviour).childOperations.Dequeue();
-            this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
-            this.DebugMessage("Production<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") >");
+            var fArticle = ((Behaviour.Default)Behaviour)._childArticles.Dequeue();
+            this.Send(Dispo.Instruction.RequestArticle.Create(fArticle, childRef));
+            this.DebugMessage(
+                $"Create Dispo Agent for {fArticle.Article.Name} (Key: {fArticle.Key}, OrderId: {fArticle.CustomerOrderId})");
         }
 
     }

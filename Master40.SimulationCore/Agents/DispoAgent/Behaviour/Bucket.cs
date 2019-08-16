@@ -13,11 +13,11 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
     {
         internal Bucket() : base(SimulationType.Bucket) { }
 
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
-                case BasicInstruction.ResponseFromDirectory r: base.ResponseFromDirectory(agent, r.GetObjectFromMessage); break;
+                case BasicInstruction.ResponseFromDirectory r: base.ResponseFromDirectory(r.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;

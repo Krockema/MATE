@@ -12,6 +12,7 @@ using static FArticles;
 using static FAgentInformations;
 using static FOperationResults;
 using static FOperations;
+using static FCreateSimulationWorks;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -20,19 +21,19 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal Default(SimulationType simulationType = SimulationType.None)
                 : base(null, simulationType) { }
 
-        internal List<FOperation> operationList { get; set; } = new List<FOperation>();
-        internal FOperation nextOperation { get; set; }
-        internal AgentDictionary hubAgents { get; set; } = new AgentDictionary();
-        internal FArticle fArticle { get; set; }
-        internal List<FArticle> requestedItemList { get; set; } = new List<FArticle>();
-        internal Queue<FArticle> childOperations { get; set; } = new Queue<FArticle>();
+        internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
+        internal FOperation _nextOperation { get; set; }
+        internal AgentDictionary _hubAgents { get; set; } = new AgentDictionary();
+        internal FArticle _fArticle { get; set; }
+        internal List<FArticle> _requestedItemList { get; set; } = new List<FArticle>();
+        internal Queue<FArticle> _childArticles { get; set; } = new Queue<FArticle>();
 
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
-                case Production.Instruction.StartProduction i: StartProductionAgent(agent, i.GetObjectFromMessage); break;
-                // case BasicInstruction.ResponseFromHub s: SetHubAgent((Production)agent, s.GetObjectFromMessage); break;
+                case Production.Instruction.StartProduction i: StartProductionAgent(i.GetObjectFromMessage); break;
+                case BasicInstruction.ResponseFromDirectory s: SetHubAgent(s.GetObjectFromMessage); break;
                 // case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
                 // case Production.Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
                 // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
@@ -44,49 +45,49 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             return true;
         }
 
-        private void StartProductionAgent(Agent agent, FArticle requestItem)
+        private void StartProductionAgent(FArticle fArticle)
         {
             var firstToEnqueue = false;
             // check for Children
-            if (Enumerable.Any(requestItem.Article.ArticleBoms))
+            if (fArticle.Article.ArticleBoms.Any())
             {
-                agent.DebugMessage("Last leave in Bom");
+                Agent.DebugMessage("Article: " + fArticle.Article.Name +" (" + fArticle.Key + ") is last leave in BOM.");
                 firstToEnqueue = true;
             }
 
-            // if item hase Workschedules Request ComClient for them
-            if (requestItem.Article.Operations != null)
+            // if item has Operations request HubAgent for them
+            if (fArticle.Article.Operations != null)
             {
                 // Ask the Directory Agent for Service
-                RequestHubAgentFor(agent, workSchedules: fArticle.Article.Operations);
-                // And Create workItems
-                CreateWorkItemsFromRequestItem(firstItemToBuild: firstToEnqueue, requestItem);
+                RequestHubAgentsFromDirectoryFor(agent: Agent, operations: fArticle.Article.Operations);
+                // And create Operations
+                CreateJobsFromArticle(firstItemToBuild: firstToEnqueue, fArticle: fArticle);
             }
 
-            // Create Dispo Agents for Childs.
-            foreach (var articleBom in fArticle.Article.ArticleBoms)
+            // Create Dispo Agents for each Child.
+            foreach (var article in fArticle.Article.ArticleBoms)
             {
-                childOperations.Enqueue(MessageFactory.ToRequestItem(articleBom, requestItem, agent.Context.Self, agent.CurrentTime));
+                _childArticles.Enqueue(article.ToRequestItem(fArticle, Agent.Context.Self, Agent.CurrentTime));
 
                 // create Dispo Agents for to Provide Required Articles
-                var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.Factory.Get(SimulationType.None));
-                var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
-                agent.Send(instruction);
+                var agentSetup = AgentSetup.Create(Agent, DispoAgent.Behaviour.Factory.Get(SimulationType.None));
+                var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, Agent.Guardian);
+                Agent.Send(instruction);
             }
-            fArticle = requestItem;
+            _fArticle = fArticle;
         }
 
-        private void SetHubAgent(Agent agent, FAgentInformation hub)
+        private void SetHubAgent(FAgentInformation hub)
         {
             // Enque my Element at Comunication Agent
-            agent.DebugMessage("Recived Agent from Directory: " + agent.Sender.Path.Name);
+            Agent.DebugMessage($"Received Agent from Directory: {Agent.Sender.Path.Name}");
 
             // add agent to current Scope.
-            hubAgents.Add(hub.Ref, hub.RequiredFor);
+            _hubAgents.Add(hub.Ref, hub.RequiredFor);
             // foreach fitting WorkSchedule
-            foreach (var workItem in operationList.Where(x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
+            foreach (var operation in _operationList.Where(x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
             {
-                agent.Send(Hub.Instruction.EnqueueJob.Create(workItem, hub.Ref));
+                Agent.Send(Hub.Instruction.EnqueueJob.Create(operation, hub.Ref));
             }
         }
         private void ProductionStarted(Agent agent, Guid workItem)
@@ -124,21 +125,40 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             
         }
 
-        internal void RequestHubAgentFor(Agent agent, ICollection<M_Operation> workSchedules)
+        internal void RequestHubAgentsFromDirectoryFor(Agent agent, ICollection<M_Operation> operations)
         {
-            // Request Comunication Agent for my Workschedules
-            var machineGroups = workSchedules.Select(x => x.ResourceSkill.Name).Distinct().ToList();
-            foreach (var machineGroupName in machineGroups)
+            // Request Hub Agent for Operations
+            var resourceSkills = operations.Select(x => x.ResourceSkill.Name).Distinct().ToList();
+            foreach (var resourceSkillName in resourceSkills)
             {
                 agent.Send(Directory.Instruction
                             .RequestAgent
-                            .Create(descriminator: machineGroupName
+                            .Create(discriminator: resourceSkillName
                                     , target: agent.ActorPaths.HubDirectory.Ref));
             }
         }
 
-        internal void CreateWorkItemsFromRequestItem(bool firstItemToBuild, FArticle requestItem)
+        internal void CreateJobsFromArticle(bool firstItemToBuild, FArticle fArticle)
         {
+            var lastDue = fArticle.DueTime;
+            foreach (var operation in fArticle.Article.Operations.OrderBy(x => x.HierarchyNumber))
+            {
+                var fJob = operation.ToOperationItem(dueTime: lastDue
+                                         ,productionAgent: Agent.Context.Self
+                                                ,lastLeaf: firstItemToBuild
+                                             ,currentTime: Agent.CurrentTime);
+
+                Agent.DebugMessage("Created operation: " + operation.Name + " | Due:" + lastDue + " Key: " + fJob.Key);
+                lastDue = lastDue - operation.Duration;
+                firstItemToBuild = false;
+                _operationList.Add(item: fJob);
+                // ToDO; 
+                var pub = new FCreateSimulationWork(operation: fJob
+                                             ,customerOrderId: fArticle.CustomerOrderId.ToString()
+                                               , isHeadDemand: fArticle.IsHeadDemand
+                                                , articleType: fArticle.Article.ArticleType.Name);
+                Agent.Context.System.EventStream.Publish(@event: pub);
+            }
 
         }
     }

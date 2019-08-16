@@ -9,7 +9,7 @@ namespace Master40.SimulationCore.Types
 {
     public abstract class Behaviour: IBehaviour
     {
-        public Behaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker = null
+        protected Behaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker = null
                           , object obj = null
                           , SimulationType simulationType = SimulationType.None)
         {
@@ -17,11 +17,12 @@ namespace Master40.SimulationCore.Types
             Object = obj;
             SimulationType = simulationType;
         }
-        public virtual bool Action(Agent agent, object message) { throw new Exception("No Action is implemented!"); }
+        public virtual bool Action(object message) { throw new Exception("No Action is implemented!"); }
         //public Action<Agent, ISimulationMessage> Action { get; }
         public IReadOnlyDictionary<string, object> Properties { get; }
         public object Object { get; }
         public SimulationType SimulationType { get; }
         public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
+        public Agent Agent { get; set; }
     }
 }

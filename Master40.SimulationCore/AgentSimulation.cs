@@ -115,9 +115,9 @@ namespace Master40.SimulationCore
 
         private void GenerateGuadians()
         {
-            CreateGuard(GuardianType.Contract, GuardianBehaviour.Get(CreateFunctionProvider.ContractCreator, _simulationType));
-            CreateGuard(GuardianType.Dispo, GuardianBehaviour.Get(CreateFunctionProvider.DispoCreator, _simulationType));
-            CreateGuard(GuardianType.Production, GuardianBehaviour.Get(CreateFunctionProvider.ProductionCreator, _simulationType));
+            CreateGuard(GuardianType.Contract, GuardianBehaviour.Get(ChildMaker.ContractCreator, _simulationType));
+            CreateGuard(GuardianType.Dispo, GuardianBehaviour.Get(ChildMaker.DispoCreator, _simulationType));
+            CreateGuard(GuardianType.Production, GuardianBehaviour.Get(ChildMaker.ProductionCreator, _simulationType));
         }
 
         private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour)

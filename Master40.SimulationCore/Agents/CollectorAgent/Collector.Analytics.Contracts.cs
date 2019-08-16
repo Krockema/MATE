@@ -29,6 +29,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private List<SimulationOrder> simulationOrders = new List<SimulationOrder>();
 
+        public Collector Collector { get; set; }
+
         public static CollectorAnalyticsContracts Get()
         {
             return new CollectorAnalyticsContracts();
@@ -41,31 +43,31 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                     typeof(UpdateLiveFeed)};
         }
 
-        public override bool Action(Agent agent, object message) => throw new Exception("Please use EventHandle method to process Messages");
+        public override bool Action(object message) => throw new Exception("Please use EventHandle method to process Messages");
 
         public bool EventHandle(SimulationMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case Contract.Instruction.StartOrder m: AddOrder((Collector)simulationMonitor, m); break;
-                case Supervisor.Instruction.OrderProvided m: ProvideOrder((Collector)simulationMonitor, m.GetObjectFromMessage); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case Contract.Instruction.StartOrder m: AddOrder(m); break;
+                case Supervisor.Instruction.OrderProvided m: ProvideOrder(m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void ProvideOrder(Collector agent, FArticle requestItem)
+        private void ProvideOrder(FArticle requestItem)
         {
             if (requestItem.DueTime >= requestItem.FinishedAt)
             {
-                agent.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester  + " finished in time at " + agent.Time);
+                Collector.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester  + " finished in time at " + Collector.Time);
 
-                agent.messageHub.SendToClient("orderListener", totalOrders.ToString());
+                Collector.messageHub.SendToClient("orderListener", totalOrders.ToString());
                 inTime++;
             }else
             {
-                agent.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester + " finished to late at " + agent.Time);
+                Collector.messageHub.SendToAllClients("Oder No:" + requestItem.OriginRequester + " finished to late at " + Collector.Time);
                 toLate++;
             }
 
@@ -77,21 +79,21 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             
         }
 
-        private void UpdateFeed(Collector agent, bool writeResultsToDB)
+        private void UpdateFeed(bool writeResultsToDB)
         {
             //var open = openOrderParts.GroupBy(x => x.Article).Select(y => new { Article =  y.Key, Count = y.Sum(z => z.Quantity)} );
-           
-            agent.messageHub
+
+            Collector.messageHub
                  .SendToClient("Contracts", 
                                 JsonConvert.SerializeObject(new { Input = newOrderParts,
                                                                   Processing = openOrderParts,
                                                                   Output = finishedOrderParts,
-                                                                  Time = agent.Time }));
+                                                                  Time = Collector.Time }));
 
             if (inTime != 0)
             {
                 var timeliness = (inTime / (inTime + toLate) * 100).ToString().Replace(",", ".");
-                agent.messageHub
+                Collector.messageHub
                     .SendToClient("Timeliness", timeliness);
             }
 
@@ -99,12 +101,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             finishedOrderParts = 0;
 
 
-            WriteToDB(agent, writeResultsToDB);
-            
-            agent.Context.Sender.Tell(true, agent.Context.Self);
+            WriteToDB(Collector, writeResultsToDB);
+
+            Collector.Context.Sender.Tell(true, Collector.Context.Self);
         }
 
-        private void AddOrder(Collector agent, Contract.Instruction.StartOrder m)
+        private void AddOrder(Contract.Instruction.StartOrder m)
         {
             var op = m.GetObjectFromMessage;
             var order = new SimulationOrder() { CreationTime = op.CustomerOrder.CreationTime
@@ -113,9 +115,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                 , BusinessPartnerId = op.CustomerOrder.BusinessPartnerId
                                                 , Name = op.CustomerOrder.Name
                                                 , OriginId  = op.CustomerOrder.Id
-                                                , SimulationNumber = agent.simulationNumber.Value
-                                                , SimulationType = agent.simulationKind.Value
-                                                , SimulationConfigurationId = agent.simulationId.Value };  // TODO
+                                                , SimulationNumber = Collector.simulationNumber.Value
+                                                , SimulationType = Collector.simulationKind.Value
+                                                , SimulationConfigurationId = Collector.simulationId.Value };  // TODO
 
             simulationOrders.Add(order);
 
@@ -126,10 +128,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateOrder(FArticle item)
         {
-            var toUpdate = simulationOrders.Where(x => x.OriginId == item.CustomerOrderId).SingleOrDefault();
+            var toUpdate = simulationOrders.SingleOrDefault(x => x.OriginId == item.CustomerOrderId);
             if (toUpdate == null)
             {
-                throw new Exception("OrderNotFound during Orderupdate from Contract Collector Agent");
+                throw new Exception("OrderNotFound during Order update from Contract Collector Agent");
             }
 
             toUpdate.State = DB.Enums.State.Finished;

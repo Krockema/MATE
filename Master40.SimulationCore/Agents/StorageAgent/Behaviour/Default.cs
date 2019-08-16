@@ -41,53 +41,53 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         internal ArticleList _requestedArticles { get; set; }
 
 
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
-                case Storage.Instruction.RequestArticle msg: RequestArticle(agent, msg.GetObjectFromMessage); break;
-                case Storage.Instruction.StockRefill msg: StockRefill((Storage)agent, msg.GetObjectFromMessage); break;
-                case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction((Storage)agent, msg.GetObjectFromMessage); break;
-                case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue((Storage)agent, msg.GetObjectFromMessage); break;
+                case Storage.Instruction.RequestArticle msg: RequestArticle(msg.GetObjectFromMessage); break;
+                case Storage.Instruction.StockRefill msg: StockRefill(msg.GetObjectFromMessage); break;
+                case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction(msg.GetObjectFromMessage); break;
+                case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.WithdrawlMaterial msg:
                     var stock = _stockElement;
-                    Withdraw((Storage)agent, msg.GetObjectFromMessage, stock);
+                    Withdraw(msg.GetObjectFromMessage, stock);
                     break;
                 default: return false;
             }
             return true;
         }
 
-        private void RequestArticle(Agent agent, FArticle requestItem)
+        private void RequestArticle(FArticle requestItem)
         {
-            agent.DebugMessage(" requests Article " + _stockElement.Name + " from Agent: " + agent.Sender.Path.Name);
+            Agent.DebugMessage(" requests Article " + _stockElement.Name + " from Agent: " + Agent.Sender.Path.Name);
 
             // try to make Reservation
-            var item = requestItem.UpdateStockExchangeId(Guid.NewGuid()).UpdateDispoRequester(agent.Sender);
-            var stockReservation = MakeReservationFor(agent, item);
+            var item = requestItem.UpdateStockExchangeId(Guid.NewGuid()).UpdateDispoRequester(Agent.Sender);
+            var stockReservation = MakeReservationFor(item);
             if (!stockReservation.IsInStock)
             {
                 // add to Request queue if not in Stock
                 _requestedArticles.Add(item);
             }
             // Create Callback
-            agent.Send(Dispo.Instruction.ResponseFromStock.Create(stockReservation, agent.Sender));
+            Agent.Send(Dispo.Instruction.ResponseFromStock.Create(stockReservation, Agent.Sender));
         }
 
-        public void StockRefill(Storage agent, Guid exchangeId)
+        public void StockRefill(Guid exchangeId)
         {
             // TODO: Retrun Request Itme with id of Stock Exchange
             var stockExchange = _stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
 
             // stock Income 
-            agent.DebugMessage(" income " + _stockElement.Article.Name + " quantity " + stockExchange.Quantity + " added to Stock");
+            Agent.DebugMessage(" income " + _stockElement.Article.Name + " quantity " + stockExchange.Quantity + " added to Stock");
             _stockElement.Current += stockExchange.Quantity;
-            LogValueChange(agent, _stockElement.Article, Convert.ToDouble(_stockElement.Current) * Convert.ToDouble(_stockElement.Article.Price));
+            LogValueChange(_stockElement.Article, Convert.ToDouble(_stockElement.Current) * Convert.ToDouble(_stockElement.Article.Price));
 
             // change element State to Finish
             stockExchange.State = State.Finished;
             //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
-            stockExchange.Time = (int)agent.CurrentTime;
+            stockExchange.Time = (int)Agent.CurrentTime;
 
             // no Items to be served.
             if (!_requestedArticles.Any()) return;
@@ -99,22 +99,22 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 if (notServed == null) throw new Exception("No StockExchange found");
 
                 notServed.State = State.Finished;
-                notServed.Time = (int)agent.CurrentTime;
+                notServed.Time = (int)Agent.CurrentTime;
 
-                agent.Send(BasicInstruction.ProvideArticle.Create(request, request.DispoRequester, false));
+                Agent.Send(BasicInstruction.ProvideArticle.Create(request, request.DispoRequester, false));
                 _requestedArticles.Remove(request);
             }
         }
 
 
         //private void ResponseFromProduction(RequestItem item)
-        private void ResponseFromProduction(Storage agent, FProductionResult productionResult)
+        private void ResponseFromProduction(FProductionResult productionResult)
         {
-            agent.DebugMessage("Production Agent Finished Work: " + agent.Sender.Path.Name);
+            Agent.DebugMessage("Production Agent Finished Work: " + Agent.Sender.Path.Name);
 
             // Add the Produced item to Stock
             _stockElement.Current += productionResult.Amount;
-            LogValueChange(agent, _stockElement.Article, Convert.ToDouble(_stockElement.Current) * Convert.ToDouble(_stockElement.Article.Price));
+            LogValueChange(_stockElement.Article, Convert.ToDouble(_stockElement.Current) * Convert.ToDouble(_stockElement.Article.Price));
 
 
             var stockExchange = new T_StockExchange
@@ -123,41 +123,41 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 ExchangeType = ExchangeType.Insert,
                 Quantity = 1,
                 State = State.Finished,
-                RequiredOnTime = (int)agent.CurrentTime,
-                Time = (int)agent.CurrentTime
+                RequiredOnTime = (int)Agent.CurrentTime,
+                Time = (int)Agent.CurrentTime
             };
             _stockElement.StockExchanges.Add(stockExchange);
 
-            _providerList.Add(agent.Sender, productionResult.ArticleKey);
+            _providerList.Add(Agent.Sender, productionResult.ArticleKey);
             // Check if the most Important Request can be provided.
             var requestProvidable = _requestedArticles.FirstOrDefault(x => x.DueTime == _requestedArticles.Min(r => r.DueTime));
             // TODO: Prove if quantity check is required.
 
-            if (requestProvidable.IsHeadDemand && requestProvidable.DueTime > agent.CurrentTime) { return; }
+            if (requestProvidable.IsHeadDemand && requestProvidable.DueTime > Agent.CurrentTime) { return; }
             // else
-            ProvideArticle(agent, requestProvidable, _requestedArticles);
+            ProvideArticle(requestProvidable, _requestedArticles);
         }
 
-        private void ProvideArticleAtDue(Storage agent, Guid articleKey)
+        private void ProvideArticleAtDue(Guid articleKey)
         {
             var requestProvidable = _requestedArticles.GetByKey(articleKey);
             if (requestProvidable != null)
             {
-                ProvideArticle(agent, requestProvidable, _requestedArticles);
+                ProvideArticle(requestProvidable, _requestedArticles);
             }
         }
 
-        private void Withdraw(Storage agent, Guid exchangeId, M_Stock stockElement)
+        private void Withdraw(Guid exchangeId, M_Stock stockElement)
         {
             var item = stockElement.StockExchanges.FirstOrDefault(x => x.TrakingGuid == exchangeId);
             if (item == null) throw new Exception("No StockExchange found");
-            LogValueChange(agent, stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
+            LogValueChange(stockElement.Article, Convert.ToDouble(stockElement.Current) * Convert.ToDouble(stockElement.Article.Price));
 
             item.State = State.Finished;
-            item.Time = (int)agent.CurrentTime;
+            item.Time = (int)Agent.CurrentTime;
         }
 
-        private void ProvideArticle(Storage agent, FArticle requestProvidable, List<FArticle> requestedArticles)
+        private void ProvideArticle(FArticle requestProvidable, List<FArticle> requestedArticles)
         {
             if (requestProvidable.Quantity <= _stockElement.Current)
             {
@@ -165,11 +165,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 if (requestProvidable.IsHeadDemand)
                 {
-                    Withdraw(agent, requestProvidable.StockExchangeId, _stockElement);
+                    Withdraw(requestProvidable.StockExchangeId, _stockElement);
                 }
                 else
                 {
-                    LogValueChange(agent, _stockElement.Article, Convert.ToDouble(_stockElement.Current) * Convert.ToDouble(_stockElement.Article.Price));
+                    LogValueChange(_stockElement.Article, Convert.ToDouble(_stockElement.Current) * Convert.ToDouble(_stockElement.Article.Price));
                 }
 
                 if (requestProvidable.ProviderList.Count == 0)
@@ -178,7 +178,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                     _providerList.Clear();
                 }
 
-                agent.DebugMessage("------------->> items in STOCK: " + _stockElement.Current + " Items Requested " + requestProvidable.Quantity);
+                Agent.DebugMessage("------------->> items in STOCK: " + _stockElement.Current + " Items Requested " + requestProvidable.Quantity);
                 // Reduce Stock 
                 _stockElement.Current = _stockElement.Current - requestProvidable.Quantity;
 
@@ -187,7 +187,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 requestProvidable = requestProvidable.SetProvided;
                 // Create Callback for Production
-                agent.Send(BasicInstruction.ProvideArticle.Create(requestProvidable, requestProvidable.DispoRequester, false));
+                Agent.Send(BasicInstruction.ProvideArticle.Create(requestProvidable, requestProvidable.DispoRequester, false));
 
 
                 // Update Work Item with Provider For
@@ -198,7 +198,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                                                         , requestProvidable.DispoRequester.Path.Name
                                                         , requestProvidable.IsHeadDemand
                                                         , requestProvidable.CustomerOrderId);
-                agent.Context.System.EventStream.Publish(pub);
+                Agent.Context.System.EventStream.Publish(pub);
 
 
                 // Statistics.UpdateSimulationWorkSchedule(requestProvidable.ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
@@ -206,11 +206,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             }
             else
             {
-                agent.DebugMessage("Item will be late..............................");
+                Agent.DebugMessage("Item will be late..............................");
             }
         }
 
-        internal FStockReservation MakeReservationFor(Agent agent, FArticle request)
+        internal FStockReservation MakeReservationFor(FArticle request)
         {
             var inStock = false;
             var quantity = 0;
@@ -228,9 +228,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             var required = ((_stockElement.Current - withdrawl - request.Quantity));
             if (required < _stockElement.Min && _stockElement.Article.ToPurchase && !purchaseOpen)
             {
-                CreatePurchase(agent, _stockElement);
+                CreatePurchase(_stockElement);
                 purchaseOpen = true;
-                agent.DebugMessage(" Created purchase for " + _stockElement.Article.Name);
+                Agent.DebugMessage(" Created purchase for " + _stockElement.Article.Name);
             }
 
             // Create Reservation Item
@@ -250,7 +250,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                     StockId = _stockElement.Id,
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
-                    Time = (int)(agent.CurrentTime),
+                    Time = (int)(Agent.CurrentTime),
                     State = stockReservation.IsInStock ? State.Finished : State.Created,
                     RequiredOnTime = (int)request.DueTime,
                 }
@@ -258,7 +258,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             return stockReservation;
         }
 
-        internal void CreatePurchase(Agent agent, M_Stock stockElement)
+        internal void CreatePurchase(M_Stock stockElement)
         {
 
             var time = stockElement.Article
@@ -270,23 +270,23 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 StockId = stockElement.Id,
                 ExchangeType = ExchangeType.Insert,
                 State = State.Created,
-                Time = (int)(agent.CurrentTime),
+                Time = (int)(Agent.CurrentTime),
                 Quantity = stockElement.Article.Stock.Max - stockElement.Article.Stock.Min,
-                RequiredOnTime = (int)(agent.CurrentTime) + time,
+                RequiredOnTime = (int)(Agent.CurrentTime) + time,
                 TrakingGuid = Guid.NewGuid()
             };
 
             stockElement.StockExchanges.Add(stockExchange);
             // TODO needs logic if more Kreditors are Added.
-            agent.Send(Storage.Instruction.StockRefill.Create(stockExchange.TrakingGuid, agent.Context.Self), time);
+            Agent.Send(Storage.Instruction.StockRefill.Create(stockExchange.TrakingGuid, Agent.Context.Self), time);
         }
 
-        internal void LogValueChange(Agent agent, M_Article article, double value)
+        internal void LogValueChange(M_Article article, double value)
         {
             var pub = new FUpdateStockValue(article.Name
                                             , value
                                             , article.ArticleType.Name);
-            agent.Context.System.EventStream.Publish(pub);
+            Agent.Context.System.EventStream.Publish(pub);
         }
     }
 }

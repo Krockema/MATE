@@ -7,7 +7,7 @@ using Master40.SimulationCore.Helper;
 
 namespace Master40.SimulationCore.Agents.Guardian.Options
 {
-    public static class CreateFunctionProvider
+    public static class ChildMaker
     {
         [ThreadStatic]
         private static int contractCount = 0;

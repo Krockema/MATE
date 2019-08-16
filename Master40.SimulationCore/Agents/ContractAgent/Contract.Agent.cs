@@ -41,7 +41,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         protected override void Finish()
         {
             var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
-            if (fArticle.IsProvided && VirtualChilds.Count() == 0)
+            if (fArticle.IsProvided && VirtualChildren.Count() == 0)
             {
                 base.Finish();
             }

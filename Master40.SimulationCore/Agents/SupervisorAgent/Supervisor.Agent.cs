@@ -124,7 +124,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         /// <param name="childRef"></param>
         protected override void OnChildAdd(IActorRef childRef)
         {
-            VirtualChilds.Add(childRef);
+            VirtualChildren.Add(childRef);
             Send(Contract.Instruction.StartOrder.Create(message: _orderQueue.Dequeue()
                                                         ,target: childRef
                                                       , logThis: true));

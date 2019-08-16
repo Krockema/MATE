@@ -21,13 +21,14 @@ namespace Master40.SimulationCore.Agents
         /// Holds the last Known Status for each Child Entity
         /// </summary>
         internal IActorRef Guardian { get; }
-        internal HashSet<IActorRef> VirtualChilds { get; }
+        internal HashSet<IActorRef> VirtualChildren { get; }
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }
         internal new IUntypedActorContext Context => UntypedActor.Context;
-        internal long CurrentTime { get => TimePeriod; }
+        internal long CurrentTime => TimePeriod;
         internal void TryToFinish() => Finish();
-        internal new IActorRef Sender { get => base.Sender; }
+        internal new IActorRef Sender => base.Sender;
+
         // Diagnostic Tools
         private Stopwatch _stopwatch = new Stopwatch();
         public bool DebugThis { get; private set; }
@@ -39,14 +40,14 @@ namespace Master40.SimulationCore.Agents
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
         /// <param name="principal">If not set, put IActorRefs.Nobody</param>
-        public Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
-            : base(actorPaths.SimulationContext.Ref, time)
+        protected Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
+            : base(simulationContext: actorPaths.SimulationContext.Ref, time: time)
         {
             DebugThis = debug;
             Name = Self.Path.Name;
             ActorPaths = actorPaths;
             VirtualParent = principal;
-            VirtualChilds = new HashSet<IActorRef>();
+            VirtualChildren = new HashSet<IActorRef>();
             DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
@@ -57,18 +58,18 @@ namespace Master40.SimulationCore.Agents
                 case BasicInstruction.Initialize i: InitializeAgent(i.GetObjectFromMessage); break;
                 case BasicInstruction.ChildRef c: AddChild(c.GetObjectFromMessage); break;
                 default:
-                    if (!Behaviour.Action(this, (ISimulationMessage)o))
-                        throw new Exception(this.Name + " is sorry, he doesnt know what to do!");
+                    if (!Behaviour.Action((ISimulationMessage)o))
+                        throw new Exception(this.Name + " is sorry, he doesn't know what to do!");
                     break;
             }
         }
 
         private void AddChild(IActorRef childRef)
         {
-            DebugMessage("Try to add child: " + childRef.Path.Name);
-            VirtualChilds.Add(childRef);
+            DebugMessage(msg: "Try to add child: " + childRef.Path.Name);
+            VirtualChildren.Add(item: childRef);
             
-            OnChildAdd(childRef);
+            OnChildAdd(childRef: childRef);
         }
         protected virtual void OnChildAdd(IActorRef childRef)
         {
@@ -76,21 +77,22 @@ namespace Master40.SimulationCore.Agents
         }
 
         /// <summary>
-        /// Adding Instruction Behaviour releation to the Agent.
+        /// Adding Instruction Behaviour relation to the Agent.
         /// Could be simplified, but may required later.
         /// </summary>
-        /// <param name="behaviourSet"></param>
+        /// <param name="behaviour"></param>
         protected void InitializeAgent(IBehaviour behaviour)
         {
+            behaviour.Agent = this;
             this.Behaviour = behaviour;
-            DebugMessage(" INITIALIZED ");
+            DebugMessage(msg: " INITIALIZED ");
             if (VirtualParent != ActorRefs.Nobody)
             {
-                DebugMessage(" PARENT INFORMED ");
-                Send(BasicInstruction.ChildRef.Create(Self, VirtualParent));
+                DebugMessage(msg: " PARENT INFORMED ");
+                Send(instruction: BasicInstruction.ChildRef.Create(message: Self, target: VirtualParent));
             }
             
-            OnInit(behaviour);
+            OnInit(o: behaviour);
         }
         
         /// <summary>
@@ -99,13 +101,12 @@ namespace Master40.SimulationCore.Agents
         /// <param name="msg"></param>
         internal void DebugMessage(string msg)
         {
-            if (DebugThis)
-            {
-                var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
-                Debug.WriteLine(logItem, "AgentMessage");
-                // TODO: Replace with Logging Agent
-                // Statistics.Log.Add(logItem);
-            }
+            if (!DebugThis) return;
+            // else
+            var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
+            Debug.WriteLine(logItem, "AgentMessage");
+            // TODO: Replace with Logging Agent
+            // Statistics.Log.Add(logItem);
         }
 
         /// <summary>

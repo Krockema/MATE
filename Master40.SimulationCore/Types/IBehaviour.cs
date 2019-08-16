@@ -9,7 +9,8 @@ namespace Master40.SimulationCore.Types
 {
     public interface IBehaviour
     {
-        bool Action(Agent agent, object message);
+        bool Action(object message);
+        Agent Agent { get; set; }
         IReadOnlyDictionary<string, object> Properties { get; }
         /// <summary>
         /// Consisting of Context and Principal Agent

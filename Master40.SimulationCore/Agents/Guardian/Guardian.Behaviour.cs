@@ -17,20 +17,20 @@ namespace Master40.SimulationCore.Agents.Guardian
             return new GuardianBehaviour(childMaker, simulationType);
         }
 
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
-                case CreateChild m: CreateChild(agent, m.GetObjectFromMessage); break;
+                case CreateChild m: CreateChild(m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        internal void CreateChild(Agent agent, AgentSetup setup)
+        internal void CreateChild(AgentSetup setup)
         {
-            var childRef = agent.Behaviour.ChildMaker(agent.Context, setup);
-            agent.Send(BasicInstruction.Initialize.Create(childRef, setup.Behaviour));
+            var childRef = Agent.Behaviour.ChildMaker(Agent.Context, setup);
+            Agent.Send(BasicInstruction.Initialize.Create(childRef, setup.Behaviour));
         }
 
         

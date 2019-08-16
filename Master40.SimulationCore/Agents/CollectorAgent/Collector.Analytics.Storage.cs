@@ -25,67 +25,69 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private Dictionary<string, FUpdateStockValue> CurrentStockValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
 
+        public Collector Collector { get; set; }
+
         public static CollectorAnalyticsStorage Get()
         {
             return new CollectorAnalyticsStorage();
         }
 
-        public override bool Action(Agent agent, object message) => throw new Exception("Please use EventHandle method to process Messages");
+        public override bool Action(object message) => throw new Exception("Please use EventHandle method to process Messages");
 
         public bool EventHandle(SimulationMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case FUpdateStockValue m: UpdateStock((Collector)simulationMonitor, m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case FUpdateStockValue m: UpdateStock(m); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void UpdateFeed(Collector agent, bool writeToDatabase)
+        private void UpdateFeed(bool writeToDatabase)
         {
-            
-            agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from Storage");
+
+            Collector.messageHub.SendToAllClients("(" + Collector.Time + ") Update Feed from Storage");
             var groupedByType = from sw in CurrentStockValues
                                 group sw by sw.Value.ArticleType into grouped
                                 select new
                                 {
                                     GroupName = grouped.Key,
                                     Value = grouped.Sum(x => x.Value.NewValue),
-                                    Time = agent.Time
+                                    Time = Collector.Time
                                 };
 
             foreach (var item in groupedByType)
             {
-                agent.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
+                Collector.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
             }
 
-            LogToDB(agent, writeToDatabase);
-            agent.Context.Sender.Tell(true, agent.Context.Self);
+            LogToDB(Collector, writeToDatabase);
+            Collector.Context.Sender.Tell(true, Collector.Context.Self);
         }
 
 
-        private void UpdateStock(Collector agent, FUpdateStockValue values)
+        private void UpdateStock(FUpdateStockValue values)
         {
             if (CurrentStockValues.ContainsKey(values.StockName))
                 CurrentStockValues.Remove(values.StockName);
 
             CurrentStockValues.Add(values.StockName, values);
-            UpdateKPI(agent, values);
+            UpdateKPI(values);
         }
 
-        private void UpdateKPI(Collector agent, FUpdateStockValue values)
+        private void UpdateKPI(FUpdateStockValue values)
         {
             var k = new Kpi { Name = values.StockName
                             , Value = values.NewValue
-                            , Time = (int)agent.Time
+                            , Time = (int)Collector.Time
                             , KpiType = DB.Enums.KpiType.StockEvolution
-                            , SimulationConfigurationId = agent.simulationId.Value
-                            , SimulationNumber = agent.simulationNumber.Value
+                            , SimulationConfigurationId = Collector.simulationId.Value
+                            , SimulationNumber = Collector.simulationNumber.Value
                             , IsFinal = false
                             , IsKpi = true
-                            , SimulationType = agent.simulationKind.Value
+                            , SimulationType = Collector.simulationKind.Value
             };
             StockValuesOverTime.Add(k);
 

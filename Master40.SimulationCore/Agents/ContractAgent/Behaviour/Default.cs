@@ -13,12 +13,12 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 
         public FArticle _fArticle { get; internal set; }
 
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
-                case Contract.Instruction.StartOrder msg: StartOrder(agent, msg.GetObjectFromMessage); break;
-                case BasicInstruction.ProvideArticle msg: TryFinishOrder(agent, msg.GetObjectFromMessage); break;
+                case Contract.Instruction.StartOrder msg: StartOrder(msg.GetObjectFromMessage); break;
+                case BasicInstruction.ProvideArticle msg: TryFinishOrder(msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -29,14 +29,14 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="orderItem"></param>
-        public void StartOrder(Agent agent, T_CustomerOrderPart orderItem)
+        public void StartOrder(T_CustomerOrderPart orderItem)
         {
             // create Request Item
-            _fArticle = orderItem.ToRequestItem(requester: agent.Context.Self, agent.CurrentTime);
+            _fArticle = orderItem.ToRequestItem(requester: Agent.Context.Self, Agent.CurrentTime);
             // Tell Guardian to create Dispo Agent
-            var agentSetup = AgentSetup.Create(agent, DispoAgent.Behaviour.Factory.Get(agent.Behaviour.SimulationType));
-            var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, agent.Guardian);
-            agent.Send(instruction);
+            var agentSetup = AgentSetup.Create(Agent, DispoAgent.Behaviour.Factory.Get(Agent.Behaviour.SimulationType));
+            var instruction = Guardian.Instruction.CreateChild.Create(agentSetup, Agent.Guardian);
+            Agent.Send(instruction);
             // init end
         }
 
@@ -45,18 +45,18 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
-        public void TryFinishOrder(Agent agent, FArticle fArticle)
+        public void TryFinishOrder(FArticle fArticle)
         {
-            agent.DebugMessage("Dispo Said Done.");
-            //var localItem = agent.Get<FRequestItem>(REQUEST_ITEM);
-            _fArticle = fArticle.UpdateFinishedAt(agent.CurrentTime);
+            Agent.DebugMessage("Dispo Said Done.");
+            //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
+            _fArticle = fArticle.UpdateFinishedAt(Agent.CurrentTime);
 
             // try to Finish if time has come
-            if (agent.CurrentTime >= _fArticle.DueTime)
+            if (Agent.CurrentTime >= _fArticle.DueTime)
             {
-                agent.Send(Supervisor.Instruction.OrderProvided.Create(_fArticle, agent.ActorPaths.SystemAgent.Ref));
-                agent.VirtualChilds.Remove(agent.Sender);
-                agent.TryToFinish();
+                Agent.Send(Supervisor.Instruction.OrderProvided.Create(_fArticle, Agent.ActorPaths.SystemAgent.Ref));
+                Agent.VirtualChildren.Remove(Agent.Sender);
+                Agent.TryToFinish();
             }
         }
 

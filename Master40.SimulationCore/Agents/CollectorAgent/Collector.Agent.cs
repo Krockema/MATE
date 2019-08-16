@@ -37,6 +37,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             : base(time, streamTypes)
         {
             Console.WriteLine("I'm alive: " + Self.Path.ToStringWithAddress());
+            collectorBehaviour.Collector = this;
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
             Config = configuration;

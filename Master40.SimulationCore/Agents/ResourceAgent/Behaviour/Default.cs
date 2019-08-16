@@ -23,12 +23,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal WorkTimeGenerator workTimeGenerator { get; }
         internal AgentDictionary AgentDictionary { get; }
         
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
                 //case BasicInstruction.Initialize i: RegisterService(); break;
-                case Resource.Instruction.SetHubAgent msg: SetHubAgent(agent, msg.GetObjectFromMessage.Ref); break;
+                case Resource.Instruction.SetHubAgent msg: SetHubAgent(msg.GetObjectFromMessage.Ref); break;
                 // case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
@@ -171,12 +171,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Register the Machine in the System on Startup and Save the Hub agent.
         /// </summary>
-        private void SetHubAgent(Agent agent, IActorRef hubAgent)
+        private void SetHubAgent(IActorRef hubAgent)
         {
             // Save to Value Store
             AgentDictionary.Add(hubAgent, "Default");
             // Debug Message
-            agent.DebugMessage("Successfull Registred Service at : " + hubAgent.Path.Name);
+            Agent.DebugMessage("Successfull Registred Service at : " + hubAgent.Path.Name);
         }
 
         /*
