@@ -181,12 +181,12 @@ namespace Master40.DB.Data.Initializer
 
             var artToBusinessPartner = new M_ArticleToBusinessPartner[]
             {
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tisch").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tischbein").Id,PackSize = 10,Price = 20.00, DueTime = 2880},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tischplatte").Id, PackSize = 500,Price = 0.05, DueTime = 1440},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Schrauben").Id, PackSize = 50,Price = 2.50, DueTime = 1440},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Holzpflock 1,20m x 0,15m x 0,15m").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
-                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Holzplatte 1,5m x 3,0m x 0,03m").Id, PackSize = 50,Price = 0.20, DueTime = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tisch").Id,PackSize = 10,Price = 20.00, TimeToDelivery = 2880},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tischbein").Id,PackSize = 10,Price = 20.00, TimeToDelivery = 2880},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Tischplatte").Id, PackSize = 500,Price = 0.05, TimeToDelivery = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Schrauben").Id, PackSize = 50,Price = 2.50, TimeToDelivery = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Holzpflock 1,20m x 0,15m x 0,15m").Id, PackSize = 50,Price = 0.20, TimeToDelivery = 1440},
+                new M_ArticleToBusinessPartner{ BusinessPartnerId = businessPartner2.Id, ArticleId = articles.Single(predicate: x => x.Name=="Holzplatte 1,5m x 3,0m x 0,03m").Id, PackSize = 50,Price = 0.20, TimeToDelivery = 1440},
 
             };
             context.ArticleToBusinessPartners.AddRange(entities: artToBusinessPartner);

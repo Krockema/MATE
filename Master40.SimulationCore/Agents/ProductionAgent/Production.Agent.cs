@@ -24,6 +24,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
         protected override void OnChildAdd(IActorRef childRef)
         {
             var fArticle = ((Behaviour.Default)Behaviour)._childArticles.Dequeue();
+            ((Behaviour.Default)Behaviour)._dispoArticleDictionary.Add(dispoRef: childRef, fArticle: fArticle);
             this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: fArticle, target: childRef));
             this.DebugMessage(
                 msg: $"Create Dispo Agent for {fArticle.Article.Name} (Key: {fArticle.Key}, OrderId: {fArticle.CustomerOrderId})");

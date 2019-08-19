@@ -24,6 +24,7 @@ namespace Master40.SimulationCore.Helper
         /// <param name="dueTime"></param>
         /// <param name="productionAgent"></param>
         /// <param name="lastLeaf"></param>
+        /// <param name="firstOperation"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
         public static FOperation ToOperationItem(this M_Operation operation
@@ -47,7 +48,7 @@ namespace Master40.SimulationCore.Helper
                                 , backwardEnd: dueTime
                                 , end: 0
                                 , start: 0
-                                , startConditions: new FStartCondition(preCondition: firstOperation, materialsProvided: false)
+                                , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
                                 , priority: prioRule.ToFSharpFunc()
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
@@ -77,7 +78,7 @@ namespace Master40.SimulationCore.Helper
                                 , backwardEnd: 0
                                 , end: 0
                                 , start: 0
-                                , startConditions: new FStartCondition(preCondition: false, materialsProvided: false)
+                                , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
                                 , maxBucketSize: 1
                                 , minBucketSize: 1
                                 , resourceAgent: ActorRefs.NoSender

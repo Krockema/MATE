@@ -92,6 +92,19 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
+
+            public class MaterialsProvided : SimulationMessage
+            {
+                public static MaterialsProvided Create(Guid message, IActorRef target)
+                {
+                    return new MaterialsProvided(message: message, target: target);
+                }
+                private MaterialsProvided(object message, IActorRef target) : base(message: message, target: target)
+                {
+
+                }
+                public Guid GetObjectFromMessage { get => (Guid)Message; }
+            }
         }
     }
 }

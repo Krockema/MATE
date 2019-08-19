@@ -37,16 +37,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             }
             return true;
         }
-
-        private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
-        {
-            Agent.DebugMessage(
-                msg:
-                $"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
-            var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
-            Agent.Send(instruction: msg);
-        }
-
+        
         internal void RequestArticle(FArticle requestArticle)
         {
             // Save Request Item.
@@ -91,7 +82,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 return;
             }
 
-            // else Create Production Agents if ToBuild
+            // else create Production Agents if ToBuild
             if (_fArticle.Article.ToBuild)
             {
                 Agent.Send(instruction: RequestArticleBom.Create(message: _fArticle.Article.Id, target: Agent.ActorPaths.SystemAgent.Ref));
@@ -130,10 +121,19 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             }
         }
 
+        private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
+        {
+            Agent.DebugMessage(
+                msg:
+                $"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
+            var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
+            Agent.Send(instruction: msg);
+        }
+
         internal void RequestProvided(FArticle fArticle)
         {
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
-            Agent.DebugMessage(msg: "Request Provided from " + Agent.Sender);
+            Agent.DebugMessage(msg: $"Request for {_fArticle.Article.Name} provided from " + Agent.Sender);
 
             _fArticle = fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
             Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: _fArticle, target: Agent.VirtualParent, logThis: false));

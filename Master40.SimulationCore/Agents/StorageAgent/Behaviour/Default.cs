@@ -46,7 +46,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             switch (message)
             {
                 case Storage.Instruction.RequestArticle msg: RequestArticle(requestItem: msg.GetObjectFromMessage); break;
-                case Storage.Instruction.StockRefill msg: StockRefill(exchangeId: msg.GetObjectFromMessage); break;
+                case Storage.Instruction.StockRefill msg: RefillFromPurchase(exchangeId: msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction(productionResult: msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue(articleKey: msg.GetObjectFromMessage); break;
                 case Storage.Instruction.WithdrawlMaterial msg:
@@ -74,9 +74,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             Agent.Send(instruction: Dispo.Instruction.ResponseFromStock.Create(message: stockReservation, target: Agent.Sender));
         }
 
-        public void StockRefill(Guid exchangeId)
+        public void RefillFromPurchase(Guid exchangeId)
         {
-            // TODO: Retrun Request Itme with id of Stock Exchange
+            // TODO: Return exchangeId of Stock Exchange
             var stockExchange = _stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrakingGuid == exchangeId);
 
             // stock Income 
@@ -100,7 +100,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 notServed.State = State.Finished;
                 notServed.Time = (int)Agent.CurrentTime;
-
+                
                 Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: request, target: request.DispoRequester, logThis: false));
                 _requestedArticles.Remove(item: request);
             }
@@ -189,7 +189,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 // Create Callback for Production
                 Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: requestProvidable, target: requestProvidable.DispoRequester, logThis: false));
 
-
                 // Update Work Item with Provider For
                 // TODO
 
@@ -214,9 +213,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             var inStock = false;
             var quantity = 0;
+            var time = request.DueTime;
 
-            //StockReservation stockReservation = new StockReservation { DueTime = request.DueTime };
-            var withdrawl = _stockElement.StockExchanges
+            var withdraw = _stockElement.StockExchanges
                                 .Where(predicate: x => x.RequiredOnTime <= request.DueTime &&
                                             x.State != State.Finished &&
                                             x.ExchangeType == ExchangeType.Withdrawal)
@@ -225,10 +224,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             // Create Purchase if Required.
             var purchaseOpen = _stockElement.StockExchanges
                 .Any(predicate: x => x.State != State.Finished && x.ExchangeType == ExchangeType.Insert);
-            var required = ((_stockElement.Current - withdrawl - request.Quantity));
+            var required = ((_stockElement.Current - withdraw - request.Quantity));
             if (required < _stockElement.Min && _stockElement.Article.ToPurchase && !purchaseOpen)
             {
-                CreatePurchase(stockElement: _stockElement);
+                var timeToDelivery = CreatePurchase(stockElement: _stockElement);
+                time = Agent.CurrentTime + timeToDelivery;
                 purchaseOpen = true;
                 Agent.DebugMessage(msg: " Created purchase for " + _stockElement.Article.Name);
             }
@@ -240,7 +240,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 quantity = request.Quantity;
                 _stockElement.Current -= request.Quantity;
             }
-            var stockReservation = new FStockReservation(quantity: quantity, isPurchsed: purchaseOpen, isInStock: inStock, dueTime: request.DueTime, trackingId: request.StockExchangeId);
+            var stockReservation = new FStockReservation(quantity: quantity, isPurchsed: purchaseOpen, isInStock: inStock, dueTime: time, trackingId: request.StockExchangeId);
 
             //Create Stockexchange for Reservation
             _stockElement.StockExchanges.Add(
@@ -258,13 +258,12 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             return stockReservation;
         }
 
-        internal void CreatePurchase(M_Stock stockElement)
+        internal long CreatePurchase(M_Stock stockElement)
         {
-
             var time = stockElement.Article
                                     .ArticleToBusinessPartners
                                     .Single(predicate: x => x.BusinessPartner.Kreditor)
-                                    .DueTime;
+                                    .TimeToDelivery;
             var stockExchange = new T_StockExchange
             {
                 StockId = stockElement.Id,
@@ -277,8 +276,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             };
 
             stockElement.StockExchanges.Add(item: stockExchange);
-            // TODO needs logic if more Kreditors are Added.
+            // TODO Needs logic if more Kreditors are Added.
+            // TODO start CreatePurchase later if materials are needed later
             Agent.Send(instruction: Storage.Instruction.StockRefill.Create(message: stockExchange.TrakingGuid, target: Agent.Context.Self), waitFor: time);
+
+            return time;
         }
 
         internal void LogValueChange(M_Article article, double value)

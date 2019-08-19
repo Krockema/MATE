@@ -12,7 +12,7 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public M_BusinessPartner BusinessPartner { get; set; }
         public int PackSize { get; set; }
-        public int DueTime { get; set; }
+        public int TimeToDelivery { get; set; }
         public double Price { get; set; }
     }
 }

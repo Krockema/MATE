@@ -8,6 +8,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.ProductionAgent.Types;
 using static FArticles;
 using static FAgentInformations;
 using static FOperationResults;
@@ -27,7 +28,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal FOperation _nextOperation { get; set; }
         internal AgentDictionary _hubAgents { get; set; } = new AgentDictionary();
         internal FArticle _fArticle { get; set; }
-        internal List<FArticle> _requestedItemList { get; set; } = new List<FArticle>();
+        internal DispoArticleDictionary _dispoArticleDictionary { get; set; } = new DispoArticleDictionary();
         internal Queue<FArticle> _childArticles { get; set; } = new Queue<FArticle>();
         internal ForwardScheduleTimeCalculator _forwardScheduleTimeCalculator { get; set; }
         public override bool Action(object message)
@@ -37,6 +38,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case Production.Instruction.StartProduction msg: StartProductionAgent(fArticle: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResponseFromDirectory msg: SetHubAgent(hub: msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: AddForwardTime(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break;
+                case BasicInstruction.ProvideArticle msg: ArticleProvided(msg.GetObjectFromMessage); break;
                 // case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
                 // case Production.Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
                 // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
@@ -70,12 +72,12 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 CreateJobsFromArticle(fArticle: fArticle);
             }
 
-            // Create Dispo Agents for each Child.
+            // Create Dispo Agent for each Child.
             foreach (var article in fArticle.Article.ArticleBoms)
             {
                 _childArticles.Enqueue(item: article.ToRequestItem(requestItem: fArticle, requester: Agent.Context.Self, currentTime: Agent.CurrentTime));
 
-                // create Dispo Agents for to Provide Required Articles
+                // create Dispo Agents for to provide required articles
                 var agentSetup = AgentSetup.Create(agent: Agent, behaviour: DispoAgent.Behaviour.Factory.Get(simType: SimulationType.None));
                 var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
                 Agent.Send(instruction: instruction);
@@ -84,12 +86,12 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void SetHubAgent(FAgentInformation hub)
         {
-            // Enque my Element at Comunication Agent
+            // Enqueue my Element at Hub Agent
             Agent.DebugMessage(msg: $"Received Agent from Directory: {Agent.Sender.Path.Name}");
 
             // add agent to current Scope.
             _hubAgents.Add(key: hub.Ref, value: hub.RequiredFor);
-            // foreach fitting WorkSchedule
+            // foreach fitting operation
             foreach (var operation in _operationList.Where(predicate: x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
             {
                 Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: hub.Ref));
@@ -111,22 +113,42 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         }
 
-        private void SetMaterialsProvided(List<FOperation> workItems)
+        /// <summary>
+        /// set each material to provided and set the start condition true if all materials are provided
+        /// </summary>
+        /// <param name="operations"></param>
+        private void ArticleProvided(FArticle fArticle)
+        {
+            //check vs _childArticles and if all Child article are provided set Articles to provided
+            if (!fArticle.IsProvided)
+                throw new Exception("Returned Article IsProvided = true has never been set.");
+
+            Agent.DebugMessage(msg: $"Article {fArticle.Article.Name} {fArticle.Key} has been provided");
+            _dispoArticleDictionary.Update(dispoRef: Agent.Sender, fArticle: fArticle);
+
+            if(_dispoArticleDictionary.AllProvided())
+            {
+                Agent.DebugMessage(msg:$"All Article have been provided");
+
+                foreach (var operation in _operationList)
+                {
+                    operation.StartConditions.ArticlesProvided = true;
+                }
+            }
+
+        }
+
+        private void FinishOperation(Agent agent, FOperationResult operation)
         {
 
         }
 
-        private void FinishWorkItem(Agent agent, FOperationResult operation)
+        internal void SetOperationReady(Agent agent)
         {
 
         }
 
-        internal void SetWorkItemReady(Agent agent)
-        {
-
-        }
-
-        private void SendWorkItemStatusMsg(Agent agent, KeyValuePair<IActorRef, string> hubAgent, FOperation nextItem)
+        private void SendOperationStatusMsg(Agent agent, KeyValuePair<IActorRef, string> hubAgent, FOperation nextItem)
         {
 
         }
@@ -154,7 +176,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 numberOfOperations++;
                 var fJob = operation.ToOperationItem(dueTime: lastDue
                     , productionAgent: Agent.Context.Self
-                    , firstOperation: (operationCounter == numberOfOperations)?true:false
+                    , firstOperation: (operationCounter == numberOfOperations)
                     , currentTime: Agent.CurrentTime);
 
                 Agent.DebugMessage(

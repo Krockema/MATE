@@ -3,6 +3,6 @@
     type public FStartCondition = 
         {
             mutable PreCondition : bool
-            mutable MaterialsProvided : bool
+            mutable ArticlesProvided : bool
         }
-        member this.Satisfied = this.PreCondition && this.MaterialsProvided
+        member this.Satisfied = this.PreCondition && this.ArticlesProvided
