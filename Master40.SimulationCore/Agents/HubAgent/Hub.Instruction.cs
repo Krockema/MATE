@@ -12,13 +12,13 @@ namespace Master40.SimulationCore.Agents.HubAgent
     {
         public class Instruction
         {
-            public class AddMachineToHub : SimulationMessage
+            public class AddResourceToHub : SimulationMessage
             {
-                public static AddMachineToHub Create(FAgentInformation message, IActorRef target, bool logThis = false)
+                public static AddResourceToHub Create(FAgentInformation message, IActorRef target, bool logThis = false)
                 {
-                    return new AddMachineToHub(message: message, target: target, logThis: logThis);
+                    return new AddResourceToHub(message: message, target: target, logThis: logThis);
                 }
-                private AddMachineToHub(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
+                private AddResourceToHub(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
                 {
 
                 }

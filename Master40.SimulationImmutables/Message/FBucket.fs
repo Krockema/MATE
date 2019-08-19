@@ -30,6 +30,7 @@ open IJobs
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
             interface IJob with
+                member this.SetEstimatedEnd e = { this with End = e } :> IJob
                 member this.BackwardEnd with get() = this.BackwardEnd
                 member this.BackwardStart with get() = this.BackwardStart
                 member this.DueTime = this.Operations.Min(fun y -> y.DueTime)

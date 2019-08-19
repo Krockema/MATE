@@ -20,5 +20,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return true;
 
         }
+
+        public long GetQueueAbleTime(IJob job, long currentTime)
+        {
+            var max = currentTime + job.Duration; // + setupTime
+            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
+            {
+                max = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
+                    .Max(e => e.End);
+            }
+            return max;
+        }
     }
 }

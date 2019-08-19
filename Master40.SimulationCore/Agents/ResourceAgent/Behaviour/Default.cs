@@ -1,35 +1,39 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Master40.DB.Enums;
+using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
+using static FOperations;
+using static FPostponeds;
+using static FProposals;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, SimulationType simulationType = SimulationType.None) : base(childMaker: null, obj: simulationType)
+        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.None) : base(childMaker: null, obj: simulationType)
         {
-            this.processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
-            this.queue = new JobQueueTimeLimited(limit: planingJobQueueLength);
-            AgentDictionary = new AgentDictionary();
-            this.queueLength = queueLength;
+            this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
+            this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
+            this._agentDictionary = new AgentDictionary();
+            _workTimeGenerator = workTimeGenerator;
         }
 
-        internal int queueLength { get; set; }
-        internal JobQueueTimeLimited queue { get; set; }
-        internal JobQueueItemLimited processingQueue { get; set; }
-        internal bool operationInProgress { get; set; } = false;
-        internal WorkTimeGenerator workTimeGenerator { get; }
-        internal AgentDictionary AgentDictionary { get; }
+        internal JobQueueTimeLimited _planingQueue { get; set; }
+        internal JobQueueItemLimited _processingQueue { get; set; }
+        internal bool _operationInProgress { get; set; } = false;
+        internal WorkTimeGenerator _workTimeGenerator { get; }
+        internal AgentDictionary _agentDictionary { get; }
         
         public override bool Action(object message)
         {
             switch (message)
             {
-                //case BasicInstruction.Initialize i: RegisterService(); break;
                 case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
-                // case Resource.Instruction.RequestProposal msg: RequestProposal((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
@@ -40,6 +44,49 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 default: return true;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Register the Machine in the System on Startup and Save the Hub agent.
+        /// </summary>
+        private void SetHubAgent(IActorRef hubAgent)
+        {
+            // Save to Value Store
+            _agentDictionary.Add(key: hubAgent, value: "Default");
+            // Debug Message
+            Agent.DebugMessage(msg: "Successfully registered resource at : " + hubAgent.Path.Name);
+        }
+
+        /// <summary>
+        /// Is Called from Comunication Agent to get an Proposal when the item with a given priority can be scheduled.
+        /// </summary>
+        /// <param name="instructionSet"></param>
+        private void RequestProposal(IJob jobItem)
+        {
+            var fOperation = jobItem as FOperation;
+            Agent.DebugMessage($"Request for Proposal: " + fOperation.Operation.Name + " with Id: " + fOperation.Key + ")");
+
+            SendProposalTo(fOperation);
+        }
+
+        /// <summary>
+        /// Send Proposal to Comunication Client
+        /// </summary>
+        /// <param name="workItem"></param>
+        internal void SendProposalTo(FOperation fOperation)
+        {
+
+
+            var max = _planingQueue.GetQueueAbleTime(job: fOperation, currentTime: Agent.CurrentTime);
+            
+            // calculat Proposal.
+            var proposal = new FProposal(possibleSchedule: max
+                , postponed: new FPostponed(offset: (max > _planingQueue.Limit && !fOperation.StartConditions.Satisfied)?max:0)
+                , resourceAgent: Agent.Context.Self
+                , jobKey: fOperation.Key);
+
+            // callback 
+            Agent.Send(Hub.Instruction.ProposalFromMachine.Create(message: proposal, target: Agent.Context.Sender));
         }
 
         /*
@@ -64,21 +111,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
         }
 
-        /// <summary>
-        /// Is Called from Comunication Agent to get an Proposal when the item with a given priority can be scheduled.
-        /// </summary>
-        /// <param name="instructionSet"></param>
-        private void RequestProposal(Resource agent, FWorkItem workItem)
-        {
-            if (workItem == null)
-                throw new InvalidCastException("Could not Cast Workitem on InstructionSet.ObjectToProcess");
-
-            // debug
-            agent.DebugMessage("Request for Proposal: " + workItem.Operation.Name + " with Id: " + workItem.Key + ")");
-            // Send
-
-            agent.SendProposalTo(workItem);
-        }
+        
 
         /// <summary>
         /// is Called if The Proposal is accepted by Comunication Agent
@@ -170,16 +203,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
         */
-        /// <summary>
-        /// Register the Machine in the System on Startup and Save the Hub agent.
-        /// </summary>
-        private void SetHubAgent(IActorRef hubAgent)
-        {
-            // Save to Value Store
-            AgentDictionary.Add(key: hubAgent, value: "Default");
-            // Debug Message
-            Agent.DebugMessage(msg: "Successfull Registred Service at : " + hubAgent.Path.Name);
-        }
+
 
         /*
         private void BreakDown(Resource agent, FBreakDown breakDwon)
@@ -285,31 +309,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Send(Instruction.FinishWork.Create(item, Context.Self), duration);
         }
 
-        /// <summary>
-        /// Send Proposal to Comunication Client
-        /// </summary>
-        /// <param name="workItem"></param>
-        internal void SendProposalTo(FWorkItem workItem)
-        {
-            long max = 0;
-            var queue = this.Get<List<FWorkItem>>(Properties.QUEUE);
-            var queueLength = this.Get<int>(Properties.QUEUE_LENGTH);
-
-            if (queue.Any(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)))
-            {
-                max = queue.Where(e => e.Priority(this.CurrentTime) <= workItem.Priority(this.CurrentTime)).Max(e => e.EstimatedEnd);
-            }
-
-            // calculat Proposal.
-            var proposal = new FProposal(possibleSchedule: max
-                                            , postponed: (max > queueLength && workItem.Status != ElementStatus.Ready)
-                                            , postponedFor: queueLength
-                                            , workItemId: workItem.Key
-                                            , resourceAgent: this.Context.Self);
-
-            // callback 
-            this.Send(Hub.Instruction.ProposalFromMachine.Create(proposal, this.Context.Sender));
-        }
+        
         */
     }
 }

@@ -89,14 +89,14 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , resource: resource
-                                                                    , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
                                                                     // TODO : 1 Machine N Hubs.
                                                                     , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , name: ("Machine(" + resource.Name + ")").ToActorName());
-            Agent.Send(instruction: BasicInstruction.Initialize.Create(target: resourceAgent, message: ResourceAgent.Behaviour.Factory.Get(simType: SimulationType)));
+            Agent.Send(instruction: BasicInstruction.Initialize.Create(target: resourceAgent, message: ResourceAgent.Behaviour.Factory.Get(simType: SimulationType
+             , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator)));
 
         }
 
