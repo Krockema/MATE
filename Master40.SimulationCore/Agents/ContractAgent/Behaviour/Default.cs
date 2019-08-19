@@ -35,7 +35,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             _fArticle = orderItem.ToRequestItem(requester: Agent.Context.Self, currentTime: Agent.CurrentTime);
             // Tell Guardian to create Dispo Agent
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: DispoAgent.Behaviour.Factory.Get(simType: Agent.Behaviour.SimulationType));
-            var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((Contract)Agent).Guardian, source: Agent.Context.Self);
+            var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
             Agent.Send(instruction: instruction);
             // init end
         }

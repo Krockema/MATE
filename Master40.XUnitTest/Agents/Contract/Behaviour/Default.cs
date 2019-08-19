@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
 using Master40.XUnitTest.Preparations;
 using System;
+using Master40.SimulationCore.Agents.Guardian;
 using Xunit;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 
@@ -21,8 +22,9 @@ namespace Master40.XUnitTest.Agents.Contract.Behaviour
             var simContext = CreateTestProbe();
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
             AgentMoc.CreateAgent(actorPaths: actorPaths
-                                           , principal: null,
-                                             behaviour: behave);
+                                           , principal: null
+                                           , behaviour: behave
+                                           , guardianType: GuardianType.Dispo);
             behave.Action(message: message);
 
             Assert.Equal(expected: "Bear", actual: ((IDefaultProperties)behave)._fArticle.Article.Name);

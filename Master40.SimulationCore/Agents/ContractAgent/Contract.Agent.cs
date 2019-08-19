@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Master40.SimulationCore.Agents.ContractAgent
 {
-    public partial class Contract : Agent
+    public partial class Contract : Agent, IAgent
     {
         internal void TryFinialize() { Finish(); }
         /// <summary>
@@ -18,7 +18,8 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         /// '--->Dispo
         /// '----->Production
         /// </summary>
-        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
+        IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
+
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug)
         {
