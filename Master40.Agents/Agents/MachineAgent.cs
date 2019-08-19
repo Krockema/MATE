@@ -41,7 +41,7 @@ namespace Master40.Agents.Agents
             FinishWork
         }
 
-        public MachineAgent(Agent creator, string name, bool debug, DirectoryAgent directoryAgent, Machine machine, WorkTimeGenerator workTimeGenerator) : base(creator, name, debug)
+        public MachineAgent(Agent creator, Agent parent, string name, bool debug, DirectoryAgent directoryAgent, Machine machine, WorkTimeGenerator workTimeGenerator) : base(creator, parent, name, debug)
         {
             _directoryAgent = directoryAgent;
             ProgressQueueSize = 1; // TODO COULD MOVE TO MODEL for CONFIGURATION, May not required anymore

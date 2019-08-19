@@ -23,7 +23,7 @@ namespace Master40.Agents.Agents
             System.IO.File.WriteAllText(@"C:\source\out.csv", csv);
         }
 
-        public static void WriteDataGrouped(List<Dictionary<string, object>> childData)
+        public static void WriteDataGrouped(List<Dictionary<string, object>> childData, string suffix)
         {
             // Write data to csv
             string contCsv = new string("");
@@ -50,11 +50,11 @@ namespace Master40.Agents.Agents
                 csv += String.Join(";", data.Values) + Environment.NewLine;
             }
 
-            System.IO.File.WriteAllText(@"C:\source\agentdata\contract.csv", contCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\disp.csv", dispCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\production.csv", prodCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\machine.csv", machCsv);
-            System.IO.File.WriteAllText(@"C:\source\agentdata\other.csv", otherCsv);
+            System.IO.File.WriteAllText(@"C:\source\agentdata\contract_" + suffix + ".csv", contCsv);
+            System.IO.File.WriteAllText(@"C:\source\agentdata\disp_" + suffix + ".csv", dispCsv);
+            System.IO.File.WriteAllText(@"C:\source\agentdata\production_" + suffix + ".csv", prodCsv);
+            System.IO.File.WriteAllText(@"C:\source\agentdata\machine_" + suffix + ".csv", machCsv);
+            System.IO.File.WriteAllText(@"C:\source\agentdata\other_" + suffix + ".csv", otherCsv);
         }
 
         public static void CollectProps(object obj, ref Dictionary<string, object> props, String prefix = "")

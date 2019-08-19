@@ -13,8 +13,8 @@ namespace Master40.Agents.Agents
         private List<WorkItem> WorkItemQueue;
         private List<Agent> MachineAgents;
         
-        public ComunicationAgent(Agent creator, string name, bool debug, string contractType) 
-            : base(creator, name, debug)
+        public ComunicationAgent(Agent creator, Agent parent, string name, bool debug, string contractType) 
+            : base(creator, parent, name, debug)
         {
             ContractType = contractType;
             WorkItemQueue = new List<WorkItem>();

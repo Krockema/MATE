@@ -19,7 +19,7 @@ namespace Master40.Agents.Agents
         public string StockFor { get; }
         private List<RequestItem> RequestedItems { get; set; }
 
-        public StorageAgent(Agent creator, string name, bool debug, Stock stockElement) : base(creator, name, debug)
+        public StorageAgent(Agent creator, Agent parent, string name, bool debug, Stock stockElement) : base(creator, parent, name, debug)
         {
             StockElement = stockElement;
             StockFor = stockElement.Article.Name;

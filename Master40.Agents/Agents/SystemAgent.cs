@@ -10,20 +10,23 @@ using Microsoft.EntityFrameworkCore;
 using Master40.MessageSystem.SignalR;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Master40.DB.DataTransformation;
 
 namespace Master40.Agents.Agents
 {
     public class SystemAgent : Agent
     {
         private readonly ProductionDomainContext _productionDomainContext;
+        private readonly GPSzenarioContext _gpContext;
         private readonly IMessageHub _messageHub;
         private int orderCount = 1;
         private SimulationConfiguration _simConfig;
         private List<Dictionary<string, object>> allAgentsData = new List<Dictionary<string, object>>();
 
-        public SystemAgent(Agent creator, string name, bool debug, ProductionDomainContext productionDomainContext, IMessageHub messageHub, SimulationConfiguration simConfig) : base(creator, name, debug)
+        public SystemAgent(Agent creator, Agent parent, string name, bool debug, ProductionDomainContext productionDomainContext, GPSzenarioContext gpContext, IMessageHub messageHub, SimulationConfiguration simConfig) : base(creator, parent, name, debug)
         {
             this._productionDomainContext = productionDomainContext;
+            this._gpContext = gpContext;
             _messageHub = messageHub;
             _simConfig = simConfig;
         }
@@ -81,6 +84,7 @@ namespace Master40.Agents.Agents
         {
             // Create Contract agents
             var ca = new ContractAgent(creator: this,
+                parent: this,
                 name: contract.Order.Name + " - Part:" + contract.Article.Name,
                 debug: this.DebugThis);
             // add To System
@@ -160,8 +164,23 @@ namespace Master40.Agents.Agents
 
             if (CheckAllChildrenResponded())
             {
-                DataCollectionHelper.WriteDataGrouped(allChildData);
-                //allChildData = null;
+                DataCollectionHelper.WriteDataGrouped(allChildData, DateTime.Now.Second.ToString());
+
+                //DataTransformationHelper dth = new DataTransformationHelper(_productionDomainContext, _gpContext);
+                //dth.TransformAgentDataToGp(allChildData);
+                //List<List<Dictionary<string, object>>> retransformedData = dth.TransformAgentDataToMaster();
+
+                //// alter Data to see effect
+                //foreach (Dictionary<string, object> dict in retransformedData[1])
+                //{
+                //    dict["ProductionAgent.WorkItems.EstimatedStart"] = 1337;
+                //    dict["ProductionAgent.WorkItems.EstimatedEnd"] = 9999;
+                //}
+
+                //CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.InjectData.ToString(), retransformedData[1], this, 55);
+                //CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.ReturnData.ToString(), "ReturnData", this, 60);
+
+                allChildData = null;
             }
         }
     }

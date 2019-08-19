@@ -698,7 +698,7 @@ namespace Master40.Simulation.Simulation
                 c.Database.EnsureCreated();
                 InMemoryContext.LoadData(_evaluationContext, c);
 
-                var sim = new AgentSimulation(c, _messageHub);
+                var sim = new AgentSimulation(c, new GPSzenarioContext(), _messageHub);
                 await sim.RunSim(simulationConfigurationId, simNumber);
 
                 CopyResults.Copy(c, _evaluationContext, simulationConfigurationId, simNumber, SimulationType.Decentral);

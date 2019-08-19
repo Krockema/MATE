@@ -20,13 +20,15 @@ namespace Master40.Agents
     public class AgentSimulation 
     {
         private readonly ProductionDomainContext _productionDomainContext;
+        private readonly GPSzenarioContext _gpContext;
         public static List<SimulationWorkschedule> SimulationWorkschedules;
 
         private IMessageHub _messageHub;
 
-        public AgentSimulation(ProductionDomainContext productionDomainContext, IMessageHub messageHub)
+        public AgentSimulation(ProductionDomainContext productionDomainContext, GPSzenarioContext gpContext, IMessageHub messageHub)
         {
             _productionDomainContext = productionDomainContext;
+            _gpContext = gpContext;
             _messageHub = messageHub;
             SimulationWorkschedules = new List<SimulationWorkschedule>();
         }
@@ -72,16 +74,17 @@ namespace Master40.Agents
             new SimulationEndTrigger(() => context.TimePeriod > simConfig.SimulationEndTime);
 
 
-            var system = new SystemAgent(null, "System", false, _productionDomainContext, _messageHub, simConfig);
+            var system = new SystemAgent(null, null, "System", false, _productionDomainContext, _gpContext, _messageHub, simConfig);
             var randomWorkTime = new WorkTimeGenerator(simConfig.Seed, simConfig.WorkTimeDeviation, simNr);
             // Create Directory Agent,
-            var directoryAgent = new DirectoryAgent(system, "Directory", false);
+            var directoryAgent = new DirectoryAgent(system, system, "Directory", false);
             system.ChildAgents.Add(directoryAgent);
 
             // Create Machine Agents
             foreach (var machine in _productionDomainContext.Machines.Include(m => m.MachineGroup))
             {
                 system.ChildAgents.Add(new MachineAgent(creator: system, 
+                                                         parent: system,
                                                            name: "Machine: " + machine.Name, 
                                                           debug: false, 
                                                  directoryAgent: directoryAgent,
@@ -96,6 +99,7 @@ namespace Master40.Agents
                                                                                   .ThenInclude(x => x.BusinessPartner))
             {
                 system.ChildAgents.Add(new StorageAgent(creator: system, 
+                                                         parent: system,
                                                            name: stock.Name, 
                                                           debug: false, 
                                                    stockElement: stock ));
@@ -105,6 +109,7 @@ namespace Master40.Agents
 
             // Enqueue data collection task for Ganttplan
             system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.CollectData.ToString(), "CollectData", system, 50);
+            //system.CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.CollectData.ToString(), "CollectData", system, 60);
 
             // Return System Agent to Context
             return system;

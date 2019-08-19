@@ -211,7 +211,7 @@ namespace Master40.XUnitTest.DBContext
                 c.Database.EnsureCreated();
                 InMemoryContext.LoadData(_productionDomainContext, c);
 
-                var sim = new AgentSimulation(c, new Moc.MessageHub());
+                var sim = new AgentSimulation(c, _gpSzenarioContext, new Moc.MessageHub());
                 await sim.RunSim(1,1);
 
                 CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 

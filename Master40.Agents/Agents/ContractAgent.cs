@@ -12,7 +12,7 @@ namespace Master40.Agents.Agents
     {
         private RequestItem requestItem { get; set; }
 
-        public ContractAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
+        public ContractAgent(Agent creator, Agent parent, string name, bool debug) : base(creator, parent, name, debug)
         {
             //Instructions.Add(new Instruction{ Method = "StartOrder", ExpectedObjecType = typeof(RequestItem) });
         }
@@ -40,7 +40,8 @@ namespace Master40.Agents.Agents
             requestItem = MapPropertiesToRequestItem(orderItem);
 
             // Create Dispo Agent 
-            var dispoAgent = new DispoAgent(creator: this, 
+            var dispoAgent = new DispoAgent(creator: this,
+                                             parent: this,
                                              system: Creator, 
                                                name: requestItem.Article.Name + " OrderPartId(" + orderItem.Id + ")", 
                                               debug: DebugThis, 

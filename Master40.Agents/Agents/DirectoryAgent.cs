@@ -5,7 +5,7 @@ namespace Master40.Agents.Agents
 {
     public class DirectoryAgent : Agent
     {
-        public DirectoryAgent(Agent creator, string name, bool debug) : base(creator, name, debug)
+        public DirectoryAgent(Agent creator, Agent parent, string name, bool debug) : base(creator, parent, name, debug)
         {
             //Instructions.Add(new Instruction {Method = "GetOrCreateComunicationAgentForType", ExpectedObjecType = typeof(string) });       
         }
@@ -32,6 +32,7 @@ namespace Master40.Agents.Agents
             {
                 // Create ComunicationAgent if not existent
                 comunicationAgent = new ComunicationAgent(creator: this,
+                                                           parent: this,
                                                              name: "Comunication ->" + objects.ObjectToProcess, 
                                                             debug: this.DebugThis, 
                                                      contractType: objects.ObjectToProcess.ToString());

@@ -20,7 +20,7 @@ namespace Master40.BusinessLogicCentral.MRP
         public AgentSimulator(ProductionDomainContext context, IMessageHub messageHub)
         {
             _context = context;
-            _agentSimulation = new AgentSimulation(context, messageHub);
+            _agentSimulation = new AgentSimulation(context, new GPSzenarioContext(), messageHub);
             _messageHub = messageHub;
         }
 

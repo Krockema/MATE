@@ -15,8 +15,8 @@ namespace Master40.Agents.Agents
         //private List<RequestItem> RequestArtikles { get; set; }
         private List<ComunicationAgent> ComunicationAgents;
         private List<WorkItem> WorkItems { get; set; }
-        public ProductionAgent(Agent creator, string name, bool debug, RequestItem requestItem) 
-            : base(creator, name, debug)
+        public ProductionAgent(Agent creator, Agent parent, string name, bool debug, RequestItem requestItem) 
+            : base(creator, parent, name, debug)
         {
             RequestItem = requestItem;
             //RequestArtikles = new List<RequestItem>();
@@ -66,6 +66,7 @@ namespace Master40.Agents.Agents
 
                 // create Dispo Agents for to Provide Required Articles
                 var dispoAgent = new DispoAgent(creator: this,
+                                                parent: this,
                                                 system: ((StorageAgent)Creator).Creator,
                                                 name: RequestItem.Article.Name + " Child of(" + this.Name + ")",
                                                 debug: DebugThis,

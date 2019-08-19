@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -25,7 +26,10 @@ namespace Master40.Agents.Agents.Internal
 
         // Agent Properties.
         public Guid AgentId { get; }
+        // Creator is not always the actual creator
         internal Agent Creator { get; set; }
+        // Agent who created this agent, used for data aggregation
+        internal Agent Parent { get; }
         internal List<Agent> ChildAgents { get; set; }
         public string Name { get; set; }
         public bool DebugThis { get; set; }
@@ -33,7 +37,7 @@ namespace Master40.Agents.Agents.Internal
         public Queue<InstructionSet> InstructionQueue { get; set; }
         protected List<Dictionary<string, object>> allChildData = new List<Dictionary<string, object>>();
 
-        protected Agent(Agent creator, string name, bool debug)
+        protected Agent(Agent creator, Agent parent, string name, bool debug)
         {
             AgentId = Guid.NewGuid();
             AgentCounter.Add(this.GetType().Name);
@@ -47,6 +51,8 @@ namespace Master40.Agents.Agents.Internal
             var creatorsName = "Simulation Context";
             if (creator == null) { Creator = this; }
             else {  this.Creator = creator; creatorsName = Creator.Name; }
+
+            this.Parent = parent;
 
             DebugMessage(" created by " + creatorsName + ", GUID: " + AgentId);
         }
@@ -224,7 +230,7 @@ namespace Master40.Agents.Agents.Internal
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReturnData.ToString(), "ReturnData", child);
 
             //TODO: Move into ReceiveData?
-            CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(), GetData(), instructionSet.SourceAgent);
+            CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(), GetData(), this);
         }
 
         protected void SaveChildData(InstructionSet instructionSet)
@@ -243,7 +249,7 @@ namespace Master40.Agents.Agents.Internal
             {
                 bool childAnswered = false;
                 foreach (Dictionary<string, object> dict in allChildData)
-                    if (dict.ContainsValue(child.AgentId))
+                    if (dict.Contains(new KeyValuePair<string, object>("AgentId", child.AgentId)))
                     {
                         childAnswered = true;
                         break;
@@ -264,9 +270,9 @@ namespace Master40.Agents.Agents.Internal
             if (CheckAllChildrenResponded())
             {
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(),
-                    allChildData, this.Creator);
+                    allChildData, this.Parent);
                 // Delete data
-                //allChildData = null;
+                allChildData = null;
             }
         }
 
@@ -279,22 +285,30 @@ namespace Master40.Agents.Agents.Internal
             List<AgentPropertyBase> propTree = AgentPropertyManager.GetPropertiesByAgentName(this.GetType().Name);
             foreach(AgentPropertyBase prop in propTree)
             {
-                InjectDataRecursion(prop, "", agentData);
+                InjectDataRecursion(prop, this, this.GetType().Name, agentData);
             }
 
             foreach (Agent child in ChildAgents)
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.InjectData.ToString(), data, child);
         }
 
-        private void InjectDataRecursion(AgentPropertyBase prop, string propPath, List<Dictionary<string, object>> data)
+        private void InjectDataRecursion(AgentPropertyBase prop, object obj, string propPath,List<Dictionary<string, object>> data)
         {
             if(prop.IsNode())
             {
                 AgentPropertyNode propNode = (AgentPropertyNode)prop;
+                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+                PropertyInfo propInfo = obj.GetType().GetProperty(prop.GetPropertyName(), bindingFlags);
+                object nodeObject = propInfo.GetValue(obj);
+                // TODO: for now only process first element of list
+                if(nodeObject is IList && ((IList)nodeObject).Count > 0)
+                {
+                    nodeObject = ((IList)nodeObject)[0];
+                }
                 List<AgentPropertyNode> propNodes = propNode.GetPropertyNodes();
                 foreach(AgentPropertyNode node in propNodes)
                 {
-                    InjectDataRecursion(node, propPath + "." + prop.GetPropertyName(), data);
+                    InjectDataRecursion(node, nodeObject, propPath + "." + prop.GetPropertyName(), data);
                 }
 
                 List<AgentProperty> idProps = propNode.GetDirectProperties(PropertyType.Id);
@@ -307,7 +321,7 @@ namespace Master40.Agents.Agents.Internal
                     idPropsBase.Add((AgentPropertyBase)idProp);
                 }
                 Dictionary<string, object> idValues = new Dictionary<string, object>();
-                DataCollectionHelper.CollectPropsRecursion((List<AgentPropertyBase>)idPropsBase, this, ref idValues, propPath);
+                DataCollectionHelper.CollectPropsRecursion((List<AgentPropertyBase>)idPropsBase, nodeObject, ref idValues, propPath);
 
                 // Iterate over data, find dict with matching idProps, inject Data
                 Dictionary<string, object> matchingData = new Dictionary<string, object>();
@@ -330,27 +344,42 @@ namespace Master40.Agents.Agents.Internal
                     }
                 }
 
-                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-
                 foreach (AgentProperty retransformProp in retransformProps)
                 {
                     string[] propPathArray = propPath.Split(".");
-                    PropertyInfo propInfo;
-                    object injectionObject = this;
-                    // TODO: does not work, every GetValue creates a new instance of the object
-                    // Solution is a recursive approach, unpacking all properties while descending, changing value, then ascending again
-                    foreach(string pathElement in propPathArray)
+                    object newValue;
+                    try
                     {
-                        propInfo = injectionObject.GetType().GetProperty(pathElement, bindingFlags);
-                        injectionObject = propInfo.GetValue(injectionObject);
+                        newValue = matchingData[propPath];
                     }
-                    propInfo = injectionObject.GetType().GetProperty(retransformProp.GetPropertyName(), bindingFlags);
-                    propInfo.SetValue(injectionObject, matchingData[propPath + "." + retransformProp.GetPropertyName()]);
+                    catch
+                    {
+                        continue;
+                    }
+                    SetNestedPropertyValue(this, propPathArray, newValue);
                 }
             }
             else
             {
-                // Ignore, since since at least 2 props are needed for Id + Data
+                // Ignore, since at least 2 props are needed for Id + Data
+            }
+        }
+
+        // ProductionAgent.WorkItems.EstimatedStart
+        private void SetNestedPropertyValue(object obj, string[] propPath, object value)
+        {
+            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+            PropertyInfo propInfo = obj.GetType().GetProperty(propPath[0], bindingFlags);
+            if (propPath.Length == 1)
+            {
+                // Set value                
+                propInfo.SetValue(obj, value);
+            }
+            else
+            {
+                // get property
+                object childValue = propInfo.GetValue(obj);
+                SetNestedPropertyValue(childValue, propPath.Skip(1).ToArray(), value);
             }
         }
     }
