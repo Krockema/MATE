@@ -102,8 +102,8 @@ namespace Master40.DB.Data.Initializer
                 new M_Article{Name="Tisch",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Product").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 20, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 25.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
 
                 // Intermediate Products
-                new M_Article{Name="Tischbein",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 2.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
-                new M_Article{Name="Tischplatte",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 10.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
+                new M_Article{Name="Tischbein",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 2.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
+                new M_Article{Name="Tischplatte",  ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Assembly").Id, CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 10.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"},
                 
                 // base Materials
                 new M_Article{Name="Holzplatte 1,5m x 3,0m x 0,03m", ArticleTypeId = articleTypes.Single( predicate: s => s.Name == "Material").Id, CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 5, UnitId = units.Single( predicate: s => s.Name == "Pieces").Id, Price = 3.00, ToPurchase = true, ToBuild = false},
@@ -132,16 +132,16 @@ namespace Master40.DB.Data.Initializer
             }
             var operations = new M_Operation[]
             {
-                // Final Product Tisch 
-                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=15,ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 10 },
-                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=15, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 20 },
+                // Final Product Tisch
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch zusammenstellen", Duration=5,ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tisch").Id, Name = "Tisch verschrauben", Duration=20, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="AssemblyUnitSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Screwdriver universal cross size 2"), HierarchyNumber = 20 },
 
                 // Bom For Tischbein
-                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=15, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade big"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein saegen", Duration=10, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade big"), HierarchyNumber = 10 },
                 new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
                 // Bom For Tischplatte
-                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=15, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=40, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
                 new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
 

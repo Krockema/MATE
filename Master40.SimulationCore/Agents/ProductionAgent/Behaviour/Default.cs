@@ -29,7 +29,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal FArticle _fArticle { get; set; }
         internal List<FArticle> _requestedItemList { get; set; } = new List<FArticle>();
         internal Queue<FArticle> _childArticles { get; set; } = new Queue<FArticle>();
-        internal List<long> _forwardScheduledEndingTimes { get; set; } = new List<long>();
+        internal ForwardScheduleTimeCalculator _forwardScheduleTimeCalculator { get; set; }
         public override bool Action(object message)
         {
             switch (message)
@@ -43,7 +43,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 // case Production.Instruction.Finished f:
                 //     agent.VirtualChilds.Remove(agent.Sender);
                 //     ((Production)agent).TryToFinish(); break;
-                default: return false;
+
+                //Testing
+                default: return true;
             }
 
             return true;
@@ -51,6 +53,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void StartProductionAgent(FArticle fArticle)
         {
+            _forwardScheduleTimeCalculator = new ForwardScheduleTimeCalculator(fArticle: fArticle);
             // check for Children
             if (fArticle.Article.ArticleBoms.Any())
             {
@@ -77,8 +80,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((Production)Agent).Guardian, source: Agent.Context.Self);
                 Agent.Send(instruction: instruction);
             }
-
-            _fArticle = fArticle;
         }
 
         private void SetHubAgent(FAgentInformation hub)
@@ -158,7 +159,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
                 Agent.DebugMessage(
                     msg:
-                    $"Created operation: {operation.Name} | BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}");
+                    $"Created operation: {operation.Name} | BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 _operationList.Add(item: fJob);
 
@@ -170,26 +171,27 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 
+            _fArticle = fArticle;
             SetForwardScheduling();
         }
 
         private void AddForwardTime(long ealiestStartForForwardScheduling)
         {
-            _forwardScheduledEndingTimes.Add(ealiestStartForForwardScheduling);
+            _forwardScheduleTimeCalculator.Add(ealiestStartForForwardScheduling);
             SetForwardScheduling();
         }
 
 
         private void SetForwardScheduling()
-        {   
-            if (_forwardScheduledEndingTimes.Count != Agent.VirtualChildren.Count)
+        {
+            if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(fArticle: _fArticle))
                 return;
 
             var operationList = new List<FOperation>();
             var earliestStart = Agent.CurrentTime;
             if (Agent.VirtualChildren.Count > 0)
-                earliestStart = _forwardScheduledEndingTimes.Max();
-            
+                earliestStart = _forwardScheduleTimeCalculator.Max;
+
             foreach (var operation in _operationList.OrderBy(keySelector: x => x.Operation.HierarchyNumber))
             {
                 var newOperation = operation.SetForwardSchedule(earliestStart: earliestStart);
@@ -197,8 +199,13 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 operationList.Add(item: newOperation);
             }
 
-            _operationList = operationList;
-            Agent.Send(instruction: BasicInstruction.JobForwardEnd.Create(message: earliestStart, target: Agent.VirtualParent));
+            Agent.DebugMessage(
+                msg:
+                $"EarliestForwardStart {earliestStart} for Article {_fArticle.Article.Name} ArticleKey: {_fArticle.Key} send to {Agent.VirtualParent} ");
+
+        _operationList = operationList;
+            Agent.Send(instruction: BasicInstruction.JobForwardEnd.Create(message: earliestStart,
+                target: Agent.VirtualParent));
         }
     }
 }

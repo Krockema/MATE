@@ -35,7 +35,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 // case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.FinishWork msg: FinishWork((Resource)agent, msg.GetObjectFromMessage); break;
-                default: return false;
+
+                //for Testing!!!!!!!!!
+                default: return true;
             }
             return true;
         }

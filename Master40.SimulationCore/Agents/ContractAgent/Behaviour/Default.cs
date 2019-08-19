@@ -19,6 +19,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             {
                 case Contract.Instruction.StartOrder msg: StartOrder(orderItem: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ProvideArticle msg: TryFinishOrder(fArticle: msg.GetObjectFromMessage); break;
+                case BasicInstruction.JobForwardEnd msg: EstimateForwardEnd(estimatedEnd: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -58,6 +59,13 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
                 Agent.VirtualChildren.Remove(item: Agent.Sender);
                 Agent.TryToFinish();
             }
+        }
+
+        public void EstimateForwardEnd(long estimatedEnd)
+        {
+            Agent.DebugMessage(
+                msg:
+                $"forward schedule finished with earliest End at: {estimatedEnd} ");
         }
 
 

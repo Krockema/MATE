@@ -26,7 +26,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         {
             switch (message)
             {
-                case Dispo.Instruction.RequestArticle r: RequestArticle(requestItem: r.GetObjectFromMessage); break; // Message From Contract or Production Agent
+                case Dispo.Instruction.RequestArticle r: RequestArticle(requestArticle: r.GetObjectFromMessage); break; // Message From Contract or Production Agent
                 case BasicInstruction.ResponseFromDirectory r: ResponseFromDirectory(hubInfo: r.GetObjectFromMessage); break; // return with Storage from Directory
                 case Dispo.Instruction.ResponseFromStock r: ResponseFromStock(reservation: r.GetObjectFromMessage); break; // Message from Storage with Reservation
                 case BasicInstruction.JobForwardEnd msg: PushForwardTimeToParent(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break; // push Calculated Forward Calculated
@@ -40,20 +40,21 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
         {
-            if (_fArticle.IsHeadDemand) return;
-            
+            Agent.DebugMessage(
+                msg:
+                $"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
             var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
             Agent.Send(instruction: msg);
         }
 
-        internal void RequestArticle(FArticle requestItem)
+        internal void RequestArticle(FArticle requestArticle)
         {
             // Save Request Item.
-            _fArticle = requestItem;
+            _fArticle = requestArticle;
             // get related Storage Agent
             Agent.Send(instruction: Directory.Instruction
                                 .RequestAgent
-                                .Create(discriminator: (string)requestItem.Article.Name
+                                .Create(discriminator: requestArticle.Article.Name
                                     , target: Agent.ActorPaths.StorageDirectory.Ref));
         }
 
@@ -75,6 +76,13 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             Agent.DebugMessage(msg: reservation.Quantity + " " 
                                 + _fArticle.Article.Name + " are reserved and " 
                                 + _quantityToProduce + " " + _fArticle.Article.Name + " need to be produced!");
+
+            if (reservation.IsInStock == true && !_fArticle.Article.ToBuild)
+            {
+                Agent.DebugMessage(msg: $"Start forward scheduling for article: {_fArticle.Article.Name} {_fArticle.Key} at: {Agent.CurrentTime}");
+                PushForwardTimeToParent(earliestStartForForwardScheduling: Agent.CurrentTime);
+            }
+
 
             if (reservation.IsInStock == true)
             {

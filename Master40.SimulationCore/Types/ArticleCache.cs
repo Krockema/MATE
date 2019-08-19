@@ -29,6 +29,7 @@ namespace Master40.SimulationCore.Types
                                         .ThenInclude(navigationPropertyPath: x => x.ResourceSkill)
                                       .Include(navigationPropertyPath: x => x.ArticleBoms)
                                         .ThenInclude(navigationPropertyPath: x => x.ArticleChild)
+                                            .ThenInclude(x => x.ArticleType)
                                       .Single(predicate: (x => x.Id == id));
                     _cache.Add(key: id, value: obj);
                     ctx.Dispose();
