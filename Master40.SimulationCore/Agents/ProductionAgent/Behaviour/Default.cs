@@ -36,7 +36,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             {
                 case Production.Instruction.StartProduction msg: StartProductionAgent(fArticle: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResponseFromDirectory msg: SetHubAgent(hub: msg.GetObjectFromMessage); break;
-                case BasicInstruction.JobForwardEnd msg: AddForwardTime(ealiestStartForForwardScheduling: msg.GetObjectFromMessage); break;
+                case BasicInstruction.JobForwardEnd msg: AddForwardTime(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break;
                 // case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
                 // case Production.Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
                 // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
@@ -77,7 +77,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
                 // create Dispo Agents for to Provide Required Articles
                 var agentSetup = AgentSetup.Create(agent: Agent, behaviour: DispoAgent.Behaviour.Factory.Get(simType: SimulationType.None));
-                var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((Production)Agent).Guardian, source: Agent.Context.Self);
+                var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
                 Agent.Send(instruction: instruction);
             }
         }
@@ -175,9 +175,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             SetForwardScheduling();
         }
 
-        private void AddForwardTime(long ealiestStartForForwardScheduling)
+        private void AddForwardTime(long earliestStartForForwardScheduling)
         {
-            _forwardScheduleTimeCalculator.Add(ealiestStartForForwardScheduling);
+            _forwardScheduleTimeCalculator.Add(earliestStartForForwardScheduling: earliestStartForForwardScheduling);
             SetForwardScheduling();
         }
 

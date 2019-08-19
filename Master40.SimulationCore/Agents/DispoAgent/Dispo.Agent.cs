@@ -16,9 +16,10 @@ namespace Master40.SimulationCore.Agents.DispoAgent
     /// Stock -> Response from stock    ->  Dispo                                    
     /// </summary>
 
-    public partial class Dispo : Agent
+    public partial class Dispo : Agent, IAgent
     {
-        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Production).Value;
+
+        IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Production).Value;
 
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)

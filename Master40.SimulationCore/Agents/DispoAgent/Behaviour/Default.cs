@@ -125,7 +125,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             for (var i = 0; i < _quantityToProduce; i++)
             {
                 var agentSetup = AgentSetup.Create(agent: Agent, behaviour: ProductionAgent.Behaviour.Factory.Get(simType: SimulationType.None));
-                var instruction = CreateChild.Create(setup: agentSetup, target: ((Dispo)Agent).Guardian, source: Agent.Context.Self);
+                var instruction = CreateChild.Create(setup: agentSetup, target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
                 Agent.Send(instruction: instruction);
             }
         }

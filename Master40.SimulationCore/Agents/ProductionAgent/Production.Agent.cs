@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent
 {
-    public partial class Production : Agent
+    public partial class Production : Agent, IAgent
     {
-        internal new IActorRef Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
+        IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
 
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
