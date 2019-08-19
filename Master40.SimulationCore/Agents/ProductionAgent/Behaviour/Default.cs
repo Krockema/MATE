@@ -133,7 +133,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 foreach (var operation in _operationList)
                 {
                     operation.StartConditions.ArticlesProvided = true;
+                    //TODO Send ArticlesProvided to Hub Agent
                 }
+
+
             }
 
         }

@@ -36,16 +36,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            //MasterDBInitializerMedium.DbInitialize(_ctx);
-            MasterDBInitializerSimple.DbInitialize(_masterDBContext);
-            //MasterDBInitializerTruck.DbInitialize(_ctx);
+            //MasterDBInitializerSimple.DbInitialize(_masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(_masterDBContext);
 
             _ctxResult.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
-            // MasterDBInitializerLarge.DbInitialize(_ctx);
-            //_productionDomainContext.Database.EnsureDeleted();
-            //_productionDomainContext.Database.EnsureCreated();
-            //MasterDBInitializerSimple.DbInitialize(_productionDomainContext);
+
         }
 
 
@@ -79,15 +75,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: false)
                                                 });
-            // simConfig.OrderQuantity = 0;
 
-            //var simModelConfig = new SimulationConfig(false, 480);
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
             emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
 
-
-            // simulation.ActorSystem.EventStream.Subscribe(testProbe, typeof(DirectoryAgent.Instruction.CreateMachineAgents));
 
             var simWasReady = false;
             if (simulation.IsReady())
