@@ -14,10 +14,10 @@ open IJobs
           CreationTime : int64
           BackwardEnd : int64 
           BackwardStart : int64 
-          End : int64 
           ForwardEnd : int64 
           ForwardStart : int64 
           Start : int64
+          End : int64 
           StartConditions : FStartCondition
           Priority : int64 -> double
           ProductionAgent : IActorRef
@@ -29,7 +29,6 @@ open IJobs
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
             interface IJob with
-                member this.SetEstimatedEnd e = { this with End = e } :> IJob
                 member this.BackwardEnd with get() = this.BackwardEnd
                 member this.BackwardStart with get() = this.BackwardStart
                 member this.DueTime with get() = this.DueTime
@@ -43,6 +42,9 @@ open IJobs
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
                 member this.Duration = (int64)this.Operation.Duration // Theoretisch muss hier die Slacktime noch rein also , +3*duration bzw aus dem operationElement
+                member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  (int64)this.Operation.Duration;
+                                                                                         Start = (int64)estimatedStart;
+                                                                                         ResourceAgent = resourceAgent } :> IJob
             interface IComparable with 
                 member this.CompareTo fWorkItem = 
                     match fWorkItem with 

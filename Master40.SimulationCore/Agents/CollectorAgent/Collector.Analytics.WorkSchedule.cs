@@ -46,7 +46,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                      typeof(FUpdateSimulationWork),
                                      typeof(FUpdateSimulationWorkProvider),
                                      typeof(UpdateLiveFeed),
-                                     typeof(Hub.Instruction.AddMachineToHub),
+                                     typeof(Hub.Instruction.AddResourceToHub),
                                      typeof(BasicInstruction.ResourceBrakeDown)
 
             };
@@ -67,7 +67,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(uws: m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
-                case Hub.Instruction.AddMachineToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
+                case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
             }

@@ -15,21 +15,28 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <param name="item"></param>
         public bool Enqueue(IJob item)
         {
-            if (Limit <= this.jobs.Sum(selector: x => x.Duration)) return false;
+            if (!item.StartConditions.Satisfied 
+                && Limit <= this.jobs.Sum(selector: x => x.Duration)) return false;
             this.jobs.Add(item: item);
             return true;
-
         }
 
+        /// <summary>
+        /// Function to determine the earliest start in a given Queue regardless of the queue capacity
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
         public long GetQueueAbleTime(IJob job, long currentTime)
         {
-            var max = currentTime + job.Duration; // + setupTime
+
+            var possibleStartTime = currentTime;
             if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                max = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
-                    .Max(e => e.End);
+                possibleStartTime = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
+                                             .Max(e => e.End);
             }
-            return max;
+            return possibleStartTime;
         }
     }
 }

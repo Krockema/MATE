@@ -29,9 +29,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             switch (message)
             {
                 case Hub.Instruction.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
+                case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(proposal: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.ProductionStarted msg: ProductionStarted(key: msg.GetObjectfromMessage); break;
                 case Hub.Instruction.FinishJob msg: FinishJob(operationResult: msg.GetObjectFromMessage as FOperationResult); break;
-                case Hub.Instruction.ProposalFromMachine msg: ProposalFromMachine(proposal: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
@@ -75,6 +75,53 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="proposal"></param>
+        private void ProposalFromResource(FProposal proposal)
+        {
+            // get related operation and add proposal.
+            var fOperation = _operationList.Single(predicate: x => x.Key == proposal.JobKey);
+            fOperation.Proposals.RemoveAll(x => x.ResourceAgent.Equals(proposal.ResourceAgent));
+            // add New Proposal
+            fOperation.Proposals.Add(item: proposal);
+
+            Agent.DebugMessage(msg: $"Proposal for Schedule: {proposal.PossibleSchedule} Id: {proposal.JobKey} from: {proposal.ResourceAgent}!");
+
+
+            // if all Machines Answered
+            if (fOperation.Proposals.Count == _resourceAgents.Count)
+            {
+
+                // item Postponed by All Machines ? -> requeue after given amount of time.
+                if (fOperation.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
+                {
+                    // Call Hub Agent to Requeue
+                    fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
+                    _operationList.Replace(val: fOperation);
+                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: proposal.Postponed.Offset);
+                    return;
+                }
+
+
+                // acknowledge Machine -> therefore get Machine -> send acknowledgement
+                var earliestPossibleStart = fOperation.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
+                                                               .Min(selector: p => p.PossibleSchedule);
+
+                var acknowledgement = fOperation.Proposals.First(predicate: x => x.PossibleSchedule == earliestPossibleStart
+                                                                        && x.Postponed.IsPostponed == false);
+
+                fOperation = ((IJob)fOperation).UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent) as FOperation;
+
+                Agent.DebugMessage(msg:$"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {acknowledgement.ResourceAgent}");
+
+                // set Proposal Start for Machine to Requeue if time slot is closed.
+                _operationList.Replace(fOperation);
+                Agent.Send(instruction: Resource.Instruction.AcknowledgeProposal.Create(message: fOperation, target: acknowledgement.ResourceAgent));
+            }
+        }
+
         public void ProductionStarted(Guid key)
         {
             var temp = _operationList.Single(predicate: x => x.Key == key);
@@ -94,52 +141,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _operationList.Remove(item: item);
         }
 
-        /// <summary>
-        /// TODO: Has to be Rewitten
-        /// </summary>
-        /// <param name="agent"></param>
-        /// <param name="proposal"></param>
-        private void ProposalFromMachine(FProposal proposal)
-        {
-            // get releated workitem and add Proposal.
-            var operation = _operationList.SingleOrDefault(predicate: x => x.Key == proposal.JobKey);
-            operation.Proposals.RemoveAll(match: x => x.ResourceAgent == proposal.ResourceAgent);
-            // add New Proposal
-            operation.Proposals.Add(item: proposal);
-
-            Agent.DebugMessage(msg: "Proposal for Schedule: " + proposal.PossibleSchedule + " Id: " + proposal.JobKey + " from:" + proposal.ResourceAgent + "!");
-
-
-            // if all Machines Answered
-            if (operation.Proposals.Count == _resourceAgents.Count)
-            {
-
-                // item Postponed by All Machines ? -> reque after given amount of time.
-                if (operation.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
-                {
-                    // Call Hub Agent to Requeue
-                    operation = operation.UpdateResourceAgent(r: ActorRefs.NoSender);
-                    _operationList.Replace(val: operation);
-                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: Agent.Context.Self), waitFor: proposal.Postponed.Offset);
-                    return;
-                }
-
-
-                // aknowledge Machine -> therefore get Machine -> send aknowledgement
-                var acknowledgement = operation.Proposals.First(predicate: x => x.PossibleSchedule == operation.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
-                                                                                                            .Min(selector: p => p.PossibleSchedule)
-                                                                 && x.Postponed.IsPostponed == false);
-
-                // WTF
-                operation = ((IJob)operation).SetEstimatedEnd(acknowledgement.PossibleSchedule) as FOperation;
-
-                Agent.DebugMessage(msg: "Start AcknowledgeProposal for " + proposal.JobKey + " on resource " + acknowledgement.ResourceAgent);
-
-                // set Proposal Start for Machine to Reque if time slot is closed.
-                _operationList.Replace(val: operation);
-                Agent.Send(instruction: Resource.Instruction.AcknowledgeProposal.Create(message: operation, target: acknowledgement.ResourceAgent));
-            }
-        }
+        
 
 
         private void AddResourceToHub(FAgentInformation hubInformation)

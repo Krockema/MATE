@@ -75,18 +75,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <param name="workItem"></param>
         internal void SendProposalTo(FOperation fOperation)
         {
-
-
-            var max = _planingQueue.GetQueueAbleTime(job: fOperation, currentTime: Agent.CurrentTime);
+            var possibleStartTime = _planingQueue.GetQueueAbleTime(job: fOperation, currentTime: Agent.CurrentTime);
             
             // calculat Proposal.
-            var proposal = new FProposal(possibleSchedule: max
-                , postponed: new FPostponed(offset: (max > _planingQueue.Limit && !fOperation.StartConditions.Satisfied)?max:0)
+            var proposal = new FProposal(possibleSchedule: possibleStartTime
+                , postponed: new FPostponed(offset: (possibleStartTime > _planingQueue.Limit && !fOperation.StartConditions.Satisfied)? possibleStartTime : 0)
                 , resourceAgent: Agent.Context.Self
                 , jobKey: fOperation.Key);
 
             // callback 
-            Agent.Send(Hub.Instruction.ProposalFromMachine.Create(message: proposal, target: Agent.Context.Sender));
+            Agent.Send(Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
         /*

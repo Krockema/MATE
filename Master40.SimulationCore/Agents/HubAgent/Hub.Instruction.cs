@@ -51,13 +51,13 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
-            public class ProposalFromMachine : SimulationMessage
+            public class ProposalFromResource : SimulationMessage
             {
-                public static ProposalFromMachine Create(FProposal message, IActorRef target)
+                public static ProposalFromResource Create(FProposal message, IActorRef target)
                 {
-                    return new ProposalFromMachine(message: message, target: target);
+                    return new ProposalFromResource(message: message, target: target);
                 }
-                private ProposalFromMachine(object message, IActorRef target) : base(message: message, target: target)
+                private ProposalFromResource(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

@@ -8,6 +8,7 @@ open System.Linq
 open FStartConditions
 open IKeys
 open IJobs
+open System.Linq
 
     type public FBucket =
         { Key : Guid
@@ -30,7 +31,6 @@ open IJobs
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
             interface IJob with
-                member this.SetEstimatedEnd e = { this with End = e } :> IJob
                 member this.BackwardEnd with get() = this.BackwardEnd
                 member this.BackwardStart with get() = this.BackwardStart
                 member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
@@ -44,6 +44,9 @@ open IJobs
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
                 member this.Duration = this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
+                member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
+                                                                                         Start = (int64)estimatedStart;
+                                                                                         ResourceAgent = resourceAgent } :> IJob
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }

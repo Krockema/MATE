@@ -18,4 +18,4 @@ type public IJob =
     abstract member HubAgent : IActorRef
     abstract member DueTime : int64 with get
     abstract member Duration : int64 with get
-    abstract member SetEstimatedEnd : int64 -> IJob
+    abstract member UpdateEstimations : int64 -> IActorRef -> IJob
