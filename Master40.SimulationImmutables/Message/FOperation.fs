@@ -29,6 +29,8 @@ open IJobs
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
             interface IJob with
+                member this.Key  with get() = this.Key
+                member this.Name with get() = this.Operation.Name
                 member this.BackwardEnd with get() = this.BackwardEnd
                 member this.BackwardStart with get() = this.BackwardStart
                 member this.DueTime with get() = this.DueTime
@@ -51,6 +53,7 @@ open IJobs
                     | :? FOperation as other -> compare other.Key this.Key
                     | _ -> invalidArg "Operation" "cannot compare value of different types" 
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
+        member this.AsIjob = this :> IJob
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub = { this with HubAgent = hub }
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;

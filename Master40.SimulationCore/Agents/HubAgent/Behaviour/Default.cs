@@ -30,7 +30,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 case Hub.Instruction.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
                 case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(proposal: msg.GetObjectFromMessage); break;
-                case Hub.Instruction.ProductionStarted msg: ProductionStarted(key: msg.GetObjectfromMessage); break;
+                case BasicInstruction.WithdrawRequiredArticles msg: ProductionStarted(key: msg.GetObjectfromMessage); break;
                 case Hub.Instruction.FinishJob msg: FinishJob(operationResult: msg.GetObjectFromMessage as FOperationResult); break;
                 case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;

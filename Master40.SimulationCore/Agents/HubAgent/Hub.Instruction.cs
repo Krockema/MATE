@@ -25,19 +25,6 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
             }
 
-            public class ProductionStarted : SimulationMessage
-            {
-                public static ProductionStarted Create(Guid message, IActorRef target)
-                {
-                    return new ProductionStarted(message: message, target: target);
-                }
-                private ProductionStarted(object message, IActorRef target) : base(message: message, target: target)
-                {
-
-                }
-                public Guid GetObjectfromMessage { get => (Guid)Message; }
-            }
-
             public class EnqueueJob : SimulationMessage
             {
                 public static EnqueueJob Create(IJob message, IActorRef target)

@@ -17,6 +17,7 @@ namespace Master40.SimulationCore.Helper
 {
     public static class MessageFactory
     {
+        private static int BucketNumber = 0;
         /// <summary>
         /// TODO: Fulfill Creator
         /// </summary>
@@ -71,6 +72,7 @@ namespace Master40.SimulationCore.Helper
             return new FBucket(key: Guid.NewGuid()
                                 //, prioRule: prioRule.ToFSharpFunc()
                                 , priority: prioRule.ToFSharpFunc()
+                                , name: $"{operation.Operation.ResourceTool.Name}({BucketNumber++})"
                                 , creationTime: time
                                 , forwardStart: 0
                                 , forwardEnd: 0

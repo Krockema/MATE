@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static IJobs;
 
@@ -15,10 +16,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <param name="item"></param>
         public bool Enqueue(IJob item)
         {
-            if (!item.StartConditions.Satisfied 
-                && Limit <= this.jobs.Sum(selector: x => x.Duration)) return false;
+            if (!IsQueueAble(item: item)) return false;
             this.jobs.Add(item: item);
             return true;
+        }
+
+        public bool IsQueueAble(IJob item)
+        {
+            return item.StartConditions.Satisfied || CapacitiesLeft();
         }
 
         /// <summary>
@@ -37,6 +42,32 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                                              .Max(e => e.End);
             }
             return possibleStartTime;
+        }
+
+        public override bool CapacitiesLeft()
+        {
+            return Limit > this.jobs.Sum(selector: x => x.Duration);
+        }
+
+        public List<IJob> CutTail(long currentTime, IJob job)
+        {
+            // Enqued before another item?
+            var toRequeue = new List<IJob>();
+            var position = jobs.OrderBy(x => x.Priority(currentTime)).ToList().IndexOf(job);
+
+            // reorganize Queue if an Element has ben Queued which is More Important.
+            if (position + 1 < jobs.Count)
+            {
+                toRequeue = jobs.OrderBy(x => x.Priority(currentTime)).ToList()
+                    .GetRange(position + 1, jobs.Count() - position - 1);
+            }
+
+            return toRequeue;
+        }
+
+        internal bool RemoveJob(IJob job)
+        {
+            return jobs.Remove(item: job);
         }
     }
 }

@@ -81,7 +81,7 @@ namespace Master40.XUnitTest.Agents.Types
 
             jobQueueTimeLimited.Enqueue(item: CreateJobItem(jobName: "SampleTwo", jobDuration: durationItemTwo, dueTime: dueTimeItemTwo));
 
-            var dequeuedItem = jobQueueTimeLimited.Dequeue(currentTime: currentTime);
+            var dequeuedItem = jobQueueTimeLimited.DequeueFirstSatisfied(currentTime: currentTime);
             Assert.Equal(expected: expected, actual: ((FOperation)dequeuedItem).Operation.Name);
 
             Assert.Equal(expected: 1, actual: jobQueueTimeLimited.Count);

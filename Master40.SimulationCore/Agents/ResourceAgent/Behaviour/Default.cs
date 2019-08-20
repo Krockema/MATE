@@ -5,7 +5,6 @@ using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
-using static FOperations;
 using static FPostponeds;
 using static FProposals;
 using static IJobs;
@@ -34,7 +33,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
                 case Resource.Instruction.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
-                // case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal((Resource)agent, msg.GetObjectFromMessage); break;
+                case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
@@ -63,28 +62,126 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <param name="instructionSet"></param>
         private void RequestProposal(IJob jobItem)
         {
-            var fOperation = jobItem as FOperation;
-            Agent.DebugMessage($"Request for Proposal: " + fOperation.Operation.Name + " with Id: " + fOperation.Key + ")");
+            Agent.DebugMessage($"Request for Proposal: " + jobItem.Name + " with Id: " + jobItem.Key + ")");
 
-            SendProposalTo(fOperation);
+            SendProposalTo(jobItem: jobItem);
         }
 
         /// <summary>
         /// Send Proposal to Comunication Client
         /// </summary>
-        /// <param name="workItem"></param>
-        internal void SendProposalTo(FOperation fOperation)
+        /// <param name="jobItem"></param>
+        internal void SendProposalTo(IJob jobItem)
         {
-            var possibleStartTime = _planingQueue.GetQueueAbleTime(job: fOperation, currentTime: Agent.CurrentTime);
+            var possibleStartTime = _planingQueue.GetQueueAbleTime(job: jobItem, currentTime: Agent.CurrentTime);
             
-            // calculat Proposal.
+            // calculate proposal
             var proposal = new FProposal(possibleSchedule: possibleStartTime
-                , postponed: new FPostponed(offset: (possibleStartTime > _planingQueue.Limit && !fOperation.StartConditions.Satisfied)? possibleStartTime : 0)
+                , postponed: new FPostponed(offset: (possibleStartTime > _planingQueue.Limit && !jobItem.StartConditions.Satisfied)? possibleStartTime : 0)
                 , resourceAgent: Agent.Context.Self
-                , jobKey: fOperation.Key);
+                , jobKey: jobItem.Key);
 
-            // callback 
             Agent.Send(Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
+        }
+
+        /// <summary>
+        /// Is called after RequestProposal if the proposal is accepted by HubAgent
+        /// </summary>
+        public void AcknowledgeProposal(IJob jobItem)
+        {
+            Agent.DebugMessage($"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
+
+            // if not QueueAble
+            if (!_planingQueue.IsQueueAble(item: jobItem))
+            {
+                Agent.Send(Hub.Instruction.EnqueueJob.Create(message: jobItem, target: jobItem.HubAgent));
+                return;
+            }
+
+            var startTime = _planingQueue.GetQueueAbleTime(jobItem, currentTime: Agent.CurrentTime);
+            jobItem = jobItem.UpdateEstimations(startTime, Agent.Context.Self);
+            if (!_planingQueue.Enqueue(item: jobItem))
+            {
+                throw new Exception("Queueing went wrong!");
+            };
+
+            Agent.DebugMessage("AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
+            UpdateAndRequeuePlanedJobs(jobItem: jobItem);
+            UpdateProcessingQueue();
+            //DoWork();
+        }
+
+        private void UpdateAndRequeuePlanedJobs(IJob jobItem)
+        {
+            Agent.DebugMessage("Old planning queue length = " + _planingQueue.Count);
+            var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, job: jobItem);
+            foreach (var job in toRequeue)
+            {
+                _planingQueue.RemoveJob(job: job);
+                Agent.Send(Hub.Instruction.EnqueueJob.Create(message: job, target: job.HubAgent));
+            }
+            Agent.DebugMessage("New planning queue length = " + _planingQueue.Count);
+        }
+
+
+        private void UpdateProcessingQueue()
+        {
+            while (_processingQueue.CapacitiesLeft() && _planingQueue.HasQueueAbleJobs())
+            {
+                var job = _planingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+                var ok = _processingQueue.Enqueue(item: job);
+                if (!ok)
+                {
+                    throw new Exception("Something wen wrong with Queueing!");
+                }
+                Agent.Send(BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
+            }
+
+            Agent.DebugMessage("Jobs ready to start: " + _processingQueue.Count);
+
+        }
+
+        /*
+        /// <summary>
+        /// Starts the next WorkItem
+        /// </summary>
+        internal void DoWork()
+        {
+            if (_operationInProgress)
+            {
+                Agent.DebugMessage("Im still working....");
+                return; // Resource Agent is still working
+            }
+
+            var nextOperationToWork = _processingQueue.DequeueFirstSatisfied(Agent.CurrentTime);
+
+
+            // Wait if nothing More todo.
+            if (item == null)
+            {
+                // No more work 
+                DebugMessage("Nothing more Ready in Queue!");
+                return;
+            }
+
+            DebugMessage("Start with " + item.Operation.Name);
+            Set(Properties.ITEMS_IN_PROGRESS, true);
+            item = item.UpdateStatus(ElementStatus.Processed);
+
+
+            // TODO: Roll delay here
+            var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
+            var duration = workTimeGenerator.GetRandomWorkTime(item.Operation.Duration);
+
+            //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
+
+            // TODO !
+            var pub = new UpdateSimulationWork(item.Key.ToString(), duration - 1, (int)this.TimePeriod, this.Name);
+            this.Context.System.EventStream.Publish(pub);
+            // Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
+
+            // get item = ready and lowest priority
+            Send(Instruction.FinishWork.Create(item, Context.Self), duration);
         }
 
         /*
@@ -111,58 +208,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         
 
-        /// <summary>
-        /// is Called if The Proposal is accepted by Comunication Agent
-        /// </summary>
-        /// <param name="instructionSet"></param>
-        public void AcknowledgeProposal(Resource agent, FWorkItem workItem)
-        {
-
-            agent.DebugMessage("AcknowledgeProposal Item: " + workItem.Operation.Name + " WorkItemId: " + workItem.Key);
-            var queue = agent.Get<List<FWorkItem>>(Resource.Properties.QUEUE);
-            if (queue.Any(e => e.Priority(agent.CurrentTime) <= workItem.Priority(agent.CurrentTime)))
-            {
-                // Get item Latest End.
-                var maxItem = queue.Where(e => e.Priority(agent.CurrentTime) <= workItem.Priority(agent.CurrentTime)).Max(e => e.EstimatedEnd);
-
-                // check if Queuable
-                if (maxItem > workItem.EstimatedStart)
-                {
-                    // reset Agent Status
-                    workItem = workItem.UpdateStatus(ElementStatus.Created);
-                    agent.SendProposalTo(workItem);
-                    return;
-                }
-            }
-
-            agent.DebugMessage("AcknowledgeProposal Accepted Item: " + workItem.Operation.Name + " with Id: " + workItem.Key);
-            workItem = workItem.UpdateStatus(ElementStatus.InQueue);
-            queue.Add(workItem);
-
-            // Enqued before another item?
-            var position = queue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().IndexOf(workItem);
-            agent.DebugMessage("Position: " + position + " Priority:" + workItem.Priority(agent.CurrentTime) + " Queue length " + queue.Count());
-
-            // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < queue.Count)
-            {
-                var toRequeue = queue.OrderBy(x => x.Priority(agent.CurrentTime)).ToList().GetRange(position + 1, queue.Count() - position - 1);
-
-                agent.CallToReQueue(queue, toRequeue);
-
-                agent.DebugMessage("New Queue length = " + queue.Count);
-            }
-
-
-            if (workItem.Status == ElementStatus.InQueue && workItem.MaterialsProvided == true)
-            {
-                // update Processing queue
-                agent.UpdateProcessingQueue(workItem);
-
-                // there is at least Something Ready so Start Work
-                agent.DoWork();
-            }
-        }
+        
 
         private void FinishWork(Resource agent, FWorkItem workItem)
         {
@@ -262,51 +308,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Send(Hub.Instruction.EnqueueWorkItem.Create(reqItem.UpdateStatus(ElementStatus.Created), reqItem.HubAgent));
             }
         }
-
-        /// <summary>
-        /// Starts the next WorkItem
-        /// </summary>
-        internal void DoWork()
-        {
-            if (Get<bool>(Properties.ITEMS_IN_PROGRESS))
-            {
-                DebugMessage("Im still working....");
-                return; // still working
-            }
-
-            // Dequeue
-            var processingQueue = Get<LimitedQueue<FWorkItem>>(Properties.PROCESSING_QUEUE);
-            var item = processingQueue.Dequeue();
-
-
-            // Wait if nothing More todo.
-            if (item == null)
-            {
-                // No more work 
-                DebugMessage("Nothing more Ready in Queue!");
-                return;
-            }
-
-            DebugMessage("Start with " + item.Operation.Name);
-            Set(Properties.ITEMS_IN_PROGRESS, true);
-            item = item.UpdateStatus(ElementStatus.Processed);
-
-
-            // TODO: Roll delay here
-            var workTimeGenerator = Get<WorkTimeGenerator>(Properties.WORK_TIME_GENERATOR);
-            var duration = workTimeGenerator.GetRandomWorkTime(item.Operation.Duration);
-
-            //Debug.WriteLine("Duration: " + duration + " for " + item.WorkSchedule.Name);
-
-            // TODO !
-            var pub = new UpdateSimulationWork(item.Key.ToString(), duration - 1, (int)this.TimePeriod, this.Name);
-            this.Context.System.EventStream.Publish(pub);
-            // Statistics.UpdateSimulationWorkSchedule(item.Id.ToString(), (int)Context.TimePeriod, duration - 1, this.Machine);
-
-            // get item = ready and lowest priority
-            Send(Instruction.FinishWork.Create(item, Context.Self), duration);
-        }
-
         
         */
     }

@@ -38,14 +38,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
             public class AcknowledgeProposal : SimulationMessage
             {
-                public static AcknowledgeProposal Create(FOperation message, IActorRef target)
+                public static AcknowledgeProposal Create(IJob message, IActorRef target)
                 {
                     return new AcknowledgeProposal(message: message, target: target);
                 }
                 private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FOperation GetObjectFromMessage { get => Message as FOperation; }
+                public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
             public class StartWorkWith : SimulationMessage

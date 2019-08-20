@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.SimulationCore.Types;
 using static FBreakDowns;
@@ -91,5 +92,19 @@ namespace Master40.SimulationCore.Agents
             {
             }
         }
+
+        public class WithdrawRequiredArticles : SimulationMessage
+        {
+            public static WithdrawRequiredArticles Create(Guid message, IActorRef target)
+            {
+                return new WithdrawRequiredArticles(message: message, target: target);
+            }
+            private WithdrawRequiredArticles(object message, IActorRef target) : base(message: message, target: target)
+            {
+
+            }
+            public Guid GetObjectfromMessage { get => (Guid)Message; }
+        }
+
     }
 }

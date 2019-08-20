@@ -18,5 +18,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return true;
 
         }
+
+        public override bool CapacitiesLeft()
+        {
+            return jobs.Count < jobs.Capacity;
+        }
     }
 }

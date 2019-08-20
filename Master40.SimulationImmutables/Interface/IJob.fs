@@ -3,8 +3,11 @@
 open FStartConditions
 open FProposals
 open Akka.Actor
+open System
 
 type public IJob = 
+    abstract member Key : Guid with get
+    abstract member Name : string with get
     abstract member ForwardStart : int64 with get
     abstract member ForwardEnd : int64 with get
     abstract member BackwardStart : int64 with get

@@ -65,7 +65,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         {
             Agent.DebugMessage(
                 msg:
-                $"forward schedule finished with earliest End at: {estimatedEnd} ");
+                $"Scheduling finished with earliest End at: {estimatedEnd}");
         }
 
 
