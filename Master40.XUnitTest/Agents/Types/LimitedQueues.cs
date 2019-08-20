@@ -55,12 +55,21 @@ namespace Master40.XUnitTest.Agents.Types
         [Fact]
         public void AddToItemLimitedQueue()
         {
-            var jobQueueItemLimited = new JobQueueItemLimited(limit: 1);
+            var jobQueueItemLimited = new JobQueueTimeLimited(limit: 5);
             var addItemStatus = jobQueueItemLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10));
             Assert.True(condition: addItemStatus);
 
-            addItemStatus = jobQueueItemLimited.Enqueue(item: CreateJobItem(jobName: "Sample Operation 2", jobDuration: 20));
+            var secondJob = CreateJobItem(jobName: "Sample Operation 2", jobDuration: 20);
+            addItemStatus = jobQueueItemLimited.Enqueue(item: secondJob);
             Assert.False(condition: addItemStatus);
+
+            secondJob.StartConditions.ArticlesProvided = true;
+            addItemStatus = jobQueueItemLimited.Enqueue(item: secondJob);
+            Assert.False(condition: addItemStatus);
+
+            secondJob.StartConditions.PreCondition = true;
+            addItemStatus = jobQueueItemLimited.Enqueue(item: secondJob);
+            Assert.True(condition: addItemStatus);
         }
 
         [Theory]
