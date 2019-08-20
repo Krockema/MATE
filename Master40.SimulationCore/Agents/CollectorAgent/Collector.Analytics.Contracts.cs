@@ -50,28 +50,28 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             switch (message)
             {
                 case Contract.Instruction.StartOrder m: AddOrder(m: m); break;
-                case Supervisor.Instruction.OrderProvided m: ProvideOrder(requestItem: m.GetObjectFromMessage); break;
+                case Supervisor.Instruction.OrderProvided m: ProvideOrder(finishedArticle: m.GetObjectFromMessage); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void ProvideOrder(FArticle requestItem)
+        private void ProvideOrder(FArticle finishedArticle)
         {
-            if (requestItem.DueTime >= requestItem.FinishedAt)
+            if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
-                Collector.messageHub.SendToAllClients(msg: "Oder No:" + requestItem.OriginRequester  + " finished in time at " + Collector.Time);
+                Collector.messageHub.SendToAllClients(msg: "Oder No:" + finishedArticle.OriginRequester  + " finished in time at " + Collector.Time);
 
                 Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
                 inTime++;
             }else
             {
-                Collector.messageHub.SendToAllClients(msg: "Oder No:" + requestItem.OriginRequester + " finished to late at " + Collector.Time);
+                Collector.messageHub.SendToAllClients(msg: "Oder No:" + finishedArticle.OriginRequester + " finished to late at " + Collector.Time);
                 toLate++;
             }
 
-            UpdateOrder(item: requestItem);
+            UpdateOrder(item: finishedArticle);
 
             openOrderParts--;
             finishedOrderParts++;

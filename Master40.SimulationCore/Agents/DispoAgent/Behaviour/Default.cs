@@ -3,8 +3,11 @@ using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using static FAgentInformations;
+using static FArticleProviders;
 using static FArticles;
 using static FStockReservations;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
@@ -32,7 +35,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 case BasicInstruction.JobForwardEnd msg: PushForwardTimeToParent(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break; // push Calculated Forward Calculated
                 case Dispo.Instruction.ResponseFromSystemForBom r: ResponseFromSystemForBom(article: r.GetObjectFromMessage); break;
                 case Dispo.Instruction.WithdrawMaterialsFromStock r: WithdrawMaterial(); break;
-                case BasicInstruction.ProvideArticle r: RequestProvided(fArticle: r.GetObjectFromMessage); break;
+                case BasicInstruction.ProvideArticle r: ProvideRequest(fArticleProvider: r.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -68,16 +71,18 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                                 + _fArticle.Article.Name + " are reserved and " 
                                 + _quantityToProduce + " " + _fArticle.Article.Name + " need to be produced!");
 
-            if (reservation.IsInStock == true && !_fArticle.Article.ToBuild)
+            if (reservation.IsInStock && !_fArticle.Article.ToBuild)
             {
                 Agent.DebugMessage(msg: $"Start forward scheduling for article: {_fArticle.Article.Name} {_fArticle.Key} at: {Agent.CurrentTime}");
                 PushForwardTimeToParent(earliestStartForForwardScheduling: Agent.CurrentTime);
             }
 
 
-            if (reservation.IsInStock == true)
+            if (reservation.IsInStock)
             {
-                RequestProvided(fArticle: _fArticle);
+                ProvideRequest(new FArticleProvider(articleKey: _fArticle.Key
+                                                  ,articleName: _fArticle.Article.Name
+                                                     ,provider: new List<Guid>(new[] { reservation.TrackingId })));
                 Agent.TryToFinish();
                 return;
             }
@@ -130,13 +135,16 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             Agent.Send(instruction: msg);
         }
 
-        internal void RequestProvided(FArticle fArticle)
+        internal void ProvideRequest(FArticleProvider fArticleProvider)
         {
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
             Agent.DebugMessage(msg: $"Request for {_fArticle.Article.Name} provided from " + Agent.Sender);
 
-            _fArticle = fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
-            Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: _fArticle, target: Agent.VirtualParent, logThis: false));
+            _fArticle = _fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
+            Agent.Send(instruction: BasicInstruction.ProvideArticle
+                                                    .Create(message: fArticleProvider
+                                                            ,target: Agent.VirtualParent 
+                                                           ,logThis: false));
         }
 
         internal void WithdrawMaterial()

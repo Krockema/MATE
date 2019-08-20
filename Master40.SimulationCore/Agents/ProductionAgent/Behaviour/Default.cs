@@ -14,6 +14,7 @@ using static FAgentInformations;
 using static FOperationResults;
 using static FOperations;
 using static FCreateSimulationWorks;
+using static FArticleProviders;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -27,7 +28,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
         internal FOperation _nextOperation { get; set; }
         internal AgentDictionary _hubAgents { get; set; } = new AgentDictionary();
-        internal FArticle _fArticle { get; set; }
+        internal FArticle _articleToProduce { get; set; }
         internal DispoArticleDictionary _dispoArticleDictionary { get; set; } = new DispoArticleDictionary();
         internal Queue<FArticle> _childArticles { get; set; } = new Queue<FArticle>();
         internal ForwardScheduleTimeCalculator _forwardScheduleTimeCalculator { get; set; }
@@ -94,8 +95,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             // foreach fitting operation
             foreach (var operation in _operationList.Where(predicate: x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
             {
+                operation.UpdateHubAgent(hub.Ref);
                 Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: hub.Ref));
             }
+
         }
 
         private void ProductionStarted(Agent agent, Guid workItem)
@@ -116,24 +119,27 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// <summary>
         /// set each material to provided and set the start condition true if all materials are provided
         /// </summary>
-        /// <param name="operations"></param>
-        private void ArticleProvided(FArticle fArticle)
+        /// <param name="fArticleProvider"></param>
+        private void ArticleProvided(FArticleProvider fArticleProvider)
         {
-            //check vs _childArticles and if all Child article are provided set Articles to provided
-            if (!fArticle.IsProvided)
-                throw new Exception("Returned Article IsProvided = true has never been set.");
+            var providedArticle = _dispoArticleDictionary.GetArticleByKey(fArticleProvider.ArticleKey);
+            providedArticle = providedArticle.SetProvided.UpdateFinishedAt(Agent.CurrentTime);
+            _dispoArticleDictionary.Update(dispoRef: Agent.Sender, fArticle: providedArticle);
+            
+            Agent.DebugMessage(msg: $"Article {providedArticle.Article.Name} {providedArticle.Key} for {_articleToProduce.Article.Name} {_articleToProduce.Key} has been provided");
 
-            Agent.DebugMessage(msg: $"Article {fArticle.Article.Name} {fArticle.Key} has been provided");
-            _dispoArticleDictionary.Update(dispoRef: Agent.Sender, fArticle: fArticle);
+            _articleToProduce.ProviderList.AddRange(fArticleProvider.Provider);
 
             if(_dispoArticleDictionary.AllProvided())
             {
-                Agent.DebugMessage(msg:$"All Article have been provided");
+                Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
                 foreach (var operation in _operationList)
                 {
                     operation.StartConditions.ArticlesProvided = true;
-                    //TODO Send ArticlesProvided to Hub Agent
+                    Agent.Send(Hub.Instruction.SetOperationArticleProvided
+                                               .Create(message: operation.Key
+                                                      , target: operation.HubAgent));
                 }
 
 
@@ -176,7 +182,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             var operationCounter = 0;
             foreach (var operation in fArticle.Article.Operations.OrderByDescending(keySelector: x => x.HierarchyNumber))
             {
-                numberOfOperations++;
+                operationCounter++;
                 var fJob = operation.ToOperationItem(dueTime: lastDue
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)
@@ -185,6 +191,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 Agent.DebugMessage(
                     msg:
                     $"Created operation: {operation.Name} | BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
+                Agent.DebugMessage(
+                    msg:
+                    $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} | Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 _operationList.Add(item: fJob);
 
@@ -196,7 +205,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 
-            _fArticle = fArticle;
+            _articleToProduce = fArticle;
             SetForwardScheduling();
         }
 
@@ -209,7 +218,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void SetForwardScheduling()
         {
-            if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(fArticle: _fArticle))
+            if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(fArticle: _articleToProduce))
                 return;
 
             var operationList = new List<FOperation>();
@@ -226,7 +235,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
             Agent.DebugMessage(
                 msg:
-                $"EarliestForwardStart {earliestStart} for Article {_fArticle.Article.Name} ArticleKey: {_fArticle.Key} send to {Agent.VirtualParent} ");
+                $"EarliestForwardStart {earliestStart} for Article {_articleToProduce.Article.Name} ArticleKey: {_articleToProduce.Key} send to {Agent.VirtualParent} ");
 
         _operationList = operationList;
             Agent.Send(instruction: BasicInstruction.JobForwardEnd.Create(message: earliestStart,

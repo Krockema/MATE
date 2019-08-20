@@ -22,7 +22,7 @@ open IJobs
           Priority : int64 -> double
           ProductionAgent : IActorRef
           ResourceAgent : IActorRef
-          HubAgent : IActorRef
+          mutable HubAgent : IActorRef
           Operation : M_Operation
           Proposals : System.Collections.Generic.List<FProposal> 
           } interface IKey with
@@ -55,6 +55,6 @@ open IJobs
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.AsIjob = this :> IJob
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
-        member this.UpdateHubAgent hub = { this with HubAgent = hub }
+        member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }

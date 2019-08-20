@@ -5,6 +5,7 @@ using Master40.SimulationCore.Types;
 using static FBreakDowns;
 using static FAgentInformations;
 using static FArticles;
+using static FArticleProviders;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -59,7 +60,7 @@ namespace Master40.SimulationCore.Agents
 
         public class ProvideArticle : SimulationMessage
         {
-            public static ProvideArticle Create(FArticle message, IActorRef target, bool logThis)
+            public static ProvideArticle Create(FArticleProvider message, IActorRef target, bool logThis)
             {
                 return new ProvideArticle(message: message, target: target, logThis: logThis);
             }
@@ -67,7 +68,7 @@ namespace Master40.SimulationCore.Agents
             {
 
             }
-            public FArticle GetObjectFromMessage { get => Message as FArticle; }
+            public FArticleProvider GetObjectFromMessage { get => Message as FArticleProvider; }
         }
 
         public class ResourceBrakeDown : SimulationMessage

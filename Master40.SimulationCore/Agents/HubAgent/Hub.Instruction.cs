@@ -51,13 +51,13 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 public FProposal GetObjectFromMessage { get => Message as FProposal; }
             }
 
-            public class SetWorkItemStatus : SimulationMessage
+            public class SetOperationArticleProvided : SimulationMessage
             {
-                public static SetWorkItemStatus Create(Guid message, IActorRef target)
+                public static SetOperationArticleProvided Create(Guid message, IActorRef target)
                 {
-                    return new SetWorkItemStatus(message: message, target: target);
+                    return new SetOperationArticleProvided(message: message, target: target);
                 }
-                private SetWorkItemStatus(object message, IActorRef target) : base(message: message, target: target)
+                private SetOperationArticleProvided(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

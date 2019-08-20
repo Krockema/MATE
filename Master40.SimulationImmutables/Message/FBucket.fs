@@ -23,7 +23,7 @@ open System.Linq
           StartConditions : FStartCondition
           Priority : FBucket -> int64 -> double
           ResourceAgent : IActorRef
-          HubAgent : IActorRef
+          mutable HubAgent : IActorRef
           Operations : Set<FOperation>
           MaxBucketSize : double
           MinBucketSize : double
@@ -52,6 +52,6 @@ open System.Linq
                                                                                          ResourceAgent = resourceAgent } :> IJob
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
-        member this.UpdateHubAgent hub = { this with HubAgent = hub }
+        member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.AddOperation op = { this with Operations = this.Operations.Add(op) }
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}

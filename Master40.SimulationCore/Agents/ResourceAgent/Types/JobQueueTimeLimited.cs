@@ -69,5 +69,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return jobs.Remove(item: job);
         }
+
+        internal bool SetOperationArticleProvided(Guid operationKey)
+        {
+            var job = this.jobs.SingleOrDefault(x => x.Key == operationKey);
+            if (job == null) return false;
+            job.StartConditions.ArticlesProvided = true;
+            return true;
+
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Helper;
+using static FArticleProviders;
 using static FArticles;
 
 namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
@@ -18,7 +19,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             switch (message)
             {
                 case Contract.Instruction.StartOrder msg: StartOrder(orderItem: msg.GetObjectFromMessage); break;
-                case BasicInstruction.ProvideArticle msg: TryFinishOrder(fArticle: msg.GetObjectFromMessage); break;
+                case BasicInstruction.ProvideArticle msg: TryFinishOrder(fArticleProvider: msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: EstimateForwardEnd(estimatedEnd: msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -46,11 +47,11 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
-        public void TryFinishOrder(FArticle fArticle)
+        public void TryFinishOrder(FArticleProvider fArticleProvider)
         {
             Agent.DebugMessage(msg: "Dispo Said Done.");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
-            _fArticle = fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
+            _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 
             // try to Finish if time has come
             if (Agent.CurrentTime >= _fArticle.DueTime)

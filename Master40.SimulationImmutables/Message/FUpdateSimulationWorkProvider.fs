@@ -1,9 +1,10 @@
 ﻿module FUpdateSimulationWorkProviders
 
 open Akka.Actor
+open System
 
     type public FUpdateSimulationWorkProvider = {
-        ProductionAgents : System.Collections.Generic.List<IActorRef>
+        FArticleProviderKeys : System.Collections.Generic.List<Guid>
         RequestAgentId : string
         RequestAgentName : string
         IsHeadDemand : bool

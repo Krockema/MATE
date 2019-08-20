@@ -48,13 +48,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                 public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
-            public class StartWorkWith : SimulationMessage
+            public class UpdateArticleProvided : SimulationMessage
             {
-                public static StartWorkWith Create(Guid message, IActorRef target)
+                public static UpdateArticleProvided Create(Guid message, IActorRef target)
                 {
-                    return new StartWorkWith(message: message, target: target);
+                    return new UpdateArticleProvided(message: message, target: target);
                 }
-                private StartWorkWith(object message, IActorRef target) : base(message: message, target: target)
+                private UpdateArticleProvided(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }

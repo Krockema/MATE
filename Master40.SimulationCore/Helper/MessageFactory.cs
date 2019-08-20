@@ -106,7 +106,7 @@ namespace Master40.SimulationCore.Helper
                 , isProvided: false
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<IActorRef>()
+                , providerList: new List<Guid>()
                 , finishedAt: 0
             );
         }
@@ -126,7 +126,7 @@ namespace Master40.SimulationCore.Helper
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<IActorRef>()
+                , providerList: new List<Guid>()
                 , finishedAt: 0
             );
         }

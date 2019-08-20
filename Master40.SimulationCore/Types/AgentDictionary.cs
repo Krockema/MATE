@@ -1,5 +1,7 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using System.Collections.Generic;
+using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore.Types
 {

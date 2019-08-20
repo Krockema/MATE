@@ -34,6 +34,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
                 case Resource.Instruction.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(msg.GetObjectFromMessage); break;
+                case Resource.Instruction.UpdateArticleProvided msg: UpdateArticleProvided(operationKey: msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.StartWorkWith msg: StartWorkWith((Resource)agent, msg.GetObjectFromMessage); break;
                 // case Resource.Instruction.DoWork msg: ((Resource)agent).DoWork(); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
@@ -138,7 +139,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
 
             Agent.DebugMessage("Jobs ready to start: " + _processingQueue.Count);
+            
 
+        }
+        private void UpdateArticleProvided(Guid operationKey)
+        {
+            
+            if (_planingQueue.SetOperationArticleProvided(operationKey))
+            {
+                Agent.DebugMessage(msg: $"UpdateArticleProvided {operationKey}");
+                UpdateProcessingQueue();
+            }
+            //TODO: Do Work
+            
         }
 
         /*

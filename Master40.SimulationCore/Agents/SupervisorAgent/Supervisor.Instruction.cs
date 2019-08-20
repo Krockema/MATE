@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
 using static FArticles;
@@ -48,11 +49,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                 {
                 }
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
-            }
-
-            public class Inizialized : SimulationMessage
-            {
-                public Inizialized() : base (message: true, target: ActorRefs.Nobody) { }
             }
 
             public class EndSimulation : SimulationMessage

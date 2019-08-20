@@ -15,7 +15,7 @@ open IKeys
             DueTime : int64
             OriginRequester : IActorRef
             DispoRequester : IActorRef
-            ProviderList : System.Collections.Generic.List<IActorRef> 
+            ProviderList : System.Collections.Generic.List<Guid> 
             CustomerOrderId : int
             IsProvided : bool
             IsHeadDemand : bool 

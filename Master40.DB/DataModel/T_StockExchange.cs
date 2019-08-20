@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 
@@ -17,7 +18,8 @@ namespace Master40.DB.DataModel
         public decimal Quantity { get; set; }
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
-
+        [NotMapped]
+        public Guid ProductionArticleKey { get; set; }
         public int? DemandID { get; set; }
         public T_Demand Demand { get; set; }
         public int? ProviderId { get; set; }

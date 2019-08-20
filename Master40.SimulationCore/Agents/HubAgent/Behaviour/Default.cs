@@ -30,6 +30,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 case Hub.Instruction.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
                 case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(proposal: msg.GetObjectFromMessage); break;
+                case Hub.Instruction.SetOperationArticleProvided msg: UpdateAndForwardArticleProvided(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: ProductionStarted(key: msg.GetObjectfromMessage); break;
                 case Hub.Instruction.FinishJob msg: FinishJob(operationResult: msg.GetObjectFromMessage as FOperationResult); break;
                 case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
@@ -50,12 +51,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void EnqueueJob(FOperation fOperation)
         {
-            var localItem = _operationList.Find(match: x => x.Key == fOperation.Key);
+            var localItem = _operationList.FirstOrDefault(x => x.Key == fOperation.Key);
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
             if (localItem == null)
             {
-                localItem = fOperation.UpdateHubAgent(hub: Agent.Context.Self);
+                localItem = fOperation;
+                localItem.UpdateHubAgent(hub: Agent.Context.Self);
                 _operationList.Add(item: localItem);
 
                 Agent.DebugMessage(msg: "Got New Item to Enqueue: " + fOperation.Operation.Name + " | with start condition:" + fOperation.StartConditions.Satisfied + " with Id: " + fOperation.Key);
@@ -65,6 +67,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // reset Item.
                 Agent.DebugMessage(msg: "Got Item to Requeue: " + fOperation.Operation.Name + " | with start condition:" + fOperation.StartConditions.Satisfied + " with Id: " + fOperation.Key);
                 fOperation.Proposals.Clear();
+                localItem = fOperation;
                 //localItem = fOperation.UpdateHubAgent(hub: Agent.Context.Self);
                 _operationList.Replace(val: localItem);
             }
@@ -121,6 +124,21 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 Agent.Send(instruction: Resource.Instruction.AcknowledgeProposal.Create(message: fOperation, target: acknowledgement.ResourceAgent));
             }
         }
+
+        private void UpdateAndForwardArticleProvided(Guid operationKey)
+        {
+            var temp = _operationList.Single(predicate: x => x.Key == operationKey);
+            temp.StartConditions.ArticlesProvided = true;
+            if (temp.ResourceAgent.IsNobody())
+            {
+                return;
+            }
+
+            Agent.DebugMessage(msg: $"UpdateAndForwardArticleProvided {temp.Operation.Name} {temp.Key} to resource {temp.ResourceAgent}");
+
+            Agent.Send(instruction: Resource.Instruction.UpdateArticleProvided.Create(message: temp.Key, target: temp.ResourceAgent));
+        }
+
 
         public void ProductionStarted(Guid key)
         {

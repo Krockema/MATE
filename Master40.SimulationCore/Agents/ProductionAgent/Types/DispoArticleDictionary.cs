@@ -28,5 +28,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
         {
             return _dispoArticleDictionary.All(x => x.Value.IsProvided);
         }
+
+        internal FArticle GetArticleByKey(Guid articleKey)
+        {
+            return _dispoArticleDictionary.Single(x => x.Value.Key == articleKey).Value;
+        }
     }
 }

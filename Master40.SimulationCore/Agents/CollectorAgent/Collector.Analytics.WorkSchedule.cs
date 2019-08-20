@@ -333,9 +333,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateSimulationWorkItemProvider(FUpdateSimulationWorkProvider uswp)
         {
-            foreach (var agentId in uswp.ProductionAgents)
+            foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var items = simulationWorkschedules.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + agentId.Path.Uid.ToString() + "]")).ToList();
+                var items = simulationWorkschedules.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
