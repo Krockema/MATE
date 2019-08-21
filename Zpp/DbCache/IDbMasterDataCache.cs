@@ -25,6 +25,8 @@ namespace Zpp
         List<M_Article> M_ArticleGetArticlesToBuy();
 
         M_ArticleBom M_ArticleBomGetById(Id id);
+        
+        M_ArticleBom M_ArticleBomGetByArticleChildId(Id id);
 
         List<M_BusinessPartner> M_BusinessPartnerGetAll();
         
@@ -40,9 +42,13 @@ namespace Zpp
 
         Machine M_MachineGetById(Id id);
         
+        List<Machine> M_MachineGetAllByMachineGroupId(Id id);
+        
         List<Machine> M_MachineGetAll();
 
         M_MachineGroup M_MachineGroupGetById(Id id);
+        
+        List<M_MachineGroup> M_MachineGroupGetAll();
 
         M_MachineTool M_MachineToolGetById(Id id);
 

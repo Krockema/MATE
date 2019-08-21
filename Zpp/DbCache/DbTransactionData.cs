@@ -49,16 +49,19 @@ namespace Zpp
 
         // providers
         private readonly ProductionOrders _productionOrders;
-        
+
         // others
-        private readonly List<T_PurchaseOrder> _purchaseOrders;
-        private readonly List<T_ProductionOrderOperation> _productionOrderOperations;
+        private List<T_PurchaseOrder> _purchaseOrders;
+        private List<T_ProductionOrderOperation> _productionOrderOperations;
+
+        private readonly IAggregator _aggregator;
 
         public DbTransactionData(ProductionDomainContext productionDomainContext,
             IDbMasterDataCache dbMasterDataCache)
         {
             _productionDomainContext = productionDomainContext;
             _dbMasterDataCache = dbMasterDataCache;
+            _aggregator = new Aggregator(dbMasterDataCache, this);
 
             // cache tables
             // TODO: These 3 lines should be removed
@@ -91,8 +94,9 @@ namespace Zpp
 
             // others
             _purchaseOrders = _productionDomainContext.PurchaseOrders.ToList();
-            _productionOrderOperations = _productionDomainContext.ProductionOrderOperations.ToList();
-            
+            _productionOrderOperations =
+                _productionDomainContext.ProductionOrderOperations.ToList();
+
             // demandToProvider
 
             IDemandToProviderTable demandToProviderTable =
@@ -105,7 +109,8 @@ namespace Zpp
             providers.AddAll(_purchaseOrderParts);
             providers.AddAll(_productionOrders);
             providers.AddAll(_stockExchangeProviders);
-            _providerManager = new ProviderManager(demandToProviderTable, providerToDemandTable, providers);
+            _providerManager =
+                new ProviderManager(demandToProviderTable, providerToDemandTable, providers);
         }
 
         public List<M_BusinessPartner> M_BusinessPartnerGetAll()
@@ -129,10 +134,8 @@ namespace Zpp
                 .DemandToProviders);
         }
 
-        public void PersistDbCache(IProviderManager providerManager)
+        public void PersistDbCache()
         {
-            _providerManager = providerManager;
-            
             // TODO: performance issue: Batch insert, since those T_* didn't exist before anyways, update is useless
             // TODO: SaveChanges at the end only once
 
@@ -148,46 +151,27 @@ namespace Zpp
             List<T_PurchaseOrderPart> tPurchaseOrderParts =
                 _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>();
 
-            // T_ProductionOrderOperation
-            IStackSet<T_ProductionOrderOperation> tProductionOrderOperations =
-                new StackSet<T_ProductionOrderOperation>();
-            foreach (var tProductionOrderBom in tProductionOrderBoms)
-            {
-                if (tProductionOrderBom.ProductionOrderOperation != null)
-                {
-                    tProductionOrderOperations.Add(tProductionOrderBom.ProductionOrderOperation);    
-                }
-            }
-
-            // T_PurchaseOrders
-            List<T_PurchaseOrder> tPurchaseOrders = new List<T_PurchaseOrder>();
-            
-            foreach (var tPurchaseOrderPart in tPurchaseOrderParts)
-            {
-                tPurchaseOrders.Add(tPurchaseOrderPart.PurchaseOrder);
-            }
-
             // Insert all T_* entities
 
             InsertOrUpdateRange(tProductionOrderBoms, _productionDomainContext.ProductionOrderBoms);
-            InsertOrUpdateRange(tProductionOrderOperations,
+            InsertOrUpdateRange(_productionOrderOperations,
                 _productionDomainContext.ProductionOrderOperations);
             InsertOrUpdateRange(tStockExchangeDemands, _productionDomainContext.StockExchanges);
             // providers
             InsertOrUpdateRange(tStockExchangesProviders, _productionDomainContext.StockExchanges);
             InsertOrUpdateRange(tProductionOrders, _productionDomainContext.ProductionOrders);
             InsertOrUpdateRange(tPurchaseOrderParts, _productionDomainContext.PurchaseOrderParts);
-            InsertOrUpdateRange(tPurchaseOrders, _productionDomainContext.PurchaseOrders);
+            InsertOrUpdateRange(_purchaseOrders, _productionDomainContext.PurchaseOrders);
 
             // at the end: T_DemandToProvider & T_ProviderToDemand
-            InsertOrUpdateRange(_providerManager.GetDemandToProviderTable().GetAll(),
+            InsertOrUpdateRange(DemandToProviderGetAll().GetAll(),
                 _productionDomainContext.DemandToProviders);
-            if (_providerManager.GetProviderToDemandTable().Any())
+            if (ProviderToDemandGetAll().Any())
             {
-                InsertOrUpdateRange(_providerManager.GetProviderToDemandTable().GetAll(),
+                InsertOrUpdateRange(ProviderToDemandGetAll().GetAll(),
                     _productionDomainContext.ProviderToDemand);
             }
-            
+
             try
             {
                 _productionDomainContext.SaveChanges();
@@ -199,8 +183,8 @@ namespace Zpp
             }
         }
 
-        private void InsertOrUpdateRange<TEntity>(IEnumerable<TEntity> entities, DbSet<TEntity> dbSet)
-            where TEntity : BaseEntity
+        private void InsertOrUpdateRange<TEntity>(IEnumerable<TEntity> entities,
+            DbSet<TEntity> dbSet) where TEntity : BaseEntity
         {
             if (entities.Any() == false)
             {
@@ -350,6 +334,19 @@ namespace Zpp
             {
                 DemandsAdd(demand);
             }
+
+            // T_ProductionOrderOperation
+            IStackSet<T_ProductionOrderOperation> tProductionOrderOperations =
+                new StackSet<T_ProductionOrderOperation>();
+            foreach (var tProductionOrderBom in _productionOrderBoms.GetAllAsT_ProductionOrderBom())
+            {
+                if (tProductionOrderBom.ProductionOrderOperation != null)
+                {
+                    tProductionOrderOperations.Push(tProductionOrderBom.ProductionOrderOperation);
+                }
+            }
+
+            _productionOrderOperations = tProductionOrderOperations.GetAll();
         }
 
         public void ProvidersAddAll(IProviders providers)
@@ -357,6 +354,12 @@ namespace Zpp
             foreach (var provider in providers.GetAll())
             {
                 ProvidersAdd(provider);
+            }
+
+            // T_PurchaseOrders
+            foreach (var tPurchaseOrderPart in _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>())
+            {
+                _purchaseOrders.Add(tPurchaseOrderPart.PurchaseOrder);
             }
         }
 
@@ -387,7 +390,7 @@ namespace Zpp
 
         public T_PurchaseOrder PurchaseOrderGetById(Id id)
         {
-            return _purchaseOrders.Single(x=>x.Id.Equals(id.GetValue()));
+            return _purchaseOrders.Single(x => x.Id.Equals(id.GetValue()));
         }
 
         public List<T_PurchaseOrder> PurchaseOrderGetAll()
@@ -402,17 +405,37 @@ namespace Zpp
 
         public List<ProductionOrderOperation> ProductionOrderOperationGetAll()
         {
-            List<ProductionOrderOperation> productionOrderOperations = new List<ProductionOrderOperation>();
+            List<ProductionOrderOperation> productionOrderOperations =
+                new List<ProductionOrderOperation>();
             foreach (var productionOrderOperation in _productionOrderOperations)
             {
-                productionOrderOperations.Add(new ProductionOrderOperation(productionOrderOperation, _dbMasterDataCache));
+                productionOrderOperations.Add(
+                    new ProductionOrderOperation(productionOrderOperation, _dbMasterDataCache));
             }
+
             return productionOrderOperations;
         }
 
         public StockExchangeDemands StockExchangeDemandsGetAll()
         {
             return _stockExchangeDemands;
+        }
+
+        public IAggregator GetAggregator()
+        {
+            return _aggregator;
+        }
+
+        public ProductionOrder ProductionOrderGetById(Id id)
+        {
+            return new ProductionOrder(
+                _productionOrders.GetAllAs<T_ProductionOrder>().Single(x => x.GetId().Equals(id)),
+                _dbMasterDataCache);
+        }
+
+        public void SetProviderManager(IProviderManager providerManager)
+        {
+            _providerManager = providerManager;
         }
     }
 }

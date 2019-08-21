@@ -4,9 +4,9 @@ namespace Zpp
 {
     public interface IEdge
     {
-        INode GetFromNode();
+        INode GetTailNode();
 
-        INode GetToNode();
+        INode GetHeadNode();
 
         T_DemandToProvider GetDemandToProvider();
     }

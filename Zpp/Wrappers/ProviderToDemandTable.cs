@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -8,27 +9,14 @@ using Zpp.Utils;
 
 namespace Zpp
 {
-    public class ProviderToDemandTable : IProviderToDemandTable
+    public class ProviderToDemandTable : CollectionWrapperWithList<T_ProviderToDemand>, IProviderToDemandTable
     {
-        private readonly List<T_ProviderToDemand> _providerToDemandEntities = new List<T_ProviderToDemand>();
+        public ProviderToDemandTable(List<T_ProviderToDemand> list) : base(list)
+        {
+        }
 
         public ProviderToDemandTable()
         {
-        }
-
-        public ProviderToDemandTable(List<T_ProviderToDemand> providerToDemandEntities)
-        {
-            _providerToDemandEntities = providerToDemandEntities;
-        }
-
-        public List<T_ProviderToDemand> GetAll()
-        {
-            return _providerToDemandEntities;
-        }
-
-        public int Count()
-        {
-            return _providerToDemandEntities.Count;
         }
 
         public void Add(Provider provider, Id demandId)
@@ -36,13 +24,9 @@ namespace Zpp
             T_ProviderToDemand providerToDemand = new T_ProviderToDemand();
             providerToDemand.DemandId = demandId.GetValue();
             providerToDemand.ProviderId = provider.GetId().GetValue();
-            
-            _providerToDemandEntities.Add(providerToDemand);
-        }
 
-        public bool Any()
-        {
-            return _providerToDemandEntities.Any();
+            List.Add(providerToDemand);
         }
+        
     }
 }

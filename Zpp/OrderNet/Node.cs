@@ -52,5 +52,10 @@ namespace Zpp
         {
             return _entity.GetJsonString(dbTransactionData);
         }
+
+        public override string ToString()
+        {
+            return $"{_entity.ToString()}";
+        }
     }
 }

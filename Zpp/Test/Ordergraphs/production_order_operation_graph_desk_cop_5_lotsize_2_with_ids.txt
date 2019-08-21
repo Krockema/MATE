@@ -1,0 +1,12 @@
+﻿"10213;P(PrO);4.00;\nTischbein;33" -> "10220;Flizgleiter anstecken";
+"10220;Flizgleiter anstecken" -> "10216;Anschraubplatte anschweißen";
+"10249;P(PrO);4.00;\nTischbein;33" -> "10256;Flizgleiter anstecken";
+"10256;Flizgleiter anstecken" -> "10252;Anschraubplatte anschweißen";
+"10306;P(PrO);4.00;\nTischbein;38" -> "10313;Flizgleiter anstecken";
+"10313;Flizgleiter anstecken" -> "10309;Anschraubplatte anschweißen";
+"10339;P(PrO);4.00;\nTischbein;38" -> "10346;Flizgleiter anstecken";
+"10346;Flizgleiter anstecken" -> "10342;Anschraubplatte anschweißen";
+"10389;P(PrO);4.00;\nTischbein;88" -> "10396;Flizgleiter anstecken";
+"10396;Flizgleiter anstecken" -> "10392;Anschraubplatte anschweißen";
+"10404;P(PrO);4.00;\nTischbein;88" -> "10411;Flizgleiter anstecken";
+"10411;Flizgleiter anstecken" -> "10407;Anschraubplatte anschweißen";

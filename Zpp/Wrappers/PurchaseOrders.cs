@@ -6,38 +6,24 @@ namespace Zpp
     /**
      * wraps the collection with all purchaseOrders
      */
-    public class PurchaseOrders
+    public class PurchaseOrders: CollectionWrapperWithList<PurchaseOrder>
     {
-        private List<PurchaseOrder> _purchaseOrders;
+        public PurchaseOrders(List<PurchaseOrder> list) : base(list)
+        {
+        }
 
         public PurchaseOrders()
         {
-            
         }
 
-        public PurchaseOrders(List<T_PurchaseOrder> purchaseOrders)
-        {
-            _purchaseOrders = new List<PurchaseOrder>();
-            foreach (var purchaseOrder in purchaseOrders)
-            {
-                _purchaseOrders.Add(new PurchaseOrder(purchaseOrder));
-                
-            }
-        }
-        
         public List<T_PurchaseOrder> GetAllAsT_PurchaseOrder()
         {
             List<T_PurchaseOrder> productionOrderBoms = new List<T_PurchaseOrder>();
-            foreach (var demand in _purchaseOrders)
+            foreach (var demand in List)
             {
                 productionOrderBoms.Add(demand.ToT_PurchaseOrder());
             }
             return productionOrderBoms;
-        }
-
-        public void Add(PurchaseOrder purchaseOrder)
-        {
-            _purchaseOrders.Add(purchaseOrder);
         }
     }
 }

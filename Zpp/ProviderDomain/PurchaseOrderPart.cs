@@ -56,5 +56,13 @@ namespace Zpp.ProviderDomain
 
             return new DueTime(purchaseOrderPart.PurchaseOrder.DueTime);
         }
+
+        public override DueTime GetStartTime(IDbTransactionData dbTransactionData)
+        {
+            // currently only one businessPartner per article TODO: This could be changing
+            M_ArticleToBusinessPartner articleToBusinessPartner =
+                _dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(GetArticleId())[0];
+            return GetDueTime(dbTransactionData).Minus(articleToBusinessPartner.DueTime);
+        }
     }
 }

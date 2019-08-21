@@ -52,18 +52,18 @@ namespace Zpp.Test
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
-            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
+            IDirectedGraph<INode> orderDirectedGraph = new DemandToProviderDirectedGraph(dbTransactionData);
 
-            Assert.True(orderGraph.GetAllToNodes().Count > 0,
+            Assert.True(orderDirectedGraph.GetAllHeadNodes().Any(),
                 "There are no toNodes in the orderGraph.");
 
             int sumDemandToProviderAndProviderToDemand =
                 dbTransactionData.DemandToProviderGetAll().Count() +
                 dbTransactionData.ProviderToDemandGetAll().Count();
 
-            Assert.True(sumDemandToProviderAndProviderToDemand == orderGraph.CountEdges(),
+            Assert.True(sumDemandToProviderAndProviderToDemand == orderDirectedGraph.CountEdges(),
                 $"Should be equal size: sumDemandToProviderAndProviderToDemand " +
-                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderGraph.CountEdges()}");
+                $"{sumDemandToProviderAndProviderToDemand} and  sumValuesOfOrderGraph {orderDirectedGraph.CountEdges()}");
         }
 
         /**
@@ -134,13 +134,13 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
+            IDirectedGraph<INode> orderDirectedGraph = new DemandToProviderDirectedGraph(dbTransactionData);
 
             // verify edgeTypes
             foreach (var customerOrderPart in dbMasterDataCache.T_CustomerOrderPartGetAll().GetAll()
             )
             {
-                orderGraph.TraverseDepthFirst((INode parentNode, List<INode> childNodes, List<INode> traversed) =>
+                orderDirectedGraph.TraverseDepthFirst((INode parentNode, INodes childNodes, INodes traversed) =>
                 {
                     if (childNodes != null && childNodes.Any())
                     {
@@ -179,10 +179,10 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            IGraph<INode> orderGraph = new OrderGraph(dbTransactionData);
+            IDirectedGraph<INode> orderDirectedGraph = new DemandToProviderDirectedGraph(dbTransactionData);
 
             // with ids
-            string actualOrderGraphWithIds = orderGraph.ToString();
+            string actualOrderGraphWithIds = orderDirectedGraph.ToString();
             if (File.Exists(orderGraphFileName) == false)
             {
                 File.WriteAllText(orderGraphFileNameWithIds, actualOrderGraphWithIds,
@@ -229,7 +229,7 @@ namespace Zpp.Test
             }
         }
 
-        private string removeIdsFromOrderGraph(string orderGraph)
+        public static string removeIdsFromOrderGraph(string orderGraph)
         {
             string[] orderGraphLines = orderGraph.Split("\r\n");
             // to have reproducible result

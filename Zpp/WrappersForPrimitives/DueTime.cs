@@ -47,5 +47,30 @@ namespace Zpp.WrappersForPrimitives
         {
             return _dueTime.Equals(0);
         }
+
+        public DueTime Minus(DueTime dueTime)
+        {
+            return new DueTime(_dueTime-dueTime.GetValue());
+        }
+        
+        public DueTime Minus(int dueTime)
+        {
+            return new DueTime(_dueTime-dueTime);
+        }
+        
+        public static DueTime Null()
+        {
+            return new DueTime(0);
+        }
+
+        public bool IsGreaterThan(DueTime other)
+        {
+            return _dueTime > other._dueTime;
+        }
+
+        public void IncrementBy(DueTime dueTime)
+        {
+            _dueTime += dueTime._dueTime;
+        }
     }
 }

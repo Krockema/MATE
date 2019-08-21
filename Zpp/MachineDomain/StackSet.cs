@@ -9,9 +9,19 @@ namespace Zpp.MachineDomain
         private List<T> _list = new List<T>();
         private int _count = 0;
         private Dictionary<T, int> _indices = new Dictionary<T, int>();
-        
-        public void Add(T element)
+
+        public StackSet()
         {
+        }
+        
+        public StackSet(IEnumerable<T> list)
+        {
+            PushAll(list);
+        }
+        
+        public void Push(T element)
+        {
+            // a set contains the element only once, else skip adding
             if (_indices.ContainsKey(element) == false)
             {
                 _list.Add(element);
@@ -23,8 +33,22 @@ namespace Zpp.MachineDomain
 
         public void Remove(T element)
         {
+            if (element==null)
+            {
+                return;
+            }
             _list.RemoveAt(_indices[element]);
             _count--;
+            reIndexList();
+        }
+
+        private void reIndexList()
+        {
+            _indices = new Dictionary<T, int>();
+            for(int i = 0; i < _count; i++)
+            {
+                _indices.Add(_list[i], i);
+            }
         }
 
         public bool Any()
@@ -55,11 +79,11 @@ namespace Zpp.MachineDomain
             return _list.GetEnumerator();
         }
 
-        public void AddAll(IEnumerable<T> elements)
+        public void PushAll(IEnumerable<T> elements)
         {
             foreach (var element in elements)
             {
-                Add(element);
+                Push(element);
             }
         }
 
@@ -67,5 +91,15 @@ namespace Zpp.MachineDomain
         {
             return _count;
         }
+
+        public List<T> GetAll()
+        {
+            // create a copy of list
+            List<T> all = new List<T>();
+            all.AddRange(_list);
+            return all;
+        }
+        
+        
     }
 }

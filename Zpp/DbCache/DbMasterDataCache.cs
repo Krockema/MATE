@@ -238,5 +238,20 @@ namespace Zpp
             }
             return machines;
         }
+
+        public List<Machine> M_MachineGetAllByMachineGroupId(Id id)
+        {
+            return M_MachineGetAll().Where(x=>x.GetMachineGroupId().Equals(id)).ToList();
+        }
+
+        public List<M_MachineGroup> M_MachineGroupGetAll()
+        {
+            return _machineGroups.GetAll();
+        }
+
+        public M_ArticleBom M_ArticleBomGetByArticleChildId(Id id)
+        {
+            return _articleBoms.GetAll().Single(x => x.ArticleChildId.Equals(id.GetValue()));
+        }
     }
 }

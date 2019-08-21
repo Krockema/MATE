@@ -1,0 +1,8 @@
+﻿"P(PrO);1.00;\nRace-Truck;1529"  -> "Glue Race Wing";
+"Glue Race Wing"  -> "Race-Truck: Wedding";
+"P(PrO);1.00;\nSkeleton;1514"  -> "Glue Semitrailer";
+"Screw wheels onto poles"  -> "mount poles with wheels to Skeleton";
+"Glue Semitrailer"  -> "Screw wheels onto poles";
+"P(PrO);1.00;\nChassis Type: Race;1514"  -> "Race-Truck: Mount Engine to Cabin";
+"Mount Engine Extension"  -> "Race-Truck: Assemble Lamps";
+"Race-Truck: Mount Engine to Cabin"  -> "Mount Engine Extension";

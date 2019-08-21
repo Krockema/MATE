@@ -1,0 +1,12 @@
+﻿"P(PrO);4.00;\nTischbein;33"  -> "Flizgleiter anstecken";
+"Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";
+"P(PrO);4.00;\nTischbein;33"  -> "Flizgleiter anstecken";
+"Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";
+"P(PrO);4.00;\nTischbein;38"  -> "Flizgleiter anstecken";
+"Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";
+"P(PrO);4.00;\nTischbein;38"  -> "Flizgleiter anstecken";
+"Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";
+"P(PrO);4.00;\nTischbein;88"  -> "Flizgleiter anstecken";
+"Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";
+"P(PrO);4.00;\nTischbein;88"  -> "Flizgleiter anstecken";
+"Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";

@@ -74,5 +74,10 @@ namespace Zpp.ProviderDomain
         {
             return new Id(((T_StockExchange) _provider).StockId);
         }
+
+        public override DueTime GetStartTime(IDbTransactionData dbTransactionData)
+        {
+            return GetDueTime(dbTransactionData);
+        }
     }
 }

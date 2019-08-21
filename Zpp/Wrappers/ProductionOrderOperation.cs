@@ -1,17 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Zpp.MachineDomain;
 using Zpp.ProviderDomain;
 using Zpp.Utils;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp
 {
-    public class ProductionOrderOperation
+    public class ProductionOrderOperation : INode
     {
         private readonly T_ProductionOrderOperation _productionOrderOperation;
         private readonly IDbMasterDataCache _dbMasterDataCache;
+        private Priority _priority = null;
 
         public ProductionOrderOperation(T_ProductionOrderOperation productionOrderOperation,
             IDbMasterDataCache dbMasterDataCache)
@@ -62,16 +65,27 @@ namespace Zpp
             return _productionOrderOperation;
         }
 
-        public List<Machine> GetMachines()
+        public Id GetMachineGroupId()
         {
-            List<Machine> machines = new List<Machine>();
-            return _dbMasterDataCache.M_MachineGetAll().Where(x =>
-                x.GetMachineGroupId().GetValue().Equals(_productionOrderOperation.MachineGroupId)).ToList();
-            return machines;
+            return new Id(_productionOrderOperation.MachineGroupId);
+        }
+
+        public void SetMachine(Machine machine)
+        {
+            _productionOrderOperation.Machine = machine.GetValue();
+        }
+
+        public List<Machine> GetMachines(IDbTransactionData dbTransactionData)
+        {
+            return dbTransactionData.GetAggregator().GetMachinesOfProductionOrderOperation(this);
         }
 
         public override bool Equals(object obj)
         {
+            if (obj.GetType()!=typeof(ProductionOrderOperation))
+            {
+                return false;
+            }
             ProductionOrderOperation productionOrderOperation = (ProductionOrderOperation) obj;
             return _productionOrderOperation.GetId().Equals(productionOrderOperation._productionOrderOperation.GetId());
         }
@@ -79,6 +93,65 @@ namespace Zpp
         public override int GetHashCode()
         {
             return _productionOrderOperation.Id.GetHashCode();
+        }
+
+        public HierarchyNumber GetHierarchyNumber()
+        {
+            return new HierarchyNumber(_productionOrderOperation.HierarchyNumber);
+        }
+
+        public DueTime GetDuration()
+        {
+            return new DueTime(_productionOrderOperation.Duration);
+        }
+
+        public Id GetId()
+        {
+            return _productionOrderOperation.GetId();
+        }
+
+        public NodeType GetNodeType()
+        {
+            return NodeType.Operation;
+        }
+
+        public INode GetEntity()
+        {
+            return this;
+        }
+
+        public string GetGraphizString(IDbTransactionData dbTransactionData)
+        {
+            return $"{_productionOrderOperation.Name}";
+        }
+
+        public string GetJsonString(IDbTransactionData dbTransactionData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Id GetProductionOrderId()
+        {
+            if (_productionOrderOperation.ProductionOrderId == null)
+            {
+                return null;
+            }
+            return new Id(_productionOrderOperation.ProductionOrderId.GetValueOrDefault());
+        }
+
+        public override string ToString()
+        {
+            return $"{_productionOrderOperation.GetId()}: {_productionOrderOperation.Name}";
+        }
+
+        public void SetPriority(Priority priority)
+        {
+            _priority = priority;
+        }
+
+        public Priority GetPriority()
+        {
+            return _priority;
         }
     }
 }

@@ -1,5 +1,6 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.MachineDomain
 {
@@ -11,6 +12,11 @@ namespace Zpp.MachineDomain
         public Machine(M_Machine machine)
         {
             _machine = machine;
+        }
+
+        public M_Machine GetValue()
+        {
+            return _machine;
         }
 
         public Id GetMachineGroupId()
@@ -27,6 +33,16 @@ namespace Zpp.MachineDomain
         public override int GetHashCode()
         {
             return _machine.GetHashCode();
+        }
+
+        public DueTime GetIdleStartTime()
+        {
+            return new DueTime(_idleStartTime);
+        }
+
+        public void SetIdleStartTime(DueTime nextIdleStartTime)
+        {
+            _idleStartTime = nextIdleStartTime.GetValue();
         }
     }
 }

@@ -13,5 +13,7 @@ namespace Zpp
         string GetGraphizString(IDbTransactionData dbTransactionData);
         
         string GetJsonString(IDbTransactionData dbTransactionData);
+        
+        
     }
 }

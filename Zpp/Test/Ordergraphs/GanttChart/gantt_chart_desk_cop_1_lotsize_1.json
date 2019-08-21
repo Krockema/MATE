@@ -1,0 +1,29 @@
+﻿[
+  {
+    "article": "Anschraubplatte",
+    "articleId": "10021",
+    "operation": "Anschraubplatte anschweißen",
+    "operationId": "10205",
+    "resource": "10012",
+    "start": "0",
+    "end": "20"
+  },
+  {
+    "article": "Filzgleiter",
+    "articleId": "10023",
+    "operation": "Flizgleiter anstecken",
+    "operationId": "10209",
+    "resource": "10014",
+    "start": "20",
+    "end": "30"
+  },
+  {
+    "article": "Stahlrohr",
+    "articleId": "10022",
+    "operation": "Anschraubplatte anschweißen",
+    "operationId": "10205",
+    "resource": "10012",
+    "start": "0",
+    "end": "20"
+  }
+]

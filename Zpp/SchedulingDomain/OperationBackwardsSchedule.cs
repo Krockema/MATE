@@ -4,9 +4,9 @@ namespace Zpp.SchedulingDomain
 {
     public class OperationBackwardsSchedule
     {
-        public DueTime EndBackwards { get; set; }
-        public DueTime StartBackwards { get; set; }
-        public HierarchyNumber HierarchyNumber { get; set; }
+        private readonly DueTime _endBackwards;
+        private readonly DueTime _startBackwards;
+        private readonly HierarchyNumber _hierarchyNumber;
 
         public OperationBackwardsSchedule()
         {
@@ -14,9 +14,24 @@ namespace Zpp.SchedulingDomain
 
         public OperationBackwardsSchedule(DueTime endBackwards, DueTime startBackwards, HierarchyNumber hierarchyNumber)
         {
-            EndBackwards = endBackwards;
-            StartBackwards = startBackwards;
-            HierarchyNumber = hierarchyNumber;
+            _endBackwards = endBackwards;
+            _startBackwards = startBackwards;
+            _hierarchyNumber = hierarchyNumber;
+        }
+
+        public DueTime GetStartBackwards()
+        {
+            return _startBackwards;
+        }
+
+        public DueTime GetEndBackwards()
+        {
+            return _endBackwards;
+        }
+
+        public HierarchyNumber GetHierarchyNumber()
+        {
+            return _hierarchyNumber;
         }
     }
 }

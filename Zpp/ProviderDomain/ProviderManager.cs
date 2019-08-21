@@ -48,7 +48,7 @@ namespace Zpp.ProviderDomain
                 Quantity remainingQuantity = demandedQuantity.Minus(openProvider.GetOpenQuantity());
                 openProvider.GetOpenQuantity().DecrementBy(demandedQuantity);
                 
-                if (openProvider.GetOpenQuantity().IsNegative())
+                if (openProvider.GetOpenQuantity().IsNegative() || openProvider.GetOpenQuantity().IsNull())
                 {
                     _openProviders.Remove(openProvider);
                 }

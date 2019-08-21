@@ -5,29 +5,40 @@ namespace Zpp
     public class Edge : IEdge
     {
         private readonly T_DemandToProvider _demandToProvider;
-        private readonly INode _fromNode;
-        private readonly INode _toToNode;
+        private readonly INode _tailNode;
+        private readonly INode _headNode;
 
-        public Edge(T_DemandToProvider demandToProvider, INode fromNode, INode toNode)
+        public Edge(T_DemandToProvider demandToProvider, INode tailNode, INode toNode)
         {
             _demandToProvider = demandToProvider;
-            _fromNode = fromNode;
-            _toToNode = toNode;
-        }
-
-        public INode GetFromNode()
-        {
-            return _fromNode;
+            _tailNode = tailNode;
+            _headNode = toNode;
         }
         
-        public INode GetToNode()
+        public Edge(INode tailNode, INode toNode)
         {
-            return _toToNode;
+            _tailNode = tailNode;
+            _headNode = toNode;
+        }
+
+        public INode GetTailNode()
+        {
+            return _tailNode;
+        }
+        
+        public INode GetHeadNode()
+        {
+            return _headNode;
         }
 
         public T_DemandToProvider GetDemandToProvider()
         {
             return _demandToProvider;
+        }
+
+        public override string ToString()
+        {
+            return $"{_tailNode} --> {_headNode}";
         }
     }
 }

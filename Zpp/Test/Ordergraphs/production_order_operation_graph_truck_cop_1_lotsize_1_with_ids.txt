@@ -1,0 +1,8 @@
+﻿"15528;P(PrO);1.00;\nRace-Truck;1529" -> "15535;Glue Race Wing";
+"15535;Glue Race Wing" -> "15531;Race-Truck: Wedding";
+"15582;P(PrO);1.00;\nSkeleton;1514" -> "15593;Glue Semitrailer";
+"15593;Glue Semitrailer" -> "15589;Screw wheels onto poles";
+"15589;Screw wheels onto poles" -> "15585;mount poles with wheels to Skeleton";
+"15728;P(PrO);1.00;\nChassis Type: Race;1514" -> "15740;Race-Truck: Mount Engine to Cabin";
+"15740;Race-Truck: Mount Engine to Cabin" -> "15736;Mount Engine Extension";
+"15736;Mount Engine Extension" -> "15731;Race-Truck: Assemble Lamps";

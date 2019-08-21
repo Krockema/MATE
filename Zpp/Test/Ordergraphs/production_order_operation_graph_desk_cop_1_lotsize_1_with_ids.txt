@@ -1,0 +1,2 @@
+﻿"14698;P(PrO);4.00;\nTischbein;79" -> "14705;Flizgleiter anstecken";
+"14705;Flizgleiter anstecken" -> "14701;Anschraubplatte anschweißen";

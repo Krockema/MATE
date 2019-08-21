@@ -4,7 +4,10 @@ using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Priority_Queue;
+using Priority_Queue_Example;
 using Zpp.DemandDomain;
+using Zpp.MachineDomain;
 using Zpp.ProductionDomain;
 using Zpp.ProviderDomain;
 using Zpp.PurchaseDomain;
@@ -80,105 +83,92 @@ namespace Zpp
             }
         }
 
-        private static void ProcessNextCustomerOrderPart(IDbTransactionData dbTransactionData,
-            CustomerOrderPart oneCustomerOrderPart, IDbMasterDataCache dbMasterDataCache,
-            StockManager globalStockManager)
+        private static IDemands ProcessNextDemand(IDbTransactionData dbTransactionData,
+            Demand demand, IDbMasterDataCache dbMasterDataCache, IProvidingManager orderManager,
+            StockManager stockManager, IProviderManager providerManager,
+            IProvidingManager providingManager)
+        {
+            Response response;
+
+            // SE:I --> satisfy by orders (PuOP/PrOBom)
+            if (demand.GetType() == typeof(StockExchangeDemand))
+            {
+                response = orderManager.Satisfy(demand, demand.GetQuantity(), dbTransactionData);
+
+                ProcessProvidingResponse(response, providerManager, stockManager, dbTransactionData,
+                    demand);
+            }
+            // COP or PrOB --> satisfy by SE:W
+            else
+            {
+                // satisfy by existing provider
+                response = providingManager.Satisfy(demand, demand.GetQuantity(),
+                    dbTransactionData);
+                ProcessProvidingResponse(response, providerManager, stockManager, dbTransactionData,
+                    demand);
+
+                if (response.IsSatisfied() == false)
+                {
+                    response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
+                        dbTransactionData);
+
+                    ProcessProvidingResponse(response, providerManager, stockManager,
+                        dbTransactionData, demand);
+                }
+            }
+
+            if (response.GetRemainingQuantity().IsNull() == false)
+            {
+                throw new MrpRunException(
+                    $"'{demand}' was NOT satisfied: remaining is {response.GetRemainingQuantity()}");
+            }
+
+            return providerManager.GetNextDemands();
+        }
+
+
+        private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
+            IDemands dbDemands, IDbMasterDataCache dbMasterDataCache)
         {
             // init
             IDemands finalAllDemands = new Demands();
-            StockManager stockManager = new StockManager(globalStockManager, dbMasterDataCache);
+            int MAX_DEMANDS_IN_QUEUE = 100000;
 
+            FastPriorityQueue<DemandQueueNode> demandQueue =
+                new FastPriorityQueue<DemandQueueNode>(MAX_DEMANDS_IN_QUEUE);
+
+            StockManager globalStockManager =
+                new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+
+            StockManager stockManager = new StockManager(globalStockManager, dbMasterDataCache);
             IProviderManager providerManager = new ProviderManager(dbTransactionData);
             IProvidingManager providingManager = (IProvidingManager) providerManager;
+
             IProvidingManager orderManager = new OrderManager(dbMasterDataCache);
-
-            // Problem: while iterating demands sorted by dueTime (customerOrders) more demands will be
-            // created (production/purchaseOrders) and these demands could be earlier than the current demand in loop
-            // --> it's not possible to add these to the demandList even with Enumerators/Iterators
-            // solution concept: create a new demandList per loop (one level)
-            // and iterate over levels of evolving tree of demands
-            // where every level is sorted by urgency & fix
-            // and all created demands within a level is put to level below
-
-            List<IDemands> levelDemandManagers = new List<IDemands>();
-            // first level has the given oneDbDemand from database, while levels below are initially empty
-
-            HierarchyNumber hierarchyNumber = new HierarchyNumber(1);
-            IDemands firstLevelDemandManager = new Demands(hierarchyNumber);
-            firstLevelDemandManager.Add(oneCustomerOrderPart);
-            levelDemandManagers.Add(firstLevelDemandManager);
-
-            while (true)
+            foreach (var demand in dbDemands.GetAll())
             {
-                IDemands currentDemandManager = levelDemandManagers[0];
-                currentDemandManager.OrderDemandsByUrgency(dbTransactionData);
-                // add new level for next creating demands (evolving tree of demands)
-                hierarchyNumber.increment();
-                IDemands nextDemandManager = new Demands(hierarchyNumber);
-                levelDemandManagers.Add(nextDemandManager);
-                // demands in currentDemandManager are not allowed to be expanded,
-                // nextDemandManager must be used for this
-                currentDemandManager.Lock();
-
-                foreach (Demand demand in currentDemandManager.GetAll())
-                {
-                    Response response;
-                    
-                    // SE:I --> satisfy by orders (PuOP/PrOBom)
-                    if (demand.GetType() == typeof(StockExchangeDemand))
-                    {
-                        response = orderManager.Satisfy(demand, demand.GetQuantity(),
-                            dbTransactionData);
-
-                        ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                            stockManager, dbTransactionData, demand);
-                    }
-                    // COP or PrOB --> satisfy by SE:W
-                    else
-                    {
-                        // satisfy by existing provider
-                        response = providingManager.Satisfy(demand, demand.GetQuantity(),
-                            dbTransactionData);
-                        ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                            stockManager, dbTransactionData, demand);
-                        
-                        if (response.IsSatisfied() == false)
-                        {
-                            response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
-                                dbTransactionData);
-
-                            ProcessProvidingResponse(response, (IProviderManager) providingManager,
-                                stockManager, dbTransactionData, demand);
-                        }
-                    }
-
-                    if (response.GetRemainingQuantity().IsNull() == false)
-                    {
-                        throw new MrpRunException(
-                            $"'{demand}' was NOT satisfied: remaining is {response.GetRemainingQuantity()}");
-                    }
-
-                    Demands nextDemands = providerManager.GetNextDemands();
-                    if (nextDemands != null && nextDemands.Any())
-                    {
-                        nextDemandManager.AddAll(nextDemands);
-                    }
-                }
-
-                // final reorganizing
-                levelDemandManagers.Remove(currentDemandManager);
-
-                // break condition
-                if (nextDemandManager.GetAll().Count == 0)
-                {
-                    break;
-                }
-
-                finalAllDemands.AddAll(nextDemandManager);
+                demandQueue.Enqueue(new DemandQueueNode(demand),
+                    demand.GetDueTime(dbTransactionData).GetValue());
             }
 
-            // MrpRun done
+            while (demandQueue.Count != 0)
+            {
+                DemandQueueNode firstDemandInQueue = demandQueue.Dequeue();
 
+                IDemands nextDemands = ProcessNextDemand(dbTransactionData,
+                    firstDemandInQueue.GetDemand(), dbMasterDataCache, orderManager, stockManager,
+                    providerManager, providingManager);
+                if (nextDemands != null)
+                {
+                    finalAllDemands.AddAll(nextDemands);
+                    foreach (var demand in nextDemands.GetAll())
+                    {
+                        demandQueue.Enqueue(new DemandQueueNode(demand),
+                            demand.GetDueTime(dbTransactionData).GetValue());
+                    }
+                }
+            }
+            /*
             // forward scheduling
             DueTime minDueTime = ForwardScheduler.FindMinDueTime(finalAllDemands,
                 providerManager.GetProviders(), dbTransactionData);
@@ -191,30 +181,19 @@ namespace Zpp
                     dbMasterDataCache, globalStockManager);
                 return;
             }
-
-            // persisting data
+            */
+            
+            // write data to dbTransactionData
             globalStockManager.AdaptStock(stockManager);
             dbTransactionData.DemandsAddAll(finalAllDemands);
             dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
-            dbTransactionData.PersistDbCache(providerManager);
-        }
+            dbTransactionData.SetProviderManager(providerManager);
+            
+            // job shop scheduling
+            MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,dbMasterDataCache, new PriorityRule());
 
-        private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
-            IDemands dbDemands, IDbMasterDataCache dbMasterDataCache)
-        {
-            // init
-            StockManager stockManager =
-                new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
-
-            foreach (var oneDbDemand in dbDemands.GetAll())
-            {
-                if (oneDbDemand.GetType() == typeof(CustomerOrderPart))
-                {
-                    ProcessNextCustomerOrderPart(dbTransactionData, (CustomerOrderPart) oneDbDemand,
-                        dbMasterDataCache, stockManager);
-                }
-            }
-            // job shop
+            // persisting data
+            dbTransactionData.PersistDbCache();
 
             LOGGER.Info("MrpRun done.");
         }

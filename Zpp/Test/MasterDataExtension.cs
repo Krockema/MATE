@@ -21,7 +21,7 @@ namespace Zpp.Test
                     BusinessPartnerId = businessPartnerId,
                     CreationTime = random.Next(5, 50),
                     Name = "ExampleOrder 1",
-                    DueTime = random.Next(100, 500)
+                    DueTime = random.Next(1, 100)
                 };
                 productionDomainContext.Add(order);
 

@@ -36,7 +36,7 @@ namespace Zpp.PurchaseDomain
                     .BusinessPartnerId));
             T_PurchaseOrder purchaseOrder = new T_PurchaseOrder();
             // [Name],[DueTime],[BusinessPartnerId]
-            purchaseOrder.DueTime = dueTime.GetValue() - articleToBusinessPartner.DueTime;
+            purchaseOrder.DueTime = dueTime.GetValue();
             purchaseOrder.BusinessPartner = businessPartner;
             purchaseOrder.Name = $"PurchaseOrder{article.Name} for " +
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";

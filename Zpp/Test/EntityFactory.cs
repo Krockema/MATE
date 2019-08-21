@@ -44,7 +44,7 @@ namespace Zpp.Test
             var order = new T_CustomerOrder()
             {
                 BusinessPartnerId = dbMasterDataCache.M_BusinessPartnerGetAll()[0].Id,
-                DueTime = random.Next(5, 1000),
+                DueTime = random.Next(5, 100),
                 CreationTime = 0,
                 Name = $"RandomProductionOrder{random.Next()}",
             };

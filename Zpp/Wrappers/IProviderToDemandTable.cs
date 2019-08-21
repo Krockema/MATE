@@ -5,14 +5,8 @@ using Zpp.ProviderDomain;
 
 namespace Zpp
 {
-    public interface IProviderToDemandTable
+    public interface IProviderToDemandTable: ICollectionWrapper<T_ProviderToDemand>
     {
         void Add(Provider provider, Id demandId);
-
-        List<T_ProviderToDemand> GetAll();
-
-        int Count();
-
-        bool Any();
     }
 }

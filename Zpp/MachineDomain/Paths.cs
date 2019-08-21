@@ -26,7 +26,7 @@ namespace Zpp.MachineDomain
             {
                 if (path.Count > 0)
                 {
-                    stackSet.Add(path.Pop());
+                    stackSet.Push(path.Pop());
                 }
             }
 

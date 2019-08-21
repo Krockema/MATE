@@ -11,24 +11,14 @@ namespace Zpp.ProviderDomain
     /**
      * wraps the collection with all providers
      */
-    public interface IProviders
+    public interface IProviders: ICollectionWrapper<Provider>
     {
         // TODO: Use this interface instead of the implementor Providers directly
-        
-        void Add(Provider provider);
 
-        void AddAll(IProviders providers);
-        
-        List<Provider> GetAll();
-        
         List<T> GetAllAs<T>();
 
         bool ProvideMoreThanOrEqualTo(Id articleId, Quantity demandedQuantity);
-        
-        int Size();
-        
-        bool Any();
-        
+
         void Clear();
 
         bool AnyDependingDemands();

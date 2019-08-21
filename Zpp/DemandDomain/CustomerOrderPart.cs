@@ -44,5 +44,10 @@ namespace Zpp.DemandDomain
             string graphizString = $"D(COP);{base.GetGraphizString(dbTransactionData)}";
             return graphizString;
         }
+
+        public override DueTime GetStartTime(IDbTransactionData dbTransactionData)
+        {
+            return null;
+        }
     }
 }
