@@ -72,27 +72,27 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     msg: "Article: " + fArticle.Article.Name + " (" + fArticle.Key + ") is last leave in BOM.");
             }
 
-            // if item has Operations request HubAgent for them
-            if (fArticle.Article.Operations != null)
+            if (fArticle.Article.Operations == null)
+                throw new Exception("Production agent without operations");
+            
+
+            // Ask the Directory Agent for Service
+            RequestHubAgentsFromDirectoryFor(agent: Agent, operations: fArticle.Article.Operations);
+            // And create Operations
+            CreateJobsFromArticle(fArticle: fArticle);
+
+            var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: fArticle
+                , requestingAgent: Agent.Context.Self
+                , currentTime: Agent.CurrentTime);
+
+            for (var i = 0; i < requiredDispoAgents; i++)
             {
-                // Ask the Directory Agent for Service
-                RequestHubAgentsFromDirectoryFor(agent: Agent, operations: fArticle.Article.Operations);
-                // And create Operations
-                CreateJobsFromArticle(fArticle: fArticle);
-
-                var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: fArticle
-                                                                                  ,requestingAgent: Agent.Context.Self
-                                                                                     , currentTime: Agent.CurrentTime);
-
-                for (var i = 0; i < requiredDispoAgents; i++)
-                {
-                    // create Dispo Agents for to provide required articles
-                    var agentSetup = AgentSetup.Create(agent: Agent,
-                        behaviour: DispoAgent.Behaviour.Factory.Get(simType: SimulationType.None));
-                    var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup,
-                        target: ((IAgent) Agent).Guardian, source: Agent.Context.Self);
-                    Agent.Send(instruction: instruction);
-                }
+                // create Dispo Agents for to provide required articles
+                var agentSetup = AgentSetup.Create(agent: Agent,
+                    behaviour: DispoAgent.Behaviour.Factory.Get(simType: SimulationType.None));
+                var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup,
+                    target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
+                Agent.Send(instruction: instruction);
             }
         }
 
@@ -222,6 +222,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void AddForwardTime(long earliestStartForForwardScheduling)
         {
+
             _forwardScheduleTimeCalculator.Add(earliestStartForForwardScheduling: earliestStartForForwardScheduling);
             SetForwardScheduling();
         }
@@ -229,6 +230,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void SetForwardScheduling()
         {
+            Agent.DebugMessage(
+                msg:
+                $"AddForwardTime for {_articleToProduce.Article.Name} amount: {_forwardScheduleTimeCalculator.Count}  of {_forwardScheduleTimeCalculator.GetRequiredQuantity} ");
+
             if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(fArticle: _articleToProduce))
                 return;
 

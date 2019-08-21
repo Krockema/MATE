@@ -21,7 +21,8 @@ namespace Master40.SimulationCore.Types
         private int RequiredQuantity { get; }
 
         internal long Max => ForwardScheduledEndingTimes.Max();
-
+        internal long GetRequiredQuantity => RequiredQuantity;
+        internal long Count => ForwardScheduledEndingTimes.Count;
         /// <summary>
         /// Add Scheduling Element to the internal List
         /// </summary>
@@ -41,7 +42,7 @@ namespace Master40.SimulationCore.Types
             return ForwardScheduledEndingTimes.Count == RequiredQuantity;
         }
 
-        private static int CalculateRequiredQuantity(FArticle fArticle)
+        public static int CalculateRequiredQuantity(FArticle fArticle)
         {
             var quantityMaterials = fArticle.Article.ArticleBoms.Count(x =>
                 x.ArticleChild.ArticleType.Name == "Material" || x.ArticleChild.ArticleType.Name == "Consumable");

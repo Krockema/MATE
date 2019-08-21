@@ -30,6 +30,7 @@ namespace Master40.SimulationCore.Types
                                       .Include(navigationPropertyPath: x => x.Operations)
                                         .ThenInclude(navigationPropertyPath: x => x.ArticleBoms)
                                             .ThenInclude(navigationPropertyPath: x => x.ArticleChild)
+                                                .ThenInclude(x => x.ArticleType)
                                       .Include(navigationPropertyPath: x => x.ArticleBoms)
                                         .ThenInclude(navigationPropertyPath: x => x.ArticleChild)
                                             .ThenInclude(x => x.ArticleType)

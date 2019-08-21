@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Master40.SimulationCore.Types;
+using Microsoft.FSharp.Core;
 using Remotion.Linq.Parsing;
 using static FArticleProviders;
 using static FArticles;
@@ -81,18 +83,26 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
 
         internal int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
-            var counter = 0;
+            List<ArticleProvider> listAP = new List<ArticleProvider>();
+            var counter = articleToProduce.Article.ArticleBoms.Count;
             foreach (var fOperation in GetOperations) { 
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
                 foreach (var bom in fOperation.Operation.ArticleBoms)
                 {
-                    counter++;
-                    provider.DispoToArticleRelation.Add(new ArticleProvider(provider: ActorRefs.Nobody, 
-                                                     article: bom.ToRequestItem(requestItem: articleToProduce
-                                                                               , requester: requestingAgent
-                                                                             , currentTime: currentTime)));
+                    var createdArticleProvider = new ArticleProvider(provider: ActorRefs.Nobody,
+                        article: bom.ToRequestItem(requestItem: articleToProduce
+                            , requester: requestingAgent
+                            , currentTime: currentTime));
+                    listAP.Add(createdArticleProvider);
+                    provider.DispoToArticleRelation.Add(createdArticleProvider);
+
                 }
             }
+
+            System.Diagnostics.Debug.WriteLine($"ProductionAgent Bom elements {counter} and created {listAP.Count} DispoArticleRelations.");
+
+
+
             return counter;
         }
 
