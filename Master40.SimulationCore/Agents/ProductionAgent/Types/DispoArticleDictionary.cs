@@ -1,37 +1,47 @@
-﻿using System;
+﻿using Akka.Actor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Akka.Actor;
 using static FArticles;
+using static FOperations;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Types
 {
     public class DispoArticleDictionary
     {
-        private Dictionary<IActorRef, FArticle> _dispoArticleDictionary = new Dictionary<IActorRef, FArticle>();
+        public List<ArticleProvider> DispoToArticleRelation = new List<ArticleProvider>();
+        public FOperation Operation { get; set; }
+        internal List<ArticleProvider> GetAll => DispoToArticleRelation.ToList();
 
+        public DispoArticleDictionary(FOperation operation)
+        {
+            Operation = operation;
+
+        }
+        
         public void Add(IActorRef dispoRef, FArticle fArticle)
         {
-            _dispoArticleDictionary.Add(dispoRef, fArticle);
-        }
-
-        internal void Update(IActorRef dispoRef, FArticle fArticle)
-        {
-            if (!_dispoArticleDictionary.Remove(key: dispoRef))
-                throw new Exception(message: "Could not find any Item to remove from DispoArticleDictionary!");
-         
-            if (fArticle != null) _dispoArticleDictionary.Add(key: dispoRef, value: fArticle);
+            DispoToArticleRelation.Add(new ArticleProvider(dispoRef, fArticle));
         }
 
         internal bool AllProvided()
         {
-            return _dispoArticleDictionary.All(x => x.Value.IsProvided);
+            return DispoToArticleRelation.All(x => x.Article.IsProvided);
         }
 
         internal FArticle GetArticleByKey(Guid articleKey)
         {
-            return _dispoArticleDictionary.Single(x => x.Value.Key == articleKey).Value;
+            return DispoToArticleRelation.Single(x => x.Article.Key == articleKey).Article;
+        }
+
+        internal ArticleProvider GetByKey(Guid articleKey)
+        {
+            return DispoToArticleRelation.FirstOrDefault(x => x.Article.Key == articleKey);
+        }
+
+        internal List<ArticleProvider> GetWithoutProvider()
+        {
+            return DispoToArticleRelation.Where(x => x.Provider == ActorRefs.Nobody).ToList();
         }
     }
 }

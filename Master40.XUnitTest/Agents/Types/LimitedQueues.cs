@@ -1,17 +1,10 @@
-﻿using System;
-using System.Linq;
-using Akka.Actor;
-using Xunit;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using static IJobs;
-using static FOperations;
-using Master40.DB.Data.Context;
-using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.Preparations;
-using Microsoft.EntityFrameworkCore;
+using Xunit;
+using static FOperations;
 
 namespace Master40.XUnitTest.Agents.Types
 {

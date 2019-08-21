@@ -104,7 +104,7 @@ namespace Master40.SimulationCore.Agents
             {
 
             }
-            public Guid GetObjectfromMessage { get => (Guid)Message; }
+            public Guid GetObjectFromMessage { get => (Guid)Message; }
         }
 
     }

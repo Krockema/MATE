@@ -46,13 +46,13 @@ namespace Master40.SimulationCore.Agents.DispoAgent
                 }
                 public M_Article GetObjectFromMessage { get => Message as M_Article; }
             }
-            public class WithdrawMaterialsFromStock : SimulationMessage
+            public class WithdrawArticleFromStock : SimulationMessage
             {
-                public static WithdrawMaterialsFromStock Create(object message, IActorRef target)
+                public static WithdrawArticleFromStock Create(object message, IActorRef target)
                 {
-                    return new WithdrawMaterialsFromStock(message: message, target: target);
+                    return new WithdrawArticleFromStock(message: message, target: target);
                 }
-                private WithdrawMaterialsFromStock(object message, IActorRef target) : base(message: message, target: target)
+                private WithdrawArticleFromStock(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }

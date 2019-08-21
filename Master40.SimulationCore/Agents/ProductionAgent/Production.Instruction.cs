@@ -17,18 +17,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             ///      ProductionStarted
             ///      SetComunicationAgent
             /// </summary>
-            public class ProductionStarted : SimulationMessage
-            {
-                public static ProductionStarted Create(Guid message, IActorRef target)
-                {
-                    return new ProductionStarted(message: message, target: target);
-                }
-                private ProductionStarted(object message, IActorRef target) : base(message: message, target: target)
-                {
-
-                }
-                public Guid GetObjectFromMessage { get => (Guid)Message; }
-            }
 
             public class StartProduction : SimulationMessage
             {

@@ -8,6 +8,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.ProductionAgent.Types;
 using static FArticles;
 using static FAgentInformations;
@@ -25,12 +26,19 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
         }
 
-        internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
-        internal FOperation _nextOperation { get; set; }
+        /// <summary>
+        /// Operation related Hubagents
+        /// </summary>
         internal AgentDictionary _hubAgents { get; set; } = new AgentDictionary();
+        /// <summary>
+        /// Article this Production Agent has to Produce
+        /// </summary>
         internal FArticle _articleToProduce { get; set; }
-        internal DispoArticleDictionary _dispoArticleDictionary { get; set; } = new DispoArticleDictionary();
-        internal Queue<FArticle> _childArticles { get; set; } = new Queue<FArticle>();
+        /// <summary>
+        /// Class to supervise operations, supervise operation material handling, articles required by operation, and their relation
+        /// </summary>
+        internal OperationManager OperationManager { get; set; } = new OperationManager();
+        
         internal ForwardScheduleTimeCalculator _forwardScheduleTimeCalculator { get; set; }
         public override bool Action(object message)
         {
@@ -40,8 +48,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case BasicInstruction.ResponseFromDirectory msg: SetHubAgent(hub: msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: AddForwardTime(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ProvideArticle msg: ArticleProvided(msg.GetObjectFromMessage); break;
+                case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 // case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
-                // case Production.Instruction.ProductionStarted ps: ProductionStarted((Production)agent, ps.GetObjectFromMessage); break;
                 // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
                 // case Production.Instruction.Finished f:
                 //     agent.VirtualChilds.Remove(agent.Sender);
@@ -71,17 +79,20 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 RequestHubAgentsFromDirectoryFor(agent: Agent, operations: fArticle.Article.Operations);
                 // And create Operations
                 CreateJobsFromArticle(fArticle: fArticle);
-            }
 
-            // Create Dispo Agent for each Child.
-            foreach (var article in fArticle.Article.ArticleBoms)
-            {
-                _childArticles.Enqueue(item: article.ToRequestItem(requestItem: fArticle, requester: Agent.Context.Self, currentTime: Agent.CurrentTime));
+                var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: fArticle
+                                                                                  ,requestingAgent: Agent.Context.Self
+                                                                                     , currentTime: Agent.CurrentTime);
 
-                // create Dispo Agents for to provide required articles
-                var agentSetup = AgentSetup.Create(agent: Agent, behaviour: DispoAgent.Behaviour.Factory.Get(simType: SimulationType.None));
-                var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
-                Agent.Send(instruction: instruction);
+                for (var i = 0; i < requiredDispoAgents; i++)
+                {
+                    // create Dispo Agents for to provide required articles
+                    var agentSetup = AgentSetup.Create(agent: Agent,
+                        behaviour: DispoAgent.Behaviour.Factory.Get(simType: SimulationType.None));
+                    var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup,
+                        target: ((IAgent) Agent).Guardian, source: Agent.Context.Self);
+                    Agent.Send(instruction: instruction);
+                }
             }
         }
 
@@ -93,7 +104,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             // add agent to current Scope.
             _hubAgents.Add(key: hub.Ref, value: hub.RequiredFor);
             // foreach fitting operation
-            foreach (var operation in _operationList.Where(predicate: x => x.Operation.ResourceSkill.Name == hub.RequiredFor))
+            foreach (var operation in OperationManager.GetOperationBySkill(hub.RequiredFor))
             {
                 operation.UpdateHubAgent(hub.Ref);
                 Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: hub.Ref));
@@ -101,9 +112,24 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         }
 
-        private void ProductionStarted(Agent agent, Guid workItem)
+        /// <summary>
+        /// Return from Resource over Hub to ProductionAgent to initiate to withdraw the required articles
+        /// </summary>
+        /// <param name="operationKey"></param>
+        private void WithdrawRequiredArticles(Guid operationKey)
         {
+            var operation = OperationManager.GetOperationByKey(operationKey);
 
+            Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name}");
+
+           /* foreach (var dispo in _articleProvider.GetProviderForOperation(operation.Operation.Id))
+            {
+                Agent.Send(Dispo.Instruction
+                                .WithdrawArticleFromStock
+                                .Create(message: "Production Start"
+                                    , target: dispo));
+            }
+            */
         }
 
         internal void Finished(Agent agent, FOperationResult operationResult)
@@ -122,42 +148,27 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// <param name="fArticleProvider"></param>
         private void ArticleProvided(FArticleProvider fArticleProvider)
         {
-            var providedArticle = _dispoArticleDictionary.GetArticleByKey(fArticleProvider.ArticleKey);
-            providedArticle = providedArticle.SetProvided.UpdateFinishedAt(Agent.CurrentTime);
-            _dispoArticleDictionary.Update(dispoRef: Agent.Sender, fArticle: providedArticle);
+            var articleDictionary = OperationManager.SetArticleProvided(fArticleProvider: fArticleProvider, providedBy: Agent.Sender, currentTime: Agent.CurrentTime);
             
-            Agent.DebugMessage(msg: $"Article {providedArticle.Article.Name} {providedArticle.Key} for {_articleToProduce.Article.Name} {_articleToProduce.Key} has been provided");
+            Agent.DebugMessage(msg: $"Article {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} for {_articleToProduce.Article.Name} {_articleToProduce.Key} has been provided");
 
             _articleToProduce.ProviderList.AddRange(fArticleProvider.Provider);
-
-            if(_dispoArticleDictionary.AllProvided())
+            
+            if(articleDictionary.AllProvided())
             {
+                
                 Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
-                foreach (var operation in _operationList)
-                {
-                    operation.StartConditions.ArticlesProvided = true;
-                    Agent.Send(Hub.Instruction.SetOperationArticleProvided
-                                               .Create(message: operation.Key
-                                                      , target: operation.HubAgent));
-                }
-
-
+                articleDictionary.Operation.StartConditions.ArticlesProvided = true;
+                
+                Agent.Send(Hub.Instruction.SetOperationArticleProvided
+                                          .Create(message: articleDictionary.Operation.Key
+                                                 , target: articleDictionary.Operation.HubAgent));
             }
 
         }
 
         private void FinishOperation(Agent agent, FOperationResult operation)
-        {
-
-        }
-
-        internal void SetOperationReady(Agent agent)
-        {
-
-        }
-
-        private void SendOperationStatusMsg(Agent agent, KeyValuePair<IActorRef, string> hubAgent, FOperation nextItem)
         {
 
         }
@@ -195,7 +206,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     msg:
                     $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} | Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
-                _operationList.Add(item: fJob);
+                OperationManager.AddOperation(fJob);
 
                 // send update to collector
                 var pub = new FCreateSimulationWork(operation: fJob
@@ -226,7 +237,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             if (Agent.VirtualChildren.Count > 0)
                 earliestStart = _forwardScheduleTimeCalculator.Max;
 
-            foreach (var operation in _operationList.OrderBy(keySelector: x => x.Operation.HierarchyNumber))
+            foreach (var operation in OperationManager.GetOperations.OrderBy(keySelector: x => x.Operation.HierarchyNumber))
             {
                 var newOperation = operation.SetForwardSchedule(earliestStart: earliestStart);
                 earliestStart = newOperation.ForwardEnd + newOperation.Operation.AverageTransitionDuration;
@@ -237,7 +248,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 msg:
                 $"EarliestForwardStart {earliestStart} for Article {_articleToProduce.Article.Name} ArticleKey: {_articleToProduce.Key} send to {Agent.VirtualParent} ");
 
-        _operationList = operationList;
+            OperationManager.UpdateOperations(operations: operationList);
             Agent.Send(instruction: BasicInstruction.JobForwardEnd.Create(message: earliestStart,
                 target: Agent.VirtualParent));
         }

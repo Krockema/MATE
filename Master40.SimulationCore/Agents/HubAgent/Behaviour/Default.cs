@@ -29,9 +29,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             switch (message)
             {
                 case Hub.Instruction.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
-                case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(proposal: msg.GetObjectFromMessage); break;
+                case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.SetOperationArticleProvided msg: UpdateAndForwardArticleProvided(operationKey: msg.GetObjectFromMessage); break;
-                case BasicInstruction.WithdrawRequiredArticles msg: ProductionStarted(key: msg.GetObjectfromMessage); break;
+                case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.FinishJob msg: FinishJob(operationResult: msg.GetObjectFromMessage as FOperationResult); break;
                 case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
@@ -82,15 +82,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// 
         /// </summary>
         /// <param name="proposal"></param>
-        private void ProposalFromResource(FProposal proposal)
+        private void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
-            var fOperation = _operationList.Single(predicate: x => x.Key == proposal.JobKey);
-            fOperation.Proposals.RemoveAll(x => x.ResourceAgent.Equals(proposal.ResourceAgent));
+            var fOperation = _operationList.Single(predicate: x => x.Key == fProposal.JobKey);
+            fOperation.Proposals.RemoveAll(x => x.ResourceAgent.Equals(fProposal.ResourceAgent));
             // add New Proposal
-            fOperation.Proposals.Add(item: proposal);
+            fOperation.Proposals.Add(item: fProposal);
 
-            Agent.DebugMessage(msg: $"Proposal for Schedule: {proposal.PossibleSchedule} Id: {proposal.JobKey} from: {proposal.ResourceAgent}!");
+            Agent.DebugMessage(msg: $"Proposal for Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
 
 
             // if all Machines Answered
@@ -103,7 +103,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     // Call Hub Agent to Requeue
                     fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
                     _operationList.Replace(val: fOperation);
-                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: proposal.Postponed.Offset);
+                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: fProposal.Postponed.Offset);
                     return;
                 }
 
@@ -139,15 +139,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(instruction: Resource.Instruction.UpdateArticleProvided.Create(message: temp.Key, target: temp.ResourceAgent));
         }
 
-
-        public void ProductionStarted(Guid key)
+        /// <summary>
+        /// Source: ResourceAgent put operation onto processingQueue and will work on it soon
+        /// Target: Method should forward message to the associated production agent
+        /// </summary>
+        /// <param name="key"></param>
+        public void WithdrawRequiredArticles(Guid operationKey)
         {
-            var temp = _operationList.Single(predicate: x => x.Key == key);
-            Agent.Send(instruction: Production.Instruction
-                                 .ProductionStarted
-                                 .Create(message: temp.Key
-                                        , target: temp.ProductionAgent));
-            _operationList.Replace(val: temp);
+            var operation = _operationList.Single(predicate: x => x.Key == operationKey);
+            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
+                                                    .Create(message: operation.Key
+                                                           , target: operation.ProductionAgent));
+            // TODO Necessary? 
+            //_operationList.Replace(val: operation);  ??
         }
 
         public void FinishJob(FOperationResult operationResult)
@@ -158,8 +162,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(instruction: Production.Instruction.FinishWorkItem.Create(message: operationResult, target: item.ProductionAgent));
             _operationList.Remove(item: item);
         }
-
-        
 
 
         private void AddResourceToHub(FAgentInformation hubInformation)

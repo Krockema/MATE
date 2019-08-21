@@ -34,7 +34,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 case Dispo.Instruction.ResponseFromStock r: ResponseFromStock(reservation: r.GetObjectFromMessage); break; // Message from Storage with Reservation
                 case BasicInstruction.JobForwardEnd msg: PushForwardTimeToParent(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break; // push Calculated Forward Calculated
                 case Dispo.Instruction.ResponseFromSystemForBom r: ResponseFromSystemForBom(article: r.GetObjectFromMessage); break;
-                case Dispo.Instruction.WithdrawMaterialsFromStock r: WithdrawMaterial(); break;
+                case Dispo.Instruction.WithdrawArticleFromStock r: WithdrawArticleFromStock(); break; // Withdraw initiated by ResourceAgent for Production
                 case BasicInstruction.ProvideArticle r: ProvideRequest(fArticleProvider: r.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -147,9 +147,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                                                            ,logThis: false));
         }
 
-        internal void WithdrawMaterial()
+        internal void WithdrawArticleFromStock()
         {
-            Agent.Send(instruction: WithdrawlMaterial
+            Agent.Send(instruction: Storage.Instruction.WithdrawlMaterial
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));
             Agent.TryToFinish();

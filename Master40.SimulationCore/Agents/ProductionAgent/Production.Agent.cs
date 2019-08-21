@@ -3,6 +3,7 @@ using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using System.Linq;
+using static FArticles;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent
 {
@@ -23,11 +24,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
         }
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var fArticle = ((Behaviour.Default)Behaviour)._childArticles.Dequeue();
-            ((Behaviour.Default)Behaviour)._dispoArticleDictionary.Add(dispoRef: childRef, fArticle: fArticle);
-            this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: fArticle, target: childRef));
+            var articleToRequest = ((Behaviour.Default)Behaviour).OperationManager.Set(provider: childRef);
+            this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: articleToRequest, target: childRef));
             this.DebugMessage(
-                msg: $"Create Dispo Agent for {fArticle.Article.Name} (Key: {fArticle.Key}, OrderId: {fArticle.CustomerOrderId})");
+                msg: $"Create Dispo Agent for {articleToRequest.Article.Name} (Key: {articleToRequest.Key}, OrderId: {articleToRequest.CustomerOrderId})");
         }
 
     }
