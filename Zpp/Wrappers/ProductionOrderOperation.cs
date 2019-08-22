@@ -106,6 +106,8 @@ namespace Zpp
 
             _productionOrderOperation.EndBackward = endBackwards;
             _productionOrderOperation.StartBackward = startBackwards;
+            _productionOrderOperation.Start = startBackwards.GetValueOrDefault();
+            _productionOrderOperation.End = endBackwards.GetValueOrDefault();
             
             return newOperationBackwardsSchedule;
         }
