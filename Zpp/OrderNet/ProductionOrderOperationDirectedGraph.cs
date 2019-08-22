@@ -26,7 +26,10 @@ namespace Zpp
                 .GetAggregator().GetProductionOrderOperationsOfProductionOrder(productionOrder);
             if (productionOrderOperations == null)
             {
-                throw new MrpRunException("Given productionOrder must have ProductionOrderOperations, else this object makes no sense.");
+                directedGraph.AddEdge(productionOrder,
+                    new Edge(productionOrder, productionOrder));
+                _adjacencyList = directedGraph.GetAdjacencyList();
+                return;
             }
             foreach (var productionOrderOperation in productionOrderOperations)
             {

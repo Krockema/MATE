@@ -1,2 +1,4 @@
-﻿"P(PrO);4.00;\nTischbein;80"  -> "Flizgleiter anstecken";
+﻿"P(PrO);1.00;\nTischprodukt;72"  -> "Tisch verpacken";
+"P(PrO);1.00;\nTisch;72"  -> "P(PrO);1.00;\nTisch;72";
+"P(PrO);4.00;\nTischbein;72"  -> "Flizgleiter anstecken";
 "Flizgleiter anstecken"  -> "Anschraubplatte anschweißen";
