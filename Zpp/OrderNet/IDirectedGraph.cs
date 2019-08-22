@@ -62,7 +62,7 @@ namespace Zpp
         List<IEdge> GetAllEdges();
 
         Dictionary<TNode, List<IEdge>> GetAdjacencyList();
-        
-        
+
+        void Clear();
     }
 }

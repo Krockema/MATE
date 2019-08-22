@@ -48,8 +48,14 @@ namespace Zpp
         public List<ProductionOrderOperation> GetProductionOrderOperationsOfProductionOrder(
             Id productionOrderId)
         {
-            return _dbTransactionData.ProductionOrderOperationGetAll()
+            List<ProductionOrderOperation> productionOrderOperations = _dbTransactionData
+                .ProductionOrderOperationGetAll()
                 .Where(x => x.GetProductionOrderId().Equals(productionOrderId)).ToList();
+            if (productionOrderOperations.Any() == false)
+            {
+                return null;
+            }
+            return productionOrderOperations;
         }
 
         public Demands GetDemandsOfProvider(Provider provider)

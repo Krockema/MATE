@@ -1,614 +1,614 @@
 ﻿[
   {
     "article": "Skeleton",
-    "articleId": "10494",
-    "operation": "Dump-Truck: Wedding",
-    "operationId": "11089",
-    "resource": "10485",
-    "start": "50",
-    "end": "65"
+    "articleId": "10611",
+    "operation": "11206: Dump-Truck: Wedding",
+    "operationId": "11206",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "1255",
+    "end": "1270"
   },
   {
     "article": "Chassis Type: Dump",
-    "articleId": "10496",
-    "operation": "Dump-Truck: Wedding",
-    "operationId": "11089",
-    "resource": "10485",
-    "start": "50",
-    "end": "65"
+    "articleId": "10613",
+    "operation": "11206: Dump-Truck: Wedding",
+    "operationId": "11206",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "1255",
+    "end": "1270"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Dump-Truck: Wedding",
-    "operationId": "11089",
-    "resource": "10485",
-    "start": "50",
-    "end": "65"
+    "articleId": "10629",
+    "operation": "11206: Dump-Truck: Wedding",
+    "operationId": "11206",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "1255",
+    "end": "1270"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Glue Semitrailer",
-    "operationId": "11151",
-    "resource": "10489",
-    "start": "50",
-    "end": "55"
+    "articleId": "10629",
+    "operation": "11268: Glue Semitrailer",
+    "operationId": "11268",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "10",
+    "end": "15"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Dump-Truck: Mount Engine to Cabin",
-    "operationId": "11168",
-    "resource": "10488",
-    "start": "45",
-    "end": "50"
-  },
-  {
-    "article": "Button",
-    "articleId": "10515",
-    "operation": "Dump-Truck: Assemble Lamps",
-    "operationId": "11163",
-    "resource": "10485",
+    "articleId": "10629",
+    "operation": "11285: Dump-Truck: Mount Engine to Cabin",
+    "operationId": "11285",
+    "resource": "10606: AssemblyUnit 6",
     "start": "10",
     "end": "15"
   },
   {
     "article": "Button",
-    "articleId": "10515",
-    "operation": "Glue Truck-Bed",
-    "operationId": "11094",
-    "resource": "10484",
-    "start": "80",
-    "end": "90"
+    "articleId": "10632",
+    "operation": "11280: Dump-Truck: Assemble Lamps",
+    "operationId": "11280",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "5",
+    "end": "10"
+  },
+  {
+    "article": "Button",
+    "articleId": "10632",
+    "operation": "11211: Glue Truck-Bed",
+    "operationId": "11211",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "1290",
+    "end": "1300"
   },
   {
     "article": "Engine-Block",
-    "articleId": "10500",
-    "operation": "Dump-Truck: Mount Engine to Cabin",
-    "operationId": "11168",
-    "resource": "10488",
-    "start": "45",
-    "end": "50"
+    "articleId": "10617",
+    "operation": "11285: Dump-Truck: Mount Engine to Cabin",
+    "operationId": "11285",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "10",
+    "end": "15"
   },
   {
     "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Dump-Truck: Assemble Lamps",
-    "operationId": "11163",
-    "resource": "10485",
-    "start": "10",
-    "end": "15"
+    "articleId": "10630",
+    "operation": "11280: Dump-Truck: Assemble Lamps",
+    "operationId": "11280",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "5",
+    "end": "10"
   },
   {
     "article": "Cabin",
-    "articleId": "10499",
-    "operation": "Dump-Truck: Assemble Lamps",
-    "operationId": "11163",
-    "resource": "10485",
+    "articleId": "10616",
+    "operation": "11280: Dump-Truck: Assemble Lamps",
+    "operationId": "11280",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "5",
+    "end": "10"
+  },
+  {
+    "article": "Semitrailer",
+    "articleId": "10625",
+    "operation": "11268: Glue Semitrailer",
+    "operationId": "11268",
+    "resource": "10605: AssemblyUnit 5",
     "start": "10",
     "end": "15"
   },
   {
-    "article": "Semitrailer",
-    "articleId": "10508",
-    "operation": "Glue Semitrailer",
-    "operationId": "11151",
-    "resource": "10489",
-    "start": "50",
-    "end": "55"
-  },
-  {
     "article": "Wheel",
-    "articleId": "10506",
-    "operation": "Screw wheels onto poles",
-    "operationId": "11147",
-    "resource": "10488",
-    "start": "35",
-    "end": "45"
+    "articleId": "10623",
+    "operation": "11264: Screw wheels onto poles",
+    "operationId": "11264",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "0",
+    "end": "10"
   },
   {
     "article": "Pole",
-    "articleId": "10514",
-    "operation": "mount poles with wheels to Skeleton",
-    "operationId": "11143",
-    "resource": "10484",
+    "articleId": "10631",
+    "operation": "11260: mount poles with wheels to Skeleton",
+    "operationId": "11260",
+    "resource": "10601: AssemblyUnit 1",
     "start": "0",
     "end": "10"
   },
   {
     "article": "Base plate",
-    "articleId": "10507",
-    "operation": "mount poles with wheels to Skeleton",
-    "operationId": "11143",
-    "resource": "10484",
+    "articleId": "10624",
+    "operation": "11260: mount poles with wheels to Skeleton",
+    "operationId": "11260",
+    "resource": "10601: AssemblyUnit 1",
     "start": "0",
     "end": "10"
   },
   {
     "article": "Pole",
-    "articleId": "10514",
-    "operation": "Glue Truck-Bed",
-    "operationId": "11094",
-    "resource": "10484",
-    "start": "80",
-    "end": "90"
+    "articleId": "10631",
+    "operation": "11211: Glue Truck-Bed",
+    "operationId": "11211",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "1290",
+    "end": "1300"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Glue Truck-Bed",
-    "operationId": "11094",
-    "resource": "10484",
-    "start": "80",
-    "end": "90"
+    "articleId": "10629",
+    "operation": "11211: Glue Truck-Bed",
+    "operationId": "11211",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "1290",
+    "end": "1300"
   },
   {
     "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Glue Truck-Bed",
-    "operationId": "11094",
-    "resource": "10484",
-    "start": "80",
-    "end": "90"
+    "articleId": "10630",
+    "operation": "11211: Glue Truck-Bed",
+    "operationId": "11211",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "1290",
+    "end": "1300"
   },
   {
     "article": "Washer",
-    "articleId": "10509",
-    "operation": "Screw wheels onto poles",
-    "operationId": "11147",
-    "resource": "10488",
-    "start": "35",
-    "end": "45"
+    "articleId": "10626",
+    "operation": "11264: Screw wheels onto poles",
+    "operationId": "11264",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "0",
+    "end": "10"
   },
   {
     "article": "Truck-Bed",
-    "articleId": "10495",
-    "operation": "Glue Truck-Bed",
-    "operationId": "11094",
-    "resource": "10484",
-    "start": "80",
-    "end": "90"
+    "articleId": "10612",
+    "operation": "11211: Glue Truck-Bed",
+    "operationId": "11211",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "1290",
+    "end": "1300"
   },
   {
     "article": "Pole",
-    "articleId": "10514",
-    "operation": "Mount hatchback",
-    "operationId": "11464",
-    "resource": "10489",
-    "start": "45",
-    "end": "50"
-  },
-  {
-    "article": "Side wall short",
-    "articleId": "10502",
-    "operation": "Glue side walls and base plate together",
-    "operationId": "11459",
-    "resource": "10486",
+    "articleId": "10631",
+    "operation": "11581: Mount hatchback",
+    "operationId": "11581",
+    "resource": "10602: AssemblyUnit 2",
     "start": "15",
     "end": "20"
   },
   {
+    "article": "Side wall short",
+    "articleId": "10619",
+    "operation": "11576: Glue side walls and base plate together",
+    "operationId": "11576",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "5",
+    "end": "10"
+  },
+  {
     "article": "Button",
-    "articleId": "10515",
-    "operation": "Mount hatchback",
-    "operationId": "11464",
-    "resource": "10489",
-    "start": "45",
-    "end": "50"
+    "articleId": "10632",
+    "operation": "11581: Mount hatchback",
+    "operationId": "11581",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "15",
+    "end": "20"
   },
   {
     "article": "Side wall short",
-    "articleId": "10502",
-    "operation": "Mount hatchback",
-    "operationId": "11464",
-    "resource": "10489",
-    "start": "45",
-    "end": "50"
+    "articleId": "10619",
+    "operation": "11581: Mount hatchback",
+    "operationId": "11581",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "15",
+    "end": "20"
   },
   {
     "article": "Dump Joint",
-    "articleId": "10504",
-    "operation": "Mount hatchback",
-    "operationId": "11464",
-    "resource": "10489",
-    "start": "45",
-    "end": "50"
+    "articleId": "10621",
+    "operation": "11581: Mount hatchback",
+    "operationId": "11581",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "15",
+    "end": "20"
   },
   {
     "article": "Base plate Truck-Bed",
-    "articleId": "10503",
-    "operation": "Glue side walls and base plate together",
-    "operationId": "11459",
-    "resource": "10486",
-    "start": "15",
-    "end": "20"
+    "articleId": "10620",
+    "operation": "11576: Glue side walls and base plate together",
+    "operationId": "11576",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "5",
+    "end": "10"
   },
   {
     "article": "Side wall long",
-    "articleId": "10501",
-    "operation": "Glue side walls and base plate together",
-    "operationId": "11459",
-    "resource": "10486",
+    "articleId": "10618",
+    "operation": "11576: Glue side walls and base plate together",
+    "operationId": "11576",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "5",
+    "end": "10"
+  },
+  {
+    "article": "Glue",
+    "articleId": "10629",
+    "operation": "11581: Mount hatchback",
+    "operationId": "11581",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "15",
+    "end": "20"
+  },
+  {
+    "article": "Pegs",
+    "articleId": "10630",
+    "operation": "11581: Mount hatchback",
+    "operationId": "11581",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "15",
+    "end": "20"
+  },
+  {
+    "article": "Skeleton",
+    "articleId": "10611",
+    "operation": "11727: Race-Truck: Wedding",
+    "operationId": "11727",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "1294",
+    "end": "1309"
+  },
+  {
+    "article": "Pole",
+    "articleId": "10631",
+    "operation": "11731: Glue Race Wing",
+    "operationId": "11731",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "1319",
+    "end": "1324"
+  },
+  {
+    "article": "Race Wing",
+    "articleId": "10615",
+    "operation": "11731: Glue Race Wing",
+    "operationId": "11731",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "1319",
+    "end": "1324"
+  },
+  {
+    "article": "Glue",
+    "articleId": "10629",
+    "operation": "11771: Glue Semitrailer",
+    "operationId": "11771",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "15",
+    "end": "20"
+  },
+  {
+    "article": "Base plate",
+    "articleId": "10624",
+    "operation": "11763: mount poles with wheels to Skeleton",
+    "operationId": "11763",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "0",
+    "end": "10"
+  },
+  {
+    "article": "Washer",
+    "articleId": "10626",
+    "operation": "11767: Screw wheels onto poles",
+    "operationId": "11767",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "10",
+    "end": "20"
+  },
+  {
+    "article": "Wheel",
+    "articleId": "10623",
+    "operation": "11767: Screw wheels onto poles",
+    "operationId": "11767",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "10",
+    "end": "20"
+  },
+  {
+    "article": "Pole",
+    "articleId": "10631",
+    "operation": "11763: mount poles with wheels to Skeleton",
+    "operationId": "11763",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "0",
+    "end": "10"
+  },
+  {
+    "article": "Chassis Type: Race",
+    "articleId": "10614",
+    "operation": "11727: Race-Truck: Wedding",
+    "operationId": "11727",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "1294",
+    "end": "1309"
+  },
+  {
+    "article": "Pegs",
+    "articleId": "10630",
+    "operation": "11731: Glue Race Wing",
+    "operationId": "11731",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "1319",
+    "end": "1324"
+  },
+  {
+    "article": "Button",
+    "articleId": "10632",
+    "operation": "11731: Glue Race Wing",
+    "operationId": "11731",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "1319",
+    "end": "1324"
+  },
+  {
+    "article": "Glue",
+    "articleId": "10629",
+    "operation": "11727: Race-Truck: Wedding",
+    "operationId": "11727",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "1294",
+    "end": "1309"
+  },
+  {
+    "article": "Engine-Block",
+    "articleId": "10617",
+    "operation": "11846: Mount Engine Extension",
+    "operationId": "11846",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "10",
+    "end": "15"
+  },
+  {
+    "article": "Glue",
+    "articleId": "10629",
+    "operation": "11850: Race-Truck: Mount Engine to Cabin",
+    "operationId": "11850",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "15",
+    "end": "20"
+  },
+  {
+    "article": "Engine Race Extension",
+    "articleId": "10622",
+    "operation": "11846: Mount Engine Extension",
+    "operationId": "11846",
+    "resource": "10602: AssemblyUnit 2",
+    "start": "10",
+    "end": "15"
+  },
+  {
+    "article": "Button",
+    "articleId": "10632",
+    "operation": "11841: Race-Truck: Assemble Lamps",
+    "operationId": "11841",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "0",
+    "end": "5"
+  },
+  {
+    "article": "Glue",
+    "articleId": "10629",
+    "operation": "11731: Glue Race Wing",
+    "operationId": "11731",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "1319",
+    "end": "1324"
+  },
+  {
+    "article": "Cabin",
+    "articleId": "10616",
+    "operation": "11841: Race-Truck: Assemble Lamps",
+    "operationId": "11841",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "0",
+    "end": "5"
+  },
+  {
+    "article": "Pegs",
+    "articleId": "10630",
+    "operation": "11841: Race-Truck: Assemble Lamps",
+    "operationId": "11841",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "0",
+    "end": "5"
+  },
+  {
+    "article": "Semitrailer",
+    "articleId": "10625",
+    "operation": "11771: Glue Semitrailer",
+    "operationId": "11771",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "15",
+    "end": "20"
+  },
+  {
+    "article": "Skeleton",
+    "articleId": "10611",
+    "operation": "11949: Race-Truck: Wedding",
+    "operationId": "11949",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "1571",
+    "end": "1586"
+  },
+  {
+    "article": "Pole",
+    "articleId": "10631",
+    "operation": "11953: Glue Race Wing",
+    "operationId": "11953",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "1596",
+    "end": "1601"
+  },
+  {
+    "article": "Pegs",
+    "articleId": "10630",
+    "operation": "11953: Glue Race Wing",
+    "operationId": "11953",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "1596",
+    "end": "1601"
+  },
+  {
+    "article": "Glue",
+    "articleId": "10629",
+    "operation": "11953: Glue Race Wing",
+    "operationId": "11953",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "1596",
+    "end": "1601"
+  },
+  {
+    "article": "Semitrailer",
+    "articleId": "10625",
+    "operation": "11989: Glue Semitrailer",
+    "operationId": "11989",
+    "resource": "10606: AssemblyUnit 6",
     "start": "15",
     "end": "20"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Mount hatchback",
-    "operationId": "11464",
-    "resource": "10489",
-    "start": "45",
-    "end": "50"
-  },
-  {
-    "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Mount hatchback",
-    "operationId": "11464",
-    "resource": "10489",
-    "start": "45",
-    "end": "50"
-  },
-  {
-    "article": "Skeleton",
-    "articleId": "10494",
-    "operation": "Race-Truck: Wedding",
-    "operationId": "11610",
-    "resource": "10486",
-    "start": "65",
-    "end": "80"
-  },
-  {
-    "article": "Pole",
-    "articleId": "10514",
-    "operation": "Glue Race Wing",
-    "operationId": "11614",
-    "resource": "10485",
-    "start": "80",
-    "end": "85"
-  },
-  {
-    "article": "Race Wing",
-    "articleId": "10498",
-    "operation": "Glue Race Wing",
-    "operationId": "11614",
-    "resource": "10485",
-    "start": "80",
-    "end": "85"
-  },
-  {
-    "article": "Glue",
-    "articleId": "10512",
-    "operation": "Glue Semitrailer",
-    "operationId": "11654",
-    "resource": "10484",
-    "start": "65",
-    "end": "70"
-  },
-  {
-    "article": "Base plate",
-    "articleId": "10507",
-    "operation": "mount poles with wheels to Skeleton",
-    "operationId": "11646",
-    "resource": "10487",
-    "start": "20",
-    "end": "30"
+    "articleId": "10629",
+    "operation": "11989: Glue Semitrailer",
+    "operationId": "11989",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "15",
+    "end": "20"
   },
   {
     "article": "Washer",
-    "articleId": "10509",
-    "operation": "Screw wheels onto poles",
-    "operationId": "11650",
-    "resource": "10484",
-    "start": "50",
-    "end": "60"
-  },
-  {
-    "article": "Wheel",
-    "articleId": "10506",
-    "operation": "Screw wheels onto poles",
-    "operationId": "11650",
-    "resource": "10484",
-    "start": "50",
-    "end": "60"
+    "articleId": "10626",
+    "operation": "11985: Screw wheels onto poles",
+    "operationId": "11985",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "10",
+    "end": "20"
   },
   {
     "article": "Pole",
-    "articleId": "10514",
-    "operation": "mount poles with wheels to Skeleton",
-    "operationId": "11646",
-    "resource": "10487",
-    "start": "20",
-    "end": "30"
-  },
-  {
-    "article": "Chassis Type: Race",
-    "articleId": "10497",
-    "operation": "Race-Truck: Wedding",
-    "operationId": "11610",
-    "resource": "10486",
-    "start": "65",
-    "end": "80"
-  },
-  {
-    "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Glue Race Wing",
-    "operationId": "11614",
-    "resource": "10485",
-    "start": "80",
-    "end": "85"
-  },
-  {
-    "article": "Button",
-    "articleId": "10515",
-    "operation": "Glue Race Wing",
-    "operationId": "11614",
-    "resource": "10485",
-    "start": "80",
-    "end": "85"
-  },
-  {
-    "article": "Glue",
-    "articleId": "10512",
-    "operation": "Race-Truck: Wedding",
-    "operationId": "11610",
-    "resource": "10486",
-    "start": "65",
-    "end": "80"
-  },
-  {
-    "article": "Engine-Block",
-    "articleId": "10500",
-    "operation": "Mount Engine Extension",
-    "operationId": "11729",
-    "resource": "10488",
-    "start": "60",
-    "end": "65"
-  },
-  {
-    "article": "Glue",
-    "articleId": "10512",
-    "operation": "Race-Truck: Mount Engine to Cabin",
-    "operationId": "11733",
-    "resource": "10485",
-    "start": "65",
-    "end": "70"
-  },
-  {
-    "article": "Engine Race Extension",
-    "articleId": "10505",
-    "operation": "Mount Engine Extension",
-    "operationId": "11729",
-    "resource": "10488",
-    "start": "60",
-    "end": "65"
-  },
-  {
-    "article": "Button",
-    "articleId": "10515",
-    "operation": "Race-Truck: Assemble Lamps",
-    "operationId": "11724",
-    "resource": "10488",
-    "start": "30",
-    "end": "35"
-  },
-  {
-    "article": "Glue",
-    "articleId": "10512",
-    "operation": "Glue Race Wing",
-    "operationId": "11614",
-    "resource": "10485",
-    "start": "80",
-    "end": "85"
-  },
-  {
-    "article": "Cabin",
-    "articleId": "10499",
-    "operation": "Race-Truck: Assemble Lamps",
-    "operationId": "11724",
-    "resource": "10488",
-    "start": "30",
-    "end": "35"
-  },
-  {
-    "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Race-Truck: Assemble Lamps",
-    "operationId": "11724",
-    "resource": "10488",
-    "start": "30",
-    "end": "35"
-  },
-  {
-    "article": "Semitrailer",
-    "articleId": "10508",
-    "operation": "Glue Semitrailer",
-    "operationId": "11654",
-    "resource": "10484",
-    "start": "65",
-    "end": "70"
-  },
-  {
-    "article": "Skeleton",
-    "articleId": "10494",
-    "operation": "Race-Truck: Wedding",
-    "operationId": "11832",
-    "resource": "10487",
-    "start": "80",
-    "end": "95"
-  },
-  {
-    "article": "Pole",
-    "articleId": "10514",
-    "operation": "Glue Race Wing",
-    "operationId": "11836",
-    "resource": "10488",
-    "start": "95",
-    "end": "100"
-  },
-  {
-    "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Glue Race Wing",
-    "operationId": "11836",
-    "resource": "10488",
-    "start": "95",
-    "end": "100"
-  },
-  {
-    "article": "Glue",
-    "articleId": "10512",
-    "operation": "Glue Race Wing",
-    "operationId": "11836",
-    "resource": "10488",
-    "start": "95",
-    "end": "100"
-  },
-  {
-    "article": "Semitrailer",
-    "articleId": "10508",
-    "operation": "Glue Semitrailer",
-    "operationId": "11872",
-    "resource": "10488",
-    "start": "70",
-    "end": "75"
-  },
-  {
-    "article": "Glue",
-    "articleId": "10512",
-    "operation": "Glue Semitrailer",
-    "operationId": "11872",
-    "resource": "10488",
-    "start": "70",
-    "end": "75"
-  },
-  {
-    "article": "Washer",
-    "articleId": "10509",
-    "operation": "Screw wheels onto poles",
-    "operationId": "11868",
-    "resource": "10489",
-    "start": "55",
-    "end": "65"
-  },
-  {
-    "article": "Pole",
-    "articleId": "10514",
-    "operation": "mount poles with wheels to Skeleton",
-    "operationId": "11864",
-    "resource": "10489",
-    "start": "35",
-    "end": "45"
+    "articleId": "10631",
+    "operation": "11981: mount poles with wheels to Skeleton",
+    "operationId": "11981",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "0",
+    "end": "10"
   },
   {
     "article": "Base plate",
-    "articleId": "10507",
-    "operation": "mount poles with wheels to Skeleton",
-    "operationId": "11864",
-    "resource": "10489",
-    "start": "35",
-    "end": "45"
+    "articleId": "10624",
+    "operation": "11981: mount poles with wheels to Skeleton",
+    "operationId": "11981",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "0",
+    "end": "10"
   },
   {
     "article": "Button",
-    "articleId": "10515",
-    "operation": "Glue Race Wing",
-    "operationId": "11836",
-    "resource": "10488",
-    "start": "95",
-    "end": "100"
+    "articleId": "10632",
+    "operation": "11953: Glue Race Wing",
+    "operationId": "11953",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "1596",
+    "end": "1601"
   },
   {
     "article": "Wheel",
-    "articleId": "10506",
-    "operation": "Screw wheels onto poles",
-    "operationId": "11868",
-    "resource": "10489",
-    "start": "55",
-    "end": "65"
+    "articleId": "10623",
+    "operation": "11985: Screw wheels onto poles",
+    "operationId": "11985",
+    "resource": "10603: AssemblyUnit 3",
+    "start": "10",
+    "end": "20"
   },
   {
     "article": "Chassis Type: Race",
-    "articleId": "10497",
-    "operation": "Race-Truck: Wedding",
-    "operationId": "11832",
-    "resource": "10487",
-    "start": "80",
-    "end": "95"
+    "articleId": "10614",
+    "operation": "11949: Race-Truck: Wedding",
+    "operationId": "11949",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "1571",
+    "end": "1586"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Race-Truck: Wedding",
-    "operationId": "11832",
-    "resource": "10487",
-    "start": "80",
-    "end": "95"
+    "articleId": "10629",
+    "operation": "11949: Race-Truck: Wedding",
+    "operationId": "11949",
+    "resource": "10606: AssemblyUnit 6",
+    "start": "1571",
+    "end": "1586"
   },
   {
     "article": "Race Wing",
-    "articleId": "10498",
-    "operation": "Glue Race Wing",
-    "operationId": "11836",
-    "resource": "10488",
-    "start": "95",
-    "end": "100"
+    "articleId": "10615",
+    "operation": "11953: Glue Race Wing",
+    "operationId": "11953",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "1596",
+    "end": "1601"
   },
   {
     "article": "Glue",
-    "articleId": "10512",
-    "operation": "Race-Truck: Mount Engine to Cabin",
-    "operationId": "11967",
-    "resource": "10489",
-    "start": "75",
-    "end": "80"
+    "articleId": "10629",
+    "operation": "12084: Race-Truck: Mount Engine to Cabin",
+    "operationId": "12084",
+    "resource": "10601: AssemblyUnit 1",
+    "start": "20",
+    "end": "25"
   },
   {
     "article": "Button",
-    "articleId": "10515",
-    "operation": "Race-Truck: Assemble Lamps",
-    "operationId": "11958",
-    "resource": "10484",
-    "start": "45",
-    "end": "50"
+    "articleId": "10632",
+    "operation": "12075: Race-Truck: Assemble Lamps",
+    "operationId": "12075",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "0",
+    "end": "5"
   },
   {
     "article": "Engine-Block",
-    "articleId": "10500",
-    "operation": "Mount Engine Extension",
-    "operationId": "11963",
-    "resource": "10484",
-    "start": "60",
-    "end": "65"
+    "articleId": "10617",
+    "operation": "12080: Mount Engine Extension",
+    "operationId": "12080",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "10",
+    "end": "15"
   },
   {
     "article": "Cabin",
-    "articleId": "10499",
-    "operation": "Race-Truck: Assemble Lamps",
-    "operationId": "11958",
-    "resource": "10484",
-    "start": "45",
-    "end": "50"
+    "articleId": "10616",
+    "operation": "12075: Race-Truck: Assemble Lamps",
+    "operationId": "12075",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "0",
+    "end": "5"
   },
   {
     "article": "Pegs",
-    "articleId": "10513",
-    "operation": "Race-Truck: Assemble Lamps",
-    "operationId": "11958",
-    "resource": "10484",
-    "start": "45",
-    "end": "50"
+    "articleId": "10630",
+    "operation": "12075: Race-Truck: Assemble Lamps",
+    "operationId": "12075",
+    "resource": "10605: AssemblyUnit 5",
+    "start": "0",
+    "end": "5"
   },
   {
     "article": "Engine Race Extension",
-    "articleId": "10505",
-    "operation": "Mount Engine Extension",
-    "operationId": "11963",
-    "resource": "10484",
-    "start": "60",
-    "end": "65"
+    "articleId": "10622",
+    "operation": "12080: Mount Engine Extension",
+    "operationId": "12080",
+    "resource": "10604: AssemblyUnit 4",
+    "start": "10",
+    "end": "15"
   }
 ]

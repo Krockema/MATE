@@ -1,8 +1,11 @@
+    using System.Collections.Generic;
     using System.IO;
-using System.Text;
+    using System.Linq;
+    using System.Text;
 using Master40.DB.Data.Context;
 using Xunit;
-using Zpp.Test.Configurations;
+    using Zpp.ProviderDomain;
+    using Zpp.Test.Configurations;
 using Zpp.Utils;
 
 namespace Zpp.Test
@@ -44,10 +47,16 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            IDirectedGraph<INode> orderDirectedGraph = new ProductionOrderOperationDirectedGraph(dbTransactionData);
+            Dictionary<ProductionOrder, IDirectedGraph<INode>> productionOrderOperationGraphs = new Dictionary<ProductionOrder, IDirectedGraph<INode>>();
+            foreach (var productionOrder in dbTransactionData.ProductionOrderGetAll())
+            {
+                IDirectedGraph<INode> orderDirectedGraph = new ProductionOrderOperationDirectedGraph(dbTransactionData, (ProductionOrder)productionOrder);  
+                productionOrderOperationGraphs.Add((ProductionOrder)productionOrder, orderDirectedGraph);
+            }
+            
 
             // with ids
-            string actualOrderGraphWithIds = orderDirectedGraph.ToString();
+            string actualOrderGraphWithIds = DirectedGraph.MergeDirectedGraphs(productionOrderOperationGraphs.Values.ToList(), dbTransactionData).ToString();
             if (File.Exists(orderGraphFileName) == false)
             {
                 File.WriteAllText(orderGraphFileNameWithIds, actualOrderGraphWithIds,

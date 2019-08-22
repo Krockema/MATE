@@ -44,7 +44,7 @@ namespace Zpp.Test
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            IDirectedGraph<INode> orderDirectedGraph = new ProductionOrderDirectedGraph(dbTransactionData);
+            IDirectedGraph<INode> orderDirectedGraph = new ProductionOrderDirectedGraph(dbTransactionData, true);
 
             // with ids
             string actualOrderGraphWithIds = orderDirectedGraph.ToString();

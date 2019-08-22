@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -97,60 +98,28 @@ namespace Zpp.MachineDomain
             // Quelle: Sonnleithner_Studienarbeit_20080407 S. 8
         }
 
-        private static IStackSet<ProductionOrderOperation> CreateS(
-            IDirectedGraph<INode> productionOrderGraph,
-            ProductionOrderOperationDirectedGraph productionOrderOperationGraph)
-        {
-            IStackSet<ProductionOrderOperation> S = new StackSet<ProductionOrderOperation>();
-            if (productionOrderGraph.GetLeafNodes() == null)
-            {
-                return S;
-            }
-
-            INodes leafs = productionOrderOperationGraph.GetLeafNodes();
-            foreach (var leaf in leafs)
-            {
-                if (leaf.GetType() == typeof(ProductionOrder))
-                {
-                    productionOrderGraph.RemoveNode(leaf);
-                    productionOrderOperationGraph.RemoveNode(leaf);
-                }
-                else if (leaf.GetType() == typeof(ProductionOrderOperation))
-                {
-                    ProductionOrderOperation productionOrderOperation =
-                        (ProductionOrderOperation) leaf.GetEntity();
-                    S.Push(productionOrderOperation);
-                }
-            }
-
-            /*foreach (var productionOrder in productionOrderGraph.GetLeafNodesAs<ProductionOrder>())
-            {
-                var productionOrderOperationLeafsOfProductionOrder = productionOrderOperationGraph
-                    .GetProductionOrderOperationGraphOfProductionOrder(
-                        productionOrder)
-                    .GetLeafNodesAs<ProductionOrderOperation>();
-                if (productionOrderOperationLeafsOfProductionOrder == null)
-                {
-                    productionOrderGraph.RemoveNode(productionOrder);
-                    continue;
-                }
-
-                S.PushAll(productionOrderOperationLeafsOfProductionOrder);
-            }*/
-
-            return S;
-        }
-
         // TODO: apply this after MrpRun
         public static void JobSchedulingWithGifflerThompsonAsZaepfel(
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             IPriorityRule priorityRule)
         {
             IDirectedGraph<INode> productionOrderGraph =
-                new ProductionOrderDirectedGraph(dbTransactionData);
+                new ProductionOrderDirectedGraph(dbTransactionData, false);
 
-            ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
-                new ProductionOrderOperationDirectedGraph(dbTransactionData);
+            Dictionary<ProductionOrder, IDirectedGraph<INode>> productionOrderOperationGraphs =
+                new Dictionary<ProductionOrder, IDirectedGraph<INode>>();
+            foreach (var productionOrder in dbTransactionData.ProductionOrderGetAll())
+            {
+                if (((ProductionOrder)productionOrder).HasOperations(dbTransactionData) == false)
+                {
+                    continue;
+                }
+                IDirectedGraph<INode> productionOrderOperationGraph =
+                    new ProductionOrderOperationDirectedGraph(dbTransactionData,
+                        (ProductionOrder) productionOrder);
+                productionOrderOperationGraphs.Add((ProductionOrder) productionOrder,
+                    productionOrderOperationGraph);
+            }
 
             Dictionary<Id, List<Machine>> machinesByMachineGroupId =
                 new Dictionary<Id, List<Machine>>();
@@ -177,18 +146,19 @@ namespace Zpp.MachineDomain
             IStackSet<ProductionOrderOperation> K = new StackSet<ProductionOrderOperation>();
 
             // Bestimme initiale Menge: S = a
-            S = CreateS(productionOrderGraph, productionOrderOperationGraph);
+            S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
             // t(o) = 0 für alle o aus S (default is always 0 for int)
 
             // while S not empty do
-            while (S.Any())
+            while (S != null && S.Any())
             {
                 int d_min = Int32.MaxValue;
                 ProductionOrderOperation o_min = null;
                 foreach (var o in S.GetAll())
                 {
                     // Berechne d(o) = t(o) + p(o) für alle o aus S
-                    o.GetValue().End = o.GetValue().Start + o.GetValue().Duration;
+                    o.GetValue().End = o.GetDueTime(dbTransactionData).GetValue();
+                    o.GetValue().Start = o.GetValue().End - o.GetValue().Duration;
                     // Bestimme d_min = min{ d(o) | o aus S }
                     if (o.GetValue().End < d_min)
                     {
@@ -208,7 +178,7 @@ namespace Zpp.MachineDomain
                 }
 
                 // while K not empty do
-                while (K.Any())
+                if (K.Any())
                 {
                     // Entnehme Operation mit höchster Prio (o1) aus K und plane auf nächster freier Machine ein
                     ProductionOrderOperation o1 = null;
@@ -221,24 +191,17 @@ namespace Zpp.MachineDomain
                     {
                         throw new MrpRunException("This is not possible if K.Any() is true.");
                     }
+
                     K.Remove(o1);
 
                     o1.SetMachine(machine);
-                    // every productionOrderBom whith this operation o1 has the same forward/backward-schedule
-                    ProductionOrderBom productionOrderBom = dbTransactionData.GetAggregator()
-                        .GetAnyProductionOrderBomByProductionOrderOperation(o1);
-                    if (machine.GetIdleStartTime()
-                        .IsGreaterThan(productionOrderBom.GetStartTime(dbTransactionData)))
+                    // correct op start time if machine's idleTime is later
+                    if (machine.GetIdleStartTime().GetValue() > o1.GetValue().Start)
                     {
                         o1.GetValue().Start = machine.GetIdleStartTime().GetValue();
-                    }
-                    else
-                    {
-                        o1.GetValue().Start = productionOrderBom.GetStartTime(dbTransactionData)
-                            .GetValue();
+                        o1.GetValue().End = o1.GetValue().Start + o1.GetValue().Duration;
                     }
 
-                    o1.GetValue().End = o1.GetValue().Start + o1.GetValue().Duration;
                     machine.SetIdleStartTime(new DueTime(o1.GetValue().End));
 
                     // t(o) = d(o1) für alle o aus K ohne o1
@@ -250,18 +213,23 @@ namespace Zpp.MachineDomain
                     /*if N(o1) not empty then
                         S = S vereinigt N(o1) ohne o1
                      */
-                    INodes predecessorNodes = productionOrderOperationGraph.GetPredecessorNodes(o1);
+                    /*INodes predecessorNodes = productionOrderOperationGraph.GetPredecessorNodes(o1);
                     IStackSet<INode> N = null;
                     if (predecessorNodes != null)
                     {
                         N = new StackSet<INode>(predecessorNodes);
-                    }
+                    }*/
 
-                    productionOrderOperationGraph.RemoveNode(o1);
-                    S = CreateS(productionOrderGraph, productionOrderOperationGraph);
+                    ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
+                    productionOrderOperationGraphs[productionOrder].RemoveNode(o1);
+                    ((ProductionOrderOperationDirectedGraph) productionOrderOperationGraphs[
+                            productionOrder])
+                        .RemoveProductionOrdersWithNoProductionOrderOperationsFromProductionOrderGraph(
+                            productionOrderGraph, productionOrder);
+                    S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
 
                     // t(o) = d(o1) für alle o aus N(o1)
-                    if (N != null)
+                    /*if (N != null)
                     {
                         foreach (var node in N.GetAll())
                         {
@@ -272,9 +240,41 @@ namespace Zpp.MachineDomain
                                 productionOrderOperation.GetValue().Start = o1.GetValue().End;
                             }
                         }
-                    }
+                    }*/
                 }
             }
+        }
+
+        private static IStackSet<ProductionOrderOperation> CreateS(
+            IDirectedGraph<INode> productionOrderGraph,
+            Dictionary<ProductionOrder, IDirectedGraph<INode>> productionOrderOperationGraphs)
+        {
+            IStackSet<ProductionOrderOperation> S = new StackSet<ProductionOrderOperation>();
+            if (productionOrderGraph.GetLeafNodes() == null)
+            {
+                return null;
+            }
+
+            INodes leafs = new Nodes();
+
+            foreach (var productionOrder in productionOrderGraph.GetLeafNodes())
+            {
+                var productionOrderOperationLeafsOfProductionOrder =
+                    productionOrderOperationGraphs[(ProductionOrder) productionOrder.GetEntity()]
+                        .GetLeafNodes();
+
+                try
+                {
+                    S.PushAll(productionOrderOperationLeafsOfProductionOrder.Select(x =>
+                        (ProductionOrderOperation) x.GetEntity()));
+                }
+                catch (System.ArgumentNullException e)
+                {
+                    
+                }
+            }
+
+            return S;
         }
 
         private static Paths<ProductionOrderOperation> TraverseDepthFirst(

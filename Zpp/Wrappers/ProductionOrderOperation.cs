@@ -164,11 +164,17 @@ namespace Zpp
             }
             else
             {
+                // every productionOrderBom whith this operation o1 has the same dueTime
                 dueTime = dbTransactionData.GetAggregator()
                     .GetAnyProductionOrderBomByProductionOrderOperation(this)
                     .GetDueTime(dbTransactionData);
             }
             return dueTime;
+        }
+
+        public ProductionOrder GetProductionOrder(IDbTransactionData dbTransactionData)
+        {
+            return dbTransactionData.ProductionOrderGetById(GetProductionOrderId());
         }
     }
 }

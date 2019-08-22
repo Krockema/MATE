@@ -419,9 +419,9 @@ namespace Zpp
             throw new NotImplementedException();
         }
 
-        public IDirectedGraph<INode> MergeDirectedGraphs(List<IDirectedGraph<INode>> directedGraphs)
+        public static IDirectedGraph<INode> MergeDirectedGraphs(List<IDirectedGraph<INode>> directedGraphs, IDbTransactionData dbTransactionData)
         {
-            IDirectedGraph<INode> mergedDirectedGraph = new DirectedGraph(_dbTransactionData);
+            IDirectedGraph<INode> mergedDirectedGraph = new DirectedGraph(dbTransactionData);
             foreach (var directedGraph in directedGraphs)
             {
                 foreach (var edge in directedGraph.GetAllEdges())
@@ -447,6 +447,11 @@ namespace Zpp
         public Dictionary<INode, List<IEdge>> GetAdjacencyList()
         {
             return _adjacencyList;
+        }
+
+        public void Clear()
+        {
+            _adjacencyList = new Dictionary<INode, List<IEdge>>();
         }
     }
 }

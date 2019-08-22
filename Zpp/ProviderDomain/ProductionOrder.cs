@@ -153,5 +153,16 @@ namespace Zpp.ProviderDomain
         {
             return dbTransactionData.GetAggregator().GetProductionOrderBomsOfProductionOrder(this);
         }
+
+        public bool HasOperations(IDbTransactionData dbTransactionData)
+        {
+            List<ProductionOrderOperation> productionOrderOperations = dbTransactionData
+                .GetAggregator().GetProductionOrderOperationsOfProductionOrder(this);
+            if (productionOrderOperations == null)
+            {
+                return false;
+            }
+            return productionOrderOperations.Any();
+        }
     }
 }
