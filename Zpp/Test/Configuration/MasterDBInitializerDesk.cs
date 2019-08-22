@@ -43,11 +43,6 @@ namespace Zpp.Test.Configurations
                     Capacity = 1, Name = "Verpacken 1", Count = 1,
                     MachineGroup = machineGroupVerpacken
                 },
-                new M_Machine
-                {
-                    Capacity = 1, Name = "Verpacken 2", Count = 1,
-                    MachineGroup = machineGroupVerpacken
-                },
                 // Schweißen
                 new M_Machine
                 {
@@ -89,6 +84,14 @@ namespace Zpp.Test.Configurations
                 new M_Article
                 {
                     Name = "Tisch",
+                    ArticleTypeId = articleTypes.Single(s => s.Name == "Assembly").Id,
+                    CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20,
+                    UnitId = units.Single(s => s.Name == "Pieces").Id, Price = 100.00,
+                    ToBuild = true, ToPurchase = false
+                },
+                new M_Article
+                {
+                    Name = "Tischprodukt",
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Assembly").Id,
                     CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, Price = 100.00,
@@ -151,6 +154,14 @@ namespace Zpp.Test.Configurations
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
                     ToPurchase = true, LotSize = 100
                 },
+                new M_Article
+                {
+                    Name = "Verpackung",
+                    ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
+                    CreationDate = DateTime.Parse("2019-08-26"), DeliveryPeriod = 1,
+                    UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
+                    ToPurchase = true, LotSize = 50
+                },
 
             };
             productionDomainContext.Articles.AddRange(articles);
@@ -180,6 +191,15 @@ namespace Zpp.Test.Configurations
             // Tool has no meaning yet, ignore it
             int machineTool = machineTools.Single(a => a.Name == "Schweißgerät").Id;
 
+            // operations
+            // desk
+            M_Operation operationTischVerpacken = new M_Operation
+            {
+                ArticleId = articles.Single(a => a.Name == "Tisch").Id,
+                Name = "Tisch verpacken", Duration = 10,
+                MachineGroupId = machineGroupVerpacken.Id, HierarchyNumber = 10,
+                MachineToolId = machineTool
+            };
                 // Tischbeine 
                 M_Operation operationTischbeinAnschraubplatte = new M_Operation
                 {
@@ -198,13 +218,31 @@ namespace Zpp.Test.Configurations
  
             productionDomainContext.Operations.Add(operationTischbeinAnschraubplatte);
             productionDomainContext.Operations.Add(operationTischbeinFilzgleiter);
+            productionDomainContext.Operations.Add(operationTischVerpacken);
             productionDomainContext.SaveChanges();
 
             var articleBom = new List<M_ArticleBom>
             {
                 // Tisch
                 new M_ArticleBom
-                    {ArticleChildId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch"},
+                    {ArticleChildId = articles.Single(a => a.Name == "Tischprodukt").Id, 
+                        Name = "Tischprodukt",
+                    },
+                new M_ArticleBom
+                {
+                    ArticleChildId = articles.Single(a => a.Name == "Tisch").Id,
+                    Name = "Tisch",
+                    Quantity = 1, 
+                    ArticleParentId = articles.Single(a => a.Name == "Tischprodukt").Id,
+                },
+                new M_ArticleBom
+                {
+                    ArticleChildId = articles.Single(a => a.Name == "Verpackung").Id,
+                    Name = "Verpackung",
+                    Quantity = 1, 
+                    ArticleParentId = articles.Single(a => a.Name == "Tischprodukt").Id,
+                    OperationId = operationTischVerpacken.Id
+                },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Tischplatte").Id,
@@ -311,6 +349,13 @@ namespace Zpp.Test.Configurations
                     BusinessPartnerId = businessPartnerPrintShop.Id,
                     ArticleId = articles.Single(x => x.Name == "Montageanleitung").Id, PackSize = 100,
                     Price = 0.05,
+                    DueTime = 1000
+                },
+                new M_ArticleToBusinessPartner
+                {
+                    BusinessPartnerId = businessPartnerPrintShop.Id,
+                    ArticleId = articles.Single(x => x.Name == "Verpackung").Id, PackSize = 10,
+                    Price = 0.50,
                     DueTime = 1000
                 },
 
