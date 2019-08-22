@@ -272,7 +272,7 @@ namespace Master40.Agents.Agents.Internal
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.ReceiveData.ToString(),
                     allChildData, this.Parent);
                 // Delete data
-                allChildData = null;
+                allChildData = new List<Dictionary<string, object>>();
             }
         }
 
@@ -300,19 +300,22 @@ namespace Master40.Agents.Agents.Internal
                 BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
                 PropertyInfo propInfo = obj.GetType().GetProperty(prop.GetPropertyName(), bindingFlags);
                 object nodeObject = propInfo.GetValue(obj);
+                propPath = propPath + "." + prop.GetPropertyName();
                 // TODO: for now only process first element of list
-                if(nodeObject is IList && ((IList)nodeObject).Count > 0)
+                if (nodeObject is IList && ((IList)nodeObject).Count > 0)
                 {
                     nodeObject = ((IList)nodeObject)[0];
                 }
                 List<AgentPropertyNode> propNodes = propNode.GetPropertyNodes();
                 foreach(AgentPropertyNode node in propNodes)
                 {
-                    InjectDataRecursion(node, nodeObject, propPath + "." + prop.GetPropertyName(), data);
+                    InjectDataRecursion(node, nodeObject, propPath, data);
                 }
 
                 List<AgentProperty> idProps = propNode.GetDirectProperties(PropertyType.Id);
                 List<AgentProperty> retransformProps = propNode.GetDirectProperties(PropertyType.Retransform);
+                if (idProps.Count == 0 || retransformProps.Count == 0)
+                    return;
 
                 // Collect Id values
                 List<AgentPropertyBase> idPropsBase = new List<AgentPropertyBase>();
@@ -321,21 +324,21 @@ namespace Master40.Agents.Agents.Internal
                     idPropsBase.Add((AgentPropertyBase)idProp);
                 }
                 Dictionary<string, object> idValues = new Dictionary<string, object>();
-                DataCollectionHelper.CollectPropsRecursion((List<AgentPropertyBase>)idPropsBase, nodeObject, ref idValues, propPath);
+                DataCollectionHelper.CollectPropsRecursion(idPropsBase, nodeObject, ref idValues, propPath + ".");
 
                 // Iterate over data, find dict with matching idProps, inject Data
                 Dictionary<string, object> matchingData = new Dictionary<string, object>();
                 foreach(Dictionary<string, object> dataSet in data)
                 {
-                    bool found = false;
+                    bool found = true;
                     foreach(KeyValuePair<string, object> pair in idValues)
                     {
                         object dataValue;
-                        if (dataSet.TryGetValue(propPath + "." + pair.Key, out dataValue) && !(dataValue == pair.Value))
+                        if (dataSet.TryGetValue(pair.Key, out dataValue) || (dataValue == pair.Value))
                         {
-                            break;
+                            continue;
                         }
-                        found = true;
+                        found = false;
                     }
                     if(found)
                     {
@@ -346,17 +349,13 @@ namespace Master40.Agents.Agents.Internal
 
                 foreach (AgentProperty retransformProp in retransformProps)
                 {
-                    string[] propPathArray = propPath.Split(".");
+                    string currentPropPath = propPath + "." + retransformProp.GetPropertyName();
+                    string[] propPathArray = currentPropPath.Split(".").Skip(1).ToArray();
                     object newValue;
-                    try
+                    if(matchingData.TryGetValue(currentPropPath, out newValue))
                     {
-                        newValue = matchingData[propPath];
+                        SetNestedPropertyValue(this, propPathArray, newValue);
                     }
-                    catch
-                    {
-                        continue;
-                    }
-                    SetNestedPropertyValue(this, propPathArray, newValue);
                 }
             }
             else
@@ -379,6 +378,11 @@ namespace Master40.Agents.Agents.Internal
             {
                 // get property
                 object childValue = propInfo.GetValue(obj);
+                // TODO: for now only process first element of list
+                if (childValue is IList && ((IList)childValue).Count > 0)
+                {
+                    childValue = ((IList)childValue)[0];
+                }
                 SetNestedPropertyValue(childValue, propPath.Skip(1).ToArray(), value);
             }
         }

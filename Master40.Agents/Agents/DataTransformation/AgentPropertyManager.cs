@@ -29,7 +29,7 @@ namespace Master40.Agents.Agents.DataTransformation
                         //new AgentPropertyNode("WorkSchedule", new List<AgentPropertyBase>
                         //{
                         //    new AgentProperty("Id", PropertyType.Id)
-                        //})
+                        //}),
                         new AgentProperty("Id", PropertyType.Id),
                     }),
                 }

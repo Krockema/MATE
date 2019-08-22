@@ -346,7 +346,7 @@ namespace Master40.DB.Data.Initializer
                 new Mapping { From = "ProductionAgent.none", To = "ProductionorderOperationActivity.SplitId", ConversionFunc = "SetIntVal", ConversionArgs = "0", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.WorkItems.EstimatedStart", To = "ProductionorderOperationActivity.DateStart", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.WorkItems.EstimatedEnd", To = "ProductionorderOperationActivity.DateEnd", ConversionFunc = "RelativeTimeIntToDateString", IsAgentData = true},
-                new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "Productionorder.RoutingId", ConversionFunc = "IntToString", IsAgentData = true},
+                //new Mapping { From = "ProductionAgent.WorkItems.WorkSchedule.Id", To = "Productionorder.RoutingId", ConversionFunc = "IntToString", IsAgentData = true},
                 new Mapping { From = "ProductionAgent.WorkItems.Id", To = "Productionorder.RoutingId", ConversionFunc = "GuidToString", IsAgentData = true},
             };
             context.AddRange(productionAgentMapping);

@@ -22,6 +22,7 @@ namespace Master40.Agents.Agents
         private int orderCount = 1;
         private SimulationConfiguration _simConfig;
         private List<Dictionary<string, object>> allAgentsData = new List<Dictionary<string, object>>();
+        private int cycleCounter = 0;
 
         public SystemAgent(Agent creator, Agent parent, string name, bool debug, ProductionDomainContext productionDomainContext, GPSzenarioContext gpContext, IMessageHub messageHub, SimulationConfiguration simConfig) : base(creator, parent, name, debug)
         {
@@ -164,23 +165,33 @@ namespace Master40.Agents.Agents
 
             if (CheckAllChildrenResponded())
             {
-                DataCollectionHelper.WriteDataGrouped(allChildData, DateTime.Now.Second.ToString());
+                Debug.WriteLine("All children responded " + cycleCounter + " times");
 
-                //DataTransformationHelper dth = new DataTransformationHelper(_productionDomainContext, _gpContext);
-                //dth.TransformAgentDataToGp(allChildData);
-                //List<List<Dictionary<string, object>>> retransformedData = dth.TransformAgentDataToMaster();
+                if(cycleCounter < 2)
+                    DataCollectionHelper.WriteDataGrouped(allChildData, cycleCounter.ToString());
 
-                //// alter Data to see effect
-                //foreach (Dictionary<string, object> dict in retransformedData[1])
-                //{
-                //    dict["ProductionAgent.WorkItems.EstimatedStart"] = 1337;
-                //    dict["ProductionAgent.WorkItems.EstimatedEnd"] = 9999;
-                //}
+                if (cycleCounter == 0)
+                {
+                    List<Dictionary<string, object>> filteredData = DataCollectionHelper.FilterAgentData(allChildData, typeof(ProductionAgent));
 
-                //CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.InjectData.ToString(), retransformedData[1], this, 55);
-                //CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.ReturnData.ToString(), "ReturnData", this, 60);
+                    DataTransformationHelper dth = new DataTransformationHelper(_productionDomainContext, _gpContext);
+                    dth.TransformAgentDataToGp(filteredData);
+                    List<List<Dictionary<string, object>>> retransformedData = dth.TransformAgentDataToMaster();
 
-                allChildData = null;
+                    // alter Data to see effect
+                    foreach (Dictionary<string, object> dict in retransformedData[1])
+                    {
+                        dict["ProductionAgent.WorkItems.EstimatedStart"] = 1337;
+                        dict["ProductionAgent.WorkItems.EstimatedEnd"] = 9999;
+                    }
+
+                    CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.InjectData.ToString(), retransformedData[1], this);
+                    CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.ReturnData.ToString(), "ReturnData", this);
+                }
+
+                allChildData = new List<Dictionary<string, object>>();
+
+                cycleCounter++;
             }
         }
     }

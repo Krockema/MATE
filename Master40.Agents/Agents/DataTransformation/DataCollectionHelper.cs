@@ -102,5 +102,18 @@ namespace Master40.Agents.Agents
                 }
             }
         }
+
+        public static List<Dictionary<string, object>> FilterAgentData(List<Dictionary<string, object>> data, Type filter)
+        {
+            List<Dictionary<string, object>> filteredData = new List<Dictionary<string, object>>();
+            foreach (Dictionary<string, object> dict in data)
+            {
+                if ((Type)dict["AgentType"] == filter)
+                {
+                    filteredData.Add(dict);
+                }
+            }
+            return filteredData;
+        }
     }
 }
