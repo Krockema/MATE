@@ -12,12 +12,6 @@ namespace Master40.DB.DataModel
     public class M_ResourceSkill : BaseEntity
     {
         public string Name { get; set; }
-        public string ImageUrl { get; set; }
-        public int Stage { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<M_Operation> WorkSchedules { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<T_ProductionOrderOperation> ProductionOrderWorkSchedules { get; set; }
         /* 
          * Resources, who can provide the required ResourceSkill
          */
