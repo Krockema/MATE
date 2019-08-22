@@ -110,10 +110,7 @@ namespace Zpp.MachineDomain
                 new Dictionary<ProductionOrder, IDirectedGraph<INode>>();
             foreach (var productionOrder in dbTransactionData.ProductionOrderGetAll())
             {
-                if (((ProductionOrder)productionOrder).HasOperations(dbTransactionData) == false)
-                {
-                    continue;
-                }
+
                 IDirectedGraph<INode> productionOrderOperationGraph =
                     new ProductionOrderOperationDirectedGraph(dbTransactionData,
                         (ProductionOrder) productionOrder);
@@ -157,8 +154,8 @@ namespace Zpp.MachineDomain
                 foreach (var o in S.GetAll())
                 {
                     // Berechne d(o) = t(o) + p(o) für alle o aus S
-                    o.GetValue().End = o.GetDueTime(dbTransactionData).GetValue();
-                    o.GetValue().Start = o.GetValue().End - o.GetValue().Duration;
+                    o.GetValue().End = o.GetValue().EndBackward.GetValueOrDefault();
+                    o.GetValue().Start = o.GetValue().StartBackward.GetValueOrDefault();
                     // Bestimme d_min = min{ d(o) | o aus S }
                     if (o.GetValue().End < d_min)
                     {
@@ -263,15 +260,8 @@ namespace Zpp.MachineDomain
                     productionOrderOperationGraphs[(ProductionOrder) productionOrder.GetEntity()]
                         .GetLeafNodes();
 
-                try
-                {
-                    S.PushAll(productionOrderOperationLeafsOfProductionOrder.Select(x =>
-                        (ProductionOrderOperation) x.GetEntity()));
-                }
-                catch (System.ArgumentNullException e)
-                {
-                    
-                }
+                S.PushAll(productionOrderOperationLeafsOfProductionOrder.Select(x =>
+                    (ProductionOrderOperation) x.GetEntity()));
             }
 
             return S;

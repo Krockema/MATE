@@ -4,6 +4,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
+using Swashbuckle.AspNetCore.Swagger;
 using Xunit;
 using Zpp.Test.Configurations;
 using Zpp.Utils;
@@ -25,25 +26,21 @@ namespace Zpp.Test
         }
         
 
-        [Fact(Skip = "not implemented yet")]
-        public void TestBackwardScheduling()
+        [Theory]
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        public void TestBackwardScheduling(string testConfigurationFileName)
         {
+            InitThisTest(testConfigurationFileName);
+            
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
-            List<M_ArticleBom> rootArticles = dbMasterDataCache.M_ArticleBomGetRootArticles();
 
-            foreach (var rootArticle in rootArticles)
+            foreach (var productionOrderOperation in dbTransactionData.ProductionOrderOperationGetAll())
             {
-                // TODO: traverse the demandToProviders, not the articleTree
-                // --> therefore fill the new T_ProviderToDemand table
-                ArticleTree articleTree = new ArticleTree(rootArticle, dbTransactionData);
-
-                // traverse tree and execute an action
-                TreeTools<M_Article>.traverseDepthFirst(articleTree, article =>
-                {
-                    // TODO: check now the backward scheduling
-                });
+                Assert.True(productionOrderOperation.GetValue().EndBackward != null, $"EndBackward of operation ({productionOrderOperation} is not scheduled.)");
+                Assert.True(productionOrderOperation.GetValue().StartBackward != null, $"StartBackward of operation ({productionOrderOperation} is not scheduled.)");
             }
         }
 
@@ -106,7 +103,7 @@ namespace Zpp.Test
             {
                 T_ProductionOrderOperation tProductionOrderOperation =
                     productionOrderOperation.GetValue();
-                Assert.True(tProductionOrderOperation.End != 0, $"{productionOrderOperation} was not scheduled.");
+                Assert.True(tProductionOrderOperation.Start != tProductionOrderOperation.End, $"{productionOrderOperation} was not scheduled.");
                 Assert.True(tProductionOrderOperation.MachineId != null, $"{productionOrderOperation} was not scheduled.");
             }
         }

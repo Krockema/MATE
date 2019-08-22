@@ -6,6 +6,7 @@ using Master40.DB.Enums;
 using Zpp.DemandDomain;
 using Zpp.MachineDomain;
 using Zpp.ProviderDomain;
+using Zpp.SchedulingDomain;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
@@ -59,6 +60,54 @@ namespace Zpp
             // StartForward, EndForward,
 
             return productionOrderOperation;
+        }
+        
+         public OperationBackwardsSchedule ScheduleBackwards(
+            OperationBackwardsSchedule lastOperationBackwardsSchedule)
+        {
+            DueTime TIME_BETWEEN_OPERATIONS =
+                new DueTime(_productionOrderOperation.Duration * 3);
+            int? startBackwards;
+            int? endBackwards;
+            
+            // case: equal hierarchyNumber --> PrOO runs in parallel
+            if (lastOperationBackwardsSchedule.GetHierarchyNumber() == null ||
+                (lastOperationBackwardsSchedule.GetHierarchyNumber() != null &&
+                 _productionOrderOperation.HierarchyNumber.Equals(
+                     lastOperationBackwardsSchedule.GetHierarchyNumber().GetValue())))
+            {
+                endBackwards = lastOperationBackwardsSchedule.GetEndBackwards().GetValue();
+                startBackwards = lastOperationBackwardsSchedule.GetEndBackwards().GetValue() -
+                                 _productionOrderOperation.Duration;
+            }
+            // case: greaterHierarchyNumber --> PrOO runs after the last PrOO
+            else
+            {
+                if (lastOperationBackwardsSchedule.GetHierarchyNumber().GetValue() <
+                    _productionOrderOperation.HierarchyNumber)
+                {
+                    throw new MrpRunException(
+                        "This is not allowed: hierarchyNumber of lastBackwardsSchedule " +
+                        "is smaller than hierarchyNumber of current PrOO.");
+                }
+
+                endBackwards = lastOperationBackwardsSchedule.GetStartBackwards().GetValue();
+                startBackwards = lastOperationBackwardsSchedule.GetStartBackwards().GetValue() -
+                                 _productionOrderOperation.Duration;
+            }
+
+            // create return value
+            OperationBackwardsSchedule newOperationBackwardsSchedule =
+                new OperationBackwardsSchedule(new DueTime(startBackwards.GetValueOrDefault()),
+                    new DueTime(endBackwards.GetValueOrDefault() -
+                                TIME_BETWEEN_OPERATIONS.GetValue()),
+                    new HierarchyNumber(
+                        _productionOrderOperation.HierarchyNumber));
+
+            _productionOrderOperation.EndBackward = endBackwards;
+            _productionOrderOperation.StartBackward = startBackwards;
+            
+            return newOperationBackwardsSchedule;
         }
 
         public T_ProductionOrderOperation GetValue()

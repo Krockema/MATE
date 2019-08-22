@@ -91,14 +91,6 @@ namespace Zpp.Test.Configurations
                 },
                 new M_Article
                 {
-                    Name = "Tischprodukt",
-                    ArticleTypeId = articleTypes.Single(s => s.Name == "Assembly").Id,
-                    CreationDate = DateTime.Parse("2016-09-01"), DeliveryPeriod = 20,
-                    UnitId = units.Single(s => s.Name == "Pieces").Id, Price = 100.00,
-                    ToBuild = true, ToPurchase = false
-                },
-                new M_Article
-                {
                     Name = "Tischplatte",
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     DeliveryPeriod = 10, UnitId = units.Single(s => s.Name == "Pieces").Id,
@@ -225,22 +217,13 @@ namespace Zpp.Test.Configurations
             {
                 // Tisch
                 new M_ArticleBom
-                    {ArticleChildId = articles.Single(a => a.Name == "Tischprodukt").Id, 
-                        Name = "Tischprodukt",
-                    },
-                new M_ArticleBom
-                {
-                    ArticleChildId = articles.Single(a => a.Name == "Tisch").Id,
-                    Name = "Tisch",
-                    Quantity = 1, 
-                    ArticleParentId = articles.Single(a => a.Name == "Tischprodukt").Id,
-                },
+                    {ArticleChildId = articles.Single(a => a.Name == "Tisch").Id, Name = "Tisch"},
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Verpackung").Id,
                     Name = "Verpackung",
                     Quantity = 1, 
-                    ArticleParentId = articles.Single(a => a.Name == "Tischprodukt").Id,
+                    ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
                     OperationId = operationTischVerpacken.Id
                 },
                 new M_ArticleBom
@@ -248,24 +231,28 @@ namespace Zpp.Test.Configurations
                     ArticleChildId = articles.Single(a => a.Name == "Tischplatte").Id,
                     Name = "Tischplatte",
                     Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
+                    OperationId = operationTischVerpacken.Id
                 },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Tischbein").Id,
                     Name = "Tischbein", Quantity = 4,
                     ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
+                    OperationId = operationTischVerpacken.Id
                 },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Schrauben").Id,
                     Name = "Schrauben", Quantity = 16,
-                    ArticleParentId = articles.Single(a => a.Name == "Tisch").Id
+                    ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
+                    OperationId = operationTischVerpacken.Id
                 },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == "Montageanleitung").Id,
                     Name = "Montageanleitung",
                     Quantity = 1, ArticleParentId = articles.Single(a => a.Name == "Tisch").Id,
+                    OperationId = operationTischVerpacken.Id
                 },
 
                 // Tischbein

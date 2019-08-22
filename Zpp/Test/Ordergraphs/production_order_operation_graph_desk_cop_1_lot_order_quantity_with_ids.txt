@@ -1,4 +1,3 @@
-﻿"22027;P(PrO);1.00;\nTischprodukt;72" -> "22031;Tisch verpacken";
-"22046;P(PrO);1.00;\nTisch;72" -> "22046;P(PrO);1.00;\nTisch;72";
-"22076;P(PrO);4.00;\nTischbein;72" -> "22083;Flizgleiter anstecken";
-"22083;Flizgleiter anstecken" -> "22079;Anschraubplatte anschweißen";
+﻿"10183;P(PrO);1.00;\nTisch;39" -> "10186;Tisch verpacken";
+"10221;P(PrO);4.00;\nTischbein;0" -> "10228;Flizgleiter anstecken";
+"10228;Flizgleiter anstecken" -> "10224;Anschraubplatte anschweißen";

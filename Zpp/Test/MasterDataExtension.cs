@@ -27,7 +27,7 @@ namespace Zpp.Test
 
                 var orderPart = new T_CustomerOrderPart
                 {
-                    ArticleId = productionDomainContext.Articles.Single(x => x.Name == "Tischprodukt").Id,
+                    ArticleId = productionDomainContext.Articles.Single(x => x.Name == "Tisch").Id,
                     Quantity = 1,
                     CustomerOrderId = order.Id
                 };

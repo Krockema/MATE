@@ -41,9 +41,6 @@ namespace Zpp.ProviderDomain
             if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
             {
                 List<Demand> newDemands = new List<Demand>();
-                // for backward scheduling
-                List<ProductionOrderBom> productionOrderBomsWithOperations =
-                    new List<ProductionOrderBom>();
                 Dictionary<M_Operation, ProductionOrderOperation>
                     alreadyCreatedProductionOrderOperations =
                         new Dictionary<M_Operation, ProductionOrderOperation>();
@@ -51,21 +48,25 @@ namespace Zpp.ProviderDomain
                 foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
                 {
                     ProductionOrderOperation productionOrderOperation = null;
-                    if (articleBom.OperationId != null)
+                    if (articleBom.OperationId == null)
                     {
-                        if (articleBom.Operation == null)
-                        {
-                            articleBom.Operation =
-                                dbMasterDataCache.M_OperationGetById(
-                                    new Id(articleBom.OperationId.GetValueOrDefault()));
-                        }
+                        throw new MrpRunException(
+                            "Every PrOBom must have an operation. Add an operation to the articleBom.");
+                    }
 
-                        if (alreadyCreatedProductionOrderOperations.ContainsKey(
-                            articleBom.Operation))
-                        {
-                            productionOrderOperation =
-                                alreadyCreatedProductionOrderOperations[articleBom.Operation];
-                        }
+                    // load articleBom.Operation
+                    if (articleBom.Operation == null)
+                    {
+                        articleBom.Operation =
+                            dbMasterDataCache.M_OperationGetById(
+                                new Id(articleBom.OperationId.GetValueOrDefault()));
+                    }
+
+                    // don't create an productionOrderOperation twice
+                    if (alreadyCreatedProductionOrderOperations.ContainsKey(articleBom.Operation))
+                    {
+                        productionOrderOperation =
+                            alreadyCreatedProductionOrderOperations[articleBom.Operation];
                     }
 
                     ProductionOrderBom newProductionOrderBom =
@@ -73,17 +74,17 @@ namespace Zpp.ProviderDomain
                             parentProductionOrder, dbMasterDataCache, quantity,
                             productionOrderOperation);
 
-
-                    if (newProductionOrderBom.HasOperation())
+                    if (alreadyCreatedProductionOrderOperations.ContainsKey(articleBom.Operation) ==
+                        false)
                     {
-                        if (alreadyCreatedProductionOrderOperations.ContainsKey(
-                                articleBom.Operation) == false)
-                        {
-                            alreadyCreatedProductionOrderOperations.Add(articleBom.Operation,
-                                newProductionOrderBom.GetProductionOrderOperation(dbTransactionData));
-                            // for backwards scheduling
-                            productionOrderBomsWithOperations.Add(newProductionOrderBom);
-                        }
+                        alreadyCreatedProductionOrderOperations.Add(articleBom.Operation,
+                            newProductionOrderBom.GetProductionOrderOperation(dbTransactionData));
+                    }
+
+                    if (newProductionOrderBom.HasOperation() == false)
+                    {
+                        throw new MrpRunException(
+                            "Every PrOBom must have an operation. Add an operation to the articleBom.");
                     }
 
 
@@ -95,15 +96,16 @@ namespace Zpp.ProviderDomain
                     new OperationBackwardsSchedule(
                         parentProductionOrder.GetDueTime(dbTransactionData), null, null);
 
-                IEnumerable<ProductionOrderBom> sortedProductionOrderBoms =
-                    productionOrderBomsWithOperations.OrderByDescending(x =>
-                        ((T_ProductionOrderBom) x.GetIDemand()).ProductionOrderOperation
-                        .HierarchyNumber);
+                IEnumerable<ProductionOrderOperation> sortedProductionOrderOperations = newDemands
+                    .Select(x =>
+                        ((ProductionOrderBom) x).GetProductionOrderOperation(dbTransactionData))
+                    .OrderByDescending(x => x.GetValue().HierarchyNumber);
 
-                foreach (var productionOrderBom in sortedProductionOrderBoms)
+                foreach (var productionOrderOperation in sortedProductionOrderOperations)
                 {
                     lastOperationBackwardsSchedule =
-                        productionOrderBom.ScheduleBackwards(lastOperationBackwardsSchedule);
+                         productionOrderOperation.ScheduleBackwards(
+                            lastOperationBackwardsSchedule);
                 }
 
 
@@ -162,6 +164,7 @@ namespace Zpp.ProviderDomain
             {
                 return false;
             }
+
             return productionOrderOperations.Any();
         }
     }

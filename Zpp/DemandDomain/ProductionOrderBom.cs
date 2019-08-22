@@ -96,16 +96,29 @@ namespace Zpp.DemandDomain
 
 
             DueTime dueTime;
-            if (_productionOrderBom.ProductionOrderOperation != null &&
+            /*if (_productionOrderBom.ProductionOrderOperation != null &&
                 _productionOrderBom.ProductionOrderOperation.EndBackward != null)
-            {
-                // backwards scheduling was already done --> job-shop-scheduling was done --> return End
-                dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.End);
-                return dueTime;
-            }
-            // backwards scheduling was not yet done --> return dueTime of ProductionOrderParent
+            // backwards scheduling was already done --> job-shop-scheduling was done --> return End
+            {*/
+                
 
-            if (_productionOrderBom.ProductionOrderParent == null)
+                if (GetArticle().ToBuild)
+                {
+                    dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.End);
+                    return dueTime;
+                }
+                else
+                {
+                    dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.Start);
+                    return dueTime;
+                }
+                
+            // }
+            
+
+            /*
+             // backwards scheduling was not yet done --> return dueTime of ProductionOrderParent
+             if (_productionOrderBom.ProductionOrderParent == null)
             {
                 Id productionOrderId = new Id(_productionOrderBom.ProductionOrderParentId);
                 _productionOrderBom.ProductionOrderParent = (T_ProductionOrder) dbTransactionData
@@ -113,7 +126,7 @@ namespace Zpp.DemandDomain
             }
 
             dueTime = new DueTime(_productionOrderBom.ProductionOrderParent.DueTime);
-            return dueTime;
+            return dueTime;*/
         }
 
         public override string GetGraphizString(IDbTransactionData dbTransactionData)
@@ -147,53 +160,6 @@ namespace Zpp.DemandDomain
         public bool HasOperation()
         {
             return _productionOrderBom.ProductionOrderOperationId != null;
-        }
-
-        public OperationBackwardsSchedule ScheduleBackwards(
-            OperationBackwardsSchedule lastOperationBackwardsSchedule)
-        {
-            DueTime TIME_BETWEEN_OPERATIONS =
-                new DueTime(_productionOrderBom.ProductionOrderOperation.Duration * 3);
-            int? startBackwards;
-            int? endBackwards;
-            // case: equal hierarchyNumber --> PrOO runs in parallel
-            if (lastOperationBackwardsSchedule.GetHierarchyNumber() == null ||
-                (lastOperationBackwardsSchedule.GetHierarchyNumber() != null &&
-                 _productionOrderBom.ProductionOrderOperation.HierarchyNumber.Equals(
-                     lastOperationBackwardsSchedule.GetHierarchyNumber().GetValue())))
-            {
-                endBackwards = lastOperationBackwardsSchedule.GetEndBackwards().GetValue();
-                startBackwards = lastOperationBackwardsSchedule.GetEndBackwards().GetValue() -
-                                 _productionOrderBom.ProductionOrderOperation.Duration;
-            }
-            // case: greaterHierarchyNumber --> PrOO runs after the last PrOO
-            else
-            {
-                if (lastOperationBackwardsSchedule.GetHierarchyNumber().GetValue() <
-                    _productionOrderBom.ProductionOrderOperation.HierarchyNumber)
-                {
-                    throw new MrpRunException(
-                        "This is not allowed: hierarchyNumber of lastBackwardsSchedule " +
-                        "is smaller than hierarchyNumber of current PrOO.");
-                }
-
-                endBackwards = lastOperationBackwardsSchedule.GetStartBackwards().GetValue();
-                startBackwards = lastOperationBackwardsSchedule.GetStartBackwards().GetValue() -
-                                 _productionOrderBom.ProductionOrderOperation.Duration;
-            }
-
-            _productionOrderBom.ProductionOrderOperation.EndBackward = endBackwards;
-            _productionOrderBom.ProductionOrderOperation.StartBackward = startBackwards;
-
-            // create return value
-            OperationBackwardsSchedule newOperationBackwardsSchedule =
-                new OperationBackwardsSchedule(new DueTime(startBackwards.GetValueOrDefault()),
-                    new DueTime(endBackwards.GetValueOrDefault() -
-                                TIME_BETWEEN_OPERATIONS.GetValue()),
-                    new HierarchyNumber(
-                        _productionOrderBom.ProductionOrderOperation.HierarchyNumber));
-
-            return newOperationBackwardsSchedule;
         }
 
         public ProductionOrderOperation GetProductionOrderOperation(
