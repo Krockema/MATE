@@ -135,13 +135,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 {
                     throw new Exception("Something wen wrong with Queueing!");
                 }
+                //TODO Withdraw at ProcessingQueue or DoWork?
+                Agent.DebugMessage($"Start withdraw for article {job.Name} {job.Key}");
                 Agent.Send(BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
             }
 
             Agent.DebugMessage("Jobs ready to start: " + _processingQueue.Count);
             
-
         }
+
         private void UpdateArticleProvided(Guid operationKey)
         {
             
@@ -156,7 +158,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         /*
         /// <summary>
-        /// Starts the next WorkItem
+        /// Starts the next Job
         /// </summary>
         internal void DoWork()
         {
@@ -167,7 +169,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
 
             var nextOperationToWork = _processingQueue.DequeueFirstSatisfied(Agent.CurrentTime);
-
 
             // Wait if nothing More todo.
             if (item == null)

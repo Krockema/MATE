@@ -147,11 +147,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         public void WithdrawRequiredArticles(Guid operationKey)
         {
             var operation = _operationList.Single(predicate: x => x.Key == operationKey);
+
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
                                                     .Create(message: operation.Key
                                                            , target: operation.ProductionAgent));
-            // TODO Necessary? 
-            //_operationList.Replace(val: operation);  ??
         }
 
         public void FinishJob(FOperationResult operationResult)

@@ -44,13 +44,13 @@ namespace Master40.SimulationCore.Agents.StorageAgent
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
 
             }
-            public class WithdrawlMaterial : SimulationMessage
+            public class WithdrawArticle : SimulationMessage
             {
-                public static WithdrawlMaterial Create(Guid message, IActorRef target)
+                public static WithdrawArticle Create(Guid message, IActorRef target)
                 {
-                    return new WithdrawlMaterial(message: message, target: target);
+                    return new WithdrawArticle(message: message, target: target);
                 }
-                private WithdrawlMaterial(object message, IActorRef target) : base(message: message, target: target)
+                private WithdrawArticle(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }

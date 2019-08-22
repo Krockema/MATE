@@ -83,7 +83,6 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 ProvideRequest(new FArticleProvider(articleKey: _fArticle.Key
                                                   ,articleName: _fArticle.Article.Name
                                                      ,provider: new List<Guid>(new[] { reservation.TrackingId })));
-                Agent.TryToFinish();
                 return;
             }
 
@@ -149,7 +148,8 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         internal void WithdrawArticleFromStock()
         {
-            Agent.Send(instruction: Storage.Instruction.WithdrawlMaterial
+            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} from Stock exchange {_fArticle.StockExchangeId}");
+            Agent.Send(instruction: Storage.Instruction.WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));
             Agent.TryToFinish();

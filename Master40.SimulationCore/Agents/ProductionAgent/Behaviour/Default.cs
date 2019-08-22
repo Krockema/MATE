@@ -118,18 +118,21 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// <param name="operationKey"></param>
         private void WithdrawRequiredArticles(Guid operationKey)
         {
-            var operation = OperationManager.GetOperationByKey(operationKey);
+            var operation = OperationManager.GetOperationByKey(operationKey: operationKey);
 
             Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name}");
 
-           /* foreach (var dispo in _articleProvider.GetProviderForOperation(operation.Operation.Id))
+            var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey); 
+            
+
+            foreach (var dispo in dispoAgents)
             {
                 Agent.Send(Dispo.Instruction
                                 .WithdrawArticleFromStock
                                 .Create(message: "Production Start"
                                     , target: dispo));
             }
-            */
+            
         }
 
         internal void Finished(Agent agent, FOperationResult operationResult)
@@ -156,7 +159,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             
             if(articleDictionary.AllProvided())
             {
-                
                 Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
                 articleDictionary.Operation.StartConditions.ArticlesProvided = true;

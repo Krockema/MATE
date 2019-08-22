@@ -49,10 +49,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 case Storage.Instruction.StockRefill msg: RefillFromPurchase(exchangeId: msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction(productionResult: msg.GetObjectFromMessage); break;
                 case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue(articleKey: msg.GetObjectFromMessage); break;
-                case Storage.Instruction.WithdrawlMaterial msg:
-                    var stock = _stockElement;
-                    Withdraw(exchangeId: msg.GetObjectFromMessage, stockElement: stock);
-                    break;
+                case Storage.Instruction.WithdrawArticle msg: WithdrawArticle(exchangeId: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -77,7 +74,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         public void RefillFromPurchase(Guid exchangeId)
         {
             // TODO: Return exchangeId of Stock Exchange
-            var stockExchange = _stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrakingGuid == exchangeId);
+            var stockExchange = _stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrackingGuid == exchangeId);
 
             // stock Income 
             Agent.DebugMessage(msg: " income " + _stockElement.Article.Name + " quantity " + stockExchange.Quantity + " added to Stock");
@@ -95,7 +92,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             // Try server all not served Items. // TODO: Is it Correct to select Items by DueTime and not its Priority ? Make it Changeable ?  
             foreach (var request in _requestedArticles.OrderBy(keySelector: x => x.DueTime).ToList()) 
             {
-                var notServed = _stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrakingGuid == request.StockExchangeId);
+                var notServed = _stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrackingGuid == request.StockExchangeId);
                 if (notServed == null) throw new Exception(message: "No StockExchange found");
 
                 notServed.State = State.Finished;
@@ -104,7 +101,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                         .Create(message: new FArticleProvider(articleKey: request.Key
                                                                                             ,articleName: request.Article.Name
-                                                                                              , provider: new List<Guid>(new [] { stockExchange.TrakingGuid }))
+                                                                                              , provider: new List<Guid>(new [] { stockExchange.TrackingGuid }))
                                                                , target: request.DispoRequester
                                                               , logThis: false));
                 _requestedArticles.Remove(item: request);
@@ -151,16 +148,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
              ProvideArticle(articleKey: articleKey);
         }
 
-        private void Withdraw(Guid exchangeId, M_Stock stockElement)
-        {
-            var item = stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrakingGuid == exchangeId);
-            if (item == null) throw new Exception(message: "No StockExchange found");
-            LogValueChange(article: stockElement.Article, value: Convert.ToDouble(value: stockElement.Current) * Convert.ToDouble(value: stockElement.Article.Price));
-
-            item.State = State.Finished;
-            item.Time = (int)Agent.CurrentTime;
-        }
-
         private void ProvideArticle(Guid articleKey)
         {
             var article = _requestedArticles.GetByKey(articleKey);
@@ -171,7 +158,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 if (article.IsHeadDemand)
                 {
-                    Withdraw(exchangeId: article.StockExchangeId, stockElement: _stockElement);
+                    WithdrawArticle(exchangeId: article.StockExchangeId);
                 }
                 else
                 {
@@ -241,7 +228,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 var timeToDelivery = CreatePurchase(stockElement: _stockElement);
                 time = Agent.CurrentTime + timeToDelivery;
                 purchaseOpen = true;
-                Agent.DebugMessage(msg: " Created purchase for " + _stockElement.Article.Name);
+                Agent.DebugMessage(msg: $"Created purchase for {_stockElement.Article.Name}");
             }
 
             // Create Reservation Item
@@ -257,7 +244,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             _stockElement.StockExchanges.Add(
                 item: new T_StockExchange
                 {
-                    TrakingGuid = request.StockExchangeId,
+                    TrackingGuid = request.StockExchangeId,
                     StockId = _stockElement.Id,
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
@@ -283,15 +270,27 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 Time = (int)(Agent.CurrentTime),
                 Quantity = stockElement.Article.Stock.Max - stockElement.Article.Stock.Min,
                 RequiredOnTime = (int)(Agent.CurrentTime) + time,
-                TrakingGuid = Guid.NewGuid()
+                TrackingGuid = Guid.NewGuid()
             };
 
             stockElement.StockExchanges.Add(item: stockExchange);
             // TODO Needs logic if more Kreditors are Added.
             // TODO start CreatePurchase later if materials are needed later
-            Agent.Send(instruction: Storage.Instruction.StockRefill.Create(message: stockExchange.TrakingGuid, target: Agent.Context.Self), waitFor: time);
+            Agent.Send(instruction: Storage.Instruction.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time);
 
             return time;
+        }
+        private void WithdrawArticle(Guid exchangeId)
+        {
+            var stockExchange = _stockElement.StockExchanges.FirstOrDefault(predicate: x => x.TrackingGuid == exchangeId);
+            if (stockExchange == null) throw new Exception(message: "No StockExchange was found");
+            LogValueChange(article: _stockElement.Article, value: Convert.ToDouble(value: _stockElement.Current) * Convert.ToDouble(value: _stockElement.Article.Price));
+
+            stockExchange.State = State.Finished;
+            stockExchange.Time = (int)Agent.CurrentTime;
+
+            Agent.DebugMessage(msg: $"Withdraw stock exchange {stockExchange.TrackingGuid} for article {stockExchange.Quantity} {_stockElement.Article.Name}");
+
         }
 
         internal void LogValueChange(M_Article article, double value)
