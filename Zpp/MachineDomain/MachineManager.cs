@@ -97,8 +97,7 @@ namespace Zpp.MachineDomain
 
             // Quelle: Sonnleithner_Studienarbeit_20080407 S. 8
         }
-
-        // TODO: apply this after MrpRun
+        
         public static void JobSchedulingWithGifflerThompsonAsZaepfel(
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             IPriorityRule priorityRule)
@@ -140,7 +139,6 @@ namespace Zpp.MachineDomain
             o1: beliebige Operation aus K (o_dach bei Zäpfel)
             */
             IStackSet<ProductionOrderOperation> S = new StackSet<ProductionOrderOperation>();
-            IStackSet<ProductionOrderOperation> K = new StackSet<ProductionOrderOperation>();
 
             // Bestimme initiale Menge: S = a
             S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
@@ -154,8 +152,7 @@ namespace Zpp.MachineDomain
                 foreach (var o in S.GetAll())
                 {
                     // Berechne d(o) = t(o) + p(o) für alle o aus S
-                    o.GetValue().End = o.GetValue().EndBackward.GetValueOrDefault();
-                    o.GetValue().Start = o.GetValue().StartBackward.GetValueOrDefault();
+                    o.GetValue().End = o.GetValue().Start + o.GetValue().Duration;
                     // Bestimme d_min = min{ d(o) | o aus S }
                     if (o.GetValue().End < d_min)
                     {
@@ -165,6 +162,7 @@ namespace Zpp.MachineDomain
                 }
 
                 // Bilde Konfliktmenge K = { o | o aus S UND M(o) == M(o_min) UND t(o) < d_min }
+                IStackSet<ProductionOrderOperation> K = new StackSet<ProductionOrderOperation>();
                 foreach (var o in S.GetAll())
                 {
                     if (o.GetValue().MachineGroupId.Equals(o_min.GetValue().MachineGroupId) &&
@@ -198,7 +196,6 @@ namespace Zpp.MachineDomain
                         o1.GetValue().Start = machine.GetIdleStartTime().GetValue();
                         o1.GetValue().End = o1.GetValue().Start + o1.GetValue().Duration;
                     }
-
                     machine.SetIdleStartTime(new DueTime(o1.GetValue().End));
 
                     // t(o) = d(o1) für alle o aus K ohne o1
@@ -210,34 +207,61 @@ namespace Zpp.MachineDomain
                     /*if N(o1) not empty then
                         S = S vereinigt N(o1) ohne o1
                      */
-                    /*INodes predecessorNodes = productionOrderOperationGraph.GetPredecessorNodes(o1);
+                    ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
+                    ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
+                        (ProductionOrderOperationDirectedGraph)productionOrderOperationGraphs[productionOrder];
+                    
+                    INodes predecessorNodes = new Nodes();
+                        productionOrderOperationGraph.GetPredecessorNodes(predecessorNodes, o1, true);
                     IStackSet<INode> N = null;
-                    if (predecessorNodes != null)
+                    if (predecessorNodes.Any())
                     {
                         N = new StackSet<INode>(predecessorNodes);
-                    }*/
-
-                    ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
-                    productionOrderOperationGraphs[productionOrder].RemoveNode(o1);
-                    ((ProductionOrderOperationDirectedGraph) productionOrderOperationGraphs[
-                            productionOrder])
+                    }
+                    // t(o) = d(o1) für alle o aus N(o1)
+                    if (N != null)
+                    {
+                        AdaptPredecessorNodes(N, o1, productionOrderGraph, productionOrderOperationGraphs);
+                    }
+                    
+                    // prepare for next round
+                    productionOrderOperationGraph.RemoveNode(o1);
+                    productionOrderOperationGraph
                         .RemoveProductionOrdersWithNoProductionOrderOperationsFromProductionOrderGraph(
                             productionOrderGraph, productionOrder);
                     S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
+                }
+            }
+        }
 
-                    // t(o) = d(o1) für alle o aus N(o1)
-                    /*if (N != null)
+        private static void AdaptPredecessorNodes(IEnumerable<INode> N, ProductionOrderOperation o1, IDirectedGraph<INode> productionOrderGraph,
+            Dictionary<ProductionOrder, IDirectedGraph<INode>> productionOrderOperationGraphs)
+        {
+            foreach (var node in N)
+            {
+                if (node.GetEntity().GetType() == typeof(ProductionOrderOperation))
+                {
+                    ProductionOrderOperation productionOrderOperation =
+                        (ProductionOrderOperation) node.GetEntity();
+                    productionOrderOperation.GetValue().Start = o1.GetValue().End;
+                }
+                else
+                {
+                    INodes predecessorProductionOrders = new Nodes();
+                        productionOrderGraph.GetPredecessorNodes(predecessorProductionOrders, node, true);
+                    if (predecessorProductionOrders.Any() == false)
                     {
-                        foreach (var node in N.GetAll())
-                        {
-                            if (node.GetEntity().GetType() == typeof(ProductionOrderOperation))
-                            {
-                                ProductionOrderOperation productionOrderOperation =
-                                    (ProductionOrderOperation) node.GetEntity();
-                                productionOrderOperation.GetValue().Start = o1.GetValue().End;
-                            }
-                        }
-                    }*/
+                        continue;
+                    }
+                    foreach (var predecessorProductionOrder in predecessorProductionOrders)
+                    {
+                        ProductionOrder predecessorProductionOrderAsP = (ProductionOrder)predecessorProductionOrder.GetEntity();
+                        IEnumerable<INode> newN =
+                            productionOrderOperationGraphs[predecessorProductionOrderAsP]
+                                .GetAllUniqueNode();
+                        AdaptPredecessorNodes(newN, o1, productionOrderGraph, productionOrderOperationGraphs);    
+                    }
+                    
                 }
             }
         }

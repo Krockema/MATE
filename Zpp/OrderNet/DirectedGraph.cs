@@ -31,20 +31,39 @@ namespace Zpp
             return new Nodes(_adjacencyList[tailNode].Select(x => x.GetHeadNode()).ToList());
         }
 
-        public INodes GetPredecessorNodes(INode headNode)
+        public void GetPredecessorNodes(INodes predecessorNodes, INodes newNodes, bool firstRun)
         {
-            List<INode> predecessorNodes = new List<INode>();
-            if (GetAllEdgesTowardsHeadNode(headNode) == null)
+            INodes newNodes2 = new Nodes();
+            foreach (var headNode in newNodes)
             {
-                return null;
+                if (GetAllEdgesTowardsHeadNode(headNode) == null)
+                {
+                    continue;
+                }
+
+                foreach (var edge in GetAllEdgesTowardsHeadNode(headNode))
+                {
+                    newNodes2.Add(edge.GetTailNode());
+                }
             }
 
-            foreach (var edge in GetAllEdgesTowardsHeadNode(headNode))
+            if (firstRun == false)
             {
-                predecessorNodes.Add(edge.GetTailNode());
+                predecessorNodes.AddAll(newNodes);
             }
+            
+            if (newNodes2.Any() == false)
+            {
+                return;
+            }
+            GetPredecessorNodes(predecessorNodes, newNodes2, false);
+        }
 
-            return new Nodes(predecessorNodes);
+        public void GetPredecessorNodes(INodes predecessorNodes, INode newNode, bool firstRun)
+        {
+            INodes newNodes = new Nodes();
+            newNodes.Add(newNode);
+            GetPredecessorNodes(predecessorNodes, newNodes, firstRun);
         }
 
         public void AddEdges(INode fromNode, List<IEdge> edges)
@@ -285,21 +304,6 @@ namespace Zpp
             }
 
             return new Nodes(leafs);
-        }
-
-        public INodes GetStartNodes()
-        {
-            List<INode> starts = new List<INode>();
-            foreach (var uniqueNode in GetAllUniqueNode())
-            {
-                INodes predecessor = GetPredecessorNodes(uniqueNode);
-                if (predecessor == null)
-                {
-                    starts.Add(uniqueNode);
-                }
-            }
-
-            return new Nodes(starts);
         }
 
         public void ReplaceNodeByDirectedGraph(INode node)

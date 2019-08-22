@@ -19,7 +19,9 @@ namespace Zpp
          */
         INodes GetSuccessorNodes(TNode tailNode);
         
-        INodes GetPredecessorNodes(TNode headNode);
+        void GetPredecessorNodes(INodes predecessorNodes, INodes newNodes, bool firstRun);
+        
+        void GetPredecessorNodes(INodes predecessorNodes, INode newNode, bool firstRun);
 
         void AddEdges(TNode fromNode, List<IEdge> edges);
         
@@ -52,8 +54,6 @@ namespace Zpp
         void RemoveAllEdgesTowardsHeadNode(TNode headNode);
 
         INodes GetLeafNodes();
-
-        INodes GetStartNodes();
 
         void ReplaceNodeByDirectedGraph(TNode node);
 
