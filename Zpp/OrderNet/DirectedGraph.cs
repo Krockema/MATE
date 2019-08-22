@@ -218,7 +218,7 @@ namespace Zpp
             return new Nodes(uniqueNodes.GetAll());
         }
 
-        public GanttChart GetAsGanttChart(IDbTransactionData dbTransactionData)
+        public GanttChart GetAsGanttChart(IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache)
         {
             GanttChart ganttChart = new GanttChart();
 
@@ -258,10 +258,15 @@ namespace Zpp
                             continue;
                         }
 
-                        ganttChartBar.operation = productionOrderOperation.GetValue().Name;
+                        ganttChartBar.operation = productionOrderOperation.ToString();
                             ganttChartBar.operationId =
                                 productionOrderOperation.GetValue().Id.ToString();
-                            ganttChartBar.resource = productionOrderOperation.GetValue().MachineId.ToString();
+                            if (productionOrderOperation.GetValue().Machine == null)
+                            {
+                                productionOrderOperation.GetValue().Machine = dbMasterDataCache.M_MachineGetById(
+                                    new Id(productionOrderOperation.GetValue().MachineId.GetValueOrDefault())).GetValue();
+                            }
+                            ganttChartBar.resource = productionOrderOperation.GetValue().Machine.ToString();
                         
                     }
 

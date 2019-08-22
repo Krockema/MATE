@@ -32,7 +32,7 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
             IDirectedGraph<INode> orderDirectedGraph = new DemandToProviderDirectedGraph(dbTransactionData);
             
-            string actualGanttChart = orderDirectedGraph.GetAsGanttChart(dbTransactionData).ToString();
+            string actualGanttChart = orderDirectedGraph.GetAsGanttChart(dbTransactionData, dbMasterDataCache).ToString();
             // create initial file, if it doesn't exists (must be committed then)
             if (File.Exists(orderGraphAsGanttChartFile) == false)
             {

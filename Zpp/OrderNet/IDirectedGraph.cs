@@ -42,7 +42,7 @@ namespace Zpp
         
         INodes TraverseDepthFirst(Action<TNode, INodes, INodes> action, CustomerOrderPart startNode);
 
-        GanttChart GetAsGanttChart(IDbTransactionData dbTransactionData);
+        GanttChart GetAsGanttChart(IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache);
 
         /**
          * This removed the node, the edges towards it will point to its childs afterwards

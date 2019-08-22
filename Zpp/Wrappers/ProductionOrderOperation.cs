@@ -3,6 +3,7 @@ using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Zpp.DemandDomain;
 using Zpp.MachineDomain;
 using Zpp.ProviderDomain;
 using Zpp.Utils;
@@ -152,6 +153,22 @@ namespace Zpp
         public Priority GetPriority()
         {
             return _priority;
+        }
+
+        public DueTime GetDueTime(IDbTransactionData dbTransactionData)
+        {
+            DueTime dueTime;
+            if (_productionOrderOperation.EndBackward != null)
+            {
+                dueTime = new DueTime(_productionOrderOperation.EndBackward.GetValueOrDefault());
+            }
+            else
+            {
+                dueTime = dbTransactionData.GetAggregator()
+                    .GetAnyProductionOrderBomByProductionOrderOperation(this)
+                    .GetDueTime(dbTransactionData);
+            }
+            return dueTime;
         }
     }
 }

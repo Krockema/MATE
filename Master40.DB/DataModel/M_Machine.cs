@@ -15,5 +15,10 @@ namespace Master40.DB.DataModel
         public virtual ICollection<M_MachineTool> MachineTools { get; set; }
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderWorkSchedules { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Id}: {Name}";
+        }
     }
 }
