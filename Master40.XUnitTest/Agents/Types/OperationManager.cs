@@ -1,4 +1,6 @@
-﻿using Master40.DB.Data.Context;
+﻿using System.Collections.Generic;
+using Akka.Actor;
+using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ProductionAgent.Types;
@@ -46,19 +48,21 @@ namespace Master40.XUnitTest.Agents.Types
         {
             var operationManager = new OperationManager();
             var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var article = new M_Article() { Name = "Bear", ArticleBoms = new List<M_ArticleBom>() { new M_ArticleBom() { ArticleChild = new M_Article() { Name = "Wood"}}}};
+            var fArticle = TypeFactory.CreateDummyArticle(59, 0, article, 1);
             operationManager.AddOperation(job);
-            operationManager.CreateRequiredArticles(new M_Article { Name = "Bear" })
-            Assert.True(returnedJob != null);
+            var numberOfRequiredDispos = operationManager.CreateRequiredArticles(fArticle, ActorRefs.Nobody, 0);
+            Assert.True(numberOfRequiredDispos == 1);
         }
         [Fact]
         public void UpdateOperations() { }
         [Fact]
         public void ProvideArticle()
         {
-            OperationManager.
+            var operationManager = new OperationManager();
             var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
-            OperationManager.AddOperation(job);
-            var returnedJob = OperationManager.GetByOperationKey(job.Key);
+            operationManager.AddOperation(job);
+            var returnedJob = operationManager.GetByOperationKey(job.Key);
 
             Assert.True(returnedJob != null);
         }

@@ -42,9 +42,9 @@ namespace Master40.DB.Data.Initializer
 
             var resourceSkills = new M_ResourceSkill[]
             {
-                new M_ResourceSkill { Name = "CuttingSkill", Stage = 1, ImageUrl = "/images/Production/saw.svg" , ResourceSetups = new List<M_ResourceSetup>() },
-                new M_ResourceSkill { Name = "DrillSkill", Stage = 2, ImageUrl = "/images/Production/drill.svg" , ResourceSetups = new List<M_ResourceSetup>() },
-                new M_ResourceSkill { Name = "AssemblyUnitSkill", Stage = 3, ImageUrl = "/images/Production/assemblys.svg" , ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceSkill { Name = "CuttingSkill", ResourceSetups = new List<M_ResourceSetup>() },
+                new M_ResourceSkill { Name = "DrillSkill", ResourceSetups = new List<M_ResourceSetup>() },
+                new M_ResourceSkill { Name = "AssemblyUnitSkill", ResourceSetups = new List<M_ResourceSetup>()},
             };
 
             var resourceTools = new M_ResourceTool[]

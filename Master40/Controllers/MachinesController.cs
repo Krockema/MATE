@@ -31,7 +31,7 @@ namespace Master40.Controllers
                 ";
 
 
-            var machineGroups = _context.ResourceSkills.OrderBy(keySelector: x => x.Stage).ToList();
+            var machineGroups = _context.ResourceSkills.ToList();
             for (int g = 0; g < machineGroups.Count; g++)
             {
                 var start = (g == 0) ? "Start-->" : "\r\n";
@@ -47,7 +47,7 @@ namespace Master40.Controllers
                 foreach (var m in machine)
                 {
                     var name = m.Name.Replace(oldValue: " ", newValue: "_").ToString();
-                    mermaid += "\r\n" + thisGroup + "-->" + name + "(<img src='" + machineGroups[index: g].ImageUrl + "' width='40' height='40'>)";
+                    mermaid += "\r\n" + thisGroup + "-->" + name + "(<img src='" + machineGroups[index: g] + "' width='40' height='40'>)";
                     end += "\r\n" + name + "-->" + nextGroup;
                     i++;
                 }

@@ -81,7 +81,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             _articleProvider.Add(new DispoArticleDictionary(operation: fOperation));
         }
 
-        internal int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
+        public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
             List<ArticleProvider> listAP = new List<ArticleProvider>();
             var counter = articleToProduce.Article.ArticleBoms.Count;
@@ -98,15 +98,14 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
 
                 }
             }
+            System.Diagnostics.Debug.WriteLine($"ProductionAgent Bom elements require {counter} and created {listAP.Count} Dispos.");
 
-            System.Diagnostics.Debug.WriteLine($"ProductionAgent Bom elements {counter} and created {listAP.Count} DispoArticleRelations.");
+            
 
-
-
-            return counter;
+            return listAP.Count;
         }
 
-        internal DispoArticleDictionary GetArticleDispoProvider(Guid operationKey)
+        public DispoArticleDictionary GetArticleDispoProvider(Guid operationKey)
         {
             return _articleProvider.Single(x => x.Operation.Key == operationKey);
         }

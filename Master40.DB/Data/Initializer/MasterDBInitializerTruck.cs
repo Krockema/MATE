@@ -42,9 +42,9 @@ namespace Master40.DB.Data.Initializer
 
             var resourceSkills = new M_ResourceSkill[]
            {
-                new M_ResourceSkill { Name = "CuttingSkill", Stage = 1, ImageUrl = "/images/Production/saw.svg" , ResourceSetups = new List<M_ResourceSetup>() },
-                new M_ResourceSkill { Name = "DrillSkill", Stage = 2, ImageUrl = "/images/Production/drill.svg" , ResourceSetups = new List<M_ResourceSetup>() },
-                new M_ResourceSkill { Name = "AssemblyUnitSkill", Stage = 3, ImageUrl = "/images/Production/assemblys.svg" , ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceSkill { Name = "CuttingSkill", ResourceSetups = new List<M_ResourceSetup>() },
+                new M_ResourceSkill { Name = "DrillSkill", ResourceSetups = new List<M_ResourceSetup>() },
+                new M_ResourceSkill { Name = "AssemblyUnitSkill", ResourceSetups = new List<M_ResourceSetup>()},
            };
 
             var resourceTools = new M_ResourceTool[]
@@ -281,14 +281,14 @@ namespace Master40.DB.Data.Initializer
                 new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Pole").Id, Name = "Pole", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Truck-Bed").Id, OperationId = operations.Single(predicate: x => x.Name == "Mount hatchback").Id },
 
                 // Bom for some Assemblies
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Side wall long").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Side wall short").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Base plate Truck-Bed").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Base plate").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Race Wing").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Cabin").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Engine-Block").Id },
-                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Engine Race Extension").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Side wall long").Id, OperationId = operations.Single(predicate: x => x.Name == "Side wall long: Cut long side").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Side wall short").Id, OperationId = operations.Single(predicate: x => x.Name == "Side wall short: Cut short side").Id},
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Base plate Truck-Bed").Id, OperationId = operations.Single(predicate: x => x.Name == "Base plate Truck-Bed: Cut Base plate Truck-Bed").Id},
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Base plate").Id, OperationId = operations.Single(predicate: x => x.Name == "Base plate: Cut Base plate").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Plate 1,5m x 3,0m").Id, Name = "Timber Plate 1,5m x 3,0m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Race Wing").Id, OperationId = operations.Single(predicate: x => x.Name == "Race Wing: Cut shape").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Cabin").Id, OperationId = operations.Single(predicate: x => x.Name == "Cabin: Cut Cabin").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Engine-Block").Id, OperationId = operations.Single(predicate: x => x.Name == "Engine-Block: Cut Engine-Block").Id },
+                new M_ArticleBom { ArticleChildId = articles.Single(predicate: a => a.Name == "Timber Block 0,20m x 0,20m").Id, Name = "Timber Block 0,20m x 0,20m", Quantity=1, ArticleParentId = articles.Single(predicate: a => a.Name == "Engine Race Extension").Id, OperationId = operations.Single(predicate: x => x.Name == "Engine Race Extension: Cut shape").Id },
 
             };
             context.ArticleBoms.AddRange(entities: articleBom);
