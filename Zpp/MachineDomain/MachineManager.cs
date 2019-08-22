@@ -178,25 +178,32 @@ namespace Zpp.MachineDomain
                     // Entnehme Operation mit höchster Prio (o1) aus K und plane auf nächster freier Machine ein
                     ProductionOrderOperation o1 = null;
 
-                    Machine machine = machinesByMachineGroupId[o_min.GetMachineGroupId()]
-                        .OrderBy(x => x.GetIdleStartTime().GetValue()).ToList()[0];
-                    o1 = priorityRule.GetHighestPriorityOperation(machine.GetIdleStartTime(),
-                        K.GetAll(), dbTransactionData);
-                    if (o1 == null)
+                    foreach (var machine in machinesByMachineGroupId[o_min.GetMachineGroupId()]
+                        .OrderBy(x => x.GetIdleStartTime().GetValue()))
                     {
-                        throw new MrpRunException("This is not possible if K.Any() is true.");
-                    }
+                        if (K.Any() == false)
+                        {
+                            break;
+                        }
+                        o1 = priorityRule.GetHighestPriorityOperation(machine.GetIdleStartTime(),
+                            K.GetAll(), dbTransactionData);
+                        if (o1 == null)
+                        {
+                            throw new MrpRunException("This is not possible if K.Any() is true.");
+                        }
 
-                    K.Remove(o1);
+                        K.Remove(o1);
 
-                    o1.SetMachine(machine);
-                    // correct op start time if machine's idleTime is later
-                    if (machine.GetIdleStartTime().GetValue() > o1.GetValue().Start)
-                    {
-                        o1.GetValue().Start = machine.GetIdleStartTime().GetValue();
-                        o1.GetValue().End = o1.GetValue().Start + o1.GetValue().Duration;
+                        o1.SetMachine(machine);
+                        // correct op start time if machine's idleTime is later
+                        if (machine.GetIdleStartTime().GetValue() > o1.GetValue().Start)
+                        {
+                            o1.GetValue().Start = machine.GetIdleStartTime().GetValue();
+                            o1.GetValue().End = o1.GetValue().Start + o1.GetValue().Duration;
+                        }
+                        machine.SetIdleStartTime(new DueTime(o1.GetValue().End));
                     }
-                    machine.SetIdleStartTime(new DueTime(o1.GetValue().End));
+                    
 
                     // t(o) = d(o1) für alle o aus K ohne o1
                     foreach (var o in K.GetAll())
@@ -211,8 +218,7 @@ namespace Zpp.MachineDomain
                     ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
                         (ProductionOrderOperationDirectedGraph)productionOrderOperationGraphs[productionOrder];
                     
-                    INodes predecessorNodes = new Nodes();
-                        productionOrderOperationGraph.GetPredecessorNodes(predecessorNodes, o1, true);
+                    INodes predecessorNodes = productionOrderOperationGraph.GetPredecessorNodes(o1);
                     IStackSet<INode> N = null;
                     if (predecessorNodes.Any())
                     {
@@ -247,9 +253,9 @@ namespace Zpp.MachineDomain
                 }
                 else
                 {
-                    INodes predecessorProductionOrders = new Nodes();
-                        productionOrderGraph.GetPredecessorNodes(predecessorProductionOrders, node, true);
-                    if (predecessorProductionOrders.Any() == false)
+                    INodes predecessorProductionOrders = 
+                        productionOrderGraph.GetPredecessorNodes( node);
+                    if (predecessorProductionOrders == null || predecessorProductionOrders.Any() == false)
                     {
                         continue;
                     }

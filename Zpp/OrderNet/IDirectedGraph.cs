@@ -19,9 +19,11 @@ namespace Zpp
          */
         INodes GetSuccessorNodes(TNode tailNode);
         
-        void GetPredecessorNodes(INodes predecessorNodes, INodes newNodes, bool firstRun);
+        void GetPredecessorNodesRecursively(INodes predecessorNodes, INodes newNodes, bool firstRun);
+
+        INodes GetPredecessorNodes(INode headNode);
         
-        void GetPredecessorNodes(INodes predecessorNodes, INode newNode, bool firstRun);
+        void GetPredecessorNodesRecursively(INodes predecessorNodes, INode newNode, bool firstRun);
 
         void AddEdges(TNode fromNode, List<IEdge> edges);
         

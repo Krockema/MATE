@@ -31,7 +31,7 @@ namespace Zpp
             return new Nodes(_adjacencyList[tailNode].Select(x => x.GetHeadNode()).ToList());
         }
 
-        public void GetPredecessorNodes(INodes predecessorNodes, INodes newNodes, bool firstRun)
+        public void GetPredecessorNodesRecursively(INodes predecessorNodes, INodes newNodes, bool firstRun)
         {
             INodes newNodes2 = new Nodes();
             foreach (var headNode in newNodes)
@@ -56,14 +56,31 @@ namespace Zpp
             {
                 return;
             }
-            GetPredecessorNodes(predecessorNodes, newNodes2, false);
+            GetPredecessorNodesRecursively(predecessorNodes, newNodes2, false);
         }
 
-        public void GetPredecessorNodes(INodes predecessorNodes, INode newNode, bool firstRun)
+        public INodes GetPredecessorNodes(INode headNode)
+        {
+            INodes predecessorNodes = new Nodes();
+            
+            if (GetAllEdgesTowardsHeadNode(headNode) == null)
+            {
+                return null;
+            }
+
+            foreach (var edge in GetAllEdgesTowardsHeadNode(headNode))
+            {
+                predecessorNodes.Add(edge.GetTailNode());
+            }
+
+            return predecessorNodes;
+        }
+
+        public void GetPredecessorNodesRecursively(INodes predecessorNodes, INode newNode, bool firstRun)
         {
             INodes newNodes = new Nodes();
             newNodes.Add(newNode);
-            GetPredecessorNodes(predecessorNodes, newNodes, firstRun);
+            GetPredecessorNodesRecursively(predecessorNodes, newNodes, firstRun);
         }
 
         public void AddEdges(INode fromNode, List<IEdge> edges)
