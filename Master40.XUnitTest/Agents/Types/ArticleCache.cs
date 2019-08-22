@@ -17,7 +17,6 @@ namespace Master40.XUnitTest.Agents.Types
             _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                                 .UseSqlServer(connectionString: _dbConnectionString)
                                 .Options);
-            _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
             MasterDBInitializerSimple.DbInitialize(context: _masterDBContext);
          }

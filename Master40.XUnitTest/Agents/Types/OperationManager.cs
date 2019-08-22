@@ -47,8 +47,14 @@ namespace Master40.XUnitTest.Agents.Types
         public void SetArticleProvided()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
-            var article = new M_Article() { Name = "Bear", ArticleBoms = new List<M_ArticleBom>() { new M_ArticleBom() { ArticleChild = new M_Article() { Name = "Wood"}}}};
+            var bom = new M_ArticleBom() { ArticleChild = new M_Article() {Name = "Wood"} };
+            var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10, bom: bom );
+            var article = new M_Article()
+            {
+                Name = "Bear"
+                , Operations = new List<M_Operation>() { job.Operation }
+                , ArticleBoms = new List<M_ArticleBom>() { bom }
+            };
             var fArticle = TypeFactory.CreateDummyArticle(59, 0, article, 1);
             operationManager.AddOperation(job);
             var numberOfRequiredDispos = operationManager.CreateRequiredArticles(fArticle, ActorRefs.Nobody, 0);
