@@ -12,14 +12,9 @@ namespace Master40.XUnitTest.Agents.Types
 {
     public class OperationManagers
     {
-        private ProductionDomainContext dbContext;
         public OperationManagers()
         {
-            dbContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(connectionString: Dbms.getDbContextString())
-                .Options);
-            dbContext.Database.EnsureCreated();
-            MasterDBInitializerSimple.DbInitialize(context: dbContext);
+
         }
 
         [Fact]
