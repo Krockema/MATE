@@ -101,6 +101,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                         .Create(message: new FArticleProvider(articleKey: request.Key
                                                                                             ,articleName: request.Article.Name
+                                                                                        ,stockExchangeId: request.StockExchangeId
                                                                                               , provider: new List<Guid>(new [] { stockExchange.TrackingGuid }))
                                                                , target: request.DispoRequester
                                                               , logThis: false));
@@ -131,17 +132,16 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
             _providerList.Add(item: stockExchange);
             // Check if the most Important Request can be provided.
-            var mostUrgentRequest = _requestedArticles.Single(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
+            var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
 
-            if ((mostUrgentRequest.IsHeadDemand
-                 && mostUrgentRequest.DueTime > Agent.CurrentTime)
-                || mostUrgentRequest.Quantity < _stockElement.Current)
+            if ((mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.CurrentTime)
+                || !(mostUrgentRequest.Quantity <= _stockElement.Current))
             {
-                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} finished before due or Quantity does not match current Stock amount.");
+                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} finished before due or Quantity {mostUrgentRequest.Quantity} does not match current Stock amount of {_stockElement.Current}.");
                 return;
             }
             // else
-            ProvideArticle(articleKey: productionResult.Key);
+            ProvideArticle(articleKey: mostUrgentRequest.Key);
         }
 
         private void ProvideArticleAtDue(Guid articleKey)
@@ -155,17 +155,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
             if (article.Quantity <= _stockElement.Current)
             {
-                //TODO: Create Actor for Withdrawl remove the item on DueTime from Stock.
-
-                if (article.IsHeadDemand)
-                {
-                    WithdrawArticle(exchangeId: article.StockExchangeId);
-                }
-                else
-                {
-                    LogValueChange(article: _stockElement.Article, value: Convert.ToDouble(value: _stockElement.Current) * Convert.ToDouble(value: _stockElement.Article.Price));
-                }
-
                 if (article.ProviderList.Count == 0)
                 {
                     article = article.UpdateProviderList(p: _providerList.ToGuidList());
@@ -179,11 +168,12 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 // Remove from Requester List.
                 _requestedArticles.RemoveByKey(key: article.Key);
 
-                Agent.DebugMessage(msg: $"Provide Article: {article.Article.Name} {article.Key}");
+                Agent.DebugMessage(msg: $"Provide Article: {article.Article.Name} {article.Key} from {Agent.Sender}");
 
                 // Create Callback for Production
                 Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: new FArticleProvider(articleKey: article.Key
                                                                                                            ,articleName: article.Article.Name
+                                                                                                           ,stockExchangeId: article.StockExchangeId
                                                                                                              , provider: _providerList.ToGuidList())
                                                                               , target: article.DispoRequester
                                                                              , logThis: false));

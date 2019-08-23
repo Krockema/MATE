@@ -58,9 +58,19 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                     Time = Collector.Time
                                 };
 
-            foreach (var item in groupedByType)
+            foreach (var item in groupedByType.OrderBy(x => x.Value))
             {
                 Collector.messageHub.SendToClient(listener: "Storage", msg: Newtonsoft.Json.JsonConvert.SerializeObject(value: item));
+            }
+
+
+            if (writeToDatabase)
+            {
+                foreach (var item in CurrentStockValues)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Storage: {item.Value.StockName} in stock {item.Value.NewValue} ");
+                }
+                
             }
 
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);

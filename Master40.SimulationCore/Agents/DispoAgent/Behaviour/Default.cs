@@ -45,6 +45,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         {
             // Save Request Item.
             _fArticle = requestArticle;
+            Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.");
             // get related Storage Agent
             Agent.Send(instruction: Directory.Instruction
                                 .RequestAgent
@@ -82,8 +83,8 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             {
                 ProvideRequest(new FArticleProvider(articleKey: _fArticle.Key
                                                   ,articleName: _fArticle.Article.Name
+                                                  , stockExchangeId: reservation.TrackingId
                                                      ,provider: new List<Guid>(new[] { reservation.TrackingId })));
-                return;
             }
 
             // else create Production Agents if ToBuild
@@ -148,7 +149,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         internal void WithdrawArticleFromStock()
         {
-            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} from Stock exchange {_fArticle.StockExchangeId}");
+            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} {_fArticle.Key} from Stock exchange {_fArticle.StockExchangeId}");
             Agent.Send(instruction: Storage.Instruction.WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));

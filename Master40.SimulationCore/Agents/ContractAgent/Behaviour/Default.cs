@@ -1,5 +1,6 @@
 ﻿using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Helper;
 using static FArticleProviders;
@@ -56,6 +57,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             // try to Finish if time has come
             if (Agent.CurrentTime >= _fArticle.DueTime)
             {
+                Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.StockExchangeId, target: Agent.Sender));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);
                 Agent.TryToFinish();
@@ -67,6 +69,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             Agent.DebugMessage(
                 msg:
                 $"Scheduling finished with earliest End at: {estimatedEnd}");
+
         }
 
 

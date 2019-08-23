@@ -87,7 +87,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
             Agent.Send(Storage.Instruction.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
 
-
             Agent.TryToFinish();
 
         }

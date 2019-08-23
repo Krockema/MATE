@@ -60,9 +60,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: SimulationType.None) // SimulationType.Bucket
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 5)
-                                                    , new TransitionFactor(3)
-                                                    , new EstimatedThroughPut(value: 50)
+                                                    , new OrderQuantity(value: 10)
+                                                    , new TransitionFactor(value: 3)
+                                                    , new EstimatedThroughPut(value: 600)
                                                     , new DebugAgents(value: true)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)

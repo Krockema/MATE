@@ -7,5 +7,6 @@ open System
         {
             ArticleKey : Guid 
             ArticleName : string
+            StockExchangeId : Guid
             Provider : System.Collections.Generic.List<Guid>
         }
