@@ -92,7 +92,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // add New Proposal
             fOperation.Proposals.Add(item: fProposal);
 
-            Agent.DebugMessage(msg: $"Proposal for Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
+            Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
 
 
             // if all Machines Answered
@@ -102,10 +102,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // item Postponed by All Machines ? -> requeue after given amount of time.
                 if (fOperation.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
                 {
+                    var postPonedFor = fOperation.Proposals.Min(x => x.Postponed.Offset);
+                    Agent.DebugMessage(msg: $"{fOperation.Operation.Name} {fOperation.Key} postponed to {postPonedFor}");
                     // Call Hub Agent to Requeue
                     fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
                     _operationList.Replace(val: fOperation);
-                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: fProposal.Postponed.Offset);
+                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postPonedFor);
                     return;
                 }
 

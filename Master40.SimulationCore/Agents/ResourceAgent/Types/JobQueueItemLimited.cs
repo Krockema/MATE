@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -23,5 +24,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return jobs.Count < Limit;
         }
+
+        public long SumDurations => this.jobs.Sum(x => x.Duration);
     }
 }

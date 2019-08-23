@@ -108,11 +108,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             }
         }
 
-
-        //private void ResponseFromProduction(RequestItem item)
         private void ResponseFromProduction(FProductionResult productionResult)
         {
-            Agent.DebugMessage(msg: "Production Agent Finished Work: " + Agent.Sender.Path.Name);
+            Agent.DebugMessage(msg: $"{productionResult.Amount} {_stockElement.Article.Name} was send from {Agent.Sender.Path.Name}");
 
             // Add the Produced item to Stock
             _stockElement.Current += productionResult.Amount;
@@ -127,7 +125,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 State = State.Finished,
                 RequiredOnTime = (int)Agent.CurrentTime,
                 Time = (int)Agent.CurrentTime,
-                ProductionArticleKey = productionResult.ArticleKey
+                ProductionArticleKey = productionResult.Key
             };
             _stockElement.StockExchanges.Add(item: stockExchange);
 
@@ -135,12 +133,15 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             // Check if the most Important Request can be provided.
             var mostUrgentRequest = _requestedArticles.Single(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
 
-            if ((mostUrgentRequest.IsHeadDemand 
-                && mostUrgentRequest.DueTime > Agent.CurrentTime)
-                || mostUrgentRequest.Quantity != _stockElement.Current)
-            { return; }
+            if ((mostUrgentRequest.IsHeadDemand
+                 && mostUrgentRequest.DueTime > Agent.CurrentTime)
+                || mostUrgentRequest.Quantity < _stockElement.Current)
+            {
+                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} finished before due or Quantity does not match current Stock amount.");
+                return;
+            }
             // else
-            ProvideArticle(articleKey: productionResult.ArticleKey);
+            ProvideArticle(articleKey: productionResult.Key);
         }
 
         private void ProvideArticleAtDue(Guid articleKey)
@@ -196,10 +197,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                                                         , isHeadDemand: article.IsHeadDemand
                                                         , customerOrderId: article.CustomerOrderId);
                 Agent.Context.System.EventStream.Publish(@event: pub);
-
-
-                // Statistics.UpdateSimulationWorkSchedule(requestProvidable.ProviderList, requestProvidable.Requester, requestProvidable.OrderId);
-                // ProviderList.Clear();
             }
             else
             {

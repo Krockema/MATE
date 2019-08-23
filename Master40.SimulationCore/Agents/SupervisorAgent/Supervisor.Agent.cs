@@ -107,7 +107,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         private void CreateContractAgent(T_CustomerOrderPart orderPart)
         {
             _orderQueue.Enqueue(item: orderPart);
-            DebugMessage(msg: "Creating Contract Agent for order " + orderPart.CustomerOrderId);
+            DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.Article.Name} DueTime {orderPart.CustomerOrder.DueTime}");
             var agentSetup = AgentSetup.Create(agent: this, behaviour: ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
             var instruction = CreateChild.Create(setup: agentSetup
                                                ,target: ActorPaths.Guardians

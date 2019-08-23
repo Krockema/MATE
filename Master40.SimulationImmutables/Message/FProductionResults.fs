@@ -5,7 +5,7 @@ open IKeys
 
     type public FProductionResult =
         { Key : Guid
-          ArticleKey : Guid
+          TrackingId : Guid
           CreationTime : int64
           Amount : decimal
         } interface IKey with

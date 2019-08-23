@@ -17,6 +17,8 @@ using static FOperations;
 using static FCreateSimulationWorks;
 using static FArticleProviders;
 using static IJobResults;
+using Master40.SimulationCore.Agents.StorageAgent;
+using static FProductionResults;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -75,9 +77,17 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 return;
             }
             
-            Agent.DebugMessage(msg: $"All operations for article {_articleToProduce.Article.Name} finished.");
+            Agent.DebugMessage(msg: $"All operations for article {_articleToProduce.Article.Name} {_articleToProduce.Key} finished.");
             
-            //TODO if next operation null --> send article to storage
+            //TODO add production amount to productionresult, currently 1
+            var productionResponse = new FProductionResult(key: _articleToProduce.Key
+                                                  , trackingId: _articleToProduce.StockExchangeId
+                                                , creationTime: 0
+                                                       ,amount: 1);
+
+            Agent.Send(Storage.Instruction.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
+
+
             Agent.TryToFinish();
 
         }

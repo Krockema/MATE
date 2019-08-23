@@ -60,7 +60,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: SimulationType.None) // SimulationType.Bucket
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 1)
+                                                    , new OrderQuantity(value: 5)
                                                     , new TransitionFactor(3)
                                                     , new EstimatedThroughPut(value: 50)
                                                     , new DebugAgents(value: true)
@@ -71,7 +71,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new MaxDeliveryTime(value: 1600)
                                                     , new TimePeriodForThrougputCalculation(value: 1920)
                                                     , new SettlingStart(value: 2880)
-                                                    , new SimulationEnd(value: 800)
+                                                    , new SimulationEnd(value: 9600)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: false)
                                                 });

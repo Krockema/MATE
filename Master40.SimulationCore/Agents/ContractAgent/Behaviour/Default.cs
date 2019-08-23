@@ -49,7 +49,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// <param name="fArticle"></param>
         public void TryFinishOrder(FArticleProvider fArticleProvider)
         {
-            Agent.DebugMessage(msg: "Dispo Said Done.");
+            Agent.DebugMessage(msg: "Article delivered!");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
             _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 

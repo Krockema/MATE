@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MessagePack.Resolvers;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 using static FUpdateStartConditions;
 using static IJobs;
 
@@ -15,16 +17,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// To Be Testet
         /// </summary>
         /// <param name="item"></param>
-        public bool Enqueue(IJob item)
+        public void Enqueue(IJob item)
         {
-            if (!IsQueueAble(item: item)) return false;
-            this.jobs.Add(item: item);
-            return true;
-        }
-
-        public bool IsQueueAble(IJob item)
-        {
-            return item.StartConditions.Satisfied || CapacitiesLeft();
+           this.jobs.Add(item: item);
+            return;
         }
 
         /// <summary>
@@ -33,18 +29,29 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <param name="job"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public long GetQueueAbleTime(IJob job, long currentTime)
+        public QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength)
         {
+            var queuePosition = new QueueingPosition {EstimatedStart = currentTime + processingQueueLength };
+            var totalWorkLoad = 0L;
+            if (resourceIsBlockedUntil != 0)
+                queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
-            var possibleStartTime = currentTime;
             if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                possibleStartTime = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
-                                             .Max(e => e.End);
+                totalWorkLoad = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
+                    .Sum(e => e.Duration);
+                queuePosition.EstimatedStart += totalWorkLoad;
             }
-            return possibleStartTime;
+
+            if (totalWorkLoad < Limit || job.StartConditions.Satisfied)
+                queuePosition.IsQueueAble = true;
+            return queuePosition;
         }
 
+        /// <summary>
+        /// Return true if queue limit is not reached
+        /// </summary>
+        /// <returns></returns>
         public override bool CapacitiesLeft()
         {
             return Limit > this.jobs.Sum(selector: x => x.Duration);

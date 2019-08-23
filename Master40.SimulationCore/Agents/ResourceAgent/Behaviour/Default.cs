@@ -38,8 +38,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             switch (message)
             {
                 case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
-                case Resource.Instruction.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
-                case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(msg.GetObjectFromMessage); break;
+                case Resource.Instruction.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(startCondition: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
@@ -62,29 +62,37 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
-        /// <param name="instructionSet"></param>
+        /// <param name="jobItem"></param>
         private void RequestProposal(IJob jobItem)
         {
-            Agent.DebugMessage($"Request for Proposal: " + jobItem.Name + " with Id: " + jobItem.Key + ")");
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + jobItem.Name + " with Id: " + jobItem.Key + ")");
 
             SendProposalTo(jobItem: jobItem);
         }
 
         /// <summary>
-        /// Send Proposal to Comunication Client
+        /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
         internal void SendProposalTo(IJob jobItem)
         {
-            var possibleStartTime = _planingQueue.GetQueueAbleTime(job: jobItem, currentTime: Agent.CurrentTime);
+            var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
+                                                     , currentTime: Agent.CurrentTime
+                                          , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
+                                            ,processingQueueLength:_processingQueue.SumDurations);
             
+            Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
+
+            var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : _planingQueue.Limit);
+
+            Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset} ");
             // calculate proposal
-            var proposal = new FProposal(possibleSchedule: possibleStartTime
-                , postponed: new FPostponed(offset: (possibleStartTime > _planingQueue.Limit && !jobItem.StartConditions.Satisfied)? possibleStartTime : 0)
+            var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
+                , postponed: fPostponed
                 , resourceAgent: Agent.Context.Self
                 , jobKey: jobItem.Key);
 
-            Agent.Send(Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
+            Agent.Send(instruction: Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
         /// <summary>
@@ -92,31 +100,33 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         public void AcknowledgeProposal(IJob jobItem)
         {
-            Agent.DebugMessage($"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
+            var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
+                                                     , currentTime: Agent.CurrentTime
+                                          , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
+                                           , processingQueueLength: _processingQueue.SumDurations);
             // if not QueueAble
-            if (!_planingQueue.IsQueueAble(item: jobItem))
+            if (!queuePosition.IsQueueAble)
             {
-                Agent.Send(Hub.Instruction.EnqueueJob.Create(message: jobItem, target: jobItem.HubAgent));
+                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
+                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: jobItem, target: jobItem.HubAgent));
                 return;
             }
 
-            var startTime = _planingQueue.GetQueueAbleTime(jobItem, currentTime: Agent.CurrentTime);
-            jobItem = jobItem.UpdateEstimations(startTime, Agent.Context.Self);
-            if (!_planingQueue.Enqueue(item: jobItem))
-            {
-                throw new Exception("Queueing went wrong!");
-            };
 
-            Agent.DebugMessage("AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
+            jobItem = jobItem.UpdateEstimations(queuePosition.EstimatedStart, Agent.Context.Self);
+            _planingQueue.Enqueue(item: jobItem);
+            
+            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
             UpdateAndRequeuePlanedJobs(jobItem: jobItem);
             UpdateProcessingQueue();
-            //TODO  DoWork(); ?
+            DoWork();
         }
 
         private void RequeueAllRemainingJobs()
         {
-            Agent.DebugMessage("Start to Requeue all remaining Jobs");
+            Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
             var item = _planingQueue.jobs.FirstOrDefault();
             if (item != null)
             {
@@ -127,14 +137,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void UpdateAndRequeuePlanedJobs(IJob jobItem)
         {
-            Agent.DebugMessage("Old planning queue length = " + _planingQueue.Count);
+            Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
             var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, job: jobItem);
             foreach (var job in toRequeue)
             {
                 _planingQueue.RemoveJob(job: job);
-                Agent.Send(Hub.Instruction.EnqueueJob.Create(message: job, target: job.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: job, target: job.HubAgent));
             }
-            Agent.DebugMessage("New planning queue length = " + _planingQueue.Count);
+            Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
 
 
@@ -143,17 +153,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             while (_processingQueue.CapacitiesLeft() && _planingQueue.HasQueueAbleJobs())
             {
                 var job = _planingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Key} {job.Name} Try to start processing.");
                 var ok = _processingQueue.Enqueue(item: job);
                 if (!ok)
                 {
-                    throw new Exception("Something wen wrong with Queueing!");
+                    throw new Exception(message: "Something wen wrong with Queueing!");
                 }
                 //TODO Withdraw at ProcessingQueue or DoWork?
-                Agent.DebugMessage($"Start withdraw for article {job.Name} {job.Key}");
-                Agent.Send(BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
+                Agent.DebugMessage(msg: $"Start withdraw for article {job.Name} {job.Key}");
+                Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
             }
 
-            Agent.DebugMessage($"Jobs ready to start: {_processingQueue.Count} Try to start processing");
+            Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
         private void UpdateStartCondition(FUpdateStartCondition startCondition)
@@ -175,7 +186,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             if (_jobInProgress.IsSet)
             {
-                Agent.DebugMessage("Im still working....");
+                Agent.DebugMessage(msg: "Im still working....");
                 return; // Resource Agent is still working
             }
 
@@ -184,18 +195,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (nextJobInProgress == null)
             {
                 // No more work 
-                Agent.DebugMessage("Nothing more Ready in Queue!");
+                Agent.DebugMessage(msg: "Nothing more Ready in Queue!");
                 return;
             }
 
             UpdateProcessingQueue();
-
-            _jobInProgress.Set(nextJobInProgress);
+            
+            _jobInProgress.Set(job: nextJobInProgress, currentTime: Agent.CurrentTime);
 
             var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Duration);
-            Agent.DebugMessage($"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedDuration}");
+            Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedDuration}");
 
-            var pub = new FUpdateSimulationWork(nextJobInProgress.Key.ToString(), randomizedDuration, start: Agent.CurrentTime, machine: Agent.Name);
+            var pub = new FUpdateSimulationWork(workScheduleId: nextJobInProgress.Key.ToString(), duration: randomizedDuration, start: Agent.CurrentTime, machine: Agent.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: nextJobInProgress.Key
@@ -206,16 +217,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                           , productionAgent: ActorRefs.Nobody
                                             , resourceAgent: Agent.Context.Self);
 
-            Agent.Send(BasicInstruction.FinishJob.Create(message: fOperationResult , target: Agent.Context.Self), waitFor: randomizedDuration);
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult , target: Agent.Context.Self), waitFor: randomizedDuration);
             
         }
 
         private void FinishJob(IJobResult jobResult)
         {
-            Agent.DebugMessage($"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
+            Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);
 
-            Agent.Send(BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.HubAgent));
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.HubAgent));
             _jobInProgress.Reset();
 
             // then requeue processing queue if the item was delayed 
