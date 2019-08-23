@@ -5,6 +5,7 @@ using Master40.DB.DataModel;
 using Zpp.DemandDomain;
 using Zpp.MachineDomain;
 using Zpp.ProviderDomain;
+using Zpp.Utils;
 
 namespace Zpp
 {
@@ -75,10 +76,14 @@ namespace Zpp
         public ProductionOrderBom GetAnyProductionOrderBomByProductionOrderOperation(
             ProductionOrderOperation productionOrderOperation)
         {
-            return new ProductionOrderBom(_dbTransactionData.ProductionOrderBomGetAll().GetAllAs<T_ProductionOrderBom>()
-                .Find(x =>
-                    x.ProductionOrderOperationId
-                        .Equals(productionOrderOperation.GetId().GetValue())),_dbMasterDataCache);
+            T_ProductionOrderBom productionOrderBom = _dbTransactionData.ProductionOrderBomGetAll().GetAllAs<T_ProductionOrderBom>().Find(x =>
+                x.ProductionOrderOperationId.Equals(productionOrderOperation.GetId().GetValue()));
+            if (productionOrderBom == null)
+            {
+                throw new MrpRunException("How could an productionOrderOperation without an T_ProductionOrderBom exists?");
+            }
+                
+            return new ProductionOrderBom(productionOrderBom,_dbMasterDataCache);
         }
     }
 }

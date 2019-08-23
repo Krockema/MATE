@@ -189,6 +189,42 @@ namespace Zpp
             dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
             dbTransactionData.SetProviderManager(providerManager);
             
+            // forward scheduling
+            // TODO: remove this once forward scheduling is implemented
+            int min = 0;
+            foreach (var productionOrderOperation in dbTransactionData.ProductionOrderOperationGetAll())
+            {
+                T_ProductionOrderOperation tProductionOrderOperation =
+                    productionOrderOperation.GetValue();
+
+                    int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
+                    if (start < min)
+                    {
+                        min = start;
+                    }
+                
+            }
+
+            if (min < 0)
+            {
+                foreach (var productionOrderOperation in dbTransactionData.ProductionOrderOperationGetAll())
+                {
+                    T_ProductionOrderOperation tProductionOrderOperation =
+                        productionOrderOperation.GetValue();
+                    
+
+                        int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
+                        tProductionOrderOperation.StartBackward = Math.Abs(min) + start;
+                        tProductionOrderOperation.Start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
+                    
+
+                        int end = tProductionOrderOperation.EndBackward.GetValueOrDefault();
+                        tProductionOrderOperation.EndBackward = Math.Abs(min) + end;
+                        tProductionOrderOperation.End = tProductionOrderOperation.EndBackward.GetValueOrDefault();
+                    
+                }
+            }
+            
             // job shop scheduling
             MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,dbMasterDataCache, new PriorityRule());
 

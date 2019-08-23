@@ -34,43 +34,6 @@ namespace Zpp.GraphicalRepresentation
                 
                 
             }
-            
-            // TODO: remove this once forward scheduling is implemented
-            int min = 0;
-            foreach (var ganttChartBar in GetAllGanttChartBars())
-            {
-                if (ganttChartBar.start == null)
-                {
-                    ganttChartBar.start = ganttChartBar.end;
-                }
-
-                if (ganttChartBar.start != null)
-                {
-                    int start = int.Parse(ganttChartBar.start);
-                    if (start < min)
-                    {
-                        min = start;
-                    }
-                }
-            }
-
-            if (min < 0)
-            {
-                foreach (var ganttChartBar in GetAllGanttChartBars())
-                {
-                    if (ganttChartBar.start != null)
-                    {
-                        int start = int.Parse(ganttChartBar.start);
-                        ganttChartBar.start = (Math.Abs(min) + start).ToString();
-                    }
-
-                    if (ganttChartBar.end != null)
-                    {
-                        int end = int.Parse(ganttChartBar.end);
-                        ganttChartBar.end = (Math.Abs(min) + end).ToString();
-                    }
-                }
-            }
         }
 
         public void AddGanttChartBar(GanttChartBar ganttChartBar)

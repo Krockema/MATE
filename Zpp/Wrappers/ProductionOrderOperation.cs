@@ -48,7 +48,7 @@ namespace Zpp
         }
         
          public OperationBackwardsSchedule ScheduleBackwards(
-            OperationBackwardsSchedule lastOperationBackwardsSchedule, IDbTransactionData dbTransactionData)
+            OperationBackwardsSchedule lastOperationBackwardsSchedule, DueTime dueTimeOfProductionOrder)
         {
             DueTime TIME_BETWEEN_OPERATIONS =
                 new DueTime(_productionOrderOperation.Duration * 3);
@@ -82,12 +82,9 @@ namespace Zpp
             }
 
             // create return value
-            DueTime dueTime = dbTransactionData.GetAggregator()
-                .GetAnyProductionOrderBomByProductionOrderOperation(this)
-                .GetDueTime(dbTransactionData);
             
             // skip additional slack time if dueTime is already exceeded
-            if (endBackwards > dueTime.GetValue())
+            if (endBackwards > dueTimeOfProductionOrder.GetValue())
             {
                 TIME_BETWEEN_OPERATIONS = DueTime.Null();
             }

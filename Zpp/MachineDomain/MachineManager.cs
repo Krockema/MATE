@@ -176,7 +176,8 @@ namespace Zpp.MachineDomain
                 if (K.Any())
                 {
                     // Entnehme Operation mit höchster Prio (o1) aus K und plane auf nächster freier Machine ein
-                    ProductionOrderOperation o1 = null;
+                    
+                    List<ProductionOrderOperation> allO1 = new List<ProductionOrderOperation>();
 
                     foreach (var machine in machinesByMachineGroupId[o_min.GetMachineGroupId()]
                         .OrderBy(x => x.GetIdleStartTime().GetValue()))
@@ -185,12 +186,14 @@ namespace Zpp.MachineDomain
                         {
                             break;
                         }
+                        ProductionOrderOperation o1 = null;
                         o1 = priorityRule.GetHighestPriorityOperation(machine.GetIdleStartTime(),
                             K.GetAll(), dbTransactionData);
                         if (o1 == null)
                         {
                             throw new MrpRunException("This is not possible if K.Any() is true.");
                         }
+                        allO1.Add(o1);
 
                         K.Remove(o1);
 
@@ -203,38 +206,48 @@ namespace Zpp.MachineDomain
                         }
                         machine.SetIdleStartTime(new DueTime(o1.GetValue().End));
                     }
-                    
 
-                    // t(o) = d(o1) für alle o aus K ohne o1
+
+                    // t(o) = d(o1) für alle o aus K ohne alle o1 
                     foreach (var o in K.GetAll())
                     {
-                        o.GetValue().Start = o1.GetValue().End;
+                        o.GetValue().Start = allO1[0].GetValue().End;
                     }
 
                     /*if N(o1) not empty then
-                        S = S vereinigt N(o1) ohne o1
+                        S = S vereinigt N(o1) ohne alle o1
                      */
-                    ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
-                    ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
-                        (ProductionOrderOperationDirectedGraph)productionOrderOperationGraphs[productionOrder];
-                    
-                    INodes predecessorNodes = productionOrderOperationGraph.GetPredecessorNodes(o1);
-                    IStackSet<INode> N = null;
-                    if (predecessorNodes.Any())
+                    foreach (var o1 in allO1)
                     {
-                        N = new StackSet<INode>(predecessorNodes);
+
+
+                        ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
+                        ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
+                            (ProductionOrderOperationDirectedGraph) productionOrderOperationGraphs[
+                                productionOrder];
+
+                        INodes predecessorNodes =
+                            productionOrderOperationGraph.GetPredecessorNodes(o1);
+                        IStackSet<INode> N = null;
+                        if (predecessorNodes.Any())
+                        {
+                            N = new StackSet<INode>(predecessorNodes);
+                        }
+
+                        // t(o) = d(o1) für alle o aus N(o1)
+                        if (N != null)
+                        {
+                            AdaptPredecessorNodes(N, o1, productionOrderGraph,
+                                productionOrderOperationGraphs);
+                        }
+
+                        // prepare for next round
+                        productionOrderOperationGraph.RemoveNode(o1);
+                        productionOrderOperationGraph
+                            .RemoveProductionOrdersWithNoProductionOrderOperationsFromProductionOrderGraph(
+                                productionOrderGraph, productionOrder);
                     }
-                    // t(o) = d(o1) für alle o aus N(o1)
-                    if (N != null)
-                    {
-                        AdaptPredecessorNodes(N, o1, productionOrderGraph, productionOrderOperationGraphs);
-                    }
-                    
-                    // prepare for next round
-                    productionOrderOperationGraph.RemoveNode(o1);
-                    productionOrderOperationGraph
-                        .RemoveProductionOrdersWithNoProductionOrderOperationsFromProductionOrderGraph(
-                            productionOrderGraph, productionOrder);
+
                     S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
                 }
             }
