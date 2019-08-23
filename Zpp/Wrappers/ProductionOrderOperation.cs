@@ -30,7 +30,6 @@ namespace Zpp
         {
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation = new T_ProductionOrderOperation();
-            // TODO: add not only entities but also the ids !!! --> only ids should be enough???
             productionOrderOperation.Name = articleBom.Operation.Name;
             productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
             productionOrderOperation.Duration = articleBom.Operation.Duration;
@@ -45,25 +44,11 @@ namespace Zpp
             productionOrderOperation.ProductionOrderId =
                 productionOrderOperation.ProductionOrder.Id;
 
-            // TODO: external Algo needed
-
-            // for machine utilisation
-            // productionOrderOperation.Machine,
-
-            // for simulation
-            // Start, End,
-
-            // for backward scheduling
-            // StartBackward, EndBackward,
-
-            // for forward scheduling
-            // StartForward, EndForward,
-
             return productionOrderOperation;
         }
         
          public OperationBackwardsSchedule ScheduleBackwards(
-            OperationBackwardsSchedule lastOperationBackwardsSchedule)
+            OperationBackwardsSchedule lastOperationBackwardsSchedule, IDbTransactionData dbTransactionData)
         {
             DueTime TIME_BETWEEN_OPERATIONS =
                 new DueTime(_productionOrderOperation.Duration * 3);
@@ -77,7 +62,7 @@ namespace Zpp
                      lastOperationBackwardsSchedule.GetHierarchyNumber().GetValue())))
             {
                 endBackwards = lastOperationBackwardsSchedule.GetEndBackwards().GetValue();
-                startBackwards = lastOperationBackwardsSchedule.GetEndBackwards().GetValue() -
+                startBackwards = endBackwards -
                                  _productionOrderOperation.Duration;
             }
             // case: greaterHierarchyNumber --> PrOO runs after the last PrOO
@@ -92,14 +77,25 @@ namespace Zpp
                 }
 
                 endBackwards = lastOperationBackwardsSchedule.GetStartBackwards().GetValue();
-                startBackwards = lastOperationBackwardsSchedule.GetStartBackwards().GetValue() -
+                startBackwards = endBackwards -
                                  _productionOrderOperation.Duration;
             }
 
             // create return value
+            DueTime dueTime = dbTransactionData.GetAggregator()
+                .GetAnyProductionOrderBomByProductionOrderOperation(this)
+                .GetDueTime(dbTransactionData);
+            
+            // skip additional slack time if dueTime is already exceeded
+            if (endBackwards > dueTime.GetValue())
+            {
+                TIME_BETWEEN_OPERATIONS = DueTime.Null();
+            }
+
             OperationBackwardsSchedule newOperationBackwardsSchedule =
-                new OperationBackwardsSchedule(new DueTime(startBackwards.GetValueOrDefault()),
-                    new DueTime(endBackwards.GetValueOrDefault() -
+                new OperationBackwardsSchedule(new DueTime(endBackwards.GetValueOrDefault()),
+                    // slack time aka timeBetweenOperations
+                    new DueTime(startBackwards.GetValueOrDefault() -
                                 TIME_BETWEEN_OPERATIONS.GetValue()),
                     new HierarchyNumber(
                         _productionOrderOperation.HierarchyNumber));

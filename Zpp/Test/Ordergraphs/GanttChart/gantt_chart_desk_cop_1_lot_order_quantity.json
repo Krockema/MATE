@@ -1,38 +1,29 @@
 ﻿[
   {
-    "article": "Verpackung",
-    "articleId": "15735",
-    "operation": "15908: Tisch verpacken",
-    "operationId": "15908",
-    "resource": "15720: Verpacken 1",
-    "start": "59",
-    "end": "69"
+    "article": null,
+    "articleId": null,
+    "operation": "10186: Tisch verpacken",
+    "operationId": "10186",
+    "resource": "10010: Verpacken 1",
+    "start": "31",
+    "end": "41"
   },
   {
-    "article": "Anschraubplatte",
-    "articleId": "15731",
-    "operation": "15956: Anschraubplatte anschweißen",
-    "operationId": "15956",
-    "resource": "15721: Schweißen 1",
-    "start": "19",
-    "end": "39"
+    "article": null,
+    "articleId": null,
+    "operation": "10227: Anschraubplatte anschweißen",
+    "operationId": "10227",
+    "resource": "10011: Schweißen 1",
+    "start": "1",
+    "end": "21"
   },
   {
-    "article": "Filzgleiter",
-    "articleId": "15733",
-    "operation": "15960: Flizgleiter anstecken",
-    "operationId": "15960",
-    "resource": "15723: Montage 1",
-    "start": "59",
-    "end": "69"
-  },
-  {
-    "article": "Stahlrohr",
-    "articleId": "15732",
-    "operation": "15956: Anschraubplatte anschweißen",
-    "operationId": "15956",
-    "resource": "15721: Schweißen 1",
-    "start": "19",
-    "end": "39"
+    "article": null,
+    "articleId": null,
+    "operation": "10231: Flizgleiter anstecken",
+    "operationId": "10231",
+    "resource": "10013: Montage 1",
+    "start": "21",
+    "end": "31"
   }
 ]

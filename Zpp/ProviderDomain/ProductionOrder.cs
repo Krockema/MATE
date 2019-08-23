@@ -105,7 +105,7 @@ namespace Zpp.ProviderDomain
                 {
                     lastOperationBackwardsSchedule =
                          productionOrderOperation.ScheduleBackwards(
-                            lastOperationBackwardsSchedule);
+                            lastOperationBackwardsSchedule, dbTransactionData);
                 }
 
 
