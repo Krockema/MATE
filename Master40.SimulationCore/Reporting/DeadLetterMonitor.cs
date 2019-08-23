@@ -13,6 +13,11 @@ namespace Master40.SimulationCore.Reporting
 
         private void HandleDeadletter(DeadLetter dl)
         {
+            if (dl.Message.GetType().Name == "AdvanceTo")
+            {
+                return;
+            }
+            //TODO Throw unhandled messages ?
             System.Diagnostics.Debug.WriteLine(message: $"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
         }
     }

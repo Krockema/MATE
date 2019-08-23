@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static FUpdateStartConditions;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -70,13 +71,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return jobs.Remove(item: job);
         }
 
-        internal bool SetOperationArticleProvided(Guid operationKey)
+        internal bool UpdatePreCondition(FUpdateStartCondition startCondition)
         {
-            var job = this.jobs.SingleOrDefault(x => x.Key == operationKey);
+            var job = this.jobs.SingleOrDefault(x => x.Key == startCondition.OperationKey);
             if (job == null) return false;
-            job.StartConditions.ArticlesProvided = true;
-            return true;
-
+            job.StartConditions.ArticlesProvided = startCondition.ArticlesProvided;
+            job.StartConditions.PreCondition = startCondition.PreCondition;
+            return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
     }
 }

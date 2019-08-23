@@ -60,6 +60,7 @@ namespace Master40.XUnitTest.Agents.Types
             var numberOfRequiredDispos = operationManager.CreateRequiredArticles(fArticle, ActorRefs.Nobody, 0);
             Assert.True(numberOfRequiredDispos == 1);
         }
+
         [Fact]
         public void UpdateOperations() { }
         [Fact]

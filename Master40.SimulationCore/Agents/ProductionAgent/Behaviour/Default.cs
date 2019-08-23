@@ -16,6 +16,7 @@ using static FOperationResults;
 using static FOperations;
 using static FCreateSimulationWorks;
 using static FArticleProviders;
+using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -49,7 +50,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case BasicInstruction.JobForwardEnd msg: AddForwardTime(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ProvideArticle msg: ArticleProvided(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
-                // case Production.Instruction.FinishWorkItem fw: FinishWorkItem((Production)agent, fw.GetObjectFromMessage); break;
+                case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
                 // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
                 // case Production.Instruction.Finished f:
                 //     agent.VirtualChilds.Remove(agent.Sender);
@@ -60,6 +61,25 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             }
 
             return true;
+        }
+
+        private void FinishJob(IJobResult jobResult)
+        {
+            var nextOperation = OperationManager.GetNextOperation(key: jobResult.Key);
+
+            if (nextOperation != null)
+            {
+                nextOperation.StartConditions.PreCondition = true;
+                Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} at {_articleToProduce.Article.Name} was set true.");
+                Agent.Send(BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(),target: nextOperation.HubAgent));
+                return;
+            }
+            
+            Agent.DebugMessage(msg: $"All operations for article {_articleToProduce.Article.Name} finished.");
+            
+            //TODO if next operation null --> send article to storage
+            Agent.TryToFinish();
+
         }
 
         private void StartProductionAgent(FArticle fArticle)
@@ -118,13 +138,12 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// <param name="operationKey"></param>
         private void WithdrawRequiredArticles(Guid operationKey)
         {
+            // TODO Only for Debugging
             var operation = OperationManager.GetOperationByKey(operationKey: operationKey);
-
             Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name}");
+            //
 
-            var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey); 
-            
-
+            var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey);
             foreach (var dispo in dispoAgents)
             {
                 Agent.Send(Dispo.Instruction
@@ -133,11 +152,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                                     , target: dispo));
             }
             
-        }
-
-        internal void Finished(Agent agent, FOperationResult operationResult)
-        {
-
         }
 
         private void ProvideRequest(Production agent, Guid operationResult)
@@ -163,15 +177,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
                 articleDictionary.Operation.StartConditions.ArticlesProvided = true;
                 
-                Agent.Send(Hub.Instruction.SetOperationArticleProvided
-                                          .Create(message: articleDictionary.Operation.Key
+                Agent.Send(BasicInstruction.UpdateStartConditions
+                                          .Create(message: articleDictionary.Operation.GetStartCondition()
                                                  , target: articleDictionary.Operation.HubAgent));
             }
-
-        }
-
-        private void FinishOperation(Agent agent, FOperationResult operation)
-        {
 
         }
 

@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FUpdateStartCondition.fs" />
     <Compile Include="Message\FArticleProviders.fs" />
     <Compile Include="Message\FProsponed.fs" />
     <Compile Include="Message\FProposal.fs" />
@@ -18,7 +19,7 @@
     <Compile Include="Message\FOperationResults.fs" />
     <Compile Include="Message\FArticle.fs" />
     <Compile Include="Message\FProductionResults.fs" />
-	<Compile Include="Message\FBucket.fs" />
+	  <Compile Include="Message\FBucket.fs" />
     <Compile Include="Message\FRequestResource.fs" />
     <Compile Include="Message\FAgentInformation.fs" />
     <Compile Include="Message\FUpdateStockValues.fs" />

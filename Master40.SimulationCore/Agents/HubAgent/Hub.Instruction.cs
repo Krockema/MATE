@@ -1,9 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using System;
 using static FAgentInformations;
 using static FProposals;
-using static IJobResults;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent
@@ -51,31 +49,6 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 public FProposal GetObjectFromMessage { get => Message as FProposal; }
             }
 
-            public class SetOperationArticleProvided : SimulationMessage
-            {
-                public static SetOperationArticleProvided Create(Guid message, IActorRef target)
-                {
-                    return new SetOperationArticleProvided(message: message, target: target);
-                }
-                private SetOperationArticleProvided(object message, IActorRef target) : base(message: message, target: target)
-                {
-
-                }
-                public Guid GetObjectFromMessage { get => (Guid)Message; }
-            }
-
-            public class FinishJob : SimulationMessage
-            {
-                public static FinishJob Create(IJobResult message, IActorRef target)
-                {
-                    return new FinishJob(message: message, target: target);
-                }
-                private FinishJob(object message, IActorRef target) : base(message: message, target: target)
-                {
-
-                }
-                public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
-            }
         }
     }
 }

@@ -6,6 +6,8 @@ using static FBreakDowns;
 using static FAgentInformations;
 using static FArticles;
 using static FArticleProviders;
+using static IJobResults;
+using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -105,6 +107,29 @@ namespace Master40.SimulationCore.Agents
 
             }
             public Guid GetObjectFromMessage { get => (Guid)Message; }
+        }
+
+        public class FinishJob : SimulationMessage
+        {
+            public static FinishJob Create(IJobResult message, IActorRef target)
+            {
+                return new FinishJob(message: message, target: target);
+            }
+            private FinishJob(object message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
+        }
+        public class UpdateStartConditions : SimulationMessage
+        {
+            public static UpdateStartConditions Create(FUpdateStartCondition message, IActorRef target)
+            {
+                return new UpdateStartConditions(message: message, target: target);
+            }
+            private UpdateStartConditions(object message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public FUpdateStartCondition GetObjectFromMessage { get => Message as FUpdateStartCondition; }
         }
 
     }

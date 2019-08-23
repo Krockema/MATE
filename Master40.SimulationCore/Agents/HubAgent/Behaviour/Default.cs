@@ -12,6 +12,8 @@ using static FOperationResults;
 using static FOperations;
 using static FProposals;
 using static IJobs;
+using static IJobResults;
+using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -30,9 +32,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 case Hub.Instruction.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
                 case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
-                case Hub.Instruction.SetOperationArticleProvided msg: UpdateAndForwardArticleProvided(operationKey: msg.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
-                case Hub.Instruction.FinishJob msg: FinishJob(operationResult: msg.GetObjectFromMessage as FOperationResult); break;
+                case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
@@ -125,18 +127,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
         }
 
-        private void UpdateAndForwardArticleProvided(Guid operationKey)
+        private void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
-            var temp = _operationList.Single(predicate: x => x.Key == operationKey);
-            temp.StartConditions.ArticlesProvided = true;
-            if (temp.ResourceAgent.IsNobody())
-            {
+            var operation = _operationList.Single(predicate: x => x.Key == startCondition.OperationKey);
+            operation.SetStartConditions(startCondition: startCondition);
+            // if Agent has no ResourceAgent the operation is not queued so here is nothing to do
+            if (operation.ResourceAgent.IsNobody())
                 return;
-            }
 
-            Agent.DebugMessage(msg: $"UpdateAndForwardArticleProvided {temp.Operation.Name} {temp.Key} to resource {temp.ResourceAgent}");
+            Agent.DebugMessage(msg: $"Update and forward start condition: {operation.Operation.Name} {operation.Key}" +
+                                    $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
+                                    $"| PreCondition: {operation.StartConditions.PreCondition} " +
+                                    $"to resource {operation.ResourceAgent}");
 
-            Agent.Send(instruction: Resource.Instruction.UpdateArticleProvided.Create(message: temp.Key, target: temp.ResourceAgent));
+            Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: operation.ResourceAgent));
         }
 
         /// <summary>
@@ -153,13 +157,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                            , target: operation.ProductionAgent));
         }
 
-        public void FinishJob(FOperationResult operationResult)
+        public void FinishJob(IJobResult jobResult)
         {
-            var item = _operationList.Find(match: x => x.Key == operationResult.Key);
+            var operation = _operationList.Find(match: x => x.Key == jobResult.Key);
 
-            Agent.DebugMessage(msg: "Machine called Item " + item.Operation.Name + " with Id: " + operationResult.Key + " finished.");
-            Agent.Send(instruction: Production.Instruction.FinishWorkItem.Create(message: operationResult, target: item.ProductionAgent));
-            _operationList.Remove(item: item);
+            Agent.DebugMessage(msg: $"Resource called Item {operation.Operation.Name} {jobResult.Key} finished.");
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
+            _operationList.Remove(item: operation);
         }
 
 

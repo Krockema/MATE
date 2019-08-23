@@ -7,6 +7,7 @@ open FProposals
 open FStartConditions
 open IKeys
 open IJobs
+open FUpdateStartConditions
 
     type public FOperation =
         { Key : Guid
@@ -56,5 +57,7 @@ open IJobs
         member this.AsIjob = this :> IJob
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
+        member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
+                                                                                 this.StartConditions.PreCondition <- startCondition.PreCondition
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }

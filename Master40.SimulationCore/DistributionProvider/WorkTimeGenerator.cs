@@ -26,12 +26,12 @@ namespace Master40.SimulationCore.DistributionProvider
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public int GetRandomWorkTime(int duration)
+        public long GetRandomWorkTime(long duration)
         {
-            int newDuration;
+            long newDuration;
             while (true)
             {
-                newDuration = (int)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
+                newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
                 if (newDuration <= 3 * duration) break;
             }
             return newDuration > 0 ? newDuration : 0;

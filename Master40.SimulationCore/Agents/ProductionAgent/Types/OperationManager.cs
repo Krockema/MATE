@@ -87,6 +87,12 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             var counter = articleToProduce.Article.ArticleBoms.Count;
             foreach (var fOperation in GetOperations) { 
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
+                if (fOperation.Operation.ArticleBoms.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
+                    fOperation.StartConditions.ArticlesProvided = true;
+                }
+
                 foreach (var bom in fOperation.Operation.ArticleBoms)
                 {
                     var createdArticleProvider = new ArticleProvider(provider: ActorRefs.Nobody,
@@ -103,6 +109,17 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             
 
             return listAP.Count;
+        }
+
+        internal FOperation GetNextOperation(Guid key)
+        {
+            var currentOperation = GetOperationByKey(key);
+
+            var nextOperation = GetOperations.Where(x => x.Operation.HierarchyNumber > currentOperation.Operation.HierarchyNumber)
+                                            .OrderBy(x => x.Operation.HierarchyNumber).FirstOrDefault();
+
+            return nextOperation;
+
         }
 
         public DispoArticleDictionary GetArticleDispoProvider(Guid operationKey)

@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.Types
                     ctx.Dispose();
                 }
             }
-            // TODO: Üpdate Transition Times more Granular.
+            // TODO: Update Transition Times more Granular.
             UpdateTransitionTime(article: obj, factor: transitionFactor);
             return obj;
         }

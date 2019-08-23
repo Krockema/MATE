@@ -1,10 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using System;
 using static FAgentInformations;
-using static FOperations;
 using static IJobs;
-using static FOperationResults;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -48,17 +45,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                 public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
-            public class UpdateArticleProvided : SimulationMessage
-            {
-                public static UpdateArticleProvided Create(Guid message, IActorRef target)
-                {
-                    return new UpdateArticleProvided(message: message, target: target);
-                }
-                private UpdateArticleProvided(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public Guid GetObjectFromMessage { get => (Guid)Message; }
-            }
 
             public class DoWork : SimulationMessage
             {
@@ -71,17 +57,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                 }
             }
 
-            public class FinishWork : SimulationMessage
-            {
-                public static FinishWork Create(FOperationResult message, IActorRef target)
-                {
-                    return new FinishWork(message: message, target: target);
-                }
-                private FinishWork(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public FOperationResult GetObjectFromMessage { get => Message as FOperationResult; }
-            }
         }
     }
 }

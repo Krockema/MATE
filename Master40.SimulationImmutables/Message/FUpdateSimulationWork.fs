@@ -5,4 +5,5 @@
         Duration : int64
         Start : int64
         Machine : string
-    }
+    } 
+
