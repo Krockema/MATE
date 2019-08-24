@@ -109,7 +109,6 @@ namespace Zpp.MachineDomain
                 new Dictionary<ProductionOrder, IDirectedGraph<INode>>();
             foreach (var productionOrder in dbTransactionData.ProductionOrderGetAll())
             {
-
                 IDirectedGraph<INode> productionOrderOperationGraph =
                     new ProductionOrderOperationDirectedGraph(dbTransactionData,
                         (ProductionOrder) productionOrder);
@@ -142,7 +141,12 @@ namespace Zpp.MachineDomain
 
             // Bestimme initiale Menge: S = a
             S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
-            // t(o) = 0 für alle o aus S (default is always 0 for int)
+            
+            // t(o) = 0 für alle o aus S
+            foreach (var o in S.GetAll())
+            {
+                o.GetValue().Start = 0;   
+            }
 
             // while S not empty do
             while (S != null && S.Any())
@@ -219,8 +223,7 @@ namespace Zpp.MachineDomain
                      */
                     foreach (var o1 in allO1)
                     {
-
-
+                        
                         ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
                         ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
                             (ProductionOrderOperationDirectedGraph) productionOrderOperationGraphs[
