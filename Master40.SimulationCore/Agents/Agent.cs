@@ -28,7 +28,7 @@ namespace Master40.SimulationCore.Agents
         internal long CurrentTime => TimePeriod;
         internal void TryToFinish() => Finish();
         internal new IActorRef Sender => base.Sender;
-
+        internal LogWriter LogWriter { get; set; }
         // Diagnostic Tools
         private Stopwatch _stopwatch = new Stopwatch();
         public bool DebugThis { get; private set; }
@@ -104,7 +104,9 @@ namespace Master40.SimulationCore.Agents
             if (!DebugThis) return;
             // else
             var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
-            Debug.WriteLine(message: logItem, category: "AgentMessage");
+            //Debug.WriteLine(message: logItem, category: "AgentMessage");
+            AgentSimulation.Logger.Log.Add(logItem);
+
             // TODO: Replace with Logging Agent
             // Statistics.Log.Add(logItem);
         }

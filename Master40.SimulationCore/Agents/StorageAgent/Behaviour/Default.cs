@@ -134,19 +134,23 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             // Check if the most Important Request can be provided.
             var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
 
-            if ((mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.CurrentTime)
-                || !(mostUrgentRequest.Quantity <= _stockElement.Current))
+            if (mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.CurrentTime)
             {
-                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} finished before due or Quantity {mostUrgentRequest.Quantity} does not match current Stock amount of {_stockElement.Current}.");
+                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {mostUrgentRequest.Key} finished before due.");
                 return;
             }
-            // else
-            ProvideArticle(articleKey: mostUrgentRequest.Key);
+            // else if
+            if (mostUrgentRequest.Quantity <= _stockElement.Current)
+            {
+                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {mostUrgentRequest.Key} is providable {mostUrgentRequest.Quantity} does match current Stock amount of {_stockElement.Current}.");
+                ProvideArticle(articleKey: mostUrgentRequest.Key);
+            }
         }
 
         private void ProvideArticleAtDue(Guid articleKey)
         {
-             ProvideArticle(articleKey: articleKey);
+            Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {articleKey} is shall be provided at due {_stockElement.Current}.");
+            ProvideArticle(articleKey: articleKey);
         }
 
         private void ProvideArticle(Guid articleKey)

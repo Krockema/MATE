@@ -41,6 +41,7 @@ namespace Master40.SimulationCore
         public IActorRef WorkCollector { get; private set; }
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
+        public static LogWriter Logger { get; set; }
 
         /// <summary>
         /// Prepare Simulation Environment
@@ -50,6 +51,7 @@ namespace Master40.SimulationCore
         {
             _dBContext = DBContext;
             _messageHub = messageHub;
+            Logger = new LogWriter();
         }
         public Task<Simulation> InitializeSimulation(Configuration configuration)
         {
@@ -208,17 +210,17 @@ namespace Master40.SimulationCore
                     {
                         var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: false, target: inbox.Receiver),timeout: TimeSpan.FromHours(value: 1)).Result;
                     }
+                    Logger.WriteToFile().Wait();
                     sim.Continue();
                     Continuation(inbox: inbox, sim: sim, collectors: collectors);
                     break;
                 case SimulationMessage.SimulationState.Finished:
-
                     System.Diagnostics.Debug.WriteLine(message: "SHUTDOWN AGENT SYSTEM", category: "AKKA-System:");
                     foreach (var item in collectors)
                     {
                         var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: true, target: inbox.Receiver), timeout: TimeSpan.FromHours(value: 1)).Result;
                     }
-                    sim.ActorSystem.Terminate();
+                    sim.ActorSystem.Terminate().Wait();
                     break;
                 default:
                     break;

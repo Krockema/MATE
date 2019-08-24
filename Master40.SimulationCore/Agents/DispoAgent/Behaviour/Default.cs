@@ -96,7 +96,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 if (_fArticle.IsHeadDemand)
                 {
                     var nextRequestAt = _fArticle.DueTime - Agent.CurrentTime;
-                    Agent.DebugMessage(msg: "Ask storage for Article at " + nextRequestAt + " article: " + _fArticle.Key);
+                    Agent.DebugMessage(msg: "Ask storage for Article in " + nextRequestAt + " article: " + _fArticle.Key);
 
                     Agent.Send(instruction: ProvideArticleAtDue.Create(message: _fArticle.Key, target: _fArticle.StorageAgent)
                                  , waitFor: nextRequestAt);
