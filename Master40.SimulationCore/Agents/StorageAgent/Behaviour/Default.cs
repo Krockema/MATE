@@ -62,7 +62,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             // try to make Reservation
             var item = requestItem.UpdateStockExchangeId(i: Guid.NewGuid()).UpdateDispoRequester(r: Agent.Sender);
             var stockReservation = MakeReservationFor(request: item);
-            if (!stockReservation.IsInStock)
+            if (!stockReservation.IsInStock || item.Article.ToBuild)
             {
                 // add to Request queue if not in Stock
                 _requestedArticles.Add(item: item);

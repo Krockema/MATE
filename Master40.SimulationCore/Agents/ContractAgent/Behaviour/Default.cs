@@ -50,13 +50,14 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// <param name="fArticle"></param>
         public void TryFinishOrder(FArticleProvider fArticleProvider)
         {
-            Agent.DebugMessage(msg: "Article delivered!");
+            Agent.DebugMessage(msg: "Ready to Deliver");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
             _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 
             // try to Finish if time has come
-            if (Agent.CurrentTime > _fArticle.DueTime)
+            if (Agent.CurrentTime >= _fArticle.DueTime)
             {
+                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ");
                 Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);
