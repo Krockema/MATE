@@ -21,7 +21,7 @@ namespace Zpp.Test.Configurations
         private const string BUSINESS_PARTNER_WHOLESALE = "Teile Großhandel";
         
         private const string ARTICLE_DESK = "Tisch";
-        private const string ARTICLE_PACKING = "Verpackung";
+        private const string ARTICLE_PACKAGE = "Verpackung";
         private const string ARTICLE_DESK_SURFACE = "Tischplatte";
         private const string ARTICLE_DESK_LEG = "Tischbein";
         private const string ARTICLE_MANUAL = "Montageanleitung";
@@ -298,7 +298,7 @@ namespace Zpp.Test.Configurations
                 },
                 new M_Article
                 {
-                    Name = ARTICLE_PACKING,
+                    Name = ARTICLE_PACKAGE,
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
                     CreationDate = DateTime.Parse("2019-08-26"), DeliveryPeriod = 1,
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
@@ -321,8 +321,8 @@ namespace Zpp.Test.Configurations
                     {ArticleChildId = articles.Single(a => a.Name == ARTICLE_DESK).Id, Name = ARTICLE_DESK},
                 new M_ArticleBom
                 {
-                    ArticleChildId = articles.Single(a => a.Name == ARTICLE_PACKING).Id,
-                    Name = ARTICLE_PACKING,
+                    ArticleChildId = articles.Single(a => a.Name == ARTICLE_PACKAGE).Id,
+                    Name = ARTICLE_PACKAGE,
                     Quantity = 1,
                     ArticleParentId = articles.Single(a => a.Name == ARTICLE_DESK).Id,
                     OperationId = operationDesk.Id
@@ -434,7 +434,7 @@ namespace Zpp.Test.Configurations
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
-                    ArticleId = articles.Single(x => x.Name == ARTICLE_PACKING).Id, PackSize = 10,
+                    ArticleId = articles.Single(x => x.Name == ARTICLE_PACKAGE).Id, PackSize = 10,
                     Price = 0.50,
                     DueTime = 1000
                 },

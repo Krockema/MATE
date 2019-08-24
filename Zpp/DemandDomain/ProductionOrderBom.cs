@@ -12,8 +12,8 @@ namespace Zpp.DemandDomain
 {
     public class ProductionOrderBom : Demand, IDemandLogic
     {
-        private  readonly T_ProductionOrderBom _productionOrderBom;
-        
+        private readonly T_ProductionOrderBom _productionOrderBom;
+
         public ProductionOrderBom(IDemand demand, IDbMasterDataCache dbMasterDataCache) : base(
             demand, dbMasterDataCache)
         {
@@ -30,13 +30,13 @@ namespace Zpp.DemandDomain
         /// --> is used for childs as: articleBom.Quantity * quantity</param>
         /// <param name="productionOrderOperation">use already created, null if no one was created before</param>
         /// <returns></returns>
-        public static ProductionOrderBom CreateProductionOrderBom(M_ArticleBom articleBom,
-            Provider parentProductionOrder, IDbMasterDataCache dbMasterDataCache, Quantity quantity,
+        public static ProductionOrderBom CreateTProductionOrderBom(M_ArticleBom articleBom,
+            Provider parentProductionOrder, IDbMasterDataCache dbMasterDataCache,
             ProductionOrderOperation productionOrderOperation)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
-            productionOrderBom.Quantity = articleBom.Quantity * quantity.GetValue();
+            productionOrderBom.Quantity = articleBom.Quantity;
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent =
                 (T_ProductionOrder) parentProductionOrder.ToIProvider();
@@ -100,21 +100,21 @@ namespace Zpp.DemandDomain
                 _productionOrderBom.ProductionOrderOperation.EndBackward != null)
             // backwards scheduling was already done --> job-shop-scheduling was done --> return End
             {*/
-                
 
-                if (GetArticle().ToBuild)
-                {
-                    dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.End);
-                    return dueTime;
-                }
-                else
-                {
-                    dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.Start);
-                    return dueTime;
-                }
-                
+
+            if (GetArticle().ToBuild)
+            {
+                dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.End);
+                return dueTime;
+            }
+            else
+            {
+                dueTime = new DueTime(_productionOrderBom.ProductionOrderOperation.Start);
+                return dueTime;
+            }
+
             // }
-            
+
 
             /*
              // backwards scheduling was not yet done --> return dueTime of ProductionOrderParent
@@ -205,7 +205,8 @@ namespace Zpp.DemandDomain
 
         public ProductionOrder GetProductionOrder()
         {
-            return new ProductionOrder(_productionOrderBom.ProductionOrderParent, _dbMasterDataCache);
+            return new ProductionOrder(_productionOrderBom.ProductionOrderParent,
+                _dbMasterDataCache);
         }
 
         public M_ArticleBom GetArticleBom()
@@ -216,8 +217,9 @@ namespace Zpp.DemandDomain
 
         public void CreateProductionOrderOperation(ProductionOrder parentProductionOrder)
         {
-            _productionOrderBom.ProductionOrderOperation = ProductionOrderOperation.CreateProductionOrderOperation(GetArticleBom(),
-                parentProductionOrder);
+            _productionOrderBom.ProductionOrderOperation =
+                ProductionOrderOperation.CreateProductionOrderOperation(GetArticleBom(),
+                    parentProductionOrder);
             _productionOrderBom.ProductionOrderOperationId =
                 _productionOrderBom.ProductionOrderOperation.Id;
         }
