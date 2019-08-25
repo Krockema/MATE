@@ -28,7 +28,7 @@ namespace Zpp.Test
 
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestBackwardScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -46,7 +46,7 @@ namespace Zpp.Test
 
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestForwardScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -92,7 +92,7 @@ namespace Zpp.Test
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
-        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestJobShopScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
