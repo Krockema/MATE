@@ -3,6 +3,9 @@ using Master40.DB.DataModel;
 
 namespace Zpp.ProviderDomain
 {
+    /**
+     * Represents an provider, which quantity is not yet exceeded and can satisfy more demands.
+     */
     public class OpenProvider
     {
         private readonly Provider _openProvider;

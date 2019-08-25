@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Priority_Queue_Example
 {
-    public class FastPriorityQueueExample
+    public class TestQueue
     {
         //The class to be enqueued.
         public class User : FastPriorityQueueNode

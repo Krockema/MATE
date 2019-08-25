@@ -12,6 +12,9 @@ using Zpp.Utils;
 
 namespace Zpp.ProviderDomain
 {
+    /**
+     * Maintains created providers like ProductionOrders
+     */
     public class ProviderManager : IProviderManager, IProvidingManager
     {
         private readonly IDemandToProviderTable _demandToProviderTable;

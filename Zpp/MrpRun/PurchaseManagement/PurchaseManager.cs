@@ -58,7 +58,7 @@ namespace Zpp.PurchaseDomain
             tPurchaseOrderPart.Article = article;
             tPurchaseOrderPart.ArticleId = article.Id;
             tPurchaseOrderPart.Quantity =
-                PurchaseManagerUtils.calculateQuantity(articleToBusinessPartner, demandedQuantity) *
+                CalculateQuantity(articleToBusinessPartner, demandedQuantity) *
                 articleToBusinessPartner
                     .PackSize;
             if (tPurchaseOrderPart.Quantity < demandedQuantity.GetValue())
@@ -80,6 +80,27 @@ namespace Zpp.PurchaseDomain
             };
             
             return new Response(purchaseOrderPart, demandToProvider, demandedQuantity);
+        }
+        
+        private static int CalculateQuantity(M_ArticleToBusinessPartner articleToBusinessPartner,
+            Quantity demandQuantity)
+        {
+            // force round up the decimal demandQuantity
+            int demandQuantityInt = (int) decimal.Truncate(demandQuantity.GetValue());
+            if (demandQuantityInt < demandQuantity.GetValue())
+            {
+                demandQuantityInt++;
+            }
+            int purchaseQuantity = 0;
+            
+            for (int quantity = 0;
+                quantity < demandQuantityInt;
+                quantity += articleToBusinessPartner.PackSize)
+            {
+                purchaseQuantity++;
+            }
+
+            return purchaseQuantity;
         }
     }
 }
