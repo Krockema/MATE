@@ -1,7 +1,9 @@
-namespace Zpp.Configuration
+namespace Zpp
 {
-    public class Configuration
+    public static class Configuration
     {
-        
+        public static ProductionType ProductionType = ProductionType.AssemblyLine;
+
+        // TODO: add lotsize
     }
 }
