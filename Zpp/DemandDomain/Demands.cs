@@ -28,7 +28,7 @@ namespace Zpp.DemandDomain
             List<IDemand> iDemands = new List<IDemand>();
             foreach (var iDemand in List)
             {
-                iDemands.Add(iDemand.GetIDemand());
+                iDemands.Add(iDemand.ToIDemand());
             }
 
             return iDemands;
@@ -39,7 +39,7 @@ namespace Zpp.DemandDomain
             List<T> productionOrderBoms = new List<T>();
             foreach (var demand in List)
             {
-                productionOrderBoms.Add((T)demand.GetIDemand());
+                productionOrderBoms.Add((T)demand.ToIDemand());
             }
             return productionOrderBoms;
         }

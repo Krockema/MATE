@@ -35,7 +35,7 @@ namespace Zpp.DemandDomain
             List<T_ProductionOrderBom> productionOrderBoms = new List<T_ProductionOrderBom>();
             foreach (var demand in List)
             {
-                productionOrderBoms.Add((T_ProductionOrderBom)demand.GetIDemand());
+                productionOrderBoms.Add((T_ProductionOrderBom)demand.ToIDemand());
             }
             return productionOrderBoms;
         }

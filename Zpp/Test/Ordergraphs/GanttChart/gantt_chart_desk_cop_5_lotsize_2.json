@@ -2,487 +2,487 @@
   {
     "article": null,
     "articleId": null,
-    "operation": "12756: Tisch verpacken",
-    "operationId": "12756",
-    "resource": "12559: Verpacken 1",
-    "start": "144",
-    "end": "155"
+    "operation": "10207: Tisch verpacken",
+    "operationId": "10207",
+    "resource": "10010: Verpacken 1",
+    "start": "0",
+    "end": "11"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12759: Tisch verpacken",
-    "operationId": "12759",
-    "resource": "12559: Verpacken 1",
-    "start": "155",
-    "end": "166"
+    "operation": "10210: Tisch verpacken",
+    "operationId": "10210",
+    "resource": "10010: Verpacken 1",
+    "start": "11",
+    "end": "22"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12822: Tisch verpacken",
-    "operationId": "12822",
-    "resource": "12559: Verpacken 1",
-    "start": "264",
-    "end": "275"
+    "operation": "10273: Tisch verpacken",
+    "operationId": "10273",
+    "resource": "10010: Verpacken 1",
+    "start": "44",
+    "end": "55"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12825: Tisch verpacken",
-    "operationId": "12825",
-    "resource": "12559: Verpacken 1",
-    "start": "275",
-    "end": "286"
+    "operation": "10276: Tisch verpacken",
+    "operationId": "10276",
+    "resource": "10010: Verpacken 1",
+    "start": "55",
+    "end": "66"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12867: Anschraubplatte anschweißen",
-    "operationId": "12867",
-    "resource": "12560: Schweißen 1",
+    "operation": "10318: Anschraubplatte anschweißen",
+    "operationId": "10318",
+    "resource": "10011: Schweißen 1",
+    "start": "0",
+    "end": "20"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10321: Anschraubplatte anschweißen",
+    "operationId": "10321",
+    "resource": "10012: Schweißen 2",
+    "start": "0",
+    "end": "20"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10324: Anschraubplatte anschweißen",
+    "operationId": "10324",
+    "resource": "10011: Schweißen 1",
+    "start": "20",
+    "end": "40"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10327: Anschraubplatte anschweißen",
+    "operationId": "10327",
+    "resource": "10012: Schweißen 2",
+    "start": "20",
+    "end": "40"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10334: Flizgleiter anstecken",
+    "operationId": "10334",
+    "resource": "10013: Montage 1",
+    "start": "0",
+    "end": "3"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10337: Flizgleiter anstecken",
+    "operationId": "10337",
+    "resource": "10014: Montage 2",
+    "start": "0",
+    "end": "3"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10340: Flizgleiter anstecken",
+    "operationId": "10340",
+    "resource": "10013: Montage 1",
+    "start": "3",
+    "end": "6"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10343: Flizgleiter anstecken",
+    "operationId": "10343",
+    "resource": "10014: Montage 2",
+    "start": "3",
+    "end": "6"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10398: Tisch verpacken",
+    "operationId": "10398",
+    "resource": "10010: Verpacken 1",
+    "start": "22",
+    "end": "33"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10401: Tisch verpacken",
+    "operationId": "10401",
+    "resource": "10010: Verpacken 1",
+    "start": "33",
+    "end": "44"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10438: Anschraubplatte anschweißen",
+    "operationId": "10438",
+    "resource": "10011: Schweißen 1",
+    "start": "40",
+    "end": "60"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10441: Anschraubplatte anschweißen",
+    "operationId": "10441",
+    "resource": "10012: Schweißen 2",
+    "start": "40",
+    "end": "60"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10444: Anschraubplatte anschweißen",
+    "operationId": "10444",
+    "resource": "10011: Schweißen 1",
+    "start": "60",
+    "end": "80"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10447: Anschraubplatte anschweißen",
+    "operationId": "10447",
+    "resource": "10012: Schweißen 2",
+    "start": "60",
+    "end": "80"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10454: Flizgleiter anstecken",
+    "operationId": "10454",
+    "resource": "10013: Montage 1",
+    "start": "6",
+    "end": "9"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10457: Flizgleiter anstecken",
+    "operationId": "10457",
+    "resource": "10014: Montage 2",
+    "start": "6",
+    "end": "9"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10460: Flizgleiter anstecken",
+    "operationId": "10460",
+    "resource": "10013: Montage 1",
+    "start": "9",
+    "end": "12"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10463: Flizgleiter anstecken",
+    "operationId": "10463",
+    "resource": "10014: Montage 2",
+    "start": "9",
+    "end": "12"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10496: Anschraubplatte anschweißen",
+    "operationId": "10496",
+    "resource": "10011: Schweißen 1",
+    "start": "80",
+    "end": "100"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10499: Anschraubplatte anschweißen",
+    "operationId": "10499",
+    "resource": "10012: Schweißen 2",
+    "start": "80",
+    "end": "100"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10502: Anschraubplatte anschweißen",
+    "operationId": "10502",
+    "resource": "10011: Schweißen 1",
+    "start": "100",
+    "end": "120"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10505: Anschraubplatte anschweißen",
+    "operationId": "10505",
+    "resource": "10012: Schweißen 2",
+    "start": "100",
+    "end": "120"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10512: Flizgleiter anstecken",
+    "operationId": "10512",
+    "resource": "10013: Montage 1",
+    "start": "12",
+    "end": "15"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10515: Flizgleiter anstecken",
+    "operationId": "10515",
+    "resource": "10014: Montage 2",
+    "start": "12",
+    "end": "15"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10518: Flizgleiter anstecken",
+    "operationId": "10518",
+    "resource": "10013: Montage 1",
+    "start": "15",
+    "end": "18"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10521: Flizgleiter anstecken",
+    "operationId": "10521",
+    "resource": "10014: Montage 2",
+    "start": "15",
+    "end": "18"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10568: Anschraubplatte anschweißen",
+    "operationId": "10568",
+    "resource": "10011: Schweißen 1",
+    "start": "120",
+    "end": "140"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10571: Anschraubplatte anschweißen",
+    "operationId": "10571",
+    "resource": "10012: Schweißen 2",
+    "start": "120",
+    "end": "140"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10574: Anschraubplatte anschweißen",
+    "operationId": "10574",
+    "resource": "10011: Schweißen 1",
+    "start": "140",
+    "end": "160"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10577: Anschraubplatte anschweißen",
+    "operationId": "10577",
+    "resource": "10012: Schweißen 2",
+    "start": "140",
+    "end": "160"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "10584: Flizgleiter anstecken",
+    "operationId": "10584",
+    "resource": "10013: Montage 1",
     "start": "18",
-    "end": "38"
+    "end": "21"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12870: Anschraubplatte anschweißen",
-    "operationId": "12870",
-    "resource": "12561: Schweißen 2",
+    "operation": "10587: Flizgleiter anstecken",
+    "operationId": "10587",
+    "resource": "10014: Montage 2",
     "start": "18",
-    "end": "38"
+    "end": "21"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12873: Anschraubplatte anschweißen",
-    "operationId": "12873",
-    "resource": "12560: Schweißen 1",
-    "start": "38",
-    "end": "58"
+    "operation": "10590: Flizgleiter anstecken",
+    "operationId": "10590",
+    "resource": "10013: Montage 1",
+    "start": "21",
+    "end": "24"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12876: Anschraubplatte anschweißen",
-    "operationId": "12876",
-    "resource": "12561: Schweißen 2",
-    "start": "38",
-    "end": "58"
+    "operation": "10593: Flizgleiter anstecken",
+    "operationId": "10593",
+    "resource": "10014: Montage 2",
+    "start": "21",
+    "end": "24"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12883: Flizgleiter anstecken",
-    "operationId": "12883",
-    "resource": "12562: Montage 1",
-    "start": "58",
-    "end": "61"
+    "operation": "10630: Anschraubplatte anschweißen",
+    "operationId": "10630",
+    "resource": "10011: Schweißen 1",
+    "start": "160",
+    "end": "180"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12886: Flizgleiter anstecken",
-    "operationId": "12886",
-    "resource": "12563: Montage 2",
-    "start": "58",
-    "end": "61"
+    "operation": "10633: Anschraubplatte anschweißen",
+    "operationId": "10633",
+    "resource": "10012: Schweißen 2",
+    "start": "160",
+    "end": "180"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12889: Flizgleiter anstecken",
-    "operationId": "12889",
-    "resource": "12562: Montage 1",
-    "start": "61",
-    "end": "64"
+    "operation": "10636: Anschraubplatte anschweißen",
+    "operationId": "10636",
+    "resource": "10011: Schweißen 1",
+    "start": "180",
+    "end": "200"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12892: Flizgleiter anstecken",
-    "operationId": "12892",
-    "resource": "12563: Montage 2",
-    "start": "61",
-    "end": "64"
+    "operation": "10639: Anschraubplatte anschweißen",
+    "operationId": "10639",
+    "resource": "10012: Schweißen 2",
+    "start": "180",
+    "end": "200"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12947: Tisch verpacken",
-    "operationId": "12947",
-    "resource": "12559: Verpacken 1",
-    "start": "224",
-    "end": "235"
+    "operation": "10646: Flizgleiter anstecken",
+    "operationId": "10646",
+    "resource": "10013: Montage 1",
+    "start": "24",
+    "end": "27"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12950: Tisch verpacken",
-    "operationId": "12950",
-    "resource": "12559: Verpacken 1",
-    "start": "235",
-    "end": "246"
+    "operation": "10649: Flizgleiter anstecken",
+    "operationId": "10649",
+    "resource": "10014: Montage 2",
+    "start": "24",
+    "end": "27"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12987: Anschraubplatte anschweißen",
-    "operationId": "12987",
-    "resource": "12560: Schweißen 1",
-    "start": "58",
-    "end": "78"
+    "operation": "10652: Flizgleiter anstecken",
+    "operationId": "10652",
+    "resource": "10013: Montage 1",
+    "start": "27",
+    "end": "30"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12990: Anschraubplatte anschweißen",
-    "operationId": "12990",
-    "resource": "12561: Schweißen 2",
-    "start": "58",
-    "end": "78"
+    "operation": "10655: Flizgleiter anstecken",
+    "operationId": "10655",
+    "resource": "10014: Montage 2",
+    "start": "27",
+    "end": "30"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12993: Anschraubplatte anschweißen",
-    "operationId": "12993",
-    "resource": "12560: Schweißen 1",
-    "start": "78",
-    "end": "98"
+    "operation": "10684: Anschraubplatte anschweißen",
+    "operationId": "10684",
+    "resource": "10011: Schweißen 1",
+    "start": "200",
+    "end": "220"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "12996: Anschraubplatte anschweißen",
-    "operationId": "12996",
-    "resource": "12561: Schweißen 2",
-    "start": "78",
-    "end": "98"
+    "operation": "10687: Anschraubplatte anschweißen",
+    "operationId": "10687",
+    "resource": "10012: Schweißen 2",
+    "start": "200",
+    "end": "220"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "13003: Flizgleiter anstecken",
-    "operationId": "13003",
-    "resource": "12562: Montage 1",
-    "start": "98",
-    "end": "101"
+    "operation": "10690: Anschraubplatte anschweißen",
+    "operationId": "10690",
+    "resource": "10011: Schweißen 1",
+    "start": "220",
+    "end": "240"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "13006: Flizgleiter anstecken",
-    "operationId": "13006",
-    "resource": "12563: Montage 2",
-    "start": "98",
-    "end": "101"
+    "operation": "10693: Anschraubplatte anschweißen",
+    "operationId": "10693",
+    "resource": "10012: Schweißen 2",
+    "start": "220",
+    "end": "240"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "13009: Flizgleiter anstecken",
-    "operationId": "13009",
-    "resource": "12562: Montage 1",
-    "start": "101",
-    "end": "104"
+    "operation": "10700: Flizgleiter anstecken",
+    "operationId": "10700",
+    "resource": "10013: Montage 1",
+    "start": "30",
+    "end": "33"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "13012: Flizgleiter anstecken",
-    "operationId": "13012",
-    "resource": "12563: Montage 2",
-    "start": "101",
-    "end": "104"
+    "operation": "10703: Flizgleiter anstecken",
+    "operationId": "10703",
+    "resource": "10014: Montage 2",
+    "start": "30",
+    "end": "33"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "13045: Anschraubplatte anschweißen",
-    "operationId": "13045",
-    "resource": "12560: Schweißen 1",
-    "start": "98",
-    "end": "118"
+    "operation": "10706: Flizgleiter anstecken",
+    "operationId": "10706",
+    "resource": "10013: Montage 1",
+    "start": "33",
+    "end": "36"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "13048: Anschraubplatte anschweißen",
-    "operationId": "13048",
-    "resource": "12561: Schweißen 2",
-    "start": "98",
-    "end": "118"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13051: Anschraubplatte anschweißen",
-    "operationId": "13051",
-    "resource": "12560: Schweißen 1",
-    "start": "118",
-    "end": "138"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13054: Anschraubplatte anschweißen",
-    "operationId": "13054",
-    "resource": "12561: Schweißen 2",
-    "start": "118",
-    "end": "138"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13061: Flizgleiter anstecken",
-    "operationId": "13061",
-    "resource": "12562: Montage 1",
-    "start": "138",
-    "end": "141"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13064: Flizgleiter anstecken",
-    "operationId": "13064",
-    "resource": "12563: Montage 2",
-    "start": "138",
-    "end": "141"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13067: Flizgleiter anstecken",
-    "operationId": "13067",
-    "resource": "12562: Montage 1",
-    "start": "141",
-    "end": "144"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13070: Flizgleiter anstecken",
-    "operationId": "13070",
-    "resource": "12563: Montage 2",
-    "start": "141",
-    "end": "144"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13117: Anschraubplatte anschweißen",
-    "operationId": "13117",
-    "resource": "12560: Schweißen 1",
-    "start": "138",
-    "end": "158"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13120: Anschraubplatte anschweißen",
-    "operationId": "13120",
-    "resource": "12561: Schweißen 2",
-    "start": "138",
-    "end": "158"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13123: Anschraubplatte anschweißen",
-    "operationId": "13123",
-    "resource": "12560: Schweißen 1",
-    "start": "158",
-    "end": "178"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13126: Anschraubplatte anschweißen",
-    "operationId": "13126",
-    "resource": "12561: Schweißen 2",
-    "start": "158",
-    "end": "178"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13133: Flizgleiter anstecken",
-    "operationId": "13133",
-    "resource": "12562: Montage 1",
-    "start": "178",
-    "end": "181"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13136: Flizgleiter anstecken",
-    "operationId": "13136",
-    "resource": "12563: Montage 2",
-    "start": "178",
-    "end": "181"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13139: Flizgleiter anstecken",
-    "operationId": "13139",
-    "resource": "12562: Montage 1",
-    "start": "181",
-    "end": "184"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13142: Flizgleiter anstecken",
-    "operationId": "13142",
-    "resource": "12563: Montage 2",
-    "start": "181",
-    "end": "184"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13179: Anschraubplatte anschweißen",
-    "operationId": "13179",
-    "resource": "12560: Schweißen 1",
-    "start": "178",
-    "end": "198"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13182: Anschraubplatte anschweißen",
-    "operationId": "13182",
-    "resource": "12561: Schweißen 2",
-    "start": "178",
-    "end": "198"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13185: Anschraubplatte anschweißen",
-    "operationId": "13185",
-    "resource": "12560: Schweißen 1",
-    "start": "198",
-    "end": "218"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13188: Anschraubplatte anschweißen",
-    "operationId": "13188",
-    "resource": "12561: Schweißen 2",
-    "start": "198",
-    "end": "218"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13195: Flizgleiter anstecken",
-    "operationId": "13195",
-    "resource": "12562: Montage 1",
-    "start": "218",
-    "end": "221"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13198: Flizgleiter anstecken",
-    "operationId": "13198",
-    "resource": "12563: Montage 2",
-    "start": "218",
-    "end": "221"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13201: Flizgleiter anstecken",
-    "operationId": "13201",
-    "resource": "12562: Montage 1",
-    "start": "221",
-    "end": "224"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13204: Flizgleiter anstecken",
-    "operationId": "13204",
-    "resource": "12563: Montage 2",
-    "start": "221",
-    "end": "224"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13233: Anschraubplatte anschweißen",
-    "operationId": "13233",
-    "resource": "12560: Schweißen 1",
-    "start": "218",
-    "end": "238"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13236: Anschraubplatte anschweißen",
-    "operationId": "13236",
-    "resource": "12561: Schweißen 2",
-    "start": "218",
-    "end": "238"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13239: Anschraubplatte anschweißen",
-    "operationId": "13239",
-    "resource": "12560: Schweißen 1",
-    "start": "238",
-    "end": "258"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13242: Anschraubplatte anschweißen",
-    "operationId": "13242",
-    "resource": "12561: Schweißen 2",
-    "start": "238",
-    "end": "258"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13249: Flizgleiter anstecken",
-    "operationId": "13249",
-    "resource": "12562: Montage 1",
-    "start": "258",
-    "end": "261"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13252: Flizgleiter anstecken",
-    "operationId": "13252",
-    "resource": "12563: Montage 2",
-    "start": "258",
-    "end": "261"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13255: Flizgleiter anstecken",
-    "operationId": "13255",
-    "resource": "12562: Montage 1",
-    "start": "261",
-    "end": "264"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "13258: Flizgleiter anstecken",
-    "operationId": "13258",
-    "resource": "12563: Montage 2",
-    "start": "261",
-    "end": "264"
+    "operation": "10709: Flizgleiter anstecken",
+    "operationId": "10709",
+    "resource": "10014: Montage 2",
+    "start": "33",
+    "end": "36"
   }
 ]

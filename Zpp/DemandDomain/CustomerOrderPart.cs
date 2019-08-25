@@ -13,7 +13,7 @@ namespace Zpp.DemandDomain
             
         }
 
-        public override IDemand GetIDemand()
+        public override IDemand ToIDemand()
         {
             return (T_CustomerOrderPart)_demand;
         }

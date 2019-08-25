@@ -15,7 +15,7 @@ namespace Zpp.DemandDomain
     public interface IDemandLogic
     {
 
-        IDemand GetIDemand();
+        IDemand ToIDemand();
 
         Quantity GetQuantity();
 

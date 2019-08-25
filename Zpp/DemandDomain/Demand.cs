@@ -35,7 +35,7 @@ namespace Zpp.DemandDomain
             return dueTime - operationDuration - currentTime;
         }
 
-        public abstract IDemand GetIDemand();
+        public abstract IDemand ToIDemand();
 
         public override bool Equals(object obj)
         {

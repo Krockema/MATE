@@ -67,7 +67,7 @@ namespace Zpp.DemandDomain
             return new ProductionOrderBom(productionOrderBom, dbMasterDataCache);
         }
 
-        public override IDemand GetIDemand()
+        public override IDemand ToIDemand()
         {
             return _productionOrderBom;
         }
