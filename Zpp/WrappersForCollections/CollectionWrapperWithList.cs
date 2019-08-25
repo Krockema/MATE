@@ -10,12 +10,17 @@ namespace Zpp
         /**
          * Init collectionWrapper with a copy of given list
          */
-        protected CollectionWrapperWithList(List<T> list)
+        protected CollectionWrapperWithList(IEnumerable<T> list)
         {
             foreach (var item in list)
             {
                 List.Add(item);
             }
+        }
+        
+        protected CollectionWrapperWithList(T item)
+        {
+            List.Add(item);
         }
 
         protected CollectionWrapperWithList()

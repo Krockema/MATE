@@ -18,6 +18,10 @@ namespace Zpp.ProviderDomain
         public Providers(List<Provider> list) : base(list)
         {
         }
+        
+        public Providers(Provider provider) : base(provider)
+        {
+        }
 
         public Providers()
         {

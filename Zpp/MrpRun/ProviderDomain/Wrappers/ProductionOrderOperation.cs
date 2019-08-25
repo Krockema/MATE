@@ -25,29 +25,7 @@ namespace Zpp
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public static T_ProductionOrderOperation CreateProductionOrderOperation(
-            M_ArticleBom articleBom, Provider parentProductionOrder)
-        {
-            T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
-            productionOrderOperation = new T_ProductionOrderOperation();
-            productionOrderOperation.Name = articleBom.Operation.Name;
-            productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
-            productionOrderOperation.Duration = articleBom.Operation.Duration;
-            // Tool has no meaning yet, ignore it
-            productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
-            productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;
-            productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
-            productionOrderOperation.MachineGroupId = articleBom.Operation.MachineGroupId;
-            productionOrderOperation.ProducingState = ProducingState.Created;
-            productionOrderOperation.ProductionOrder =
-                (T_ProductionOrder) parentProductionOrder.ToIProvider();
-            productionOrderOperation.ProductionOrderId =
-                productionOrderOperation.ProductionOrder.Id;
-
-            return productionOrderOperation;
-        }
-        
-         public OperationBackwardsSchedule ScheduleBackwards(
+        public OperationBackwardsSchedule ScheduleBackwards(
             OperationBackwardsSchedule lastOperationBackwardsSchedule, DueTime dueTimeOfProductionOrder)
         {
             DueTime TIME_BETWEEN_OPERATIONS =

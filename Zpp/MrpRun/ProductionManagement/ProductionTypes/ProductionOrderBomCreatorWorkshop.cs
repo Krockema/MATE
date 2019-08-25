@@ -12,20 +12,25 @@ namespace Zpp.ProviderDomain
      * --> multiple ProdcutionOrderBoms need to be created, because every operation consume only
      * quantity of articleBom.Quantity
      */
-    public class ProductionOrderBomCreator
+    public class ProductionOrderBomCreatorWorkshop : IProductionOrderBomCreator
     {
         private readonly Dictionary<M_Operation, List<ProductionOrderOperation>>
             _alreadyCreatedProductionOrderOperations =
                 new Dictionary<M_Operation, List<ProductionOrderOperation>>();
 
-        public ProductionOrderBomCreator()
+        public ProductionOrderBomCreatorWorkshop()
         {
+            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProduction) == false)
+            {
+                throw new MrpRunException("This is class is intended for productionType WorkshopProduction.");
+            }
         }
 
         public Demands CreateProductionOrderBomsForArticleBom(IDbMasterDataCache dbMasterDataCache,
             IDbTransactionData dbTransactionData, M_ArticleBom articleBom, Quantity quantity,
             ProductionOrder parentProductionOrder)
         {
+
             Demands newProductionOrderBoms = new Demands();
             for (int i = 0; i < quantity.GetValue(); i++)
             {

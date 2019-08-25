@@ -6,7 +6,7 @@ namespace Zpp.ProviderDomain
 {
     public class Response
     {
-        private readonly Providers _providers = new Providers();
+        private readonly IProviders _providers = new Providers();
 
         private readonly List<T_DemandToProvider> _demandToProviders =
             new List<T_DemandToProvider>();
@@ -28,7 +28,7 @@ namespace Zpp.ProviderDomain
             _demandedQuantity = demandedQuantity;
         }
 
-        public Response(Providers providers, List<T_DemandToProvider> demandToProviders,
+        public Response(IProviders providers, List<T_DemandToProvider> demandToProviders,
             Quantity demandedQuantity)
         {
             _providers = providers;
@@ -36,7 +36,7 @@ namespace Zpp.ProviderDomain
             _demandedQuantity = demandedQuantity;
         }
 
-        public Providers GetProviders()
+        public IProviders GetProviders()
         {
             return _providers;
         }

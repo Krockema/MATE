@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Master40.DB.Enums;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
+using Zpp.SchedulingDomain;
 using Zpp.Utils;
 
 namespace Zpp.ProductionDomain
@@ -25,23 +28,29 @@ namespace Zpp.ProductionDomain
                 throw new MrpRunException("Must be a build article.");
             }
 
-            ProductionOrder productionOrder = CreateProductionOrder(demand, dbTransactionData,
+            IProviders productionOrders = CreateProductionOrder(demand, dbTransactionData,
                 _dbMasterDataCache, demandedQuantity);
 
-            Logger.Debug("ProductionOrder created.");
+            Logger.Debug("ProductionOrder(s) created.");
 
-
-            T_DemandToProvider demandToProvider = new T_DemandToProvider()
+            List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
+            
+            foreach (var productionOrder in productionOrders)
             {
-                DemandId = demand.GetId().GetValue(),
-                ProviderId = productionOrder.GetId().GetValue(),
-                Quantity = demandedQuantity.GetValue()
-            };
+                T_DemandToProvider demandToProvider = new T_DemandToProvider()
+                {
+                    DemandId = demand.GetId().GetValue(),
+                    ProviderId = productionOrder.GetId().GetValue(),
+                    Quantity = productionOrder.GetQuantity().GetValue()
+                };
+                demandToProviders.Add(demandToProvider);
+            }
+            
 
-            return new Response(productionOrder, demandToProvider, demandedQuantity);
+            return new Response(productionOrders, demandToProviders, demandedQuantity);
         }
 
-        private ProductionOrder CreateProductionOrder(Demand demand,
+        private ProductionOrders CreateProductionOrder(Demand demand,
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             Quantity lotSize)
         {
@@ -50,22 +59,110 @@ namespace Zpp.ProductionDomain
                 throw new MrpRunException(
                     "You are trying to create a productionOrder for a purchaseArticle.");
             }
+            
+            IProductionOrderCreator productionOrderCreator;
+            switch (Configuration.ProductionType)
+            {
+                case ProductionType.AssemblyLine:
+                    productionOrderCreator = new ProductionOrderCreatorAssemblyLine();
+                    break;
+                case ProductionType.WorkshopProduction:
+                    productionOrderCreator = new ProductionOrderCreatorWorkshop();
+                    break;
+                default:
+                    productionOrderCreator = null;
+                    break;
+            }
 
-            T_ProductionOrder tProductionOrder = new T_ProductionOrder();
-            // [ArticleId],[Quantity],[Name],[DueTime],[ProviderId]
-            tProductionOrder.DueTime = demand.GetDueTime(dbTransactionData).GetValue();
-            tProductionOrder.Article = demand.GetArticle();
-            tProductionOrder.ArticleId = demand.GetArticle().Id;
-            tProductionOrder.Name = $"ProductionOrder for Demand {demand.GetArticle()}";
-            tProductionOrder.Quantity = lotSize.GetValue();
+            
 
-            ProductionOrder productionOrder =
-                new ProductionOrder(tProductionOrder, dbMasterDataCache);
+            return productionOrderCreator.CreateProductionOrder(dbMasterDataCache, dbTransactionData, demand, lotSize);
+        }
+        
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="article"></param>
+        /// <param name="dbTransactionData"></param>
+        /// <param name="dbMasterDataCache"></param>
+        /// <param name="parentProductionOrder"></param>
+        /// <param name="quantity">of production article to produce
+        /// --> is used for childs as: articleBom.Quantity * quantity</param>
+        /// <returns></returns>
+        public static Demands CreateProductionOrderBoms(M_Article article,
+            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
+            Provider parentProductionOrder, Quantity quantity)
+        {
+            M_Article readArticle = dbTransactionData.M_ArticleGetById(article.GetId());
+            if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
+            {
+                List<Demand> newDemands = new List<Demand>();
+                IProductionOrderBomCreator productionOrderBomCreator;
+                switch (Configuration.ProductionType)
+                {
+                    case ProductionType.AssemblyLine:
+                        productionOrderBomCreator = new ProductionOrderBomCreatorAssemblyLine();
+                        break;
+                    case ProductionType.WorkshopProduction:
+                        productionOrderBomCreator = new ProductionOrderBomCreatorWorkshop();
+                        break;
+                    default:
+                        productionOrderBomCreator = null;
+                        break;
+                }
+                
+                foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
+                {
+                    newDemands.AddRange(
+                        productionOrderBomCreator.CreateProductionOrderBomsForArticleBom(
+                            dbMasterDataCache, dbTransactionData, articleBom, quantity,
+                            (ProductionOrder) parentProductionOrder));
+                }
 
-            productionOrder.CreateDependingDemands(demand.GetArticle(), dbTransactionData,
-                productionOrder, productionOrder.GetQuantity());
+                // backwards scheduling
+                OperationBackwardsSchedule lastOperationBackwardsSchedule =
+                    new OperationBackwardsSchedule(
+                        parentProductionOrder.GetDueTime(dbTransactionData), null, null);
 
-            return productionOrder;
+                IEnumerable<ProductionOrderOperation> sortedProductionOrderOperations = newDemands
+                    .Select(x =>
+                        ((ProductionOrderBom) x).GetProductionOrderOperation(dbTransactionData))
+                    .OrderByDescending(x => x.GetValue().HierarchyNumber);
+
+                foreach (var productionOrderOperation in sortedProductionOrderOperations)
+                {
+                    lastOperationBackwardsSchedule = productionOrderOperation.ScheduleBackwards(
+                        lastOperationBackwardsSchedule,
+                        parentProductionOrder.GetDueTime(dbTransactionData));
+                }
+
+
+                return new ProductionOrderBoms(newDemands);
+            }
+
+            return null;
+        }
+        
+        public static T_ProductionOrderOperation CreateProductionOrderOperation(
+            M_ArticleBom articleBom, Provider parentProductionOrder)
+        {
+            T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
+            productionOrderOperation = new T_ProductionOrderOperation();
+            productionOrderOperation.Name = articleBom.Operation.Name;
+            productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
+            productionOrderOperation.Duration = articleBom.Operation.Duration;
+            // Tool has no meaning yet, ignore it
+            productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
+            productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;
+            productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
+            productionOrderOperation.MachineGroupId = articleBom.Operation.MachineGroupId;
+            productionOrderOperation.ProducingState = ProducingState.Created;
+            productionOrderOperation.ProductionOrder =
+                (T_ProductionOrder) parentProductionOrder.ToIProvider();
+            productionOrderOperation.ProductionOrderId =
+                productionOrderOperation.ProductionOrder.Id;
+
+            return productionOrderOperation;
         }
     }
 }

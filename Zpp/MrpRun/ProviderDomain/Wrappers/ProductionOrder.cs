@@ -8,6 +8,7 @@ using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.ProductionDomain;
 using Zpp.SchedulingDomain;
 using Zpp.Utils;
 
@@ -21,60 +22,6 @@ namespace Zpp.ProviderDomain
         public ProductionOrder(IProvider provider, IDbMasterDataCache dbMasterDataCache) : base(
             provider, dbMasterDataCache)
         {
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="article"></param>
-        /// <param name="dbTransactionData"></param>
-        /// <param name="dbMasterDataCache"></param>
-        /// <param name="parentProductionOrder"></param>
-        /// <param name="quantity">of production article to produce
-        /// --> is used for childs as: articleBom.Quantity * quantity</param>
-        /// <returns></returns>
-        private static Demands CreateProductionOrderBoms(M_Article article,
-            IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
-            Provider parentProductionOrder, Quantity quantity)
-        {
-            M_Article readArticle = dbTransactionData.M_ArticleGetById(article.GetId());
-            if (readArticle.ArticleBoms != null && readArticle.ArticleBoms.Any())
-            {
-                List<Demand> newDemands = new List<Demand>();
-                ProductionOrderBomCreator productionOrderBomCreator =
-                    new ProductionOrderBomCreator();
-
-                foreach (M_ArticleBom articleBom in readArticle.ArticleBoms)
-                {
-                    newDemands.AddRange(
-                        productionOrderBomCreator.CreateProductionOrderBomsForArticleBom(
-                            dbMasterDataCache, dbTransactionData, articleBom, quantity,
-                            (ProductionOrder)parentProductionOrder));
-                    
-                }
-
-                // backwards scheduling
-                OperationBackwardsSchedule lastOperationBackwardsSchedule =
-                    new OperationBackwardsSchedule(
-                        parentProductionOrder.GetDueTime(dbTransactionData), null, null);
-
-                IEnumerable<ProductionOrderOperation> sortedProductionOrderOperations = newDemands
-                    .Select(x =>
-                        ((ProductionOrderBom) x).GetProductionOrderOperation(dbTransactionData))
-                    .OrderByDescending(x => x.GetValue().HierarchyNumber);
-
-                foreach (var productionOrderOperation in sortedProductionOrderOperations)
-                {
-                    lastOperationBackwardsSchedule = productionOrderOperation.ScheduleBackwards(
-                        lastOperationBackwardsSchedule,
-                        parentProductionOrder.GetDueTime(dbTransactionData));
-                }
-
-
-                return new ProductionOrderBoms(newDemands);
-            }
-
-            return null;
         }
 
         public override IProvider ToIProvider()
@@ -91,7 +38,7 @@ namespace Zpp.ProviderDomain
         public override void CreateDependingDemands(M_Article article,
             IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
         {
-            _dependingDemands = CreateProductionOrderBoms(article, dbTransactionData,
+            _dependingDemands = ProductionManager.CreateProductionOrderBoms(article, dbTransactionData,
                 _dbMasterDataCache, parentProvider, quantity);
         }
 

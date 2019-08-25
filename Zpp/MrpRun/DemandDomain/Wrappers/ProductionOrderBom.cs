@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.LotSize;
+using Zpp.ProductionDomain;
 using Zpp.ProviderDomain;
 using Zpp.SchedulingDomain;
 using Zpp.Utils;
@@ -54,7 +55,7 @@ namespace Zpp.DemandDomain
             if (productionOrderOperation == null && articleBom.Operation != null)
             {
                 productionOrderBom.ProductionOrderOperation =
-                    ProductionOrderOperation.CreateProductionOrderOperation(articleBom,
+                    ProductionManager.CreateProductionOrderOperation(articleBom,
                         parentProductionOrder);
                 productionOrderBom.ProductionOrderOperationId =
                     productionOrderBom.ProductionOrderOperation.Id;
@@ -218,7 +219,7 @@ namespace Zpp.DemandDomain
         public void CreateProductionOrderOperation(ProductionOrder parentProductionOrder)
         {
             _productionOrderBom.ProductionOrderOperation =
-                ProductionOrderOperation.CreateProductionOrderOperation(GetArticleBom(),
+                ProductionManager.CreateProductionOrderOperation(GetArticleBom(),
                     parentProductionOrder);
             _productionOrderBom.ProductionOrderOperationId =
                 _productionOrderBom.ProductionOrderOperation.Id;

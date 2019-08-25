@@ -11,6 +11,14 @@ namespace Zpp.ProviderDomain
         public ProductionOrders(List<Provider> providers) : base(providers)
         {
         }
+
+        public ProductionOrders()
+        {
+        }
+
+        public ProductionOrders(Provider provider) : base(provider)
+        {
+        }
         
         public ProductionOrders(List<T_ProductionOrder> iDemands, IDbMasterDataCache dbMasterDataCache) : base(ToProviders(iDemands, dbMasterDataCache))
         {
