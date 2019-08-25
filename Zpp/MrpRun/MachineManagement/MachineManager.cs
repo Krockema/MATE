@@ -97,7 +97,7 @@ namespace Zpp.MachineDomain
 
             // Quelle: Sonnleithner_Studienarbeit_20080407 S. 8
         }
-        
+
         public static void JobSchedulingWithGifflerThompsonAsZaepfel(
             IDbTransactionData dbTransactionData, IDbMasterDataCache dbMasterDataCache,
             IPriorityRule priorityRule)
@@ -141,11 +141,11 @@ namespace Zpp.MachineDomain
 
             // Bestimme initiale Menge: S = a
             S = CreateS(productionOrderGraph, productionOrderOperationGraphs);
-            
+
             // t(o) = 0 für alle o aus S
             foreach (var o in S.GetAll())
             {
-                o.GetValue().Start = 0;   
+                o.GetValue().Start = 0;
             }
 
             // while S not empty do
@@ -180,7 +180,7 @@ namespace Zpp.MachineDomain
                 if (K.Any())
                 {
                     // Entnehme Operation mit höchster Prio (o1) aus K und plane auf nächster freier Machine ein
-                    
+
                     List<ProductionOrderOperation> allO1 = new List<ProductionOrderOperation>();
 
                     foreach (var machine in machinesByMachineGroupId[o_min.GetMachineGroupId()]
@@ -190,6 +190,7 @@ namespace Zpp.MachineDomain
                         {
                             break;
                         }
+
                         ProductionOrderOperation o1 = null;
                         o1 = priorityRule.GetHighestPriorityOperation(machine.GetIdleStartTime(),
                             K.GetAll(), dbTransactionData);
@@ -197,6 +198,7 @@ namespace Zpp.MachineDomain
                         {
                             throw new MrpRunException("This is not possible if K.Any() is true.");
                         }
+
                         allO1.Add(o1);
 
                         K.Remove(o1);
@@ -208,6 +210,7 @@ namespace Zpp.MachineDomain
                             o1.GetValue().Start = machine.GetIdleStartTime().GetValue();
                             o1.GetValue().End = o1.GetValue().Start + o1.GetValue().Duration;
                         }
+
                         machine.SetIdleStartTime(new DueTime(o1.GetValue().End));
                     }
 
@@ -223,7 +226,6 @@ namespace Zpp.MachineDomain
                      */
                     foreach (var o1 in allO1)
                     {
-                        
                         ProductionOrder productionOrder = o1.GetProductionOrder(dbTransactionData);
                         ProductionOrderOperationDirectedGraph productionOrderOperationGraph =
                             (ProductionOrderOperationDirectedGraph) productionOrderOperationGraphs[
@@ -256,7 +258,11 @@ namespace Zpp.MachineDomain
             }
         }
 
-        private static void AdaptPredecessorNodes(IEnumerable<INode> N, ProductionOrderOperation o1, IDirectedGraph<INode> productionOrderGraph,
+        /**
+         * Does the following: t(o) = d(o1) für alle o aus N(o1)
+         */
+        private static void AdaptPredecessorNodes(IEnumerable<INode> N, ProductionOrderOperation o1,
+            IDirectedGraph<INode> productionOrderGraph,
             Dictionary<ProductionOrder, IDirectedGraph<INode>> productionOrderOperationGraphs)
         {
             foreach (var node in N)
@@ -268,22 +274,26 @@ namespace Zpp.MachineDomain
                     productionOrderOperation.GetValue().Start = o1.GetValue().End;
                 }
                 else
+                    // it's a Production Order --> root node
                 {
-                    INodes predecessorProductionOrders = 
-                        productionOrderGraph.GetPredecessorNodes( node);
-                    if (predecessorProductionOrders == null || predecessorProductionOrders.Any() == false)
+                    INodes predecessorProductionOrders =
+                        productionOrderGraph.GetPredecessorNodes(node);
+                    if (predecessorProductionOrders == null ||
+                        predecessorProductionOrders.Any() == false)
                     {
                         continue;
                     }
+
                     foreach (var predecessorProductionOrder in predecessorProductionOrders)
                     {
-                        ProductionOrder predecessorProductionOrderAsP = (ProductionOrder)predecessorProductionOrder.GetEntity();
+                        ProductionOrder predecessorProductionOrderTyped =
+                            (ProductionOrder) predecessorProductionOrder.GetEntity();
                         IEnumerable<INode> newN =
-                            productionOrderOperationGraphs[predecessorProductionOrderAsP]
+                            productionOrderOperationGraphs[predecessorProductionOrderTyped]
                                 .GetAllUniqueNode();
-                        AdaptPredecessorNodes(newN, o1, productionOrderGraph, productionOrderOperationGraphs);    
+                        AdaptPredecessorNodes(newN, o1, productionOrderGraph,
+                            productionOrderOperationGraphs);
                     }
-                    
                 }
             }
         }
@@ -302,9 +312,10 @@ namespace Zpp.MachineDomain
 
             foreach (var productionOrder in productionOrderGraph.GetLeafNodes())
             {
+                var productionOrderOperationGraph =
+                    productionOrderOperationGraphs[(ProductionOrder) productionOrder.GetEntity()];
                 var productionOrderOperationLeafsOfProductionOrder =
-                    productionOrderOperationGraphs[(ProductionOrder) productionOrder.GetEntity()]
-                        .GetLeafNodes();
+                    productionOrderOperationGraph.GetLeafNodes();
 
                 S.PushAll(productionOrderOperationLeafsOfProductionOrder.Select(x =>
                     (ProductionOrderOperation) x.GetEntity()));
