@@ -61,13 +61,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
-                Collector.messageHub.SendToAllClients(msg: "Oder No:" + finishedArticle.OriginRequester  + " finished in time at " + Collector.Time);
+                Collector.messageHub.SendToAllClients(msg: $"Oder No: {finishedArticle.OriginRequester} finished {finishedArticle.Article.Name} in time at {Collector.Time}");
 
                 Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
                 inTime++;
             }else
             {
-                Collector.messageHub.SendToAllClients(msg: "Oder No:" + finishedArticle.OriginRequester + " finished to late at " + Collector.Time);
+                Collector.messageHub.SendToAllClients(msg: $"Oder No: {finishedArticle.OriginRequester} finished {finishedArticle.Article.Name} too late at {Collector.Time}");
                 toLate++;
             }
 
@@ -82,6 +82,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void UpdateFeed(bool writeResultsToDB)
         {
             //var open = openOrderParts.GroupBy(x => x.Article).Select(y => new { Article =  y.Key, Count = y.Sum(z => z.Quantity)} );
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Contracts");
 
             Collector.messageHub
                  .SendToClient(listener: "Contracts", 

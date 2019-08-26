@@ -7,7 +7,6 @@ using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
-using Master40.SimulationCore.Agents.Types;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
@@ -50,10 +49,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                                         , ProductionDomainContext productionDomainContext
                                         , IMessageHub messageHub
                                         , Configuration configuration
-                                        , List<int> productIds
+                                        , List<FSetEstimatedThroughputTime> estimatedThroughputTimes
                                         , IActorRef  principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Supervisor(actorPaths, time, debug, productionDomainContext, messageHub, configuration, productIds, principal));
+            return Akka.Actor.Props.Create(factory: () => new Supervisor(actorPaths, time, debug, productionDomainContext, messageHub, configuration, estimatedThroughputTimes, principal));
         }
 
         public Supervisor(ActorPaths actorPaths
@@ -62,7 +61,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                                         , ProductionDomainContext productionDomainContext
                                         , IMessageHub messageHub
                                         , Configuration configuration
-                                        , List<int> productIds
+                                        , List<FSetEstimatedThroughputTime> estimatedThroughputTimes
                                         , IActorRef principal
                                         ) 
             : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
@@ -71,11 +70,13 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             _dataBaseConnection = _productionDomainContext.Database.GetDbConnection();
             _articleCache = new ArticleCache(connectionString: _dataBaseConnection.ConnectionString);
             _messageHub = messageHub;
-            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: _productionDomainContext, productIds: productIds);
+            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: _productionDomainContext
+                                              , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
+            estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
             Send(instruction: Instruction.PopOrder.Create(message: "Pop", target: Self), waitFor: 1);
             Send(instruction: Instruction.EndSimulation.Create(message: true, target: Self), waitFor: configuration.GetOption<SimulationEnd>().Value);
             Send(instruction: Instruction.SystemCheck.Create(message: "CheckForOrders", target: Self), waitFor: 1);
@@ -87,7 +88,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             switch (o)
             {
                 case BasicInstruction.ChildRef instruction: OnChildAdd(childRef: instruction.GetObjectFromMessage); break;
-                case Instruction.SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(getObjectFromMessage: instruction.GetObjectFromMessage); break; // ToDo Benammung : Sollte die Letzte nachricht zwischen Produktionsagent und Contract Agent abfangen und Inital bei der ersten Forward Terminierung setzen
+                // ToDo Benammung : Sollte die Letzte nachricht zwischen Produktionsagent und Contract Agent abfangen und Inital bei der ersten Forward Terminierung setzen
+                case Instruction.SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(getObjectFromMessage: instruction.GetObjectFromMessage); break; 
                 case Instruction.CreateContractAgent instruction: CreateContractAgent(orderPart: instruction.GetObjectFromMessage); break;
                 case Instruction.RequestArticleBom instruction: RequestArticleBom(articleId: instruction.GetObjectFromMessage); break;
                 case Instruction.OrderProvided instruction: OrderProvided(instruction: instruction); break;
@@ -179,6 +181,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
             Send(instruction: Instruction.PopOrder.Create(message: "PopNext", target: Self), waitFor: order.CreationTime - CurrentTime);
             var eta = _estimatedThroughPuts.Get(name: order.CustomerOrderParts.First().Article.Name);
+            DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");
 
             long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
             if (period < 0 || eta.Value == 0)

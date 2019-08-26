@@ -1,8 +1,7 @@
-﻿using Master40.SimulationCore.Environment.Options;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Master40.SimulationCore.Environment.Options;
 
-namespace Master40.SimulationCore.Agents.Types
+namespace Master40.SimulationCore.Types
 {
     public class ThroughPutDictionary 
     {

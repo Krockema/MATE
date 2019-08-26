@@ -96,13 +96,13 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 if (_fArticle.IsHeadDemand)
                 {
                     var nextRequestAt = _fArticle.DueTime - Agent.CurrentTime;
-                    Agent.DebugMessage(msg: "Ask storage for Article in " + nextRequestAt + " article: " + _fArticle.Key);
+                    Agent.DebugMessage(msg: $"Ask storage for Article {_fArticle.Key} in + {nextRequestAt}");
 
                     Agent.Send(instruction: ProvideArticleAtDue.Create(message: _fArticle.Key, target: _fArticle.StorageAgent)
                                  , waitFor: nextRequestAt);
                 }
             }
-            // Not in Stock and Not ToBuild Agent has to Wait for Stock To Provide Materials
+            // Not in Stock and Not ToBuild Agent has to Wait for stock to provide materials
         }
 
         internal void ResponseFromSystemForBom(M_Article article)
@@ -128,9 +128,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
         {
-            Agent.DebugMessage(
-                msg:
-                $"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
+            Agent.DebugMessage(msg:$"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
             var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
             Agent.Send(instruction: msg);
         }

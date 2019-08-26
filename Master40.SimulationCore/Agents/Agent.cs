@@ -105,7 +105,7 @@ namespace Master40.SimulationCore.Agents
             // else
             var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
             //Debug.WriteLine(message: logItem, category: "AgentMessage");
-            AgentSimulation.Logger.Log.Add(logItem);
+            //AgentSimulation.Logger.Log.Add(logItem);
 
             // TODO: Replace with Logging Agent
             // Statistics.Log.Add(logItem);

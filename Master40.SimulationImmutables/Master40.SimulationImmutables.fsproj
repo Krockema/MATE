@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FThroughPutTimers.fs" />
     <Compile Include="Message\FUpdateStartCondition.fs" />
     <Compile Include="Message\FArticleProviders.fs" />
     <Compile Include="Message\FProsponed.fs" />
@@ -24,7 +25,7 @@
     <Compile Include="Message\FAgentInformation.fs" />
     <Compile Include="Message\FUpdateStockValues.fs" />
     <Compile Include="Message\FStockReservation.fs" />
-    <Compile Include="Message\FSetEstimatedThroughputTime.fs" />
+    <Compile Include="Message\FSetEstimatedThroughputTimes.fs" />
     <Compile Include="Message\FBreakDown.fs" />
     <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
     <Compile Include="Message\FUpdateSimulationWork.fs" />

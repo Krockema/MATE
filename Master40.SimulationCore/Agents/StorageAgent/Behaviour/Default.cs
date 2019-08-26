@@ -134,9 +134,10 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             // Check if the most Important Request can be provided.
             var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
 
+            //TODO: might be a problem 
             if (mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.CurrentTime)
             {
-                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {mostUrgentRequest.Key} finished before due.");
+                Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {mostUrgentRequest.Key} finished before due. CostumerOrder {mostUrgentRequest.CustomerOrderId} will ask at {mostUrgentRequest.DueTime} for article.");
                 return;
             }
             // else if
@@ -149,7 +150,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
         private void ProvideArticleAtDue(Guid articleKey)
         {
-            Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {articleKey} is shall be provided at due {_stockElement.Current}.");
+            Agent.DebugMessage(msg: $"{_stockElement.Article.Name} {articleKey} shall be provided at due {_stockElement.Current}.");
             ProvideArticle(articleKey: articleKey);
         }
 
@@ -169,9 +170,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 // Reduce Stock 
                 _stockElement.Current -= article.Quantity;
 
-                // Remove from Requester List.
+                // Remove from Requester List
+                //TODO might be to early, handle headdemands different?
                 _requestedArticles.RemoveByKey(key: article.Key);
 
+                // Agent Sender can be a DispoAgent (ProvideArticleAtDue) or a ProductionAgent (ResponseFromProduction)
                 Agent.DebugMessage(msg: $"Provide Article: {article.Article.Name} {article.Key} from {Agent.Sender}");
 
                 // Create Callback for Production

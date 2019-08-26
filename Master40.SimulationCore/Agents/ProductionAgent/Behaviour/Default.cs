@@ -19,6 +19,7 @@ using static FArticleProviders;
 using static IJobResults;
 using Master40.SimulationCore.Agents.StorageAgent;
 using static FProductionResults;
+using static FThroughPutTimes;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -73,7 +74,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             {
                 nextOperation.StartConditions.PreCondition = true;
                 Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} at {_articleToProduce.Article.Name} was set true.");
-                Agent.Send(BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(),target: nextOperation.HubAgent));
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(),target: nextOperation.HubAgent));
                 return;
             }
             
@@ -85,14 +86,24 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                                                 , creationTime: 0
                                                        ,amount: 1);
 
-            Agent.Send(Storage.Instruction.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
+            Agent.Send(instruction: Storage.Instruction.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
 
+            if (_articleToProduce.IsHeadDemand)
+            {
+               
+                var pub = new FThroughPutTime(articleKey: _articleToProduce.Key
+                                            , articleName: _articleToProduce.Article.Name
+                                            , start: _articleToProduce.CreationTime
+                                            , end: Agent.CurrentTime);
+                Agent.Context.System.EventStream.Publish(@event: pub);
+            }
             Agent.TryToFinish();
 
         }
 
         private void StartProductionAgent(FArticle fArticle)
         {
+
             _forwardScheduleTimeCalculator = new ForwardScheduleTimeCalculator(fArticle: fArticle);
             // check for Children
             if (fArticle.Article.ArticleBoms.Any())

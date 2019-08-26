@@ -22,6 +22,7 @@ using static FSetEstimatedThroughputTimes;
 using static FUpdateSimulationWorkProviders;
 using static FUpdateSimulationWorks;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
+using static FThroughPutTimes;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -35,6 +36,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart = 0;
         private List<FUpdateSimulationWork> _updatedSimulationWork = new List<FUpdateSimulationWork>();
+        private List<FThroughPutTime> _ThroughPutTimes = new List<FThroughPutTime>();
         private ResourceList _resources { get; set; } = new ResourceList();
         public Collector Collector { get; set; }
         private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo(name: "en-GB"); // Required to get Number output with . instead of ,
@@ -46,6 +48,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                      typeof(FUpdateSimulationWork),
                                      typeof(FUpdateSimulationWorkProvider),
                                      typeof(UpdateLiveFeed),
+                                     typeof(FThroughPutTime),
                                      typeof(Hub.Instruction.AddResourceToHub),
                                      typeof(BasicInstruction.ResourceBrakeDown)
 
@@ -66,12 +69,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 case FCreateSimulationWork m: CreateSimulationWorkSchedule(cws: m); break;
                 case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(uws: m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
+                case FThroughPutTime m: UpdateThroughputTimes(m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
                 case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void UpdateThroughputTimes(FThroughPutTime m)
+        {
+            _ThroughPutTimes.Add(m);
         }
 
         private void BreakDwn(FBreakDown item)
@@ -86,6 +95,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateFeed(bool writeResultsToDB)
         {
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             MachineUtilization();
@@ -115,58 +125,31 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void ThroughPut()
         {
 
-            var art = from a in simulationWorkschedules
-                      where a.ArticleType == "Product"
-                          && a.CreatedForOrderId != null
-                          && a.Time >= Collector.Config.GetOption<TimePeriodForThrougputCalculation>().Value
-                      group a by new { a.Article, a.OrderId } into arti
-                      select new
-                      {
-                          arti.Key.Article,
-                          arti.Key.OrderId
-                      };
-
-            var leadTime = from lt in simulationWorkschedules
-                           group lt by lt.OrderId into so
+            var leadTime = from lt in _ThroughPutTimes
+                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThrougputCalculation>().Value
+                           group lt by lt.ArticleName into so
                            select new
                            {
-                               OrderID = so.Key,
-                               Dlz = (double)(so.Max(selector: x => x.End) - so.Min(selector: x => x.Start))
+                               ArticleName = so.Key,
+                               Dlz = so.Select(selector: x => (double)x.End - x.Start).ToList()
                            };
 
-            var innerJoinQuery =
-                   from a in art
-                   join l in leadTime on a.OrderId equals l.OrderID
-                   select new
-                   {
-                       a.Article,
-                       a.OrderId,
-                       l.Dlz
-                   };
 
-            var group = from dlz in innerJoinQuery
-                        group dlz by dlz.Article into agregat
-                        select new
-                        {
-                            agregat.Key,
-                            List = agregat.Select(selector: x => x.Dlz).ToList()
-                        };
-
-            foreach (var item in group)
+            foreach (var item in leadTime)
             {
-                var thoughput = JsonConvert.SerializeObject(value: new { group });
+                var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
                 Collector.messageHub.SendToClient(listener: "Throughput",  msg: thoughput);
 
-                var boxPlot = item.List.FiveNumberSummary();
-                var uperQuartile = Convert.ToInt64(value: boxPlot[3]);
+                var boxPlot = item.Dlz.FiveNumberSummary();
+                var upperQuartile = Convert.ToInt64(value: boxPlot[4]);
                 Collector.actorPaths.SimulationContext.Ref.Tell(
                     message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
-                        message: new FSetEstimatedThroughputTime(time: uperQuartile, articleName: item.Key)
+                        message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
                         , target: Collector.actorPaths.SystemAgent.Ref
                     )
                     , sender: ActorRefs.NoSender);
 
-                Debug.WriteLine(message: "(" + Collector.Time + ")" + item.Key + ": " + uperQuartile); 
+                Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}"); 
             }
 
             var v2 = simulationWorkschedules.Where(predicate: a => a.ArticleType == "Product"
@@ -284,6 +267,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var ws = cws.Operation;
             var sws = new SimulationWorkschedule
             {
+                CreatedForOrderId = cws.CustomerOrderId,
                 WorkScheduleId = ws.Key.ToString(),
                 Article = ws.Operation.Article.Name,
                 WorkScheduleName = ws.Operation.Name,

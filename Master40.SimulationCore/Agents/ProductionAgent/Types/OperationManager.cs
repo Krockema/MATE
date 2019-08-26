@@ -89,7 +89,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
                 if (fOperation.Operation.ArticleBoms.Count == 0)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
+                    //TODO Log this somewhere - not in System Debug
+                    //System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
                     fOperation.StartConditions.ArticlesProvided = true;
                 }
 
@@ -104,7 +105,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
 
                 }
             }
-            System.Diagnostics.Debug.WriteLine($"ProductionAgent Bom elements require {counter} and created {listAP.Count} Dispos.");
+            //TODO Log this somewhere
+            // System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
 
             
 

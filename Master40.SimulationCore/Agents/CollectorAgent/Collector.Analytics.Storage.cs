@@ -75,6 +75,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
         }
 
 

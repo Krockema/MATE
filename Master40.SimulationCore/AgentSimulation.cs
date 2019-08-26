@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static FResourceSetupDefinitions;
+using static FSetEstimatedThroughputTimes;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore
@@ -74,8 +75,7 @@ namespace Master40.SimulationCore
                 GenerateGuardians();
 
                 // Create Supervisor Agent
-                var productIds = _dBContext.GetProductIds();
-                ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem.ActorOf(props: Supervisor.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents, productionDomainContext: _dBContext, messageHub: _messageHub, configuration: configuration, productIds: productIds, principal: ActorRefs.Nobody), name: "Supervisor"));
+                CreateSupervisor(configuration: configuration);
 
                 // Create DirectoryAgents
                 CreateDirectoryAgents();
@@ -88,6 +88,27 @@ namespace Master40.SimulationCore
 
                 return _simulation;
             });
+        }
+
+        private void CreateSupervisor(Configuration configuration)
+        {
+            var productBoms = _dBContext.GetProductBoms();
+            var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
+
+            var estimatedThroughputs = productBoms.Select(a => new FSetEstimatedThroughputTime(a.ArticleChild.Id, initialTime, a.ArticleChild.Name))
+                                                  .ToList();
+
+
+            ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem
+                .ActorOf(props: Supervisor.Props(actorPaths: ActorPaths,
+                        time: 0,
+                        debug: _debugAgents,
+                        productionDomainContext: _dBContext,
+                        messageHub: _messageHub,
+                        configuration: configuration,
+                        estimatedThroughputTimes: estimatedThroughputs,
+                        principal: ActorRefs.Nobody),
+                    name: "Supervisor"));
         }
 
         private void CreateDirectoryAgents()
@@ -210,7 +231,7 @@ namespace Master40.SimulationCore
                     {
                         var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: false, target: inbox.Receiver),timeout: TimeSpan.FromHours(value: 1)).Result;
                     }
-                    Logger.WriteToFile().Wait();
+                    //Logger.WriteToFile().Wait();
                     sim.Continue();
                     Continuation(inbox: inbox, sim: sim, collectors: collectors);
                     break;

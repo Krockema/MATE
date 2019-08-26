@@ -57,11 +57,11 @@ namespace Master40.DB.Data.Context
             return rs;
         }
 
-        public List<int> GetProductIds()
+        public List<M_ArticleBom> GetProductBoms()
         {
             return this.ArticleBoms
                         .Where(predicate: b => b.ArticleParentId == null)
-                        .Select(selector: a => a.ArticleChildId)
+                            .Include(c => c.ArticleChild)
                         .ToList();
         }
 
