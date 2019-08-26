@@ -67,9 +67,9 @@ namespace Master40.ViewComponents
             foreach (var article in articles)
             {
                 // add zero to start
-                var articleKpis = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
+                var articleKpis = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
                 articleKpis.AddRange(collection: kpis.Where(predicate: x => x.Name == article).OrderBy(keySelector: x => x.Count)
-                    .Select(selector: x => new LineScatterData { x = x.Count.ToString(), y = x.ValueMin.ToString() }).ToList());
+                    .Select(selector: x => new LineScatterData { X = x.Count.ToString(), Y = x.ValueMin.ToString() }).ToList());
 
                     var lds = new LineScatterDataset()
                     {

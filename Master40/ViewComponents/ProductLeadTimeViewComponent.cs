@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
@@ -113,17 +114,17 @@ namespace Master40.ViewComponents
                     Datasets = new List<Dataset>(),
                     Labels = labels,
                 };
-                var dsClear = new BarDataset { Data = new List<double>(), Label = "dsClear", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
-                var lowerStroke = new BarDataset { Data = new List<double>(), Label = "lowerStroke", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
-                var firstQuartile = new BarDataset { Data = new List<double>(), Label = "fQ", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
-                var secondQuartile = new BarDataset { Data = new List<double>(), Label = "Med", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
-                var thirdQuartile = new BarDataset { Data = new List<double>(), Label = "uQ", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
-                var fourthQuartile = new BarDataset { Data = new List<double>(), Label = "line", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
-                var upperStroke = new BarDataset { Data = new List<double>(), Label = "upperStroke", BackgroundColor = new List<string>(), BorderWidth = new List<int>(), BorderColor = new List<string>() };
+                var dsClear = new BarDataset { Data = new List<double>(), Label = "dsClear", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var lowerStroke = new BarDataset { Data = new List<double>(), Label = "lowerStroke", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var firstQuartile = new BarDataset { Data = new List<double>(), Label = "fQ", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var secondQuartile = new BarDataset { Data = new List<double>(), Label = "Med", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var thirdQuartile = new BarDataset { Data = new List<double>(), Label = "uQ", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var fourthQuartile = new BarDataset { Data = new List<double>(), Label = "line", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var upperStroke = new BarDataset { Data = new List<double>(), Label = "upperStroke", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
 
 
                 var products = kpi.Select(selector: x => x.Name).Distinct().ToList();
-                var colors = new ChartColor();
+                var colors = new ChartColors();
                 int i = 0;
 
                 foreach (var sim in _simList)
@@ -136,44 +137,42 @@ namespace Master40.ViewComponents
                             .ToList();
 
                         dsClear.Data.Add(item: (double) boxplotValues.ElementAt(index: 0).Value);
-                        dsClear.BackgroundColor.Add(item: ChartColor.Transparent);
-                        dsClear.BorderColor.Add(item: ChartColor.Transparent);
+                        dsClear.BackgroundColor.Add(item: ChartColors.Transparent);
+                        dsClear.BorderColor.Add(item: ChartColors.Transparent);
                         dsClear.BorderWidth.Add(item: 0);
 
                         lowerStroke.Data.Add(item: 5);
-                        lowerStroke.BackgroundColor.Add(item: ChartColor.Transparent);
-                        lowerStroke.BorderColor.Add(item: "rgba(50, 50, 50, 1)");
+                        lowerStroke.BackgroundColor.Add(item: ChartColors.Transparent);
+                        lowerStroke.BorderColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));
                         lowerStroke.BorderWidth.Add(item: 2);
 
                         var fq = (double) (boxplotValues.ElementAt(index: 1).Value - boxplotValues.ElementAt(index: 0).Value - 5);
                         firstQuartile.Data.Add(item: fq);
-                        firstQuartile.BackgroundColor.Add(item: "rgba(50, 50, 50, 1)");// .Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
-                        firstQuartile.BorderColor.Add(item: "rgba(50, 50, 50, 1)");
+                        firstQuartile.BackgroundColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));// .Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) + "0.8)");
+                        firstQuartile.BorderColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));
                         firstQuartile.BorderWidth.Add(item: 0);
 
                         var m = (double) (boxplotValues.ElementAt(index: 2).Value - boxplotValues.ElementAt(index: 1).Value);
                         secondQuartile.Data.Add(item: m);
-                        secondQuartile.BackgroundColor.Add(item: colors.Color[index: i].Substring(startIndex: 0, length: colors.Color[index: i].Length - 4) +
-                                                           "0.8)");
-                        secondQuartile.BorderColor.Add(item: "rgba(50, 50, 50, 1)");
+                        secondQuartile.BackgroundColor.Add(item: colors.Get(i, 0.8));
+                        secondQuartile.BorderColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));
                         secondQuartile.BorderWidth.Add(item: 1);
 
                         var up = (double) (boxplotValues.ElementAt(index: 3).Value - boxplotValues.ElementAt(index: 2).Value);
                         thirdQuartile.Data.Add(item: up);
-                        thirdQuartile.BackgroundColor.Add(item: colors.Color[index: i].Substring(startIndex: 0, length: colors.Color[index: i].Length - 4) +
-                                                          "0.8)");
-                        thirdQuartile.BorderColor.Add(item: "rgba(50, 50, 50, 1)");
+                        thirdQuartile.BackgroundColor.Add(item: colors.Get(i, 0.8));
+                        thirdQuartile.BorderColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));
                         thirdQuartile.BorderWidth.Add(item: 1);
 
                         var hs = (double) (boxplotValues.ElementAt(index: 4).Value - boxplotValues.ElementAt(index: 3).Value - 5);
                         fourthQuartile.Data.Add(item: hs);
-                        fourthQuartile.BackgroundColor.Add(item: "rgba(50, 50, 50, 1)"); //.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) +  "0.8)");
-                        fourthQuartile.BorderColor.Add(item: "rgba(50, 50, 50, 1)");
+                        fourthQuartile.BackgroundColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1)); //.Add(colors.Color[i].Substring(0, colors.Color[i].Length - 4) +  "0.8)");
+                        fourthQuartile.BorderColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));
                         fourthQuartile.BorderWidth.Add(item: 0);
 
                         upperStroke.Data.Add(item: 5);
-                        upperStroke.BackgroundColor.Add(item: ChartColor.Transparent);
-                        upperStroke.BorderColor.Add(item: "rgba(50, 50, 50, 1)");
+                        upperStroke.BackgroundColor.Add(item: ChartColors.Transparent);
+                        upperStroke.BorderColor.Add(item: ChartColor.FromRgba(50, 50, 50, 1));
                         upperStroke.BorderWidth.Add(item: 2);
                         i = i + 2;
                     }

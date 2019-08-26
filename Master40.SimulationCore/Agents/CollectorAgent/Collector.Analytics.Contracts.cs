@@ -105,6 +105,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             WriteToDB(agent: Collector, writeResultsToDB: writeResultsToDB);
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from Contracts");
         }
 
         private void AddOrder(Contract.Instruction.StartOrder m)

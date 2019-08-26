@@ -106,6 +106,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             LogToDB(writeResultsToDB: writeResultsToDB);
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
 
         private void LogToDB(bool writeResultsToDB)

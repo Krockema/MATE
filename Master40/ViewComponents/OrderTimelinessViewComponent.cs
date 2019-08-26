@@ -44,22 +44,22 @@ namespace Master40.ViewComponents
 
                 // use available hight in Chart
                 chart.Options = new PieOptions { MaintainAspectRatio = false , Responsive = true 
-                                                    , CutoutPercantage = 80
+                                                    , CutoutPercentage =  80
                                                     , Rotation = 0.8 * Math.PI
                                                     , Circumference = 1.4 * Math.PI
                                                     , Legend = new Legend { Position = "bottom", Display = false }
                                                     , Title = new Title{ Text = "Timeliness", Position = "top", FontSize = 24, FontStyle = "bold"}
                                                 };
 
-                var cc = new ChartColor();
+                var cc = new ChartColors();
                 var data = new Data
                 {
                     Datasets = new List<Dataset>
                         {
                             new PieDataset
                             {
-                                BackgroundColor = new[] { cc.Color[index: 4].Substring(startIndex: 0, length: cc.Color[index: 4].Length -4) + "0.3)",cc.Color[index: 1].Substring(startIndex: 0, length: cc.Color[index: 1].Length -4) + "0.3)" },
-                                BorderColor = new[] { cc.Color[index: 4].Substring(startIndex: 0, length: cc.Color[index: 4].Length - 4) + "0.8)", cc.Color[index: 1].Substring(startIndex: 0, length: cc.Color[index: 1].Length -4) + "0.8)" },
+                                BackgroundColor = new[] { cc.Get(4, 0.3),cc.Get(4, 0.3)  },
+                                BorderColor = new[] { cc.Get(4, 0.8),cc.Get(4, 0.8)},
                                 BorderWidth = 1,
                            }
                         },

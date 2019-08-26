@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
 using Master40.Extensions;
-using ChartJSCore.Models.Bar;
 using Master40.DB.Enums;
 
 namespace Master40.ViewComponents
@@ -75,29 +75,29 @@ namespace Master40.ViewComponents
                 data.Datasets = new List<Dataset>();
 
                 var i = 0;
-                var cc = new ChartColor();
+                var cc = new ChartColors();
                 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID ="y-normal"};
-                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID= "y-diversity"};
-                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID ="y-diversity"};
+                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID ="y-normal"};
+                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID= "y-diversity"};
+                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID ="y-diversity"};
                 foreach (var machine in machines)
                 {
                     var percent = Math.Round(value: machine.Value * 100, digits: 2);
                     // var wait = max - work;
                     barDataSet.Data.Add(item: percent);
-                    barDataSet.BackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "0.4)");
-                    barDataSet.HoverBackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "0.7)");
+                    barDataSet.BackgroundColor.Add(item: cc.Get(i, 0.4));
+                    barDataSet.HoverBackgroundColor.Add(item: cc.Get(i, 0.7));
 
                     var varianz = machine.Count * 100;
 
                     barDiversityInvisSet.Data.Add(item: percent - Math.Round(value: varianz / 2, digits: 2));
-                    barDiversityInvisSet.BackgroundColor.Add(item: ChartColor.Transparent);
-                    barDiversityInvisSet.HoverBackgroundColor.Add(item: ChartColor.Transparent);
+                    barDiversityInvisSet.BackgroundColor.Add(item: ChartColors.Transparent);
+                    barDiversityInvisSet.HoverBackgroundColor.Add(item: ChartColors.Transparent);
 
                     barDiversitySet.Data.Add(item: Math.Round(value: varianz, digits: 2));
-                    barDiversitySet.BackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "0.8)");
-                    barDiversitySet.HoverBackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: i].Length - 4) + "1)");
+                    barDiversitySet.BackgroundColor.Add(item: cc.Get(i, 0.8));
+                    barDiversitySet.HoverBackgroundColor.Add(item: cc.Get(i, 1));
                     i++;
                 }
 
@@ -148,7 +148,7 @@ namespace Master40.ViewComponents
                 Chart chart = new Chart { Type = Enums.ChartType.Scatter };
 
                 // charttype
-                var cc = new ChartColor();
+                var cc = new ChartColors();
                 // use available hight in Chart
                 // use available hight in Chart
                 var machinesKpi = _resultContext.Kpis.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
@@ -168,9 +168,9 @@ namespace Master40.ViewComponents
                 foreach (var machine in machines)
                 {
                     // add zero to start
-                    var kpis = new List<LineScatterData> { new LineScatterData {  x = "0", y = "0" } };
+                    var kpis = new List<LineScatterData> { new LineScatterData {  X = "0", Y = "0" } };
                     kpis.AddRange(collection: machinesKpi.Where(predicate: x => x.Name == machine).OrderBy(keySelector: x => x.Time)
-                        .Select(selector: x => new LineScatterData { x = x.Time.ToString() , y = (x.Value * 100).ToString() }).ToList());
+                        .Select(selector: x => new LineScatterData { X = x.Time.ToString() , Y = (x.Value * 100).ToString() }).ToList());
 
                     var lds = new LineScatterDataset()
                     {
@@ -179,21 +179,22 @@ namespace Master40.ViewComponents
                         Label = machine,
                         ShowLine = true,
                         Fill = "false",
-                        BackgroundColor = cc.Color[index: i],
-                        BorderColor = cc.Color[index: i++],
+                        BackgroundColor = cc.Get(i),
+                        BorderColor = cc.Get(i++),
                         LineTension = 0
                     };
                     data.Datasets.Add(item: lds);
 
                 }
 
+                
                 data.Datasets.Add(item: new LineScatterDataset()
                 {
-                    Data = new List<LineScatterData> { new LineScatterData { x = "0", y = "100" }, new LineScatterData { x = Convert.ToDouble(value: settlingTime).ToString(), y = "100" } },
+                    Data = new List<LineScatterData> { new LineScatterData { X = "0", Y = "100" }, new LineScatterData { X = Convert.ToDouble(value: settlingTime).ToString(), Y = "100" } },
                     BorderWidth = 1,
                     Label = "Settling time",
-                    BackgroundColor = "rgba(0, 0, 0, 0.1)",
-                    BorderColor = "rgba(0, 0, 0, 0.3)",
+                    BackgroundColor = ChartJSCore.Helpers.ChartColor.FromRgba(0, 0, 0, 0.1),
+                    BorderColor = ChartJSCore.Helpers.ChartColor.FromRgba(0, 0, 0, 0.3),
                     ShowLine = true,
                     //Fill = true,
                     //SteppedLine = false,

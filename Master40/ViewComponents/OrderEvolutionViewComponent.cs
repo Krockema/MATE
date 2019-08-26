@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Master40.DB.Enums;
 using Master40.Extensions;
 
@@ -29,7 +30,7 @@ namespace Master40.ViewComponents
                 }
 
                 Chart chart = new Chart();
-                ChartColor cc = new ChartColor();
+                ChartColors cc = new ChartColors();
                 // charttype
                 chart.Type = Enums.ChartType.Scatter;
                 var simConfig = _context.SimulationConfigurations.Single(predicate: a => a.Id == Convert.ToInt32(paramsList[0]));
@@ -64,38 +65,38 @@ namespace Master40.ViewComponents
                 
                     var startVal = 0;
                     var ts = simConfig.DynamicKpiTimeSpan;
-                    var input = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
-                    var progress = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
-                    var output = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
+                    var input = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
+                    var progress = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
+                    var output = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
                     for (var i = ts; i < simConfig.SimulationEndTime; i = i + ts)
                     {
                             input.AddRange(collection: kpis.Where(predicate: x => x.CreationTime >= startVal
                                                         && x.CreationTime < i)
                                 .Select(selector: x => new { time = i , value = (decimal)x.Name.Count() })
                                 .GroupBy(keySelector: g => g.time)
-                                .Select(selector: n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
+                                .Select(selector: n => new LineScatterData { X = Convert.ToDouble(n.Key).ToString(), Y = Convert.ToDouble(n.Count()).ToString() }).ToList());
 
                             progress.AddRange(collection: kpis.Where(predicate: x => x.CreationTime <= i
                                                       && x.FinishingTime > i)
                                 .Select(selector: x => new { time = i, value = x.Name.Count() })
                                 .GroupBy(keySelector: g => g.time)
-                                .Select(selector: n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
+                                .Select(selector: n => new LineScatterData { X = Convert.ToDouble(n.Key).ToString(), Y = Convert.ToDouble(n.Count()).ToString() }).ToList());
 
                             output.AddRange(collection: kpis.Where(predicate: x => x.FinishingTime >= startVal
                                                       && x.FinishingTime < i)
                                 .Select(selector: x => new { time = i, value = x.Name.Count() })
                                 .GroupBy(keySelector: g => g.time)
-                                .Select(selector: n => new LineScatterData { x = Convert.ToDouble(n.Key).ToString(), y = Convert.ToDouble(n.Count()).ToString() }).ToList());
+                                .Select(selector: n => new LineScatterData { X = Convert.ToDouble(n.Key).ToString(), Y = Convert.ToDouble(n.Count()).ToString() }).ToList());
                             startVal = i;
                         }
 
                 data.Datasets.Add(item: new LineScatterDataset()
                 {
-                    Data = new List<LineScatterData> { new LineScatterData { x = "0", y = maxX.ToString() }, new LineScatterData { x = simConfig.SettlingStart.ToString(), y = maxX.ToString() } },
+                    Data = new List<LineScatterData> { new LineScatterData { X = "0", Y = maxX.ToString() }, new LineScatterData { X = simConfig.SettlingStart.ToString(), Y = maxX.ToString() } },
                     BorderWidth = 1,
                     Label = "Settling time",
-                    BackgroundColor = "rgba(0, 0, 0, 0.1)",
-                    BorderColor = "rgba(0, 0, 0, 0.3)",
+                    BackgroundColor = ChartColor.FromRgba(0,0,0,0.1),
+                    BorderColor = ChartColor.FromRgba(0, 0, 0, 0.3),
                     ShowLine = true,
                     Fill = "true",
                     //SteppedLine = false,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
@@ -175,7 +176,7 @@ namespace Master40.ViewComponents
             var dataset = new BarDataset()
             {
                 Label = "MachineGroup " + machineGroupId.ToString(),
-                BackgroundColor = new List<string> { new ChartColor().Color[index: machineGroupId - 1] },
+                BackgroundColor = new List<ChartColor> { new ChartColors().Get(index: machineGroupId - 1) },
                 Data = data,
             };
             

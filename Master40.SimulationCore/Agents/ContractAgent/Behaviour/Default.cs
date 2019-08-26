@@ -8,7 +8,7 @@ using static FArticles;
 
 namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 {
-    public class Default : SimulationCore.Types.Behaviour, IDefaultProperties
+    public class Default : Types.Behaviour, IDefaultProperties
     {
         internal Default(SimulationType simulationType = SimulationType.None)
                         : base(childMaker: null, obj: simulationType) { }

@@ -125,15 +125,15 @@ namespace Master40.SimulationCore
             var resourcelist = new ResourceList();
             resourcelist.AddRange(collection: _dBContext.Resources.Select(selector: x => "Resources(" + x.Name.Replace(" ", "") + ")"));
 
-            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsWorkSchedule.Get(resources: resourcelist)
-                                                            , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
-                                                            , streamTypes: CollectorAnalyticsWorkSchedule.GetStreamTypes()));
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
-                                                            , streamTypes: CollectorAnalyticsStorage.GetStreamTypes()));
+                                                            , streamTypes: CollectorAnalyticsStorage.GetStreamTypes()), name: "StorageCollector");
             ContractCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
-                                                            , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()));
+                                                            , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()), name: "ContractCollector");
+            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsWorkSchedule.Get(resources: resourcelist)
+                                                            , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                                                            , streamTypes: CollectorAnalyticsWorkSchedule.GetStreamTypes()), name: "WorkScheduleCollector");
         }
 
         private void GenerateGuardians()
@@ -227,11 +227,13 @@ namespace Master40.SimulationCore
                     break;
                 case SimulationMessage.SimulationState.Stopped:
                     System.Diagnostics.Debug.WriteLine(message: "AKKA:STOP AGENT SYSTEM", category: "AKKA-System:");
+                    var tasks = new List<Task>();
                     foreach (var item in collectors)
                     {
-                        var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: false, target: inbox.Receiver),timeout: TimeSpan.FromHours(value: 1)).Result;
+                        var msg = UpdateLiveFeed.Create(setup: false, target: inbox.Receiver);
+                        tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 2)));
                     }
-                    //Logger.WriteToFile().Wait();
+                    Task.WaitAll(tasks.ToArray());
                     sim.Continue();
                     Continuation(inbox: inbox, sim: sim, collectors: collectors);
                     break;

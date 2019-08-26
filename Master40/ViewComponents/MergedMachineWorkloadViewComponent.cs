@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
-using Master40.Extensions;
 using Master40.DB.Enums;
-using ChartJSCore.Models.Bar;
-using Master40.DB.DataModel;
 using Master40.DB.ReportingModel;
+using Master40.Extensions;
 
 namespace Master40.ViewComponents
 {
@@ -88,14 +87,14 @@ namespace Master40.ViewComponents
                 data.Datasets = new List<Dataset>();
 
                 var i = 0;
-                var cc = new ChartColor();
+                var cc = new ChartColors();
                 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
                 foreach (var t1 in _simList.OrderBy(keySelector: x => x.Item1))
                 {
-                    var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-normal" };
-                    var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
-                    var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
+                    var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-normal" };
+                    var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
+                    var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
                     barDataSet.Label = "Sim Id:" + t1.Item1 + " " + t1.Item2;
                     foreach (var machineName in data.Labels)
                     {
@@ -107,8 +106,8 @@ namespace Master40.ViewComponents
                         var percent = Math.Round(value: machine.Value * 100, digits: 2);
                         // var wait = max - work;
                         barDataSet.Data.Add(item: percent);
-                        barDataSet.BackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: 1].Length - 4) + "0.4)");
-                        barDataSet.HoverBackgroundColor.Add(item: cc.Color[index: i].Substring(startIndex: 0, length: cc.Color[index: 1].Length - 4) + "0.7)");
+                        barDiversitySet.BackgroundColor.Add(item: cc.Get(i, 0.4));
+                        barDiversitySet.HoverBackgroundColor.Add(item: cc.Get(i, 0.7));
 
                         //var varianz = machine.Count * 100;
 

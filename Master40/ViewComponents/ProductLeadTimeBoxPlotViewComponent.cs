@@ -57,7 +57,7 @@ namespace Master40.ViewComponents
 
                 var chart = new List<BoxPlot>();
                 var products = kpi.Select(selector: x => x.Name).Distinct().ToList();
-                var colors = new ChartColor();
+                var colors = new ChartColors();
                 int i = 0;
 
                 foreach (var sim in _simList)
@@ -84,7 +84,7 @@ namespace Master40.ViewComponents
                             LowerQuartile = (decimal)boxplotValues.ElementAt(index: 1).Value,
                             LowestSample = (decimal)boxplotValues.ElementAt(index: 0).Value,
                             Name = product + "<br> SimId:" + sim.Item1 + " " + sim.Item2,
-                            Color = colors.Color[index: i].Substring(startIndex: 0, length: colors.Color[index: i].Length - 4)
+                            Color = colors.Get(i).ToString()
                         });
                         if (_simList.Count() == 1)  i++;
 

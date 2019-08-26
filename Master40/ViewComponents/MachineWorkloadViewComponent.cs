@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
@@ -47,8 +48,9 @@ namespace Master40.ViewComponents
                 var max = _context.SimulationOperations.Max(selector: x => x.End);
                 var work = endSum - startSum;
                 var wait = max - work;
+                var cc = new ChartColors();
                 data.Datasets.Add( item: new PieDataset{ Data = new List<double>{ work, wait },
-                    BackgroundColor = new List<string> { new ChartColor().Color[index: 2], new ChartColor().Color[index: 0] } } );
+                    BackgroundColor = new List<ChartColor> { cc.Get(2), cc.Get(0) } } );
 
                 data.Labels = new string[] {"Work " + Math.Round(d: Convert.ToDecimal(value: work) / max*100, decimals: 2) + " %",
                                             "Wait " + Math.Round(d: Convert.ToDecimal(value: wait) / max*100, decimals: 2) + " %"};

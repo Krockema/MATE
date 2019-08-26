@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Master40.DB.Enums;
 using Master40.Extensions;
 
@@ -42,7 +43,7 @@ namespace Master40.ViewComponents
 
                 Chart chart = new Chart();
                 var lables = new List<string>();
-                var cc = new ChartColor();
+                var cc = new ChartColors();
                 // charttype
                 chart.Type = Enums.ChartType.HorizontalBar;
 
@@ -51,17 +52,17 @@ namespace Master40.ViewComponents
                 var min = new BarDataset {
                     Type = Enums.ChartType.HorizontalBar,
                     Data = new List<double>(),
-                    BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
+                    BackgroundColor = new List<ChartColor>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
                 };
                 var avg = new BarDataset {
                     Type = Enums.ChartType.HorizontalBar,
                     Data = new List<double>(),
-                    BackgroundColor = new List<string>() // { cc.Color[8], , cc.Color[1] }
+                    BackgroundColor = new List<ChartColor>() // { cc.Color[8], , cc.Color[1] }
                 };
                 var max = new BarDataset {
                     Type = Enums.ChartType.HorizontalBar,
                     Data = new List<double>(),
-                    BackgroundColor = new List<string>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
+                    BackgroundColor = new List<ChartColor>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
                 };
 
                 foreach (var kpi in kpis)
@@ -70,7 +71,7 @@ namespace Master40.ViewComponents
                     min.Data.Add(item: kpi.ValueMin);
                     avg.Data.Add(item: kpi.Value - kpi.ValueMin);
                     max.Data.Add(item: kpi.ValueMax - kpi.Value);
-                    min.BackgroundColor.Add(item: ChartColor.Transparent);
+                    min.BackgroundColor.Add(item: ChartColors.Transparent);
                     avg.BackgroundColor.Add(item: cc.Color[index: 4]);
                     max.BackgroundColor.Add(item: cc.Color[index: 1]);
                 }
