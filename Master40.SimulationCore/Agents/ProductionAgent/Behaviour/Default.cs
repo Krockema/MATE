@@ -243,6 +243,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 var pub = new FCreateSimulationWork(operation: fJob
                     , customerOrderId: fArticle.CustomerOrderId.ToString()
                     , isHeadDemand: fArticle.IsHeadDemand
+                    , fArticleKey : fArticle.Key
+                    , fArticleName: fArticle.Article.Name
                     , articleType: fArticle.Article.ArticleType.Name);
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }

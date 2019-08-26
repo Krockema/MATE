@@ -231,7 +231,8 @@ namespace Master40.SimulationCore
                     foreach (var item in collectors)
                     {
                         var msg = UpdateLiveFeed.Create(setup: false, target: inbox.Receiver);
-                        tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 2)));
+                        System.Diagnostics.Debug.WriteLine($"Ask for Update Feed {item.Path.Name}");
+                        tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 60 * 60)));
                     }
                     Task.WaitAll(tasks.ToArray());
                     sim.Continue();

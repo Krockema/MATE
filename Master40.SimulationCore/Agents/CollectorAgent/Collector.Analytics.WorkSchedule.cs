@@ -32,15 +32,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             _resources = resources;
         }
 
-        private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
+        private List<SimulationWorkschedule> simulationWorkschedules { get; } = new List<SimulationWorkschedule>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
-        private long lastIntervalStart = 0;
-        private List<FUpdateSimulationWork> _updatedSimulationWork = new List<FUpdateSimulationWork>();
-        private List<FThroughPutTime> _ThroughPutTimes = new List<FThroughPutTime>();
+        private long lastIntervalStart { get; set; } = 0;
+        private List<FUpdateSimulationWork> _updatedSimulationWork { get;  } = new List<FUpdateSimulationWork>();
+        private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
         private ResourceList _resources { get; set; } = new ResourceList();
         public Collector Collector { get; set; }
-        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo(name: "en-GB"); // Required to get Number output with . instead of ,
-        private List<Kpi> Kpis = new List<Kpi>();
+        /// <summary>
+        /// Required to get Number output with . instead of ,
+        /// </summary>
+        private CultureInfo _cultureInfo { get; } = CultureInfo.GetCultureInfo(name: "en-GB");
+        private List<Kpi> Kpis { get; } = new List<Kpi>();
 
         internal static List<Type> GetStreamTypes()
         {
@@ -75,6 +78,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
             }
+            // Collector.messageHub.SendToAllClients(msg: $"Just finished {message.GetType().Name}");
             return true;
         }
 
@@ -95,7 +99,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateFeed(bool writeResultsToDB)
         {
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
+            //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             MachineUtilization();
@@ -244,6 +248,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //     Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "intern");
             // }
             // tuples.Clear();
+
+            // Cut all lower bound ?
+            // TODO save removed items to somewhere
+            var removed = simulationWorkschedules.RemoveAll(sw => sw.CreatedForOrderId != string.Empty
+                                                               && sw.End < lastIntervalStart);
+            Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed {removed}");
         }
 
         private void CreateKpi(Collector agent, string value, string name, KpiType kpiType)
@@ -268,7 +278,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var ws = cws.Operation;
             var sws = new SimulationWorkschedule
             {
-                CreatedForOrderId = cws.CustomerOrderId,
+                CreatedForOrderId = string.Empty,
                 WorkScheduleId = ws.Key.ToString(),
                 Article = ws.Operation.Article.Name,
                 WorkScheduleName = ws.Operation.Name,
@@ -278,7 +288,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationType = Collector.simulationKind.Value,
                 OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.Operation.HierarchyNumber,
-                ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
+                // TODO this is now a fArticleKey (Guid)
+                ProductionOrderId = "[" + cws.fArticleKey+ "]",
                 Parent = cws.IsHeadDemand.ToString(),
                 ParentId = "[]",
                 Time = (int)(Collector.Time),
@@ -293,9 +304,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 sws.Machine = edit.Machine;
                 _updatedSimulationWork.Remove(item: edit);
             }
-
-
-
             simulationWorkschedules.Add(item: sws);
         }
 
