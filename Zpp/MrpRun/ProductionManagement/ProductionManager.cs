@@ -69,6 +69,9 @@ namespace Zpp.ProductionDomain
                 case ProductionType.WorkshopProduction:
                     productionOrderCreator = new ProductionOrderCreatorWorkshop();
                     break;
+                case ProductionType.WorkshopProductionClassic:
+                    productionOrderCreator = new ProductionOrderCreatorWorkshopClassic();
+                    break;
                 default:
                     productionOrderCreator = null;
                     break;
@@ -105,6 +108,9 @@ namespace Zpp.ProductionDomain
                         break;
                     case ProductionType.WorkshopProduction:
                         productionOrderBomCreator = new ProductionOrderBomCreatorWorkshop();
+                        break;
+                    case ProductionType.WorkshopProductionClassic:
+                        productionOrderBomCreator = new ProductionOrderBomCreatorWorkshopClassic();
                         break;
                     default:
                         productionOrderBomCreator = null;
@@ -144,13 +150,13 @@ namespace Zpp.ProductionDomain
         }
         
         public static T_ProductionOrderOperation CreateProductionOrderOperation(
-            M_ArticleBom articleBom, Provider parentProductionOrder)
+            M_ArticleBom articleBom, Provider parentProductionOrder, Quantity quantity)
         {
             T_ProductionOrderOperation productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation = new T_ProductionOrderOperation();
             productionOrderOperation.Name = articleBom.Operation.Name;
             productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
-            productionOrderOperation.Duration = articleBom.Operation.Duration;
+            productionOrderOperation.Duration = articleBom.Operation.Duration * (int)quantity.GetValue();
             // Tool has no meaning yet, ignore it
             productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
             productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;

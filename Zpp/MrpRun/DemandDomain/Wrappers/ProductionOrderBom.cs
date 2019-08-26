@@ -33,11 +33,11 @@ namespace Zpp.DemandDomain
         /// <returns></returns>
         public static ProductionOrderBom CreateTProductionOrderBom(M_ArticleBom articleBom,
             Provider parentProductionOrder, IDbMasterDataCache dbMasterDataCache,
-            ProductionOrderOperation productionOrderOperation)
+            ProductionOrderOperation productionOrderOperation, Quantity quantity)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
-            productionOrderBom.Quantity = articleBom.Quantity;
+            productionOrderBom.Quantity = articleBom.Quantity * quantity.GetValue();
             productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent =
                 (T_ProductionOrder) parentProductionOrder.ToIProvider();
@@ -56,7 +56,7 @@ namespace Zpp.DemandDomain
             {
                 productionOrderBom.ProductionOrderOperation =
                     ProductionManager.CreateProductionOrderOperation(articleBom,
-                        parentProductionOrder);
+                        parentProductionOrder, quantity);
                 productionOrderBom.ProductionOrderOperationId =
                     productionOrderBom.ProductionOrderOperation.Id;
             }
@@ -214,15 +214,6 @@ namespace Zpp.DemandDomain
         {
             return _dbMasterDataCache.M_ArticleBomGetByArticleChildId(
                 new Id(_productionOrderBom.ArticleChildId));
-        }
-
-        public void CreateProductionOrderOperation(ProductionOrder parentProductionOrder)
-        {
-            _productionOrderBom.ProductionOrderOperation =
-                ProductionManager.CreateProductionOrderOperation(GetArticleBom(),
-                    parentProductionOrder);
-            _productionOrderBom.ProductionOrderOperationId =
-                _productionOrderBom.ProductionOrderOperation.Id;
         }
     }
 }

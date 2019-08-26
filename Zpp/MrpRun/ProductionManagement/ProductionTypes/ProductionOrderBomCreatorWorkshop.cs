@@ -7,10 +7,8 @@ using Zpp.Utils;
 namespace Zpp.ProviderDomain
 {
     /**
-     * This class exists because of following problem:
-     * - Lotsize must not be equal to the articleBom.Quantity
-     * --> multiple ProdcutionOrderBoms need to be created, because every operation consume only
-     * quantity of articleBom.Quantity
+     * (quantity * articleBom.Quantity) ProductionOrderBoms will be created
+     * ProductionOrderOperation.Duration == articleBom.Duration
      */
     public class ProductionOrderBomCreatorWorkshop : IProductionOrderBomCreator
     {
@@ -66,7 +64,7 @@ namespace Zpp.ProviderDomain
 
                 ProductionOrderBom newProductionOrderBom =
                     ProductionOrderBom.CreateTProductionOrderBom(articleBom, parentProductionOrder,
-                        dbMasterDataCache, productionOrderOperation);
+                        dbMasterDataCache, productionOrderOperation, new Quantity(1));
 
                 if (newProductionOrderBom.HasOperation() == false)
                 {

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp;
 using Zpp.DemandDomain;
 using Zpp.ProviderDomain;
 using Zpp.Utils;
@@ -10,17 +9,18 @@ namespace Zpp
 {
     /**
      * (articleBom.Quantity) ProductionOrderBoms will be created
-     * ProductionOrderOperation.Duration == articleBom.Duration
+     * ProductionOrderOperation.Duration == articleBom.Duration * quantity
      */
-    public class ProductionOrderBomCreatorAssemblyLine : IProductionOrderBomCreator
+    public class ProductionOrderBomCreatorWorkshopClassic
+    : IProductionOrderBomCreator
     {
         private readonly Dictionary<M_Operation, ProductionOrderOperation>
             _alreadyCreatedProductionOrderOperations =
                 new Dictionary<M_Operation, ProductionOrderOperation>();
 
-        public ProductionOrderBomCreatorAssemblyLine()
+        public ProductionOrderBomCreatorWorkshopClassic()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.AssemblyLine) == false)
+            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic) == false)
             {
                 throw new MrpRunException("This is class is intended for productionType AssemblyLine.");
             }
@@ -58,7 +58,7 @@ namespace Zpp
 
             ProductionOrderBom newProductionOrderBom =
                 ProductionOrderBom.CreateTProductionOrderBom(articleBom, parentProductionOrder,
-                    dbMasterDataCache, productionOrderOperation, new Quantity(1));
+                    dbMasterDataCache, productionOrderOperation, quantity);
 
             if (newProductionOrderBom.HasOperation() == false)
             {
@@ -77,5 +77,6 @@ namespace Zpp
 
             return newProductionOrderBoms;
         }
+        
     }
 }
