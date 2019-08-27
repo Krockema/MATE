@@ -1,25 +1,23 @@
-﻿using Akka.Actor;
-using Master40.DB.DataModel;
+﻿using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.DirectoryAgent;
+using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.ProductionAgent.Types;
+using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.SimulationCore.Agents.DispoAgent;
-using Master40.SimulationCore.Agents.ProductionAgent.Types;
-using static FArticles;
 using static FAgentInformations;
-using static FOperationResults;
-using static FOperations;
-using static FCreateSimulationWorks;
 using static FArticleProviders;
-using static IJobResults;
-using Master40.SimulationCore.Agents.StorageAgent;
+using static FArticles;
+using static FCreateSimulationWorks;
+using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;
+using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -54,13 +52,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case BasicInstruction.ProvideArticle msg: ArticleProvided(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
-                // case Production.Instruction.ProvideRequest pr: ProvideRequest((Production)agent, pr.GetObjectFromMessage); break;
-                // case Production.Instruction.Finished f:
-                //     agent.VirtualChilds.Remove(agent.Sender);
-                //     ((Production)agent).TryToFinish(); break;
 
-                //Testing
-                default: return true;
+                default: return false;
             }
 
             return true;
@@ -80,7 +73,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             
             Agent.DebugMessage(msg: $"All operations for article {_articleToProduce.Article.Name} {_articleToProduce.Key} finished.");
             
-            //TODO add production amount to productionresult, currently 1
+            //TODO add production amount to productionresult, currently static 1
             var productionResponse = new FProductionResult(key: _articleToProduce.Key
                                                   , trackingId: _articleToProduce.StockExchangeId
                                                 , creationTime: 0
@@ -161,7 +154,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             // TODO Only for Debugging
             var operation = OperationManager.GetOperationByKey(operationKey: operationKey);
             Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name}");
-            //
 
             var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey);
             foreach (var dispo in dispoAgents)

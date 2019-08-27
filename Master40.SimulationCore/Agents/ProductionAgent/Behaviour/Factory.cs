@@ -11,6 +11,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
             switch (simType)
             {
+                case SimulationType.Bucket:
+                    return Bucket();
                 default:
                     return Default();
             }
@@ -23,7 +25,17 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             return new Default();
         }
 
+        private static IBehaviour Bucket()
+        {
 
+            return new Bucket();
+        }
+
+        /// <summary>
+        /// Create the StartConditionMessage which is send to Hub and ResourceAgent
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <returns></returns>
         public static FUpdateStartCondition GetStartCondition(this FOperation operation)
         {
             return new FUpdateStartCondition(operationKey: operation.Key

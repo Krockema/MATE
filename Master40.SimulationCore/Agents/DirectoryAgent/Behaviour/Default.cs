@@ -91,7 +91,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
-                                                                    // TODO : 1 Machine N Hubs.
+                                                                    // TODO : Handle 1 resource in multiply hub agents
                                                                     , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , name: ("Machine(" + resource.Name + ")").ToActorName());

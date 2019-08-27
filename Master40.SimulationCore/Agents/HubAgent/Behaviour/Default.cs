@@ -1,19 +1,17 @@
 ﻿using Akka.Actor;
 using Master40.DB.Enums;
-using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static FBreakDowns;
 using static FAgentInformations;
-using static FOperationResults;
+using static FBreakDowns;
 using static FOperations;
 using static FProposals;
-using static IJobs;
-using static IJobResults;
 using static FUpdateStartConditions;
+using static IJobResults;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {

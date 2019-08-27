@@ -44,7 +44,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         }
 
         /// <summary>
-        /// TODO: Test Finish.
+        /// 
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
