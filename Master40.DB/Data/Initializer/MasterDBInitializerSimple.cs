@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 
@@ -8,10 +9,34 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerSimple
     {
+        private const string RESOURCESKILL_CUT = "CuttingSkill";
+        private const string RESOURCESKILL_DRILL = "DrillSkill";
+        private const string RESOURCESKILL_ASSEBMLY = "AssemblyUnitSkill";
+
+        private const string RESOURCETOOL_SAWBIG = "Saw blade big";
+        private const string RESOURCETOOL_SAWSMALL = "Saw blade small";
+        private const string RESOURCETOOL_M6 = "M6 head";
+        private const string RESOURCETOOL_M4 = "M4 head";
+        private const string RESOURCETOOL_SCREWDRIVERCROSS2 = "Screwdriver universal cross size 2";
+
+        private const string RESOURCE_SAW1 = "Saw 1";
+        private const string RESOURCE_SAW2 = "Saw 2";
+        private const string RESOURCE_DRILL1 = "Drill 1";
+        private const string RESOURCE_ASSEMBLY1 = "AssemblyUnit 1";
+        private const string RESOURCE_ASSEMBLY2 = "AssemblyUnit 2";
+
+        private const string RESOURCESETUP_SAW1_SAWBIG = "Saw1_Sawbladebig";
+        private const string RESOURCESETUP_SAW2_SAWBIG = "Saw2_Sawbladebig";
+        private const string RESOURCESETUP_SAW2_SAWSMALL = "Saw2_Sawbladesmall";
+        private const string RESOURCESETUP_DRILL1_M6 = "Drill1_M6";
+        private const string RESOURCESETUP_DRILL1_M4 = "Drill1_M4";
+
+        private const string RESOURCESETUP_ASSEMBLY1_SCREW2 = "ASSEMBLY1_SCREW2";
+        private const string RESOURCESETUP_ASSEMBLY2_SCREW2 = "ASSEMBLY2_SCREW2";
+
         public static void DbInitialize(MasterDBContext context)
         {
             context.Database.EnsureCreated();
-
 
             // Look for any Entrys.
             if (context.Articles.Any())
@@ -19,78 +44,33 @@ namespace Master40.DB.Data.Initializer
                 return;   // DB has been seeded
             }
             // Article Types
-            var articleTypes = new M_ArticleType[]
-            {
-                new M_ArticleType {Name = "Assembly"},
-                new M_ArticleType {Name = "Material"},
-                new M_ArticleType {Name = "Consumable"},
-                new M_ArticleType {Name = "Product"}
-            };
-
+            var articleTypes = CreateArticleTypes();
             context.ArticleTypes.AddRange(entities: articleTypes);
             context.SaveChanges();
 
             // Units
-            var units = new M_Unit[]
-            {
-                new M_Unit {Name = "Kilo"},
-                new M_Unit {Name = "Litre"},
-                new M_Unit {Name = "Pieces"}
-            };
+            var units = CreateUnits();
             context.Units.AddRange(entities: units);
             context.SaveChanges();
 
-            var resourceSkills = new M_ResourceSkill[]
-            {
-                new M_ResourceSkill { Name = "CuttingSkill", ResourceSetups = new List<M_ResourceSetup>() },
-                new M_ResourceSkill { Name = "DrillSkill", ResourceSetups = new List<M_ResourceSetup>() },
-                new M_ResourceSkill { Name = "AssemblyUnitSkill", ResourceSetups = new List<M_ResourceSetup>()},
-            };
+            //ResourceSkills
+            var resourceSkills = CreateResourceSkills();
 
-            var resourceTools = new M_ResourceTool[]
-            {
-                new M_ResourceTool{ Name="Saw blade big", ResourceSetups = new List<M_ResourceSetup>()},
-                new M_ResourceTool{ Name="Saw blade small", ResourceSetups = new List<M_ResourceSetup>()},
-                new M_ResourceTool{ Name="M6 head", ResourceSetups = new List<M_ResourceSetup>()},
-                new M_ResourceTool{ Name="M4 head", ResourceSetups = new List<M_ResourceSetup>()},
-                new M_ResourceTool{ Name="Screwdriver universal cross size 2", ResourceSetups = new List<M_ResourceSetup>()},
-            };
+            //ResourceTools
+            var resourceTools = CreateResourceTools();
             context.ResourceTools.AddRange(entities: resourceTools);
             context.SaveChanges();
 
-            var resources = new M_Resource[] {
-                new M_Resource{Name="Saw 1", Count = 1, ResourceSetups = new List<M_ResourceSetup>() },
-                new M_Resource{Name="Saw 2", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="Drill 1", Count = 1 , ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="AssemblyUnit 1", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-                new M_Resource{Name="AssemblyUnit 2", Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
-            };
+            //Resources
+            var resources = CreateResources();
             context.Resources.AddRange(entities: resources);
             context.SaveChanges();
 
-            var resourceSetups = new M_ResourceSetup[]{
-            new M_ResourceSetup { Name = "Saw1_Sawbladebig", Resource = resources.Single(predicate: s => s.Name == "Saw 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Saw blade big"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw2_Sawbladebig", Resource = resources.Single(predicate: s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Saw blade big"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "Saw2_Sawbladesmall", Resource = resources.Single(predicate: s => s.Name == "Saw 2"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Saw blade small"), SetupTime = 5 },
-
-            new M_ResourceSetup { Name = "Drill1_M4", Resource = resources.Single(predicate: s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "M4 head"), SetupTime = 10 },
-            new M_ResourceSetup { Name = "Drill1_M6", Resource = resources.Single(predicate: s => s.Name == "Drill 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "M6 head"), SetupTime = 10 },
-
-            new M_ResourceSetup { Name = "AssemblyUnit1_Screwdriver universal cross size 2", Resource = resources.Single(predicate: s => s.Name == "AssemblyUnit 1"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
-            new M_ResourceSetup { Name = "AssemblyUnit2_Screwdriver universal cross size 2", Resource = resources.Single(predicate: s => s.Name == "AssemblyUnit 2"), ResourceTool = resourceTools.Single(predicate: s => s.Name == "Screwdriver universal cross size 2"), SetupTime = 5 },
-            };
+            //ResourceSetups
+            var resourceSetups = CreateResourceSetups(resources: resources, resourceTools: resourceTools);
 
             // register resourceToResourceTool at the resourceSkill
-            resourceSkills.Single(predicate: s => s.Name == "CuttingSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Saw1_Sawbladebig"));
-            resourceSkills.Single(predicate: s => s.Name == "CuttingSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Saw2_Sawbladebig"));
-            resourceSkills.Single(predicate: s => s.Name == "CuttingSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Saw2_Sawbladesmall"));
-
-            resourceSkills.Single(predicate: s => s.Name == "DrillSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Drill1_M4"));
-            resourceSkills.Single(predicate: s => s.Name == "DrillSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "Drill1_M6"));
-
-            resourceSkills.Single(predicate: s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "AssemblyUnit1_Screwdriver universal cross size 2"));
-            resourceSkills.Single(predicate: s => s.Name == "AssemblyUnitSkill").ResourceSetups.Add(item: resourceSetups.Single(predicate: r => r.Name == "AssemblyUnit2_Screwdriver universal cross size 2"));
-
+            resourceSkills = UpdateResourceSkills(resourceSkills: resourceSkills, resourceSetups: resourceSetups);
             context.ResourceSkills.AddRange(entities: resourceSkills);
             context.ResourceSetups.AddRange(entities: resourceSetups);
             context.SaveChanges();
@@ -192,6 +172,136 @@ namespace Master40.DB.Data.Initializer
             context.ArticleToBusinessPartners.AddRange(entities: artToBusinessPartner);
             context.SaveChanges();
 
+        }
+
+        private static M_ResourceSkill[] UpdateResourceSkills(M_ResourceSkill[] resourceSkills, M_ResourceSetup[] resourceSetups)
+        {
+            var _resourceSkills = resourceSkills;
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_CUT).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_SAW1_SAWBIG));
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_CUT).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_SAW2_SAWBIG));
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_CUT).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_SAW2_SAWSMALL));
+
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_DRILL).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_DRILL1_M4));
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_DRILL).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_DRILL1_M6));
+
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_ASSEBMLY).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_ASSEMBLY1_SCREW2));
+            _resourceSkills.Single(predicate: s => s.Name == RESOURCESKILL_ASSEBMLY).ResourceSetups
+                .Add(item: resourceSetups.Single(predicate: r => r.Name == RESOURCESETUP_ASSEMBLY2_SCREW2));
+
+            return _resourceSkills;
+        }
+
+        private static M_ResourceSetup[] CreateResourceSetups(M_Resource[] resources, M_ResourceTool[] resourceTools)
+        {
+            var resourceSetups = new M_ResourceSetup[]
+            {
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_SAW1_SAWBIG, Resource = resources.Single(predicate: s => s.Name == RESOURCE_SAW1),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_SAWBIG), SetupTime = 5
+                },
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_SAW2_SAWBIG, Resource = resources.Single(predicate: s => s.Name == RESOURCE_SAW2),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_SAWBIG), SetupTime = 5
+                },
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_SAW2_SAWSMALL, Resource = resources.Single(predicate: s => s.Name == RESOURCE_SAW2),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_SAWSMALL), SetupTime = 5
+                },
+
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_DRILL1_M6, Resource = resources.Single(predicate: s => s.Name == RESOURCE_DRILL1),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_M6), SetupTime = 10
+                },
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_DRILL1_M4, Resource = resources.Single(predicate: s => s.Name == RESOURCE_DRILL1),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_M4), SetupTime = 10
+                },
+
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_ASSEMBLY1_SCREW2,
+                    Resource = resources.Single(predicate: s => s.Name == RESOURCE_ASSEMBLY1),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_SCREWDRIVERCROSS2), SetupTime = 5
+                },
+                new M_ResourceSetup
+                {
+                    Name = RESOURCESETUP_ASSEMBLY2_SCREW2,
+                    Resource = resources.Single(predicate: s => s.Name == RESOURCE_ASSEMBLY2),
+                    ResourceTool = resourceTools.Single(predicate: s => s.Name == RESOURCETOOL_SCREWDRIVERCROSS2), SetupTime = 5
+                },
+            };
+            return resourceSetups;
+        }
+
+        private static M_Resource[] CreateResources()
+        {
+            var resources = new M_Resource[]
+            {
+                new M_Resource {Name = RESOURCE_SAW1, Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_Resource {Name = RESOURCE_SAW2, Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_Resource {Name = RESOURCE_DRILL1, Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_Resource {Name = RESOURCE_ASSEMBLY1, Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_Resource {Name = RESOURCE_ASSEMBLY2, Count = 1, ResourceSetups = new List<M_ResourceSetup>()},
+            };
+            return resources;
+        }
+
+        private static M_ResourceTool[] CreateResourceTools()
+        {
+            var resourceTools = new M_ResourceTool[]
+            {
+                new M_ResourceTool {Name = RESOURCETOOL_SAWBIG, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceTool {Name = RESOURCETOOL_SAWSMALL, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceTool {Name = RESOURCETOOL_M6, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceTool {Name = RESOURCETOOL_M4, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceTool {Name = RESOURCETOOL_SCREWDRIVERCROSS2, ResourceSetups = new List<M_ResourceSetup>()},
+            };
+            return resourceTools;
+        }
+
+        private static M_ResourceSkill[] CreateResourceSkills()
+        {
+            var resourceSkills = new M_ResourceSkill[]
+            {
+                new M_ResourceSkill {Name = RESOURCESKILL_CUT, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceSkill {Name = RESOURCESKILL_DRILL, ResourceSetups = new List<M_ResourceSetup>()},
+                new M_ResourceSkill {Name = RESOURCESKILL_ASSEBMLY, ResourceSetups = new List<M_ResourceSetup>()},
+            };
+            return resourceSkills;
+        }
+
+        private static M_Unit[] CreateUnits()
+        {
+            var units = new M_Unit[]
+            {
+                new M_Unit {Name = "Kilo"},
+                new M_Unit {Name = "Litre"},
+                new M_Unit {Name = "Pieces"}
+            };
+            return units;
+        }
+
+        private static M_ArticleType[] CreateArticleTypes()
+        {
+            var articleTypes = new M_ArticleType[]
+            {
+                new M_ArticleType {Name = "Assembly"},
+                new M_ArticleType {Name = "Material"},
+                new M_ArticleType {Name = "Consumable"},
+                new M_ArticleType {Name = "Product"}
+            };
+            return articleTypes;
         }
     }
 }
