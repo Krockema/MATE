@@ -106,7 +106,7 @@ namespace Master40
 
             //MasterDBInitializerLarge.DbInitialize(context);
             //MasterDBInitializerLarge.DbInitialize(context);
-            MasterDBInitializerDesk.DbInitialize(context: context);
+            MasterDbInitializerTable.DbInitialize(context: context);
 
             ResultDBInitializerBasic.DbInitialize(context: contextResults);
 

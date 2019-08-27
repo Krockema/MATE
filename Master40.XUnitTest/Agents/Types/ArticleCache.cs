@@ -18,7 +18,7 @@ namespace Master40.XUnitTest.Agents.Types
                                 .UseSqlServer(connectionString: _dbConnectionString)
                                 .Options);
             _masterDBContext.Database.EnsureCreated();
-            MasterDBInitializerDesk.DbInitialize(context: _masterDBContext);
+            MasterDbInitializerTable.DbInitialize(context: _masterDBContext);
          }
 
 

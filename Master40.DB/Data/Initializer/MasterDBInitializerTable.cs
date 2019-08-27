@@ -1,13 +1,12 @@
+using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
-using Master40.DB.Data.Context;
-using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer
 {
-    public static class MasterDBInitializerDesk
+    public static class MasterDbInitializerTable
     {
         private const string RESCOURCESKILL_CUT = "CuttingSkill";
         private const string RESCOURCESKILL_DRILL = "DrillSkill";
