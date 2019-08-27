@@ -8,6 +8,8 @@ namespace Master40.SimulationCore.Agents.Guardian
 {
     public class GuardianBehaviour : SimulationCore.Types.Behaviour
     {
+        internal int counterChilds = 0;
+
         internal GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker, SimulationType simulationType) 
             : base(childMaker: childMaker
                  , simulationType: simulationType) { }
@@ -29,6 +31,9 @@ namespace Master40.SimulationCore.Agents.Guardian
 
         internal void CreateChild(AgentSetup setup)
         {
+            counterChilds++;
+            System.Diagnostics.Debug.WriteLine($"({Agent.CurrentTime}) {Agent.Context.Self.Path.Name} add child and has {counterChilds} now");
+
             var childRef = Agent.Behaviour.ChildMaker(arg1: Agent.Context, arg2: setup);
             Agent.Send(instruction: BasicInstruction.Initialize.Create(target: childRef, message: setup.Behaviour));
         }

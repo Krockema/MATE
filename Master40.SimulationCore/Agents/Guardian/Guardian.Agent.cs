@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System.Linq;
+using Akka.Actor;
 using Master40.SimulationCore.Helper;
 
 namespace Master40.SimulationCore.Agents.Guardian
@@ -14,6 +15,8 @@ namespace Master40.SimulationCore.Agents.Guardian
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
+
+
         public Guardian(ActorPaths actorPaths, long time, bool debug)
             : base(actorPaths: actorPaths, time: time, debug: false, principal: null)
         {
@@ -25,8 +28,17 @@ namespace Master40.SimulationCore.Agents.Guardian
             return Akka.Actor.Props.Create(factory: () => new Guardian(actorPaths, time, debug));
         }
 
+        public override void AroundPostStop()
+        {
+            System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} Children left: {Context.GetChildren().Count()} ChildCounter: {((GuardianBehaviour)this.Behaviour).counterChilds}");
+            base.AroundPostStop();
+        }
+
+
         protected override void Finish()
         {
+            ((GuardianBehaviour)this.Behaviour).counterChilds--;
+            System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} finished child and has {((GuardianBehaviour)this.Behaviour).counterChilds} now");
             // Do Nothing plx
         }
     }
