@@ -36,8 +36,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            //MasterDBInitializerSimple.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            MasterDBInitializerSimple.DbInitialize(_masterDBContext);
+            //MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             _ctxResult.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
