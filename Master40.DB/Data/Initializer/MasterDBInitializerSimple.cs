@@ -121,7 +121,7 @@ namespace Master40.DB.Data.Initializer
                 new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischbein").Id, Name = "Tischbein bohren", Duration=5, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
                 // Bom For Tischplatte
-                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=40, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
+                new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte saegen", Duration=20, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="CuttingSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="Saw blade small"), HierarchyNumber = 10 },
                 new M_Operation{  ArticleId = articles.Single(predicate: a => a.Name == "Tischplatte").Id, Name = "Tischplatte bohren", Duration=5, ResourceSkill=resourceSkills.Single(predicate: s => s.Name =="DrillSkill"), ResourceTool=resourceTools.Single(predicate: t => t.Name =="M6 head"), HierarchyNumber = 20 },
 
 

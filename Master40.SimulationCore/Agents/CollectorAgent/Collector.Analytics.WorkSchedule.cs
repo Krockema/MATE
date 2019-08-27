@@ -300,7 +300,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (edit != null)
             {
                 sws.Start = (int)edit.Start;
-                sws.End = (int)(edit.Start + edit.Duration + 1);
+                sws.End = (int)(edit.Start + edit.Duration);
                 sws.Machine = edit.Machine;
                 _updatedSimulationWork.Remove(item: edit);
             }
@@ -315,7 +315,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (edit != null)
             {
                 edit.Start = (int)uws.Start;
-                edit.End = (int)(uws.Start + uws.Duration + 1); // to have Time Points instead of Time Periods
+                edit.End = (int)(uws.Start + uws.Duration); // to have Time Points instead of Time Periods
                 edit.Machine = uws.Machine;
                 return;
             }
