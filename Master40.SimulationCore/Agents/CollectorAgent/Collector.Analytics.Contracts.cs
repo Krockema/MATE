@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using AkkaSim;
-using Master40.DB.Data.Context;
-using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
-using Master40.SimulationCore.Agents.SupervisorAgent;
-using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Agents.SupervisorAegnt;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
 using Newtonsoft.Json;
@@ -27,8 +21,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private double toLate = 0;
         private long lastIntervalStart = 0;
 
-        private List<SimulationOrder> simulationOrders = new List<SimulationOrder>();
-
         public static CollectorAnalyticsContracts Get()
         {
             return new CollectorAnalyticsContracts();
@@ -41,16 +33,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             switch (message)
             {
                 case Contract.Instruction.StartOrder m: AddOrder((Collector)simulationMonitor, m); break;
-                case Supervisor.Instruction.OrderProvided m: ProvideOrder((Collector)simulationMonitor, m.GetObjectFromMessage); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case Supervisor.Instruction.OrderProvided m: ProvideOrder((Collector)simulationMonitor, m); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
                 default: return false;
             }
             return true;
         }
 
-        private void ProvideOrder(Collector agent, FRequestItem requestItem)
+        private void ProvideOrder(Collector agent, Supervisor.Instruction.OrderProvided m)
         {
-            if (requestItem.DueTime >= requestItem.FinishedAt)
+            var message = m.Message as FRequestItem;
+            if (message.DueTime >= message.FinishedAt)
             {
                 // agent.messageHub.SendToAllClients("Oder No:" + message.OrderId  + " finished in time at " + agent.Time
                 //                                 , MessageSystem.Messages.MessageType.success);
@@ -63,16 +56,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 //                                 , MessageSystem.Messages.MessageType.warning);
                 toLate++;
             }
-
-            UpdateOrder(requestItem);
-
             openOrderParts--;
             finishedOrderParts++;
             totalOrders++;
-            
         }
 
-        private void UpdateFeed(Collector agent, bool writeResultsToDB)
+        private void Collect(Collector agent, object message)
+        {
+            //agent.ActorPaths.
+        }
+
+        private void UpdateFeed(Collector agent)
         {
             //var open = openOrderParts.GroupBy(x => x.Article).Select(y => new { Article =  y.Key, Count = y.Sum(z => z.Quantity)} );
            
@@ -89,59 +83,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 agent.messageHub
                     .SendToClient("Timeliness", timeliness);
             }
-
+            
             newOrderParts = 0;
             finishedOrderParts = 0;
-
-
-            WriteToDB(agent, writeResultsToDB);
-            
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
 
         private void AddOrder(Collector agent, Contract.Instruction.StartOrder m)
         {
             var op = m.GetObjectFromMessage;
-            var order = new SimulationOrder() { CreationTime = op.CustomerOrder.CreationTime
-                                                ,DueTime = op.CustomerOrder.DueTime
-                                                , State = DB.Enums.State.Created
-                                                , BusinessPartnerId = op.CustomerOrder.BusinessPartnerId
-                                                , Name = op.CustomerOrder.Name
-                                                , OriginId  = op.CustomerOrder.Id
-                                                , SimulationNumber = agent.simulationNumber.Value
-                                                , SimulationType = agent.simulationKind.Value
-                                                , SimulationConfigurationId = agent.simulationId.Value };  // TODO
-
-            simulationOrders.Add(order);
-
             openOrderParts++;
             newOrderParts++;
-        }
-
-
-        private void UpdateOrder(FRequestItem item)
-        {
-            var toUpdate = simulationOrders.Where(x => x.OriginId == item.CustomerOrderId).SingleOrDefault();
-            if (toUpdate == null)
-            {
-                throw new Exception("OrderNotFound during Orderupdate from Contract Collector Agent");
-            }
-
-            toUpdate.State = DB.Enums.State.Finished;
-            toUpdate.FinishingTime = (int)item.FinishedAt;
-        }
-
-        private void WriteToDB(Collector agent,bool writeResultsToDB)
-        {
-            if (agent.saveToDB.Value && writeResultsToDB)
-            {
-                using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
-                {
-                    ctx.SimulationOrders.AddRange(simulationOrders);
-                    ctx.SaveChanges();
-                    ctx.Dispose();
-                }
-            }
         }
     }
 }

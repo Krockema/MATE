@@ -8,11 +8,10 @@ namespace Master40.Simulation.CLI
     {
         public static void PrintHelp()
         {
-            var helpline = "This is CLI Interface to AkkaSim" +
-                          " -h, -help, -?, /? : Display this!";
-            
-
-            Console.Write(helpline);
+            Console.Write(@"This is CLI Interface to AkkaSim" +
+                          " -h, -help, -?, /? : Display this!" +
+                          " -simtype <Type> : Specify simulation Type <Central/Decentral>" +
+                          " -config <id> : Specify the simulationId to run with.");
         }
     }
 }

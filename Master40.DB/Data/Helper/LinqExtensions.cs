@@ -90,9 +90,14 @@ namespace Master40.DB.Data.Helper
 
             return dest;
         }
-        public static List<T> ResetId<T>(this List<T> entity) where T : IBaseEntity
+        public static dynamic GetTableWithoutId<T>(this T entity)
         {
-            return entity.Select(x => { x.Id = 0; return x; }).ToList();
+            List<dynamic> dl = new List<dynamic>();
+            foreach (var item in (IQueryable)entity)
+            {
+                dl.Add(item.CopyDbPropertiesWithoutId());
+            }
+            return dl;
         }
 
 

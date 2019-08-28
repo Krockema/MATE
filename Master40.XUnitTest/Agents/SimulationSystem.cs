@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore.Helper;
 using Xunit;
-using Master40.SimulationCore.Environment.Options;
-using Master40.DB.Enums;
 
 namespace Master40.XUnitTest.Agents
 {
@@ -44,35 +42,22 @@ namespace Master40.XUnitTest.Agents
             //MasterDBInitializerLarge.DbInitialize(_productionDomainContext);
         }
 
+        [Fact]
+        public async Task OrderDistribution()
+        {
+            OrderGenerator.GenerateOrdersSyncron(_ctx, ContextTest.TestConfiguration(), 1, true); // .RunSynchronously();
+        }
+
 
         [Fact]
         public async Task SystemTestAsync()
         {
-            var simConfig = SimulationCore.Environment.Configuration.Create(new object[]
-                                                {
-                                                    new DBConnectionString("")
-                                                    , new SimulationId(1)
-                                                    , new SimulationNumber(1)
-                                                    , new SimulationKind(SimulationType.Decentral)
-                                                    , new OrderArrivalRate(0.0275)
-                                                    , new OrderQuantity(550)
-                                                    , new EstimatedThroughPut(600)
-                                                    , new DebugAgents(false)
-                                                    , new DebugSystem(false)
-                                                    , new KpiTimeSpan(480)
-                                                    , new Seed(1337)
-                                                    , new MinDeliveryTime(1160)
-                                                    , new MaxDeliveryTime(1600)
-                                                    , new TimePeriodForThrougputCalculation(1920)
-                                                    , new SettlingStart(2880)
-                                                    , new SimulationEnd(20160)
-                                                    , new WorkTimeDeviation(0.2)
-                                                    , new SaveToDB(false)
-                                                });
+            var simContext = new AgentSimulation(true, _ctx, _ctxResult, new ConsoleHub());
+            var simConfig = ContextTest.TestConfiguration();
             // simConfig.OrderQuantity = 0;
-            var simContext = new AgentSimulation(_ctx, new ConsoleHub());
-            var simulation = simContext.InitializeSimulation(simConfig).Result;
-            
+            var simModelConfig = new SimulationConfig(false, 480);
+            var simulation = await simContext.InitializeSimulation(simConfig, simModelConfig);
+
             // simulation.ActorSystem.EventStream.Subscribe(testProbe, typeof(DirectoryAgent.Instruction.CreateMachineAgents));
 
             var simWasReady = false;
@@ -83,15 +68,29 @@ namespace Master40.XUnitTest.Agents
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                AgentSimulation.Continuation(simContext.SimulationConfig.Inbox
+                AgentSimulation.Continuation(simModelConfig.Inbox
                                             , simulation
                                             , new List<IActorRef> { simContext.StorageCollector
-                                                                    , simContext.WorkCollector
-                                                                    , simContext.ContractCollector });
+                                                                    , simContext.WorkCollector });
                 await sim;
             }
             
             Assert.True(simWasReady);
         }
+
+        [Fact]
+        public async Task MachineUtil()
+        {
+            var simConfig = _ctxResult.SimulationConfigurations.Single(x => x.Id == 1);
+            CalculateKpis.MachineSattleTime(_masterDBContext,_ctxResult, simConfig, DB.Enums.SimulationType.Decentral, 0);
+        }
+
+        [Fact]
+        public async Task ConsoleTest()
+        {
+            Console.WriteLine("System Console", "Programm");
+            System.Diagnostics.Debug.WriteLine("System Diagnostic", "System");
+        }
+
     }
 }

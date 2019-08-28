@@ -25,9 +25,9 @@ namespace Master40.SimulationCore.Helper
             Guardians = new Dictionary<GuardianType, IActorRef>();
         }
 
-        public void SetSupervisorAgent(IActorRef systemAgent)
+        public void SetSystemAgent(IActorRef systemAgent)
         {
-            SystemAgent = new ActorMetaData("SupervisorAgent", systemAgent);
+            SystemAgent = new ActorMetaData("SystemAgent", systemAgent);
         }
 
         public void SetHubDirectoryAgent(IActorRef hubAgent)

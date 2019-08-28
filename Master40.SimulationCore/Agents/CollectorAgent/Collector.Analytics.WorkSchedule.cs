@@ -1,19 +1,13 @@
-
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using AkkaSim;
-using Akka.Actor;
-using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.HubAgent;
-using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
-using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
@@ -28,7 +22,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<UpdateSimulationWork> _updatedSimulationWork = new List<UpdateSimulationWork>();
         private List<string> machines = new List<string>();
         private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo("en-GB"); // Required to get Number output with . instead of ,
-        private List<Kpi> Kpis = new List<Kpi>();
 
         public static CollectorAnalyticsWorkSchedule Get()
         {
@@ -62,7 +55,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             agent.messageHub.SendToClient(item.RequiredFor + "_State", "online");
         }
 
-        private void UpdateFeed(Collector agent, bool writeToDatabase)
+        private void UpdateFeed(Collector agent, bool logToDb)
         {
             if (machines.Count == 0)
             {
@@ -74,34 +67,22 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             MachineUtilization(agent);
             ThroughPut(agent);
             lastIntervalStart = agent.Time;
-
-
-            LogToDB(agent, writeToDatabase);
-            
-            agent.Context.Sender.Tell(true, agent.Context.Self);
-        }
-
-        private void LogToDB(Collector agent, bool writeToDatabase)
-        {
-            if (agent.saveToDB.Value && writeToDatabase)
+            if (logToDb)
             {
-                using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
-                {
-                    ctx.SimulationOperations.AddRange(simulationWorkschedules.Select(x => { x.Id = 0; return x; }));
-                    ctx.Kpis.AddRange(Kpis);
-                    ctx.SaveChanges();
-                    ctx.Dispose();
-                }
+                agent.DBResults.SimulationOperations.AddRange(simulationWorkschedules);
+                agent.DBResults.SaveChanges();
             }
+            agent.Context.Sender.Tell(true, agent.Context.Self);
+
         }
 
         private void ThroughPut(Collector agent)
         {
-
+            
             var art = from a in simulationWorkschedules
                       where a.ArticleType == "Product"
                           && a.CreatedForOrderId != null
-                          && a.Time >= agent.Config.GetOption<TimePeriodForThrougputCalculation>().Value
+                          && a.Time >= lastIntervalStart
                       group a by new { a.Article, a.OrderId } into arti
                       select new
                       {
@@ -114,7 +95,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                            select new
                            {
                                OrderID = so.Key,
-                               Dlz = (double)(so.Max(x => x.End) - so.Min(x => x.Start))
+                               Dlz = so.Max(x => x.End) - so.Min(x => x.Start)
                            };
 
             var innerJoinQuery =
@@ -139,25 +120,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 var thoughput = JsonConvert.SerializeObject(new { group });
                 agent.messageHub.SendToClient("Throughput",  thoughput);
-
-                var boxPlot = item.List.FiveNumberSummary();
-                var uperQuartile = Convert.ToInt64(boxPlot[3]);
-                agent.actorPaths.SimulationContext.Ref.Tell(
-                    SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
-                        new FSetEstimatedThroughputTime(uperQuartile, item.Key)
-                        , agent.actorPaths.SystemAgent.Ref
-                    )
-                    , ActorRefs.NoSender);
-
-                Debug.WriteLine("(" + agent.Time + ")" + item.Key + ": " + uperQuartile); 
             }
 
             var v2 = simulationWorkschedules.Where(a => a.ArticleType == "Product"
                                                    && a.HierarchyNumber == 20
                                                    && a.End == 0);
-
-
             agent.messageHub.SendToClient("ContractsV2", JsonConvert.SerializeObject(new { Time = agent.Time, Processing = v2.Count().ToString() }));
+
+
+
         }
 
         private void MachineUtilization(Collector agent)
@@ -215,20 +186,21 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             W = mg.Sum(x => x.W)
                         };
 
+
+            
+
             foreach (var item in final.OrderBy(x => x.M))
             {
-                var value = Math.Round(item.W / divisor, 3).ToString(_cultureInfo);
-                if (value == "NaN") value = "0";
+                var nan = Math.Round(item.W / divisor, 3).ToString(_cultureInfo);
+                if (nan == "NaN") nan = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                var machine = item.M.Replace(")", "").Replace("Machine(", "");
-                agent.messageHub.SendToClient(machine, value);
-                CreateKpi(agent, value, item.M, KpiType.MachineUtilization);
+                agent.messageHub.SendToClient(item.M.Replace(")", "").Replace("Machine(", ""), nan);
             }
 
             var totalLoad = Math.Round(final.Sum(x => x.W) / divisor / final.Count() * 100, 3).ToString(_cultureInfo);
             if (totalLoad == "NaN")  totalLoad = "0";
             agent.messageHub.SendToClient("TotalWork", JsonConvert.SerializeObject(new { Time = agent.Time, Load = totalLoad }));
-            CreateKpi(agent, totalLoad, "TotalWork", KpiType.MachineUtilization);
+            
             // // Kontrolle
             // var from_work2 = from sw in tuples
             //                  group sw by sw.Item1 into mg
@@ -243,23 +215,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //     Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "intern");
             // }
             // tuples.Clear();
-        }
-
-        private void CreateKpi(Collector agent, string value, string name, KpiType kpiType)
-        {
-            var k = new Kpi
-            {
-                Name = name,
-                Value = Convert.ToDouble(value),
-                Time = (int)agent.Time,
-                KpiType = kpiType,
-                SimulationConfigurationId = agent.simulationId.Value,
-                SimulationNumber = agent.simulationNumber.Value,
-                IsFinal = false,
-                IsKpi = true,
-                SimulationType = agent.simulationKind.Value
-            };
-            Kpis.Add(k);
         }
 
         private void CreateSimulationWorkSchedule(Collector agent, CreateSimulationWork cws)

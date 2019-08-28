@@ -46,7 +46,6 @@
 }
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Back</button>
-    <a asp-action="Edit" class="btn btn-outline-secondary" asp-route-id="@Model.Id">
-        <i class="fa fa-pencil-square-o fa-1x fa-unset"></i> Edit</a>
+    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+    <a asp-action="Edit" class="btn-default btn" asp-route-id="@Model.Id"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</a>
 </div>

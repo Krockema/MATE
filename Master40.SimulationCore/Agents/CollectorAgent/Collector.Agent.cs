@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
-using Master40.SimulationCore.Environment;
-using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
 
@@ -16,13 +14,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private ICollectorBehaviour Behaviour;
         internal IMessageHub messageHub { get; }
         internal MasterDBContext DBContext;
-        internal Configuration Config;
-        internal ActorPaths actorPaths;
-        internal SimulationId simulationId;
-        internal SimulationNumber simulationNumber;
-        internal SimulationKind simulationKind;
-        internal SaveToDB saveToDB;
-       
+        internal ResultContext DBResults;
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -30,12 +22,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
-        public Collector(ActorPaths paths
+        public Collector(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
-            , Configuration configuration
+            , ResultContext dBResults
             , long time
+            , bool debug
             , List<Type> streamTypes)
             : base(time, streamTypes)
         {
@@ -43,25 +36,19 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
             DBContext = dBContext;
-            Config = configuration;
-            actorPaths = paths;
-            simulationId = Config.GetOption<SimulationId>();
-            simulationNumber = Config.GetOption<SimulationNumber>();
-            simulationKind = Config.GetOption<SimulationKind>();
-            saveToDB = Config.GetOption<SaveToDB>();
+            DBResults = dBResults;
         }
 
         public static Props Props(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , MasterDBContext dBContext
-            , Configuration configuration
+            , ResultContext dBResults
             , long time
             , bool debug
             , List<Type> streamTypes)
         {
-            return Akka.Actor.Props.Create(
-                () => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, configuration, time, streamTypes));
+            return Akka.Actor.Props.Create(() => new Collector(actorPaths, collectorBehaviour, msgHub, dBContext, dBResults, time, debug, streamTypes));
         }
 
         protected override void EventHandle(object o)

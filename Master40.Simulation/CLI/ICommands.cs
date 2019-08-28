@@ -1,5 +1,6 @@
-﻿using Master40.SimulationCore.Environment;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Master40.Simulation.CLI
 {
@@ -9,9 +10,6 @@ namespace Master40.Simulation.CLI
         string ArgShort { get; }
         bool HasProperty { get; }
         string Description { get; }
-        /// <summary>
-        /// Input is { Configuration, ConfigElementName, ConfigElementValue }
-        /// </summary>
-        Action<Configuration, string> Action { get; }
+        Action<ParseResult, string> Action { get; }
     }
 }

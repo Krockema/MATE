@@ -1,16 +1,18 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Akka.Actor;
+using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.Enums;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Agents;
 using Master40.Tools.Messages;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Master40.SimulationCore.Environment;
-using Master40.SimulationCore.Environment.Options;
 
 namespace Master40.Simulation
 {
@@ -18,36 +20,39 @@ namespace Master40.Simulation
     {
 
         private readonly ProductionDomainContext _context;
-        //private readonly ResultContext _resultContext;
+        private readonly ResultContext _resultContext;
         private AgentSimulation _agentSimulation;
-        private Configuration _configuration;
         private IMessageHub _messageHub;
         private IActorRef SimulationContext;
-        public AgentCore(ProductionDomainContext context, IMessageHub messageHub)
+        public AgentCore(ProductionDomainContext context, ResultContext resultContext, IMessageHub messageHub)
         {
             _context = context;
-            //_resultContext = resultContext;
+            _resultContext = resultContext;
             _messageHub = messageHub;
         }
 
-        public async Task RunAkkaSimulation(Configuration configuration)
+        public async Task RunAkkaSimulation(SimulationConfiguration simConfig)
         {
-            _configuration = configuration;
-            _messageHub.SendToAllClients("Prepare in Memory model from DB for Simulation: " 
-                                        + _configuration.GetOption<SimulationId>().Value.ToString()
-                                        , MessageType.info);
+            _messageHub.SendToAllClients("Prepare in Memory model from DB for Simulation: " + simConfig.Id, MessageType.info);
             //In-memory database only exists while the connection is open
             var _inMemory = InMemoryContext.CreateInMemoryContext();
-            //InMemoryContext.LoadData(_context, _inMemory);
+            // InMemoryContext.LoadData(_context, _inMemory);
             MasterDBInitializerSmall.DbInitialize(_inMemory);
             PrepareModel(_inMemory);
+
+
+            var simNumber = _resultContext.GetSimulationNumber(simConfig.Id, SimulationType.Decentral);
             
             _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
 
-            _agentSimulation = new AgentSimulation(DBContext: _inMemory
+            _agentSimulation = new AgentSimulation(debug: false // Activates Debugging for all Agents
+                                                   ,DBContext: _inMemory
+                                                   ,DBResults: _resultContext
                                                    ,messageHub: _messageHub); // Defines the status output
             
-            var simulation = _agentSimulation.InitializeSimulation(_configuration).Result;
+            var simModelConfig = new SimulationConfig(debug: false // Activates Debugging for Akka
+                                                    , simConfig.DynamicKpiTimeSpan);
+            var simulation = _agentSimulation.InitializeSimulation(simConfig, simModelConfig).Result;
             SimulationContext = simulation.SimulationContext;
 
             
@@ -58,19 +63,44 @@ namespace Master40.Simulation
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                AgentSimulation.Continuation(_agentSimulation.SimulationConfig.Inbox
+                AgentSimulation.Continuation(simModelConfig.Inbox
                                             , simulation
                                             , new List<IActorRef> { _agentSimulation.StorageCollector
                                                                 , _agentSimulation.WorkCollector
                                                                 , _agentSimulation.ContractCollector
                                             });
                 await sim;
+
+
+                // var ws = _inMemory.SimulationWorkschedules.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList();
+                // _context.SimulationWorkschedules.AddRange(ws);
+                    
+                // _context.SaveChanges();
             }
             _messageHub.EndScheduler();
-            _messageHub.EndSimulation("Simulation Completed."
-                                    , _configuration.GetOption<SimulationId>().Value.ToString()
-                                    , _configuration.GetOption<SimulationNumber>().Value.ToString());
-            return;
+
+            // CopyResults.Copy(c, _evaluationContext, simulationConfigurationId, simNumber, SimulationType.Decentral);
+            // var simConfig = _evaluationContext.SimulationConfigurations.Single(x => x.Id == simulationConfigurationId);
+            // CalculateKpis.MachineSattleTime(_evaluationContext, simConfig, SimulationType.Decentral, simNumber);
+            // 
+            // CalculateKpis.CalculateAllKpis(_evaluationContext, simulationConfigurationId, SimulationType.Decentral, simNumber, true);
+
+
+
+            _context.Database.CloseConnection();
+            _messageHub.EndSimulation("Simulation with Id:" + _context + " Completed."
+                                            , _context.ToString()
+                                            , simNumber.ToString());
+        }
+
+        public SimulationConfiguration UpdateSettings(int simId, int orderAmount, double arivalRate, int estimatedThroughputTime)
+        {
+            var simConfig = _resultContext.SimulationConfigurations.AsNoTracking().Single(x => x.Id == simId);
+            simConfig.OrderQuantity = orderAmount;
+            simConfig.OrderRate = arivalRate;
+            // TODO: Create an own Field for it in the model
+            simConfig.Time = estimatedThroughputTime;
+            return simConfig;
         }
 
         private void PrepareModel(ProductionDomainContext inMemory)

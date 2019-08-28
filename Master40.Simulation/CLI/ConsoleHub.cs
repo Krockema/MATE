@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics;
 using Master40.Tools.Messages;
 using Master40.Tools.SignalR;
 
@@ -8,34 +8,33 @@ namespace Master40.Simulation.CLI
     {
         public void SendToAllClients(string msg)
         {
-            //Debug.WriteLine(msg);
-            Console.WriteLine(msg);
+            Debug.WriteLine(msg);
         }
 
         public void SendToAllClients(string msg, MessageType msgType)
         {
-            Console.WriteLine(msg);
+            Debug.WriteLine(msg);
         }
 
         public void SendToClient(string listener, string msg, MessageType msgType)
         {
-            Console.WriteLine(listener + ": " + msg);
+            Debug.WriteLine(msg, listener);
         }
 
         public string ReturnMsgBox(string msg, MessageType type)
         {
-            Console.WriteLine(msg);
+            Debug.WriteLine(msg);
             return msg;
         }
 
         public void EndScheduler()
         {
-            Console.WriteLine("Finished Scheduler");
+            Debug.WriteLine("Finished Scheduler");
         }
 
         public void EndSimulation(string msg)
         {
-            Console.WriteLine(msg);
+            Debug.WriteLine(msg);
         }
 
         public void ProcessingUpdate(int simId, int timer, string simType, int max)
@@ -45,7 +44,7 @@ namespace Master40.Simulation.CLI
 
         public void EndSimulation(string msg, string simId, string simNumber)
         {
-            Console.WriteLine("End Simulation");
+            Debug.WriteLine("End Simulation");
         }
     }
 

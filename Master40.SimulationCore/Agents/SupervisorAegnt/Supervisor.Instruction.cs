@@ -3,7 +3,7 @@ using AkkaSim.Definitions;
 using Master40.DB.DataModel;
 using Master40.SimulationImmutables;
 
-namespace Master40.SimulationCore.Agents.SupervisorAgent
+namespace Master40.SimulationCore.Agents.SupervisorAegnt
 {
     public partial class Supervisor
     {
@@ -46,7 +46,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                 private OrderProvided(object message, IActorRef target) : base(message, target, true)
                 {
                 }
-                public FRequestItem GetObjectFromMessage { get => Message as FRequestItem; }
             }
 
             public class Inizialized : SimulationMessage
@@ -75,30 +74,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                 private PopOrder(object message, IActorRef target) : base(message, target)
                 {
                 }
-            }
-
-            public class SystemCheck : SimulationMessage
-            {
-                public static SystemCheck Create(string message, IActorRef target)
-                {
-                    return new SystemCheck(message, target);
-                }
-                private SystemCheck(object message, IActorRef target) : base(message, target)
-                {
-                }
-            }
-
-            public class SetEstimatedThroughputTime : SimulationMessage
-            {
-                public static SetEstimatedThroughputTime Create(FSetEstimatedThroughputTime message, IActorRef target)
-                {
-                    return new SetEstimatedThroughputTime(message, target);
-                }
-                private SetEstimatedThroughputTime(object message, IActorRef target) : base(message, target)
-                {
-
-                }
-                public FSetEstimatedThroughputTime GetObjectFromMessage { get => Message as FSetEstimatedThroughputTime; }
             }
         }
     }

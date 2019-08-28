@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.DispoAgent;
-using Master40.SimulationCore.Agents.SupervisorAgent;
+using Master40.SimulationCore.Agents.SupervisorAegnt;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;

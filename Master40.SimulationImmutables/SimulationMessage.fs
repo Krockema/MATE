@@ -168,7 +168,3 @@ type public ResourceType = Machine=0 | Human=1 | Dispo=2 | Storage=3 | Productio
     // let Priority (wi:WorkItem) currentTime = wi.PrioRule(currentTime)
     //
     //type WorkItem with member this.Prio = priorityCall this
-    type public FSetEstimatedThroughputTime = {
-        Time : int64
-        ArticleName : string
-    }

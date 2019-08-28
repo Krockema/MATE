@@ -1,5 +1,4 @@
-﻿using Master40.SimulationCore.Environment;
-using System;
+﻿using System;
 namespace Master40.Simulation.CLI.Arguments
 {
     public class Help : ICommand
@@ -8,12 +7,10 @@ namespace Master40.Simulation.CLI.Arguments
         public string ArgShort => "h";
         public bool HasProperty => false;
         public string Description => " -h, -help, -?, /? : Display this!";
-        public Action<Configuration, string> Action { get; }
+        public Action<ParseResult, string> Action { get; }
         public Help()
         {
-            Action = (result, str) => { 
-                new Commands().ForEach(x => { Console.WriteLine(x.Description); });
-            };
+            Action = (result, str) => Console.WriteLine(this.Description);
         }
     }
 }

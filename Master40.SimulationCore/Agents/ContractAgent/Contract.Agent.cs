@@ -35,11 +35,12 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         {
             var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
             this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
-            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ")>");
+            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") >");
         }
 
         protected override void Finish()
         {
+            
             var r = this.Get<FRequestItem>(Properties.REQUEST_ITEM);
             if (r.Provided && VirtualChilds.Count() == 0)
             {
