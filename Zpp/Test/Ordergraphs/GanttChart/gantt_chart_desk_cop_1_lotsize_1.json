@@ -7,7 +7,7 @@
     "resource": "10010: Verpacken 1",
     "start": "184",
     "end": "195",
-    "customerOrderId": "1"
+    "groupId": "10268"
   },
   {
     "article": null,
@@ -17,7 +17,7 @@
     "resource": "10011: Schweißen 1",
     "start": "0",
     "end": "160",
-    "customerOrderId": "1"
+    "groupId": "10313"
   },
   {
     "article": null,
@@ -27,6 +27,6 @@
     "resource": "10013: Montage 1",
     "start": "160",
     "end": "184",
-    "customerOrderId": "1"
+    "groupId": "10313"
   }
 ]

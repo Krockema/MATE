@@ -44,7 +44,7 @@ namespace Zpp.Test
             {
                 randomCustomerOrderPart,
                 EntityFactory.CreateCustomerOrderPartWithGivenArticle(dbMasterDataCache,
-                    new Random().Next(1001, 1999), dbMasterDataCache.M_ArticleGetByName("Button")),
+                    new Random().Next(1001, 1999), dbMasterDataCache.M_ArticleGetByName("Stahlrohr")),
             };
             foreach (var demand in demands)
             {

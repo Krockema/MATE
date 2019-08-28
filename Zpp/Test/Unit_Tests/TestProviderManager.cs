@@ -26,8 +26,9 @@ namespace Zpp.Test
          * Verifies, that a demand (COP, PrOBom) is fulfilled by an existing provider, if such exists
          * - 
          */
-        [Fact]
-        public void TestSatisfyByExistingProvider()
+        [Fact(Skip="Must be completely rewritten")]
+        // TODO: Must be completely rewritten
+        public void TestSatisfyByExistingDemand()
         {
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
