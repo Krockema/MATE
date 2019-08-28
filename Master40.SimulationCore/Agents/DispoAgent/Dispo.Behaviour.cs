@@ -7,7 +7,7 @@ using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
-using Master40.SimulationCore.Agents.SupervisorAegnt;
+using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;

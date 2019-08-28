@@ -156,7 +156,7 @@ namespace Master40.Controllers
         public void Central(int simulationId)
         {
             var runs = _resultContext.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
-            string run = "";
+            // string run = "";
             //  for (int i = 0; i < runs; i++)
             //  {
                  // if (run == "")
@@ -177,7 +177,7 @@ namespace Master40.Controllers
         public void Decentral(int simulationId)
         {
             var runs = _resultContext.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
-            string run = "";
+            // string run = "";
             // for (int i = 0; i < runs; i++)
             // {
             //     if (run == "")

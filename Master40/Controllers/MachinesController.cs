@@ -47,7 +47,7 @@ namespace Master40.Controllers
                 foreach (var m in machine)
                 {
                     var name = m.Name.Replace(" ", "_").ToString();
-                    mermaid += "\r\n" + thisGroup + "-->" + name + "(<img src='" + machineGroups[g].ImageUrl + "' width='40'>)";
+                    mermaid += "\r\n" + thisGroup + "-->" + name + "(<img src='" + machineGroups[g].ImageUrl + "' width='40' height='40'>)";
                     end += "\r\n" + name + "-->" + nextGroup;
                     i++;
                 }

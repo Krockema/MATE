@@ -1,29 +1,26 @@
 ﻿using Master40.DB.Data.Context;
-using Master40.DB.ReportingModel;
-using Microsoft.EntityFrameworkCore;
+using Master40.Simulation.CLI;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Configuration;
+using System.Threading.Tasks;
 using System.Linq;
-using Master40.DB.Enums;
-using Master40.Simulation.CLI;
-using Master40.Simulation.CLI.Arguments;
+using Master40.SimulationCore.Environment.Abstractions;
 
 namespace Master40.Simulation
 {
     class Program
     {
-        static async System.Threading.Tasks.Task Main(string[] args)
+        static void Main(string[] args)
         {
             Console.WriteLine("Welcome to AkkaSim Cli");
+            
 
-            var masterDb = GetMasterDBContext();
-            var resultDb = GetResultDBContext();
-            var validCommands = Commands.GetCommands();
+            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[0]);
+            var validCommands = new Commands();
             var command = validCommands.Single(x => x.ArgLong == "Help");
             var lastArg = 0;
-            var results = new ParseResult();
+            var config = new SimulationCore.Environment.Configuration();
 
             for (; lastArg < args.Length; lastArg++)
             {
@@ -38,63 +35,55 @@ namespace Master40.Simulation
                     if (command.HasProperty)
                     {
                         lastArg++;
-                        command.Action(results, args[lastArg]);
-                        
-                    } else
+                        command.Action(config, args[lastArg]);
+
+                    }
+                    else
                     {
-                        command.Action(results, null);
+                        command.Action(config, null);
                     }
                 }
             }
 
-            switch (results.SimulationType)
+            RunSimulationTask(masterDb, config).Wait();
+        }
+
+        private static async Task RunSimulationTask(ProductionDomainContext masterDb
+                                                    , SimulationCore.Environment.Configuration config)
+        {
+            foreach (var item in config)
             {
-                case SimulationType.Central:
-                    Console.WriteLine("Sorry, not implemented yet!");
-                    break;
-                case SimulationType.Decentral:
-                    Console.WriteLine("Starting AkkaSim.");
-                    var agentCore = new AgentCore(masterDb, resultDb, new ConsoleHub());
-                    var simConfig = agentCore.UpdateSettings(results.ConfigId, 550,0.0275, 800);
-                    await agentCore.RunAkkaSimulation(simConfig);
-                    break;
-                default:
-                    Console.WriteLine("Ooops. Something went wrong!");
-                    break;
+                Console.WriteLine(item.Key + " " + ((dynamic)item.Value).Value.ToString());
+            }
+
+            try
+            {
+                Console.WriteLine("Starting AkkaSim.");
+                var agentCore = new AgentCore(masterDb, new ConsoleHub());
+                await agentCore.RunAkkaSimulation(config);
+                
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Ooops. Something went wrong!");
+                throw;
             }
         }
 
         private static bool IsArg(List<ICommand> validCommands, string argument, ref ICommand command)
         {
-            if (null != (command = validCommands.SingleOrDefault(x => argument.Equals("-" + x.ArgShort, StringComparison.OrdinalIgnoreCase))))
+            if (null != (command = validCommands.SingleOrDefault(x => argument
+                                                    .Equals("-" + x.ArgShort, StringComparison.OrdinalIgnoreCase))))
             {
                 return true;
             }
-            if (null != (command = validCommands.SingleOrDefault(x => argument.Equals("--" + x.ArgLong, StringComparison.OrdinalIgnoreCase))))
+            if (null != (command = validCommands.SingleOrDefault(x => argument
+                                                    .Equals("--" + x.ArgLong, StringComparison.OrdinalIgnoreCase))))
             {
                 return true;
             }
             return false;
         }
-
-
-        private static ProductionDomainContext GetMasterDBContext()
-        {
-            var defaultConnectionString = ConfigurationManager.AppSettings[0];
-            return new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(defaultConnectionString)
-                .Options);
-        }
-
-        private static ResultContext GetResultDBContext()
-        {
-
-            var resultConnectionString = ConfigurationManager.AppSettings[1];
-            return new ResultContext(new DbContextOptionsBuilder<ResultContext>()
-                .UseSqlServer(resultConnectionString)
-                .Options);
-        }
-
     }
 
 }

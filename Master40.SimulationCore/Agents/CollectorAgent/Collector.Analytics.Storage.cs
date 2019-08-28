@@ -1,9 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AkkaSim;
+﻿using AkkaSim;
+using Master40.DB.Data.Context;
+using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.MessageTypes;
 using Master40.SimulationImmutables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -13,8 +16,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             CurrentStockValues = new Dictionary<string, UpdateStockValues>();
         }
         private Dictionary<string, UpdateStockValues> CurrentStockValues;
-        private long lastIntervalStart = 0;
-
+        private List<Kpi> StockValuesOverTime = new List<Kpi>();
 
         public static CollectorAnalyticsStorage Get()
         {
@@ -28,13 +30,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             switch (message)
             {
                 case UpdateStockValues m: UpdateStock((Collector)simulationMonitor, m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void UpdateFeed(Collector agent)
+        private void UpdateFeed(Collector agent, bool writeToDatabase)
         {
             
             agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from Storage");
@@ -52,14 +54,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 agent.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
             }
 
-
-            // foreach (var item in CurrentStockValues)
-            // {
-            //     agent.messageHub.SendToAllClients(item.Key + ": " + item.Value.NewValue);
-            // }
-
-
-            lastIntervalStart = agent.Time;
+            LogToDB(agent, writeToDatabase);
             agent.Context.Sender.Tell(true, agent.Context.Self);
         }
 
@@ -70,6 +65,36 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 CurrentStockValues.Remove(values.StockName);
 
             CurrentStockValues.Add(values.StockName, values);
+            UpdateKPI(agent, values);
+        }
+
+        private void UpdateKPI(Collector agent, UpdateStockValues values)
+        {
+            var k = new Kpi { Name = values.StockName
+                            , Value = values.NewValue
+                            , Time = (int)agent.Time
+                            , KpiType = DB.Enums.KpiType.StockEvolution
+                            , SimulationConfigurationId = agent.simulationId.Value
+                            , SimulationNumber = agent.simulationNumber.Value
+                            , IsFinal = false
+                            , IsKpi = true
+                            , SimulationType = agent.simulationKind.Value
+            };
+            StockValuesOverTime.Add(k);
+
+        }
+
+        private void LogToDB(Collector agent, bool writeToDatabase)
+        {
+            if (agent.saveToDB.Value && writeToDatabase)
+            {
+                using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
+                {
+                    ctx.Kpis.AddRange(StockValuesOverTime);
+                    ctx.SaveChanges();
+                    ctx.Dispose();
+                }
+            }
         }
     }
 }
