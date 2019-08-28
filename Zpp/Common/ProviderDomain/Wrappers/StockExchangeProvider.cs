@@ -44,44 +44,45 @@ namespace Zpp.ProviderDomain
             }
 
             _dependingDemands = new Demands();
-            LotSize.LotSize lotSizes =
-                new LotSize.LotSize(demandedQuantity, article.GetId(), _dbMasterDataCache);
-            Quantity lotSizeSum = Quantity.Null();
+            Demands stockExchangeDemands = new Demands();
 
-            foreach (var lotSize in lotSizes.GetLotSizes())
+            // try to provider by existing demand
+            ResponseWithDemands responseWithDemands =
+                openDemandManager.SatisfyProviderByOpenDemand(this, demandedQuantity, dbTransactionData);
+
+            if (responseWithDemands.GetDemands().Count() > 1)
             {
-                lotSizeSum.IncrementBy(lotSize);
+                throw new MrpRunException("Only one demand should be reservable.");
+            }
 
-                Demands stockExchangeDemands = new Demands();
-
-                // try to provider by existing demand
-                ResponseWithDemands responseWithDemands =
-                    openDemandManager.SatisfyProviderByOpenDemand(this, lotSize, dbTransactionData);
-
-                if (responseWithDemands.GetDemands().Count() > 1)
-                {
-                    throw new MrpRunException("Only one demand should be reservable.");
-                }
-
+            Quantity remainingQuantity = new Quantity(demandedQuantity);
+            if (responseWithDemands.CalculateReservedQuantity().IsGreaterThan(Quantity.Null()))
+            {
                 stockExchangeDemands.AddAll(responseWithDemands.GetDemands());
                 ProviderToDemandTable.AddAll(responseWithDemands.GetProviderToDemands());
+                remainingQuantity = responseWithDemands.GetRemainingQuantity();
+            }
 
-                if (responseWithDemands.IsSatisfied() == false)
+            if (responseWithDemands.IsSatisfied() == false)
+            {
+                LotSize.LotSize lotSizes = new LotSize.LotSize(remainingQuantity, article.GetId(),
+                    _dbMasterDataCache);
+                Quantity lotSizeSum = Quantity.Null();
+                foreach (var lotSize in lotSizes.GetLotSizes())
                 {
+                    lotSizeSum.IncrementBy(lotSize);
+
+
                     Demand stockExchangeDemand =
                         StockExchangeDemand.CreateStockExchangeStockDemand(article,
                             GetDueTime(dbTransactionData), lotSize, _dbMasterDataCache);
                     stockExchangeDemands.Add(stockExchangeDemand);
 
-                    // free quantity can be calculated as following
-                    // newDemand + providedByOpen - (lotSizeSum - given demandedQuantity)
-                    // e.g. 4 + 1 - 2 = 3 if lotsize is 4 and demandedQuantity is 10, providedByOpen is 1
-
-                    // to reserve can be calculated as following
+                    // quantityToReserve can be calculated as following
                     // given demandedQuantity - (sumLotSize - lotSize) - (lotSize - providedByOpen.remaining)
                     Quantity quantityOfNewCreatedDemandToReserve = demandedQuantity
                         .Minus(lotSizeSum.Minus(lotSize))
-                        .Minus(lotSize.Minus(responseWithDemands.GetRemainingQuantity()));
+                        .Minus(demandedQuantity.Minus(responseWithDemands.GetRemainingQuantity()));
 
                     ProviderToDemandTable.Add(this, stockExchangeDemand.GetId(),
                         quantityOfNewCreatedDemandToReserve);
@@ -92,17 +93,18 @@ namespace Zpp.ProviderDomain
                         openDemandManager.AddDemand(GetId(), stockExchangeDemand,
                             quantityOfNewCreatedDemandToReserve);
                     }
+
+
+                    /*if (stockExchangeDemands.GetQuantity().IsSmallerThan(lotSize))
+                    {
+                        throw new MrpRunException($"Created demand should have not a smaller " +
+                                                  $"quantity ({stockExchangeDemand.GetQuantity()}) " +
+                                                  $"than the needed quantity ({lotSize}).");
+                    }*/
                 }
-
-                /*if (stockExchangeDemands.GetQuantity().IsSmallerThan(lotSize))
-                {
-                    throw new MrpRunException($"Created demand should have not a smaller " +
-                                              $"quantity ({stockExchangeDemand.GetQuantity()}) " +
-                                              $"than the needed quantity ({lotSize}).");
-                }*/
-
-                _dependingDemands.AddAll(stockExchangeDemands);
             }
+
+            _dependingDemands.AddAll(stockExchangeDemands);
         }
 
         public override void CreateDependingDemands(M_Article article,
@@ -136,6 +138,12 @@ namespace Zpp.ProviderDomain
         public override DueTime GetStartTime(IDbTransactionData dbTransactionData)
         {
             return GetDueTime(dbTransactionData);
+        }
+
+        public override void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData)
+        {
+            T_StockExchange stockExchange = (T_StockExchange) _provider;
+            stockExchange.RequiredOnTime = newDueTime.GetValue();
         }
     }
 }

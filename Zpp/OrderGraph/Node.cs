@@ -48,11 +48,6 @@ namespace Zpp
             return _entity.GetGraphizString(dbTransactionData);
         }
 
-        public string GetJsonString(IDbTransactionData dbTransactionData)
-        {
-            return _entity.GetJsonString(dbTransactionData);
-        }
-
         public override string ToString()
         {
             return $"{_entity.ToString()}";

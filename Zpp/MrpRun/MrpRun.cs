@@ -40,7 +40,7 @@ namespace Zpp
             dbTransactionData.DemandToProvidersRemoveAll();
 
             ProcessDbDemands(dbTransactionData, dbMasterDataCache.T_CustomerOrderPartGetAll(),
-                dbMasterDataCache);
+                dbMasterDataCache, 0);
         }
 
         /**
@@ -49,7 +49,8 @@ namespace Zpp
          */
         public static void ProcessProvidingResponse(ResponseWithProviders responseWithProviders,
             IProviderManager providerManager, StockManager stockManager,
-            IDbTransactionData dbTransactionData, Demand demand, IOpenDemandManager openDemandManager)
+            IDbTransactionData dbTransactionData, Demand demand,
+            IOpenDemandManager openDemandManager)
         {
             if (responseWithProviders == null)
             {
@@ -74,8 +75,7 @@ namespace Zpp
                             .GetProviderById(demandToProvider.GetProviderId());
                         if (provider != null)
                         {
-                            stockManager.AdaptStock(provider, dbTransactionData,
-                                openDemandManager);
+                            stockManager.AdaptStock(provider, dbTransactionData, openDemandManager);
                             providerManager.AddProvider(responseWithProviders.GetDemandId(),
                                 provider, demandToProvider.GetQuantity());
                         }
@@ -86,7 +86,8 @@ namespace Zpp
 
         private static IDemands ProcessNextDemand(IDbTransactionData dbTransactionData,
             Demand demand, IDbMasterDataCache dbMasterDataCache, IProvidingManager orderManager,
-            StockManager stockManager, IProviderManager providerManager, IOpenDemandManager openDemandManager)
+            StockManager stockManager, IProviderManager providerManager,
+            IOpenDemandManager openDemandManager)
         {
             ResponseWithProviders responseWithProviders;
 
@@ -120,7 +121,7 @@ namespace Zpp
 
 
         private static void ProcessDbDemands(IDbTransactionData dbTransactionData,
-            IDemands dbDemands, IDbMasterDataCache dbMasterDataCache)
+            IDemands dbDemands, IDbMasterDataCache dbMasterDataCache, int count)
         {
             // init
             IDemands finalAllDemands = new Demands();
@@ -133,13 +134,12 @@ namespace Zpp
                 new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
 
             StockManager stockManager = new StockManager(globalStockManager, dbMasterDataCache);
-            IProviderManager providerManager =
-                new ProviderManager(dbTransactionData);
+            IProviderManager providerManager = new ProviderManager(dbTransactionData);
 
             IProvidingManager orderManager = new OrderManager(dbMasterDataCache);
-            
+
             IOpenDemandManager openDemandManager = new OpenDemandManager();
-            
+
             foreach (var demand in dbDemands.GetAll())
             {
                 demandQueue.Enqueue(new DemandQueueNode(demand),
@@ -178,58 +178,56 @@ namespace Zpp
             }
             */
 
-            // write data to dbTransactionData
-            globalStockManager.AdaptStock(stockManager);
-            dbTransactionData.DemandsAddAll(finalAllDemands);
-            dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
-            dbTransactionData.SetProviderManager(providerManager);
-
+            
             // forward scheduling
             // TODO: remove this once forward scheduling is implemented
             int min = 0;
-            foreach (var productionOrderOperation in dbTransactionData
-                .ProductionOrderOperationGetAll())
+            foreach (var provider in providerManager.GetProviders())
             {
-                T_ProductionOrderOperation tProductionOrderOperation =
-                    productionOrderOperation.GetValue();
-
-                int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
+                int start = provider.GetStartTime(dbTransactionData).GetValue();
                 if (start < min)
                 {
                     min = start;
                 }
             }
 
+            
+
             if (min < 0)
             {
-                foreach (var productionOrderOperation in dbTransactionData
-                    .ProductionOrderOperationGetAll())
+                foreach (var dbDemand in dbDemands)
                 {
-                    T_ProductionOrderOperation tProductionOrderOperation =
-                        productionOrderOperation.GetValue();
-
-
-                    int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
-                    tProductionOrderOperation.StartBackward = Math.Abs(min) + start;
-                    tProductionOrderOperation.Start =
-                        tProductionOrderOperation.StartBackward.GetValueOrDefault();
-
-
-                    int end = tProductionOrderOperation.EndBackward.GetValueOrDefault();
-                    tProductionOrderOperation.EndBackward = Math.Abs(min) + end;
-                    tProductionOrderOperation.End =
-                        tProductionOrderOperation.EndBackward.GetValueOrDefault();
+                    if (dbDemand.GetType() == typeof(CustomerOrderPart))
+                    {
+                        T_CustomerOrderPart customerOrderPart = ((T_CustomerOrderPart)((CustomerOrderPart)dbDemand).ToIDemand());
+                        customerOrderPart.CustomerOrder.DueTime =
+                            customerOrderPart.CustomerOrder.DueTime + Math.Abs(min);
+                    }
                 }
+                
+                ProcessDbDemands(dbTransactionData, dbDemands, dbMasterDataCache, count++);
             }
 
-            // job shop scheduling
-            //MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,
-              //  dbMasterDataCache, new PriorityRule());
 
             // persisting data
-            dbTransactionData.PersistDbCache();
+            if (count == 0)
+                // it_s the first run, only do following here,
+                // avoids executing this twice (else latest in forward scheduling recursion would also execute this)
+            {
+                // write data to dbTransactionData
+                globalStockManager.AdaptStock(stockManager);
+                dbTransactionData.DemandsAddAll(finalAllDemands);
+                dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
+                dbTransactionData.SetProviderManager(providerManager);
+                
+                // job shop scheduling
+                //MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,
+                //  dbMasterDataCache, new PriorityRule());
 
-            LOGGER.Info("MrpRun done.");
+                dbTransactionData.PersistDbCache();
+
+                LOGGER.Info("MrpRun done.");
+            }
         }
     }
 }

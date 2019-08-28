@@ -148,11 +148,6 @@ namespace Zpp
             return $"{_productionOrderOperation.Name}";
         }
 
-        public string GetJsonString(IDbTransactionData dbTransactionData)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public Id GetProductionOrderId()
         {
             if (_productionOrderOperation.ProductionOrderId == null)

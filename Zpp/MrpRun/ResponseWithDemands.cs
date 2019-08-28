@@ -84,7 +84,7 @@ namespace Zpp
         }
 
         // Todo: performance, cache it
-        private Quantity CalculateReservedQuantity()
+        public Quantity CalculateReservedQuantity()
         {
             Quantity reservedQuantity = Quantity.Null();
             foreach (var providerToDemand in _providerToDemands)

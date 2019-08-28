@@ -254,7 +254,7 @@ namespace Zpp.Test.Configurations
                     ArticleTypeId = articleTypes.Single(s => s.Name == "Assembly").Id,
                     DeliveryPeriod = 10, UnitId = units.Single(s => s.Name == "Pieces").Id,
                     ToBuild = true, ToPurchase = false,
-                    LotSize = 4
+                    LotSize = 8
                 },
                 new M_Article
                 {
@@ -393,35 +393,35 @@ namespace Zpp.Test.Configurations
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_DESK_SURFACE).Id, PackSize = 1,
                     Price = 20,
-                    DueTime = 1000
+                    DueTime = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_SCREWS).Id, PackSize = 100,
                     Price = 5,
-                    DueTime = 1000
+                    DueTime = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_MOUNTING_PLATE).Id, PackSize = 10,
                     Price = 10,
-                    DueTime = 1000
+                    DueTime = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_STEEL_PIPE).Id, PackSize = 10,
                     Price = 20,
-                    DueTime = 1000
+                    DueTime = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_FELT_GLIDERS).Id, PackSize = 10,
                     Price = 2,
-                    DueTime = 1000
+                    DueTime = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
@@ -429,14 +429,14 @@ namespace Zpp.Test.Configurations
                     ArticleId = articles.Single(x => x.Name == ARTICLE_MANUAL).Id,
                     PackSize = 100,
                     Price = 0.05,
-                    DueTime = 1000
+                    DueTime = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_PACKAGE).Id, PackSize = 10,
                     Price = 0.50,
-                    DueTime = 1000
+                    DueTime = 100
                 },
             };
         }

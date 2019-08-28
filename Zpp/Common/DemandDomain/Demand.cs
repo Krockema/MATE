@@ -93,11 +93,6 @@ namespace Zpp.DemandDomain
             return $"{GetQuantity()};\\n{GetArticle().Name};{GetDueTime(dbTransactionData)}";
         }
 
-        public string GetJsonString(IDbTransactionData dbTransactionData)
-        {
-            throw new System.NotImplementedException();
-        }
-        
         public abstract DueTime GetStartTime(IDbTransactionData dbTransactionData);
     }
 }

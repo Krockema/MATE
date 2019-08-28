@@ -35,6 +35,7 @@ namespace Master40.DB.DataModel
             T_DemandToProvider demandToProvider = new T_DemandToProvider();
             demandToProvider.DemandId = DemandId;
             demandToProvider.ProviderId = ProviderId;
+            demandToProvider.Quantity = Quantity;
             return demandToProvider;
         }
     }

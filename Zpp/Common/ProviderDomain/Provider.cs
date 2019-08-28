@@ -128,12 +128,12 @@ namespace Zpp.ProviderDomain
             return $"{GetQuantity()};\\n{GetArticle().Name};{GetDueTime(dbTransactionData)}";
         }
 
-        public virtual string GetJsonString(IDbTransactionData dbTransactionData)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public abstract DueTime GetStartTime(IDbTransactionData dbTransactionData);
+        
+        /**
+         * Adapts the dueTime and also adapts the startTime accordingly (if exists)
+         */
+        public abstract void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData);
 
         public ProviderToDemandTable GetProviderToDemandTable()
         {

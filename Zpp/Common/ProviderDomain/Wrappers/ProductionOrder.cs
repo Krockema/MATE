@@ -57,7 +57,7 @@ namespace Zpp.ProviderDomain
 
         public override DueTime GetStartTime(IDbTransactionData dbTransactionData)
         {
-            return null;
+            return GetDueTime(dbTransactionData);
         }
 
         public ProductionOrderBoms GetProductionOrderBoms(IDbTransactionData dbTransactionData)
@@ -75,6 +75,12 @@ namespace Zpp.ProviderDomain
             }
 
             return productionOrderOperations.Any();
+        }
+
+        public override void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData)
+        {
+            T_ProductionOrder productionOrder = (T_ProductionOrder) _provider;
+            productionOrder.DueTime = newDueTime.GetValue();
         }
     }
 }

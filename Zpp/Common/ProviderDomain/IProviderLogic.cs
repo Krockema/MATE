@@ -37,5 +37,6 @@ namespace Zpp.ProviderDomain
         
         DueTime GetStartTime(IDbTransactionData dbTransactionData);
 
+         void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData);
     }
 }

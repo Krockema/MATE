@@ -144,19 +144,19 @@ namespace Zpp
         public override string ToString()
         {
             string mystring = "";
-            foreach (var fromNode in GetAllTailNodes())
+            foreach (var edge in GetAllEdges())
             {
-                foreach (var edge in GetAllEdgesFromTailNode(fromNode))
-                {
+                // foreach (var edge in GetAllEdgesFromTailNode(fromNode))
+                // {
                     // <Type>, <Menge>, <ItemName> and on edges: <Menge>
                     Quantity quantity = null;
                     if (edge.GetDemandToProvider() != null)
                     {
-                        quantity = new Quantity(edge.GetDemandToProvider().Quantity);
+                        quantity = edge.GetDemandToProvider().GetQuantity();
                     }
 
                     mystring +=
-                        $"\"{fromNode.GetId()};{fromNode.GetGraphizString(_dbTransactionData)}\" -> " +
+                        $"\"{edge.GetTailNode().GetId()};{edge.GetTailNode().GetGraphizString(_dbTransactionData)}\" -> " +
                         $"\"{edge.GetHeadNode().GetId()};{edge.GetHeadNode().GetGraphizString(_dbTransactionData)}\"";
                     // if (quantity.IsNull() == false)
                     if (quantity != null && quantity.IsNull() == false)
@@ -165,7 +165,7 @@ namespace Zpp
                     }
 
                     mystring += ";" + Environment.NewLine;
-                }
+                // }
             }
 
             return mystring;

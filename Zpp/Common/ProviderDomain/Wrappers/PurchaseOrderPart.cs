@@ -64,5 +64,18 @@ namespace Zpp.ProviderDomain
                 _dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(GetArticleId())[0];
             return GetDueTime(dbTransactionData).Minus(articleToBusinessPartner.DueTime);
         }
+
+        public override void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData)
+        {
+            T_PurchaseOrderPart purchaseOrderPart = ((T_PurchaseOrderPart) _provider);
+            if (purchaseOrderPart.PurchaseOrder == null)
+            {
+                purchaseOrderPart.PurchaseOrder =
+                    dbTransactionData.PurchaseOrderGetById(
+                        new Id(purchaseOrderPart.PurchaseOrderId));
+            }
+
+            purchaseOrderPart.PurchaseOrder.DueTime = newDueTime.GetValue();
+        }
     }
 }
