@@ -18,7 +18,7 @@ namespace Zpp.PurchaseDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
+        public ResponseWithProviders Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
         {
             M_Article article = demand.GetArticle();
             DueTime dueTime = demand.GetDueTime(dbTransactionData);
@@ -79,7 +79,7 @@ namespace Zpp.PurchaseDomain
                 Quantity = demandedQuantity.GetValue()
             };
             
-            return new Response(purchaseOrderPart, demandToProvider, demandedQuantity);
+            return new ResponseWithProviders(purchaseOrderPart, demandToProvider, demandedQuantity);
         }
         
         private static int CalculateQuantity(M_ArticleToBusinessPartner articleToBusinessPartner,

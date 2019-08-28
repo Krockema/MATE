@@ -77,5 +77,19 @@ namespace Zpp.DemandDomain
 
             return sumQuantity;
         }
+        
+        public Demand GetDemandById(Id id)
+        {
+            // performance: cache this in a dictionary
+            foreach (var demand in List)
+            {
+                if (demand.GetId().Equals(id))
+                {
+                    return demand;
+                }
+            }
+
+            return null;
+        }
     }
 }

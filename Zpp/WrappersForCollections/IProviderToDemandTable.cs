@@ -7,6 +7,6 @@ namespace Zpp
 {
     public interface IProviderToDemandTable: ICollectionWrapper<T_ProviderToDemand>
     {
-        void Add(Provider provider, Id demandId);
+        void Add(Provider provider, Id demandId, Quantity quantity);
     }
 }

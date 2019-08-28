@@ -8,6 +8,6 @@ namespace Zpp.ProviderDomain
      */
     public interface IProvidingManager
     {
-        Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData);
+        ResponseWithProviders Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData);
     }
 }

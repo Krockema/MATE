@@ -35,6 +35,8 @@ namespace Zpp.Test
 
             StockManager stockManager =
                 new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
+            
+            IOpenDemandManager openDemandManager = new OpenDemandManager();
 
             IProviderManager providerManager = new ProviderManager(dbTransactionData);
             IProvidingManager providingManager = (IProvidingManager) providerManager;
@@ -48,14 +50,14 @@ namespace Zpp.Test
             providerManager.AddProvider(customerOrderPart1.GetId(), productionOrder,
                 customerOrderPart1.GetQuantity());
 
-            Response response = providingManager.Satisfy(customerOrderPart2,
+            ResponseWithProviders responseWithProviders = providingManager.Satisfy(customerOrderPart2,
                 customerOrderPart2.GetQuantity(), dbTransactionData);
-            MrpRun.ProcessProvidingResponse(response, providerManager, stockManager,
-                dbTransactionData, customerOrderPart2);
+            MrpRun.ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
+                dbTransactionData, customerOrderPart2, openDemandManager);
 
-            bool isSatisfied = response.IsSatisfied() && response.GetProviders().Any() == false &&
-                               response.GetDemandToProviders().Count == 1 &&
-                               IsValidDemandToProvider(response.GetDemandToProviders()[0],
+            bool isSatisfied = responseWithProviders.IsSatisfied() && responseWithProviders.GetProviders().Any() == false &&
+                               responseWithProviders.GetDemandToProviders().Count == 1 &&
+                               IsValidDemandToProvider(responseWithProviders.GetDemandToProviders()[0],
                                    customerOrderPart2, productionOrder,
                                    customerOrderPart2.GetQuantity());
             Assert.True(isSatisfied, "Demand was not satisfied by existing provider.");

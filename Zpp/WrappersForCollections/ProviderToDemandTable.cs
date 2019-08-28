@@ -19,11 +19,12 @@ namespace Zpp
         {
         }
 
-        public void Add(Provider provider, Id demandId)
+        public void Add(Provider provider, Id demandId, Quantity quantity)
         {
             T_ProviderToDemand providerToDemand = new T_ProviderToDemand();
             providerToDemand.DemandId = demandId.GetValue();
             providerToDemand.ProviderId = provider.GetId().GetValue();
+            providerToDemand.Quantity = quantity.GetValue();
 
             List.Add(providerToDemand);
         }

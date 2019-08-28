@@ -23,5 +23,8 @@
       <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
       <ProjectReference Include="..\Master40.XUnitTest\Master40.XUnitTest.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Common" />
+    </ItemGroup>
 
 </Project>

@@ -4,24 +4,24 @@ using Master40.DB.DataModel;
 namespace Zpp.ProviderDomain
 {
     /**
-     * Represents an provider, which quantity is not yet exceeded and can satisfy more demands.
+     * Represents an node, which quantity is not yet exceeded and can satisfy more demands/providers.
      */
-    public class OpenProvider
+    public class OpenNode<T>
     {
-        private readonly Provider _openProvider;
+        private readonly T _openNode;
         private readonly Quantity _openQuantity;
         private readonly M_Article _article;
 
-        public OpenProvider(Provider openProvider, Quantity openQuantity, M_Article article)
+        public OpenNode(T openNode, Quantity openQuantity, M_Article article)
         {
-            _openProvider = openProvider;
+            _openNode = openNode;
             _openQuantity = openQuantity;
             _article = article;
         }
 
-        public Provider GetOpenProvider()
+        public T GetOpenNode()
         {
-            return _openProvider;
+            return _openNode;
         }
 
         public Quantity GetOpenQuantity()
@@ -36,7 +36,7 @@ namespace Zpp.ProviderDomain
 
         public override string ToString()
         {
-            return $"{_openQuantity} open of '{_openProvider}'";
+            return $"{_openQuantity} open of '{_openNode}'";
         }
     }
 }

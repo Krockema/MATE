@@ -18,8 +18,8 @@ namespace Zpp.ProviderDomain
     public abstract class Provider : IProviderLogic, INode
     {
         protected Demands _dependingDemands;
+        protected readonly ProviderToDemandTable ProviderToDemandTable = new ProviderToDemandTable();
         protected readonly IProvider _provider;
-        protected readonly DemandToProviderTable _demandToProviderTable = new DemandToProviderTable();
         protected readonly IDbMasterDataCache _dbMasterDataCache;
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -77,7 +77,7 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract void CreateDependingDemands(M_Article article,
-            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity);
+            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity demandedQuantity);
         
         /**
          * returns Quantity.Null or higher
@@ -134,5 +134,15 @@ namespace Zpp.ProviderDomain
         }
 
         public abstract DueTime GetStartTime(IDbTransactionData dbTransactionData);
+
+        public ProviderToDemandTable GetProviderToDemandTable()
+        {
+            return ProviderToDemandTable;
+        }
+
+        public void AddProviderToDemand(T_ProviderToDemand providerToDemand)
+        {
+            ProviderToDemandTable.Add(providerToDemand);
+        }
     }
 }

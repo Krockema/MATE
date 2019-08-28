@@ -19,7 +19,7 @@ namespace Zpp.ProviderDomain
             _productionManager = new ProductionManager(dbMasterDataCache);
         }
 
-        public Response Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
+        public ResponseWithProviders Satisfy(Demand demand, Quantity demandedQuantity, IDbTransactionData dbTransactionData)
         {
             if (demand.GetArticle().ToBuild)
             {

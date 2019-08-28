@@ -13,7 +13,7 @@ namespace Zpp.StockDomain
     public class StockManager : IProvidingManager
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-        
+
         private readonly Dictionary<Id, Stock> _stocks = new Dictionary<Id, Stock>();
         private HashSet<Provider> _alreadyConsideredProviders = new HashSet<Provider>();
         private readonly IDbMasterDataCache _dbMasterDataCache;
@@ -41,7 +41,8 @@ namespace Zpp.StockDomain
             }
         }
 
-        public void AdaptStock(Provider provider, IDbTransactionData dbTransactionData)
+        public void AdaptStock(Provider provider, IDbTransactionData dbTransactionData,
+            IOpenDemandManager openDemandManager)
         {
             // a provider can influence the stock only once
             if (_alreadyConsideredProviders.Contains(provider))
@@ -60,15 +61,16 @@ namespace Zpp.StockDomain
                 Quantity currentQuantity = stock.GetQuantity();
                 if (currentQuantity.IsSmallerThan(stock.GetMinStockLevel()))
                 {
-                    provider.CreateDependingDemands(provider.GetArticle(), dbTransactionData,
-                        provider, provider.GetQuantity());
+                    ((StockExchangeProvider)provider).CreateDependingDemands(provider.GetArticle(), dbTransactionData,
+                        provider, provider.GetQuantity(), openDemandManager);
                 }
             }
-            // PrO, PuOP increases stock
+
+            /*// PrO, PuOP increases stock
             else
             {
                 stock.IncrementBy(provider.GetQuantity());
-            }
+            }*/
         }
 
         /**
@@ -100,44 +102,32 @@ namespace Zpp.StockDomain
             return _stocks[id];
         }
 
-        public Response Satisfy(Demand demand, Quantity demandedQuantity,
+        public ResponseWithProviders Satisfy(Demand demand, Quantity demandedQuantity,
             IDbTransactionData dbTransactionData)
         {
             Stock stock = _stocks[demand.GetArticleId()];
 
             Providers providers = new Providers();
             List<T_DemandToProvider> demandToProviders = new List<T_DemandToProvider>();
-            Quantity remainingQuantity = new Quantity(demandedQuantity);
-            
-            LotSize.LotSize lotSizes = new LotSize.LotSize(demandedQuantity, demand.GetArticleId(), _dbMasterDataCache);
-            foreach (var lotSize in lotSizes.GetLotSizes())
+
+            Provider stockProvider = CreateStockExchangeProvider(demand.GetArticle(),
+                demand.GetDueTime(dbTransactionData), demandedQuantity, _dbMasterDataCache,
+                dbTransactionData);
+            providers.Add(stockProvider);
+
+            T_DemandToProvider demandToProvider = new T_DemandToProvider()
             {
-                Provider stockProvider = CreateStockExchangeProvider(demand.GetArticle(),
-                    demand.GetDueTime(dbTransactionData), lotSize, _dbMasterDataCache,
-                    dbTransactionData);
-                providers.Add(stockProvider);
-                remainingQuantity.DecrementBy(lotSize);
-                Quantity reservedQuantity = lotSize;
-                if (remainingQuantity.IsNegative())
-                {
-                    reservedQuantity = remainingQuantity.Plus(lotSize);
+                DemandId = demand.GetId().GetValue(),
+                ProviderId = stockProvider.GetId().GetValue(),
+                Quantity = demandedQuantity.GetValue()
+            };
+            demandToProviders.Add(demandToProvider);
 
-                }
 
-                T_DemandToProvider demandToProvider = new T_DemandToProvider()
-                {
-                    DemandId = demand.GetId().GetValue(),
-                    ProviderId = stockProvider.GetId().GetValue(),
-                    Quantity = reservedQuantity.GetValue()
-                };
-                demandToProviders.Add(demandToProvider);
-            }
-
-            
-            return new Response(providers, demandToProviders, demandedQuantity);
+            return new ResponseWithProviders(providers, demandToProviders, demandedQuantity);
         }
 
-        public Response SatisfyByAvailableStockQuantity(Demand demand, Quantity demandedQuantity,
+        public ResponseWithProviders SatisfyByAvailableStockQuantity(Demand demand, Quantity demandedQuantity,
             IDbTransactionData dbTransactionData)
         {
             Stock stock = _stocks[demand.GetArticleId()];
@@ -163,11 +153,11 @@ namespace Zpp.StockDomain
                     ProviderId = stockProvider.GetId().GetValue(),
                     Quantity = stockProvider.GetQuantity().GetValue()
                 };
-                return new Response(stockProvider, demandToProvider, demandedQuantity);
+                return new ResponseWithProviders(stockProvider, demandToProvider, demandedQuantity);
             }
             else
             {
-                return new Response((Provider) null, null, demandedQuantity);
+                return new ResponseWithProviders((Provider) null, null, demandedQuantity);
             }
         }
 

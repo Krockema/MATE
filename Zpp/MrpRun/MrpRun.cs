@@ -47,18 +47,18 @@ namespace Zpp
          * - save providers
          * - save dependingDemands
          */
-        public static void ProcessProvidingResponse(Response response,
+        public static void ProcessProvidingResponse(ResponseWithProviders responseWithProviders,
             IProviderManager providerManager, StockManager stockManager,
-            IDbTransactionData dbTransactionData, Demand demand)
+            IDbTransactionData dbTransactionData, Demand demand, IOpenDemandManager openDemandManager)
         {
-            if (response == null)
+            if (responseWithProviders == null)
             {
                 return;
             }
 
-            if (response.GetDemandToProviders() != null)
+            if (responseWithProviders.GetDemandToProviders() != null)
             {
-                foreach (var demandToProvider in response.GetDemandToProviders())
+                foreach (var demandToProvider in responseWithProviders.GetDemandToProviders())
                 {
                     if (demandToProvider.GetDemandId().Equals(demand.GetId()) == false)
                     {
@@ -68,15 +68,16 @@ namespace Zpp
 
                     providerManager.AddDemandToProvider(demandToProvider);
 
-                    if (response.GetProviders() != null)
+                    if (responseWithProviders.GetProviders() != null)
                     {
-                        Provider provider = response.GetProviders()
+                        Provider provider = responseWithProviders.GetProviders()
                             .GetProviderById(demandToProvider.GetProviderId());
                         if (provider != null)
                         {
-                            stockManager.AdaptStock(provider, dbTransactionData);
-                            providerManager.AddProvider(response.GetDemandId(), provider,
-                                demandToProvider.GetQuantity());
+                            stockManager.AdaptStock(provider, dbTransactionData,
+                                openDemandManager);
+                            providerManager.AddProvider(responseWithProviders.GetDemandId(),
+                                provider, demandToProvider.GetQuantity());
                         }
                     }
                 }
@@ -85,42 +86,33 @@ namespace Zpp
 
         private static IDemands ProcessNextDemand(IDbTransactionData dbTransactionData,
             Demand demand, IDbMasterDataCache dbMasterDataCache, IProvidingManager orderManager,
-            StockManager stockManager, IProviderManager providerManager,
-            IProvidingManager providingManager)
+            StockManager stockManager, IProviderManager providerManager, IOpenDemandManager openDemandManager)
         {
-            Response response;
+            ResponseWithProviders responseWithProviders;
 
             // SE:I --> satisfy by orders (PuOP/PrOBom)
             if (demand.GetType() == typeof(StockExchangeDemand))
             {
-                response = orderManager.Satisfy(demand, demand.GetQuantity(), dbTransactionData);
+                responseWithProviders = orderManager.Satisfy(demand,
+                    demand.GetQuantity(), dbTransactionData);
 
-                ProcessProvidingResponse(response, providerManager, stockManager, dbTransactionData,
-                    demand);
+                ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
+                    dbTransactionData, demand, openDemandManager);
             }
             // COP or PrOB --> satisfy by SE:W
             else
             {
-                // satisfy by existing provider
-                response = providingManager.Satisfy(demand, demand.GetQuantity(),
-                    dbTransactionData);
-                ProcessProvidingResponse(response, providerManager, stockManager, dbTransactionData,
-                    demand);
+                responseWithProviders = stockManager.Satisfy(demand,
+                    demand.GetQuantity(), dbTransactionData);
 
-                if (response.IsSatisfied() == false)
-                {
-                    response = stockManager.Satisfy(demand, response.GetRemainingQuantity(),
-                        dbTransactionData);
-
-                    ProcessProvidingResponse(response, providerManager, stockManager,
-                        dbTransactionData, demand);
-                }
+                ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
+                    dbTransactionData, demand, openDemandManager);
             }
 
-            if (response.GetRemainingQuantity().IsNull() == false)
+            if (responseWithProviders.GetRemainingQuantity().IsNull() == false)
             {
                 throw new MrpRunException(
-                    $"'{demand}' was NOT satisfied: remaining is {response.GetRemainingQuantity()}");
+                    $"'{demand}' was NOT satisfied: remaining is {responseWithProviders.GetRemainingQuantity()}");
             }
 
             return providerManager.GetNextDemands();
@@ -141,10 +133,13 @@ namespace Zpp
                 new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
 
             StockManager stockManager = new StockManager(globalStockManager, dbMasterDataCache);
-            IProviderManager providerManager = new ProviderManager(dbTransactionData);
-            IProvidingManager providingManager = (IProvidingManager) providerManager;
+            IProviderManager providerManager =
+                new ProviderManager(dbTransactionData);
 
             IProvidingManager orderManager = new OrderManager(dbMasterDataCache);
+            
+            IOpenDemandManager openDemandManager = new OpenDemandManager();
+            
             foreach (var demand in dbDemands.GetAll())
             {
                 demandQueue.Enqueue(new DemandQueueNode(demand),
@@ -157,7 +152,7 @@ namespace Zpp
 
                 IDemands nextDemands = ProcessNextDemand(dbTransactionData,
                     firstDemandInQueue.GetDemand(), dbMasterDataCache, orderManager, stockManager,
-                    providerManager, providingManager);
+                    providerManager, openDemandManager);
                 if (nextDemands != null)
                 {
                     finalAllDemands.AddAll(nextDemands);
@@ -182,51 +177,54 @@ namespace Zpp
                 return;
             }
             */
-            
+
             // write data to dbTransactionData
             globalStockManager.AdaptStock(stockManager);
             dbTransactionData.DemandsAddAll(finalAllDemands);
             dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
             dbTransactionData.SetProviderManager(providerManager);
-            
+
             // forward scheduling
             // TODO: remove this once forward scheduling is implemented
             int min = 0;
-            foreach (var productionOrderOperation in dbTransactionData.ProductionOrderOperationGetAll())
+            foreach (var productionOrderOperation in dbTransactionData
+                .ProductionOrderOperationGetAll())
             {
                 T_ProductionOrderOperation tProductionOrderOperation =
                     productionOrderOperation.GetValue();
 
-                    int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
-                    if (start < min)
-                    {
-                        min = start;
-                    }
-                
+                int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
+                if (start < min)
+                {
+                    min = start;
+                }
             }
 
             if (min < 0)
             {
-                foreach (var productionOrderOperation in dbTransactionData.ProductionOrderOperationGetAll())
+                foreach (var productionOrderOperation in dbTransactionData
+                    .ProductionOrderOperationGetAll())
                 {
                     T_ProductionOrderOperation tProductionOrderOperation =
                         productionOrderOperation.GetValue();
-                    
 
-                        int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
-                        tProductionOrderOperation.StartBackward = Math.Abs(min) + start;
-                        tProductionOrderOperation.Start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
-                    
 
-                        int end = tProductionOrderOperation.EndBackward.GetValueOrDefault();
-                        tProductionOrderOperation.EndBackward = Math.Abs(min) + end;
-                        tProductionOrderOperation.End = tProductionOrderOperation.EndBackward.GetValueOrDefault();
-                    
+                    int start = tProductionOrderOperation.StartBackward.GetValueOrDefault();
+                    tProductionOrderOperation.StartBackward = Math.Abs(min) + start;
+                    tProductionOrderOperation.Start =
+                        tProductionOrderOperation.StartBackward.GetValueOrDefault();
+
+
+                    int end = tProductionOrderOperation.EndBackward.GetValueOrDefault();
+                    tProductionOrderOperation.EndBackward = Math.Abs(min) + end;
+                    tProductionOrderOperation.End =
+                        tProductionOrderOperation.EndBackward.GetValueOrDefault();
                 }
             }
-            
+
             // job shop scheduling
-            MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,dbMasterDataCache, new PriorityRule());
+            //MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,
+              //  dbMasterDataCache, new PriorityRule());
 
             // persisting data
             dbTransactionData.PersistDbCache();

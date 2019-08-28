@@ -11,6 +11,11 @@ namespace Zpp.Test
         [Fact]
         public void TestProductionOrderBomIsACopyOfArticleBom()
         {
+            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic))
+            {
+                
+            }
+            
             MrpRun.RunMrp(ProductionDomainContext);
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =

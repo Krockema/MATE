@@ -36,10 +36,10 @@ namespace Zpp.ProviderDomain
         }
 
         public override void CreateDependingDemands(M_Article article,
-            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity quantity)
+            IDbTransactionData dbTransactionData, Provider parentProvider, Quantity demandedQuantity)
         {
             _dependingDemands = ProductionManager.CreateProductionOrderBoms(article, dbTransactionData,
-                _dbMasterDataCache, parentProvider, quantity);
+                _dbMasterDataCache, parentProvider, demandedQuantity);
         }
 
         public override string GetGraphizString(IDbTransactionData dbTransactionData)

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Zpp.ProviderDomain;
 
-namespace Zpp.ProviderDomain
+namespace Zpp
 {
-    public class Response
+    public class ResponseWithProviders
     {
         private readonly IProviders _providers = new Providers();
 
@@ -13,7 +14,7 @@ namespace Zpp.ProviderDomain
 
         private readonly Quantity _demandedQuantity;
 
-        public Response(Provider provider, T_DemandToProvider demandToProvider,
+        public ResponseWithProviders(Provider provider, T_DemandToProvider demandToProvider,
             Quantity demandedQuantity)
         {
             if (provider != null)
@@ -28,7 +29,7 @@ namespace Zpp.ProviderDomain
             _demandedQuantity = demandedQuantity;
         }
 
-        public Response(IProviders providers, List<T_DemandToProvider> demandToProviders,
+        public ResponseWithProviders(IProviders providers, List<T_DemandToProvider> demandToProviders,
             Quantity demandedQuantity)
         {
             _providers = providers;

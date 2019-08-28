@@ -24,13 +24,15 @@ namespace Zpp.Test
             StockManager stockManagerAfter = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
             IProviderManager providerManager =
                 new ProviderManager(dbTransactionData);
+            IOpenDemandManager openDemandManager = new OpenDemandManager();
+            
             Demand customerOrderPart =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 2);
             IProvidingManager orderManager = new OrderManager(dbMasterDataCache);
 
-            Response response = orderManager.Satisfy(customerOrderPart, customerOrderPart.GetQuantity(),
+            ResponseWithProviders responseWithProviders = orderManager.Satisfy(customerOrderPart, customerOrderPart.GetQuantity(),
                 dbTransactionData);
-            MrpRun.ProcessProvidingResponse(response, providerManager, stockManagerAfter, dbTransactionData, customerOrderPart);
+            MrpRun.ProcessProvidingResponse(responseWithProviders, providerManager, stockManagerAfter, dbTransactionData, customerOrderPart, openDemandManager);
 
             Quantity beforeQuantity = stockManagerBefore
                 .GetStockById(customerOrderPart.GetArticleId()).GetQuantity();

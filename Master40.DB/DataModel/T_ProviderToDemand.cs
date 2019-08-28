@@ -7,6 +7,8 @@ namespace Master40.DB.DataModel
     {
         public int ProviderId { get; set; }
         public int DemandId { get; set; }
+        
+        public decimal Quantity { get; set; }
 
         public override string ToString()
         {
@@ -21,6 +23,11 @@ namespace Master40.DB.DataModel
         public Id GetDemandId()
         {
             return new Id(DemandId);
+        }
+
+        public Quantity GetQuantity()
+        {
+            return new Quantity(Quantity);
         }
 
         public T_DemandToProvider ToDemandToProvider()

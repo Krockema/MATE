@@ -28,5 +28,7 @@ namespace Zpp.DemandDomain
          */
         Quantity GetQuantityOfAll();
 
+        Demand GetDemandById(Id id);
+
     }
 }

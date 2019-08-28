@@ -20,7 +20,7 @@ namespace Zpp.ProductionDomain
             _dbMasterDataCache = dbMasterDataCache;
         }
 
-        public Response Satisfy(Demand demand, Quantity demandedQuantity,
+        public ResponseWithProviders Satisfy(Demand demand, Quantity demandedQuantity,
             IDbTransactionData dbTransactionData)
         {
             if (demand.GetArticle().ToBuild == false)
@@ -47,7 +47,7 @@ namespace Zpp.ProductionDomain
             }
             
 
-            return new Response(productionOrders, demandToProviders, demandedQuantity);
+            return new ResponseWithProviders(productionOrders, demandToProviders, demandedQuantity);
         }
 
         private ProductionOrders CreateProductionOrder(Demand demand,
