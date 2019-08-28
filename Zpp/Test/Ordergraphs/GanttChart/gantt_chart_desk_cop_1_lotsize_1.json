@@ -2,82 +2,31 @@
   {
     "article": null,
     "articleId": null,
-    "operation": "10186: Tisch verpacken",
-    "operationId": "10186",
+    "operation": "10271: Tisch verpacken",
+    "operationId": "10271",
     "resource": "10010: Verpacken 1",
-    "start": "64",
-    "end": "75"
+    "start": "184",
+    "end": "195",
+    "customerOrderId": "1"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "10232: Anschraubplatte anschweißen",
-    "operationId": "10232",
+    "operation": "10316: Anschraubplatte anschweißen",
+    "operationId": "10316",
     "resource": "10011: Schweißen 1",
-    "start": "18",
-    "end": "38"
+    "start": "0",
+    "end": "160",
+    "customerOrderId": "1"
   },
   {
     "article": null,
     "articleId": null,
-    "operation": "10235: Anschraubplatte anschweißen",
-    "operationId": "10235",
-    "resource": "10012: Schweißen 2",
-    "start": "18",
-    "end": "38"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "10238: Anschraubplatte anschweißen",
-    "operationId": "10238",
-    "resource": "10011: Schweißen 1",
-    "start": "38",
-    "end": "58"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "10241: Anschraubplatte anschweißen",
-    "operationId": "10241",
-    "resource": "10012: Schweißen 2",
-    "start": "38",
-    "end": "58"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "10248: Flizgleiter anstecken",
-    "operationId": "10248",
+    "operation": "10320: Flizgleiter anstecken",
+    "operationId": "10320",
     "resource": "10013: Montage 1",
-    "start": "58",
-    "end": "61"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "10251: Flizgleiter anstecken",
-    "operationId": "10251",
-    "resource": "10014: Montage 2",
-    "start": "58",
-    "end": "61"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "10254: Flizgleiter anstecken",
-    "operationId": "10254",
-    "resource": "10013: Montage 1",
-    "start": "61",
-    "end": "64"
-  },
-  {
-    "article": null,
-    "articleId": null,
-    "operation": "10257: Flizgleiter anstecken",
-    "operationId": "10257",
-    "resource": "10014: Montage 2",
-    "start": "61",
-    "end": "64"
+    "start": "160",
+    "end": "184",
+    "customerOrderId": "1"
   }
 ]

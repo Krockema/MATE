@@ -30,8 +30,9 @@ namespace Zpp.GraphicalRepresentation
                 ganttChartBar.start = tProductionOrderOperation.Start.ToString();
                 ganttChartBar.end = tProductionOrderOperation.End.ToString();
 
+                ganttChartBar.groupId = productionOrderOperation.GetProductionOrderId().ToString();
+
                 AddGanttChartBar(ganttChartBar);
-                
                 
             }
         }
