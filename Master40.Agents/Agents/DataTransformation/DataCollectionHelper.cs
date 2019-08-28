@@ -11,6 +11,8 @@ namespace Master40.Agents.Agents
 {
     public static class DataCollectionHelper
     {
+        public static BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
         public static void WriteData(List<Dictionary<string, object>> childData)
         {
             // Write data to csv
@@ -71,7 +73,7 @@ namespace Master40.Agents.Agents
 
             foreach (AgentPropertyBase agentProp in propTree)
             {
-                PropertyInfo propInfo = type.GetProperty(agentProp.GetPropertyName(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                PropertyInfo propInfo = type.GetProperty(agentProp.GetPropertyName(), flags);
                 object propertyValue = propInfo.GetValue(obj);
 
                 if (propertyValue is IList)

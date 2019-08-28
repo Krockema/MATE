@@ -292,13 +292,12 @@ namespace Master40.Agents.Agents.Internal
                 CreateAndEnqueueInstuction(Agent.BaseInstuctionsMethods.InjectData.ToString(), data, child);
         }
 
-        private void InjectDataRecursion(AgentPropertyBase prop, object obj, string propPath,List<Dictionary<string, object>> data)
+        private void InjectDataRecursion(AgentPropertyBase prop, object obj, string propPath, List<Dictionary<string, object>> data)
         {
             if(prop.IsNode())
             {
                 AgentPropertyNode propNode = (AgentPropertyNode)prop;
-                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-                PropertyInfo propInfo = obj.GetType().GetProperty(prop.GetPropertyName(), bindingFlags);
+                PropertyInfo propInfo = obj.GetType().GetProperty(prop.GetPropertyName(), DataCollectionHelper.flags);
                 object nodeObject = propInfo.GetValue(obj);
                 propPath = propPath + "." + prop.GetPropertyName();
                 // TODO: for now only process first element of list
@@ -317,46 +316,11 @@ namespace Master40.Agents.Agents.Internal
                 if (idProps.Count == 0 || retransformProps.Count == 0)
                     return;
 
-                // Collect Id values
-                List<AgentPropertyBase> idPropsBase = new List<AgentPropertyBase>();
-                foreach(AgentProperty idProp in idProps)
-                {
-                    idPropsBase.Add((AgentPropertyBase)idProp);
-                }
-                Dictionary<string, object> idValues = new Dictionary<string, object>();
-                DataCollectionHelper.CollectPropsRecursion(idPropsBase, nodeObject, ref idValues, propPath + ".");
+                Dictionary<string, object> idValues = GetIdPropValues(idProps, nodeObject, propPath);
+                
+                Dictionary<string, object> matchingData = FindMatchingDict(idValues, data);
 
-                // Iterate over data, find dict with matching idProps, inject Data
-                Dictionary<string, object> matchingData = new Dictionary<string, object>();
-                foreach(Dictionary<string, object> dataSet in data)
-                {
-                    bool found = true;
-                    foreach(KeyValuePair<string, object> pair in idValues)
-                    {
-                        object dataValue;
-                        if (dataSet.TryGetValue(pair.Key, out dataValue) || (dataValue == pair.Value))
-                        {
-                            continue;
-                        }
-                        found = false;
-                    }
-                    if(found)
-                    {
-                        matchingData = dataSet;
-                        break;
-                    }
-                }
-
-                foreach (AgentProperty retransformProp in retransformProps)
-                {
-                    string currentPropPath = propPath + "." + retransformProp.GetPropertyName();
-                    string[] propPathArray = currentPropPath.Split(".").Skip(1).ToArray();
-                    object newValue;
-                    if(matchingData.TryGetValue(currentPropPath, out newValue))
-                    {
-                        SetNestedPropertyValue(this, propPathArray, newValue);
-                    }
-                }
+                SetNewPropValues(retransformProps, propPath, matchingData);
             }
             else
             {
@@ -364,11 +328,57 @@ namespace Master40.Agents.Agents.Internal
             }
         }
 
-        // ProductionAgent.WorkItems.EstimatedStart
+        private Dictionary<string, object> GetIdPropValues(List<AgentProperty> idProps, object nodeObject, string propPath)
+        {
+            List<AgentPropertyBase> idPropsBase = new List<AgentPropertyBase>();
+            foreach (AgentProperty idProp in idProps)
+            {
+                idPropsBase.Add((AgentPropertyBase)idProp);
+            }
+            Dictionary<string, object> idValues = new Dictionary<string, object>();
+            DataCollectionHelper.CollectPropsRecursion(idPropsBase, nodeObject, ref idValues, propPath + ".");
+            return idValues;
+        }
+
+        private Dictionary<string, object> FindMatchingDict(Dictionary<string, object> idValues, List<Dictionary<string, object>> data)
+        {
+            foreach (Dictionary<string, object> dataSet in data)
+            {
+                bool found = true;
+                foreach (KeyValuePair<string, object> pair in idValues)
+                {
+                    object dataValue;
+                    if (dataSet.TryGetValue(pair.Key, out dataValue) || (dataValue == pair.Value))
+                    {
+                        continue;
+                    }
+                    found = false;
+                }
+                if (found)
+                {
+                    return dataSet;
+                }
+            }
+            return new Dictionary<string, object>();
+        }
+
+        private void SetNewPropValues(List<AgentProperty> retransformProps, string propPath, Dictionary<string, object> matchingData)
+        {
+            foreach (AgentProperty retransformProp in retransformProps)
+            {
+                string currentPropPath = propPath + "." + retransformProp.GetPropertyName();
+                string[] propPathArray = currentPropPath.Split(".").Skip(1).ToArray();
+                object newValue;
+                if (matchingData.TryGetValue(currentPropPath, out newValue))
+                {
+                    SetNestedPropertyValue(this, propPathArray, newValue);
+                }
+            }
+        }
+
         private void SetNestedPropertyValue(object obj, string[] propPath, object value)
         {
-            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-            PropertyInfo propInfo = obj.GetType().GetProperty(propPath[0], bindingFlags);
+            PropertyInfo propInfo = obj.GetType().GetProperty(propPath[0], DataCollectionHelper.flags);
             if (propPath.Length == 1)
             {
                 // Set value                

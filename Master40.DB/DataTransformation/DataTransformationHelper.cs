@@ -166,6 +166,7 @@ namespace Master40.DB.DataTransformation
         public Boolean TransformAgentDataToGp(List<Dictionary<string, object>> agentData)
         {
             GpContext.Database.EnsureCreated();
+            // Löschen notwendig?
             foreach(Productionorder po in GpContext.Productionorder)
             {
                 GpContext.Productionorder.Remove(po);
