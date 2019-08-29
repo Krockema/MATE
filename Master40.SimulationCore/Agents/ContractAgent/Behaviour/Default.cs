@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
     public class Default : Types.Behaviour, IDefaultProperties
     {
         internal Default(SimulationType simulationType = SimulationType.None)
-                        : base(childMaker: null, obj: simulationType) { }
+                        : base(childMaker: null, simulationType: simulationType) { }
 
         public FArticle _fArticle { get; internal set; }
 

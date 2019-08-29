@@ -78,11 +78,9 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_Operation>()
                 .ToTable(name: "M_Operation")
                 .HasOne(navigationExpression: m => m.ResourceSkill);
-
             modelBuilder.Entity<M_Operation>()
                 .ToTable(name: "M_Operation")
                 .HasOne(navigationExpression: m => m.ResourceTool);
-
             modelBuilder.Entity<M_ArticleType>()
                 .ToTable(name: "M_ArticleType");
 

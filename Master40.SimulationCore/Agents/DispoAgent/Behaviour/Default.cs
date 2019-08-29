@@ -19,7 +19,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
     public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None) 
-                        : base(childMaker: null, obj: simulationType) { }
+                        : base(childMaker: null, simulationType: simulationType) { }
 
 
         internal FArticle _fArticle { get; set; }

@@ -11,6 +11,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             switch (simType)
             {
+                case SimulationType.DefaultSetup:
+                    return DefaultSetup();
                 case SimulationType.Bucket:
                     return Bucket();
                 default:
@@ -22,6 +24,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
 
             return new Default();
+
+        }
+
+        private static IBehaviour DefaultSetup()
+        {
+
+            return new DefaultSetup();
 
         }
 

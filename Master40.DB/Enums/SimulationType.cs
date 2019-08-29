@@ -7,6 +7,7 @@
         Decentral,
         ForwardPlanning,
         BackwardPlanning,
-        Bucket
+        Bucket,
+        DefaultSetup
     }
 }

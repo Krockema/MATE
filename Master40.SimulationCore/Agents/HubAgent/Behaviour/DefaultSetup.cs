@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Master40.DB.Enums;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Types;
 using System;
@@ -15,14 +16,15 @@ using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
-    public class Default : SimulationCore.Types.Behaviour
+    public class DefaultSetup : SimulationCore.Types.Behaviour
     {
-        internal Default(SimulationType simulationType = SimulationType.None)
+        internal DefaultSetup(SimulationType simulationType = SimulationType.None)
                         : base(childMaker: null, simulationType: simulationType) { }
 
 
         internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
         internal AgentDictionary _resourceAgents { get; set; } = new AgentDictionary();
+        internal SetupManager _setupManager { get; set; }
 
         public override bool Action(object message)
         {
@@ -119,7 +121,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 fOperation = ((IJob)fOperation).UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent) as FOperation;
 
-                Agent.DebugMessage(msg:$"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {acknowledgement.ResourceAgent}");
+                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {acknowledgement.ResourceAgent}");
 
                 // set Proposal Start for Machine to Requeue if time slot is closed.
                 _operationList.Replace(fOperation);

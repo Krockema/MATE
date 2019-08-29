@@ -6,6 +6,7 @@ using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
+using Master40.DB.DataModel;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
@@ -13,23 +14,29 @@ using static FUpdateSimulationWorks;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FOperations;
+using static FCreateSimulationResourceSetups;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
-    public class Default : SimulationCore.Types.Behaviour
+    public class DefaultSetup : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, int resourceId, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
+            _resourceId = resourceId;
+            _toolManager = toolManager;
         }
         // TODO Implement a JobManager
         internal JobQueueTimeLimited _planingQueue { get; set; }
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
+        internal ToolManager _toolManager { get; }
         internal WorkTimeGenerator _workTimeGenerator { get; }
+        internal int _resourceId { get; }
         internal AgentDictionary _agentDictionary { get; }
 
         public override bool Action(object message)
@@ -190,6 +197,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
 
             var nextJobInProgress = _processingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+
             // Wait if nothing more to do
             if (nextJobInProgress == null)
             {
@@ -202,21 +210,36 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.Set(job: nextJobInProgress, currentTime: Agent.CurrentTime);
 
-            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Duration);
-            Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedDuration}");
+            //Start setup if necessary 
+            // TODO decide were to find the resourcesSetup - IJob or by casting in method
+            // TODO Do all those things in a method 
+            var requiredResourceSetup =
+                _toolManager.GetSetupByTool(((FOperation) nextJobInProgress).Operation.ResourceTool);
 
-            var pub = new FUpdateSimulationWork(workScheduleId: nextJobInProgress.Key.ToString(), duration: randomizedDuration, start: Agent.CurrentTime, machine: Agent.Name);
+            var setupDuration = DoSetupTool(requiredResourceSetup: requiredResourceSetup);
+
+            if (setupDuration > 0)
+            {
+                Agent.DebugMessage(msg: $"Start with Setup for Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
+                var pubSetup = new FCreateSimulationResourceSetup(workScheduleId: nextJobInProgress.Key.ToString(), duration: setupDuration, start: Agent.CurrentTime, machine: Agent.Name);
+                Agent.Context.System.EventStream.Publish(@event: pubSetup);
+            }
+
+            var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Duration);
+            Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedWorkDuration}");
+
+            var pub = new FUpdateSimulationWork(workScheduleId: nextJobInProgress.Key.ToString(), duration: randomizedWorkDuration, start: Agent.CurrentTime + setupDuration, machine: Agent.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: nextJobInProgress.Key
                                              , creationTime: 0
                                                     , start: Agent.CurrentTime
-                                                      , end: Agent.CurrentTime + randomizedDuration
+                                                      , end: Agent.CurrentTime + randomizedWorkDuration + setupDuration
                                          , originalDuration: nextJobInProgress.Duration
                                           , productionAgent: ActorRefs.Nobody
                                             , resourceAgent: Agent.Context.Self);
 
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedDuration);
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedWorkDuration + setupDuration);
 
         }
 
@@ -236,6 +259,22 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             DoWork();
         }
 
+        internal int DoSetupTool(M_ResourceSetup requiredResourceSetup)
+        {
+            var setupTime = 0;
+
+            if (_toolManager.AlreadyEquipped(requiredResourceTool: requiredResourceSetup.ResourceTool))
+            {
+                Agent.DebugMessage(msg: $"Tool {requiredResourceSetup.ResourceTool.Name} already equipped");
+                return setupTime;
+            }
+            Agent.DebugMessage(msg: $"Start setup tool {requiredResourceSetup.ResourceTool.Name} which takes {requiredResourceSetup.SetupTime}");
+
+            _toolManager.Mount(requiredResourceTool: requiredResourceSetup.ResourceTool);
+            setupTime = requiredResourceSetup.SetupTime;
+
+            return setupTime;
+        }
 
         /*
         private void BreakDown(Resource agent, FBreakDown breakDwon)

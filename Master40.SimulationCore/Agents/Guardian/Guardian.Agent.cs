@@ -30,7 +30,7 @@ namespace Master40.SimulationCore.Agents.Guardian
 
         public override void AroundPostStop()
         {
-            System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} Children left: {Context.GetChildren().Count()} ChildCounter: {((GuardianBehaviour)this.Behaviour).counterChilds}");
+            System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} children counter: {((GuardianBehaviour)this.Behaviour).counterChilds}");
             base.AroundPostStop();
         }
 

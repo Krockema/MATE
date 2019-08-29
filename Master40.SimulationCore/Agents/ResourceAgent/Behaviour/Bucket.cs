@@ -18,19 +18,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Bucket : SimulationCore.Types.Behaviour
     {
-        public Bucket(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.None) : base(childMaker: null, obj: simulationType)
+        public Bucket(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, int resourceId, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, obj: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
+            _resourceId = resourceId;
+            _toolManager = toolManager;
+
         }
         // TODO Implement a JobManager
         internal JobQueueTimeLimited _planingQueue { get; set; }
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
+        internal int _resourceId { get; }
+        internal ToolManager _toolManager { get; }
         internal AgentDictionary _agentDictionary { get; }
+        
 
         public override bool Action(object message)
         {

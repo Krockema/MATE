@@ -52,7 +52,6 @@ namespace Master40.SimulationCore
         {
             _dBContext = DBContext;
             _messageHub = messageHub;
-            Logger = new LogWriter();
         }
         public Task<Simulation> InitializeSimulation(Configuration configuration)
         {
@@ -62,6 +61,7 @@ namespace Master40.SimulationCore
                 // Init Simulation
                 SimulationConfig = configuration.GetContextConfiguration();
                 _debugAgents = configuration.GetOption<DebugAgents>().Value;
+                Logger = new LogWriter(writeToFile: _debugAgents);
                 _simulationType = configuration.GetOption<SimulationKind>().Value;
                 _simulation = new Simulation(simConfig: SimulationConfig);
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext, systemMailBox: SimulationConfig.Inbox.Receiver);
@@ -197,6 +197,7 @@ namespace Master40.SimulationCore
 
             var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)
+                                                                    .ThenInclude(s => s.ResourceSetups)
                                                                  .Include(navigationPropertyPath: t => t.ResourceTool)
                                                                  .AsNoTracking().ToListAsync().Result;
 
@@ -228,11 +229,13 @@ namespace Master40.SimulationCore
                 case SimulationMessage.SimulationState.Stopped:
                     System.Diagnostics.Debug.WriteLine(message: "AKKA:STOP AGENT SYSTEM", category: "AKKA-System:");
                     var tasks = new List<Task>();
+                    tasks.Add(Logger.WriteToFile());
                     foreach (var item in collectors)
                     {
                         var msg = UpdateLiveFeed.Create(setup: false, target: inbox.Receiver);
                         System.Diagnostics.Debug.WriteLine($"Ask for Update Feed {item.Path.Name}");
                         tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 60 * 60)));
+                        
                     }
                     Task.WaitAll(tasks.ToArray());
                     sim.Continue();

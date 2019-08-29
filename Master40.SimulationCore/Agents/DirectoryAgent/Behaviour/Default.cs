@@ -7,6 +7,7 @@ using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using static FBreakDowns;
 using static FAgentInformations;
 using static FRequestResources;
@@ -18,7 +19,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
     public class Default : SimulationCore.Types.Behaviour
     {
         internal Default(SimulationType simulationType = SimulationType.None)
-                       : base(childMaker: null, obj: simulationType) { }
+                       : base(childMaker: null, simulationType: simulationType) { }
 
 
         internal List<FRequestResource> fRequestResources { get; set; } = new List<FRequestResource>();
@@ -96,7 +97,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , name: ("Machine(" + resource.Name + ")").ToActorName());
             Agent.Send(instruction: BasicInstruction.Initialize.Create(target: resourceAgent, message: ResourceAgent.Behaviour.Factory.Get(simType: SimulationType
-             , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator)));
+             , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator , resourceId: resource.ResourceId, toolManager: new ToolManager(resourceSetups: resourceSetups))));
 
         }
 

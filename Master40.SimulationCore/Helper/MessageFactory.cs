@@ -72,7 +72,7 @@ namespace Master40.SimulationCore.Helper
             return new FBucket(key: Guid.NewGuid()
                                 //, prioRule: prioRule.ToFSharpFunc()
                                 , priority: prioRule.ToFSharpFunc()
-                                , name: $"{operation.Operation.ResourceTool.Name}({BucketNumber++})"
+                                , name: $"{operation.Operation.ResourceSkill.Name}({BucketNumber++})"
                                 , creationTime: time
                                 , forwardStart: 0
                                 , forwardEnd: 0

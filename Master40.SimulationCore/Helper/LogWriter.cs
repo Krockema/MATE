@@ -11,14 +11,18 @@ namespace Master40.SimulationCore.Helper
     public class LogWriter
     {
         private readonly string _path;
-        private StreamWriter writer;
+        private readonly bool _writeToFile;
+        /// <summary>
+        /// Extend this one to logObject with time, agent, and message
+        /// </summary>
         public  List<string> Log { get; set; }
-        public LogWriter()
+        public LogWriter(bool writeToFile)
         {
+            _writeToFile = writeToFile;
             Log = new List<string>();
             _path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var logFileInfo = new FileInfo(_path + "\\" + "log.txt");
-            System.Diagnostics.Debug.WriteLine($"Path to  logfile  {_path}");
+            System.Diagnostics.Debug.WriteLine($"Path to  logfile  {_path} logging is : {_writeToFile}");
 
             if (logFileInfo.Exists)
                 logFileInfo.Delete();
@@ -29,8 +33,11 @@ namespace Master40.SimulationCore.Helper
         {
            return  Task.Run(() =>
             {
-                File.AppendAllLines(path: _path + "\\" + "log.txt", Log);
-                Log.Clear();
+                if (_writeToFile)
+                {
+                    File.AppendAllLines(path: _path + "\\" + "log.txt", Log);
+                    Log.Clear();
+                }
                 return true;
             });
         }

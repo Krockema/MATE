@@ -90,7 +90,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
                 if (fOperation.Operation.ArticleBoms.Count == 0)
                 {
                     //TODO Log this somewhere - not in System Debug
-                    //System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
+                    System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
                     fOperation.StartConditions.ArticlesProvided = true;
                 }
 
@@ -106,7 +106,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
                 }
             }
             //TODO Log this somewhere
-            // System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
+            System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
 
             
 
