@@ -347,5 +347,31 @@ namespace Master40.DB.DataTransformation
 
             return destDataObject;
         }
+
+        public static void StartOptimization()
+        {
+            string szenarioPath = @"C:\source\repo\Master-4.0\Master40.DB\GanttplanDB\GPSzenario.gpsx";
+
+            if (!GanttPlanApi.GPInitInstance())
+                throw new Exception("Failed to initialize instance");
+
+            if (!GanttPlanApi.GPLic())
+                throw new Exception("Failed to verify license");
+
+            if (!GanttPlanApi.GPImportScenario(null, szenarioPath))
+                throw new Exception("Failed to import scenario file");
+
+            if (!GanttPlanApi.GPOptInit(null))
+                throw new Exception("Failed to initialize optimization");
+
+            if (!GanttPlanApi.GPOptRun())
+                throw new Exception("Failed to run optimization");
+
+            if (!GanttPlanApi.GPSaveScenario(9, szenarioPath))
+                throw new Exception("Failed to save scenario file");
+
+            if (!GanttPlanApi.GPExitInstance())
+                throw new Exception("Failed to exit instance");
+        }
     }
 }

@@ -1,24 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Master40.Agents;
-using Master40.BusinessLogicCentral.MRP;
+using Master40.Agents.Agents.DataTransformation;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.Enums;
-using Master40.Simulation.Simulation;
+using Master40.DB.DataTransformation;
+using Master40.DB.GanttplanDB.Models;
 using Master40.Tools.Simulation;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
-using Master40.DB.GanttplanDB.Models;
-using Master40.DB.Models;
-using Master40.DB.DataTransformation;
-using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Master40.XUnitTest.DBContext
@@ -217,10 +211,26 @@ namespace Master40.XUnitTest.DBContext
                 CalculateKpis.CalculateAllKpis(c, 1, DB.Enums.SimulationType.Decentral, 
                                                     _productionDomainContext.GetSimulationNumber(1, DB.Enums.SimulationType.Decentral),true, int.MaxValue);
                 //CopyResults.Copy(c, _productionDomainContext);
+                Assert.Equal(c.Kpis.Any(), true);
             }
             connection.Close();
 
-            Assert.Equal(_productionDomainContext.Kpis.Any(), true);
+            
+        }
+
+        [Fact]
+        public void TestGanttPlanDll()
+        {
+            GanttPlanApi.GPGetVersion();
+
+            Assert.True(GanttPlanApi.GPInitInstance());
+            Assert.True(GanttPlanApi.GPLic());
+            //ApiWrapper.GPImport(null);
+            //ApiWrapper.GPOptInit(null);
+            //ApiWrapper.GPOptRun();
+            //ApiWrapper.GPExport(0);
+            //ApiWrapper.GPSaveScenario(0, @"C:\...\MyTargetFile.gpsx");
+            Assert.True(GanttPlanApi.GPExitInstance());
         }
         
         /*

@@ -179,11 +179,13 @@ namespace Master40.Agents.Agents
                     List<List<Dictionary<string, object>>> retransformedData = dth.TransformAgentDataToMaster();
 
                     // alter Data to see effect
-                    foreach (Dictionary<string, object> dict in retransformedData[1])
-                    {
-                        dict["ProductionAgent.WorkItems.EstimatedStart"] = 1337;
-                        dict["ProductionAgent.WorkItems.EstimatedEnd"] = 9999;
-                    }
+                    //foreach (Dictionary<string, object> dict in retransformedData[1])
+                    //{
+                    //    dict["ProductionAgent.WorkItems.EstimatedStart"] = 1337;
+                    //    dict["ProductionAgent.WorkItems.EstimatedEnd"] = 9999;
+                    //}
+
+                    DataTransformationHelper.StartOptimization();
 
                     CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.InjectData.ToString(), retransformedData[1], this);
                     CreateAndEnqueueInstuction(SystemAgent.InstuctionsMethods.ReturnData.ToString(), "ReturnData", this);
