@@ -9,7 +9,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class ToolManager
     {
-        private List<M_ResourceSetup> _resourceSetups = new List<M_ResourceSetup>();
+        private List<M_ResourceSetup> _resourceSetups { get; set; } = new List<M_ResourceSetup>();
         private EquippedResourceTool _equippedResourceTool { get; set; } =new EquippedResourceTool();
 
         public ToolManager(List<M_ResourceSetup> resourceSetups)
@@ -35,6 +35,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             //TODO Take care if 1 Skill can be done by multiply tools
             var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id);
             return resourceSetup;
+        }
+
+        internal List<M_ResourceSetup> GetAllSetups()
+        {
+            return _resourceSetups;
         }
     }
 }

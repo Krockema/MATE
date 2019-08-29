@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FResourceInformations.fs" />
     <Compile Include="Message\FCreateSimulationResourceSetup.fs" />
     <Compile Include="Message\FThroughPutTimers.fs" />
     <Compile Include="Message\FUpdateStartCondition.fs" />

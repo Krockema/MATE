@@ -7,6 +7,7 @@ using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using static FBreakDowns;
 using static FAgentInformations;
@@ -69,6 +70,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
 
             // Create Skill based Hub Agent for each Skill of resource
+            // TODO Currently Resource can only have one Skill and discriminator between subskills are made by resourceTool
             foreach (var resourceSetup in resourceSetups)
             {
                 var hub = fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resourceSetup.ResourceSkill.Name && x.ResourceType == FResourceType.Hub);
@@ -96,9 +98,15 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , name: ("Machine(" + resource.Name + ")").ToActorName());
-            Agent.Send(instruction: BasicInstruction.Initialize.Create(target: resourceAgent, message: ResourceAgent.Behaviour.Factory.Get(simType: SimulationType
-             , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator , resourceId: resource.ResourceId, toolManager: new ToolManager(resourceSetups: resourceSetups))));
 
+
+            Agent.Send(instruction: BasicInstruction.Initialize
+                                                    .Create(target: resourceAgent
+                                                         , message: ResourceAgent.Behaviour
+                                                                                .Factory.Get(simType: SimulationType
+                                                                                 , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator 
+                                                                                 , resourceId: resource.ResourceId
+                                                                                 , toolManager: new ToolManager(resourceSetups: resourceSetups))));
         }
 
         private void RequestAgent(string discriminator)

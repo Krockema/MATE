@@ -23,5 +23,6 @@ namespace Master40.SimulationCore.Types
         public SimulationType SimulationType { get; }
         public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
         public Agent Agent { get; set; }
+        public virtual bool AfterInit() { return true; }
     }
 }

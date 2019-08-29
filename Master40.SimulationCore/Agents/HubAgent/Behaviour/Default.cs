@@ -5,6 +5,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FOperations;
@@ -12,6 +13,7 @@ using static FProposals;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FResourceInformations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -23,6 +25,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
         internal AgentDictionary _resourceAgents { get; set; } = new AgentDictionary();
+
 
         public override bool Action(object message)
         {
@@ -167,7 +170,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        private void AddResourceToHub(FAgentInformation hubInformation)
+        private void AddResourceToHub(FResourceInformation hubInformation)
         {
             // Add Machine to Pool
             _resourceAgents.Add(key: hubInformation.Ref, value: hubInformation.RequiredFor);

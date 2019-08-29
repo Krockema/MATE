@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
 using Master40.XUnitTest.Preparations;
 using System;
+using Master40.SimulationCore;
 using Master40.SimulationCore.Agents.Guardian;
 using Xunit;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;

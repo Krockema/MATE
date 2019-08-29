@@ -1,4 +1,5 @@
 ﻿using Master40.DB.Enums;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Types;
 using static FOperations;
 using static FUpdateStartConditions;

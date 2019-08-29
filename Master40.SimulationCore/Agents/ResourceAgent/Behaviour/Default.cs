@@ -9,6 +9,7 @@ using System.Linq;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
+using static FResourceInformations;
 using static FUpdateSimulationWorks;
 using static FUpdateStartConditions;
 using static IJobResults;
@@ -18,18 +19,20 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
+            _toolManager = toolManager;
         }
         // TODO Implement a JobManager
         internal JobQueueTimeLimited _planingQueue { get; set; }
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
+        internal ToolManager _toolManager { get; }
         internal AgentDictionary _agentDictionary { get; }
 
         public override bool Action(object message)
@@ -44,6 +47,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
+            return true;
+        }
+
+        public override bool AfterInit()
+        {
+            Agent.Send(instruction: Hub.Instruction.AddResourceToHub.Create(message: new FResourceInformation(resourceSetups: _toolManager.GetAllSetups()
+                , requiredFor: Agent.Name, @ref: Agent.Context.Self), target: Agent.VirtualParent));
             return true;
         }
 

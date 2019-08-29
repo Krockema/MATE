@@ -16,6 +16,7 @@ using static IJobResults;
 using static IJobs;
 using static FOperations;
 using static FCreateSimulationResourceSetups;
+using static FResourceInformations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -51,6 +52,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
+            return true;
+        }
+
+        public override bool AfterInit()
+        {
+            Agent.Send(instruction: Hub.Instruction.AddResourceToHub.Create(message: new FResourceInformation(resourceSetups: _toolManager.GetAllSetups()
+                , requiredFor: Agent.Name, @ref: Agent.Context.Self), target: Agent.VirtualParent));
             return true;
         }
 

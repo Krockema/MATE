@@ -6,25 +6,27 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FOperations;
 using static FProposals;
+using static FResourceInformations;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using ResourceManager = Master40.SimulationCore.Agents.HubAgent.Types.ResourceManager;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public class DefaultSetup : SimulationCore.Types.Behaviour
     {
-        internal DefaultSetup(SimulationType simulationType = SimulationType.None)
+        internal DefaultSetup(SimulationType simulationType = SimulationType.DefaultSetup)
                         : base(childMaker: null, simulationType: simulationType) { }
 
 
         internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
-        internal AgentDictionary _resourceAgents { get; set; } = new AgentDictionary();
-        internal SetupManager _setupManager { get; set; }
+        internal ResourceManager _resourceManager { get; set; } = new ResourceManager();
 
         public override bool Action(object message)
         {
@@ -36,21 +38,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
-                case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
+                //case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void ResourceBreakDown(FBreakDown breakDown)
-        {
-            var brockenMachine = _resourceAgents.Single(predicate: x => breakDown.Resource == x.Value).Key;
-            _resourceAgents.Remove(key: brockenMachine);
-            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: brockenMachine, logThis: true), waitFor: 45);
-
-            System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Hub");
-        }
-
+        
         private void EnqueueJob(FOperation fOperation)
         {
             var localItem = _operationList.FirstOrDefault(x => x.Key == fOperation.Key);
@@ -74,9 +68,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 _operationList.Replace(val: localItem);
             }
 
-            foreach (var actorRef in _resourceAgents)
+            var resourceToRequest = _resourceManager.GetResourceByTool(fOperation.Operation.ResourceTool);
+
+            foreach (var actorRef in resourceToRequest)
             {
-                Agent.Send(instruction: Resource.Instruction.RequestProposal.Create(message: localItem, target: actorRef.Key));
+                Agent.Send(instruction: Resource.Instruction.RequestProposal.Create(message: localItem, target: actorRef));
             }
         }
 
@@ -96,7 +92,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
             // if all Machines Answered
-            if (fOperation.Proposals.Count == _resourceAgents.Count)
+            if (fOperation.Proposals.Count == _resourceManager.GetResourceByTool(fOperation.Operation.ResourceTool).Count)
             {
 
                 // item Postponed by All Machines ? -> requeue after given amount of time.
@@ -169,12 +165,24 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        private void AddResourceToHub(FAgentInformation hubInformation)
+        private void AddResourceToHub(FResourceInformation hubInformation)
         {
-            // Add Machine to Pool
-            _resourceAgents.Add(key: hubInformation.Ref, value: hubInformation.RequiredFor);
+            var resourceSetup = new ResourceSetup(hubInformation.ResourceSetups, hubInformation.Ref, hubInformation.RequiredFor);
+            _resourceManager.Add(resourceSetup);
             // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);
         }
+
+        /*
+         //TODO not working at the moment - implement and change to _resourceManager
+        private void ResourceBreakDown(FBreakDown breakDown)
+        {
+            var brockenMachine = _resourceAgents.Single(predicate: x => breakDown.Resource == x.Value).Key;
+            _resourceAgents.Remove(key: brockenMachine);
+            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: brockenMachine, logThis: true), waitFor: 45);
+
+            System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Hub");
+        }
+        */
     }
 }

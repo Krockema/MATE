@@ -25,7 +25,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             //TODO - create config item.
             return new Default(planingJobQueueLength: 45
                             , fixedJobQueueSize: 1
-                            , workTimeGenerator: workTimeGenerator);
+                            , workTimeGenerator: workTimeGenerator
+                            , toolManager: toolManager);
 
         }
 
