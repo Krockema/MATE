@@ -10,7 +10,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class ToolManager
     {
         private List<M_ResourceSetup> _resourceSetups { get; set; } = new List<M_ResourceSetup>();
-        private EquippedResourceTool _equippedResourceTool { get; set; } =new EquippedResourceTool();
+        public EquippedResourceTool _equippedResourceTool { get; private set; }  = new EquippedResourceTool();
 
         public ToolManager(List<M_ResourceSetup> resourceSetups)
         {
@@ -37,9 +37,24 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return resourceSetup;
         }
 
+        internal int GetSetupDurationByTool(M_ResourceTool resourceTool)
+        {
+            //TODO Take care if 1 Skill can be done by multiply tools
+            var setupTime = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id).SetupTime;
+            return setupTime;
+        }
+
         internal List<M_ResourceSetup> GetAllSetups()
         {
             return _resourceSetups;
+        }
+
+        internal object GetToolName()
+        {
+            string toolName = "was not set";
+            if (_equippedResourceTool.ResourceTool != null)
+                toolName = _equippedResourceTool.ResourceTool.Name;
+            return toolName;
         }
     }
 }

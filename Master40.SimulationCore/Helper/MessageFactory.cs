@@ -55,6 +55,7 @@ namespace Master40.SimulationCore.Helper
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , operation: operation
+                                , tool: operation.ResourceTool
                                 , proposals: new List<FProposal>());
         }
 
@@ -86,6 +87,7 @@ namespace Master40.SimulationCore.Helper
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , operations: new FSharpSet<FOperation>(elements: operations)
+                                , tool: operation.Tool
                                 , proposals: new List<FProposal>());
         }
 

@@ -58,7 +58,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     new DBConnectionString(value: localresultdb)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
-                                                    , new SimulationKind(value: SimulationType.DefaultSetup) // implements the used behaviour, if None --> DefaultBehaviour
+                                                    , new SimulationKind(value: SimulationType.None) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
                                                     , new OrderQuantity(value: 10)
                                                     , new TransitionFactor(value: 3)

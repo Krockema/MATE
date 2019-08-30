@@ -90,16 +90,22 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <param name="jobItem"></param>
         internal void SendProposalTo(IJob jobItem)
         {
+            var setupDuration = GetSetupTime(jobItem: jobItem);
+
             var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
                                                      , currentTime: Agent.CurrentTime
                                           , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                            , processingQueueLength: _processingQueue.SumDurations);
+                                           , processingQueueLength: _processingQueue.SumDurations
+                                                   , setupDuration: setupDuration);
 
-            Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
-
+            if (queuePosition.IsQueueAble) { 
+                Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
+            }
             var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : _planingQueue.Limit);
 
-            Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset} ");
+            if (fPostponed.IsPostponed) { 
+                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset} ");
+            }
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
@@ -109,6 +115,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(instruction: Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
+       
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
@@ -116,10 +123,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
+            var setupDuration = GetSetupTime(jobItem: jobItem);
+
             var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
                                                      , currentTime: Agent.CurrentTime
                                           , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                           , processingQueueLength: _processingQueue.SumDurations);
+                                           , processingQueueLength: _processingQueue.SumDurations
+                                                   , setupDuration: setupDuration);
             // if not QueueAble
             if (!queuePosition.IsQueueAble)
             {
@@ -221,20 +231,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             //Start setup if necessary 
             // TODO decide were to find the resourcesSetup - IJob or by casting in method
             // TODO Do all those things in a method 
-            var requiredResourceSetup =
-                _toolManager.GetSetupByTool(((FOperation) nextJobInProgress).Operation.ResourceTool);
-
-            var setupDuration = DoSetupTool(requiredResourceSetup: requiredResourceSetup);
+            var setupDuration = GetSetupTime(nextJobInProgress);
 
             if (setupDuration > 0)
             {
                 Agent.DebugMessage(msg: $"Start with Setup for Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
+                _toolManager.Mount(requiredResourceTool: nextJobInProgress.Tool);
                 var pubSetup = new FCreateSimulationResourceSetup(workScheduleId: nextJobInProgress.Key.ToString(), duration: setupDuration, start: Agent.CurrentTime, machine: Agent.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
+            //TODO Make a extra method so start Job pops up at the real starting time
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Duration);
-            Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedWorkDuration}");
+            Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedWorkDuration} total work time is {setupDuration + randomizedWorkDuration}");
 
             var pub = new FUpdateSimulationWork(workScheduleId: nextJobInProgress.Key.ToString(), duration: randomizedWorkDuration, start: Agent.CurrentTime + setupDuration, machine: Agent.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
@@ -267,20 +276,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             DoWork();
         }
 
-        internal int DoSetupTool(M_ResourceSetup requiredResourceSetup)
+        private int GetSetupTime(IJob jobItem)
         {
             var setupTime = 0;
-
-            if (_toolManager.AlreadyEquipped(requiredResourceTool: requiredResourceSetup.ResourceTool))
+            if (!_toolManager.AlreadyEquipped(jobItem.Tool))
             {
-                Agent.DebugMessage(msg: $"Tool {requiredResourceSetup.ResourceTool.Name} already equipped");
-                return setupTime;
+                setupTime = _toolManager.GetSetupDurationByTool(jobItem.Tool);
             }
-            Agent.DebugMessage(msg: $"Start setup tool {requiredResourceSetup.ResourceTool.Name} which takes {requiredResourceSetup.SetupTime}");
 
-            _toolManager.Mount(requiredResourceTool: requiredResourceSetup.ResourceTool);
-            setupTime = requiredResourceSetup.SetupTime;
-
+            Agent.DebugMessage(
+                msg: $"Has Tool: {_toolManager.GetToolName()} | require Tool: {jobItem.Tool.Name} with setupDuration {setupTime}");
             return setupTime;
         }
 
