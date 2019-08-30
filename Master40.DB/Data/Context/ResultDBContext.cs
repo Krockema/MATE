@@ -11,12 +11,12 @@ namespace Master40.DB.Data.Context
 
         public static ResultContext GetContext(string resultCon)
         {
-            return new ResultContext(new DbContextOptionsBuilder<ResultContext>()
-                .UseSqlServer(resultCon)
+            return new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
+                .UseSqlServer(connectionString: resultCon)
                 .Options);
         }
 
-        public ResultContext(DbContextOptions<ResultContext> options) : base(options) { }
+        public ResultContext(DbContextOptions<ResultContext> options) : base(options: options) { }
 
         public DbSet<SimulationConfiguration> SimulationConfigurations { get; set; }
         public DbSet<SimulationWorkschedule> SimulationOperations { get; set; }

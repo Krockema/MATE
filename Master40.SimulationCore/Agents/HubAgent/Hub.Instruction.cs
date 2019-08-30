@@ -1,6 +1,9 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.SimulationImmutables;
+using static FAgentInformations;
+using static FProposals;
+using static FResourceInformations;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -8,83 +11,45 @@ namespace Master40.SimulationCore.Agents.HubAgent
     {
         public class Instruction
         {
-            public class AddMachineToHub: SimulationMessage
+            public class AddResourceToHub : SimulationMessage
             {
-                public static AddMachineToHub Create(FHubInformation message, IActorRef target, bool logThis = false)
+                public static AddResourceToHub Create(FResourceInformation message, IActorRef target, bool logThis = false)
                 {
-                    return new AddMachineToHub(message, target, logThis);
+                    return new AddResourceToHub(message: message, target: target, logThis: logThis);
                 }
-                private AddMachineToHub(object message, IActorRef target, bool logThis) : base(message, target, logThis)
+                private AddResourceToHub(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
                 {
 
                 }
-                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
+                public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
             }
 
-            public class ProductionStarted : SimulationMessage
+            public class EnqueueJob : SimulationMessage
             {
-                public static ProductionStarted Create(FWorkItem message, IActorRef target)
+                public static EnqueueJob Create(IJob message, IActorRef target)
                 {
-                    return new ProductionStarted(message, target);
+                    return new EnqueueJob(message: message, target: target);
                 }
-                private ProductionStarted(object message, IActorRef target) : base(message, target)
+                private EnqueueJob(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
-                public FWorkItem GetObjectfromMessage { get => Message as FWorkItem; }
+                public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
-            public class EnqueueWorkItem : SimulationMessage
+            public class ProposalFromResource : SimulationMessage
             {
-                public static EnqueueWorkItem Create(FWorkItem message, IActorRef target)
+                public static ProposalFromResource Create(FProposal message, IActorRef target)
                 {
-                    return new EnqueueWorkItem(message, target);
+                    return new ProposalFromResource(message: message, target: target);
                 }
-                private EnqueueWorkItem(object message, IActorRef target) : base(message, target)
-                {
-
-                }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
-            }
-
-            public class ProposalFromMachine : SimulationMessage
-            {
-                public static ProposalFromMachine Create(FProposal message, IActorRef target)
-                {
-                    return new ProposalFromMachine(message, target);
-                }
-                private ProposalFromMachine(object message, IActorRef target) : base(message, target)
+                private ProposalFromResource(object message, IActorRef target) : base(message: message, target: target)
                 {
 
                 }
                 public FProposal GetObjectFromMessage { get => Message as FProposal; }
             }
 
-            public class SetWorkItemStatus : SimulationMessage
-            {
-                public static SetWorkItemStatus Create(FItemStatus message, IActorRef target)
-                {
-                    return new SetWorkItemStatus(message, target);
-                }
-                private SetWorkItemStatus(object message, IActorRef target) : base(message, target)
-                {
-
-                }
-                public FItemStatus GetObjectFromMessage { get => Message as FItemStatus; }
-            }
-
-            public class FinishWorkItem : SimulationMessage
-            {
-                public static FinishWorkItem Create(FWorkItem message, IActorRef target)
-                {
-                    return new FinishWorkItem(message, target);
-                }
-                private FinishWorkItem(object message, IActorRef target) : base(message, target)
-                {
-
-                }
-                public FWorkItem GetObjectFromMessage { get => Message as FWorkItem; }
-            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public DBConnectionString()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.DBConnectionString(argument));
+                config.AddOption(o: new SimulationCore.Environment.Options.DBConnectionString(value: argument));
             };
         }
     }

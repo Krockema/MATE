@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public DebugAgents()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.DebugAgents(bool.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.DebugAgents(value: bool.Parse(value: argument)));
             };
         }
     }

@@ -7,20 +7,26 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Data\Initializer\MasterDBInitializerBasic.cs" />
+    <Compile Remove="Data\Initializer\MasterDBInitializerLarge.cs" />
+    <Compile Remove="Data\Initializer\MasterDBInitializerMedium.cs" />
+    <Compile Remove="Data\Initializer\MasterDBInitializerSmall.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.6.0" />
     <PackageReference Include="EntityFrameworkCore.Cacheable" Version="2.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6" />
     <PackageReference Include="sqlite" Version="3.13.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.110" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.Composition" Version="1.2.0" />
   </ItemGroup>
 </Project>

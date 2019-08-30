@@ -21,7 +21,7 @@ namespace Master40.ViewComponents
         {
 
             var masterDBContext = _context.ProductionOrders
-                                            .Where(a => a.ArticleId == 1).ToList();
+                                            .Where(predicate: a => a.ArticleId == 1).ToList();
 
             var articleList = new List<T_ProductionOrder>();
             foreach (var item in masterDBContext)
@@ -29,7 +29,7 @@ namespace Master40.ViewComponents
                 //var article = await _context.GetProductionOrderBomRecursive(item, item.Id);
                 //articleList.Add(article);
             }
-            return View(articleList);
+            return View(model: articleList);
 
         }
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -19,7 +16,7 @@ namespace Master40.SimulationCore.Helper
                     || c == '-' || c == '='
                     || c == '(' || c == ')')
                 {
-                    sb.Append(c);
+                    sb.Append(value: c);
                 }
             }
             return sb.ToString();

@@ -12,7 +12,10 @@ install:
 
 script:
   - dotnet build
-
+  - dotnet test -v:n --filter Master40.XUnitTest.SimulationImmutables.JobPriorityRules
+  - dotnet test -v:n --filter Master40.XUnitTest.SimulationEnvironment.Configuration
+  - dotnet test -v:n --filter Master40.XUnitTest.Agents
+  
 notifications:
   email: 
   - krockert@htw-dresden.de

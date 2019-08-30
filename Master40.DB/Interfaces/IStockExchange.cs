@@ -6,7 +6,7 @@ namespace Master40.DB.Interfaces
     public interface IStockExchange
     {
         int StockId { get; set; }
-        Guid TrakingGuid { get; set; }
+        Guid TrackingGuid { get; set; }
         int SimulationConfigurationId { get; set; }
         SimulationType SimulationType { get; set; }
         int SimulationNumber { get; set; }

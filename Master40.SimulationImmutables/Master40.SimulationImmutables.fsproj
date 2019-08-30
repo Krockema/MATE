@@ -5,16 +5,46 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FResourceInformations.fs" />
+    <Compile Include="Message\FCreateSimulationResourceSetup.fs" />
+    <Compile Include="Message\FThroughPutTimers.fs" />
+    <Compile Include="Message\FUpdateStartCondition.fs" />
+    <Compile Include="Message\FArticleProviders.fs" />
+    <Compile Include="Message\FProsponed.fs" />
+    <Compile Include="Message\FProposal.fs" />
+    <Compile Include="Message\FResourceType.fs" />
+    <Compile Include="Message\FStartConditions.fs" />
+    <Compile Include="Interface\IKey.fs" />
+    <Compile Include="Interface\IJob.fs" />
+    <Compile Include="Interface\IJobResults.fs" />
     <Compile Include="FunctionConverter.fs" />
-    <Compile Include="SimulationMessage.fs" />
+    <Compile Include="Message\FOperation.fs" />
+    <Compile Include="Message\FOperationResults.fs" />
+    <Compile Include="Message\FArticle.fs" />
+    <Compile Include="Message\FProductionResults.fs" />
+	  <Compile Include="Message\FBucket.fs" />
+    <Compile Include="Message\FRequestResource.fs" />
+    <Compile Include="Message\FAgentInformation.fs" />
+    <Compile Include="Message\FUpdateStockValues.fs" />
+    <Compile Include="Message\FStockReservation.fs" />
+    <Compile Include="Message\FSetEstimatedThroughputTimes.fs" />
+    <Compile Include="Message\FBreakDown.fs" />
+    <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
+    <Compile Include="Message\FUpdateSimulationWork.fs" />
+    <Compile Include="Message\FCreateSimulationWork.fs" />
+    <Compile Include="Message\FResourceSetupDefinition.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.3.9" />
+    <PackageReference Include="Akka" Version="1.3.14" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

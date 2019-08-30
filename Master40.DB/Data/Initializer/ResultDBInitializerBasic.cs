@@ -18,7 +18,7 @@ namespace Master40.DB.Data.Initializer
             }
 
             var simConfigs = new List<SimulationConfiguration>();
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 1
                 Name = "Lot 5, 24h, 24h, 0.2",
@@ -38,7 +38,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.2
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 2
                 Name = "Lot 10, 24h, 24h, 0.2",
@@ -58,7 +58,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.2
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 3
                 Name = "Lot 1, 8h, 8h, 0.2",
@@ -78,7 +78,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.2
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 4
                 Name = "Lot 1, 28h, 24h, 0.2",
@@ -98,7 +98,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.2
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 5
                 Name = "Lot 1, 24h, 24h, 0",
@@ -118,7 +118,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.0
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 6
                 Name = "Lot 1, 24h, 24h, 0.2",
@@ -138,7 +138,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.2
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 7
                 Name = "Lot 1, 24h, 24h, 0.4",
@@ -158,7 +158,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.4
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 8
                 Name = "decentral dev 0",
@@ -178,7 +178,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.0
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 9
                 Name = "decentral dev 0.2",
@@ -198,7 +198,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0.2
 
             });
-            simConfigs.Add(new SimulationConfiguration()
+            simConfigs.Add(item: new SimulationConfiguration()
             {
                 //simconfigId = 10
                 Name = "decentral dev 0.4",
@@ -219,7 +219,7 @@ namespace Master40.DB.Data.Initializer
 
             });
 
-            simConfigs.Add(new SimulationConfiguration
+            simConfigs.Add(item: new SimulationConfiguration
             {
                 Name = "Test config",
                 Lotsize = 1,
@@ -238,7 +238,7 @@ namespace Master40.DB.Data.Initializer
                 WorkTimeDeviation = 0
             });
 
-            context.SimulationConfigurations.AddRange(simConfigs);
+            context.SimulationConfigurations.AddRange(entities: simConfigs);
             context.SaveChanges();
         }
     }

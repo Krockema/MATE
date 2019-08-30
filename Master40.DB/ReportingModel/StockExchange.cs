@@ -7,7 +7,7 @@ namespace Master40.DB.ReportingModel
     public class StockExchange : BaseEntity, IStockExchange
     {
         public int StockId { get; set; }
-        public Guid TrakingGuid { get; set; }
+        public Guid TrackingGuid { get; set; }
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }

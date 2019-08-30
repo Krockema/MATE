@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public SimulationEnd()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.SimulationEnd(int.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.SimulationEnd(value: int.Parse(s: argument)));
             };
         }
     }

@@ -25,7 +25,7 @@ namespace Master40.DB.DataModel
         [NotMapped]
         public string Source { get; private set; }
         */
-        public int DemandID { get; set; }
+        public int? DemandID { get; set; }
         public T_Demand Demand { get; set; }
     }
 

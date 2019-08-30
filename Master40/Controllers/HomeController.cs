@@ -19,43 +19,41 @@ namespace Master40.Controllers
         }
 
 
-        [HttpGet("[Controller]/ReloadDb/{size}")]
-        public async Task<IActionResult> ReloadDb(string size)
+        [HttpGet(template: "[Controller]/ReloadDb/{products}")]
+        public async Task<IActionResult> ReloadDb(string products)
         {
-            await Task.Run(() =>
+            await Task.Run(action: () =>
                 {
-                    switch (size)
+                    switch (products)
                     {
-                        case "small":
+                        case "Tables":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerBasic.DbInitialize(_context);
+                            MasterDbInitializerTable.DbInitialize(context: _context);
                             break;
-                        case "medium":
+                        case "Trucks":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerMedium.DbInitialize(_context);
+                            MasterDBInitializerTruck.DbInitialize(context: _context);
                             break;
                         default:
-                            _context.Database.EnsureDeleted();
-                            MasterDBInitializerSmall.DbInitialize(_context);
                             break;
                     }
                     
                 }
             );
 
-            return View("Index");
+            return View(viewName: "Index");
         }
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData[index: "Message"] = "Your application description page.";
 
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData[index: "Message"] = "Your contact page.";
 
             return View();
         }

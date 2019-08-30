@@ -1,9 +1,9 @@
 ﻿@{
     ViewBag.Title = "Simulation Comparing";
     Layout = "_Layout";
-    int simid = (int)ViewData["simId"];
-    int simNr = (int)ViewData["simNr"];
-    string simName = (string)ViewData["simName"]; 
+    int simid = (int)ViewData[index: "simId"];
+    int simNr = (int)ViewData[index: "simNr"];
+    string simName = (string)ViewData[index: "simName"]; 
 }
 <style>
     .modal-dialog {

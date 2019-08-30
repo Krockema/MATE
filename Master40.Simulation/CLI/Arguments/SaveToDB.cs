@@ -14,7 +14,7 @@ namespace Master40.Simulation.CLI.Arguments
         public SaveToDB()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.SaveToDB(bool.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.SaveToDB(value: bool.Parse(value: argument)));
             };
         }
     }

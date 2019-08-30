@@ -12,18 +12,18 @@ namespace Master40.SimulationCore.Environment
             var s = new Configuration();
             foreach (var item in args)
             {
-                s.AddOption(item);
+                s.AddOption(o: item);
             }
             return s;
         }
         public bool AddOption(object o)
         {
-            return this.TryAdd(o.GetType(), o);
+            return this.TryAdd(key: o.GetType(), value: o);
         }
 
         public T GetOption<T>()
         {
-            this.TryGetValue(typeof(T), out object value);
+            this.TryGetValue(key: typeof(T), value: out object value);
             return (T)value;
         }
 
@@ -38,7 +38,7 @@ namespace Master40.SimulationCore.Environment
             }
             catch (Exception)
             {
-                throw new Exception("Configuration Error.");
+                throw new Exception(message: "Configuration Error.");
             }
         }
     }

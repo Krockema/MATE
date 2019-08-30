@@ -13,7 +13,7 @@ namespace Master40.Simulation.CLI.Arguments
         public OrderArrivalRate()
         {
             Action = (config, argument) => {
-                config.AddOption(new SimulationCore.Environment.Options.OrderArrivalRate(double.Parse(argument)));
+                config.AddOption(o: new SimulationCore.Environment.Options.OrderArrivalRate(value: double.Parse(s: argument)));
             };
         }
     }

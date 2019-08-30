@@ -1,23 +1,23 @@
 ﻿@model Master40.DB.Data.Helper.BoxPlot
 @{
-    var max = Convert.ToDecimal(ViewData["Max"]);
-    var lowestSample = Math.Round(Model.LowestSample / max * 300, 0);
-    var lowerQuartile = Math.Round((Model.LowerQuartile - Model.LowestSample) / max * 300, 0);
-    var median = Math.Round((Model.Median - Model.LowerQuartile) / max * 300, 0);
-    var upperQuartile = Math.Round((Model.UpperQartile - Model.Median) / max * 300, 0);
-    var heighestSample = Math.Round((Model.HeigestSample - Model.UpperQartile) / max * 300, 0);
-    var rest = Math.Round((max - Model.HeigestSample) / max * 300, 0);
+    var max = Convert.ToDecimal(value: ViewData[index: "Max"]);
+    var lowestSample = Math.Round(d: Model.LowestSample / max * 300, decimals: 0);
+    var lowerQuartile = Math.Round(d: (Model.LowerQuartile - Model.LowestSample) / max * 300, decimals: 0);
+    var median = Math.Round(d: (Model.Median - Model.LowerQuartile) / max * 300, decimals: 0);
+    var upperQuartile = Math.Round(d: (Model.UpperQartile - Model.Median) / max * 300, decimals: 0);
+    var heighestSample = Math.Round(d: (Model.HeigestSample - Model.UpperQartile) / max * 300, decimals: 0);
+    var rest = Math.Round(d: (max - Model.HeigestSample) / max * 300, decimals: 0);
 }
 
-    <div class="col-md-10 col-md-offset-1" style="margin-top: @Html.Raw(rest)px; color: transparent; height: @Html.Raw(heighestSample)px; border-top: 2px solid @Html.Raw(Model.Color) 1);">
+    <div class="col-md-10 col-md-offset-1" style="margin-top: @Html.Raw(value: rest)px; color: transparent; height: @Html.Raw(value: heighestSample)px; border-top: 2px solid @Html.Raw(value: Model.Color) 1);">
         <div class="row">
-            <div class="col-md-6" style="border-right: 2px solid @Html.Raw(Model.Color) 1); height: @Html.Raw(heighestSample)px"></div>
+            <div class="col-md-6" style="border-right: 2px solid @Html.Raw(value: Model.Color) 1); height: @Html.Raw(value: heighestSample)px"></div>
         </div>
     </div>
-    <div class="col-md-10 col-md-offset-1" style="background-color: @Html.Raw(Model.Color) .6); height: @Html.Raw(upperQuartile)px; border: solid 2px @Html.Raw(Model.Color) 1);"></div>
-    <div class="col-md-10 col-md-offset-1" style="background-color: @Html.Raw(Model.Color) .6); height: @Html.Raw(median)px; border: solid 2px @Html.Raw(Model.Color) 1);"></div>
-    <div class="col-md-10 col-md-offset-1" style="margin-bottom: @Html.Raw(lowestSample)px; color: transparent; height: @Html.Raw(lowerQuartile)px; border-bottom: 2px solid @Html.Raw(Model.Color) 1);">
+    <div class="col-md-10 col-md-offset-1" style="background-color: @Html.Raw(value: Model.Color) .6); height: @Html.Raw(value: upperQuartile)px; border: solid 2px @Html.Raw(value: Model.Color) 1);"></div>
+    <div class="col-md-10 col-md-offset-1" style="background-color: @Html.Raw(value: Model.Color) .6); height: @Html.Raw(value: median)px; border: solid 2px @Html.Raw(value: Model.Color) 1);"></div>
+    <div class="col-md-10 col-md-offset-1" style="margin-bottom: @Html.Raw(value: lowestSample)px; color: transparent; height: @Html.Raw(value: lowerQuartile)px; border-bottom: 2px solid @Html.Raw(value: Model.Color) 1);">
         <div class="row">
-            <div class="col-md-6" style="border-right: 2px solid @Html.Raw(Model.Color) 1); height: @Html.Raw(lowerQuartile)px"></div>
+            <div class="col-md-6" style="border-right: 2px solid @Html.Raw(value: Model.Color) 1); height: @Html.Raw(value: lowerQuartile)px"></div>
         </div>
     </div>

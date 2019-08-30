@@ -10,7 +10,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
     /// </summary>
     class GanttPlanApics
     {
-        [DllImport("gpDll.dll", EntryPoint = "GPGetVersion", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(dllName: "gpDll.dll", EntryPoint = "GPGetVersion", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr GPGetVersionAsPtr();
 
         /// <summary>
@@ -19,14 +19,14 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <returns>String: Version description</returns>
         public static String GPGetVersion() {
             IntPtr ptr = GPGetVersionAsPtr();
-            return Marshal.PtrToStringAnsi(ptr);
+            return Marshal.PtrToStringAnsi(ptr: ptr);
         }
 
         /// <summary>
         /// Initializes the required Data Structures for Planning, In and Export 
         /// </summary>
         /// <returns>sucress or failure</returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPInitInstance();
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <param name="cPathApp">Path for Ganttplan required Data (.config, lang, ...)</param>
         /// <param name="cPathUser">Path for relevant export/output</param>
         /// <returns>sucress or failure</returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPInitInstanceEx(String cPathApp, String cPathUser);
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <param name="bShowLicInfo">If set to true, it shows full licence Information after successfull confirm</param>
         /// <param name="bDisableDefaultScreen">If set to true, id disables the user input screeen for licence input</param>
         /// <returns>sucress or failure</returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPLic(bool bShowLicInfo = false, bool bDisableDefaultScreen = false);
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <param name="cOld">No "!, string to replace</param>
         /// <param name="cNew">No "!, string to insert</param>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPAddImportQueryArgument(String cOld, String cNew);
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <remarks>GPLic has to be successfully called before</remarks>
         /// <param name="cSessionID">can be Null, then the current date is used.</param>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPImport(String cSessionID);
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <param name="cSessionID">can be Null, then the current date is used.</param>
         /// <param name="cFileName">Full path to the scenario</param>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPImportScenario(String cSessionID, String cFileName);
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <remarks>GPImport has to be successfully called before</remarks>
         /// <param name="cPlanParamID">If null, the first configuration entry is used</param>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPOptInit(String cPlanParamID);
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// </summary>
         /// <remarks>GPOptInit has to be successfully called before</remarks>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPOptRun();
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// FILE OUT after Cols, IS MAYBE MISSING AS PARAMETER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         /// FILE OUT after Cols, IS MAYBE MISSING AS PARAMETER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         /// FILE OUT after Cols, IS MAYBE MISSING AS PARAMETER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPReport(int nResult, int nType, /* String cFileOut , */ String cCols, String cObjectID, String cObjectType, int nIntervalType);
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// </summary>
         /// <param name="nResultsMax">Configures which result shall be exportet, if set to 0 all results will be exportet.</param>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPExport(int nResultsMax);
 
         /// <summary>
@@ -129,14 +129,14 @@ namespace Master40.Tools.Connectoren.Ganttplan
         /// <param name="nResult">specifies the Index of the result which should be exported</param>
         /// <param name="cFileName">specifies the full path</param>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPSaveScenario(int nResult, String cFileName);
 
         /// <summary>
         /// Frees allocated memory space
         /// </summary>
         /// <returns></returns>
-        [DllImport("gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(dllName: "gpDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool GPExitInstance();
     }
 }

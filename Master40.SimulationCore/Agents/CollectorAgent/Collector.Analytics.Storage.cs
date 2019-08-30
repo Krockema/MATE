@@ -2,85 +2,105 @@
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Environment.Options;
-using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
+using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static FUpdateStockValues;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsStorage : Behaviour, ICollectorBehaviour
     {
         private CollectorAnalyticsStorage() : base() {
-            CurrentStockValues = new Dictionary<string, UpdateStockValues>();
+            CurrentStockValues = new Dictionary<string, FUpdateStockValue>();
         }
-        private Dictionary<string, UpdateStockValues> CurrentStockValues;
+        internal static List<Type> GetStreamTypes()
+        {
+            return new List<Type> { typeof(FUpdateStockValue),
+                                    typeof(UpdateLiveFeed)};
+        }
+
+        private Dictionary<string, FUpdateStockValue> CurrentStockValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
+
+        public Collector Collector { get; set; }
 
         public static CollectorAnalyticsStorage Get()
         {
             return new CollectorAnalyticsStorage();
         }
 
-        public override bool Action(Agent agent, object message) => throw new Exception("Please use EventHandle method to process Messages");
+        public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
         public bool EventHandle(SimulationMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case UpdateStockValues m: UpdateStock((Collector)simulationMonitor, m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed((Collector)simulationMonitor, m.GetObjectFromMessage); break;
+                case FUpdateStockValue m: UpdateStock(values: m); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeToDatabase: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void UpdateFeed(Collector agent, bool writeToDatabase)
+        private void UpdateFeed(bool writeToDatabase)
         {
-            
-            agent.messageHub.SendToAllClients("(" + agent.Time + ") Update Feed from Storage");
+
+            //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Storage");
             var groupedByType = from sw in CurrentStockValues
                                 group sw by sw.Value.ArticleType into grouped
                                 select new
                                 {
                                     GroupName = grouped.Key,
-                                    Value = grouped.Sum(x => x.Value.NewValue),
-                                    Time = agent.Time
+                                    Value = grouped.Sum(selector: x => x.Value.NewValue),
+                                    Time = Collector.Time
                                 };
 
-            foreach (var item in groupedByType)
+            foreach (var item in groupedByType.OrderBy(x => x.Value))
             {
-                agent.messageHub.SendToClient("Storage", Newtonsoft.Json.JsonConvert.SerializeObject(item));
+                Collector.messageHub.SendToClient(listener: "Storage", msg: Newtonsoft.Json.JsonConvert.SerializeObject(value: item));
             }
 
-            LogToDB(agent, writeToDatabase);
-            agent.Context.Sender.Tell(true, agent.Context.Self);
+
+            if (writeToDatabase)
+            {
+                foreach (var item in CurrentStockValues)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Storage: {item.Value.StockName} in stock {item.Value.NewValue} ");
+                }
+                
+            }
+
+            LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
+            Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
         }
 
 
-        private void UpdateStock(Collector agent, UpdateStockValues values)
+        private void UpdateStock(FUpdateStockValue values)
         {
-            if (CurrentStockValues.ContainsKey(values.StockName))
-                CurrentStockValues.Remove(values.StockName);
+            if (CurrentStockValues.ContainsKey(key: values.StockName))
+                CurrentStockValues.Remove(key: values.StockName);
 
-            CurrentStockValues.Add(values.StockName, values);
-            UpdateKPI(agent, values);
+            CurrentStockValues.Add(key: values.StockName, value: values);
+            UpdateKPI(values: values);
         }
 
-        private void UpdateKPI(Collector agent, UpdateStockValues values)
+        private void UpdateKPI(FUpdateStockValue values)
         {
             var k = new Kpi { Name = values.StockName
                             , Value = values.NewValue
-                            , Time = (int)agent.Time
+                            , Time = (int)Collector.Time
                             , KpiType = DB.Enums.KpiType.StockEvolution
-                            , SimulationConfigurationId = agent.simulationId.Value
-                            , SimulationNumber = agent.simulationNumber.Value
+                            , SimulationConfigurationId = Collector.simulationId.Value
+                            , SimulationNumber = Collector.simulationNumber.Value
                             , IsFinal = false
                             , IsKpi = true
-                            , SimulationType = agent.simulationKind.Value
+                            , SimulationType = Collector.simulationKind.Value
             };
-            StockValuesOverTime.Add(k);
+            StockValuesOverTime.Add(item: k);
 
         }
 
@@ -88,9 +108,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (agent.saveToDB.Value && writeToDatabase)
             {
-                using (var ctx = ResultContext.GetContext(agent.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.Kpis.AddRange(StockValuesOverTime);
+                    ctx.Kpis.AddRange(entities: StockValuesOverTime);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

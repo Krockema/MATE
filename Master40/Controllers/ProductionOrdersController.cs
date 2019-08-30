@@ -20,8 +20,8 @@ namespace Master40.Controllers
         // GET: ProductionOrders
         public async Task<IActionResult> Index()
         {
-            var masterDBContext = _context.ProductionOrders.Include(p => p.Article);
-            return View(await masterDBContext.ToListAsync());
+            var masterDBContext = _context.ProductionOrders.Include(navigationPropertyPath: p => p.Article);
+            return View(model: await masterDBContext.ToListAsync());
         }
 
         // GET: ProductionOrders/Details/5
@@ -33,20 +33,20 @@ namespace Master40.Controllers
             }
 
             var productionOrder = await _context.ProductionOrders
-                .Include(p => p.Article)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: p => p.Article)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (productionOrder == null)
             {
                 return NotFound();
             }
 
-            return View(productionOrder);
+            return View(model: productionOrder);
         }
 
         // GET: ProductionOrders/Create
         public IActionResult Create()
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "ArticleId");
             return View();
         }
 
@@ -59,12 +59,12 @@ namespace Master40.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(productionOrder);
+                _context.Add(entity: productionOrder);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", productionOrder.ArticleId);
-            return View(productionOrder);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "ArticleId", selectedValue: productionOrder.ArticleId);
+            return View(model: productionOrder);
         }
 
         // GET: ProductionOrders/Edit/5
@@ -75,13 +75,13 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(m => m.Id == id);
+            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (productionOrder == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", productionOrder.ArticleId);
-            return View(productionOrder);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "ArticleId", selectedValue: productionOrder.ArticleId);
+            return View(model: productionOrder);
         }
 
         // POST: ProductionOrders/Edit/5
@@ -100,12 +100,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(productionOrder);
+                    _context.Update(entity: productionOrder);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductionOrderExists(productionOrder.Id))
+                    if (!ProductionOrderExists(id: productionOrder.Id))
                     {
                         return NotFound();
                     }
@@ -114,10 +114,10 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", productionOrder.ArticleId);
-            return View(productionOrder);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "ArticleId", selectedValue: productionOrder.ArticleId);
+            return View(model: productionOrder);
         }
 
         // GET: ProductionOrders/Delete/5
@@ -129,30 +129,30 @@ namespace Master40.Controllers
             }
 
             var productionOrder = await _context.ProductionOrders
-                .Include(p => p.Article)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: p => p.Article)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (productionOrder == null)
             {
                 return NotFound();
             }
 
-            return View(productionOrder);
+            return View(model: productionOrder);
         }
 
         // POST: ProductionOrders/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(m => m.Id == id);
-            _context.ProductionOrders.Remove(productionOrder);
+            var productionOrder = await _context.ProductionOrders.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _context.ProductionOrders.Remove(entity: productionOrder);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool ProductionOrderExists(int id)
         {
-            return _context.ProductionOrders.Any(e => e.Id == id);
+            return _context.ProductionOrders.Any(predicate: e => e.Id == id);
         }
     }
 }

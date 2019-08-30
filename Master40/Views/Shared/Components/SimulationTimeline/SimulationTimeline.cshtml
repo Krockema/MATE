@@ -2,18 +2,18 @@
 @using Master40.Models
 @using Newtonsoft.Json;
 @{
-    var SimType = ViewData["SimulationType"].ToString();
-    var SimNr = ViewData["SimulationNumber"].ToString();
-    var SimConfig = ViewData["SimulationConfiguration"].ToString();
-    var SimulationPage = ViewData["SimulationPage"].ToString();
-    var MaxPage = ViewData["MaxPage"].ToString();
+    var SimType = ViewData[index: "SimulationType"].ToString();
+    var SimNr = ViewData[index: "SimulationNumber"].ToString();
+    var SimConfig = ViewData[index: "SimulationConfiguration"].ToString();
+    var SimulationPage = ViewData[index: "SimulationPage"].ToString();
+    var MaxPage = ViewData[index: "MaxPage"].ToString();
 
 
     string tasks = "[]", links = "[]";
     if (null != Model)
     {
-        tasks = JsonConvert.SerializeObject(Model.Tasks, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-        links = JsonConvert.SerializeObject(Model.Links, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        tasks = JsonConvert.SerializeObject(value: Model.Tasks, formatting: Formatting.Indented, settings: new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        links = JsonConvert.SerializeObject(value: Model.Links, formatting: Formatting.Indented, settings: new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         //string min = Model.Tasks.Where(x => x.IntFrom > 0).Min(x => x.IntFrom).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
         //string max = Model.Tasks.Max(x => x.IntTo).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
         string dump = "stop";
@@ -54,7 +54,7 @@
         $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing View</div>');
 
         // reload need to be programmed.
-        loadGantt(value1, value2, value3,"@Html.Raw(SimType)", @Html.Raw(SimConfig), @Html.Raw(SimNr));
+        loadGantt(value1, value2, value3,"@Html.Raw(value: SimType)", @Html.Raw(value: SimConfig), @Html.Raw(value: SimNr));
         //$('form').submit();
     }
     function pageChange(dir) {
@@ -122,7 +122,7 @@
                         <div class="form-group">
                             <div class="row">
                                 
-                                <label class="control-label col-md-4">Timeframe <span class="badge">@Html.Raw(MaxPage)</span> </label>
+                                <label class="control-label col-md-4">Timeframe <span class="badge">@Html.Raw(value: MaxPage)</span> </label>
                                 <div class="col-md-8">
                                     <div class="btn-group" style="display: inline-flex;">
                                         <div class="button btn btn-default">
@@ -130,7 +130,7 @@
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </div>
-                                        <div class="button btn-default"><input id="fcPage" name="SchedulingPage" value="@Html.Raw(SimulationPage)" style="width: 40px; height: 34px; border: 1px solid #ccc; text-align: center;"/>
+                                        <div class="button btn-default"><input id="fcPage" name="SchedulingPage" value="@Html.Raw(value: SimulationPage)" style="width: 40px; height: 34px; border: 1px solid #ccc; text-align: center;"/>
                                         </div>
                                         <div class="button btn btn-default">
                                             <a href="#" aria-label="Next" onclick="pageChange('up')">
@@ -256,8 +256,8 @@
     });
 
     var demo_tasks = {
-        "data": @Html.Raw(tasks),
-        "links": @Html.Raw(links)
+        "data": @Html.Raw(value: tasks),
+        "links": @Html.Raw(value: links)
     };
     gantt.parse(demo_tasks);
 

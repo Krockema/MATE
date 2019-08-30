@@ -8,22 +8,22 @@ namespace Master40.Simulation.CLI
     {
         public Commands()
         {
-            this.Add(new Help());
-            this.Add(new DBConnectionString());
-            this.Add(new DebugAgents());
-            this.Add(new DebugSystem());
-            this.Add(new EstimatedThroughPut());
-            this.Add(new KpiTimeSpan());
-            this.Add(new OrderArrivalRate());
-            this.Add(new OrderQuantity());
-            this.Add(new SaveToDB());
-            this.Add(new Seed());
-            this.Add(new SettlingStart());
-            this.Add(new SimulationEnd());
-            this.Add(new WorkTimeDeviation());
-            this.Add(new SimulationId());
-            this.Add(new SimulationKind());
-            this.Add(new SimulationNumber());
+            this.Add(item: new Help());
+            this.Add(item: new DBConnectionString());
+            this.Add(item: new DebugAgents());
+            this.Add(item: new DebugSystem());
+            this.Add(item: new EstimatedThroughPut());
+            this.Add(item: new KpiTimeSpan());
+            this.Add(item: new OrderArrivalRate());
+            this.Add(item: new OrderQuantity());
+            this.Add(item: new SaveToDB());
+            this.Add(item: new Seed());
+            this.Add(item: new SettlingStart());
+            this.Add(item: new SimulationEnd());
+            this.Add(item: new WorkTimeDeviation());
+            this.Add(item: new SimulationId());
+            this.Add(item: new SimulationKind());
+            this.Add(item: new SimulationNumber());
         }
 
 

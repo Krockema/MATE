@@ -1,6 +1,8 @@
 ﻿using Akka.Actor;
+using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Agents;
 using Master40.Tools.Messages;
@@ -11,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
+using static FBreakDowns;
 
 namespace Master40.Simulation
 {
@@ -33,58 +36,48 @@ namespace Master40.Simulation
         public async Task RunAkkaSimulation(Configuration configuration)
         {
             _configuration = configuration;
-            _messageHub.SendToAllClients("Prepare in Memory model from DB for Simulation: " 
+            _messageHub.SendToAllClients(msg: "Prepare in Memory model from DB for Simulation: " 
                                         + _configuration.GetOption<SimulationId>().Value.ToString()
-                                        , MessageType.info);
+                                        , msgType: MessageType.info);
             //In-memory database only exists while the connection is open
-            var _inMemory = InMemoryContext.CreateInMemoryContext();
-            //InMemoryContext.LoadData(_context, _inMemory);
-            MasterDBInitializerSmall.DbInitialize(_inMemory);
-            PrepareModel(_inMemory);
+            //var _inMemory = InMemoryContext.CreateInMemoryContext();
+            // InMemoryContext.LoadData(source: _context, target: _inMemory);
+            //MasterDBInitializerSimple.DbInitialize(_inMemory);
             
-            _messageHub.SendToAllClients("Prepare Simulation", MessageType.info);
+            _messageHub.SendToAllClients(msg: "Prepare Simulation", msgType: MessageType.info);
 
-            _agentSimulation = new AgentSimulation(DBContext: _inMemory
+            _agentSimulation = new AgentSimulation(DBContext: _context
                                                    ,messageHub: _messageHub); // Defines the status output
             
-            var simulation = _agentSimulation.InitializeSimulation(_configuration).Result;
+            var simulation = _agentSimulation.InitializeSimulation(configuration: _configuration).Result;
             SimulationContext = simulation.SimulationContext;
-
-            
+ 
             
             if (simulation.IsReady())
             {
-                _messageHub.SendToAllClients("Start Simulation ...", MessageType.info);
+                _messageHub.SendToAllClients(msg: "Start Simulation ...", msgType: MessageType.info);
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                AgentSimulation.Continuation(_agentSimulation.SimulationConfig.Inbox
-                                            , simulation
-                                            , new List<IActorRef> { _agentSimulation.StorageCollector
+                AgentSimulation.Continuation(inbox: _agentSimulation.SimulationConfig.Inbox
+                                            , sim: simulation
+                                            , collectors: new List<IActorRef> { _agentSimulation.StorageCollector
                                                                 , _agentSimulation.WorkCollector
                                                                 , _agentSimulation.ContractCollector
                                             });
                 await sim;
             }
             _messageHub.EndScheduler();
-            _messageHub.EndSimulation("Simulation Completed."
-                                    , _configuration.GetOption<SimulationId>().Value.ToString()
-                                    , _configuration.GetOption<SimulationNumber>().Value.ToString());
+            _messageHub.EndSimulation(msg: "Simulation Completed."
+                                    , simId: _configuration.GetOption<SimulationId>().Value.ToString()
+                                    , simNumber: _configuration.GetOption<SimulationNumber>().Value.ToString());
             return;
-        }
-
-        private void PrepareModel(ProductionDomainContext inMemory)
-        {
-            inMemory.Machines.RemoveRange(inMemory.Machines.ToList());
-            inMemory.SaveChanges();
-            inMemory.AddRange(_context.Machines.AsNoTracking().ToList().Select(x => { x.Id = 0; return x; }).ToList());
-            inMemory.SaveChanges();
         }
 
         public void ResourceBreakDown(string name)
         {
-            var machineGroup = _context.Machines.Include(x => x.MachineGroup).Single(x => x.Name.Replace(" ", "") == name).MachineGroup.Name;
-            SimulationContext.Tell(BasicInstruction.ResourceBrakeDown.Create(message: new SimulationImmutables.FBreakDown("Machine(" + name + ")", machineGroup, true, 0),
+            var machineGroup = _context.Resources.Include(navigationPropertyPath: x => x.ResourceSkills).Single(predicate: x => x.Name.Replace(" ", "") == name).ResourceSkills.SingleOrDefault().Name;
+            SimulationContext.Tell(message: BasicInstruction.ResourceBrakeDown.Create(message: new FBreakDown(resource: "Machine(" + name + ")", resourceSkill: machineGroup, isBroken: true, duration: 0),
                                                                               target: _agentSimulation.ActorPaths.HubDirectory.Ref));
         }
     }

@@ -28,27 +28,27 @@ namespace Master40.ViewComponents
         {
             // Determine Type and Data
             // Determine Type and Data
-            _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[0]), (paramsList[1] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[6]), (paramsList[7] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[4]), (paramsList[5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[2]), (paramsList[3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            _simList = _simList.OrderBy(x => x.Item2).ThenBy(x => x.Item1).ToList();
+            _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 0]), item2: (paramsList[index: 1] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() == 8) _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 6]), item2: (paramsList[index: 7] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 6) _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 4]), item2: (paramsList[index: 5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 4) _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 2]), item2: (paramsList[index: 3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            _simList = _simList.OrderBy(keySelector: x => x.Item2).ThenBy(keySelector: x => x.Item1).ToList();
             var displayData = new List<Kpi>();
             var kpi = new List<Kpi>();
             
             // charttype
             foreach (var sim in _simList)
             {
-                var trick17 = _context.Kpis.Where(x => x.KpiType == KpiType.LeadTime
+                var trick17 = _context.Kpis.Where(predicate: x => x.KpiType == KpiType.LeadTime
                                                        && x.SimulationConfigurationId == sim.Item1
                                                        && x.SimulationNumber == 1);
                                                        //&& x.SimulationType == sim.Item2);
-                kpi.AddRange(trick17.ToList());
+                kpi.AddRange(collection: trick17.ToList());
             }
-            var maxValue = kpi.Max(x => x.Value);
+            var maxValue = kpi.Max(selector: x => x.Value);
 
             
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
                 if (!kpi.Any())
                 {
@@ -56,35 +56,35 @@ namespace Master40.ViewComponents
                 }
 
                 var chart = new List<BoxPlot>();
-                var products = kpi.Select(x => x.Name).Distinct().ToList();
-                var colors = new ChartColor();
+                var products = kpi.Select(selector: x => x.Name).Distinct().ToList();
+                var colors = new ChartColors();
                 int i = 0;
 
                 foreach (var sim in _simList)
                 {
-                    displayData.AddRange(kpi.Where(x => x.IsKpi 
+                    displayData.AddRange(collection: kpi.Where(predicate: x => x.IsKpi 
                                                     && x.SimulationConfigurationId == sim.Item1 
-                                                    && x.SimulationType == sim.Item2).OrderBy(x => x.Value).ToList());
+                                                    && x.SimulationType == sim.Item2).OrderBy(keySelector: x => x.Value).ToList());
 
 
                     foreach (var product in products)
                     {
-                        var boxplotValues = kpi.Where(x => x.IsKpi == false && x.Name == product
+                        var boxplotValues = kpi.Where(predicate: x => x.IsKpi == false && x.Name == product
                                                       && x.KpiType == KpiType.LeadTime
                                                       && x.SimulationConfigurationId == sim.Item1
                                                       && x.SimulationNumber == 1
                                                       && x.IsFinal
-                                                      && x.SimulationType == sim.Item2).OrderBy(x => x.Value).ToList();
+                                                      && x.SimulationType == sim.Item2).OrderBy(keySelector: x => x.Value).ToList();
                         if(boxplotValues.Count == 0) continue;
-                        chart.Add(new BoxPlot
+                        chart.Add(item: new BoxPlot
                         {
-                            HeigestSample = (decimal)boxplotValues.ElementAt(4).Value,
-                            UpperQartile = (decimal)boxplotValues.ElementAt(3).Value,
-                            Median = (decimal)boxplotValues.ElementAt(2).Value,
-                            LowerQuartile = (decimal)boxplotValues.ElementAt(1).Value,
-                            LowestSample = (decimal)boxplotValues.ElementAt(0).Value,
+                            HeigestSample = (decimal)boxplotValues.ElementAt(index: 4).Value,
+                            UpperQartile = (decimal)boxplotValues.ElementAt(index: 3).Value,
+                            Median = (decimal)boxplotValues.ElementAt(index: 2).Value,
+                            LowerQuartile = (decimal)boxplotValues.ElementAt(index: 1).Value,
+                            LowestSample = (decimal)boxplotValues.ElementAt(index: 0).Value,
                             Name = product + "<br> SimId:" + sim.Item1 + " " + sim.Item2,
-                            Color = colors.Color[i].Substring(0, colors.Color[i].Length - 4)
+                            Color = colors.Get(i).ToString()
                         });
                         if (_simList.Count() == 1)  i++;
 
@@ -99,12 +99,12 @@ namespace Master40.ViewComponents
             
             // create JS to Render Chart.
             var boxPlot = await generateChartTask;
-            ViewData["BoxPlot"] = boxPlot;
-            ViewData["Type"] = paramsList[1];
-            ViewData["Data"] = displayData.Distinct().ToList();
-            ViewData["Max"] = Math.Ceiling(maxValue / 100) * 100;
+            ViewData[index: "BoxPlot"] = boxPlot;
+            ViewData[index: "Type"] = paramsList[index: 1];
+            ViewData[index: "Data"] = displayData.Distinct().ToList();
+            ViewData[index: "Max"] = Math.Ceiling(a: maxValue / 100) * 100;
             //ViewData["Max"] = Math.Ceiling((double)boxPlot.Max(x => x.HeigestSample)/100)*100;
-            return View($"ProductLeadTimeBoxPlot");
+            return View(viewName: $"ProductLeadTimeBoxPlot");
         }
     }
 }

@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChartJSCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
-using Master40.Extensions;
 using Master40.DB.Enums;
-using ChartJSCore.Models.Bar;
-using Master40.DB.DataModel;
 using Master40.DB.ReportingModel;
+using Master40.Extensions;
 
 namespace Master40.ViewComponents
 {
@@ -39,22 +38,22 @@ namespace Master40.ViewComponents
         /// <returns></returns>
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
-            Task<Chart> generateChartTask = GenerateChartTask(paramsList);
-            _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[0]), (paramsList[1] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() == 8) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[6]), (paramsList[7] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 6) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[4]), (paramsList[5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
-            if (paramsList.Count() >= 4) _simList.Add(new Tuple<int, SimulationType>(Convert.ToInt32(paramsList[2]), (paramsList[3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            Task<Chart> generateChartTask = GenerateChartTask(paramsList: paramsList);
+            _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 0]), item2: (paramsList[index: 1] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() == 8) _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 6]), item2: (paramsList[index: 7] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 6) _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 4]), item2: (paramsList[index: 5] == "Central") ? SimulationType.Central : SimulationType.Decentral));
+            if (paramsList.Count() >= 4) _simList.Add(item: new Tuple<int, SimulationType>(item1: Convert.ToInt32(value: paramsList[index: 2]), item2: (paramsList[index: 3] == "Central") ? SimulationType.Central : SimulationType.Decentral));
             
 
 
             // create JS to Render Chart.
-            ViewData["chart"] = await generateChartTask;
-            return View($"MergedMachineWorkload");
+            ViewData[index: "chart"] = await generateChartTask;
+            return View(viewName: $"MergedMachineWorkload");
 
         }
         private Task<Chart> GenerateChartTask(List<string> paramsList)
         {
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
                 if (!_context.SimulationOperations.Any())
                 {
@@ -71,44 +70,44 @@ namespace Master40.ViewComponents
                 // charttype
                 foreach (var sim in _simList)
                 {
-                    var trick17 = _context.Kpis.Where(x => x.SimulationConfigurationId == sim.Item1
+                    var trick17 = _context.Kpis.Where(predicate: x => x.SimulationConfigurationId == sim.Item1
                                                  && x.KpiType == KpiType.MachineUtilization
                                                  && x.IsKpi && x.SimulationType == sim.Item2
                                                  && x.SimulationNumber == 1
-                                                 && x.IsFinal).OrderByDescending(g => g.Name);
-                    machines.AddRange(trick17.ToList());
+                                                 && x.IsFinal).OrderByDescending(keySelector: g => g.Name);
+                    machines.AddRange(collection: trick17.ToList());
                 }
 
 
 
 
-                var data = new Data { Labels = machines.Select(n => n.Name).Distinct().ToList() };
+                var data = new Data { Labels = machines.Select(selector: n => n.Name).Distinct().ToList() };
 
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
 
                 var i = 0;
-                var cc = new ChartColor();
+                var cc = new ChartColors();
                 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                foreach (var t1 in _simList.OrderBy(x => x.Item1))
+                foreach (var t1 in _simList.OrderBy(keySelector: x => x.Item1))
                 {
-                    var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-normal" };
-                    var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
-                    var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<string>(), HoverBackgroundColor = new List<string>(), YAxisID = "y-diversity" };
+                    var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-normal" };
+                    var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
+                    var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
                     barDataSet.Label = "Sim Id:" + t1.Item1 + " " + t1.Item2;
                     foreach (var machineName in data.Labels)
                     {
 
                         Kpi machine = null;
-                        var t  = machines.Where(x => x.Name == machineName && x.SimulationConfigurationId == t1.Item1 && x.SimulationType == t1.Item2).Distinct();
+                        var t  = machines.Where(predicate: x => x.Name == machineName && x.SimulationConfigurationId == t1.Item1 && x.SimulationType == t1.Item2).Distinct();
                         machine = t.Single();
 
-                        var percent = Math.Round(machine.Value * 100, 2);
+                        var percent = Math.Round(value: machine.Value * 100, digits: 2);
                         // var wait = max - work;
-                        barDataSet.Data.Add(percent);
-                        barDataSet.BackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.4)");
-                        barDataSet.HoverBackgroundColor.Add(cc.Color[i].Substring(0, cc.Color[1].Length - 4) + "0.7)");
+                        barDataSet.Data.Add(item: percent);
+                        barDiversitySet.BackgroundColor.Add(item: cc.Get(i, 0.4));
+                        barDiversitySet.HoverBackgroundColor.Add(item: cc.Get(i, 0.7));
 
                         //var varianz = machine.Count * 100;
 
@@ -124,7 +123,7 @@ namespace Master40.ViewComponents
                     }
                     i++;
                     i++;
-                    data.Datasets.Add(barDataSet);
+                    data.Datasets.Add(item: barDataSet);
                     //data.Datasets.Add(barDiversityInvisSet);
                     //data.Datasets.Add(barDiversitySet);
                 }

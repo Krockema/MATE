@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Master40.DB.DataModel.M_ArticleBom>
 @{
-    string level = ViewData["level"]?.ToString() ?? "";
+    string level = ViewData[index: "level"]?.ToString() ?? "";
     level = (level != "") ? level + "." : level;
     int count = 0;
     string display = "";
@@ -15,19 +15,19 @@
                 @display
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
+                @Html.DisplayFor(expression: modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @Html.DisplayFor(expression: modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArticleChild.Id)
+                @Html.DisplayFor(expression: modelItem => item.ArticleChild.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArticleParent.Id)
+                @Html.DisplayFor(expression: modelItem => item.ArticleParent.Id)
             </td>
             <td>
-                @foreach (var ag in item.ArticleChild.WorkSchedules)
+                @foreach (var ag in item.ArticleChild.Operations)
                 {
                     <table>
                         <tr>
@@ -54,8 +54,8 @@
         </tr>
         if (item.ArticleChild.ArticleBoms != null)
         {
-            ViewData["level"] = level + count.ToString();
-            @Html.Partial("ArticleBom", item.ArticleChild.ArticleBoms, this.ViewData)
+            ViewData[index: "level"] = level + count.ToString();
+            @Html.Partial(partialViewName: "ArticleBom", model: item.ArticleChild.ArticleBoms, viewData: this.ViewData)
             }
         }
 }

@@ -8,10 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics.Core" Version="3.17.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="1.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
   </ItemGroup>
 
 </Project>

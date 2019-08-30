@@ -1,6 +1,6 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Agents;
-using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationCore.Types;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -8,7 +8,7 @@ namespace Master40.SimulationCore.Helper
     {
         public static AgentSetup Create(Agent agent, IBehaviour behaviour)
         {
-            return new AgentSetup(agent, behaviour);
+            return new AgentSetup(agent: agent, behaviour: behaviour);
         }
         public AgentSetup(Agent agent, IBehaviour behaviour)
         {

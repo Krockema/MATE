@@ -1,7 +1,7 @@
 @model IEnumerable<Master40.DB.DataModel.M_Article>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData[index: "Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script>
@@ -39,25 +39,25 @@
     <thead class="thead-dark">
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(expression: model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                @Html.DisplayNameFor(expression: model => model.Price)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DeliveryPeriod)
+                @Html.DisplayNameFor(expression: model => model.DeliveryPeriod)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreationDate)
+                @Html.DisplayNameFor(expression: model => model.CreationDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ArticleType)
+                @Html.DisplayNameFor(expression: model => model.ArticleType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Unit)
+                @Html.DisplayNameFor(expression: model => model.Unit)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.WorkSchedules)
+                @Html.DisplayNameFor(expression: model => model.Operations)
             </th>
             <th>Action</th>
             <th>Preview</th>
@@ -68,25 +68,25 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    @Html.DisplayFor(expression: modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Price)
+                    @Html.DisplayFor(expression: modelItem => item.Price)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryPeriod)
+                    @Html.DisplayFor(expression: modelItem => item.DeliveryPeriod)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.CreationDate)
+                    @Html.DisplayFor(expression: modelItem => item.CreationDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ArticleType.Name)
+                    @Html.DisplayFor(expression: modelItem => item.ArticleType.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Unit.Name)
+                    @Html.DisplayFor(expression: modelItem => item.Unit.Name)
                 </td>
                 <td>
-                    @foreach (var ag in item.WorkSchedules.OrderBy(x => x.HierarchyNumber))
+                    @foreach (var ag in item.Operations.OrderBy(keySelector: x => x.HierarchyNumber))
                     {
                         <table>
                             <tr>
@@ -149,7 +149,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @Html.Partial("ArticleBom", item.ArticleBoms, new ViewDataDictionary(ViewData) { { "level", null } })
+                            @Html.Partial(partialViewName: "ArticleBom", model: item.ArticleBoms, viewData: new ViewDataDictionary(source: ViewData) { { "level", null } })
                         </tbody>
                     </table>
                 </td>

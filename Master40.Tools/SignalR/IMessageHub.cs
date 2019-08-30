@@ -9,6 +9,6 @@ namespace Master40.Tools.SignalR
         string ReturnMsgBox(string msg, MessageType type);
         void EndScheduler();
         void EndSimulation(string msg, string simId, string simNumber);
-        void ProcessingUpdate(int simId, int timer, string simType, int max);
+        void ProcessingUpdate(int simId, int finished, string simType, int max);
     }
 }

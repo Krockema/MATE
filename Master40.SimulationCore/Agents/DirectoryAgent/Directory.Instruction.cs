@@ -1,7 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
-using Master40.SimulationImmutables;
+using static FAgentInformations;
+using static FResourceSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
@@ -11,23 +12,23 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
         {
             public class CreateHubAgent : SimulationMessage
             {
-                public static CreateHubAgent Create(FHubInformation message, IActorRef target)
+                public static CreateHubAgent Create(FAgentInformation message, IActorRef target)
                 {
-                    return new CreateHubAgent(message, target);
+                    return new CreateHubAgent(message: message, target: target);
                 }
-                private CreateHubAgent(object message, IActorRef target) : base(message, target)
+                private CreateHubAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FHubInformation GetObjectFromMessage { get => Message as FHubInformation; }
+                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
             }
 
-            public class RequestRessourceAgent : SimulationMessage
+            public class RequestAgent : SimulationMessage
             {
-                public static RequestRessourceAgent Create(string descriminator, IActorRef target)
+                public static RequestAgent Create(string discriminator, IActorRef target)
                 {
-                    return new RequestRessourceAgent(descriminator, target);
+                    return new RequestAgent(message: discriminator, target: target);
                 }
-                private RequestRessourceAgent(object message, IActorRef target) : base(message, target)
+                private RequestAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public string GetObjectFromMessage { get => Message as string; }
@@ -37,9 +38,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {
-                    return new RegisterResources(descriminator, target);
+                    return new RegisterResources(message: descriminator, target: target);
                 }
-                private RegisterResources(object message, IActorRef target) : base(message, target)
+                private RegisterResources(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public string GetObjectFromMessage { get => Message as string; }
@@ -47,22 +48,22 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
             public class CreateMachineAgents : SimulationMessage
             {
-                public static CreateMachineAgents Create(FRessourceDefinition message, IActorRef target)
+                public static CreateMachineAgents Create(FResourceSetupDefinition message, IActorRef target)
                 {
-                    return new CreateMachineAgents(message, target);
+                    return new CreateMachineAgents(message: message, target: target);
                 }
-                private CreateMachineAgents(object message, IActorRef target) : base(message, target)
+                private CreateMachineAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FRessourceDefinition GetObjectFromMessage { get => Message as FRessourceDefinition; }
+                public FResourceSetupDefinition GetObjectFromMessage { get => Message as FResourceSetupDefinition; }
             }
             public class CreateStorageAgents : SimulationMessage
             {
                 public static CreateStorageAgents Create(M_Stock message, IActorRef target)
                 {
-                    return new CreateStorageAgents(message, target);
+                    return new CreateStorageAgents(message: message, target: target);
                 }
-                private CreateStorageAgents(object message, IActorRef target) : base(message, target)
+                private CreateStorageAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public M_Stock GetObjectFromMessage { get => Message as M_Stock; }

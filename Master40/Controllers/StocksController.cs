@@ -20,8 +20,8 @@ namespace Master40.Controllers
         // GET: Stocks
         public async Task<IActionResult> Index()
         {
-            var masterDBContext = _context.Stocks.Include(s => s.Article);
-            return View(await masterDBContext.ToListAsync());
+            var masterDBContext = _context.Stocks.Include(navigationPropertyPath: s => s.Article);
+            return View(model: await masterDBContext.ToListAsync());
         }
 
         // GET: Stocks/Details/5
@@ -33,20 +33,20 @@ namespace Master40.Controllers
             }
 
             var stock = await _context.Stocks
-                .Include(s => s.Article)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: s => s.Article)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (stock == null)
             {
                 return NotFound();
             }
 
-            return View(stock);
+            return View(model: stock);
         }
 
         // GET: Stocks/Create
         public IActionResult Create()
         {
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name");
+            ViewData[index: "ArticleForeignKey"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "Name");
             return View();
         }
 
@@ -59,12 +59,12 @@ namespace Master40.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(stock);
+                _context.Add(entity: stock);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name", stock.ArticleForeignKey);
-            return View(stock);
+            ViewData[index: "ArticleForeignKey"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "Name", selectedValue: stock.ArticleForeignKey);
+            return View(model: stock);
         }
 
         // GET: Stocks/Edit/5
@@ -75,13 +75,13 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var stock = await _context.Stocks.SingleOrDefaultAsync(m => m.Id == id);
+            var stock = await _context.Stocks.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (stock == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name", stock.ArticleForeignKey);
-            return View(stock);
+            ViewData[index: "ArticleForeignKey"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "Name", selectedValue: stock.ArticleForeignKey);
+            return View(model: stock);
         }
 
         // POST: Stocks/Edit/5
@@ -100,12 +100,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(stock);
+                    _context.Update(entity: stock);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StockExists(stock.Id))
+                    if (!StockExists(id: stock.Id))
                     {
                         return NotFound();
                     }
@@ -114,10 +114,10 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleForeignKey"] = new SelectList(_context.Articles, "ArticleId", "Name", stock.ArticleForeignKey);
-            return View(stock);
+            ViewData[index: "ArticleForeignKey"] = new SelectList(items: _context.Articles, dataValueField: "ArticleId", dataTextField: "Name", selectedValue: stock.ArticleForeignKey);
+            return View(model: stock);
         }
 
         // GET: Stocks/Delete/5
@@ -129,30 +129,30 @@ namespace Master40.Controllers
             }
 
             var stock = await _context.Stocks
-                .Include(s => s.Article)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: s => s.Article)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (stock == null)
             {
                 return NotFound();
             }
 
-            return View(stock);
+            return View(model: stock);
         }
 
         // POST: Stocks/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var stock = await _context.Stocks.SingleOrDefaultAsync(m => m.Id == id);
-            _context.Stocks.Remove(stock);
+            var stock = await _context.Stocks.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _context.Stocks.Remove(entity: stock);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool StockExists(int id)
         {
-            return _context.Stocks.Any(e => e.Id == id);
+            return _context.Stocks.Any(predicate: e => e.Id == id);
         }
     }
 }
