@@ -28,7 +28,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return value;
         }
 
-        public IActorRef Get()
+        public IActorRef GetActorRef()
         {
             return _resourceAgent;
         }

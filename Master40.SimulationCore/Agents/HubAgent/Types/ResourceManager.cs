@@ -31,7 +31,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             foreach (var resource in _resources)
             {
                 if (resource.HasTool(resourceTool)) { 
-                    resourceAgents.Add(resource.Get());
+                    resourceAgents.Add(resource.GetActorRef());
                 }
             }
             return resourceAgents;

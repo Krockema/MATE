@@ -56,12 +56,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 localItem.UpdateHubAgent(hub: Agent.Context.Self);
                 _operationList.Add(item: localItem);
 
-                Agent.DebugMessage(msg: "Got New Item to Enqueue: " + fOperation.Operation.Name + " | with start condition:" + fOperation.StartConditions.Satisfied + " with Id: " + fOperation.Key);
+                Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
             }
             else
             {
                 // reset Item.
-                Agent.DebugMessage(msg: "Got Item to Requeue: " + fOperation.Operation.Name + " | with start condition:" + fOperation.StartConditions.Satisfied + " with Id: " + fOperation.Key);
+                Agent.DebugMessage(msg: $"Got Item to Requeue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
                 fOperation.Proposals.Clear();
                 localItem = fOperation;
                 //localItem = fOperation.UpdateHubAgent(hub: Agent.Context.Self);
@@ -69,9 +69,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             var resourceToRequest = _resourceManager.GetResourceByTool(fOperation.Operation.ResourceTool);
-
+            
             foreach (var actorRef in resourceToRequest)
             {
+                Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
                 Agent.Send(instruction: Resource.Instruction.RequestProposal.Create(message: localItem, target: actorRef));
             }
         }

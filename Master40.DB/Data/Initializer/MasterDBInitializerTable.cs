@@ -267,7 +267,7 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLE_LEG).Id, Name = OPERATION_CUT_TABLE_LEG,
                     Duration = 10, ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT),
-                    ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SAWBIG), HierarchyNumber = 10
+                    ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SAWSMALL), HierarchyNumber = 10
                 },
                 new M_Operation
                 {
@@ -282,7 +282,7 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLETOP).Id, Name = OPERATION_CUT_TABLETOP,
                     Duration = 20, ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT),
-                    ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SAWSMALL), HierarchyNumber = 10
+                    ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SAWBIG), HierarchyNumber = 10
                 },
                 new M_Operation
                 {
