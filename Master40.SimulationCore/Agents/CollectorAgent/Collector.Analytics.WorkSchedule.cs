@@ -23,6 +23,7 @@ using static FUpdateSimulationWorkProviders;
 using static FUpdateSimulationWorks;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 using static FThroughPutTimes;
+using static FCreateSimulationResourceSetups;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -53,7 +54,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                      typeof(UpdateLiveFeed),
                                      typeof(FThroughPutTime),
                                      typeof(Hub.Instruction.AddResourceToHub),
-                                     typeof(BasicInstruction.ResourceBrakeDown)
+                                     typeof(BasicInstruction.ResourceBrakeDown),
+                                     typeof(FCreateSimulationResourceSetup)
 
             };
         }
@@ -71,6 +73,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 case FCreateSimulationWork m: CreateSimulationWorkSchedule(cws: m); break;
                 case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(uws: m); break;
+                case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
@@ -80,6 +83,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
             // Collector.messageHub.SendToAllClients(msg: $"Just finished {message.GetType().Name}");
             return true;
+        }
+
+        private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup m)
+        {
+            Debug.WriteLine(message: $"({Collector.Time}) CreateSimulationResourceSetup not implemented yet");
         }
 
         private void UpdateThroughputTimes(FThroughPutTime m)

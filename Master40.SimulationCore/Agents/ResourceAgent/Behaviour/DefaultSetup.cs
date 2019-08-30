@@ -48,6 +48,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(startCondition: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.DoWork msg: DoWork(); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
@@ -145,7 +146,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
             UpdateAndRequeuePlanedJobs(jobItem: jobItem);
             UpdateProcessingQueue();
-            DoWork();
+            TryToWork();
         }
 
         private void RequeueAllRemainingJobs()
@@ -183,7 +184,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 {
                     throw new Exception(message: "Something wen wrong with Queueing!");
                 }
-                //TODO Withdraw at ProcessingQueue or DoWork?
                 Agent.DebugMessage(msg: $"Start withdraw for article {job.Name} {job.Key}");
                 Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
             }
@@ -198,15 +198,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (_planingQueue.UpdatePreCondition(startCondition: startCondition))
             {
                 UpdateProcessingQueue();
-                DoWork();
+                TryToWork();
             }
 
         }
 
-        /// <summary>
-        /// Starts the next Job
-        /// </summary>
-        internal void DoWork()
+        internal void TryToWork()
         {
             if (_jobInProgress.IsSet)
             {
@@ -228,35 +225,49 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.Set(job: nextJobInProgress, currentTime: Agent.CurrentTime);
 
+            DoSetup();
+        }
+
+        private void DoSetup()
+        {
             //Start setup if necessary 
-            // TODO decide were to find the resourcesSetup - IJob or by casting in method
-            // TODO Do all those things in a method 
-            var setupDuration = GetSetupTime(nextJobInProgress);
+            var setupDuration = GetSetupTime(_jobInProgress.Current);
 
             if (setupDuration > 0)
             {
-                Agent.DebugMessage(msg: $"Start with Setup for Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
-                _toolManager.Mount(requiredResourceTool: nextJobInProgress.Tool);
-                var pubSetup = new FCreateSimulationResourceSetup(workScheduleId: nextJobInProgress.Key.ToString(), duration: setupDuration, start: Agent.CurrentTime, machine: Agent.Name);
+                Agent.DebugMessage(
+                    msg:
+                    $"Start with Setup for Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
+                _toolManager.Mount(requiredResourceTool: _jobInProgress.Current.Tool);
+                var pubSetup = new FCreateSimulationResourceSetup(workScheduleId: _jobInProgress.Current.Key.ToString(),
+                    duration: setupDuration, start: Agent.CurrentTime, machine: Agent.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
-            //TODO Make a extra method so start Job pops up at the real starting time
-            var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Duration);
-            Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedWorkDuration} total work time is {setupDuration + randomizedWorkDuration}");
+            Agent.Send(instruction: Resource.Instruction.DoWork.Create(message: null, target: Agent.Context.Self),
+                waitFor: setupDuration);
+        }
 
-            var pub = new FUpdateSimulationWork(workScheduleId: nextJobInProgress.Key.ToString(), duration: randomizedWorkDuration, start: Agent.CurrentTime + setupDuration, machine: Agent.Name);
+        /// <summary>
+        /// Starts the next Job
+        /// </summary>
+        internal void DoWork()
+        {
+            var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Duration);
+            Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} new Duration is {randomizedWorkDuration}");
+
+            var pub = new FUpdateSimulationWork(workScheduleId: _jobInProgress.Current.Key.ToString(), duration: randomizedWorkDuration, start: Agent.CurrentTime, machine: Agent.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
-            var fOperationResult = new FOperationResult(key: nextJobInProgress.Key
+            var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Key
                                              , creationTime: 0
                                                     , start: Agent.CurrentTime
-                                                      , end: Agent.CurrentTime + randomizedWorkDuration + setupDuration
-                                         , originalDuration: nextJobInProgress.Duration
+                                                      , end: Agent.CurrentTime + randomizedWorkDuration
+                                         , originalDuration: _jobInProgress.Current.Duration
                                           , productionAgent: ActorRefs.Nobody
                                             , resourceAgent: Agent.Context.Self);
 
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedWorkDuration + setupDuration);
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedWorkDuration);
 
         }
 
@@ -273,7 +284,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 RequeueAllRemainingJobs();
 
             // Do Work
-            DoWork();
+            TryToWork();
         }
 
         private int GetSetupTime(IJob jobItem)
