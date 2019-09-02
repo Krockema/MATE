@@ -1,7 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
+using Zpp.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public class Nodes : CollectionWrapperWithList<INode>, INodes
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Zpp
+namespace Zpp.WrappersForCollections
 {
     public interface ICollectionWrapper<T>: IEnumerable<T>
     {

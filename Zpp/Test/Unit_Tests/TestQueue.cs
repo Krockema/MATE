@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Priority_Queue;
 using Xunit;
 
-namespace Priority_Queue_Example
+namespace Zpp.Test.Unit_Tests
 {
     public class TestQueue
     {

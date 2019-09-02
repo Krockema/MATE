@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
-using Zpp.MachineDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.MrpRun.MachineManagement;
+using Zpp.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.DbCache
 {
     /**
      * MasterData includes T_CustomerOrders and T_CustomerOrderParts, since they will not be changed by MRP-Run

@@ -1,7 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     /**
      * own Set impl, since HashSet ist not useful if:

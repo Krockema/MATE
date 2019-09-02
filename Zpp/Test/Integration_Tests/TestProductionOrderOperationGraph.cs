@@ -1,14 +1,15 @@
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-using Master40.DB.Data.Context;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Xunit;
-    using Zpp.ProviderDomain;
-    using Zpp.Test.Configurations;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
+using Zpp.OrderGraph;
+using Zpp.Test.Configuration;
 using Zpp.Utils;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestProductionOrderOperationGraph : AbstractTest
     {
@@ -21,7 +22,7 @@ namespace Zpp.Test
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
         }
         
         /**

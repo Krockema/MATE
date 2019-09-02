@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.DbCache;
 
 namespace Zpp.LotSize
 {

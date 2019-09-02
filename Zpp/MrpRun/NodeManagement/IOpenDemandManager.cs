@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.DataModel;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.ProviderDomain;
+using Zpp.DbCache;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun.NodeManagement
 {
     public interface IOpenDemandManager
     {

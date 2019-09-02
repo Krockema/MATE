@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
+using Zpp.Common.ProviderDomain.Wrappers;
 
-namespace Zpp
+namespace Zpp.WrappersForCollections
 {
     /**
      * wraps the collection with all purchaseOrders

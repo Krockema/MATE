@@ -25,6 +25,10 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Common" />
+      <Folder Include="Simulation\Agents\Resource\" />
+      <Folder Include="Simulation\Messages\" />
+      <Folder Include="Simulation\Monitors\" />
+      <Folder Include="Test\Simulation\" />
     </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 using Xunit;
-using Zpp.MachineDomain;
+using Zpp.MrpRun.MachineManagement;
 
-namespace Zpp.Test
+namespace Zpp.Test.Unit_Tests
 {
     public class TestStackSet
     {

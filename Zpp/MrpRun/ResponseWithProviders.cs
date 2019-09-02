@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.ProviderDomain;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.MrpRun
 {
     public class ResponseWithProviders
     {

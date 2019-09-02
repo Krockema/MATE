@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using Zpp.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public interface INodes : ICollectionWrapper<INode> // TODO: this should be done for all collectionWrappers
     {

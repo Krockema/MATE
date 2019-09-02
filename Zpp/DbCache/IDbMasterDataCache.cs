@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
-using Zpp.MachineDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.MrpRun.MachineManagement;
+using Zpp.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.DbCache
 {
     /// <summary>
     /// A wrapper around the ProductionDomainContext (e.g. to find DB calls), that should be DB Cache in future.

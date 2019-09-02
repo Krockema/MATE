@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
 using Xunit;
+using Zpp.DbCache;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestPurchases : AbstractTest
     {
@@ -18,7 +17,7 @@ namespace Zpp.Test
         [Fact]
         public void TestPurchaseQuantityIsAMultipleOfPackSize()
         {
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
 
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData persistedTransactionData =

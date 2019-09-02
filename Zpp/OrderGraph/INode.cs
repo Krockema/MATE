@@ -1,6 +1,7 @@
 using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.DbCache;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public interface INode
     {

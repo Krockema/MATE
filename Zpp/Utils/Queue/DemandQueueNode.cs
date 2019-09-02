@@ -1,7 +1,7 @@
 using Priority_Queue;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain;
 
-namespace Priority_Queue_Example
+namespace Zpp.Utils.Queue
 {
     public class DemandQueueNode : FastPriorityQueueNode
     {

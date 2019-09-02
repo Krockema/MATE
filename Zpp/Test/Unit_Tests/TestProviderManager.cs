@@ -1,20 +1,15 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
 using Xunit;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
-using Zpp.StockDomain;
-using Zpp.Test.WrappersForPrimitives;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
+using Zpp.MrpRun;
+using Zpp.MrpRun.NodeManagement;
+using Zpp.MrpRun.StockManagement;
 
-namespace Zpp.Test
+namespace Zpp.Test.Unit_Tests
 {
     public class TestProviderManager : AbstractTest
     {
@@ -53,7 +48,7 @@ namespace Zpp.Test
 
             ResponseWithProviders responseWithProviders = providingManager.Satisfy(customerOrderPart2,
                 customerOrderPart2.GetQuantity(), dbTransactionData);
-            MrpRun.ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
+            MrpRun.MrpRun.ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
                 dbTransactionData, customerOrderPart2, openDemandManager);
 
             bool isSatisfied = responseWithProviders.IsSatisfied() && responseWithProviders.GetProviders().Any() == false &&
@@ -65,7 +60,7 @@ namespace Zpp.Test
         }
 
         private bool IsValidDemandToProvider(T_DemandToProvider demandToProvider,
-            Demand expectedDemand, Provider expectedProvider, Quantity expectedQuantity)
+            Common.DemandDomain.Demand expectedDemand, Common.ProviderDomain.Provider expectedProvider, Quantity expectedQuantity)
         {
             return demandToProvider.DemandId.Equals(expectedDemand.GetId().GetValue()) &&
                    demandToProvider.ProviderId.Equals(expectedProvider.GetId().GetValue()) &&

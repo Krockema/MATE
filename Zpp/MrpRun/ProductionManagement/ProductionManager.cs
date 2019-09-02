@@ -3,12 +3,18 @@ using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
-using Zpp.SchedulingDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
+using Zpp.MrpRun.ProductionManagement.ProductionTypes;
+using Zpp.MrpRun.Scheduling;
 using Zpp.Utils;
 
-namespace Zpp.ProductionDomain
+namespace Zpp.MrpRun.ProductionManagement
 {
     public class ProductionManager : IProvidingManager
     {
@@ -61,7 +67,7 @@ namespace Zpp.ProductionDomain
             }
             
             IProductionOrderCreator productionOrderCreator;
-            switch (Configuration.ProductionType)
+            switch (Configuration.Configuration.ProductionType)
             {
                 case ProductionType.AssemblyLine:
                     productionOrderCreator = new ProductionOrderCreatorAssemblyLine();
@@ -101,7 +107,7 @@ namespace Zpp.ProductionDomain
             {
                 List<Demand> newDemands = new List<Demand>();
                 IProductionOrderBomCreator productionOrderBomCreator;
-                switch (Configuration.ProductionType)
+                switch (Configuration.Configuration.ProductionType)
                 {
                     case ProductionType.AssemblyLine:
                         productionOrderBomCreator = new ProductionOrderBomCreatorAssemblyLine();

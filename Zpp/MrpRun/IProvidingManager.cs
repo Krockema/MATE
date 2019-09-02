@@ -1,7 +1,8 @@
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.DbCache;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun
 {
     /**
      * Central interface for the mainModules

@@ -1,13 +1,12 @@
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.ProviderDomain;
-using Zpp.Utils;
-using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Priority_Queue;
-using Zpp.StockDomain;
+using Zpp.DbCache;
+using Zpp.OrderGraph;
+using Zpp.Utils;
+using Zpp.WrappersForPrimitives;
 
-namespace Zpp.DemandDomain
+namespace Zpp.Common.DemandDomain
 {
     /**
      * Provides default implementations for interface methods, can be moved to interface once C# 8.0 is released

@@ -2,14 +2,13 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
-using Zpp.LotSize;
-using Zpp.ProductionDomain;
-using Zpp.ProviderDomain;
-using Zpp.SchedulingDomain;
-using Zpp.Utils;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
+using Zpp.MrpRun.ProductionManagement;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.DemandDomain
+namespace Zpp.Common.DemandDomain.Wrappers
 {
     public class ProductionOrderBom : Demand, IDemandLogic
     {

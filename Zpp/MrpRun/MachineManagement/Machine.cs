@@ -2,7 +2,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public class Machine : IMachine
     {

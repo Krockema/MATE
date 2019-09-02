@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
-using Zpp.GraphicalRepresentation;
-using Zpp.MachineDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.DbCache;
+using Zpp.MrpRun.MachineManagement;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public class DirectedGraph : IDirectedGraph<INode>
     {

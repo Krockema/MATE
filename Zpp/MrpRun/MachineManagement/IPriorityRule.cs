@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using Zpp.DemandDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public interface IPriorityRule
     {

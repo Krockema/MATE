@@ -1,10 +1,9 @@
-using Master40.DB.Data.Context;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 
-namespace Zpp.Test.Configurations
+namespace Zpp.Test.Configuration
 {
     public class MasterDBInitializerDesk
     {

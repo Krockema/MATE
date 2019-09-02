@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Zpp
+namespace Zpp.WrappersForCollections
 {
     public class CollectionWrapperWithList<T>: ICollectionWrapper<T>
     {

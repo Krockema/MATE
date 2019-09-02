@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Zpp.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public class ProductionOrderOperationDirectedGraph : ProductionOrderDirectedGraph,
         IDirectedGraph<INode>

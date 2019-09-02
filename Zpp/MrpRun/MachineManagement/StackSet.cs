@@ -1,8 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public class StackSet<T>:IStackSet<T>
     {

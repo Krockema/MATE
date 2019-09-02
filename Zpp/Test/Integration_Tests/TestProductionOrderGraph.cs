@@ -1,11 +1,12 @@
 using System.IO;
 using System.Text;
-using Master40.DB.Data.Context;
 using Xunit;
-using Zpp.Test.Configurations;
+using Zpp.DbCache;
+using Zpp.OrderGraph;
+using Zpp.Test.Configuration;
 using Zpp.Utils;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestProductionOrderGraph : AbstractTest
     {
@@ -18,7 +19,7 @@ namespace Zpp.Test
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
         }
         
         /**

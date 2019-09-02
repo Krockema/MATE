@@ -1,16 +1,16 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore.Internal;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
+using Zpp.OrderGraph;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public class MachineManager : IMachineManager
     {
@@ -298,7 +298,7 @@ namespace Zpp.MachineDomain
             }
         }
 
-        private static IStackSet<ProductionOrderOperation> CreateS(
+        public static IStackSet<ProductionOrderOperation> CreateS(
             IDirectedGraph<INode> productionOrderGraph,
             Dictionary<ProductionOrder, IDirectedGraph<INode>> productionOrderOperationGraphs)
         {

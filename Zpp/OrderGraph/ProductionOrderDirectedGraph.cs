@@ -1,9 +1,7 @@
-using Master40.DB.Data.WrappersForPrimitives;
-using Xunit;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public class ProductionOrderDirectedGraph : DemandToProviderDirectedGraph, IDirectedGraph<INode>
     {

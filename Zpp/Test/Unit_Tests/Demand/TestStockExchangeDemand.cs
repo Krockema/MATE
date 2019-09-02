@@ -1,8 +1,7 @@
-using Master40.DB.Data.Context;
-using Master40.DB.Data.WrappersForPrimitives;
 using Xunit;
+using Zpp.DbCache;
 
-namespace Zpp.Test
+namespace Zpp.Test.Unit_Tests.Demand
 {
     public class TestStockExchangeDemand : AbstractTest
     {

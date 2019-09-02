@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.DbCache;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public class Node : INode
     {

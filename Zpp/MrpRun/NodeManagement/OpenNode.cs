@@ -1,7 +1,7 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun.NodeManagement
 {
     /**
      * Represents an node, which quantity is not yet exceeded and can satisfy more demands/providers.

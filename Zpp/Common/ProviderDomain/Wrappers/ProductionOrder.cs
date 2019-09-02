@@ -1,18 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp;
-using Zpp.DemandDomain;
-using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
-using Zpp.LotSize;
-using Zpp.ProductionDomain;
-using Zpp.SchedulingDomain;
-using Zpp.Utils;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.DbCache;
+using Zpp.MrpRun.ProductionManagement;
+using Zpp.WrappersForPrimitives;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.Common.ProviderDomain.Wrappers
 {
     /**
      * wraps T_ProductionOrder

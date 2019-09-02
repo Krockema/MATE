@@ -1,10 +1,7 @@
 using System;
-using Master40.DB.Data.WrappersForPrimitives;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
 using Xunit;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestPerformance : AbstractTest
     {
@@ -21,7 +18,7 @@ namespace Zpp.Test
         {
             DateTime startTime = DateTime.UtcNow;
 
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
 
             DateTime endTime = DateTime.UtcNow;
             double neededTime = (endTime - startTime).TotalMilliseconds / 1000;

@@ -1,14 +1,11 @@
-using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
 using Master40.DB.Interfaces;
-using Zpp.LotSize;
-using Zpp.Utils;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.DbCache;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.Common.ProviderDomain.Wrappers
 {
     /**
      * wraps T_PurchaseOrderPart

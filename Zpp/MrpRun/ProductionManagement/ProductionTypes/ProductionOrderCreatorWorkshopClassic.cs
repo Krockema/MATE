@@ -1,10 +1,12 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
 using Zpp.Utils;
 
-namespace Zpp
+namespace Zpp.MrpRun.ProductionManagement.ProductionTypes
 {
     /**
      * Here one ProductionOrder with productionOrder.Quantity == given quantity will be created
@@ -13,7 +15,7 @@ namespace Zpp
     {
         public ProductionOrderCreatorWorkshopClassic()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic) == false)
+            if (Configuration.Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic) == false)
             {
                 throw new MrpRunException(
                     "This is class is intended for productionType WorkshopProductionClassic.");

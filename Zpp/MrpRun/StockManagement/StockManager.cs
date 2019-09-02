@@ -1,14 +1,17 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
+using Zpp.MrpRun.NodeManagement;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.StockDomain
+namespace Zpp.MrpRun.StockManagement
 {
     public class StockManager : IProvidingManager
     {

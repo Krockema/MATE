@@ -3,5 +3,5 @@
   "LotSize": 1,
   "Name": "truck_cop_1_lotsize_1",
   "DbSetInitializer": "Master40.DB.Data.Initializer.MasterDBInitializerSmall, Master40.DB",
-  "TestScenario": "Zpp.Test.Configurations.Scenarios.TruckScenario"
+  "TestScenario": "Zpp.Test.Configuration.Scenarios.TruckScenario"
 }

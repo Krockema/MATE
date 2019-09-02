@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.ProviderDomain;
 using Zpp.Utils;
 
-namespace Zpp.StockDomain
+namespace Zpp.MrpRun.StockManagement
 {
     public class Stock
     {

@@ -1,12 +1,9 @@
-using System;
-using System.Security.Cryptography;
-using System.Threading;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Zpp.Utils;
 
-namespace Zpp.Test
+namespace Zpp.Test.Unit_Tests
 {
     public class TestUtilsDbms
     {

@@ -1,10 +1,12 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
 using Zpp.Utils;
 
-namespace Zpp
+namespace Zpp.MrpRun.ProductionManagement.ProductionTypes
 {
     /**
      * Here ProductionOrders.Count == given quantity productionOrders will be created
@@ -13,7 +15,7 @@ namespace Zpp
     {
         public ProductionOrderCreatorAssemblyLine()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.AssemblyLine) == false)
+            if (Configuration.Configuration.ProductionType.Equals(ProductionType.AssemblyLine) == false)
             {
                 throw new MrpRunException("This is class is intended for productionType AssemblyLine.");
             }

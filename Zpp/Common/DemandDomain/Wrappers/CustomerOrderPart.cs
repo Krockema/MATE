@@ -1,9 +1,10 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
+using Zpp.DbCache;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.DemandDomain
+namespace Zpp.Common.DemandDomain.Wrappers
 {
     public class CustomerOrderPart : Demand 
     {

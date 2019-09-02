@@ -1,16 +1,10 @@
 using System;
-using System.Collections.Generic;
-using Master40.DB.Data.Helper;
-using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
 using Xunit;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
-using Zpp.StockDomain;
+using Zpp.DbCache;
+using Zpp.MrpRun.StockManagement;
 
-namespace Zpp.Test
+namespace Zpp.Test.Unit_Tests.Provider
 {
     public class TestStockExchangeProvider : AbstractTest
     {
@@ -37,10 +31,10 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
             // CustomerOrderPart
-            Demand randomCustomerOrderPart =
+            Common.DemandDomain.Demand randomCustomerOrderPart =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache,
                     new Random().Next(3, 99));
-            Demand[] demands = new[]
+            Common.DemandDomain.Demand[] demands = new[]
             {
                 randomCustomerOrderPart,
                 EntityFactory.CreateCustomerOrderPartWithGivenArticle(dbMasterDataCache,
@@ -51,7 +45,7 @@ namespace Zpp.Test
                 M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(demand.GetArticleId());
 
                 StockManager stockManager = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
-                Provider providerStockExchange = stockManager.CreateStockExchangeProvider(
+                Common.ProviderDomain.Provider providerStockExchange = stockManager.CreateStockExchangeProvider(
                     demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
                     dbMasterDataCache, dbTransactionData);
                 Assert.True(providerStockExchange.GetQuantity().Equals(demand.GetQuantity()),
@@ -72,7 +66,7 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
             // CustomerOrderPart
-            Demand demand =
+            Common.DemandDomain.Demand demand =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache,
                     new Random().Next(1, 9));
 
@@ -80,7 +74,7 @@ namespace Zpp.Test
             // increase stock
             stock.Current = 10;
             StockManager stockManager = new StockManager(dbMasterDataCache.M_StockGetAll(), dbMasterDataCache);
-            Provider providerStockExchange = stockManager.CreateStockExchangeProvider(
+            Common.ProviderDomain.Provider providerStockExchange = stockManager.CreateStockExchangeProvider(
                 demand.GetArticle(), demand.GetDueTime(dbTransactionData), demand.GetQuantity(),
                 dbMasterDataCache, dbTransactionData);
 

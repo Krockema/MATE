@@ -1,4 +1,6 @@
-namespace Zpp
+using Zpp.MrpRun.ProductionManagement.ProductionTypes;
+
+namespace Zpp.Configuration
 {
     public static class Configuration
     {

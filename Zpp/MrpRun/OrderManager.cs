@@ -1,9 +1,10 @@
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
-using Zpp.ProductionDomain;
-using Zpp.PurchaseDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.DbCache;
+using Zpp.MrpRun.ProductionManagement;
+using Zpp.MrpRun.PurchaseManagement;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun
 {
     /**
      * abstracts over PurchaseManager+ProductionManager

@@ -3,6 +3,6 @@
   "LotSize": 1,
   "LotSizeType": "FixedLotSize",
   "Name": "desk_cop_1_lotsize_1",
-  "DbSetInitializer": "Zpp.Test.Configurations.MasterDBInitializerDesk",
-  "TestScenario": "Zpp.Test.Configurations.Scenarios.DeskScenario"
+  "DbSetInitializer": "Zpp.Test.Configuration.MasterDBInitializerDesk",
+  "TestScenario": "Zpp.Test.Configuration.Scenarios.DeskScenario"
 }

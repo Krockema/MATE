@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
-using Swashbuckle.AspNetCore.Swagger;
 using Xunit;
-using Zpp.Test.Configurations;
-using Zpp.Utils;
+using Zpp.DbCache;
+using Zpp.Test.Configuration;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestScheduling : AbstractTest
     {
@@ -22,7 +18,7 @@ namespace Zpp.Test
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
         }
         
 

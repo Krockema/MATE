@@ -1,18 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Master40.DB.Data.WrappersForPrimitives;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
 using Xunit;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
-using Zpp.Test.WrappersForPrimitives;
+using Zpp.DbCache;
 
-namespace Zpp.Test
+namespace Zpp.Test.Unit_Tests.Provider
 {
     public class TestProvider : AbstractTest
     {

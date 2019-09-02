@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public class Paths<T>
     {

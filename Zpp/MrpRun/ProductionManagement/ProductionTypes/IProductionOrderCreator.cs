@@ -1,8 +1,9 @@
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
 
-namespace Zpp
+namespace Zpp.MrpRun.ProductionManagement.ProductionTypes
 {
     public interface IProductionOrderCreator
     {

@@ -4,7 +4,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 
-namespace Zpp.Test.Configurations.Scenarios
+namespace Zpp.Test.Configuration.Scenarios
 {
     public class DeskScenario : TestScenario
     {

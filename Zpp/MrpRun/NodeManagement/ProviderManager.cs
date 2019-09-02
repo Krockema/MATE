@@ -1,16 +1,17 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Interfaces;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Zpp.DemandDomain;
-using Zpp.MachineDomain;
-using Zpp.StockDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
 using Zpp.Utils;
+using Zpp.WrappersForCollections;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun.NodeManagement
 {
     
     public class ProviderManager : IProviderManager

@@ -1,9 +1,10 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 
-namespace Zpp
+namespace Zpp.MrpRun.ProductionManagement.ProductionTypes
 {
     public interface IProductionOrderBomCreator
     {

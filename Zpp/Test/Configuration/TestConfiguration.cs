@@ -1,7 +1,6 @@
-using System;
 using Zpp.LotSize;
 
-namespace Zpp.Test.Configurations
+namespace Zpp.Test.Configuration
 {
     public class TestConfiguration
     {

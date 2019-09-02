@@ -1,16 +1,14 @@
 using System.Collections.Generic;
-using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
-using Zpp.DemandDomain;
-using Zpp.MachineDomain;
-using Zpp.ProviderDomain;
-using Zpp.SchedulingDomain;
+using Zpp.DbCache;
+using Zpp.MrpRun.MachineManagement;
+using Zpp.MrpRun.Scheduling;
+using Zpp.OrderGraph;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp
+namespace Zpp.Common.ProviderDomain.Wrappers
 {
     public class ProductionOrderOperation : INode
     {

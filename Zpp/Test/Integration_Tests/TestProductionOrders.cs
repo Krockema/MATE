@@ -1,23 +1,23 @@
-using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Xunit;
-using Zpp.DemandDomain;
+using Zpp.DbCache;
+using Zpp.MrpRun.ProductionManagement.ProductionTypes;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestProductionOrders : AbstractTest
     {
         [Fact]
         public void TestProductionOrderBomIsACopyOfArticleBom()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic))
+            if (Zpp.Configuration.Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic))
             {
                 Assert.True(true);
             }
             else
             {
-                MrpRun.RunMrp(ProductionDomainContext);
+                MrpRun.MrpRun.RunMrp(ProductionDomainContext);
                 IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
                 IDbTransactionData dbTransactionData =
                     new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
@@ -39,14 +39,14 @@ namespace Zpp.Test
         [Fact]
         public void TestProductionOrderOperationIsACopyOfM_Operation()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic))
+            if (Zpp.Configuration.Configuration.ProductionType.Equals(ProductionType.WorkshopProductionClassic))
             {
                 Assert.True(true);
             }
             else
             {
 
-                MrpRun.RunMrp(ProductionDomainContext);
+                MrpRun.MrpRun.RunMrp(ProductionDomainContext);
                 IDbMasterDataCache dbMasterDataCache =
                     new DbMasterDataCache(ProductionDomainContext);
                 IDbTransactionData dbTransactionData =

@@ -1,6 +1,6 @@
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.SchedulingDomain
+namespace Zpp.MrpRun.Scheduling
 {
     public class OperationBackwardsSchedule
     {

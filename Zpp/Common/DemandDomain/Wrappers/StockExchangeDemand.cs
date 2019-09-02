@@ -2,10 +2,11 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Zpp.DbCache;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.DemandDomain
+namespace Zpp.Common.DemandDomain.Wrappers
 {
     /**
      * wraps T_StockExchange for T_StockExchange demands

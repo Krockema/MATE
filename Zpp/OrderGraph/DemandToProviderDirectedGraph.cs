@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Xunit;
-using Zpp.DemandDomain;
-using Zpp.GraphicalRepresentation;
-using Zpp.MachineDomain;
-using Zpp.ProviderDomain;
-using Zpp.Utils;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.ProviderDomain;
+using Zpp.DbCache;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public class DemandToProviderDirectedGraph : DirectedGraph, IDirectedGraph<INode>
     {

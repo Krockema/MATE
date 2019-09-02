@@ -1,12 +1,9 @@
 using System.Collections.Generic;
-using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.DataModel;
-using Master40.DB.Interfaces;
-using Zpp;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.WrappersForCollections;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.Common.ProviderDomain.WrappersForCollections
 {
     /**
      * wraps the collection with all providers

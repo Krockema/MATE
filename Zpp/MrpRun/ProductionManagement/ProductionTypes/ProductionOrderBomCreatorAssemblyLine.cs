@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 using Zpp.Utils;
 
-namespace Zpp
+namespace Zpp.MrpRun.ProductionManagement.ProductionTypes
 {
     /**
      * (articleBom.Quantity) ProductionOrderBoms will be created
@@ -20,7 +21,7 @@ namespace Zpp
 
         public ProductionOrderBomCreatorAssemblyLine()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.AssemblyLine) == false)
+            if (Configuration.Configuration.ProductionType.Equals(ProductionType.AssemblyLine) == false)
             {
                 throw new MrpRunException("This is class is intended for productionType AssemblyLine.");
             }

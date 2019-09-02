@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
-using Master40.DB.Interfaces;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.DbCache;
 
-namespace Zpp.DemandDomain
+namespace Zpp.Common.DemandDomain.WrappersForCollections
 {
     /**
      * wraps collection with all customerOrderParts

@@ -3,7 +3,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
 
-namespace Zpp.Test.Configurations.Scenarios
+namespace Zpp.Test.Configuration.Scenarios
 {
     public class TruckScenario : TestScenario
     {

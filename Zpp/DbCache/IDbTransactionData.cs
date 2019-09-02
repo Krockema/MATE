@@ -1,11 +1,15 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
-using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.MrpRun.NodeManagement;
+using Zpp.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.DbCache
 {
 
     /**

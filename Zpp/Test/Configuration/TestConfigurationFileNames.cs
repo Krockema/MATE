@@ -1,4 +1,4 @@
-namespace Zpp.Test.Configurations
+namespace Zpp.Test.Configuration
 {
     public static class TestConfigurationFileNames
     {

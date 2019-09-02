@@ -1,10 +1,14 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
-using Zpp.MachineDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.MrpRun.MachineManagement;
 
-namespace Zpp
+namespace Zpp.DbCache
 {
     /**
      * A layer over masterData/transactionData that provides aggregations of entities from masterData/transactionData

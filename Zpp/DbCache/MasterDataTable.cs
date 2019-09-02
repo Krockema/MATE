@@ -5,7 +5,7 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Microsoft.EntityFrameworkCore;
 using Zpp.Utils;
 
-namespace Zpp
+namespace Zpp.DbCache
 {
     public class MasterDataTable<T> : IMasterDataTable<T> where T : BaseEntity
     {

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public class MachineToOperationTable
     {

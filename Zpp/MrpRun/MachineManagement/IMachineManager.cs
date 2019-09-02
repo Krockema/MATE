@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using Zpp.DemandDomain;
-
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public interface IMachineManager
     {

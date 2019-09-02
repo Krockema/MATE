@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.DBContext;
 using Xunit;
 
-namespace Zpp.Test
+namespace Zpp.Test.Integration_Tests
 {
     public class TestMasterData : AbstractTest
     {
@@ -23,7 +21,7 @@ namespace Zpp.Test
             Assert.True(ProductionDomainContext.CustomerOrders.Count() == TestConfiguration.CustomerOrderPartQuantity,
                 "No customerOrders are initially available.");
 
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
 
             // check certain constraints are not violated
 

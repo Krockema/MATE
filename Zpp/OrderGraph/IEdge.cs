@@ -1,6 +1,6 @@
 using Master40.DB.DataModel;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     public interface IEdge
     {

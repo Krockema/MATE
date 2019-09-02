@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Newtonsoft.Json;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 
 namespace Zpp.GraphicalRepresentation
 {

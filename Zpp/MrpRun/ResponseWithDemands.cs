@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.MrpRun
 {
     /**
      * This is an adapted copy of ResponseWithProviders,

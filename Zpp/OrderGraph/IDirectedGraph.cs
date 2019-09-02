@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Zpp.DemandDomain;
-using Zpp.GraphicalRepresentation;
-using Zpp.Utils;
+using Zpp.Common.DemandDomain.Wrappers;
 
-namespace Zpp
+namespace Zpp.OrderGraph
 {
     /**
      * NOTE: TNode is just a representation of a node, it can occur multiple time

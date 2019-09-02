@@ -2,6 +2,6 @@
   "CustomerOrderPartQuantity": 5,
   "LotSize": 2,
   "Name": "desk_cop_5_lotsize_2",
-  "DbSetInitializer": "Zpp.Test.Configurations.MasterDBInitializerDesk",
-  "TestScenario": "Zpp.Test.Configurations.Scenarios.DeskScenario"
+  "DbSetInitializer": "Zpp.Test.Configuration.MasterDBInitializerDesk",
+  "TestScenario": "Zpp.Test.Configuration.Scenarios.DeskScenario"
 }

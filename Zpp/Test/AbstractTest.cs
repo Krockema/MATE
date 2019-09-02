@@ -1,19 +1,14 @@
-using System;
-using System.Data.SqlClient;
-using System.IO;
-using System.Threading;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Initializer;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.DBContext;
-using Zpp.Utils;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Xunit;
-using Xunit.Abstractions;
-using Zpp.Test.Configurations;
-using Zpp.Test.Configurations.Scenarios;
+using System;
+using System.IO;
+using Zpp.Test.Configuration;
+using Zpp.Test.Configuration.Scenarios;
+using Zpp.Utils;
 
 namespace Zpp.Test
 {

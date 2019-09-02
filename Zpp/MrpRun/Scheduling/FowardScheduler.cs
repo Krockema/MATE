@@ -1,8 +1,9 @@
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.DbCache;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.SchedulingDomain
+namespace Zpp.MrpRun.Scheduling
 {
     public class ForwardScheduler
     {

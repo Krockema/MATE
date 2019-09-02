@@ -1,11 +1,11 @@
 using System.IO;
 using System.Text;
 using Xunit;
-using Zpp.GraphicalRepresentation;
-using Zpp.Test.Configurations;
+using Zpp.DbCache;
+using Zpp.Test.Configuration;
 using Zpp.Utils;
 
-namespace Zpp.Test
+namespace Zpp.Test.Ordergraphs.GanttChart
 {
     public class TestGanttChart : AbstractTest
     {
@@ -32,7 +32,7 @@ namespace Zpp.Test
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
 
             
-            string actualGanttChart = new GanttChart(dbTransactionData.ProductionOrderOperationGetAll(), dbMasterDataCache).ToString();
+            string actualGanttChart = new GraphicalRepresentation.GanttChart(dbTransactionData.ProductionOrderOperationGetAll(), dbMasterDataCache).ToString();
             // create initial file, if it doesn't exists (must be committed then)
             if (File.Exists(orderGraphAsGanttChartFile) == false)
             {
@@ -66,7 +66,7 @@ namespace Zpp.Test
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
         }
     }
 }

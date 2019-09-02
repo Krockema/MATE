@@ -4,18 +4,20 @@ using System.Linq;
 using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
-using Zpp.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Interfaces;
-using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
-using Zpp;
-using Zpp.MachineDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.MrpRun.MachineManagement;
+using Zpp.MrpRun.NodeManagement;
 using Zpp.Utils;
+using Zpp.WrappersForCollections;
 
-namespace Zpp
+namespace Zpp.DbCache
 {
     /**
      * NOTE: TransactionData does NOT include CustomerOrders or CustomerOrderParts !

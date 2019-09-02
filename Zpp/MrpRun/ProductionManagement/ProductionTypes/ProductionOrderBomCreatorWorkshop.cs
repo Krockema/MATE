@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 using Zpp.Utils;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun.ProductionManagement.ProductionTypes
 {
     /**
      * (quantity * articleBom.Quantity) ProductionOrderBoms will be created
@@ -18,7 +21,7 @@ namespace Zpp.ProviderDomain
 
         public ProductionOrderBomCreatorWorkshop()
         {
-            if (Configuration.ProductionType.Equals(ProductionType.WorkshopProduction) == false)
+            if (Configuration.Configuration.ProductionType.Equals(ProductionType.WorkshopProduction) == false)
             {
                 throw new MrpRunException("This is class is intended for productionType WorkshopProduction.");
             }

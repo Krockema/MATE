@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.DataModel;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Utils;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun.NodeManagement
 {
     public class OpenNodes<T>
     {

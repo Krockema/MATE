@@ -1,22 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Priority_Queue;
-using Priority_Queue_Example;
-using Zpp.DemandDomain;
-using Zpp.MachineDomain;
-using Zpp.ProductionDomain;
-using Zpp.ProviderDomain;
-using Zpp.PurchaseDomain;
-using Zpp.SchedulingDomain;
-using Zpp.StockDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.Wrappers;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.DbCache;
+using Zpp.MrpRun.MachineManagement;
+using Zpp.MrpRun.NodeManagement;
+using Zpp.MrpRun.StockManagement;
 using Zpp.Utils;
-using Zpp.WrappersForPrimitives;
+using Zpp.Utils.Queue;
 
-namespace Zpp
+namespace Zpp.MrpRun
 {
     public static class MrpRun
     {

@@ -1,10 +1,12 @@
-using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Interfaces;
-using Zpp.DemandDomain;
+using Zpp.Common.DemandDomain;
+using Zpp.Common.DemandDomain.WrappersForCollections;
+using Zpp.Common.ProviderDomain;
+using Zpp.Common.ProviderDomain.WrappersForCollections;
+using Zpp.WrappersForCollections;
 
-namespace Zpp.ProviderDomain
+namespace Zpp.MrpRun.NodeManagement
 {
     /**
     * Maintains created providers

@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Zpp.DemandDomain;
-using Zpp.ProviderDomain;
+using Zpp.Common.ProviderDomain.Wrappers;
+using Zpp.DbCache;
 using Zpp.WrappersForPrimitives;
 
-namespace Zpp.MachineDomain
+namespace Zpp.MrpRun.MachineManagement
 {
     public class PriorityRule : IPriorityRule
     {
