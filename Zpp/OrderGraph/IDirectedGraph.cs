@@ -17,7 +17,13 @@ namespace Zpp.OrderGraph
          */
         INodes GetSuccessorNodes(TNode tailNode);
         
-        void GetPredecessorNodesRecursively(INodes predecessorNodes, INodes newNodes, bool firstRun);
+        /// <summary>
+        /// traverse graph from leaf upwards to root
+        /// </summary>
+        /// <param name="predecessorNodes">empty collection, will contain result (the traversed nodes)</param>
+        /// <param name="newNodes">collection initialized with your wanted node that is the leaf</param>
+        /// <param name="firstRun">must always be true if called from outside</param>
+        void GetPredecessorNodesRecursively(INodes predecessorNodes, INodes newNodes, bool firstRun = true);
 
         INodes GetPredecessorNodes(INode headNode);
         

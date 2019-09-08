@@ -175,9 +175,11 @@ namespace Zpp.MrpRun
             }
             */
 
-            
+
             // forward scheduling
             // TODO: remove this once forward scheduling is implemented
+            // TODO 2: in forward scheduling, min must be calculuted by demand & provider,
+            // not only providers, since operations are on PrOBom (which are demands)
             int min = 0;
             foreach (var provider in providerManager.GetProviders())
             {
@@ -188,7 +190,6 @@ namespace Zpp.MrpRun
                 }
             }
 
-            
 
             if (min < 0)
             {
@@ -196,12 +197,13 @@ namespace Zpp.MrpRun
                 {
                     if (dbDemand.GetType() == typeof(CustomerOrderPart))
                     {
-                        T_CustomerOrderPart customerOrderPart = ((T_CustomerOrderPart)((CustomerOrderPart)dbDemand).ToIDemand());
+                        T_CustomerOrderPart customerOrderPart =
+                            ((T_CustomerOrderPart) ((CustomerOrderPart) dbDemand).ToIDemand());
                         customerOrderPart.CustomerOrder.DueTime =
                             customerOrderPart.CustomerOrder.DueTime + Math.Abs(min);
                     }
                 }
-                
+
                 ProcessDbDemands(dbTransactionData, dbDemands, dbMasterDataCache, count++);
             }
 
@@ -216,10 +218,10 @@ namespace Zpp.MrpRun
                 dbTransactionData.DemandsAddAll(finalAllDemands);
                 dbTransactionData.ProvidersAddAll(providerManager.GetProviders());
                 dbTransactionData.SetProviderManager(providerManager);
-                
+
                 // job shop scheduling
                 MachineManager.JobSchedulingWithGifflerThompsonAsZaepfel(dbTransactionData,
-                  dbMasterDataCache, new PriorityRule());
+                    dbMasterDataCache, new PriorityRule());
 
                 dbTransactionData.PersistDbCache();
 

@@ -5,22 +5,25 @@ using Master40.DB.DataModel;
 
 namespace Zpp.Test.Configuration
 {
-    public class MasterDBInitializerDesk
+    public class MasterDBInitializerDeskOriginal
     {
         private const string MACHINE_GROUP_WELDING = "Schweißen";
         private const string MACHINE_GROUP_ASSEMBLING = "Montage";
         private const string MACHINE_GROUP_PACKING = "Verpacken";
         private const string MACHINE_TOOL_WELDER = "Schweißgerät";
-        private const string OPERATION_DESK = "Tisch zusammenbauen";
+        private const string OPERATION_DESK = "Tisch verpacken";
         private const string OPERATION_DESK_LEG_1 = "Anschraubplatte anschweißen";
         private const string OPERATION_DESK_LEG_2 = "Flizgleiter anstecken";
-        
+
+        private const string BUSINESS_PARTNER_PRINT_SHOP = "Druckerei";
         private const string BUSINESS_PARTNER_DESK_DISTRIBUTOR = "Tischverkäufer";
         private const string BUSINESS_PARTNER_WHOLESALE = "Teile Großhandel";
         
         private const string ARTICLE_DESK = "Tisch";
+        private const string ARTICLE_PACKAGE = "Verpackung";
         private const string ARTICLE_DESK_SURFACE = "Tischplatte";
         private const string ARTICLE_DESK_LEG = "Tischbein";
+        private const string ARTICLE_MANUAL = "Montageanleitung";
         private const string ARTICLE_MOUNTING_PLATE = "Anschraubplatte";
         private const string ARTICLE_SCREWS = "Schrauben";
         private const string ARTICLE_STEEL_PIPE = "Stahlrohr";
@@ -98,6 +101,8 @@ namespace Zpp.Test.Configuration
         {
             return new M_BusinessPartner[]
             {
+                new M_BusinessPartner()
+                    {Debitor = false, Kreditor = true, Name = BUSINESS_PARTNER_PRINT_SHOP},
                 new M_BusinessPartner()
                     {Debitor = true, Kreditor = false, Name = BUSINESS_PARTNER_DESK_DISTRIBUTOR},
                 new M_BusinessPartner()
@@ -191,7 +196,7 @@ namespace Zpp.Test.Configuration
                 // Verpacken
                 new M_Machine
                 {
-                    Capacity = 1, Name = "Endmontage 1", Count = 1,
+                    Capacity = 1, Name = "Verpacken 1", Count = 1,
                     MachineGroup = machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_PACKING))
                 },
                 // Schweißen
@@ -282,6 +287,22 @@ namespace Zpp.Test.Configuration
                     UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
                     ToPurchase = true, LotSize = 10
                 },
+                new M_Article
+                {
+                    Name = ARTICLE_MANUAL,
+                    ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
+                    CreationDate = DateTime.Parse("2019-07-31"), DeliveryPeriod = 1,
+                    UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
+                    ToPurchase = true, LotSize = 100
+                },
+                new M_Article
+                {
+                    Name = ARTICLE_PACKAGE,
+                    ArticleTypeId = articleTypes.Single(s => s.Name == "Consumable").Id,
+                    CreationDate = DateTime.Parse("2019-08-26"), DeliveryPeriod = 1,
+                    UnitId = units.Single(s => s.Name == "Pieces").Id, ToBuild = false,
+                    ToPurchase = true, LotSize = 50
+                },
             };
         }
 
@@ -297,6 +318,14 @@ namespace Zpp.Test.Configuration
                 // Tisch
                 new M_ArticleBom
                     {ArticleChildId = articles.Single(a => a.Name == ARTICLE_DESK).Id, Name = ARTICLE_DESK},
+                new M_ArticleBom
+                {
+                    ArticleChildId = articles.Single(a => a.Name == ARTICLE_PACKAGE).Id,
+                    Name = ARTICLE_PACKAGE,
+                    Quantity = 1,
+                    ArticleParentId = articles.Single(a => a.Name == ARTICLE_DESK).Id,
+                    OperationId = operationDesk.Id
+                },
                 new M_ArticleBom
                 {
                     ArticleChildId = articles.Single(a => a.Name == ARTICLE_DESK_SURFACE).Id,
@@ -316,6 +345,13 @@ namespace Zpp.Test.Configuration
                     ArticleChildId = articles.Single(a => a.Name == ARTICLE_SCREWS).Id,
                     Name = ARTICLE_SCREWS, Quantity = 16,
                     ArticleParentId = articles.Single(a => a.Name == ARTICLE_DESK).Id,
+                    OperationId = operationDesk.Id
+                },
+                new M_ArticleBom
+                {
+                    ArticleChildId = articles.Single(a => a.Name == ARTICLE_MANUAL).Id,
+                    Name = ARTICLE_MANUAL,
+                    Quantity = 1, ArticleParentId = articles.Single(a => a.Name == ARTICLE_DESK).Id,
                     OperationId = operationDesk.Id
                 },
 
@@ -384,6 +420,21 @@ namespace Zpp.Test.Configuration
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_FELT_GLIDERS).Id, PackSize = 10,
                     Price = 2,
+                    DueTime = 100
+                },
+                new M_ArticleToBusinessPartner
+                {
+                    BusinessPartnerId = businessPartners.Single(x => x.Name.Equals(BUSINESS_PARTNER_PRINT_SHOP)).Id,
+                    ArticleId = articles.Single(x => x.Name == ARTICLE_MANUAL).Id,
+                    PackSize = 100,
+                    Price = 0.05,
+                    DueTime = 100
+                },
+                new M_ArticleToBusinessPartner
+                {
+                    BusinessPartnerId = businessPartnerWholeSale.Id,
+                    ArticleId = articles.Single(x => x.Name == ARTICLE_PACKAGE).Id, PackSize = 10,
+                    Price = 0.50,
                     DueTime = 100
                 },
             };

@@ -8,6 +8,7 @@ using Zpp.DbCache;
 using Zpp.MrpRun;
 using Zpp.MrpRun.NodeManagement;
 using Zpp.MrpRun.StockManagement;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Test.Unit_Tests
 {
@@ -37,9 +38,9 @@ namespace Zpp.Test.Unit_Tests
             IProviderManager providerManager = new ProviderManager(dbTransactionData);
             IProvidingManager providingManager = (IProvidingManager) providerManager;
             CustomerOrderPart customerOrderPart1 =
-                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 4);
+                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 4, new DueTime(50));
             CustomerOrderPart customerOrderPart2 =
-                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 5);
+                EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache, 5, new DueTime(100));
             ProductionOrder productionOrder = EntityFactory.CreateT_ProductionOrder(
                 dbMasterDataCache, dbTransactionData, customerOrderPart1,
                 customerOrderPart1.GetQuantity().Plus(customerOrderPart2.GetQuantity()));

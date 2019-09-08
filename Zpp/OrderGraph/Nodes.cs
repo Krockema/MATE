@@ -9,6 +9,10 @@ namespace Zpp.OrderGraph
         {
         }
 
+        public Nodes(INode item) : base(item)
+        {
+        }
+
         public Nodes()
         {
         }

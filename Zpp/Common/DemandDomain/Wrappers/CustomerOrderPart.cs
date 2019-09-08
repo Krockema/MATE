@@ -48,7 +48,12 @@ namespace Zpp.Common.DemandDomain.Wrappers
 
         public override DueTime GetStartTime(IDbTransactionData dbTransactionData)
         {
-            return null;
+            return GetDueTime(dbTransactionData);
+        }
+
+        public T_CustomerOrderPart GetValue()
+        {
+            return (T_CustomerOrderPart)_demand;
         }
     }
 }

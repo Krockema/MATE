@@ -30,7 +30,7 @@ namespace Zpp.OrderGraph
             return new Nodes(_adjacencyList[tailNode].Select(x => x.GetHeadNode()).ToList());
         }
 
-        public void GetPredecessorNodesRecursively(INodes predecessorNodes, INodes newNodes, bool firstRun)
+        public void GetPredecessorNodesRecursively(INodes predecessorNodes, INodes newNodes, bool firstRun = true)
         {
             INodes newNodes2 = new Nodes();
             foreach (var headNode in newNodes)
@@ -69,7 +69,16 @@ namespace Zpp.OrderGraph
 
             foreach (var edge in GetAllEdgesTowardsHeadNode(headNode))
             {
-                predecessorNodes.Add(edge.GetTailNode());
+                INode tailNode = edge.GetTailNode();
+                if (tailNode != null && tailNode.GetEntity() != null)
+                {
+                    predecessorNodes.Add(tailNode);    
+                }
+            }
+
+            if (predecessorNodes.Any() == false)
+            {
+                return null;
             }
 
             return predecessorNodes;

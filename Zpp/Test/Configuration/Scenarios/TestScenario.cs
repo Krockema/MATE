@@ -1,10 +1,18 @@
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
+using Zpp.DbCache;
 
 namespace Zpp.Test.Configuration.Scenarios
 {
-    public interface TestScenario
+    public abstract class TestScenario
     {
-        void CreateCustomerOrders(Quantity quantity, ProductionDomainContext productionDomainContext);
+        protected readonly IDbMasterDataCache DbMasterDataCache;
+        
+        public TestScenario(IDbMasterDataCache dbMasterDataCache)
+        {
+            DbMasterDataCache = dbMasterDataCache;
+        }
+        
+        public abstract void CreateCustomerOrders(Quantity quantity, ProductionDomainContext productionDomainContext);
     }
 }

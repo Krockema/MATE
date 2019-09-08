@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using Xunit;
 using Zpp.DbCache;
 using Zpp.MrpRun.StockManagement;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Test.Unit_Tests.Provider
 {
@@ -33,12 +34,12 @@ namespace Zpp.Test.Unit_Tests.Provider
             // CustomerOrderPart
             Common.DemandDomain.Demand randomCustomerOrderPart =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache,
-                    new Random().Next(3, 99));
+                    new Random().Next(3, 99), new DueTime(50));
             Common.DemandDomain.Demand[] demands = new[]
             {
                 randomCustomerOrderPart,
                 EntityFactory.CreateCustomerOrderPartWithGivenArticle(dbMasterDataCache,
-                    new Random().Next(1001, 1999), dbMasterDataCache.M_ArticleGetByName("Stahlrohr")),
+                    new Random().Next(1001, 1999), dbMasterDataCache.M_ArticleGetByName("Stahlrohr"), new DueTime(100)),
             };
             foreach (var demand in demands)
             {
@@ -68,7 +69,7 @@ namespace Zpp.Test.Unit_Tests.Provider
             // CustomerOrderPart
             Common.DemandDomain.Demand demand =
                 EntityFactory.CreateCustomerOrderPartRandomArticleToBuy(dbMasterDataCache,
-                    new Random().Next(1, 9));
+                    new Random().Next(1, 9), new DueTime(50));
 
             M_Stock stock = dbMasterDataCache.M_StockGetByArticleId(demand.GetArticleId());
             // increase stock

@@ -8,6 +8,7 @@ using Zpp.Common.DemandDomain;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.DbCache;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Test
 {
@@ -41,12 +42,12 @@ namespace Zpp.Test
             return new ProductionOrder(tProductionOrder, dbMasterDataCache);
         }
 
-        private static T_CustomerOrder CreateCustomerOrder(IDbMasterDataCache dbMasterDataCache)
+        private static T_CustomerOrder CreateCustomerOrder(IDbMasterDataCache dbMasterDataCache, DueTime dueTime)
         {
             var order = new T_CustomerOrder()
             {
                 BusinessPartnerId = dbMasterDataCache.M_BusinessPartnerGetAll()[0].Id,
-                DueTime = random.Next(5, 100),
+                DueTime = dueTime.GetValue(),//,
                 CreationTime = 0,
                 Name = $"RandomProductionOrder{random.Next()}",
             };
@@ -54,22 +55,22 @@ namespace Zpp.Test
         }
 
         public static CustomerOrderPart CreateCustomerOrderPartRandomArticleToBuy(
-            IDbMasterDataCache dbMasterDataCache, int quantity)
+            IDbMasterDataCache dbMasterDataCache, int quantity, DueTime dueTime)
         {
             List<M_Article> articlesToBuy = dbMasterDataCache.M_ArticleGetArticlesToBuy();
 
             int randomArticleIndex = random.Next(0, articlesToBuy.Count - 1);
             CustomerOrderPart customerOrderPart =
                 CreateCustomerOrderPartWithGivenArticle(dbMasterDataCache, quantity,
-                    articlesToBuy[randomArticleIndex]);
+                    articlesToBuy[randomArticleIndex], dueTime);
 
             return customerOrderPart;
         }
 
         public static CustomerOrderPart CreateCustomerOrderPartWithGivenArticle(
-            IDbMasterDataCache dbMasterDataCache, int quantity, M_Article article)
+            IDbMasterDataCache dbMasterDataCache, int quantity, M_Article article, DueTime dueTime)
         {
-            T_CustomerOrder tCustomerOrder = CreateCustomerOrder(dbMasterDataCache);
+            T_CustomerOrder tCustomerOrder = CreateCustomerOrder(dbMasterDataCache, dueTime);
             T_CustomerOrderPart tCustomerOrderPart = new T_CustomerOrderPart();
             tCustomerOrderPart.CustomerOrder = tCustomerOrder;
             tCustomerOrderPart.CustomerOrderId = tCustomerOrder.Id;
