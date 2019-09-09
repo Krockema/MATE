@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.DbCache;
-using Zpp.MrpRun.MachineManagement;
-using Zpp.MrpRun.Scheduling;
+using Zpp.Mrp.MachineManagement;
+using Zpp.Mrp.Scheduling;
 using Zpp.OrderGraph;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
@@ -12,6 +12,8 @@ namespace Zpp.Common.ProviderDomain.Wrappers
 {
     public class ProductionOrderOperation : INode
     {
+        // TODO: Anywhere else needed? -> should be configurable
+        private const int TRANSITION_TIME_FACTOR = 3;
         private readonly T_ProductionOrderOperation _productionOrderOperation;
         private readonly IDbMasterDataCache _dbMasterDataCache;
         private Priority _priority = null;
@@ -27,7 +29,7 @@ namespace Zpp.Common.ProviderDomain.Wrappers
             OperationBackwardsSchedule lastOperationBackwardsSchedule, DueTime dueTimeOfProductionOrder)
         {
             DueTime TIME_BETWEEN_OPERATIONS =
-                new DueTime(_productionOrderOperation.Duration * 3);
+                new DueTime(_productionOrderOperation.Duration * TRANSITION_TIME_FACTOR);
             int? startBackwards;
             int? endBackwards;
             
@@ -96,6 +98,11 @@ namespace Zpp.Common.ProviderDomain.Wrappers
             _productionOrderOperation.Machine = machine.GetValue();
         }
 
+        /// <summary>
+        /// Todo: Rename to GetPossibleMachines prevent irritation
+        /// </summary>
+        /// <param name="dbTransactionData"></param>
+        /// <returns></returns>
         public List<Machine> GetMachines(IDbTransactionData dbTransactionData)
         {
             return dbTransactionData.GetAggregator().GetMachinesOfProductionOrderOperation(this);

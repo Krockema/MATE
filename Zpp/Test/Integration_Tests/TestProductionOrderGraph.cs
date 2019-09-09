@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using Xunit;
 using Zpp.DbCache;
+using Zpp.Mrp;
 using Zpp.OrderGraph;
 using Zpp.Test.Configuration;
 using Zpp.Utils;
@@ -19,7 +20,7 @@ namespace Zpp.Test.Integration_Tests
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
         }
         
         /**

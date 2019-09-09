@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -8,8 +9,10 @@ using Zpp.Common.DemandDomain.WrappersForCollections;
 using Zpp.Common.ProviderDomain;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.Common.ProviderDomain.WrappersForCollections;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp.MachineManagement;
+using Zpp.Simulation.Types;
 using Zpp.Utils;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.DbCache
 {
@@ -63,20 +66,6 @@ namespace Zpp.DbCache
             return productionOrderOperations;
         }
 
-        public Demands GetDemandsOfProvider(Provider provider)
-        {
-            List<Demand> demands = new List<Demand>();
-            foreach (var demandToProvider in _dbTransactionData.DemandToProviderGetAll().GetAll())
-            {
-                if (demandToProvider.GetProviderId().Equals(provider.GetId()))
-                {
-                    demands.Add(_dbTransactionData.DemandsGetById(demandToProvider.GetDemandId()));
-                }
-            }
-
-            return new Demands(demands);
-        }
-
         public ProductionOrderBom GetAnyProductionOrderBomByProductionOrderOperation(
             ProductionOrderOperation productionOrderOperation)
         {
@@ -88,6 +77,82 @@ namespace Zpp.DbCache
             }
                 
             return new ProductionOrderBom(productionOrderBom,_dbMasterDataCache);
+        }
+
+        public ProductionOrderBoms GetAllProductionOrderBomsBy(ProductionOrderOperation productionOrderOperation)
+        {
+            List<T_ProductionOrderBom> productionOrderBoms = _dbTransactionData.ProductionOrderBomGetAll().GetAllAs<T_ProductionOrderBom>().FindAll(x =>
+                x.ProductionOrderOperationId.Equals(productionOrderOperation.GetId().GetValue()));
+            if (productionOrderBoms == null || productionOrderBoms.Any() == false)
+            {
+                throw new MrpRunException("How could an productionOrderOperation without an T_ProductionOrderBom exists?");
+            }
+                
+            return new ProductionOrderBoms(productionOrderBoms, _dbMasterDataCache);
+        }
+
+        public Providers GetAllChildProvidersOf(Demand demand)
+        {
+            Providers providers = new Providers();
+            foreach (var demandToProvider in _dbTransactionData.DemandToProviderGetAll())
+            {
+                if (demandToProvider.GetDemandId().Equals(demand.GetId()))
+                {
+                    providers.Add(_dbTransactionData.ProvidersGetById(demandToProvider.GetProviderId()));
+                }
+                
+            }
+            return providers;
+        }
+
+        public Providers GetAllParentProvidersOf(Demand demand)
+        {
+            Providers providers = new Providers();
+            foreach (var demandToProvider in _dbTransactionData.ProviderToDemandGetAll())
+            {
+                if (demandToProvider.GetDemandId().Equals(demand.GetId()))
+                {
+                    providers.Add(_dbTransactionData.ProvidersGetById(demandToProvider.GetProviderId()));
+                }
+                
+            }
+            return providers;
+        }
+
+        public List<Provider> GetProvidersForInterval(DueTime from, DueTime to)
+        {
+            var providers = _dbTransactionData.StockExchangeProvidersGetAll().GetAll();
+            var currentProviders = providers.FindAll(x => x.GetDueTime(_dbTransactionData).GetValue() >= from.GetValue()
+                                                       && x.GetDueTime(_dbTransactionData).GetValue() <= to.GetValue());
+            return currentProviders;
+        }
+        
+        public Demands GetAllParentDemandsOf(Provider provider)
+        {
+            Demands demands = new Demands();
+            foreach (var demandToProvider in _dbTransactionData.DemandToProviderGetAll())
+            {
+                if (demandToProvider.GetProviderId().Equals(provider.GetId()))
+                {
+                    demands.Add(_dbTransactionData.DemandsGetById(demandToProvider.GetDemandId()));
+                }
+                
+            }
+            return demands;
+        }
+
+        public Demands GetAllChildDemandsOf(Provider provider)
+        {
+            Demands demands = new Demands();
+            foreach (var providerToDemand in _dbTransactionData.ProviderToDemandGetAll())
+            {
+                if (providerToDemand.GetProviderId().Equals(provider.GetId()))
+                {
+                    demands.Add(_dbTransactionData.DemandsGetById(providerToDemand.GetDemandId()));
+                }
+                
+            }
+            return demands;
         }
     }
 }

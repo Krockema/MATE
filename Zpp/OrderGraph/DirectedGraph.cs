@@ -4,7 +4,7 @@ using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.DbCache;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp.MachineManagement;
 
 namespace Zpp.OrderGraph
 {

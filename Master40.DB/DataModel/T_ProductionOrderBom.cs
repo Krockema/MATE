@@ -13,7 +13,6 @@ namespace Master40.DB.DataModel
         public T_ProductionOrder ProductionOrderParent { get; set; }
         [JsonIgnore]
         public decimal Quantity { get; set; }
-        public State State { get; set; }
         public int? ProductionOrderOperationId { get; set; }
         public T_ProductionOrderOperation ProductionOrderOperation { get; set; }
         public int ArticleChildId { get; set; }

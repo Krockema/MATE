@@ -1,5 +1,5 @@
 using Xunit;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp.MachineManagement;
 
 namespace Zpp.Test.Unit_Tests
 {

@@ -7,6 +7,7 @@ using Xunit;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.DbCache;
+using Zpp.Mrp;
 using Zpp.OrderGraph;
 using Zpp.Test.Configuration;
 using Zpp.Utils;
@@ -25,7 +26,7 @@ namespace Zpp.Test.Integration_Tests
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
         }
 
         /**
@@ -71,17 +72,20 @@ namespace Zpp.Test.Integration_Tests
          * Verifies that,
          * for demand (parent) --> provider (child) direction following takes effect:
          * - COP  --> SE:W
-         * - PrOB --> SE:W
+         * - PrOB --> SE:W | NONE
          * - SE:I --> PuOP | PrO
          *
          * for provider (parent) --> demand (child) direction following takes effect:
          * - PuOP --> NONE
          * - PrO  --> PrOB
-         * - SE:W --> SE:I
+         * - SE:W --> SE:I | NONE
          *
          * where SE:I = StockExchangeDemand
          * and SE:W = StockExchangeProvider
          * TODO: remove StockExchangeType from T_StockExchange since it's exactly specified by Withdrawal/Insert
+         *
+         * TODO: add new Quality to test: check that NONE is only if it's defined in upper connections
+         * (e.g. after a PrO MUST come another Demand )
          */
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOTSIZE_1)]

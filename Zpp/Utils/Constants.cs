@@ -34,8 +34,8 @@ namespace Zpp.Utils
             return DateTime.Now.ToString("MM-dd_HH:mm") + $"__{ticks.Substring(10, ticks.Length-10)}";
         }
         
-        public static readonly String DbConnectionZppLocalDb =
-            $"Server=(localdb)\\mssqllocaldb;Database=zpp{GetDateString()};Trusted_Connection=True;MultipleActiveResultSets=true";
+        public static String DbConnectionZppLocalDb { get; } =
+            $"Server=(localdb)\\mssqllocaldb;Database=UnitTestDB;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         public static String DbConnectionZppSqlServer()
         {

@@ -1,5 +1,6 @@
 using System;
 using Xunit;
+using Zpp.Mrp;
 
 namespace Zpp.Test.Integration_Tests
 {
@@ -8,7 +9,7 @@ namespace Zpp.Test.Integration_Tests
         
         private const int MAX_TIME_FOR_MRP_RUN = 90;
 
-        public TestPerformance()
+        public TestPerformance() : base(initDefaultTestConfig: true)
         {
 
         }
@@ -18,7 +19,7 @@ namespace Zpp.Test.Integration_Tests
         {
             DateTime startTime = DateTime.UtcNow;
 
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
 
             DateTime endTime = DateTime.UtcNow;
             double neededTime = (endTime - startTime).TotalMilliseconds / 1000;

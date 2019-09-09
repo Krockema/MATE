@@ -1,14 +1,12 @@
-using System;
+using Master40.DB.DataModel;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.DataModel;
 using Xunit;
 using Zpp.Common.DemandDomain;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.ProviderDomain;
-using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.DbCache;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp;
 using Zpp.OrderGraph;
 using Zpp.Test.Configuration;
 using Zpp.WrappersForPrimitives;
@@ -25,7 +23,7 @@ namespace Zpp.Test.Integration_Tests
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
         }
 
 

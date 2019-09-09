@@ -8,7 +8,6 @@ namespace Zpp.Common.DemandDomain.Wrappers
 {
     public class CustomerOrderPart : Demand 
     {
-
         public CustomerOrderPart(IDemand demand, IDbMasterDataCache dbMasterDataCache) : base(demand, dbMasterDataCache)
         {
             

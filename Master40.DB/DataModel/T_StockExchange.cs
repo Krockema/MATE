@@ -19,9 +19,7 @@ namespace Master40.DB.DataModel
         // time of withdrawal/insert (wird von der Simulation belegt bei erfuellung des Requests)id
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
-        
         public StockExchangeType StockExchangeType { get; set; }
-
         public M_Article GetArticle()
         {
             return Stock.Article;

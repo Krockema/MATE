@@ -2,7 +2,8 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Xunit;
 using Zpp.DbCache;
-using Zpp.MrpRun.ProductionManagement.ProductionTypes;
+using Zpp.Mrp;
+using Zpp.Mrp.ProductionManagement.ProductionTypes;
 
 namespace Zpp.Test.Integration_Tests
 {
@@ -17,7 +18,7 @@ namespace Zpp.Test.Integration_Tests
             }
             else
             {
-                MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+                MrpRun.Start(ProductionDomainContext);
                 IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
                 IDbTransactionData dbTransactionData =
                     new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
@@ -46,7 +47,7 @@ namespace Zpp.Test.Integration_Tests
             else
             {
 
-                MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+                MrpRun.Start(ProductionDomainContext);
                 IDbMasterDataCache dbMasterDataCache =
                     new DbMasterDataCache(ProductionDomainContext);
                 IDbTransactionData dbTransactionData =

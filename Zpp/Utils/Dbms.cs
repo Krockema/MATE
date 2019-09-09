@@ -1,12 +1,10 @@
-using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Threading;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NLog.Extensions.Logging;
+using System;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace Zpp.Utils
 {
@@ -14,15 +12,23 @@ namespace Zpp.Utils
     {
         private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
-        public static readonly LoggerFactory MyLoggerFactory = new LoggerFactory(
-            /*new[]
-        {
-             new ConsoleLoggerProvider((category, level) => category == DbLoggerCategory.Database.Command.Name &&
-                                        level == LogLevel.Information, true)
-        }*/
-        );
+        public static readonly LoggerFactory MyLoggerFactory = new LoggerFactory();
 
-        public static ProductionDomainContext getDbContext()
+        /// <summary>
+        /// If localDb shall be used - set it via command line with :
+        /// setx UseLocalDb true
+        /// </summary>
+        /// <returns></returns>
+        public static bool UseLocalDb()
+        {
+            var environmentUseLocalDb = Environment.GetEnvironmentVariable("UseLocalDb", EnvironmentVariableTarget.User);
+            if (environmentUseLocalDb != null)
+                return environmentUseLocalDb.Equals("true");
+            return false;
+        }
+
+
+    public static ProductionDomainContext GetDbContext()
         {
             ProductionDomainContext productionDomainContext;
 
@@ -32,7 +38,15 @@ namespace Zpp.Utils
                 .UseInMemoryDatabase(databaseName: "InMemoryDB")
                 .Options);*/
 
-            if (Constants.IsWindows)
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                productionDomainContext = new ProductionDomainContext(
+                    new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
+                        .UseSqlServer(
+                            // Constants.DbConnectionZppLocalDb)
+                            Constants.DbConnectionZppLocalDb).Options);
+                    Constants.IsLocalDb = true;
+            } else if (Constants.IsWindows)
             {
                 // Windows
                 productionDomainContext = new ProductionDomainContext(
@@ -48,13 +62,6 @@ namespace Zpp.Utils
                 productionDomainContext = new ProductionDomainContext(
                     new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
                         .UseSqlServer(Constants.DbConnectionZppSqlServer()).Options);
-
-                // sqlite
-                // _productionDomainContext = InMemoryContext.CreateInMemoryContext();
-                // inMemory
-                /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                    .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                    .Options);*/
             }
 
             MyLoggerFactory.AddNLog();
@@ -101,9 +108,9 @@ namespace Zpp.Utils
             {
                 con.Open();
                 String sqlCommandText = @"
-        ALTER DATABASE " + dbName + @" SET OFFLINE WITH ROLLBACK IMMEDIATE;
-        ALTER DATABASE " + dbName + @" SET ONLINE;
-        DROP DATABASE [" + dbName + "]";
+                ALTER DATABASE " + dbName + @" SET OFFLINE WITH ROLLBACK IMMEDIATE;
+                ALTER DATABASE " + dbName + @" SET ONLINE;
+                DROP DATABASE [" + dbName + "]";
 
                 SqlCommand sqlCommand = new SqlCommand(sqlCommandText, con);
                 try

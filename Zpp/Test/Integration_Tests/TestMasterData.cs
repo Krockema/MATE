@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Zpp.Mrp;
 
 namespace Zpp.Test.Integration_Tests
 {
@@ -21,7 +22,7 @@ namespace Zpp.Test.Integration_Tests
             Assert.True(ProductionDomainContext.CustomerOrders.Count() == TestConfiguration.CustomerOrderPartQuantity,
                 "No customerOrders are initially available.");
 
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
 
             // check certain constraints are not violated
 

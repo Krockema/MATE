@@ -16,6 +16,4 @@ script:
   - dotnet test Zpp/Zpp.csproj
 
 notifications:
-  email:
-    - s74027@htw-dresden.de
-
+  slack: infocomhtw:7H5jePcDELUv916neaRS3LQ1

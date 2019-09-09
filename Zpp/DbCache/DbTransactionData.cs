@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
@@ -12,8 +13,8 @@ using Zpp.Common.DemandDomain.WrappersForCollections;
 using Zpp.Common.ProviderDomain;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.Common.ProviderDomain.WrappersForCollections;
-using Zpp.MrpRun.MachineManagement;
-using Zpp.MrpRun.NodeManagement;
+using Zpp.Mrp.MachineManagement;
+using Zpp.Mrp.NodeManagement;
 using Zpp.Utils;
 using Zpp.WrappersForCollections;
 
@@ -154,14 +155,12 @@ namespace Zpp.DbCache
                 _purchaseOrderParts.GetAllAs<T_PurchaseOrderPart>();
 
             // Insert all T_* entities
-
+            InsertOrUpdateRange(tProductionOrders, _productionDomainContext.ProductionOrders);
+            InsertOrUpdateRange(_productionOrderOperations, _productionDomainContext.ProductionOrderOperations);
             InsertOrUpdateRange(tProductionOrderBoms, _productionDomainContext.ProductionOrderBoms);
-            InsertOrUpdateRange(_productionOrderOperations,
-                _productionDomainContext.ProductionOrderOperations);
             InsertOrUpdateRange(tStockExchangeDemands, _productionDomainContext.StockExchanges);
             // providers
             InsertOrUpdateRange(tStockExchangesProviders, _productionDomainContext.StockExchanges);
-            InsertOrUpdateRange(tProductionOrders, _productionDomainContext.ProductionOrders);
             InsertOrUpdateRange(tPurchaseOrderParts, _productionDomainContext.PurchaseOrderParts);
             InsertOrUpdateRange(_purchaseOrders, _productionDomainContext.PurchaseOrders);
 
@@ -218,7 +217,7 @@ namespace Zpp.DbCache
             else
                 // it's already in DB
             {
-                CopyProperties(entity, foundEntity);
+                CopyDbPropertiesTo(entity, foundEntity);
                 _productionDomainContext.Entry(foundEntity).State = EntityState.Modified;
                 dbSet.Update(foundEntity);
             }
@@ -240,6 +239,21 @@ namespace Zpp.DbCache
                         p.SetValue(destination, sourceProp.GetValue(source, null), null);
                     }
                 }
+            }
+        }
+        public static void CopyDbPropertiesTo<T>(T source, T dest)
+        {
+            var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
+
+            foreach (PropertyInfo prop in plist)
+            {
+                // ToDo: are there more primitives?
+                if (prop.PropertyType.IsPrimitive 
+                    || prop.PropertyType == typeof(string) 
+                    || prop.PropertyType == typeof(DateTime) 
+                    || prop.PropertyType == typeof(Guid)
+                    || prop.PropertyType.BaseType == typeof(Enum))
+                    prop.SetValue(dest, prop.GetValue(source, null), null);
             }
         }
 

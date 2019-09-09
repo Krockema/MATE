@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using Zpp.Common.DemandDomain;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.DemandDomain.WrappersForCollections;
 using Zpp.Common.ProviderDomain;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.Common.ProviderDomain.WrappersForCollections;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp.MachineManagement;
+using Zpp.Simulation.Types;
+using Zpp.WrappersForPrimitives;
 
 namespace Zpp.DbCache
 {
@@ -25,8 +28,21 @@ namespace Zpp.DbCache
         
         List<ProductionOrderOperation> GetProductionOrderOperationsOfProductionOrder(Id productionOrderId);
 
-        Demands GetDemandsOfProvider(Provider provider);
-
         ProductionOrderBom GetAnyProductionOrderBomByProductionOrderOperation(ProductionOrderOperation productionOrderOperation);
+
+        ProductionOrderBoms GetAllProductionOrderBomsBy(
+            ProductionOrderOperation productionOrderOperation);
+
+        Providers GetAllChildProvidersOf(Demand demand);
+        
+        Providers GetAllParentProvidersOf(Demand demand);
+
+        Demands GetAllParentDemandsOf(Provider provider);
+        
+        Demands GetAllChildDemandsOf(Provider provider);
+        
+       
+        List<Provider> GetProvidersForInterval(DueTime from, DueTime to);
+        
     }
 }

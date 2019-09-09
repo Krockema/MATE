@@ -1,4 +1,4 @@
-using Zpp.MrpRun.ProductionManagement.ProductionTypes;
+using Zpp.Mrp.ProductionManagement.ProductionTypes;
 
 namespace Zpp.Configuration
 {

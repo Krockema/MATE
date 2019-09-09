@@ -37,7 +37,7 @@ namespace Zpp.Common.ProviderDomain
             return _dependingDemands;
         }
 
-        public abstract DueTime GetDueTime(IDbTransactionData dbTransactionData);
+        public abstract DueTime GetDueTime(IDbTransactionData dbTransactionData = null);
 
         public abstract IProvider ToIProvider();
         
@@ -133,7 +133,6 @@ namespace Zpp.Common.ProviderDomain
          * Adapts the dueTime and also adapts the startTime accordingly (if exists)
          */
         public abstract void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData);
-
         public ProviderToDemandTable GetProviderToDemandTable()
         {
             return ProviderToDemandTable;
@@ -143,5 +142,7 @@ namespace Zpp.Common.ProviderDomain
         {
             ProviderToDemandTable.Add(providerToDemand);
         }
+
+        public abstract void SetProvided(DueTime atTime);
     }
 }

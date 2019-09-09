@@ -43,7 +43,7 @@ namespace Zpp.Test
          */
         public AbstractTest(bool initDefaultTestConfig)
         {
-            ProductionDomainContext = Dbms.getDbContext();
+            ProductionDomainContext = Dbms.GetDbContext();
             if (initDefaultTestConfig)
             {
                 InitTestScenario(_defaultTestScenario);

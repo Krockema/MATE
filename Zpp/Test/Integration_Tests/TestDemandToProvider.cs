@@ -2,6 +2,7 @@ using Xunit;
 using Zpp.Common.DemandDomain.WrappersForCollections;
 using Zpp.Common.ProviderDomain.WrappersForCollections;
 using Zpp.DbCache;
+using Zpp.Mrp;
 using Zpp.WrappersForCollections;
 
 namespace Zpp.Test.Integration_Tests
@@ -23,7 +24,7 @@ namespace Zpp.Test.Integration_Tests
         [Fact]
         public void TestAllDemandsAreInDemandToProviderTable()
         {
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
@@ -47,7 +48,7 @@ namespace Zpp.Test.Integration_Tests
         [Fact]
         public void TestAllDemandsAreSatisfiedWithinProviderTable()
         {
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
@@ -65,7 +66,7 @@ namespace Zpp.Test.Integration_Tests
         [Fact]
         public void TestAllDemandsAreSatisfiedByProvidersOfDemandToProviderTable()
         {
-            MrpRun.MrpRun.RunMrp(ProductionDomainContext);
+            MrpRun.Start(ProductionDomainContext);
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
             IDbTransactionData dbTransactionData =
                 new DbTransactionData(ProductionDomainContext, dbMasterDataCache);

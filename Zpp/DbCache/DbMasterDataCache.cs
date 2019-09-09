@@ -7,7 +7,7 @@ using Master40.DB.DataModel;
 using Zpp.Common.DemandDomain;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.DemandDomain.WrappersForCollections;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp.MachineManagement;
 using Zpp.WrappersForCollections;
 
 namespace Zpp.DbCache

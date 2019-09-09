@@ -11,7 +11,7 @@ namespace Zpp.Test.Unit_Tests
         [Fact(Skip = "Sql server 'drop database' does not work on non-Windows-systems.")]
         public void TestDropExistingDatabase()
         {
-            ProductionDomainContext productionDomainContext = Dbms.getDbContext();
+            ProductionDomainContext productionDomainContext = Dbms.GetDbContext();
             if (productionDomainContext.Database.CanConnect() == false)
             {
                 productionDomainContext.Database.EnsureCreated();

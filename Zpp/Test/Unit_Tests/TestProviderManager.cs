@@ -5,9 +5,9 @@ using Xunit;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.DbCache;
-using Zpp.MrpRun;
-using Zpp.MrpRun.NodeManagement;
-using Zpp.MrpRun.StockManagement;
+using Zpp.Mrp;
+using Zpp.Mrp.NodeManagement;
+using Zpp.Mrp.StockManagement;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Test.Unit_Tests
@@ -49,7 +49,7 @@ namespace Zpp.Test.Unit_Tests
 
             ResponseWithProviders responseWithProviders = providingManager.Satisfy(customerOrderPart2,
                 customerOrderPart2.GetQuantity(), dbTransactionData);
-            MrpRun.MrpRun.ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
+            MrpRun.ProcessProvidingResponse(responseWithProviders, providerManager, stockManager,
                 dbTransactionData, customerOrderPart2, openDemandManager);
 
             bool isSatisfied = responseWithProviders.IsSatisfied() && responseWithProviders.GetProviders().Any() == false &&

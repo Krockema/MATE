@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.Common.DemandDomain.WrappersForCollections;
-using Zpp.MrpRun.MachineManagement;
+using Zpp.Mrp.MachineManagement;
 using Zpp.WrappersForCollections;
 
 namespace Zpp.DbCache

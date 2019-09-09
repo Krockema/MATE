@@ -4,12 +4,14 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Master40.DB.ReportingModel;
 using Zpp.Common.DemandDomain;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.DemandDomain.WrappersForCollections;
 using Zpp.DbCache;
-using Zpp.MrpRun;
-using Zpp.MrpRun.NodeManagement;
+using Zpp.Mrp;
+using Zpp.Mrp.NodeManagement;
+using Zpp.Mrp.StockManagement;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
@@ -20,9 +22,11 @@ namespace Zpp.Common.ProviderDomain.Wrappers
      */
     public class StockExchangeProvider : Provider, IProviderLogic
     {
+        private readonly T_StockExchange _stockExchange;
         public StockExchangeProvider(IProvider provider, IDbMasterDataCache dbMasterDataCache) :
             base(provider, dbMasterDataCache)
         {
+            _stockExchange = (T_StockExchange) provider;
         }
 
         public override IProvider ToIProvider()
@@ -147,6 +151,12 @@ namespace Zpp.Common.ProviderDomain.Wrappers
         {
             T_StockExchange stockExchange = (T_StockExchange) _provider;
             stockExchange.RequiredOnTime = newDueTime.GetValue();
+        }
+
+        public override void SetProvided(DueTime atTime)
+        {
+            _stockExchange.State = State.Finished;
+            _stockExchange.Time = atTime.GetValue();
         }
     }
 }

@@ -5,7 +5,7 @@ using Master40.DB.DataModel;
 using Master40.DB.Interfaces;
 using Zpp.Common.DemandDomain.WrappersForCollections;
 using Zpp.DbCache;
-using Zpp.MrpRun.ProductionManagement;
+using Zpp.Mrp.ProductionManagement;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Common.ProviderDomain.Wrappers
@@ -15,9 +15,11 @@ namespace Zpp.Common.ProviderDomain.Wrappers
      */
     public class ProductionOrder : Provider
     {
+        private readonly T_ProductionOrder _productionOrder;
         public ProductionOrder(IProvider provider, IDbMasterDataCache dbMasterDataCache) : base(
             provider, dbMasterDataCache)
         {
+            _productionOrder = (T_ProductionOrder)provider;
         }
 
         public override IProvider ToIProvider()
@@ -45,7 +47,7 @@ namespace Zpp.Common.ProviderDomain.Wrappers
             return graphizString;
         }
 
-        public override DueTime GetDueTime(IDbTransactionData dbTransactionData)
+        public override DueTime GetDueTime(IDbTransactionData dbTransactionData = null)
         {
             T_ProductionOrder productionOrder = (T_ProductionOrder) _provider;
             return new DueTime(productionOrder.DueTime);
@@ -77,6 +79,11 @@ namespace Zpp.Common.ProviderDomain.Wrappers
         {
             T_ProductionOrder productionOrder = (T_ProductionOrder) _provider;
             productionOrder.DueTime = newDueTime.GetValue();
+        }
+
+        public override void SetProvided(DueTime atTime)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -1,11 +1,11 @@
+using System;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Zpp.Common.ProviderDomain;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.DbCache;
-using Zpp.MrpRun.ProductionManagement;
+using Zpp.Mrp.ProductionManagement;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
@@ -38,7 +38,6 @@ namespace Zpp.Common.DemandDomain.Wrappers
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
             // TODO: Terminierung+Maschinenbelegung
             productionOrderBom.Quantity = articleBom.Quantity * quantity.GetValue();
-            productionOrderBom.State = State.Created;
             productionOrderBom.ProductionOrderParent =
                 (T_ProductionOrder) parentProductionOrder.ToIProvider();
             productionOrderBom.ProductionOrderParentId =
@@ -213,8 +212,21 @@ namespace Zpp.Common.DemandDomain.Wrappers
             }
         }
 
-        public ProductionOrder GetProductionOrder()
+        public ProductionOrder GetProductionOrder(IDbTransactionData dbTransactionData)
         {
+            if (_productionOrderBom.ProductionOrderParent == null)
+            {
+                var productionOrder = dbTransactionData.ProductionOrderGetById(new Id(_productionOrderBom.ProductionOrderParentId))
+                                                       .ToIProvider() as T_ProductionOrder;
+                if (productionOrder == null)
+                {
+                    throw new Exception("ProductionOrderBom must have one ProductionOrderParent");
+                }
+
+                _productionOrderBom.ProductionOrderParent = productionOrder;
+            }
+
+
             return new ProductionOrder(_productionOrderBom.ProductionOrderParent,
                 _dbMasterDataCache);
         }

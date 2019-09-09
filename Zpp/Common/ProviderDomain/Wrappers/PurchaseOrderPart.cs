@@ -74,5 +74,10 @@ namespace Zpp.Common.ProviderDomain.Wrappers
 
             purchaseOrderPart.PurchaseOrder.DueTime = newDueTime.GetValue();
         }
+
+        public override void SetProvided(DueTime atTime)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

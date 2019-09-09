@@ -23,4 +23,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="System.Composition" Version="1.2.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\WrappersForPrimitives\" />
+  </ItemGroup>
 </Project>

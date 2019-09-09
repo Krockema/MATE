@@ -2,7 +2,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
 {
     public class Id
     {
-        private int _id;
+        private readonly int _id;
 
         public Id(int id)
         {

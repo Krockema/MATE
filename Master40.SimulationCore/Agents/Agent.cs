@@ -1,14 +1,13 @@
 ﻿using Akka.Actor;
 using AkkaSim;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Master40.SimulationImmutables;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
-using System;
 using Master40.SimulationCore.MessageTypes;
+using Master40.SimulationImmutables;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Dynamic;
-using Akka.Util.Internal;
 
 namespace Master40.SimulationCore.Agents
 {
