@@ -104,8 +104,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                     .Create(target: resourceAgent
                                                          , message: ResourceAgent.Behaviour
                                                                                 .Factory.Get(simType: SimulationType
-                                                                                 , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator 
-                                                                                 , resourceId: resource.ResourceId
+                                                                                 , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
                                                                                  , toolManager: new ToolManager(resourceSetups: resourceSetups))));
         }
 

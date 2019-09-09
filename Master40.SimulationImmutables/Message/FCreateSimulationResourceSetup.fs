@@ -4,5 +4,5 @@
         WorkScheduleId : string
         Start : int64
         Duration : int64
-        Machine : string
+        Resource : string
     } 

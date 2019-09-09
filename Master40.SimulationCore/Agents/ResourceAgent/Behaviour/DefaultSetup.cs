@@ -22,13 +22,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class DefaultSetup : SimulationCore.Types.Behaviour
     {
-        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, int resourceId, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
-            _resourceId = resourceId;
             _toolManager = toolManager;
         }
         // TODO Implement a JobManager
@@ -37,7 +36,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal ToolManager _toolManager { get; }
         internal WorkTimeGenerator _workTimeGenerator { get; }
-        internal int _resourceId { get; }
         internal AgentDictionary _agentDictionary { get; }
 
         public override bool Action(object message)
@@ -240,7 +238,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     $"Start with Setup for Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
                 _toolManager.Mount(requiredResourceTool: _jobInProgress.Current.Tool);
                 var pubSetup = new FCreateSimulationResourceSetup(workScheduleId: _jobInProgress.Current.Key.ToString(),
-                    duration: setupDuration, start: Agent.CurrentTime, machine: Agent.Name);
+                    duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 

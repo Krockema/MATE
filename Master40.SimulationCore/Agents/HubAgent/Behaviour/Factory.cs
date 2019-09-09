@@ -10,15 +10,21 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
     {
         public static IBehaviour Get(SimulationType simType)
         {
+            IBehaviour behaviour;
             switch (simType)
             {
                 case SimulationType.DefaultSetup:
-                    return DefaultSetup();
+                    behaviour = DefaultSetup();
+                    break;
                 case SimulationType.Bucket:
-                    return Bucket();
+                     behaviour = Bucket();
+                    break;
                 default:
-                    return Default();
+                    behaviour =  Default();
+                    break;
             }
+
+            return behaviour;
         }
 
         private static IBehaviour Default()

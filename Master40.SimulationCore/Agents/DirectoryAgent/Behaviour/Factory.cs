@@ -7,13 +7,17 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
     {
         public static IBehaviour Get(SimulationType simType)
         {
-            IBehaviour behave;
+            IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.DefaultSetup: behave = Default(simType); break;    
-                default: behave = Default(simType); break;
+                case SimulationType.Bucket: behaviour = Default(simType);
+                    break;
+                case SimulationType.DefaultSetup: behaviour = Default(simType);
+                    break;
+                default: behaviour = Default(simType);
+                    break;
             }
-            return behave;
+            return behaviour;
         }
 
         private static IBehaviour Default(SimulationType simType)

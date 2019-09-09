@@ -7,13 +7,21 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
     {
         public static IBehaviour Get(SimulationType simType)
         {
+            IBehaviour behaviour;
             switch (simType)
             {
                 case SimulationType.Bucket:
-                    return Bucket();
+                    behaviour = Default();
+                    break;
+                case SimulationType.DefaultSetup:
+                    behaviour = Default();
+                    break;
                 default:
-                    return Default();
+                    behaviour = Default();
+                    break;
             }
+
+            return behaviour;
         }
 
         private static IBehaviour Default()
@@ -23,11 +31,5 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         }
 
-        private static IBehaviour Bucket()
-        {
-
-            return new Bucket();
-
-        }
     }
 }

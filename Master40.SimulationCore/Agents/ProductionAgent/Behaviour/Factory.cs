@@ -9,13 +9,21 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
     {
         public static IBehaviour Get(SimulationType simType)
         {
+            IBehaviour behaviour;
             switch (simType)
             {
+                case SimulationType.DefaultSetup:
+                    behaviour = Default();
+                    break;
                 case SimulationType.Bucket:
-                    return Bucket();
+                    behaviour = Default();
+                    break;
                 default:
-                    return Default();
+                    behaviour = Default();
+                    break;
             }
+
+            return behaviour;
 
         }
 
@@ -23,12 +31,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
 
             return new Default();
-        }
-
-        private static IBehaviour Bucket()
-        {
-
-            return new Bucket();
         }
 
         /// <summary>

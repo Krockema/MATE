@@ -8,11 +8,15 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
     {
         public static IBehaviour Get(M_Stock stockElement, SimulationType simType)
         {
+            IBehaviour behaviour;
             switch (simType)
             {
                 default:
-                    return Default(stockElement: stockElement);
+                    behaviour = Default(stockElement: stockElement);
+                    break;
             }
+
+            return behaviour;
         }
 
         private static IBehaviour Default(M_Stock stockElement)

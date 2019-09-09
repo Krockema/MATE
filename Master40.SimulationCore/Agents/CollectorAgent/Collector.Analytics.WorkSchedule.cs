@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Master40.SimulationCore.Agents.ResourceAgent;
 using static FBreakDowns;
 using static FCreateSimulationWorks;
 using static FAgentInformations;
@@ -34,6 +35,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         private List<SimulationWorkschedule> simulationWorkschedules { get; } = new List<SimulationWorkschedule>();
+
+        private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart { get; set; } = 0;
         private List<FUpdateSimulationWork> _updatedSimulationWork { get;  } = new List<FUpdateSimulationWork>();
@@ -85,9 +88,27 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             return true;
         }
 
-        private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup m)
+        /// <summary>
+        /// collect the resourceSetups of resource
+        /// </summary>
+        /// <param name="simulationResourceSetup"></param>
+        private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup simulationResourceSetup)
         {
-            Debug.WriteLine(message: $"({Collector.Time}) CreateSimulationResourceSetup not implemented yet");
+            var _SimulationResourceSetup = new SimulationResourceSetup
+            {
+                WorkScheduleId = simulationResourceSetup.WorkScheduleId,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                SimulationType = Collector.simulationKind.Value,
+                Time = (int)(Collector.Time),
+                Resource = simulationResourceSetup.Resource,
+                ResourceTool = simulationResourceSetup.ToString(),
+                Start = (int)simulationResourceSetup.Start,
+                End = simulationResourceSetup.Start + simulationResourceSetup.Duration
+            };
+
+            simulationResourceSetups.Add(item: _SimulationResourceSetup);
+
         }
 
         private void UpdateThroughputTimes(FThroughPutTime m)
