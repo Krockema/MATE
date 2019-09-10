@@ -13,30 +13,30 @@ namespace Master40.DB.Data.Helper
         public static long GetEpochMilliseconds(this DateTime date)
         {
             double ticks = 47 * 60 * 60 * 1000;
-            var startdate = DateTime.Now.AddMilliseconds(-ticks);
-            TimeSpan t = startdate - new DateTime(1970, 1, 1);
+            var startdate = DateTime.Now.AddMilliseconds(value: -ticks);
+            TimeSpan t = startdate - new DateTime(year: 1970, month: 1, day: 1);
             return (long)t.TotalMilliseconds;
         }
 
         public static DateTime GetDateFromMilliseconds(this long x)
         {
             // return new DateTime(1970, 1, 1).Add(TimeSpan.FromMilliseconds(x));
-            return (new DateTime(1970, 1, 1)).AddMilliseconds(x);
+            return (new DateTime(year: 1970, month: 1, day: 1)).AddMilliseconds(value: x);
         }
 
         public static void WriteCSV<T>(this IEnumerable<T> items, string path)
         {
             Type itemType = typeof(T);
-            var props = itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                                .OrderBy(p => p.Name);
+            var props = itemType.GetProperties(bindingAttr: BindingFlags.Public | BindingFlags.Instance)
+                                .OrderBy(keySelector: p => p.Name);
 
-            using (var writer = new StreamWriter(path))
+            using (var writer = new StreamWriter(path: path))
             {
-                writer.WriteLine(string.Join(", ", props.Select(p => p.Name)));
+                writer.WriteLine(value: string.Join(separator: ", ", values: props.Select(selector: p => p.Name)));
 
                 foreach (var item in items)
                 {
-                    writer.WriteLine(string.Join(", ", props.Select(p => p.GetValue(item, null))));
+                    writer.WriteLine(value: string.Join(separator: ", ", values: props.Select(selector: p => p.GetValue(obj: item, index: null))));
                 }
             }
         }
@@ -48,21 +48,21 @@ namespace Master40.DB.Data.Helper
             foreach (PropertyInfo prop in plist)
             {
                 if (prop.Name != "Id")
-                    prop.SetValue(dest, prop.GetValue(source, null), null);
+                    prop.SetValue(obj: dest, value: prop.GetValue(obj: source, index: null), index: null);
             }
         }
 
         public static dynamic CopyProperties<T>(this T source)
         {
             // create A specific instance of the sourcetype
-            var dest = Activator.CreateInstance(source.GetType());
+            var dest = Activator.CreateInstance(type: source.GetType());
             // get property list from Sourcetype
             var plist = from prop in dest.GetType().GetProperties() where prop.CanRead && prop.CanWrite select prop;
             // copy item without navigation properties
             foreach (PropertyInfo prop in plist)
             {   
-                if (!prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
-                    prop.SetValue(dest, prop.GetValue(source, null), null);
+                if (!prop.PropertyType.Name.Contains(value: "ICollection") && !prop.PropertyType.FullName.Contains(value: "Master40.DB.Models"))
+                    prop.SetValue(obj: dest, value: prop.GetValue(obj: source, index: null), index: null);
             }
             return dest;
         }
@@ -73,31 +73,26 @@ namespace Master40.DB.Data.Helper
 
             foreach (PropertyInfo prop in plist)
             {
-                if (prop.Name != "Id" && !prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
-                    prop.SetValue(dest, prop.GetValue(source, null), null);
+                if (prop.Name != "Id" && !prop.PropertyType.Name.Contains(value: "ICollection") && !prop.PropertyType.FullName.Contains(value: "Master40.DB.Models"))
+                    prop.SetValue(obj: dest, value: prop.GetValue(obj: source, index: null), index: null);
             }
         }
 
         public static dynamic CopyDbPropertiesWithoutId<T>(this T source)
         {
             var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;
-            var dest = Activator.CreateInstance(source.GetType());
+            var dest = Activator.CreateInstance(type: source.GetType());
             foreach (PropertyInfo prop in plist)
             {
-                if (prop.Name != "Id" && !prop.PropertyType.Name.Contains("ICollection") && !prop.PropertyType.FullName.Contains("Master40.DB.Models"))
-                    prop.SetValue(dest, prop.GetValue(source, null), null);
+                if (prop.Name != "Id" && !prop.PropertyType.Name.Contains(value: "ICollection") && !prop.PropertyType.FullName.Contains(value: "Master40.DB.Models"))
+                    prop.SetValue(obj: dest, value: prop.GetValue(obj: source, index: null), index: null);
             }
 
             return dest;
         }
-        public static dynamic GetTableWithoutId<T>(this T entity)
+        public static List<T> ResetId<T>(this List<T> entity) where T : IBaseEntity
         {
-            List<dynamic> dl = new List<dynamic>();
-            foreach (var item in (IQueryable)entity)
-            {
-                dl.Add(item.CopyDbPropertiesWithoutId());
-            }
-            return dl;
+            return entity.Select(selector: x => { x.Id = 0; return x; }).ToList();
         }
 
 
@@ -105,7 +100,7 @@ namespace Master40.DB.Data.Helper
         {
             var properties = context.GetType().GetProperties();
             return (from property in properties let setType = property.PropertyType let isDbSet = (typeof(DbSet<>)
-                    .IsAssignableFrom(setType.GetGenericTypeDefinition())) where isDbSet select property).ToList();
+                    .IsAssignableFrom(c: setType.GetGenericTypeDefinition())) where isDbSet select property).ToList();
 
         }
 
@@ -118,7 +113,7 @@ namespace Master40.DB.Data.Helper
         /// <returns></returns>
         public static IEnumerable<T> Traverse<T>(this T item, Func<T, T> childSelector)
         {
-            var stack = new Stack<T>(new T[] {item});
+            var stack = new Stack<T>(collection: new T[] {item});
 
             while (stack.Any())
             {
@@ -126,7 +121,7 @@ namespace Master40.DB.Data.Helper
                 if (next != null)
                 {
                     yield return next;
-                    stack.Push(childSelector(next));
+                    stack.Push(item: childSelector(arg: next));
                 }
             }
         }
@@ -140,7 +135,7 @@ namespace Master40.DB.Data.Helper
         /// <returns></returns>
         public static IEnumerable<T> Traverse<T>(this T item, Func<T, IEnumerable<T>> childSelector)
         {
-            var stack = new Stack<T>(new T[] {item});
+            var stack = new Stack<T>(collection: new T[] {item});
 
             while (stack.Any())
             {
@@ -148,9 +143,9 @@ namespace Master40.DB.Data.Helper
                 //if(next != null)
                 //{
                 yield return next;
-                foreach (var child in childSelector(next))
+                foreach (var child in childSelector(arg: next))
                 {
-                    stack.Push(child);
+                    stack.Push(item: child);
                 }
                 //}
             }
@@ -166,13 +161,13 @@ namespace Master40.DB.Data.Helper
         public static IEnumerable<T> Traverse<T>(this IEnumerable<T> items,
             Func<T, IEnumerable<T>> childSelector)
         {
-            var stack = new Stack<T>(items);
+            var stack = new Stack<T>(collection: items);
             while (stack.Any())
             {
                 var next = stack.Pop();
                 yield return next;
-                foreach (var child in childSelector(next))
-                    stack.Push(child);
+                foreach (var child in childSelector(arg: next))
+                    stack.Push(item: child);
             }
         }
     }

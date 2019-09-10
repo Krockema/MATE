@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.M_Machine
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData[index: "Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,28 +12,28 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Count)
+            @Html.DisplayNameFor(expression: model => model.Count)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Count)
+            @Html.DisplayFor(expression: model => model.Count)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Capacity)
+            @Html.DisplayNameFor(expression: model => model.Capacity)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Capacity)
+            @Html.DisplayFor(expression: model => model.Capacity)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.MachineGroup.Name)
+            @Html.DisplayNameFor(expression: model => model.MachineGroup.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.MachineGroup.Name)
+            @Html.DisplayFor(expression: model => model.MachineGroup.Name)
         </dd>
     </dl>
 </div>

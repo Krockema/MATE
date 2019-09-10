@@ -7,16 +7,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                @Html.DisplayNameFor(expression: model => model.Quantity)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsPlanned)
+                @Html.DisplayNameFor(expression: model => model.IsPlanned)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Article)
+                @Html.DisplayNameFor(expression: model => model.Article)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CustomerOrder)
+                @Html.DisplayNameFor(expression: model => model.CustomerOrder)
             </th>
             <th></th>
         </tr>
@@ -25,16 +25,16 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
+                @Html.DisplayFor(expression: modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsPlanned)
+                @Html.DisplayFor(expression: modelItem => item.IsPlanned)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Article.Name)
+                @Html.DisplayFor(expression: modelItem => item.Article.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CustomerOrder.Id)
+                @Html.DisplayFor(expression: modelItem => item.CustomerOrder.Id)
             </td>
             <td>
                 <a asp-action="Edit" asp-controller="OrderParts" asp-route-id="@item.Id"

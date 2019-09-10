@@ -1,0 +1,1865 @@
+﻿'dotnet.exe' (CoreCLR: DefaultDomain): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Private.CoreLib.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.testhost\16.2.0\lib\netstandard1.5\testhost.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.objectmodel\16.2.0\lib\netstandard1.5\Microsoft.TestPlatform.CoreUtilities.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.Tracing.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Collections.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.objectmodel\16.2.0\lib\netstandard1.5\Microsoft.TestPlatform.PlatformAbstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.Debug.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Tasks.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.Process.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ComponentModel.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Globalization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.testhost\16.2.0\lib\netstandard1.5\Microsoft.TestPlatform.CrossPlatEngine.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.testhost\16.2.0\lib\netstandard1.5\Microsoft.TestPlatform.CommunicationUtilities.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.objectmodel\16.2.0\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.testhost\16.2.0\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.Common.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\newtonsoft.json\12.0.2\lib\netstandard2.0\Newtonsoft.Json.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\netstandard.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Serialization.Formatters.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Collections.Concurrent.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.TraceSource.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.InteropServices.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.ThreadPool.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Sockets.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Overlapped.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.NameResolution.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Private.Uri.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Memory.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\Microsoft.Win32.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Text.Encoding.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Linq.Expressions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ComponentModel.TypeConverter.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Linq.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Numerics.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Collections.Specialized.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Drawing.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ObjectModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Serialization.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Data.Common.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.ReaderWriter.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Private.Xml.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ComponentModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'Anonymously Hosted DynamicMethods Assembly'. 
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.FileSystem.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.FileSystem.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Loader.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\xunit.runner.visualstudio.dotnetcore.testadapter.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.TypeExtensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\xunit.abstractions\2.0.3\lib\netstandard2.0\xunit.abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\xunit.runner.utility.netcoreapp10.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO\2019\PROFESSIONAL\COMMON7\IDE\EXTENSIONS\TESTPLATFORM\Extensions\Microsoft.TestPlatform.Extensions.BlameDataCollector.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.XmlDocument.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\mscorlib.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO\2019\PROFESSIONAL\COMMON7\IDE\EXTENSIONS\TESTPLATFORM\Extensions\Microsoft.TestPlatform.Extensions.EventLogCollector.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO\2019\PROFESSIONAL\COMMON7\IDE\EXTENSIONS\TESTPLATFORM\Extensions\Microsoft.VisualStudio.TestTools.DataCollection.VideoRecorderCollector.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO\2019\PROFESSIONAL\COMMON7\IDE\EXTENSIONS\TESTPLATFORM\Extensions\Microsoft.VisualStudio.TestTools.DataCollection.MediaRecorder.Model.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO\2019\PROFESSIONAL\COMMON7\IDE\EXTENSIONS\TESTPLATFORM\Extensions\Microsoft.VisualStudio.TraceDataCollector.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.StackTrace.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.Metadata.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Collections.Immutable.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Thread.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.Algorithms.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Timer.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Resources.ResourceManager.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.testhost\16.2.0\lib\netstandard1.5\de\Microsoft.VisualStudio.TestPlatform.Common.resources.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.InteropServices.RuntimeInformation.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Text.RegularExpressions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Buffers.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.Emit.ILGeneration.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.Emit.Lightweight.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.XDocument.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Private.Xml.Linq.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Console.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.AppContext.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.XUnitTest.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\akka.testkit.xunit\1.3.14\lib\netstandard1.6\Akka.TestKit.Xunit.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\akka.testkit\1.3.14\lib\netstandard1.6\Akka.TestKit.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\akka\1.3.14\lib\netstandard1.6\Akka.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.SimulationCore.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\akkasim\0.2.1\lib\netcoreapp2.2\AkkaSim.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\xunit.assert\2.4.1\lib\netstandard1.1\xunit.assert.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\chartjscore\1.5.5\lib\netstandard2.0\ChartJSCore.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\efcore.inmemoryhelpers\1.6.0\lib\netstandard2.0\EfCore.InMemoryHelpers.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\entityframeworkcore.cacheable\2.0.1\lib\netstandard2.0\EntityFrameworkCore.Cacheable.dll'. 
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.dependencyinjection.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.interactive.async\3.2.0\lib\netstandard2.0\System.Interactive.Async.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\fsharp.core\4.7.0\lib\netstandard2.0\FSharp.Core.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ComponentModel.EventBasedAsync.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Requests.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.WebClient.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\growl\0.6.0\lib\Growl.Connector.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\growl\0.6.0\lib\Growl.CoreLibrary.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\hangfire.aspnetcore\1.7.6\lib\netstandard2.0\Hangfire.AspNetCore.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.hosting.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Hosting.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\hangfire.core\1.7.6\lib\netstandard2.0\Hangfire.Core.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.features\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Features.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.primitives\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\hangfire.sqlserver\1.7.6\lib\netstandard2.0\Hangfire.SqlServer.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\mathnet.numerics.core\3.17.0\lib\netstandard1.3\MathNet.Numerics.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\messagepack\1.7.3.7\lib\netstandard2.0\MessagePack.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Tasks.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.hosting.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.antiforgery\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Antiforgery.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.options\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.objectpool\2.2.0\lib\netstandard2.0\Microsoft.Extensions.ObjectPool.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.authentication.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.authentication.core\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Claims.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Principal.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.authorization\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authorization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.authorization.policy\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authorization.Policy.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.connections.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Connections.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.cors\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Cors.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.cryptography.internal\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Cryptography.Internal.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.dataprotection\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.DataProtection.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.dataprotection.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.DataProtection.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.security.cryptography.xml\4.5.0\lib\netstandard2.0\System.Security.Cryptography.Xml.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.Primitives.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.diagnostics\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Diagnostics.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.diagnostics.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Diagnostics.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.hostfiltering\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.HostFiltering.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.hosting\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.hosting.server.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Server.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.DiagnosticSource.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.fileproviders.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.html.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Html.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.X509Certificates.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.WebSockets.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.webutilities\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.WebUtilities.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.connections\1.1.0\lib\netcoreapp2.2\Microsoft.AspNetCore.Http.Connections.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.io.pipelines\4.5.2\lib\netcoreapp2.1\System.IO.Pipelines.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.connections.common\1.1.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Connections.Common.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.extensions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.httpoverrides\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.HttpOverrides.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.jsonpatch\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.JsonPatch.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.localization\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Localization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.core\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.apiexplorer\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.ApiExplorer.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.routing\2.2.0\lib\netcoreapp2.2\Microsoft.AspNetCore.Routing.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.routing.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Routing.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.dependencymodel\2.1.0\lib\netstandard1.6\Microsoft.Extensions.DependencyModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.cors\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Cors.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.dataannotations\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.DataAnnotations.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ComponentModel.Annotations.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.formatters.json\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Formatters.Json.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.localization\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Localization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.text.encodings.web\4.5.0\lib\netstandard2.0\System.Text.Encodings.Web.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.viewfeatures\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.ViewFeatures.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.razor\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Razor.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.razor\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Razor.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.razor.runtime\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Razor.Runtime.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.codeanalysis.csharp\2.8.0\lib\netstandard1.3\Microsoft.CodeAnalysis.CSharp.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.codeanalysis.common\2.8.0\lib\netstandard1.3\Microsoft.CodeAnalysis.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.razor.language\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Razor.Language.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.codeanalysis.razor\2.2.0\lib\netstandard2.0\Microsoft.CodeAnalysis.Razor.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.razor.extensions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Razor.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.razorpages\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.RazorPages.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.taghelpers\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.TagHelpers.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.caching.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Caching.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.filesystemglobbing\2.2.0\lib\netstandard2.0\Microsoft.Extensions.FileSystemGlobbing.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.responsecaching.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.ResponseCaching.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.iis\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Server.IIS.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.iisintegration\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Server.IISIntegration.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.kestrel\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Server.Kestrel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.kestrel.core\2.2.0\lib\netcoreapp2.1\Microsoft.AspNetCore.Server.Kestrel.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.kestrel.transport.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Text.Encoding.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.kestrel.https\2.2.0\lib\netcoreapp2.1\Microsoft.AspNetCore.Server.Kestrel.Https.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.server.kestrel.transport.sockets\2.2.0\lib\netcoreapp2.1\Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.signalr\1.1.0\lib\netstandard2.0\Microsoft.AspNetCore.SignalR.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.signalr.core\1.1.0\lib\netstandard2.0\Microsoft.AspNetCore.SignalR.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.signalr.common\1.1.0\lib\netcoreapp2.2\Microsoft.AspNetCore.SignalR.Common.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.signalr.protocols.json\1.1.0\lib\netstandard2.0\Microsoft.AspNetCore.SignalR.Protocols.Json.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.aspnetcore.signalr.protocols.messagepack\1.1.5\lib\netstandard2.0\Microsoft.AspNetCore.SignalR.Protocols.MessagePack.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.staticfiles\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.StaticFiles.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.net.http.headers\2.2.0\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.websockets\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.WebSockets.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.Compression.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ValueTuple.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.codeanalysis.csharp.workspaces\2.8.0\lib\netstandard1.3\Microsoft.CodeAnalysis.CSharp.Workspaces.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.codeanalysis.workspaces.common\2.8.0\lib\netstandard1.3\Microsoft.CodeAnalysis.Workspaces.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.composition.attributedmodel\1.2.0\lib\netstandard2.0\System.Composition.AttributedModel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.codecoverage\16.2.0\lib\netcoreapp1.0\Microsoft.VisualStudio.CodeCoverage.Shim.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.data.sqlite.core\2.2.6\lib\netstandard2.0\Microsoft.Data.Sqlite.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\sqlitepclraw.core\1.1.12\lib\netstandard1.1\SQLitePCLRaw.core.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.dotnet.platformabstractions\2.1.0\lib\netstandard1.3\Microsoft.DotNet.PlatformAbstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\remotion.linq\2.2.0\lib\netstandard1.0\Remotion.Linq.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore.abstractions\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore.design\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Design.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore.relational\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Relational.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore.inmemory\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.InMemory.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Transactions.Local.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore.sqlite.core\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Sqlite.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.entityframeworkcore.sqlserver\2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.SqlServer.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.caching.memory\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Caching.Memory.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.binder\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.commandline\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.CommandLine.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.environmentvariables\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.EnvironmentVariables.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.fileextensions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.FileExtensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.json\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Json.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.configuration.usersecrets\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.UserSecrets.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.dependencyinjection\2.2.0\lib\netcoreapp2.0\Microsoft.Extensions.DependencyInjection.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.fileproviders.composite\2.2.0\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Composite.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.extensions.fileproviders.embedded\2.0.0\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Embedded.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.fileproviders.physical\2.2.0\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Physical.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.localization\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Localization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.localization.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Localization.Abstractions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.configuration\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Configuration.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.options.configurationextensions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.console\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Console.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.debug\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Debug.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.eventsource\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.EventSource.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.webencoders\2.2.0\lib\netstandard2.0\Microsoft.Extensions.WebEncoders.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.netcore.portable.compatibility\1.0.1\lib\netstandard1.0\System.ServiceModel.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.TextWriterTraceListener.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.testplatform.testhost\16.2.0\lib\netstandard1.5\Microsoft.TestPlatform.Utilities.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.visualstudio.web.browserlink\2.2.0\lib\netstandard2.0\Microsoft.VisualStudio.Web.BrowserLink.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGeneration.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration.contracts\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGeneration.Contracts.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration.core\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGeneration.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration.templating\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration.design\2.2.3\lib\netstandard2.0\dotnet-aspnet-codegenerator-design.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration.utils\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegeneration.entityframeworkcore\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\microsoft.visualstudio.web.codegenerators.mvc\2.2.3\lib\netstandard2.0\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\newtonsoft.json.bson\1.0.1\lib\netstandard1.3\Newtonsoft.Json.Bson.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\nuget.frameworks\4.7.0\lib\netstandard1.6\NuGet.Frameworks.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\sqlitepclraw.bundle_green\1.1.12\lib\netcoreapp\SQLitePCLRaw.batteries_green.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\sqlitepclraw.bundle_green\1.1.12\lib\netcoreapp\SQLitePCLRaw.batteries_v2.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\sqlitepclraw.provider.e_sqlite3.netstandard11\1.1.12\lib\netstandard1.1\SQLitePCLRaw.provider.e_sqlite3.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\swashbuckle.aspnetcore\4.0.1\lib\netstandard2.0\Swashbuckle.AspNetCore.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\swashbuckle.aspnetcore.swagger\4.0.1\lib\netstandard2.0\Swashbuckle.AspNetCore.Swagger.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\swashbuckle.aspnetcore.swaggergen\4.0.1\lib\netstandard2.0\Swashbuckle.AspNetCore.SwaggerGen.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\swashbuckle.aspnetcore.swaggerui\4.0.1\lib\netstandard2.0\Swashbuckle.AspNetCore.SwaggerUI.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.composition.convention\1.2.0\lib\netstandard2.0\System.Composition.Convention.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.composition.hosting\1.2.0\lib\netstandard2.0\System.Composition.Hosting.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.composition.runtime\1.2.0\lib\netstandard2.0\System.Composition.Runtime.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.composition.typedparts\1.2.0\lib\netstandard2.0\System.Composition.TypedParts.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.configuration.configurationmanager\4.5.0\lib\netstandard2.0\System.Configuration.ConfigurationManager.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Collections.NonGeneric.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.data.hashfunction.core\2.0.0\lib\netstandard1.1\System.Data.HashFunction.Core.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.data.hashfunction.interfaces\2.0.0\lib\netstandard1.1\System.Data.HashFunction.Interfaces.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.data.hashfunction.xxhash\2.0.0\lib\netstandard1.1\System.Data.HashFunction.xxHash.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.data.sqlclient\4.6.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.data.sqlite.core\1.0.111\lib\netstandard2.0\System.Data.SQLite.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.net.websockets.websocketprotocol\4.5.1\lib\netcoreapp2.1\System.Net.WebSockets.WebSocketProtocol.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.runtime.compilerservices.unsafe\4.5.1\lib\netcoreapp2.0\System.Runtime.CompilerServices.Unsafe.dll'. Module was built without symbols.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.security.cryptography.pkcs\4.5.0\runtimes\win\lib\netcoreapp2.1\System.Security.Cryptography.Pkcs.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.Encoding.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.security.cryptography.protecteddata\4.5.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.security.permissions\4.5.0\lib\netstandard2.0\System.Security.Permissions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.text.encoding.codepages\4.5.0\runtimes\win\lib\netcoreapp2.0\System.Text.Encoding.CodePages.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.threading.channels\4.5.0\lib\netcoreapp2.1\System.Threading.Channels.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\system.xml.xpath.xmldocument\4.0.1\lib\netstandard1.3\System.Xml.XPath.XmlDocument.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.XPath.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\xunit.extensibility.core\2.4.1\lib\netstandard1.1\xunit.core.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\.nuget\packages\xunit.extensibility.execution\2.4.1\lib\netstandard1.1\xunit.execution.dotnet.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.DB.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.Simulation.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.Tools.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.SimulationImmutables.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\Microsoft.CSharp.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\Microsoft.VisualBasic.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\Microsoft.Win32.Registry.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.AccessControl.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Principal.Windows.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\SOS.NETCore.dll'. 
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ComponentModel.DataAnnotations.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Configuration.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Data.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.Contracts.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.FileVersionInfo.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Diagnostics.Tools.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Drawing.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Dynamic.Runtime.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Globalization.Calendars.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Globalization.Extensions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.Compression.Brotli.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.Compression.FileSystem.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.Compression.ZipFile.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.FileSystem.AccessControl.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.FileSystem.DriveInfo.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.FileSystem.Watcher.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.IsolatedStorage.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.MemoryMappedFiles.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.Pipes.AccessControl.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.Pipes.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.IO.UnmanagedMemoryStream.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Linq.Parallel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Linq.Queryable.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Http.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.HttpListener.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Mail.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.NetworkInformation.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Ping.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.Security.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.ServicePoint.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.WebHeaderCollection.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.WebProxy.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.WebSockets.Client.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Net.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Numerics.Vectors.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Numerics.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Private.DataContractSerialization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.DispatchProxy.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Reflection.Emit.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Resources.Reader.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Resources.Writer.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.CompilerServices.VisualC.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Handles.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.InteropServices.WindowsRuntime.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Serialization.Json.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Serialization.Xml.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Runtime.Serialization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.Cng.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.Csp.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.Cryptography.OpenSsl.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.SecureString.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Security.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ServiceModel.Web.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.ServiceProcess.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Tasks.Dataflow.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Threading.Tasks.Parallel.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Transactions.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Web.HttpUtility.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Web.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Windows.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.Linq.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.Serialization.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.XPath.XDocument.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\System.Xml.XmlSerializer.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.5\WindowsBase.dll'. Skipped loading symbols. Module is optimized and the debugger option 'Just My Code' is enabled.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\Master40.Views.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\xunit.runner.reporters.netcoreapp10.dll'. Symbols loaded.
+'dotnet.exe' (CoreCLR: clrhost): Loaded 'C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2\xunit.runner.visualstudio.dotnetcore.testadapter.dll'. Symbols loaded.
+The thread 0x4b58 has exited with code 0 (0x0).
+The thread 0x44d8 has exited with code 0 (0x0).
+info: Initializing Simulation...
+Path to  logfile  C:\Users\marvi\source\repos\ng-erp-4.0\Master40.XUnitTest\bin\Debug\netcoreapp2.2 logging is : True
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (480) Update Feed from DataCollection
+info: (480) Time since last Update: 480min
+info: (480) Finish Update Feed from Storage
+info: (480) Finished Update Feed from Contracts
+info: (480) Removed 0
+info: (480) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+(838) ContractGuard add child and has 1 now
+(838) DispoGuard add child and has 1 now
+(838) ProductionGuard add child and has 1 now
+ProductionAgent Race-Truck require 8 Bom elements and therefore created 8 Dispos.
+(838) DispoGuard add child and has 2 now
+(838) DispoGuard add child and has 3 now
+(838) DispoGuard add child and has 4 now
+(838) DispoGuard add child and has 5 now
+(838) DispoGuard add child and has 6 now
+(838) DispoGuard add child and has 7 now
+(838) DispoGuard add child and has 8 now
+(838) DispoGuard add child and has 9 now
+(838) ProductionGuard add child and has 2 now
+Operation Race Wing: Drill Mount Holes of Article Race Wing has no RequiredArticles!
+ProductionAgent Race Wing require 1 Bom elements and therefore created 1 Dispos.
+(838) ProductionGuard add child and has 3 now
+(838) DispoGuard add child and has 10 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(838) DispoGuard add child and has 11 now
+(838) ProductionGuard add child and has 4 now
+(838) DispoGuard add child and has 12 now
+ProductionAgent Chassis Type: Race require 6 Bom elements and therefore created 6 Dispos.
+(838) DispoGuard add child and has 13 now
+(838) DispoGuard add child and has 14 now
+(838) DispoGuard add child and has 15 now
+(838) DispoGuard add child and has 16 now
+(838) DispoGuard add child and has 17 now
+(838) DispoGuard add child and has 18 now
+(838) DispoGuard add child and has 19 now
+(838) ProductionGuard add child and has 5 now
+(838) DispoGuard add child and has 20 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(838) DispoGuard add child and has 21 now
+(838) DispoGuard add child and has 22 now
+(838) ProductionGuard add child and has 6 now
+(838) DispoGuard add child and has 23 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(838) DispoGuard add child and has 24 now
+(838) ProductionGuard add child and has 7 now
+DispoGuard finished child and has 23 now
+DispoGuard finished child and has 22 now
+Operation Engine Race Extension: Drill Mount Holes of Article Engine Race Extension has no RequiredArticles!
+ProductionAgent Engine Race Extension require 1 Bom elements and therefore created 1 Dispos.
+(838) ProductionGuard add child and has 8 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+DispoGuard finished child and has 21 now
+(838) DispoGuard add child and has 22 now
+(838) DispoGuard add child and has 23 now
+DispoGuard finished child and has 22 now
+(843) ContractGuard add child and has 2 now
+(843) DispoGuard add child and has 23 now
+(843) ProductionGuard add child and has 9 now
+ProductionAgent Race-Truck require 8 Bom elements and therefore created 8 Dispos.
+(843) DispoGuard add child and has 24 now
+(843) DispoGuard add child and has 25 now
+(843) ProductionGuard add child and has 10 now
+(843) DispoGuard add child and has 26 now
+Operation Race Wing: Drill Mount Holes of Article Race Wing has no RequiredArticles!
+ProductionAgent Race Wing require 1 Bom elements and therefore created 1 Dispos.
+(843) DispoGuard add child and has 27 now
+(843) DispoGuard add child and has 28 now
+(843) DispoGuard add child and has 29 now
+(843) DispoGuard add child and has 30 now
+(843) ProductionGuard add child and has 11 now
+(843) DispoGuard add child and has 31 now
+(843) ProductionGuard add child and has 12 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(843) DispoGuard add child and has 32 now
+ProductionAgent Chassis Type: Race require 6 Bom elements and therefore created 6 Dispos.
+(843) DispoGuard add child and has 33 now
+(843) DispoGuard add child and has 34 now
+(843) DispoGuard add child and has 35 now
+(843) DispoGuard add child and has 36 now
+(843) DispoGuard add child and has 37 now
+(843) DispoGuard add child and has 38 now
+(843) ProductionGuard add child and has 13 now
+(843) DispoGuard add child and has 39 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(843) DispoGuard add child and has 40 now
+(843) DispoGuard add child and has 41 now
+(843) ProductionGuard add child and has 14 now
+(843) DispoGuard add child and has 42 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+(843) ProductionGuard add child and has 15 now
+(843) DispoGuard add child and has 43 now
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(843) ProductionGuard add child and has 16 now
+Operation Engine Race Extension: Drill Mount Holes of Article Engine Race Extension has no RequiredArticles!
+(843) DispoGuard add child and has 44 now
+ProductionAgent Engine Race Extension require 1 Bom elements and therefore created 1 Dispos.
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+(843) DispoGuard add child and has 45 now
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(843) DispoGuard add child and has 46 now
+(843) DispoGuard add child and has 47 now
+(843) DispoGuard add child and has 48 now
+DispoGuard finished child and has 47 now
+DispoGuard finished child and has 46 now
+(856) ContractGuard add child and has 3 now
+(856) DispoGuard add child and has 47 now
+(856) ProductionGuard add child and has 17 now
+ProductionAgent Dump-Truck require 8 Bom elements and therefore created 8 Dispos.
+(856) DispoGuard add child and has 48 now
+(856) DispoGuard add child and has 49 now
+(856) DispoGuard add child and has 50 now
+(856) DispoGuard add child and has 51 now
+(856) DispoGuard add child and has 52 now
+(856) DispoGuard add child and has 53 now
+(856) ProductionGuard add child and has 18 now
+(856) DispoGuard add child and has 54 now
+(856) ProductionGuard add child and has 19 now
+ProductionAgent Truck-Bed require 8 Bom elements and therefore created 8 Dispos.
+(856) DispoGuard add child and has 55 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(856) DispoGuard add child and has 56 now
+(856) ProductionGuard add child and has 20 now
+(856) DispoGuard add child and has 57 now
+ProductionAgent Chassis Type: Dump require 5 Bom elements and therefore created 5 Dispos.
+(856) DispoGuard add child and has 58 now
+(856) DispoGuard add child and has 59 now
+(856) DispoGuard add child and has 60 now
+(856) DispoGuard add child and has 61 now
+(856) DispoGuard add child and has 62 now
+(856) DispoGuard add child and has 63 now
+(856) DispoGuard add child and has 64 now
+(856) ProductionGuard add child and has 21 now
+(856) DispoGuard add child and has 65 now
+(856) ProductionGuard add child and has 22 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+(856) DispoGuard add child and has 66 now
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+(856) DispoGuard add child and has 67 now
+(856) ProductionGuard add child and has 23 now
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+(856) DispoGuard add child and has 68 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+(856) ProductionGuard add child and has 24 now
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+(856) DispoGuard add child and has 69 now
+(856) ProductionGuard add child and has 25 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+(856) DispoGuard add child and has 70 now
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+Operation Base plate Truck-Bed: Drill mount holes of Article Base plate Truck-Bed has no RequiredArticles!
+(856) DispoGuard add child and has 71 now
+ProductionAgent Base plate Truck-Bed require 1 Bom elements and therefore created 1 Dispos.
+(856) ProductionGuard add child and has 26 now
+(856) DispoGuard add child and has 72 now
+(856) ProductionGuard add child and has 27 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+(856) DispoGuard add child and has 73 now
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+(856) DispoGuard add child and has 74 now
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(856) DispoGuard add child and has 75 now
+(856) ProductionGuard add child and has 28 now
+(856) DispoGuard add child and has 76 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(856) DispoGuard add child and has 77 now
+(856) DispoGuard add child and has 78 now
+(856) DispoGuard add child and has 79 now
+(856) DispoGuard add child and has 80 now
+(856) DispoGuard add child and has 81 now
+(856) DispoGuard add child and has 82 now
+DispoGuard finished child and has 81 now
+DispoGuard finished child and has 80 now
+ProductionGuard finished child and has 27 now
+DispoGuard finished child and has 79 now
+DispoGuard finished child and has 78 now
+ProductionGuard finished child and has 26 now
+DispoGuard finished child and has 77 now
+DispoGuard finished child and has 76 now
+(884) ContractGuard add child and has 4 now
+(884) DispoGuard add child and has 77 now
+(884) ProductionGuard add child and has 27 now
+ProductionAgent Race-Truck require 8 Bom elements and therefore created 8 Dispos.
+(884) DispoGuard add child and has 78 now
+(884) DispoGuard add child and has 79 now
+(884) ProductionGuard add child and has 28 now
+(884) DispoGuard add child and has 80 now
+Operation Race Wing: Drill Mount Holes of Article Race Wing has no RequiredArticles!
+ProductionAgent Race Wing require 1 Bom elements and therefore created 1 Dispos.
+(884) DispoGuard add child and has 81 now
+(884) DispoGuard add child and has 82 now
+(884) DispoGuard add child and has 83 now
+(884) DispoGuard add child and has 84 now
+(884) ProductionGuard add child and has 29 now
+(884) DispoGuard add child and has 85 now
+(884) ProductionGuard add child and has 30 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(884) DispoGuard add child and has 86 now
+ProductionAgent Chassis Type: Race require 6 Bom elements and therefore created 6 Dispos.
+(884) DispoGuard add child and has 87 now
+(884) DispoGuard add child and has 88 now
+(884) DispoGuard add child and has 89 now
+(884) DispoGuard add child and has 90 now
+(884) DispoGuard add child and has 91 now
+(884) DispoGuard add child and has 92 now
+(884) ProductionGuard add child and has 31 now
+(884) DispoGuard add child and has 93 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(884) DispoGuard add child and has 94 now
+(884) DispoGuard add child and has 95 now
+(884) ProductionGuard add child and has 32 now
+(884) DispoGuard add child and has 96 now
+(884) ProductionGuard add child and has 33 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(884) DispoGuard add child and has 97 now
+(884) ProductionGuard add child and has 34 now
+Operation Engine Race Extension: Drill Mount Holes of Article Engine Race Extension has no RequiredArticles!
+ProductionAgent Engine Race Extension require 1 Bom elements and therefore created 1 Dispos.
+(884) DispoGuard add child and has 98 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(884) DispoGuard add child and has 99 now
+(884) DispoGuard add child and has 100 now
+(884) DispoGuard add child and has 101 now
+(884) DispoGuard add child and has 102 now
+ProductionGuard finished child and has 33 now
+DispoGuard finished child and has 101 now
+DispoGuard finished child and has 100 now
+DispoGuard finished child and has 99 now
+DispoGuard finished child and has 98 now
+DispoGuard finished child and has 97 now
+ProductionGuard finished child and has 32 now
+DispoGuard finished child and has 96 now
+DispoGuard finished child and has 95 now
+DispoGuard finished child and has 94 now
+DispoGuard finished child and has 93 now
+DispoGuard finished child and has 92 now
+ProductionGuard finished child and has 31 now
+DispoGuard finished child and has 91 now
+DispoGuard finished child and has 90 now
+DispoGuard finished child and has 89 now
+(915) ContractGuard add child and has 5 now
+(915) DispoGuard add child and has 90 now
+(915) ProductionGuard add child and has 32 now
+ProductionAgent Dump-Truck require 8 Bom elements and therefore created 8 Dispos.
+(915) DispoGuard add child and has 91 now
+(915) DispoGuard add child and has 92 now
+(915) DispoGuard add child and has 93 now
+(915) ProductionGuard add child and has 33 now
+(915) DispoGuard add child and has 94 now
+ProductionAgent Truck-Bed require 8 Bom elements and therefore created 8 Dispos.
+(915) DispoGuard add child and has 95 now
+(915) DispoGuard add child and has 96 now
+(915) DispoGuard add child and has 97 now
+(915) ProductionGuard add child and has 34 now
+(915) DispoGuard add child and has 98 now
+(915) ProductionGuard add child and has 35 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(915) DispoGuard add child and has 99 now
+ProductionAgent Chassis Type: Dump require 5 Bom elements and therefore created 5 Dispos.
+(915) DispoGuard add child and has 100 now
+(915) DispoGuard add child and has 101 now
+(915) DispoGuard add child and has 102 now
+(915) DispoGuard add child and has 103 now
+(915) DispoGuard add child and has 104 now
+(915) DispoGuard add child and has 105 now
+(915) ProductionGuard add child and has 36 now
+(915) DispoGuard add child and has 106 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+(915) DispoGuard add child and has 107 now
+(915) ProductionGuard add child and has 37 now
+(915) DispoGuard add child and has 108 now
+(915) ProductionGuard add child and has 38 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+(915) DispoGuard add child and has 109 now
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+(915) DispoGuard add child and has 110 now
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+(915) ProductionGuard add child and has 39 now
+(915) DispoGuard add child and has 111 now
+(915) ProductionGuard add child and has 40 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+(915) DispoGuard add child and has 112 now
+Operation Base plate Truck-Bed: Drill mount holes of Article Base plate Truck-Bed has no RequiredArticles!
+ProductionAgent Base plate Truck-Bed require 1 Bom elements and therefore created 1 Dispos.
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+(915) DispoGuard add child and has 113 now
+(915) ProductionGuard add child and has 41 now
+(915) DispoGuard add child and has 114 now
+(915) ProductionGuard add child and has 42 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+(915) DispoGuard add child and has 115 now
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+(915) DispoGuard add child and has 116 now
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(915) DispoGuard add child and has 117 now
+(915) DispoGuard add child and has 118 now
+(915) ProductionGuard add child and has 43 now
+(915) DispoGuard add child and has 119 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+(915) DispoGuard add child and has 120 now
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(915) DispoGuard add child and has 121 now
+(915) DispoGuard add child and has 122 now
+(915) DispoGuard add child and has 123 now
+(915) DispoGuard add child and has 124 now
+(915) DispoGuard add child and has 125 now
+DispoGuard finished child and has 124 now
+ProductionGuard finished child and has 42 now
+DispoGuard finished child and has 123 now
+DispoGuard finished child and has 122 now
+ProductionGuard finished child and has 41 now
+DispoGuard finished child and has 121 now
+DispoGuard finished child and has 120 now
+ProductionGuard finished child and has 40 now
+DispoGuard finished child and has 119 now
+(929) ContractGuard add child and has 6 now
+(929) DispoGuard add child and has 120 now
+(929) ProductionGuard add child and has 41 now
+ProductionAgent Race-Truck require 8 Bom elements and therefore created 8 Dispos.
+(929) DispoGuard add child and has 121 now
+(929) DispoGuard add child and has 122 now
+(929) ProductionGuard add child and has 42 now
+(929) DispoGuard add child and has 123 now
+Operation Race Wing: Drill Mount Holes of Article Race Wing has no RequiredArticles!
+ProductionAgent Race Wing require 1 Bom elements and therefore created 1 Dispos.
+(929) DispoGuard add child and has 124 now
+(929) DispoGuard add child and has 125 now
+(929) DispoGuard add child and has 126 now
+(929) DispoGuard add child and has 127 now
+(929) ProductionGuard add child and has 43 now
+(929) DispoGuard add child and has 128 now
+(929) ProductionGuard add child and has 44 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(929) DispoGuard add child and has 129 now
+ProductionAgent Chassis Type: Race require 6 Bom elements and therefore created 6 Dispos.
+(929) DispoGuard add child and has 130 now
+(929) DispoGuard add child and has 131 now
+(929) DispoGuard add child and has 132 now
+(929) DispoGuard add child and has 133 now
+(929) DispoGuard add child and has 134 now
+(929) DispoGuard add child and has 135 now
+(929) ProductionGuard add child and has 45 now
+(929) DispoGuard add child and has 136 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(929) DispoGuard add child and has 137 now
+(929) DispoGuard add child and has 138 now
+(929) ProductionGuard add child and has 46 now
+(929) DispoGuard add child and has 139 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+(929) ProductionGuard add child and has 47 now
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(929) DispoGuard add child and has 140 now
+Operation Engine Race Extension: Drill Mount Holes of Article Engine Race Extension has no RequiredArticles!
+(929) ProductionGuard add child and has 48 now
+ProductionAgent Engine Race Extension require 1 Bom elements and therefore created 1 Dispos.
+(929) DispoGuard add child and has 141 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(929) DispoGuard add child and has 142 now
+(929) DispoGuard add child and has 143 now
+(929) DispoGuard add child and has 144 now
+(929) DispoGuard add child and has 145 now
+DispoGuard finished child and has 144 now
+DispoGuard finished child and has 143 now
+DispoGuard finished child and has 142 now
+DispoGuard finished child and has 141 now
+ProductionGuard finished child and has 47 now
+DispoGuard finished child and has 140 now
+DispoGuard finished child and has 139 now
+DispoGuard finished child and has 138 now
+DispoGuard finished child and has 137 now
+ProductionGuard finished child and has 46 now
+DispoGuard finished child and has 136 now
+DispoGuard finished child and has 135 now
+DispoGuard finished child and has 134 now
+ProductionGuard finished child and has 45 now
+DispoGuard finished child and has 133 now
+DispoGuard finished child and has 132 now
+ProductionGuard finished child and has 44 now
+DispoGuard finished child and has 131 now
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (960) Update Feed from DataCollection
+info: (960) Finished Update Feed from Contracts
+info: (960) Time since last Update: 480min
+info: (960) Removed 0
+info: (960) Finished Update Feed from WorkSchedule
+info: (960) Finish Update Feed from Storage
+DispoGuard finished child and has 130 now
+AKKA-System::AKKA:START AGENT SYSTEM
+DispoGuard finished child and has 129 now
+(967) ContractGuard add child and has 7 now
+ProductionGuard finished child and has 43 now
+DispoGuard finished child and has 128 now
+(967) DispoGuard add child and has 129 now
+(967) ProductionGuard add child and has 44 now
+ProductionAgent Dump-Truck require 8 Bom elements and therefore created 8 Dispos.
+(967) DispoGuard add child and has 130 now
+(967) DispoGuard add child and has 131 now
+(967) DispoGuard add child and has 132 now
+(967) ProductionGuard add child and has 45 now
+(967) DispoGuard add child and has 133 now
+ProductionAgent Truck-Bed require 8 Bom elements and therefore created 8 Dispos.
+(967) DispoGuard add child and has 134 now
+(967) DispoGuard add child and has 135 now
+(967) DispoGuard add child and has 136 now
+(967) ProductionGuard add child and has 46 now
+(967) DispoGuard add child and has 137 now
+(967) ProductionGuard add child and has 47 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(967) DispoGuard add child and has 138 now
+ProductionAgent Chassis Type: Dump require 5 Bom elements and therefore created 5 Dispos.
+(967) DispoGuard add child and has 139 now
+(967) DispoGuard add child and has 140 now
+(967) DispoGuard add child and has 141 now
+(967) DispoGuard add child and has 142 now
+(967) DispoGuard add child and has 143 now
+(967) DispoGuard add child and has 144 now
+(967) ProductionGuard add child and has 48 now
+(967) DispoGuard add child and has 145 now
+(967) ProductionGuard add child and has 49 now
+(967) DispoGuard add child and has 146 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 147 now
+(967) ProductionGuard add child and has 50 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+(967) DispoGuard add child and has 148 now
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+(967) ProductionGuard add child and has 51 now
+(967) DispoGuard add child and has 149 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 150 now
+(967) ProductionGuard add child and has 52 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 151 now
+(967) ProductionGuard add child and has 53 now
+Operation Base plate Truck-Bed: Drill mount holes of Article Base plate Truck-Bed has no RequiredArticles!
+(967) DispoGuard add child and has 152 now
+ProductionAgent Base plate Truck-Bed require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 153 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+(967) ProductionGuard add child and has 54 now
+(967) DispoGuard add child and has 154 now
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 155 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 156 now
+(967) DispoGuard add child and has 157 now
+(967) ProductionGuard add child and has 55 now
+(967) DispoGuard add child and has 158 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(967) DispoGuard add child and has 159 now
+(967) DispoGuard add child and has 160 now
+(967) DispoGuard add child and has 161 now
+(967) DispoGuard add child and has 162 now
+(967) DispoGuard add child and has 163 now
+(967) DispoGuard add child and has 164 now
+ProductionGuard finished child and has 54 now
+DispoGuard finished child and has 163 now
+DispoGuard finished child and has 162 now
+DispoGuard finished child and has 161 now
+DispoGuard finished child and has 160 now
+DispoGuard finished child and has 159 now
+DispoGuard finished child and has 158 now
+DispoGuard finished child and has 157 now
+DispoGuard finished child and has 156 now
+DispoGuard finished child and has 155 now
+ProductionGuard finished child and has 53 now
+DispoGuard finished child and has 154 now
+DispoGuard finished child and has 153 now
+DispoGuard finished child and has 152 now
+ProductionGuard finished child and has 52 now
+DispoGuard finished child and has 151 now
+DispoGuard finished child and has 150 now
+DispoGuard finished child and has 149 now
+DispoGuard finished child and has 148 now
+DispoGuard finished child and has 147 now
+DispoGuard finished child and has 146 now
+DispoGuard finished child and has 145 now
+DispoGuard finished child and has 144 now
+DispoGuard finished child and has 143 now
+DispoGuard finished child and has 142 now
+ProductionGuard finished child and has 51 now
+DispoGuard finished child and has 141 now
+DispoGuard finished child and has 140 now
+ProductionGuard finished child and has 50 now
+DispoGuard finished child and has 139 now
+DispoGuard finished child and has 138 now
+DispoGuard finished child and has 137 now
+ProductionGuard finished child and has 49 now
+DispoGuard finished child and has 136 now
+DispoGuard finished child and has 135 now
+DispoGuard finished child and has 134 now
+DispoGuard finished child and has 133 now
+DispoGuard finished child and has 132 now
+DispoGuard finished child and has 131 now
+DispoGuard finished child and has 130 now
+ProductionGuard finished child and has 48 now
+DispoGuard finished child and has 129 now
+DispoGuard finished child and has 128 now
+DispoGuard finished child and has 127 now
+DispoGuard finished child and has 126 now
+DispoGuard finished child and has 125 now
+DispoGuard finished child and has 124 now
+DispoGuard finished child and has 123 now
+ProductionGuard finished child and has 47 now
+ProductionGuard finished child and has 46 now
+DispoGuard finished child and has 122 now
+ProductionGuard finished child and has 45 now
+ProductionGuard finished child and has 44 now
+DispoGuard finished child and has 121 now
+DispoGuard finished child and has 120 now
+DispoGuard finished child and has 119 now
+DispoGuard finished child and has 118 now
+DispoGuard finished child and has 117 now
+ProductionGuard finished child and has 43 now
+ProductionGuard finished child and has 42 now
+DispoGuard finished child and has 116 now
+DispoGuard finished child and has 115 now
+DispoGuard finished child and has 114 now
+ProductionGuard finished child and has 41 now
+DispoGuard finished child and has 113 now
+ProductionGuard finished child and has 40 now
+DispoGuard finished child and has 112 now
+DispoGuard finished child and has 111 now
+DispoGuard finished child and has 110 now
+ProductionGuard finished child and has 39 now
+DispoGuard finished child and has 109 now
+ProductionGuard finished child and has 38 now
+DispoGuard finished child and has 108 now
+DispoGuard finished child and has 107 now
+DispoGuard finished child and has 106 now
+ProductionGuard finished child and has 37 now
+DispoGuard finished child and has 105 now
+ProductionGuard finished child and has 36 now
+DispoGuard finished child and has 104 now
+DispoGuard finished child and has 103 now
+(1087) ContractGuard add child and has 8 now
+(1087) DispoGuard add child and has 104 now
+(1087) ProductionGuard add child and has 37 now
+ProductionAgent Race-Truck require 8 Bom elements and therefore created 8 Dispos.
+(1087) DispoGuard add child and has 105 now
+(1087) DispoGuard add child and has 106 now
+(1087) ProductionGuard add child and has 38 now
+(1087) DispoGuard add child and has 107 now
+Operation Race Wing: Drill Mount Holes of Article Race Wing has no RequiredArticles!
+ProductionAgent Race Wing require 1 Bom elements and therefore created 1 Dispos.
+(1087) DispoGuard add child and has 108 now
+(1087) DispoGuard add child and has 109 now
+(1087) DispoGuard add child and has 110 now
+(1087) DispoGuard add child and has 111 now
+(1087) ProductionGuard add child and has 39 now
+(1087) DispoGuard add child and has 112 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(1087) ProductionGuard add child and has 40 now
+(1087) DispoGuard add child and has 113 now
+ProductionAgent Chassis Type: Race require 6 Bom elements and therefore created 6 Dispos.
+(1087) DispoGuard add child and has 114 now
+(1087) DispoGuard add child and has 115 now
+(1087) DispoGuard add child and has 116 now
+(1087) DispoGuard add child and has 117 now
+(1087) DispoGuard add child and has 118 now
+(1087) DispoGuard add child and has 119 now
+(1087) ProductionGuard add child and has 41 now
+(1087) DispoGuard add child and has 120 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(1087) DispoGuard add child and has 121 now
+(1087) DispoGuard add child and has 122 now
+(1087) ProductionGuard add child and has 42 now
+(1087) DispoGuard add child and has 123 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+(1087) ProductionGuard add child and has 43 now
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(1087) DispoGuard add child and has 124 now
+(1087) ProductionGuard add child and has 44 now
+Operation Engine Race Extension: Drill Mount Holes of Article Engine Race Extension has no RequiredArticles!
+ProductionAgent Engine Race Extension require 1 Bom elements and therefore created 1 Dispos.
+(1087) DispoGuard add child and has 125 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+DispoGuard finished child and has 124 now
+(1087) DispoGuard add child and has 125 now
+(1087) DispoGuard add child and has 126 now
+(1087) DispoGuard add child and has 127 now
+(1087) DispoGuard add child and has 128 now
+DispoGuard finished child and has 127 now
+ProductionGuard finished child and has 43 now
+DispoGuard finished child and has 126 now
+DispoGuard finished child and has 125 now
+DispoGuard finished child and has 124 now
+DispoGuard finished child and has 123 now
+ProductionGuard finished child and has 42 now
+DispoGuard finished child and has 122 now
+DispoGuard finished child and has 121 now
+DispoGuard finished child and has 120 now
+DispoGuard finished child and has 119 now
+DispoGuard finished child and has 118 now
+DispoGuard finished child and has 117 now
+DispoGuard finished child and has 116 now
+DispoGuard finished child and has 115 now
+ProductionGuard finished child and has 41 now
+DispoGuard finished child and has 114 now
+DispoGuard finished child and has 113 now
+DispoGuard finished child and has 112 now
+DispoGuard finished child and has 111 now
+DispoGuard finished child and has 110 now
+DispoGuard finished child and has 109 now
+ProductionGuard finished child and has 40 now
+DispoGuard finished child and has 108 now
+DispoGuard finished child and has 107 now
+DispoGuard finished child and has 106 now
+DispoGuard finished child and has 105 now
+DispoGuard finished child and has 104 now
+ProductionGuard finished child and has 39 now
+DispoGuard finished child and has 103 now
+ProductionGuard finished child and has 38 now
+DispoGuard finished child and has 102 now
+DispoGuard finished child and has 101 now
+DispoGuard finished child and has 100 now
+DispoGuard finished child and has 99 now
+DispoGuard finished child and has 98 now
+DispoGuard finished child and has 97 now
+DispoGuard finished child and has 96 now
+ProductionGuard finished child and has 37 now
+ProductionGuard finished child and has 36 now
+DispoGuard finished child and has 95 now
+DispoGuard finished child and has 94 now
+ProductionGuard finished child and has 35 now
+DispoGuard finished child and has 93 now
+ProductionGuard finished child and has 34 now
+DispoGuard finished child and has 92 now
+DispoGuard finished child and has 91 now
+DispoGuard finished child and has 90 now
+ProductionGuard finished child and has 33 now
+DispoGuard finished child and has 89 now
+ProductionGuard finished child and has 32 now
+DispoGuard finished child and has 88 now
+DispoGuard finished child and has 87 now
+ProductionGuard finished child and has 31 now
+ProductionGuard finished child and has 30 now
+DispoGuard finished child and has 86 now
+DispoGuard finished child and has 85 now
+DispoGuard finished child and has 84 now
+ProductionGuard finished child and has 29 now
+DispoGuard finished child and has 83 now
+DispoGuard finished child and has 82 now
+DispoGuard finished child and has 81 now
+(1156) ContractGuard add child and has 9 now
+(1156) DispoGuard add child and has 82 now
+(1156) ProductionGuard add child and has 30 now
+ProductionAgent Race-Truck require 8 Bom elements and therefore created 8 Dispos.
+(1156) DispoGuard add child and has 83 now
+(1156) DispoGuard add child and has 84 now
+(1156) ProductionGuard add child and has 31 now
+(1156) DispoGuard add child and has 85 now
+Operation Race Wing: Drill Mount Holes of Article Race Wing has no RequiredArticles!
+(1156) DispoGuard add child and has 86 now
+ProductionAgent Race Wing require 1 Bom elements and therefore created 1 Dispos.
+(1156) DispoGuard add child and has 87 now
+(1156) DispoGuard add child and has 88 now
+(1156) DispoGuard add child and has 89 now
+(1156) ProductionGuard add child and has 32 now
+(1156) DispoGuard add child and has 90 now
+(1156) ProductionGuard add child and has 33 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(1156) DispoGuard add child and has 91 now
+ProductionAgent Chassis Type: Race require 6 Bom elements and therefore created 6 Dispos.
+(1156) DispoGuard add child and has 92 now
+(1156) DispoGuard add child and has 93 now
+(1156) DispoGuard add child and has 94 now
+(1156) DispoGuard add child and has 95 now
+(1156) DispoGuard add child and has 96 now
+(1156) DispoGuard add child and has 97 now
+(1156) ProductionGuard add child and has 34 now
+(1156) DispoGuard add child and has 98 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+(1156) DispoGuard add child and has 99 now
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(1156) DispoGuard add child and has 100 now
+(1156) ProductionGuard add child and has 35 now
+(1156) DispoGuard add child and has 101 now
+(1156) ProductionGuard add child and has 36 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+(1156) DispoGuard add child and has 102 now
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+Operation Engine Race Extension: Drill Mount Holes of Article Engine Race Extension has no RequiredArticles!
+(1156) ProductionGuard add child and has 37 now
+ProductionAgent Engine Race Extension require 1 Bom elements and therefore created 1 Dispos.
+(1156) DispoGuard add child and has 103 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+DispoGuard finished child and has 102 now
+(1156) DispoGuard add child and has 103 now
+(1156) DispoGuard add child and has 104 now
+(1156) DispoGuard add child and has 105 now
+(1156) DispoGuard add child and has 106 now
+DispoGuard finished child and has 105 now
+DispoGuard finished child and has 104 now
+ProductionGuard finished child and has 36 now
+DispoGuard finished child and has 103 now
+DispoGuard finished child and has 102 now
+DispoGuard finished child and has 101 now
+ProductionGuard finished child and has 35 now
+DispoGuard finished child and has 100 now
+DispoGuard finished child and has 99 now
+ProductionGuard finished child and has 34 now
+DispoGuard finished child and has 98 now
+(1177) ContractGuard add child and has 10 now
+ProductionGuard finished child and has 33 now
+DispoGuard finished child and has 97 now
+DispoGuard finished child and has 96 now
+DispoGuard finished child and has 95 now
+DispoGuard finished child and has 94 now
+DispoGuard finished child and has 93 now
+(1177) DispoGuard add child and has 94 now
+(1177) ProductionGuard add child and has 34 now
+ProductionAgent Dump-Truck require 8 Bom elements and therefore created 8 Dispos.
+(1177) DispoGuard add child and has 95 now
+(1177) DispoGuard add child and has 96 now
+(1177) DispoGuard add child and has 97 now
+(1177) ProductionGuard add child and has 35 now
+(1177) DispoGuard add child and has 98 now
+ProductionAgent Truck-Bed require 8 Bom elements and therefore created 8 Dispos.
+(1177) DispoGuard add child and has 99 now
+(1177) DispoGuard add child and has 100 now
+(1177) DispoGuard add child and has 101 now
+(1177) ProductionGuard add child and has 36 now
+(1177) DispoGuard add child and has 102 now
+(1177) ProductionGuard add child and has 37 now
+ProductionAgent Skeleton require 6 Bom elements and therefore created 6 Dispos.
+(1177) DispoGuard add child and has 103 now
+ProductionAgent Chassis Type: Dump require 5 Bom elements and therefore created 5 Dispos.
+(1177) DispoGuard add child and has 104 now
+(1177) DispoGuard add child and has 105 now
+(1177) DispoGuard add child and has 106 now
+(1177) DispoGuard add child and has 107 now
+(1177) DispoGuard add child and has 108 now
+(1177) DispoGuard add child and has 109 now
+(1177) ProductionGuard add child and has 38 now
+(1177) DispoGuard add child and has 110 now
+(1177) ProductionGuard add child and has 39 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+(1177) DispoGuard add child and has 111 now
+(1177) ProductionGuard add child and has 40 now
+Operation Side wall long: Drill mount holes of Article Side wall long has no RequiredArticles!
+ProductionAgent Side wall long require 1 Bom elements and therefore created 1 Dispos.
+(1177) DispoGuard add child and has 112 now
+(1177) ProductionGuard add child and has 41 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+(1177) ProductionGuard add child and has 42 now
+(1177) DispoGuard add child and has 113 now
+Operation Side wall short: Drill mount holes of Article Side wall short has no RequiredArticles!
+ProductionAgent Side wall short require 1 Bom elements and therefore created 1 Dispos.
+Operation Base plate Truck-Bed: Drill mount holes of Article Base plate Truck-Bed has no RequiredArticles!
+(1177) DispoGuard add child and has 114 now
+ProductionAgent Base plate Truck-Bed require 1 Bom elements and therefore created 1 Dispos.
+(1177) DispoGuard add child and has 115 now
+(1177) DispoGuard add child and has 116 now
+(1177) ProductionGuard add child and has 43 now
+(1177) DispoGuard add child and has 117 now
+Operation Base plate: drill holes for axis mount of Article Base plate has no RequiredArticles!
+ProductionAgent Base plate require 1 Bom elements and therefore created 1 Dispos.
+(1177) DispoGuard add child and has 118 now
+(1177) ProductionGuard add child and has 44 now
+(1177) DispoGuard add child and has 119 now
+Operation Engine-Block: Drill mount holes of Article Engine-Block has no RequiredArticles!
+ProductionAgent Engine-Block require 1 Bom elements and therefore created 1 Dispos.
+(1177) DispoGuard add child and has 120 now
+(1177) DispoGuard add child and has 121 now
+(1177) DispoGuard add child and has 122 now
+(1177) ProductionGuard add child and has 45 now
+(1177) DispoGuard add child and has 123 now
+Operation Cabin: Drill mount holes of Article Cabin has no RequiredArticles!
+ProductionAgent Cabin require 1 Bom elements and therefore created 1 Dispos.
+(1177) DispoGuard add child and has 124 now
+(1177) DispoGuard add child and has 125 now
+(1177) DispoGuard add child and has 126 now
+(1177) DispoGuard add child and has 127 now
+(1177) DispoGuard add child and has 128 now
+(1177) DispoGuard add child and has 129 now
+DispoGuard finished child and has 128 now
+DispoGuard finished child and has 127 now
+DispoGuard finished child and has 126 now
+DispoGuard finished child and has 125 now
+ProductionGuard finished child and has 44 now
+DispoGuard finished child and has 124 now
+ProductionGuard finished child and has 43 now
+DispoGuard finished child and has 123 now
+DispoGuard finished child and has 122 now
+DispoGuard finished child and has 121 now
+ProductionGuard finished child and has 42 now
+DispoGuard finished child and has 120 now
+ProductionGuard finished child and has 41 now
+DispoGuard finished child and has 119 now
+DispoGuard finished child and has 118 now
+DispoGuard finished child and has 117 now
+DispoGuard finished child and has 116 now
+DispoGuard finished child and has 115 now
+DispoGuard finished child and has 114 now
+DispoGuard finished child and has 113 now
+ProductionGuard finished child and has 40 now
+ProductionGuard finished child and has 39 now
+DispoGuard finished child and has 112 now
+ProductionGuard finished child and has 38 now
+DispoGuard finished child and has 111 now
+DispoGuard finished child and has 110 now
+DispoGuard finished child and has 109 now
+DispoGuard finished child and has 108 now
+DispoGuard finished child and has 107 now
+DispoGuard finished child and has 106 now
+ProductionGuard finished child and has 37 now
+DispoGuard finished child and has 105 now
+DispoGuard finished child and has 104 now
+DispoGuard finished child and has 103 now
+ProductionGuard finished child and has 36 now
+ProductionGuard finished child and has 35 now
+ProductionGuard finished child and has 34 now
+DispoGuard finished child and has 102 now
+DispoGuard finished child and has 101 now
+ProductionGuard finished child and has 33 now
+DispoGuard finished child and has 100 now
+DispoGuard finished child and has 99 now
+DispoGuard finished child and has 98 now
+DispoGuard finished child and has 97 now
+DispoGuard finished child and has 96 now
+DispoGuard finished child and has 95 now
+ProductionGuard finished child and has 32 now
+DispoGuard finished child and has 94 now
+DispoGuard finished child and has 93 now
+DispoGuard finished child and has 92 now
+ProductionGuard finished child and has 31 now
+DispoGuard finished child and has 91 now
+DispoGuard finished child and has 90 now
+DispoGuard finished child and has 89 now
+ProductionGuard finished child and has 30 now
+DispoGuard finished child and has 88 now
+DispoGuard finished child and has 87 now
+DispoGuard finished child and has 86 now
+DispoGuard finished child and has 85 now
+DispoGuard finished child and has 84 now
+DispoGuard finished child and has 83 now
+ProductionGuard finished child and has 29 now
+DispoGuard finished child and has 82 now
+DispoGuard finished child and has 81 now
+ProductionGuard finished child and has 28 now
+DispoGuard finished child and has 80 now
+DispoGuard finished child and has 79 now
+DispoGuard finished child and has 78 now
+DispoGuard finished child and has 77 now
+DispoGuard finished child and has 76 now
+ProductionGuard finished child and has 27 now
+ProductionGuard finished child and has 26 now
+DispoGuard finished child and has 75 now
+DispoGuard finished child and has 74 now
+DispoGuard finished child and has 73 now
+ProductionGuard finished child and has 25 now
+DispoGuard finished child and has 72 now
+DispoGuard finished child and has 71 now
+DispoGuard finished child and has 70 now
+ProductionGuard finished child and has 24 now
+DispoGuard finished child and has 69 now
+DispoGuard finished child and has 68 now
+DispoGuard finished child and has 67 now
+DispoGuard finished child and has 66 now
+DispoGuard finished child and has 65 now
+ProductionGuard finished child and has 23 now
+ProductionGuard finished child and has 22 now
+DispoGuard finished child and has 64 now
+DispoGuard finished child and has 63 now
+DispoGuard finished child and has 62 now
+ProductionGuard finished child and has 21 now
+DispoGuard finished child and has 61 now
+DispoGuard finished child and has 60 now
+DispoGuard finished child and has 59 now
+DispoGuard finished child and has 58 now
+ProductionGuard finished child and has 20 now
+DispoGuard finished child and has 57 now
+DispoGuard finished child and has 56 now
+DispoGuard finished child and has 55 now
+ProductionGuard finished child and has 19 now
+DispoGuard finished child and has 54 now
+DispoGuard finished child and has 53 now
+DispoGuard finished child and has 52 now
+DispoGuard finished child and has 51 now
+DispoGuard finished child and has 50 now
+DispoGuard finished child and has 49 now
+ProductionGuard finished child and has 18 now
+DispoGuard finished child and has 48 now
+DispoGuard finished child and has 47 now
+ProductionGuard finished child and has 17 now
+ProductionGuard finished child and has 16 now
+ProductionGuard finished child and has 15 now
+DispoGuard finished child and has 46 now
+DispoGuard finished child and has 45 now
+ProductionGuard finished child and has 14 now
+ProductionGuard finished child and has 13 now
+DispoGuard finished child and has 44 now
+DispoGuard finished child and has 43 now
+DispoGuard finished child and has 42 now
+ProductionGuard finished child and has 12 now
+DispoGuard finished child and has 41 now
+DispoGuard finished child and has 40 now
+ProductionGuard finished child and has 11 now
+DispoGuard finished child and has 39 now
+ProductionGuard finished child and has 10 now
+ProductionGuard finished child and has 9 now
+DispoGuard finished child and has 38 now
+DispoGuard finished child and has 37 now
+DispoGuard finished child and has 36 now
+ProductionGuard finished child and has 8 now
+DispoGuard finished child and has 35 now
+DispoGuard finished child and has 34 now
+DispoGuard finished child and has 33 now
+DispoGuard finished child and has 32 now
+DispoGuard finished child and has 31 now
+ProductionGuard finished child and has 7 now
+ProductionGuard finished child and has 6 now
+DispoGuard finished child and has 30 now
+DispoGuard finished child and has 29 now
+DispoGuard finished child and has 28 now
+ProductionGuard finished child and has 5 now
+ProductionGuard finished child and has 4 now
+DispoGuard finished child and has 27 now
+DispoGuard finished child and has 26 now
+DispoGuard finished child and has 25 now
+DispoGuard finished child and has 24 now
+DispoGuard finished child and has 23 now
+ProductionGuard finished child and has 3 now
+DispoGuard finished child and has 22 now
+DispoGuard finished child and has 21 now
+DispoGuard finished child and has 20 now
+ProductionGuard finished child and has 2 now
+DispoGuard finished child and has 19 now
+DispoGuard finished child and has 18 now
+DispoGuard finished child and has 17 now
+DispoGuard finished child and has 16 now
+DispoGuard finished child and has 15 now
+ProductionGuard finished child and has 1 now
+DispoGuard finished child and has 14 now
+DispoGuard finished child and has 13 now
+DispoGuard finished child and has 12 now
+DispoGuard finished child and has 11 now
+DispoGuard finished child and has 10 now
+ProductionGuard finished child and has 0 now
+DispoGuard finished child and has 9 now
+ContractGuard finished child and has 9 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(0)#1200369231] finished Race-Truck in time at 1438
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (1440) Finish Update Feed from Storage
+info: (1440) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (1440) Time since last Update: 480min
+info: (1440) Finished Update Feed from Contracts
+info: (1440) Removed 37
+(1440) Update Throughput time for article Race-Truck to 304
+(1440) Update Throughput time for article Dump-Truck to 300
+info: (1440) Finished Update Feed from WorkSchedule
+ContractGuard finished child and has 8 now
+DispoGuard finished child and has 8 now
+AKKA-System::AKKA:START AGENT SYSTEM
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(1)#1489317204] finished Race-Truck in time at 1443
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(2)#1681949186] finished Dump-Truck in time at 1456
+DispoGuard finished child and has 7 now
+ContractGuard finished child and has 7 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(3)#1778265177] finished Race-Truck in time at 1484
+DispoGuard finished child and has 6 now
+ContractGuard finished child and has 6 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(4)#848997340] finished Dump-Truck in time at 1515
+DispoGuard finished child and has 5 now
+ContractGuard finished child and has 5 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(5)#1088230282] finished Race-Truck in time at 1529
+DispoGuard finished child and has 4 now
+ContractGuard finished child and has 4 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(6)#783486198] finished Dump-Truck in time at 1567
+ContractGuard finished child and has 3 now
+DispoGuard finished child and has 3 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(7)#671297184] finished Race-Truck in time at 1687
+DispoGuard finished child and has 2 now
+ContractGuard finished child and has 2 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(8)#1630340479] finished Race-Truck in time at 1756
+ContractGuard finished child and has 1 now
+DispoGuard finished child and has 1 now
+ContractGuard finished child and has 0 now
+info: Oder No: [akka://SimulationContext/user/ContractGuard/ContractAgent(9)#1137945313] finished Dump-Truck in time at 1777
+DispoGuard finished child and has 0 now
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (1920) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (1920) Time since last Update: 480min
+info: (1920) Finish Update Feed from Storage
+info: (1920) Finished Update Feed from Contracts
+info: (1920) Removed 171
+(1920) Update Throughput time for article Race-Truck to 304
+(1920) Update Throughput time for article Dump-Truck to 300
+info: (1920) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (2400) Update Feed from DataCollection
+info: (2400) Time since last Update: 480min
+Ask for Update Feed ContractCollector
+info: (2400) Finish Update Feed from Storage
+info: (2400) Removed 0
+info: (2400) Finished Update Feed from Contracts
+(2400) Update Throughput time for article Race-Truck to 304
+(2400) Update Throughput time for article Dump-Truck to 300
+info: (2400) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (2880) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (2880) Time since last Update: 480min
+info: (2880) Finish Update Feed from Storage
+info: (2880) Finished Update Feed from Contracts
+info: (2880) Removed 0
+(2880) Update Throughput time for article Race-Truck to 304
+(2880) Update Throughput time for article Dump-Truck to 300
+info: (2880) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (3360) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (3360) Finish Update Feed from Storage
+info: (3360) Time since last Update: 480min
+info: (3360) Finished Update Feed from Contracts
+info: (3360) Removed 0
+(3360) Update Throughput time for article Race-Truck to 304
+(3360) Update Throughput time for article Dump-Truck to 300
+info: (3360) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (3840) Update Feed from DataCollection
+info: (3840) Time since last Update: 480min
+info: (3840) Finished Update Feed from Contracts
+info: (3840) Removed 0
+info: (3840) Finish Update Feed from Storage
+(3840) Update Throughput time for article Race-Truck to 304
+(3840) Update Throughput time for article Dump-Truck to 300
+info: (3840) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (4320) Finish Update Feed from Storage
+info: (4320) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (4320) Time since last Update: 480min
+info: (4320) Finished Update Feed from Contracts
+info: (4320) Removed 0
+(4320) Update Throughput time for article Race-Truck to 304
+(4320) Update Throughput time for article Dump-Truck to 300
+info: (4320) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (4800) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (4800) Finish Update Feed from Storage
+info: (4800) Time since last Update: 480min
+info: (4800) Finished Update Feed from Contracts
+info: (4800) Removed 0
+(4800) Update Throughput time for article Race-Truck to 304
+(4800) Update Throughput time for article Dump-Truck to 300
+info: (4800) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (5280) Finish Update Feed from Storage
+info: (5280) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (5280) Time since last Update: 480min
+info: (5280) Finished Update Feed from Contracts
+info: (5280) Removed 0
+info: (5280) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (5760) Update Feed from DataCollection
+info: (5760) Finish Update Feed from Storage
+info: (5760) Time since last Update: 480min
+info: (5760) Finished Update Feed from Contracts
+info: (5760) Removed 0
+info: (5760) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (6240) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (6240) Time since last Update: 480min
+info: (6240) Finished Update Feed from Contracts
+info: (6240) Finish Update Feed from Storage
+info: (6240) Removed 0
+info: (6240) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (6720) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (6720) Time since last Update: 480min
+info: (6720) Finished Update Feed from Contracts
+info: (6720) Finish Update Feed from Storage
+info: (6720) Removed 0
+info: (6720) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (7200) Update Feed from DataCollection
+info: (7200) Time since last Update: 480min
+info: (7200) Finish Update Feed from Storage
+info: (7200) Finished Update Feed from Contracts
+info: (7200) Removed 0
+info: (7200) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (7680) Finish Update Feed from Storage
+info: (7680) Update Feed from DataCollection
+info: (7680) Finished Update Feed from Contracts
+info: (7680) Time since last Update: 480min
+info: (7680) Removed 0
+info: (7680) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (8160) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (8160) Finish Update Feed from Storage
+info: (8160) Time since last Update: 480min
+info: (8160) Finished Update Feed from Contracts
+info: (8160) Removed 0
+info: (8160) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (8640) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (8640) Time since last Update: 480min
+info: (8640) Finish Update Feed from Storage
+info: (8640) Finished Update Feed from Contracts
+info: (8640) Removed 0
+info: (8640) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (9120) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (9120) Time since last Update: 480min
+info: (9120) Finish Update Feed from Storage
+info: (9120) Finished Update Feed from Contracts
+info: (9120) Removed 0
+info: (9120) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (9600) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (9600) Time since last Update: 480min
+info: (9600) Finish Update Feed from Storage
+info: (9600) Finished Update Feed from Contracts
+info: (9600) Removed 0
+info: (9600) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (10080) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (10080) Time since last Update: 480min
+info: (10080) Finish Update Feed from Storage
+info: (10080) Finished Update Feed from Contracts
+info: (10080) Removed 0
+info: (10080) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (10560) Finish Update Feed from Storage
+Ask for Update Feed ContractCollector
+info: (10560) Update Feed from DataCollection
+info: (10560) Finished Update Feed from Contracts
+info: (10560) Time since last Update: 480min
+info: (10560) Removed 0
+info: (10560) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (11040) Update Feed from DataCollection
+info: (11040) Time since last Update: 480min
+info: (11040) Finished Update Feed from Contracts
+info: (11040) Finish Update Feed from Storage
+info: (11040) Removed 0
+info: (11040) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (11520) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (11520) Finish Update Feed from Storage
+info: (11520) Time since last Update: 480min
+info: (11520) Finished Update Feed from Contracts
+info: (11520) Removed 0
+info: (11520) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (12000) Update Feed from DataCollection
+info: (12000) Time since last Update: 480min
+info: (12000) Finish Update Feed from Storage
+info: (12000) Finished Update Feed from Contracts
+info: (12000) Removed 0
+info: (12000) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (12480) Finish Update Feed from Storage
+info: (12480) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (12480) Time since last Update: 480min
+info: (12480) Finished Update Feed from Contracts
+info: (12480) Removed 0
+info: (12480) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (12960) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (12960) Time since last Update: 480min
+info: (12960) Finish Update Feed from Storage
+info: (12960) Finished Update Feed from Contracts
+info: (12960) Removed 0
+info: (12960) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (13440) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (13440) Finish Update Feed from Storage
+info: (13440) Time since last Update: 480min
+info: (13440) Finished Update Feed from Contracts
+info: (13440) Removed 0
+info: (13440) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (13920) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (13920) Time since last Update: 480min
+info: (13920) Finished Update Feed from Contracts
+info: (13920) Finish Update Feed from Storage
+info: (13920) Removed 0
+info: (13920) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (14400) Update Feed from DataCollection
+info: (14400) Finish Update Feed from Storage
+info: (14400) Time since last Update: 480min
+info: (14400) Finished Update Feed from Contracts
+info: (14400) Removed 0
+info: (14400) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (14880) Update Feed from DataCollection
+info: (14880) Finish Update Feed from Storage
+info: (14880) Time since last Update: 480min
+info: (14880) Finished Update Feed from Contracts
+info: (14880) Removed 0
+info: (14880) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (15360) Update Feed from DataCollection
+info: (15360) Finish Update Feed from Storage
+info: (15360) Time since last Update: 480min
+info: (15360) Finished Update Feed from Contracts
+info: (15360) Removed 0
+info: (15360) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (15840) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (15840) Time since last Update: 480min
+info: (15840) Finish Update Feed from Storage
+info: (15840) Finished Update Feed from Contracts
+info: (15840) Removed 0
+info: (15840) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (16320) Update Feed from DataCollection
+info: (16320) Time since last Update: 480min
+info: (16320) Finished Update Feed from Contracts
+info: (16320) Finish Update Feed from Storage
+info: (16320) Removed 0
+info: (16320) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (16800) Update Feed from DataCollection
+info: (16800) Time since last Update: 480min
+Ask for Update Feed ContractCollector
+info: (16800) Finish Update Feed from Storage
+info: (16800) Finished Update Feed from Contracts
+info: (16800) Removed 0
+info: (16800) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (17280) Update Feed from DataCollection
+info: (17280) Time since last Update: 480min
+info: (17280) Finish Update Feed from Storage
+info: (17280) Finished Update Feed from Contracts
+info: (17280) Removed 0
+info: (17280) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (17760) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (17760) Time since last Update: 480min
+info: (17760) Finished Update Feed from Contracts
+info: (17760) Removed 0
+info: (17760) Finish Update Feed from Storage
+info: (17760) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+Ask for Update Feed ContractCollector
+info: (18240) Update Feed from DataCollection
+info: (18240) Time since last Update: 480min
+info: (18240) Finished Update Feed from Contracts
+info: (18240) Finish Update Feed from Storage
+info: (18240) Removed 0
+info: (18240) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (18720) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (18720) Time since last Update: 480min
+info: (18720) Finish Update Feed from Storage
+info: (18720) Finished Update Feed from Contracts
+info: (18720) Removed 0
+info: (18720) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (19200) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (19200) Finish Update Feed from Storage
+info: (19200) Time since last Update: 480min
+info: (19200) Finished Update Feed from Contracts
+info: (19200) Removed 0
+info: (19200) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (19680) Update Feed from DataCollection
+Ask for Update Feed ContractCollector
+info: (19680) Time since last Update: 480min
+info: (19680) Finish Update Feed from Storage
+info: (19680) Finished Update Feed from Contracts
+info: (19680) Removed 0
+info: (19680) Finished Update Feed from WorkSchedule
+AKKA-System::AKKA:START AGENT SYSTEM
+AKKA-System::AKKA:STOP AGENT SYSTEM
+Ask for Update Feed StorageCollector
+Ask for Update Feed WorkScheduleCollector
+info: (20160) Finish Update Feed from Storage
+Ask for Update Feed ContractCollector
+info: (20160) Update Feed from DataCollection
+info: (20160) Time since last Update: 480min
+info: (20160) Finished Update Feed from Contracts
+info: (20160) Removed 0
+info: (20160) Finished Update Feed from WorkSchedule
+AKKA-System::SHUTDOWN AGENT SYSTEM
+Storage: Timber Plate 1,5m x 3,0m in stock 392,8 
+Storage: Timber Block 0,20m x 0,20m in stock 1381,8 
+Storage: Race Wing in stock 0 
+Storage: Base plate in stock 0 
+Storage: Pole in stock 491,5 
+Storage: Engine-Block in stock 0 
+Storage: Washer in stock 39,2 
+Storage: Wheel in stock 1960 
+Storage: Glue in stock 17,52 
+Storage: Semitrailer in stock 199 
+Storage: Engine Race Extension in stock 0 
+Storage: Skeleton in stock 0 
+Storage: Cabin in stock 0 
+Storage: Pegs in stock 19 
+Storage: Button in stock 97,6 
+Storage: Chassis Type: Race in stock 0 
+Storage: Side wall long in stock 0 
+Storage: Race-Truck in stock 0 
+Storage: Side wall short in stock 0 
+Storage: Chassis Type: Dump in stock 0 
+Storage: Base plate Truck-Bed in stock 0 
+Storage: Dump Joint in stock 1796,4 
+Storage: Truck-Bed in stock 0 
+Storage: Dump-Truck in stock 0 
+info: (20160) Finish Update Feed from Storage
+info: (20160) Update Feed from DataCollection
+info: (20160) Time since last Update: 0min
+info: (20160) Removed 0
+info: (20160) Finished Update Feed from WorkSchedule
+info: (20160) Finished Update Feed from Contracts
+ContractGuard children counter: 0
+DispoGuard children counter: 0
+ProductionGuard children counter: 0
+The thread 0x4f5c has exited with code 0 (0x0).
+The thread 0x38c4 has exited with code 0 (0x0).
+The thread 0x4a0c has exited with code 0 (0x0).
+The thread 0x3440 has exited with code 0 (0x0).
+The thread 0x1e84 has exited with code 0 (0x0).
+The thread 0x179c has exited with code 0 (0x0).
+The thread 0x1194 has exited with code 0 (0x0).
+The thread 0x4580 has exited with code 0 (0x0).
+The thread 0x3a90 has exited with code 0 (0x0).
+The thread 0x430c has exited with code 0 (0x0).
+The thread 0x373c has exited with code 0 (0x0).
+The thread 0x2200 has exited with code 0 (0x0).
+The program '[19736] dotnet.exe' has exited with code 0 (0x0).

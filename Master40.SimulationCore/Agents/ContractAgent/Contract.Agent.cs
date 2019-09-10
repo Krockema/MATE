@@ -1,13 +1,13 @@
-﻿using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
+using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationImmutables;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.ContractAgent
 {
-    public partial class Contract : Agent
+    public partial class Contract : Agent, IAgent
     {
         internal void TryFinialize() { Finish(); }
         /// <summary>
@@ -18,31 +18,31 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         /// '--->Dispo
         /// '----->Production
         /// </summary>
-        internal IActorRef Guardian => this.ActorPaths.Guardians.Single(x => x.Key == GuardianType.Dispo).Value;
+        IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
+
         // public Constructor
         public static Props Props(ActorPaths actorPaths, long time, bool debug)
         {
-            return Akka.Actor.Props.Create(() => new Contract(actorPaths, time, debug));   
+            return Akka.Actor.Props.Create(factory: () => new Contract(actorPaths, time, debug));   
         }
         
         public Contract(ActorPaths actorPaths, long time, bool debug) 
-            : base(actorPaths, time, debug, actorPaths.SystemAgent.Ref)
+            : base(actorPaths: actorPaths, time: time, debug: debug, principal: actorPaths.SystemAgent.Ref)
         {
-            DebugMessage("I'm Alive:" + Context.Self.Path);
+            DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
         }
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var requestItem = Get<FRequestItem>(Properties.REQUEST_ITEM);
-            this.Send(Dispo.Instruction.RequestArticle.Create(requestItem, childRef));
-            this.DebugMessage("Dispo<" + requestItem.Article.Name + "(OrderId: " + requestItem.CustomerOrderId + ") >");
+            var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
+            this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: fArticle, target: childRef));
+            this.DebugMessage(msg: "Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
         }
 
         protected override void Finish()
         {
-            
-            var r = this.Get<FRequestItem>(Properties.REQUEST_ITEM);
-            if (r.Provided && VirtualChilds.Count() == 0)
+            var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
+            if (fArticle.IsProvided && VirtualChildren.Count() == 0)
             {
                 base.Finish();
             }

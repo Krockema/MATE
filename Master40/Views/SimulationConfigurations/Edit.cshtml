@@ -1,7 +1,7 @@
 @model Master40.DB.ReportingModel.SimulationConfiguration
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData[index: "Title"] = "Edit";
     Layout = null;
 }
 
@@ -105,5 +105,5 @@
 </form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
 }

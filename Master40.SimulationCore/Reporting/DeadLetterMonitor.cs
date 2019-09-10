@@ -1,8 +1,5 @@
 ﻿using Akka.Actor;
 using Akka.Event;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Reporting
 {
@@ -11,12 +8,17 @@ namespace Master40.SimulationCore.Reporting
     {
         public DeadLetterMonitor()
         {
-            Receive<DeadLetter>(dl => HandleDeadletter(dl));
+            Receive<DeadLetter>(handler: dl => HandleDeadletter(dl: dl));
         }
 
         private void HandleDeadletter(DeadLetter dl)
         {
-            Console.WriteLine($"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
+            if (dl.Message.GetType().Name == "AdvanceTo")
+            {
+                return;
+            }
+            //TODO Throw unhandled messages ?
+            System.Diagnostics.Debug.WriteLine(message: $"DeadLetter captured: {dl.Message}, sender: {dl.Sender}, recipient: {dl.Recipient}");
         }
     }
 }

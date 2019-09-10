@@ -8,7 +8,7 @@ namespace Master40.DB.Data.Context
 {
     public class InMemoryContext : ProductionDomainContext
     {
-        public InMemoryContext(DbContextOptions<MasterDBContext> options) : base(options)
+        public InMemoryContext(DbContextOptions<MasterDBContext> options) : base(options: options)
         {
         }
         /*
@@ -44,28 +44,24 @@ namespace Master40.DB.Data.Context
             var options = new DbContextOptionsBuilder<MasterDBContext>();
             options.UseSecondLevelCache();
 
-            InMemoryContext _inMemmoryContext = InMemoryContextBuilder.Build<InMemoryContext>(options);
+            InMemoryContext _inMemmoryContext = InMemoryContextBuilder.Build<InMemoryContext>(builder: options);
 
             _inMemmoryContext.Database.EnsureCreated();
 
             return _inMemmoryContext;
         }
 
-
-
-
-
         public static ProductionDomainContext CreateInMemoryContext_Old()
         {
             // In-memory database only exists while the connection is open
             var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = ":memory:"};
-            var connection = new SqliteConnection(connectionStringBuilder.ToString());
+            var connection = new SqliteConnection(connectionString: connectionStringBuilder.ToString());
 
             // create OptionsBuilder with InMemmory Context
             var builder = new DbContextOptionsBuilder<MasterDBContext>();
-            builder.UseSqlite(connection);
+            builder.UseSqlite(connection: connection);
             //builder.UseSecondLevelCache();
-            var c = new ProductionDomainContext(builder.Options);
+            var c = new ProductionDomainContext(options: builder.Options);
 
             c.Database.OpenConnection();
             c.Database.EnsureCreated();
@@ -77,79 +73,91 @@ namespace Master40.DB.Data.Context
         {
             foreach (var item in source.ArticleTypes)
             {
-                target.ArticleTypes.Add(item.CopyProperties());
+                target.ArticleTypes.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.Units)
             {
-                target.Units.Add(item.CopyProperties());
+                target.Units.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
-            foreach (var item in source.MachineGroups)
+            foreach (var item in source.ResourceSkills)
             {
-                target.MachineGroups.Add(item.CopyProperties());
+                target.ResourceSkills.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
-            foreach (var item in source.Machines)
+            foreach (var item in source.ResourceTools)
             {
-                target.Machines.Add(item.CopyProperties());
+                target.ResourceTools.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
-            foreach (var item in source.MachineTools)
+            foreach (var item in source.Resources)
             {
-                target.MachineTools.Add(item.CopyProperties());
+                target.Resources.Add(entity: item.CopyProperties());
+            }
+            target.SaveChanges();
+
+            foreach (var item in source.ResourceSetups)
+            {
+                target.ResourceSetups.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.Articles)
             {
-                target.Articles.Add(item.CopyProperties());
+                target.Articles.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.Stocks)
             {
-                target.Stocks.Add(item.CopyProperties());
+                target.Stocks.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.Operations)
             {
-                target.Operations.Add(item.CopyProperties());
+                target.Operations.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.ArticleBoms)
             {
-                target.ArticleBoms.Add(item.CopyProperties());
+                target.ArticleBoms.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.BusinessPartners)
             {
-                target.BusinessPartners.Add(item.CopyProperties());
+                target.BusinessPartners.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.ArticleToBusinessPartners)
             {
-                target.ArticleToBusinessPartners.Add(item.CopyProperties());
+                target.ArticleToBusinessPartners.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.CustomerOrders)
             {
-                target.CustomerOrders.Add(item.CopyProperties());
+                target.CustomerOrders.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
             
             foreach (var item in source.CustomerOrderParts)
             {
-                target.CustomerOrderParts.Add(item.CopyProperties());
+                target.CustomerOrderParts.Add(entity: item.CopyProperties());
+            }
+            target.SaveChanges();
+
+            foreach (var item in source.ProductionOrders)
+            {
+                target.ProductionOrders.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
         }
@@ -158,19 +166,19 @@ namespace Master40.DB.Data.Context
         {
             foreach (var item in source.Kpis)
             {
-                target.Kpis.Add(item.CopyProperties());
+                target.Kpis.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.SimulationOperations)
             {
-                target.SimulationOperations.Add(item.CopyProperties());
+                target.SimulationOperations.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 
             foreach (var item in source.StockExchanges)
             {
-                target.StockExchanges.Add(item.CopyProperties());
+                target.StockExchanges.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
         }

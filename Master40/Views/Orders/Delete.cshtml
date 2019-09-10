@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.T_CustomerOrder
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData[index: "Title"] = "Delete";
 }
 
 <h2>Delete Order</h2>
@@ -11,23 +11,23 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.DueTime)
+            @Html.DisplayNameFor(expression: model => model.DueTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.DueTime)
+            @Html.DisplayFor(expression: model => model.DueTime)
         </dd>
         <input type="hidden" asp-for="Id" />
         <dt>
-            @Html.DisplayNameFor(model => model.BusinessPartner)
+            @Html.DisplayNameFor(expression: model => model.BusinessPartner)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.BusinessPartner.Id)
+            @Html.DisplayFor(expression: model => model.BusinessPartner.Id)
         </dd>
     </dl>
 <div class="modal-footer">

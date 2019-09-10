@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Master40.DB.DataModel.M_ArticleBom>
 @{
-    string level = ViewData["level"]?.ToString() ?? "";
+    string level = ViewData[index: "level"]?.ToString() ?? "";
     level = (level != "") ? level + "." : level;
     int count = 0;
     string display = "";
@@ -15,19 +15,19 @@
                 @display
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
+                @Html.DisplayFor(expression: modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @Html.DisplayFor(expression: modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArticleChild.Id)
+                @Html.DisplayFor(expression: modelItem => item.ArticleChild.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArticleParent.Id)
+                @Html.DisplayFor(expression: modelItem => item.ArticleParent.Id)
             </td>
             <td>
-                @foreach (var ag in item.ArticleChild.WorkSchedules)
+                @foreach (var ag in item.ArticleChild.Operations)
                 {
                     <table>
                         <tr>
@@ -37,25 +37,25 @@
                     </table>
                 }
             </td>
-            <td>
+            <td style="width: 113px;">
                 <a asp-action="Edit" asp-controller="ArticleBoms" asp-route-id="@item.Id"
-                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                   data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa fa-pencil-square-o fa-1x fa-unset"></i>
                 </a>
-                <a id="@item.Id" asp-action="Details" asp-controller="ArticleBoms" asp-route-id="@item.Id"
-                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
-                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                </a> 
+                <a id="@item.Id" asp-action="Details" asp-controller="ArticleBoms" asp-route-id="@item.Id" 
+                     data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa fa-eye fa-1x fa-unset"></i>
+                </a>
                 <a asp-action="Delete" asp-controller="ArticleBoms" asp-route-id="@item.Id"
-                   data-target="#modal-container" data-toggle="modal"  class="btn btn-default">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa fa-trash fa-1x fa-unset"></i>
                 </a>
             </td>
         </tr>
         if (item.ArticleChild.ArticleBoms != null)
         {
-            ViewData["level"] = level + count.ToString();
-            @Html.Partial("ArticleBom", item.ArticleChild.ArticleBoms, this.ViewData)
+            ViewData[index: "level"] = level + count.ToString();
+            @Html.Partial(partialViewName: "ArticleBom", model: item.ArticleChild.ArticleBoms, viewData: this.ViewData)
             }
         }
 }

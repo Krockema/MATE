@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.M_Stock
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData[index: "Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,34 +12,34 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Max)
+            @Html.DisplayNameFor(expression: model => model.Max)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Max)
+            @Html.DisplayFor(expression: model => model.Max)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Min)
+            @Html.DisplayNameFor(expression: model => model.Min)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Min)
+            @Html.DisplayFor(expression: model => model.Min)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Current)
+            @Html.DisplayNameFor(expression: model => model.Current)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Current)
+            @Html.DisplayFor(expression: model => model.Current)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Article)
+            @Html.DisplayNameFor(expression: model => model.Article)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Article.Name)
+            @Html.DisplayFor(expression: model => model.Article.Name)
         </dd>
     </dl>
 </div>

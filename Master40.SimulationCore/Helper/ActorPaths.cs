@@ -20,31 +20,31 @@ namespace Master40.SimulationCore.Helper
         /// </summary>
         public ActorPaths(IActorRef simulationContext, IActorRef systemMailBox)
         {
-            SimulationContext = new ActorMetaData("SimulationContext", simulationContext);
+            SimulationContext = new ActorMetaData(name: "SimulationContext", actorRef: simulationContext);
             SystemMailBox = systemMailBox;
             Guardians = new Dictionary<GuardianType, IActorRef>();
         }
 
-        public void SetSystemAgent(IActorRef systemAgent)
+        public void SetSupervisorAgent(IActorRef systemAgent)
         {
-            SystemAgent = new ActorMetaData("SystemAgent", systemAgent);
+            SystemAgent = new ActorMetaData(name: "SupervisorAgent", actorRef: systemAgent);
         }
 
         public void SetHubDirectoryAgent(IActorRef hubAgent)
         {
-            if (SystemAgent == null) throw new Exception("Wrong Order, Please SetSystemAgent first");
-            HubDirectory = new ActorMetaData("HubDirectory", hubAgent);
+            if (SystemAgent == null) throw new Exception(message: "Wrong Order, Please SetSystemAgent first");
+            HubDirectory = new ActorMetaData(name: "HubDirectory", actorRef: hubAgent);
         }
 
         public void SetStorageDirectory(IActorRef storageAgent)
         {
-            if (SystemAgent == null) throw new Exception("Wrong Order, Please SetSystemAgent first");
-            StorageDirectory = new ActorMetaData("StorageDirectory", storageAgent);
+            if (SystemAgent == null) throw new Exception(message: "Wrong Order, Please SetSystemAgent first");
+            StorageDirectory = new ActorMetaData(name: "StorageDirectory", actorRef: storageAgent);
         }
 
         public void AddGuardian(GuardianType guardianType, IActorRef actorRef)
         {
-            Guardians.Add(guardianType, actorRef);
+            Guardians.Add(key: guardianType, value: actorRef);
         }
 
     }

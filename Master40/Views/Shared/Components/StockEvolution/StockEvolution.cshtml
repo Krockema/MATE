@@ -1,9 +1,9 @@
 @{
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
-    string type = ViewData["Type"].ToString();
+    string type = ViewData[index: "Type"].ToString();
     if (chart != null) {
-        raw = chart.CreateChartCode("StockEvolution_" + type);
+        raw = chart.CreateChartCode(canvasId: "StockEvolution_" + type);
     }
 }
 
@@ -39,7 +39,7 @@
 </div>
 
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
     // $( document ).ready(function() {
     //     // var newwidth = 20 * $('#StockEvolution_@type').data.datasets[0].data.length;
     //     // $('.chartAreaWrapper2').width(newwidth);

@@ -1,13 +1,13 @@
 @{
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
-    string type = ViewData["Type"].ToString();
-    string overTime = ViewData["OverTime"].ToString();
+    string type = ViewData[index: "Type"].ToString();
+    string overTime = ViewData[index: "OverTime"].ToString();
     if (chart != null)
     {
-        raw = chart.CreateChartCode("MaschineChart_" + type);
+        raw = chart.CreateChartCode(canvasId: "MaschineChart_" + type);
         // buxfix in ChartJS Core
-        raw = raw.Replace("\"false\"", "false").Replace("yAxesID", "yAxisID");
+        raw = raw.Replace(oldValue: "\"false\"", newValue: "false").Replace(oldValue: "yAxesID", newValue: "yAxisID");
     }
 
 }
@@ -56,11 +56,11 @@
                 </tr>
                 </thead>
 
-                @for (int i = 0; i < chart.Data.Datasets[0].Data.Count(); i++)
+                @for (int i = 0; i < chart.Data.Datasets[index: 0].Data.Count(); i++)
                 {
                     <tr>
-                        <td>@chart.Data.Labels[i]</td>
-                        <td>@chart.Data.Datasets[0].Data[i] %</td>
+                        <td>@chart.Data.Labels[index: i]</td>
+                        <td>@chart.Data.Datasets[index: 0].Data[index: i] %</td>
                     </tr>
                 }
             </table>
@@ -81,5 +81,5 @@
     }
 </div>
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
 </script>

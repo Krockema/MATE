@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.T_CustomerOrder
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData[index: "Title"] = "Create";
 }
 
 <h2>Create</h2>
@@ -39,5 +39,5 @@
 </form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
 }

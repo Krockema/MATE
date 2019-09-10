@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.DB.DataModel.M_Machine>
+@model IEnumerable<Master40.DB.DataModel.M_Resource>
 
 @{
     ViewBag.Title = "Agent Basic";
@@ -46,31 +46,38 @@
         .configureLogging(signalR.LogLevel.Information)
         .build();
 </script>
+<div class="row">
+    <div class="col-12">
+        <h2>Agent System</h2>
+    </div>
+    
+</div>
+
 
 <div class="container-fluid">
     <div class="row">
-         <div class="col-md-9 col-sm-9">
+        <div class="col-lg-9 col-md-9">
             <div class="container-fluid">
                 <div class="row">
-                    
-                    <h2>Agent System</h2>
-                    
-
-                    <div class="col-md-12 col-sm-12" style="margin-top: 0px">
+                    <div class="col-lg-12 col-md-12" style="margin-top: 0px">
                         <div class="row">
-                            <div class="col-md-4 col-sm-4">
+                            <div class="col-lg-4 col-md-4">
                                 <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
                                     <h4>Clock</h4>
-                                    <p id="clock"><b>0</b></p>
+                                    <p id="clock">
+                                        <b>0</b>
+                                    </p>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-4">
+                            <div class="col-lg-4 col-md-4">
                                 <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
                                     <h4>Orders</h4>
-                                    <p id="orders"><b>0</b></p>
+                                    <p id="orders">
+                                        <b>0</b>
+                                    </p>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-4">
+                            <div class="col-lg-4 col-md-4">
                                 <div class="bs-callout bs-callout-warning" id="statusCallout">
                                     <h4>Status</h4>
                                     Ready
@@ -78,197 +85,144 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-9 col-sm-9">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    Machine Workload
-                                </h4>
+                    <div class="col-lg-9 col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <b>Machine Workload</b>
                             </div>
-                            <div class="panel-body">
+                            <div class="card-body">
                                 <div style="text-align: center">
-                                    @{
-                                        var containerSize = 150;
-                                        var textPadding = 75;
-                                        var fontSize = 20;
-                                        if (Model.Count() > 6)
-                                        {
-                                            containerSize = 75;
-                                            textPadding = 35;
-                                            fontSize = 10;
-                                        }
-                                        @Html.Raw(@"<style>
-                                                        .chartContainer {
-                                                            position: relative;
-                                                            background-color: transparent;
-                                                            width: " + containerSize + @"px;
-                                                            height: "+ containerSize + @"px;
-                                                            margin-left: 5px;
-                                                            margin-right: 5px;
-                                                            margin-bottom: 5px;
-                                                        }
-                                                        .machineText {
-                                                            font: " + fontSize + @"px Helvetica;
-                                                        }
-                                                        .textLayer {
-                                                            padding-top: " + textPadding + @"px;
-                                                            font: bold "+ fontSize + @"px Helvetica;
-                                                        </style>")
+                                    @{ var containerSize = 150; var textPadding = 75; var fontSize = 15;
+                                        if(Model.Count()>6) {
+                                            containerSize = 75; textPadding = 35; fontSize = 10;
+                                        } @Html.Raw(value: @"
+                                <style>
+                                    .chartContainer {
+                                        position: relative;
+                                        background-color: transparent;
+                                        width:" + containerSize + @"px;
+                                        height:"+ containerSize + @"px;
+                                        margin-left: 5px;
+                                        margin-right: 5px;
+                                        margin-bottom: 5px;
                                     }
-                                    @foreach (var section in Model.OrderBy(x => x.MachineGroup.Stage))
-                                    {
-                                        @await Html.PartialAsync("~/Views/AgentLive/PartialMachine.cshtml", section)
+                                    .machineText {
+                                        font:" + fontSize + @"px Helvetica;
                                     }
-                                </div>
-                                <div>
-                                    @await Html.PartialAsync("~/Views/AgentLive/PartialTotalWorkLoad.cshtml")
-                                </div>
+                                    .textLayer {
+                                        padding-top:" + textPadding + @"px;
+                                        font: bold"+ fontSize + @"px Helvetica;
+                                </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.ResourceId))
+                                                        {@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialMachine.cshtml",
+                                                      model: section)}
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-3">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    Timeliness
-                                </h4>
-                            </div>
-                            <div class="panel-body">
-                                @await Html.PartialAsync("~/Views/AgentLive/PartialTimeliness.cshtml")
-                            </div>
+                            <div>@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTotalWorkLoad.cshtml")</div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-9">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    Work in Progress
-                                </h4>
-                            </div>
-                            <div style="text-align: center"  class="panel-body">
-                                @await Html.PartialAsync("~/Views/AgentLive/PartialContract.cshtml")
-                            </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <b>Timeliness</b>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    Throughput Times
-                                </h4>
-                            </div>
-                            <div style="text-align: center" class="panel-body">
-                                @await Html.PartialAsync("~/Views/AgentLive/PartialThroughput.cshtml")
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 col-sm-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    Storage Value in Euro
-                                </h4>
-                            </div>
-                            <div style="text-align: center" class="panel-body">
-                                @await Html.PartialAsync("~/Views/AgentLive/PartialStock.cshtml")
-                            </div>
-                        </div>
+                        <div class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTimeliness.cshtml")</div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-3 col-sm-3">
-            <div class="container-fluid">
-                <div class="row">
-                        <h2>Control Panel </h2>
-                        <p>
-                            Container to Release the Force
-                        </p>
-                        <div class="panel-group" id="accordion">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Processing Options</a>
-                                    </h4>
-                                </div>
-                                <div id="collapseOne" class="panel-collapse collapse in">
-                                    <div class="panel-body">
-                                        <div class="panel-body">
-                                            <div class="form-group row" style="">
-                                                <label class="col-sm-6 col-form-label">Sim.Config</label>
-                                                <select class="form-control col-md-6 pull-right" id="simNumber" style="max-width: 100px; margin-right: 15px;">
-                                                    <option selected>Choose...</option>
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group row" style="">
-                                                <label class="col-sm-8 col-form-label">Orders</label>
-                                                <div class="col-sm-4">
-                                                    <input id="orderAmount" class="form-control" value="550" />
-                                                </div>
-                                            </div>
-                                            <div class="row form-group" style="">
-                                                <label class="col-sm-8 col-form-label">Inter arrival rate</label>
-                                                <div class="col-sm-4">
-                                                    <input id="interArivalRate" class="form-control" value="0.025" />
-                                                </div>
-                                            </div>
-                                            <div class="row form-group" style="">
-                                                <label class="col-sm-8 col-form-label">Estimatet throughput time</label>
-                                                <div class="col-sm-4">
-                                                    <input id="estimatedThroughputTime" class="form-control" value="600" />
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="pull-right">
-                                                    <button class="btn btn-outline-secondary ladda-button" id="simulationStart-btn" type="button" onclick="startAgents()">Run!</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">For Debugging Only</a>
-                                    </h4>
-                                </div>
-                                <div id="collapseTwo" class="panel-collapse collapse">
-                                    <div class="panel-body">
-                                        <div class="input-group">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" onclick="alert('Not Implemented yet')">Run!</button>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
-                    <h2>Messages</h2>
-                    <div class="panel-group">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a data-toggle="collapse" href="#collapse2" data-parent="#accordion">Messages</a>
-                                </h4>
-                            </div>
-                            <div id="collapse2" class="panel-collapse collapse in">
-                                <div id="" class="MessageDisplay" style="max-height: 600px;overflow: auto;"></div>
-                            </div>
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-header">
+                            <b>Work in Progress</b>
                         </div>
+                        <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialContract.cshtml")</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-header">
+                                <b>Throughput Times</b>
+                        </div>
+                        <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialThroughput.cshtml")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-header">
+                            <b>Storage Value in Euro </b>
+                        </div>
+                        <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialStock.cshtml")</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-lg-3 col-md-3">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="card" style="margin-top: 20px">
+                    <div class="card-header">
+                        Control Panel
+                    </div>
+                    <div class="card-body">
+                        <div class=" ">
+                            <div class="form-group row" style="">
+                                <label class="col-md-8 col-form-label">Sim.Config</label>
+                                <select class="form-control col-lg-4 pull-right" id="simNumber"
+                                        style="max-width: 100px; margin-left: 15px;">
+                                    <option selected>Choose...</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
+                            <div class="form-group row" style="">
+                                <label class="col-md-8 col-form-label">Orders</label>
+                                <div class="col-md-4">
+                                    <input id="orderAmount" class="form-control" value="550">
+                                </div>
+                            </div>
+                            <div class="row form-group" style="">
+                                <label class="col-md-8 col-form-label">Inter arrival rate</label>
+                                <div class="col-md-4">
+                                    <input id="interArrivalRate" class="form-control" value="0.025">
+                                </div>
+                            </div>
+                            <div class="row form-group" style="">
+                                <label class="col-md-8 col-form-label">Estimated throughput time</label>
+                                <div class="col-md-4">
+                                    <input id="estimatedThroughputTime" class="form-control" value="600">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class="col-md-8 col-form-label">Start simulation run</label>
+                                <div class="col-md-4">
+                                    <button class="btn btn-outline-secondary ladda-button" id="simulationStart-btn"
+                                            type="button" onclick="startAgents()">
+                                        Run!
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="card" style="width: 100%; margin-top: 10px;">
+                    <div class="card-header">
+                        Messages
+                    </div>
+                    <div class="card-body">
+                        <div id="" class="MessageDisplay" style="max-height: 600px; overflow: auto;"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 <script>
 
@@ -317,7 +271,7 @@
         var simNr = $("#SimNumber")
         var simNr = document.querySelector("#simNumber").value;
         var orderAmount = document.querySelector("#orderAmount").value;
-        var arivalRate = document.querySelector("#interArivalRate").value;
+        var arivalRate = document.querySelector("#interArrivalRate").value;
         var estimatedThroughputTime = document.querySelector("#estimatedThroughputTime").value;
 
         $("#statusCallout").replaceWith("<div class='bs-callout bs-callout-success' id='statusCallout'>"
