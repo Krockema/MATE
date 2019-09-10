@@ -2,12 +2,10 @@
 using AkkaSim;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
-using Master40.SimulationImmutables;
+using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -22,16 +20,15 @@ namespace Master40.SimulationCore.Agents
         /// <summary>
         /// Holds the last Known Status for each Child Entity
         /// </summary>
-        internal Dictionary<IActorRef, ElementStatus> VirtualChilds { get; }
-        internal ElementStatus Status { get; set; }
+        internal IActorRef Guardian { get; }
+        internal HashSet<IActorRef> VirtualChildren { get; }
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }
         internal new IUntypedActorContext Context => UntypedActor.Context;
-        internal long CurrentTime { get => TimePeriod; }
+        internal long CurrentTime => TimePeriod;
         internal void TryToFinish() => Finish();
-        internal new IActorRef Sender { get => base.Sender; }
-        private dynamic ValueStore { get; }
-            = new ExpandoObject();
+        internal new IActorRef Sender => base.Sender;
+        internal LogWriter LogWriter { get; set; }
         // Diagnostic Tools
         private Stopwatch _stopwatch = new Stopwatch();
         public bool DebugThis { get; private set; }
@@ -43,84 +40,59 @@ namespace Master40.SimulationCore.Agents
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
         /// <param name="principal">If not set, put IActorRefs.Nobody</param>
-        public Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
-            : base(actorPaths.SimulationContext.Ref, time)
+        protected Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
+            : base(simulationContext: actorPaths.SimulationContext.Ref, time: time)
         {
             DebugThis = debug;
             Name = Self.Path.Name;
             ActorPaths = actorPaths;
             VirtualParent = principal;
-            VirtualChilds = new Dictionary<IActorRef, ElementStatus>();
-            DebugMessage("I'm alive: " + Self.Path.ToStringWithAddress());
+            VirtualChildren = new HashSet<IActorRef>();
+            DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
         protected override void Do(object o)
         {
             switch (o)
             {
-                case BasicInstruction.Initialize i: InitializeAgent(i.GetObjectFromMessage); break;
-                case BasicInstruction.ChildRef c: AddChild(c.GetObjectFromMessage); break;
+                case BasicInstruction.Initialize i: InitializeAgent(behaviour: i.GetObjectFromMessage); break;
+                case BasicInstruction.ChildRef c: AddChild(childRef: c.GetObjectFromMessage); break;
                 default:
-                    if (!Behaviour.Action(this, (ISimulationMessage)o))
-                        throw new Exception(this.Name + " is sorry, he doesnt know what to do!");
+                    if (!Behaviour.Action(message: (ISimulationMessage)o))
+                        throw new Exception(message: this.Name + " is sorry, he doesn't know what to do!");
                     break;
             }
         }
 
-        /// <summary>
-        /// Returns the requested Property, if null an empty new property is returned
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public T Get<T>(string propertyName)
-        {
-            var expandoDict = ValueStore as IDictionary<string, object>;
-
-            if (expandoDict.ContainsKey(propertyName))            
-                return (T)expandoDict[propertyName];
-
-            throw new Exception("Propertie not Found!");
-        }
-        public void Set(string propertyName, object obj)
-        {
-            var expandoDict = ValueStore as IDictionary<string, object>;
-
-            if (expandoDict.ContainsKey(propertyName))
-                expandoDict[propertyName] = obj;
-            else
-                expandoDict.Add(propertyName, obj);
-        }
-
         private void AddChild(IActorRef childRef)
         {
-            DebugMessage("Try to add child: " + childRef.Path.Name);
-            VirtualChilds.Add(childRef, ElementStatus.Created);
+            DebugMessage(msg: "Try to add child: " + childRef.Path.Name);
+            VirtualChildren.Add(item: childRef);
             
-            OnChildAdd(childRef);
+            OnChildAdd(childRef: childRef);
         }
         protected virtual void OnChildAdd(IActorRef childRef)
         {
-            DebugMessage(this.Name + "Child Created.");            
+            DebugMessage(msg: this.Name + " Child created.");            
         }
 
         /// <summary>
-        /// Adding Instruction Behaviour releation to the Agent.
+        /// Adding Instruction Behaviour relation to the Agent.
         /// Could be simplified, but may required later.
         /// </summary>
-        /// <param name="behaviourSet"></param>
-        private void InitializeAgent(IBehaviour behaviour)
+        /// <param name="behaviour"></param>
+        protected void InitializeAgent(IBehaviour behaviour)
         {
+            behaviour.Agent = this;
             this.Behaviour = behaviour;
-            foreach (var propertie in behaviour.Properties) ((IDictionary<string, object>)ValueStore).Add(propertie.Key, propertie.Value);
-            DebugMessage(" INITIALIZED ");
+            DebugMessage(msg: " INITIALIZED ");
             if (VirtualParent != ActorRefs.Nobody)
             {
-                DebugMessage(" PARRENT INFORMED ");
-                Send(BasicInstruction.ChildRef.Create(Self, VirtualParent));
+                DebugMessage(msg: " PARENT INFORMED ");
+                Send(instruction: BasicInstruction.ChildRef.Create(message: Self, target: VirtualParent));
             }
             
-            OnInit(behaviour);
+            OnInit(o: behaviour);
         }
         
         /// <summary>
@@ -129,13 +101,11 @@ namespace Master40.SimulationCore.Agents
         /// <param name="msg"></param>
         internal void DebugMessage(string msg)
         {
-            if (DebugThis)
-            {
-                var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
-                Debug.WriteLine(logItem, "AgentMessage");
-                // TODO: Replace with Logging Agent
-                // Statistics.Log.Add(logItem);
-            }
+            if (!DebugThis) return;
+            // else
+            var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
+            //Debug.WriteLine(message: logItem, category: "AgentMessage");
+            AgentSimulation.Logger.Log.Add(item: logItem);
         }
 
         /// <summary>
@@ -170,7 +140,7 @@ namespace Master40.SimulationCore.Agents
         /// </summary>
         protected override void Finish()
         {
-            DebugMessage(Self + " finish has been Called by . " + Sender);
+            DebugMessage(msg: Self + " finish has been called by " + Sender);
             base.Finish();
         }
     }

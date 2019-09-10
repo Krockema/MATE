@@ -1,13 +1,13 @@
 @using Master40.DB.DataModel
 @using Master40.DB.ReportingModel
 @{
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
-    string type = ViewData["Type"].ToString();
-    string percentage = ViewData["Percentage"].ToString() + " %";
-    var kpis = (List<Kpi>)ViewData["Data"];
+    string type = ViewData[index: "Type"].ToString();
+    string percentage = ViewData[index: "Percentage"].ToString() + " %";
+    var kpis = (List<Kpi>)ViewData[index: "Data"];
     if (chart != null) {
-        raw = chart.CreateChartCode("OrderTimeliness_"+type);
+        raw = chart.CreateChartCode(canvasId: "OrderTimeliness_"+type);
     }
 }
 
@@ -78,5 +78,5 @@
 </div>
 
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
 </script>

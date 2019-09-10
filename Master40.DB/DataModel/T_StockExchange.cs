@@ -1,5 +1,6 @@
 ﻿using System;
 using Master40.DB.Data.WrappersForPrimitives;
+using System.ComponentModel.DataAnnotations.Schema;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 
@@ -8,7 +9,7 @@ namespace Master40.DB.DataModel
     public class T_StockExchange : BaseEntity, IStockExchange, IDemand, IProvider
     {
         public int StockId { get; set; }
-        public Guid TrakingGuid { get; set; }
+        public Guid TrackingGuid { get; set; }
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
@@ -19,19 +20,11 @@ namespace Master40.DB.DataModel
         // time of withdrawal/insert (wird von der Simulation belegt bei erfuellung des Requests)id
         public int Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
-        public StockExchangeType StockExchangeType { get; set; }
-        public M_Article GetArticle()
-        {
-            return Stock.Article;
-        }
-
-        public Quantity GetQuantity()
-        {
-            return new Quantity(Quantity);
-        }
-
-        public T_StockExchange()
-        {
-        }
+        [NotMapped]
+        public Guid ProductionArticleKey { get; set; }
+        public int? DemandID { get; set; }
+        public T_Demand Demand { get; set; }
+        public int? ProviderId { get; set; }
+        public T_Provider Provider { get; set; }
     }
 }

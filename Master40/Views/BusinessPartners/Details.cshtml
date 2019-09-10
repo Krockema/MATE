@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.M_BusinessPartner
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData[index: "Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,22 +12,22 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Debitor)
+            @Html.DisplayNameFor(expression: model => model.Debitor)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Debitor)
+            @Html.DisplayFor(expression: model => model.Debitor)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Kreditor)
+            @Html.DisplayNameFor(expression: model => model.Kreditor)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Kreditor)
+            @Html.DisplayFor(expression: model => model.Kreditor)
         </dd>
     </dl>
 </div>

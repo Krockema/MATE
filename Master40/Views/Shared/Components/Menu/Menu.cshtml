@@ -8,7 +8,7 @@
              <a href="#"><i class="fa @item.Symbol fa-2x"></i> <span class="nav-text"> @item.MenuText </span>  <span class="arrow"></span></a>
          </li>
          <ul class="sub-menu collapse" id="Menu-@item.MenuId@item.MenuItemId">
-             @Html.Partial("~/Views/Shared/Components/Menu/Menu.cshtml", item.Children)
+             @Html.Partial(partialViewName: "~/Views/Shared/Components/Menu/Menu.cshtml", model: item.Children)
          </ul>
     }
     else
@@ -16,7 +16,7 @@
         <li>
             <a asp-area="" asp-controller=@item.LinkUrl asp-action="Index">
                 <i class="fa @item.Symbol fa-2x"></i>
-                <span class="nav-text">@Html.DisplayFor(modelItem => item.MenuText)</span>
+                <span class="nav-text">@Html.DisplayFor(expression: modelItem => item.MenuText)</span>
             </a>
         </li>   
     }

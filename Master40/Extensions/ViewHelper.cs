@@ -13,16 +13,16 @@ namespace Master40.Extensions
         public static SelectList AddFirstItem(this SelectList origList, SelectListItem firstItem)
         {
             List<SelectListItem> newList = origList.ToList();
-            newList.Insert(0, firstItem);
+            newList.Insert(index: 0, item: firstItem);
 
-            var selectedItem = newList.FirstOrDefault(item => item.Selected);
+            var selectedItem = newList.FirstOrDefault(predicate: item => item.Selected);
             var selectedItemValue = String.Empty;
             if (selectedItem != null)
             {
                 selectedItemValue = selectedItem.Value;
             }
 
-            return new SelectList(newList, "Value", "Text", selectedItemValue);
+            return new SelectList(items: newList, dataValueField: "Value", dataTextField: "Text", selectedValue: selectedItemValue);
         }
     }
 }

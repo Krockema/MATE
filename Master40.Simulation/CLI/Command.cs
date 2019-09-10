@@ -1,19 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Master40.Simulation.CLI.Arguments;
 
 namespace Master40.Simulation.CLI
 {
-    public class Commands
+    public class Commands : List<ICommand>
     {
-        public static List<ICommand> GetCommands()
+        public Commands()
         {
-            var cmd = new List<ICommand>();
-            cmd.Add(new Help());
-            cmd.Add(new Config());
-            cmd.Add(new SimType());
-            return cmd;
+            this.Add(item: new Help());
+            this.Add(item: new DBConnectionString());
+            this.Add(item: new DebugAgents());
+            this.Add(item: new DebugSystem());
+            this.Add(item: new EstimatedThroughPut());
+            this.Add(item: new KpiTimeSpan());
+            this.Add(item: new OrderArrivalRate());
+            this.Add(item: new OrderQuantity());
+            this.Add(item: new SaveToDB());
+            this.Add(item: new Seed());
+            this.Add(item: new SettlingStart());
+            this.Add(item: new SimulationEnd());
+            this.Add(item: new WorkTimeDeviation());
+            this.Add(item: new SimulationId());
+            this.Add(item: new SimulationKind());
+            this.Add(item: new SimulationNumber());
         }
 
 

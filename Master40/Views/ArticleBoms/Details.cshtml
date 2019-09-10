@@ -1,7 +1,7 @@
 @model Master40.DB.DataModel.M_ArticleBom
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData[index: "Title"] = "Details";
     Layout = "";
 }
 
@@ -12,28 +12,28 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Quantity)
+            @Html.DisplayNameFor(expression: model => model.Quantity)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Quantity)
+            @Html.DisplayFor(expression: model => model.Quantity)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(expression: model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ArticleChild)
+            @Html.DisplayNameFor(expression: model => model.ArticleChild)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ArticleChild.Name)
+            @Html.DisplayFor(expression: model => model.ArticleChild.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ArticleParent)
+            @Html.DisplayNameFor(expression: model => model.ArticleParent)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ArticleParent.Name)
+            @Html.DisplayFor(expression: model => model.ArticleParent.Name)
         </dd>
     </dl>
 </div>
@@ -41,11 +41,12 @@
 @if (Model.ArticleChild.PictureUrl != null)
 {
     <div>
-        <img src="@Html.Raw(Model.ArticleChild.PictureUrl)" width="550"/>
+        <img src="@Html.Raw(value: Model.ArticleChild.PictureUrl)" width="550"/>
     </div>
 }
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
-    <a asp-action="Edit" class="btn-default btn" asp-route-id="@Model.Id"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</a>
+    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Back</button>
+    <a asp-action="Edit" class="btn btn-outline-secondary" asp-route-id="@Model.Id">
+        <i class="fa fa-pencil-square-o fa-1x fa-unset"></i> Edit</a>
 </div>

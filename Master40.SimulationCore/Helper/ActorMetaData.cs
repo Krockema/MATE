@@ -1,7 +1,4 @@
 ﻿using Akka.Actor;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -19,7 +16,7 @@ namespace Master40.SimulationCore.Helper
             Ref = actorRef;
             // if no parent, we assume a top-level actor
             var parentPath = parent != null ? parent.Path : "/user";
-            Path = string.Format("{0}/{1}", parentPath, Name);
+            Path = string.Format(format: "{0}/{1}", arg0: parentPath, arg1: Name);
         }
 
         public string Name { get; private set; }

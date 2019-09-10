@@ -24,7 +24,7 @@ namespace Master40.DB.Data.Context
                                 SELECT*
                                 FROM DirectReports";
 
-            migrationBuilder.Sql(sqlscript);
+            migrationBuilder.Sql(sql: sqlscript);
         }
     }
 }

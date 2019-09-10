@@ -1,8 +1,8 @@
 @{
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
     if (chart != null) { 
-        raw = chart.CreateChartCode("MaschineChart");
+        raw = chart.CreateChartCode(canvasId: "MaschineChart");
     }
 }
 
@@ -40,7 +40,7 @@
 </div>
 
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
     $( document ).ready(function() {
         var newwidth = 20 * MaschineChart.data.datasets[0].data.length;
         $('.chartAreaWrapper2').width(newwidth);

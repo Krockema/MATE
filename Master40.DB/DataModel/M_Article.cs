@@ -22,7 +22,7 @@ namespace Master40.DB.DataModel
         [DataType(DataType.Currency)]
         public double Price { get; set; }
         public int DeliveryPeriod { get; set; }
-        [DataType(DataType.Date)]
+        [DataType(dataType: DataType.Date)]
         //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         public DateTime CreationDate { get; set; }
         public M_Stock Stock { get; set; }
@@ -32,7 +32,7 @@ namespace Master40.DB.DataModel
         public virtual ICollection<M_ArticleBom> ArticleChilds { get; set; }
         [JsonIgnore]
         // public virtual IEnumerable<ArticleBomPart> ArticleChilds { get; set; } 
-        public virtual ICollection<M_Operation> WorkSchedules { get; set; }
+        public virtual ICollection<M_Operation> Operations { get; set; }
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrder> ProductionOrders { get; set; }
         [JsonIgnore]

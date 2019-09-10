@@ -16,6 +16,10 @@ select,
 textarea {
     max-width: 280px;
 }
+.fa-unset {
+    width: unset !important;
+    height: unset !important;
+}
 
 /* Carousel */
 .carousel-caption p {

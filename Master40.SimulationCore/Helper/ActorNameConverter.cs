@@ -16,7 +16,7 @@ namespace Master40.SimulationCore.Helper
                     || c == '-' || c == '='
                     || c == '(' || c == ')')
                 {
-                    sb.Append(c);
+                    sb.Append(value: c);
                 }
             }
             return sb.ToString();

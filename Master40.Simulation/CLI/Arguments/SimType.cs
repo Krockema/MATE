@@ -1,37 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Akka.Actor.Dsl;
 using Master40.DB.Enums;
-using Remotion.Linq.Parsing;
+using Master40.SimulationCore.Environment;
 
 namespace Master40.Simulation.CLI.Arguments
 {
-    class SimType : ICommand
+    class SimulationKind : ICommand
     {
-        public string ArgLong => "SimType";
-        public string ArgShort => "s";
+        public string ArgLong => SimulationCore.Environment.Options.SimulationKind.Type.Name;
+        public string ArgShort => "simKind";
         public bool HasProperty => true;
-        public string Description => " -simtype <Type> : Specify simulation Type <Central/Decentral>";
-        public Action<ParseResult, string> Action { get; }
+        public string Description => " -SimulationKind <Type> : Specify simulation Type <Central/Decentral>";
+        public Action<Configuration, string> Action { get; }
 
-        public SimType()
+        public SimulationKind()
         {
             Action = (result, arg) =>
             {
-                if (arg.Equals(SimulationType.Decentral.ToString(), StringComparison.OrdinalIgnoreCase))
+                if (arg.Equals(value: SimulationType.Decentral.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
-                    result.SimulationType = SimulationType.Decentral;
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Decentral));
                 }
-                else if (arg.Equals(SimulationType.Central.ToString(), StringComparison.OrdinalIgnoreCase))
+                else if (arg.Equals(value: SimulationType.Central.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
-                    result.SimulationType = SimulationType.Central;
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Central));
+                }
+                else if (arg.Equals(value: SimulationType.Bucket.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Bucket));
                 }
                 else
                 {
-                    throw  new Exception("Unknown argument.");
+                    throw  new Exception(message: "Unknown argument.");
                 }
-                Console.WriteLine(result.SimulationType.ToString() + " has been selected!");
             };
         }
     }

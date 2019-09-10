@@ -1,8 +1,8 @@
 ﻿@using Master40.DB.ReportingModel
 @{
-    List<Master40.DB.Data.Helper.BoxPlot> boxPlot = (List<Master40.DB.Data.Helper.BoxPlot>)ViewData["BoxPlot"];
+    List<Master40.DB.Data.Helper.BoxPlot> boxPlot = (List<Master40.DB.Data.Helper.BoxPlot>)ViewData[index: "BoxPlot"];
     Layout = (boxPlot.Count() > 2) ? "_Layout" : "";
-    var kpis = (List<Kpi>)ViewData["Data"];
+    var kpis = (List<Kpi>)ViewData[index: "Data"];
 }
 
 <style>
@@ -28,7 +28,7 @@
                     @{ scale = 0; }
 
                 </div>
-                <div style="height: 290px">@ViewData["max"]</div>
+                <div style="height: 290px">@ViewData[index: "max"]</div>
                 <div style="height: 20px">0&nbsp;min</div>
                 <div style="height: 20px"><b>Articles</b></div>
             </div>
@@ -45,11 +45,11 @@
 
                     @foreach (var item in boxPlot)
                     {
-                        <div class="boxplot-box" style="width: @Html.Raw(100 / @boxPlot.Count())%; max-width:80px; display: inline-block; cursor:pointer; top: 0px; height:300px;" data-toggle="popover"
+                        <div class="boxplot-box" style="width: @Html.Raw(value: 100 / @boxPlot.Count())%; max-width:80px; display: inline-block; cursor:pointer; top: 0px; height:300px;" data-toggle="popover"
                              onmouseover="this.style.background='lightgray';" onmouseout="this.style.background='transparent';"
-                             data-placement="right" data-original-title="Details: @Html.Raw(item.Name)" 
+                             data-placement="right" data-original-title="Details: @Html.Raw(value: item.Name)" 
                              data-content="Highest Sample: @item.HeigestSample <br /> Upper Quartile: @item.UpperQartile<br />Median: @item.Median<br /> Lower Quartile: @item.LowerQuartile<br /> Lowest Sample: @item.LowestSample">
-                            @Html.Partial("~/Views/Shared/Components/ProductLeadTimeBoxPlot/BoxPlot.cshtml", item, this.ViewData)
+                            @Html.Partial(partialViewName: "~/Views/Shared/Components/ProductLeadTimeBoxPlot/BoxPlot.cshtml", model: item, viewData: this.ViewData)
                         </div>
 
                     }
@@ -59,7 +59,7 @@
                     {
                         <div style="width:80px; display: inline-block; vertical-align: top;">
                             <div style="position: relative; top:0px; left:0px; width: inherit; border-right: 2px solid #808080; height: 5px; "></div> 
-                                @Html.Raw(item.Name)
+                                @Html.Raw(value: item.Name)
                         </div>
                     }
                 </div>
@@ -84,10 +84,10 @@
                 @for (var i = 0; i < kpis.Count(); i++)
                 {
                     <tr>
-                        <td>@Html.Raw(kpis[i].Name + "<br> SimId: " + kpis[i].SimulationConfigurationId + " " + kpis[i].SimulationType)</td>
-                        <td>@(Math.Round(kpis[i].ValueMin, 0))</td>
-                        <td>@(Math.Round(kpis[i].ValueMax, 0))</td>
-                        <td>@(Math.Round(kpis[i].Value, 2))</td>
+                        <td>@Html.Raw(value: kpis[index: i].Name + "<br> SimId: " + kpis[index: i].SimulationConfigurationId + " " + kpis[index: i].SimulationType)</td>
+                        <td>@(Math.Round(value: kpis[index: i].ValueMin, digits: 0))</td>
+                        <td>@(Math.Round(value: kpis[index: i].ValueMax, digits: 0))</td>
+                        <td>@(Math.Round(value: kpis[index: i].Value, digits: 2))</td>
                     </tr>
                 }
             </thead>

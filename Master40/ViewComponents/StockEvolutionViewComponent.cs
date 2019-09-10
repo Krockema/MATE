@@ -20,15 +20,15 @@ namespace Master40.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(List<string> paramsList)
         {
-            var generateChartTask = Task.Run(() =>
+            var generateChartTask = Task.Run(function: () =>
             {
             if (!_context.SimulationOperations.Any())
             {
                 return null;
             }
 
-            var simConfig = _context.SimulationConfigurations.Single(x => x.Id == Convert.ToInt32(paramsList[0]));
-            var maxX = Convert.ToInt32(Math.Floor((decimal)simConfig.SimulationEndTime / 1000) * 1000);
+            var simConfig = _context.SimulationConfigurations.Single(predicate: x => x.Id == Convert.ToInt32(paramsList[0]));
+            var maxX = Convert.ToInt32(value: Math.Floor(d: (decimal)simConfig.SimulationEndTime / 1000) * 1000);
 
             Chart chart = new Chart();
             
@@ -54,22 +54,22 @@ namespace Master40.ViewComponents
             };
 
 
-            SimulationType simType = (paramsList[1].Equals("Decentral")) ? SimulationType.Decentral : SimulationType.Central;
-            var kpis = _context.Kpis.Where(x => x.KpiType == KpiType.StockEvolution
+            SimulationType simType = (paramsList[index: 1].Equals(value: "Decentral")) ? SimulationType.Decentral : SimulationType.Central;
+            var kpis = _context.Kpis.Where(predicate: x => x.KpiType == KpiType.StockEvolution
                                                && x.Count <= maxX
                                                && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                && x.SimulationNumber == Convert.ToInt32(paramsList[2])
-                                               && x.SimulationType == simType).OrderBy(x => x.Name).ToList();
+                                               && x.SimulationType == simType).OrderBy(keySelector: x => x.Name).ToList();
 
-            var articles = kpis.Select(x => x.Name).Distinct();
+            var articles = kpis.Select(selector: x => x.Name).Distinct();
 
             var data = new Data { Datasets = new List<Dataset>() };
             foreach (var article in articles)
             {
                 // add zero to start
-                var articleKpis = new List<LineScatterData> { new LineScatterData { x = "0", y = "0" } };
-                articleKpis.AddRange(kpis.Where(x => x.Name == article).OrderBy(x => x.Count)
-                    .Select(x => new LineScatterData { x = x.Count.ToString(), y = x.ValueMin.ToString() }).ToList());
+                var articleKpis = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
+                articleKpis.AddRange(collection: kpis.Where(predicate: x => x.Name == article).OrderBy(keySelector: x => x.Count)
+                    .Select(selector: x => new LineScatterData { X = x.Count.ToString(), Y = x.ValueMin.ToString() }).ToList());
 
                     var lds = new LineScatterDataset()
                     {
@@ -80,10 +80,10 @@ namespace Master40.ViewComponents
                         ShowLine = true,
                         //SteppedLine = true,
                         LineTension = 0
-                        , Hidden = (article.Equals("Dump-Truck") || article.Equals("Race-Truck")) ? false : true
+                        , Hidden = (article.Equals(value: "Dump-Truck") || article.Equals(value: "Race-Truck")) ? false : true
                         ,YAxisID = "first-y-axis"
                     };
-                    data.Datasets.Add(lds);
+                    data.Datasets.Add(item: lds);
 
                 }
                 chart.Data = data;
@@ -91,9 +91,9 @@ namespace Master40.ViewComponents
             });
 
             // create JS to Render Chart.
-            ViewData["chart"] = await generateChartTask;
-            ViewData["Type"] = paramsList[1];
-            return View($"StockEvolution");
+            ViewData[index: "chart"] = await generateChartTask;
+            ViewData[index: "Type"] = paramsList[index: 1];
+            return View(viewName: $"StockEvolution");
         }
     }
 }

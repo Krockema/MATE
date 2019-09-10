@@ -1,14 +1,14 @@
 @model IEnumerable<Master40.DB.DataModel.T_CustomerOrder>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData[index: "Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    if (ViewData["OrderId"] != null) {
-        string createdId = ViewData["OrderId"].ToString();
+    if (ViewData[index: "OrderId"] != null) {
+        string createdId = ViewData[index: "OrderId"].ToString();
         <script>
             $(document).ready(function () {
-                $("#@Html.Raw(createdId)").click()
+                $("#@Html.Raw(value: createdId)").click()
             });
         </script>
     }
@@ -25,13 +25,13 @@
     <thead>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(expression: model => model.Name)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.DueTime)
+            @Html.DisplayNameFor(expression: model => model.DueTime)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.BusinessPartner)
+            @Html.DisplayNameFor(expression: model => model.BusinessPartner)
         </th>
         <th style="text-align: right;">Actions</th>
     </tr>
@@ -40,13 +40,13 @@
     @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @Html.DisplayFor(expression: modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DueTime)
+                @Html.DisplayFor(expression: modelItem => item.DueTime)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BusinessPartner.Name)
+                @Html.DisplayFor(expression: modelItem => item.BusinessPartner.Name)
             </td>
             <td style="text-align: right;">
                 <a asp-action="Edit" asp-controller="Orders" asp-route-id="@item.Id"

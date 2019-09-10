@@ -18,7 +18,7 @@ namespace Master40.Extensions
             var colorList = new List<Color>();
             for (int i = 0; i < steps; i++)
             {
-                colorList.Add(new Color
+                colorList.Add(item: new Color
                 {
                     A = start.A + (stepA * i),
                     R = start.R + (stepR * i),

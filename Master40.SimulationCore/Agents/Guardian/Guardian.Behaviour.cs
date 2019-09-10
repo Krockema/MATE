@@ -1,33 +1,41 @@
 ﻿using System;
 using Akka.Actor;
+using Master40.DB.Enums;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.MessageTypes;
+using static Master40.SimulationCore.Agents.Guardian.Instruction;
 
 namespace Master40.SimulationCore.Agents.Guardian
 {
-    public class GuardianBehaviour : Behaviour
+    public class GuardianBehaviour : SimulationCore.Types.Behaviour
     {
-        private GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker) : base(childMaker) { }
+        internal int counterChilds = 0;
 
-        public static GuardianBehaviour Get(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker)
+        internal GuardianBehaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker, SimulationType simulationType) 
+            : base(childMaker: childMaker
+                 , simulationType: simulationType) { }
+
+        public static GuardianBehaviour Get(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker, SimulationType simulationType)
         {
-            return new GuardianBehaviour(childMaker);
+            return new GuardianBehaviour(childMaker: childMaker, simulationType: simulationType);
         }
 
-        public override bool Action(Agent agent, object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
-                case Guardian.Instruction.CreateChild m: CreateChild(agent, m.GetObjectFromMessage); break;
+                case CreateChild m: CreateChild(setup: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void CreateChild(Agent agent, AgentSetup setup)
+        internal void CreateChild(AgentSetup setup)
         {
-            var childRef = agent.Behaviour.ChildMaker(agent.Context, setup);
-            agent.Send(BasicInstruction.Initialize.Create(childRef, setup.Behaviour));
+            counterChilds++;
+            //System.Diagnostics.Debug.WriteLine($"({Agent.CurrentTime}) {Agent.Context.Self.Path.Name} add child and has {counterChilds} now");
+
+            var childRef = Agent.Behaviour.ChildMaker(arg1: Agent.Context, arg2: setup);
+            Agent.Send(instruction: BasicInstruction.Initialize.Create(target: childRef, message: setup.Behaviour));
         }
 
         

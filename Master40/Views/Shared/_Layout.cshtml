@@ -1,39 +1,28 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Master ERP 4.0</title>
-
-
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/MenuV2.css" />
-    <link rel="stylesheet" href="~/css/font-awesome.css" />
-    <link rel="stylesheet" href="~/css/ladda-themeless.min.css" />
-    <link rel="stylesheet" href="~/css/distrochart.css" />
-    <!--<link rel="stylesheet" href="~/css/simpleTimeline.css" />-->
-    <!--<link rel="stylesheet" href="~/css/jQuerryGantt.css"/>-->
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-    <!--<script src="~/lib/tether/dist/js/tether.js"></script>-->
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <!--<script src="~/lib/jquery-gantt/jquery.fn.gantt.js"></script>-->
-    <script src="~/js/moment.min.js"></script>
-    <script src="~/js/prettify.js"></script>
-    <script src="~/lib/Chart.js/dist/Chart.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData[index: "Title"] - Master ERP 4.0</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="~/css/site.css">
+    <link rel="stylesheet" href="~/css/MenuV2.css">
+    <link rel="stylesheet" href="~/css/font-awesome.css">
+    <link rel="stylesheet" href="~/css/ladda-themeless.min.css">
+    <script src="~/lib/popper.js/popper.min.js"></script>
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/lib/moment.js/moment.min.js"></script>
+    <script src="~/lib/Chart.js/Chart.min.js"></script>
     <script src="~/js/Chart.BoxPlot.js"></script>
     <script src="~/js/growl.js"></script>
     <script src="~/js/spin.min.js"></script>
     <script src="~/js/ladda.min.js"></script>
     <script src="~/js/d3.v3.min.js"></script>
-    <script src="~/js/distrochart.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/signalr.min.js"></script>
-    <script>
 
-    </script>
-    <!--<script src="~/lib/timeline/resize.js"></script>
-    <script src="~/lib/timeline/simpleTimeline.js"></script>-->
     <style>
         #wrapper.active #sidebar-wrapper {
             left: 10px;
@@ -41,67 +30,51 @@
         }
     </style>
 </head>
+
 <body>
-
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+    <nav class="navbar navbar-dark bg-dark fixed-top navbar-expand-md">
+        <div class="container">
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Master ERP 4.0</a>
+                &#x2630;
+            </button> <a asp-area=""
+                         asp-controller="Home" asp-action="Index" class="navbar-brand">Master ERP 4.0</a>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="nav-item">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="~/hangfire" target="_blank" class="nav-link">Hangfire</a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="" asp-controller="Home" asp-action="About" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-area="" asp-controller="Home" asp-action="Contact" class="nav-link">Contact</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                <li><a href="~/hangfire" target="_blank">Hangfire</a></li>
-                <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                
-            </ul>
+    </nav>
+    <nav class="main-menu">
+        <ul>@await Component.InvokeAsync(name: "Menu", arguments: new { menueId = 1 })</ul>
+    </nav>
+    <!-- /#sidebar-wrapper -->
+    <!-- Page Content -->
+    <div style="margin: 20px 20px 20px 65px">
+        <div class="container" id="main">
+            <div class="row">
+                <div class="col-lg-12">@RenderBody()</div>
+            </div>
+            <!-- /#page-content-wrapper -->
         </div>
-    </div>
-</nav>
- 
-<nav class="main-menu">
-    <ul>
-        @await Component.InvokeAsync("Menu", new { menueId = 1 })
-    </ul>
-</nav>
-
-                <!-- /#sidebar-wrapper -->
-                <!-- Page Content -->
-    <div style="margin-left: 65px;">
-                <div class="container" id="main">
-                    <div class="row">
-                        <div class="col-md-12">
-
-                            @RenderBody()
-
-
-                        </div>
-                    </div>
-                    <!-- /#page-content-wrapper -->
-                </div>
-        </div>
-
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-        <script>
-                $(document).ready(function () {
-                    $("#menu-toggle").click(function (e) {
-                        e.preventDefault();
-                        $("#wrapper").toggleClass("active");
-                    });
-                });
-        </script>
-    
-        @RenderSection("Scripts", required: false)
-        <!-- number validation fix for '.' -> ',' -->
+    </div>@RenderSection(name: "Scripts", required: false)
+    <!-- number validation
+    fix for '.' -> ',' -->
     <footer class="footer">
-        <p>&copy; 2017 - Master ERP 4.0 (Martin, Krockert && Sebastian Seifert)</p>
+        <p>&#xA9; 2017 - Master ERP 4.0 (Martin, Krockert &amp;&amp; Sebastian Seifert)</p>
     </footer>
 </body>
+
 </html>

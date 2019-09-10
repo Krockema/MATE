@@ -11,6 +11,7 @@ namespace Master40.DB.DataModel
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
+        public int ResourceSkillId { get; set; }
         public int? MachineToolId { get; set; }
         [JsonIgnore]
         public M_MachineTool MachineTool { get; set; }
@@ -19,8 +20,8 @@ namespace Master40.DB.DataModel
         public M_MachineGroup MachineGroup { get; set; }
         public int? MachineId { get; set; }
         [JsonIgnore]
-        public M_Machine Machine { get; set; }
-        public int? ProductionOrderId { get; set; }
+        public M_Resource Resource { get; set; }
+        public int ProductionOrderId { get; set; }
         [JsonIgnore]
         public T_ProductionOrder ProductionOrder { get; set; }
         public int Start { get; set; }
@@ -29,7 +30,9 @@ namespace Master40.DB.DataModel
         public int? EndBackward { get; set; }
         public int? StartForward { get; set; }
         public int? EndForward { get; set; }
-        
+        public decimal ActivitySlack { get; set; }
+        public decimal WorkTimeWithParents { get; set; }
+        public int DurationSimulation { get; set; }
         public ProducingState ProducingState { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
 

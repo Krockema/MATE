@@ -11,9 +11,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 public static UpdateLiveFeed Create(bool setup, IActorRef target)
                 {
-                    return new UpdateLiveFeed(setup, target);
+                    return new UpdateLiveFeed(message: setup, target: target);
                 }
-                private UpdateLiveFeed(object message, IActorRef target) : base(message, target)
+                private UpdateLiveFeed(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public bool GetObjectFromMessage { get => (bool)this.Message; }
