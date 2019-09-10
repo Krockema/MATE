@@ -34,15 +34,15 @@ namespace Zpp.DbCache
             throw new System.NotImplementedException();
         }
 
-        public List<Machine> GetMachinesOfProductionOrderOperation(
+        public List<Resource> GetMachinesOfProductionOrderOperation(
             ProductionOrderOperation productionOrderOperation)
         {
-            return _dbMasterDataCache.M_MachineGetAll().Where(x =>
-                x.GetMachineGroupId().GetValue()
-                    .Equals(productionOrderOperation.GetValue().MachineGroupId)).ToList();
+            return _dbMasterDataCache.M_ResourceGetAll().Where(x =>
+                x.GetFirstMachineSkillId().GetValue()
+                    .Equals(productionOrderOperation.GetValue().ResourceSkillId)).ToList();
         }
 
-        public List<ProductionOrderOperation> GetProductionOrderOperationsOfMachine(Machine machine)
+        public List<ProductionOrderOperation> GetProductionOrderOperationsOfMachine(Resource resource)
         {
             throw new System.NotImplementedException();
         }

@@ -1,32 +1,36 @@
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Zpp.WrappersForPrimitives;
 
 namespace Zpp.Mrp.MachineManagement
 {
-    public class Machine : IMachine
+    public class Resource : IResource
     {
-        private readonly M_Machine _machine;
+        private readonly M_Resource _machine;
         private int _idleStartTime = 0;
 
-        public Machine(M_Machine machine)
+        public Resource(M_Resource machine)
         {
             _machine = machine;
         }
 
-        public M_Machine GetValue()
+        public M_Resource GetValue()
         {
             return _machine;
         }
-
-        public Id GetMachineGroupId()
+        /// <summary>
+        /// Depricated 
+        /// </summary>
+        /// <returns></returns>
+        public Id GetFirstMachineSkillId()
         {
-            return new Id(_machine.MachineGroupId);
+            return new Id(_machine.ResourceSkills.First().Id);
         }
 
         public override bool Equals(object obj)
         {
-            var other = obj as Machine;
+            var other = obj as Resource;
             if (other?._machine == null)
                 return false;
             return _machine.Equals(other._machine);

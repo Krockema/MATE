@@ -113,7 +113,7 @@ namespace Zpp.Test.Integration_Tests
                     productionOrderOperation.GetValue();
                 Assert.True(tProductionOrderOperation.Start != tProductionOrderOperation.End,
                     $"{productionOrderOperation} was not scheduled.");
-                Assert.True(tProductionOrderOperation.MachineId != null,
+                Assert.True(tProductionOrderOperation.ResourceId != null,
                     $"{productionOrderOperation} was not scheduled.");
                 Assert.True(
                     tProductionOrderOperation.Start >= tProductionOrderOperation.StartBackward,

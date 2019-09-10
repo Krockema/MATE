@@ -21,7 +21,7 @@ namespace Zpp.Mrp.MachineManagement
              R: enthält die zubelegenden Maschinen (resources)
              S: einplanbare Operationen 
              */
-            IStackSet<Machine> machinesSetR;
+            IStackSet<Resource> machinesSetR;
             IStackSet<ProductionOrderOperation> schedulableOperations =
                 new StackSet<ProductionOrderOperation>();
             // must only contain unstarted operations (= schedulable),
@@ -70,11 +70,11 @@ namespace Zpp.Mrp.MachineManagement
             while (schedulableOperations.Any())
             {
                 // collect machines which have the earliest dueTime
-                machinesSetR = new StackSet<Machine>();
+                machinesSetR = new StackSet<Resource>();
                 foreach (var productionOrderOperationOfLastLevel in productionOrderOperationPaths
                     .PopLevel())
                 {
-                    List<Machine> machinesToAdd =
+                    List<Resource> machinesToAdd =
                         productionOrderOperationOfLastLevel.GetMachines(dbTransactionData);
                     machinesSetR.PushAll(machinesToAdd);
                 }
@@ -90,7 +90,7 @@ namespace Zpp.Mrp.MachineManagement
                         O_lr aus S entnehmen, diese gilt als geplant, der vorläufige Startzeitpunkt s_ij wird somit endgültig
                         Alle übrigen Operationen der Maschine r: addiere Laufzeit t_ij von O_lr auf s_ij der Operationen, addiere Laufzeit t_ij auf g_r von Maschine r
                     */
-                    Machine machine_r = machinesSetR.PopAny();
+                    Resource resourceR = machinesSetR.PopAny();
                     // priorityRule.GetPriorityOfProductionOrderOperation(, prod, dbTransactionData);
                 }
             }
@@ -116,12 +116,12 @@ namespace Zpp.Mrp.MachineManagement
                     productionOrderOperationGraph);
             }
 
-            Dictionary<Id, List<Machine>> machinesByMachineGroupId =
-                new Dictionary<Id, List<Machine>>();
-            foreach (var machineGroup in dbMasterDataCache.M_MachineGroupGetAll())
+            Dictionary<Id, List<Resource>> machinesByMachineGroupId =
+                new Dictionary<Id, List<Resource>>();
+            foreach (var machineGroup in dbMasterDataCache.M_ResourceSkillGetAll())
             {
                 machinesByMachineGroupId.Add(machineGroup.GetId(),
-                    dbMasterDataCache.M_MachineGetAllByMachineGroupId(machineGroup.GetId()));
+                    dbMasterDataCache.M_ResourcesGetAllForSkillId(machineGroup.GetId()));
             }
 
             /*
@@ -169,7 +169,7 @@ namespace Zpp.Mrp.MachineManagement
                 IStackSet<ProductionOrderOperation> K = new StackSet<ProductionOrderOperation>();
                 foreach (var o in S.GetAll())
                 {
-                    if (o.GetValue().MachineGroupId.Equals(o_min.GetValue().MachineGroupId) &&
+                    if (o.GetValue().ResourceSkillId.Equals(o_min.GetValue().ResourceSkillId) &&
                         o.GetValue().Start < d_min)
                     {
                         K.Push(o);
@@ -179,11 +179,11 @@ namespace Zpp.Mrp.MachineManagement
                 // while K not empty do
                 if (K.Any())
                 {
-                    // Entnehme Operation mit höchster Prio (o1) aus K und plane auf nächster freier Machine ein
+                    // Entnehme Operation mit höchster Prio (o1) aus K und plane auf nächster freier Resource ein
 
                     List<ProductionOrderOperation> allO1 = new List<ProductionOrderOperation>();
 
-                    foreach (var machine in machinesByMachineGroupId[o_min.GetMachineGroupId()]
+                    foreach (var machine in machinesByMachineGroupId[o_min.GetResourceSkillId()]
                         .OrderBy(x => x.GetIdleStartTime().GetValue()))
                     {
                         if (K.Any() == false)
@@ -204,7 +204,7 @@ namespace Zpp.Mrp.MachineManagement
                         K.Remove(o1);
 
                         o1.SetMachine(machine);
-                        // correct op start time if machine's idleTime is later
+                        // correct op start time if resource's idleTime is later
                         if (machine.GetIdleStartTime().GetValue() > o1.GetValue().Start)
                         {
                             o1.GetValue().Start = machine.GetIdleStartTime().GetValue();

@@ -77,13 +77,10 @@ namespace Zpp.Test.Integration_Tests
                     Assert.True(tProductionOrderOperation.Duration.Equals(mOperation.Duration),
                         errorMessage);
                     Assert.True(
-                        tProductionOrderOperation.MachineToolId.Equals(mOperation.MachineToolId),
+                        tProductionOrderOperation.ResourceToolId.Equals(mOperation.ResourceToolId),
                         errorMessage);
                     Assert.True(
-                        tProductionOrderOperation.MachineGroupId.Equals(mOperation.MachineGroupId),
-                        errorMessage);
-                    Assert.True(
-                        tProductionOrderOperation.MachineGroupId.Equals(mOperation.MachineGroupId),
+                        tProductionOrderOperation.ResourceSkillId.Equals(mOperation.ResourceSkillId),
                         errorMessage);
                 }
             }

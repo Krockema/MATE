@@ -59,7 +59,7 @@ namespace Zpp.Common.ProviderDomain.Wrappers
             // currently only one businessPartner per article TODO: This could be changing
             M_ArticleToBusinessPartner articleToBusinessPartner =
                 _dbMasterDataCache.M_ArticleToBusinessPartnerGetAllByArticleId(GetArticleId())[0];
-            return GetDueTime(dbTransactionData).Minus(articleToBusinessPartner.DueTime);
+            return GetDueTime(dbTransactionData).Minus(articleToBusinessPartner.TimeToDelivery);
         }
 
         public override void SetDueTime(DueTime newDueTime, IDbTransactionData dbTransactionData)

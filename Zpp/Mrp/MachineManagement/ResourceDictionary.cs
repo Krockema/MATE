@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Zpp.Mrp.MachineManagement
 {
-    public class ResourceDictionary : Dictionary<Id, List<Machine>>
+    public class ResourceDictionary : Dictionary<Id, List<Resource>>
     {
         
     }

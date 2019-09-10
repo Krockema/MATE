@@ -20,9 +20,9 @@ namespace Zpp.DbCache
     {
         ProductionOrderBoms GetProductionOrderBomsOfProductionOrder(ProductionOrder productionOrder);
 
-        List<Machine> GetMachinesOfProductionOrderOperation(ProductionOrderOperation productionOrderOperation);
+        List<Resource> GetMachinesOfProductionOrderOperation(ProductionOrderOperation productionOrderOperation);
 
-        List<ProductionOrderOperation> GetProductionOrderOperationsOfMachine(Machine machine);
+        List<ProductionOrderOperation> GetProductionOrderOperationsOfMachine(Resource resource);
         
         List<ProductionOrderOperation> GetProductionOrderOperationsOfProductionOrder(ProductionOrder productionOrder);
         

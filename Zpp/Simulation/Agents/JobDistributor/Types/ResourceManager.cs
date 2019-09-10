@@ -15,7 +15,7 @@ namespace Zpp.Simulation.Agents.JobDistributor.Types
 
         public void AddResource(ResourceDetails resource)
         {
-            _resources.TryAdd(resource.Machine.GetValue().GetId(), resource);
+            _resources.TryAdd(resource.Resource.GetValue().GetId(), resource);
         }
 
         public ResourceDetails GetResourceRefById(Id id)
@@ -28,16 +28,16 @@ namespace Zpp.Simulation.Agents.JobDistributor.Types
         }
 
         /// <summary>
-        /// Get all available Resources as Dictionary<Id, Machine>
+        /// Get all available Resources as Dictionary<Id, Resource>
         /// </summary>
         /// <returns>ResourceDictionary</returns>
         public static ResourceDictionary GetResources(IDbMasterDataCache masterDataCache)
         {
             var resources = new ResourceDictionary();
-            foreach (var machineGroup in masterDataCache.M_MachineGroupGetAll())
+            foreach (var resourceSkill in masterDataCache.M_ResourceSkillGetAll())
             {
-                resources.Add(machineGroup.GetId(),
-                    masterDataCache.M_MachineGetAllByMachineGroupId(machineGroup.GetId()));
+                resources.Add(resourceSkill.GetId(),
+                    masterDataCache.M_ResourcesGetAllForSkillId(resourceSkill.GetId()));
             }
             return resources;
         }

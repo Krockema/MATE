@@ -8,8 +8,8 @@ namespace Zpp.Mrp.MachineManagement
     {
         private IDbMasterDataCache _dbMasterDataCache;
         private IDbTransactionData _dbTransactionData;
-        private Dictionary<Machine, StackSet<ProductionOrderOperation>> _machineToOperations=
-            new Dictionary<Machine, StackSet<ProductionOrderOperation>>();
+        private Dictionary<Resource, StackSet<ProductionOrderOperation>> _machineToOperations=
+            new Dictionary<Resource, StackSet<ProductionOrderOperation>>();
         
         public MachineToOperationTable(IDbMasterDataCache dbMasterDataCache, IDbTransactionData dbTransactionData)
         {
@@ -18,9 +18,9 @@ namespace Zpp.Mrp.MachineManagement
             Init();
         }
 
-        public List<ProductionOrderOperation> GetOperationsOfMachine(Machine machine)
+        public List<ProductionOrderOperation> GetOperationsOfMachine(Resource resource)
         {
-            return _machineToOperations[machine].GetAll();
+            return _machineToOperations[resource].GetAll();
         }
 
         private void Init()

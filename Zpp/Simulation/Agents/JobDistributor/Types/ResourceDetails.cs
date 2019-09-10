@@ -9,13 +9,13 @@ namespace Zpp.Simulation.Agents.JobDistributor.Types
 {
     public class ResourceDetails
     {
-        public Machine Machine  { get; set; }
+        public Mrp.MachineManagement.Resource Resource  { get; set; }
         public bool IsWorking { get; set; }
         public IActorRef ResourceRef { get; set; }
 
-        public ResourceDetails(Machine machine, IActorRef resourceRef )
+        public ResourceDetails(Mrp.MachineManagement.Resource resource, IActorRef resourceRef )
         {
-            Machine = machine;
+            Resource = resource;
             ResourceRef = resourceRef;
         }
 

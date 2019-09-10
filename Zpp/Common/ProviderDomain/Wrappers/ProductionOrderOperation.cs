@@ -88,14 +88,14 @@ namespace Zpp.Common.ProviderDomain.Wrappers
             return _productionOrderOperation;
         }
 
-        public Id GetMachineGroupId()
+        public Id GetResourceSkillId()
         {
-            return new Id(_productionOrderOperation.MachineGroupId);
+            return new Id(_productionOrderOperation.ResourceSkillId);
         }
 
-        public void SetMachine(Machine machine)
+        public void SetMachine(Resource resource)
         {
-            _productionOrderOperation.Machine = machine.GetValue();
+            _productionOrderOperation.Resource = resource.GetValue();
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Zpp.Common.ProviderDomain.Wrappers
         /// </summary>
         /// <param name="dbTransactionData"></param>
         /// <returns></returns>
-        public List<Machine> GetMachines(IDbTransactionData dbTransactionData)
+        public List<Resource> GetMachines(IDbTransactionData dbTransactionData)
         {
             return dbTransactionData.GetAggregator().GetMachinesOfProductionOrderOperation(this);
         }
@@ -155,11 +155,7 @@ namespace Zpp.Common.ProviderDomain.Wrappers
 
         public Id GetProductionOrderId()
         {
-            if (_productionOrderOperation.ProductionOrderId == null)
-            {
-                return null;
-            }
-            return new Id(_productionOrderOperation.ProductionOrderId.GetValueOrDefault());
+            return new Id(_productionOrderOperation.ProductionOrderId);
         }
 
         public override string ToString()

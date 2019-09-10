@@ -42,9 +42,10 @@ namespace Zpp.Test.Integration_Tests
             counts.Add(ProductionDomainContext.ArticleTypes.Count());
             counts.Add(ProductionDomainContext.ArticleToBusinessPartners.Count());
             counts.Add(ProductionDomainContext.BusinessPartners.Count());
-            counts.Add(ProductionDomainContext.Machines.Count());
-            counts.Add(ProductionDomainContext.MachineGroups.Count());
-            counts.Add(ProductionDomainContext.MachineTools.Count());
+            counts.Add(ProductionDomainContext.Resources.Count());
+            counts.Add(ProductionDomainContext.ResourceSetups.Count());
+            counts.Add(ProductionDomainContext.ResourceSkills.Count());
+            counts.Add(ProductionDomainContext.ResourceTools.Count());
             counts.Add(ProductionDomainContext.Stocks.Count());
             counts.Add(ProductionDomainContext.Units.Count());
             counts.Add(ProductionDomainContext.Operations.Count());

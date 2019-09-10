@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
@@ -7,10 +8,14 @@ namespace Zpp.Test.Configuration
 {
     public class MasterDBInitializerDesk
     {
-        private const string MACHINE_GROUP_WELDING = "Schweißen";
-        private const string MACHINE_GROUP_ASSEMBLING = "Montage";
-        private const string MACHINE_GROUP_PACKING = "Verpacken";
-        private const string MACHINE_TOOL_WELDER = "Schweißgerät";
+        private const string RESOURCE_SKILL_WELDING = "Schweißen";
+        private const string RESOURCE_SKILL_ASSEMBLING = "Montage";
+        private const string RESOURCE_SKILL_PACKING = "Verpacken";
+        private const string RESOURCE_TOOL_WELDER = "Schweißgerät";
+        private const string RESOURCE_WRAPPER = "Verpackungseinhheit 1";
+        private const string RESOURCE_ASSEMBLY_1 = "Montage 1";
+        private const string RESOURCE_WELDING_1 = "Schweißen 1";
+
         private const string OPERATION_DESK = "Tisch zusammenbauen";
         private const string OPERATION_DESK_LEG_1 = "Anschraubplatte anschweißen";
         private const string OPERATION_DESK_LEG_2 = "Flizgleiter anstecken";
@@ -40,15 +45,24 @@ namespace Zpp.Test.Configuration
             productionDomainContext.Units.AddRange(units);
             productionDomainContext.SaveChanges();
 
-            // machine groups
-            var machineGroups = CreateMachineGroups();
-            var machines = CreateMachines(machineGroups);
-            productionDomainContext.Machines.AddRange(machines);
+            // resource skills
+            var resourceSkills = CreateResourceSkills();
+            productionDomainContext.ResourceSkills.AddRange(resourceSkills);
             productionDomainContext.SaveChanges();
 
+            // resource Tools
+            var resourceTools = CreateResourceTools();
+            productionDomainContext.ResourceTools.AddRange(resourceTools);
+            productionDomainContext.SaveChanges();
 
-            var machineTools = CreateMachineTools(machines);
-            productionDomainContext.MachineTools.AddRange(machineTools);
+            // resources
+            var resources = CreateResources(resourceSkills);
+            productionDomainContext.Resources.AddRange(resources);
+            productionDomainContext.SaveChanges();
+
+            // resource Setups 
+            var resourceSetups = CreateResourceSetups(resourceTools, resources, resourceSkills);
+            productionDomainContext.ResourceSetups.AddRange(resourceSetups);
             productionDomainContext.SaveChanges();
 
             // Articles
@@ -76,8 +90,8 @@ namespace Zpp.Test.Configuration
                 productionDomainContext.Stocks.AddRange(stocks);
                 productionDomainContext.SaveChanges();
             }
-            
-            var operations = CreateOperations(machineTools, articles, machineGroups);
+
+            var operations = CreateOperations(resourceTools, articles, resourceSkills);
             productionDomainContext.Operations.AddRange(operations);
             productionDomainContext.SaveChanges();
 
@@ -105,26 +119,45 @@ namespace Zpp.Test.Configuration
             };
         }
 
-        private static M_MachineTool[] CreateMachineTools(M_Machine[] machines)
+        private static M_ResourceTool[] CreateResourceTools()
         {
-            return new M_MachineTool[]
+            return new M_ResourceTool[]
             {
-                new M_MachineTool
+                new M_ResourceTool
                 {
-                    MachineId = machines.Single(m => m.Name == "Montage 2").Id, SetupTime = 1,
-                    Name = MACHINE_TOOL_WELDER
+                    Name = RESOURCE_TOOL_WELDER
                 }
             };
         }
 
-        private static M_MachineGroup[] CreateMachineGroups()
+        private static M_ResourceSkill[] CreateResourceSkills()
         {
-            return new M_MachineGroup[]
+            return new M_ResourceSkill[]
             {
-                new M_MachineGroup {Name = MACHINE_GROUP_ASSEMBLING},
-                new M_MachineGroup {Name = MACHINE_GROUP_WELDING},
-                new M_MachineGroup {Name = MACHINE_GROUP_PACKING}
+                new M_ResourceSkill {Name = RESOURCE_SKILL_ASSEMBLING},
+                new M_ResourceSkill {Name = RESOURCE_SKILL_WELDING},
+                new M_ResourceSkill {Name = RESOURCE_SKILL_PACKING}
             };
+        }
+
+        private static M_ResourceSetup[] CreateResourceSetups(M_ResourceTool[] resourceTools
+            , M_Resource[] resources
+            , M_ResourceSkill[] resourceSkills)
+        {
+            var resourceSetups = new List<M_ResourceSetup>();
+            foreach (var resource in resources)
+            {
+                resourceSetups.Add(new M_ResourceSetup()
+                {
+                    Name = resource.Name,
+                    ResourceId = resource.Id,
+                    ResourceToolId = resourceTools.First().Id,
+                    ResourceSkillId = resourceSkills.Single(x => x.Name == resource.ResourceSkills.First().Name).Id,
+
+                });
+            }
+
+            return resourceSetups.ToArray();
         }
 
         private static M_Unit[] CreateUnits()
@@ -147,76 +180,76 @@ namespace Zpp.Test.Configuration
             };
         }
 
-        private static M_Operation[] CreateOperations(M_MachineTool[] machineTools,
-            M_Article[] articles, M_MachineGroup[] machineGroups)
+        private static M_Operation[] CreateOperations(M_ResourceTool[] resourceTools,
+            M_Article[] articles, M_ResourceSkill[] resourceSkills)
         {
             // Tool has no meaning yet, ignore it and use always the same
-            M_MachineTool machineTool = machineTools.Single(a => a.Name == MACHINE_TOOL_WELDER);
+            M_ResourceTool resourceTool = resourceTools.Single(a => a.Name == RESOURCE_TOOL_WELDER);
             return new M_Operation[]
             {
                 new M_Operation
                 {
                     ArticleId = articles.Single(a => a.Name == ARTICLE_DESK).Id,
                     Name = OPERATION_DESK, Duration = 11,
-                    MachineGroupId = machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_PACKING))
+                    ResourceSkillId = resourceSkills.Single(x => x.Name.Equals(RESOURCE_SKILL_PACKING))
                         .Id,
                     HierarchyNumber = 10,
-                    MachineToolId = machineTool.Id
+                    ResourceToolId = resourceTool.Id
                 },
                 new M_Operation
                 {
                     ArticleId = articles.Single(a => a.Name == ARTICLE_DESK_LEG).Id,
                     Name = OPERATION_DESK_LEG_1, Duration = 20,
-                    MachineGroupId = machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_WELDING))
+                    ResourceSkillId = resourceSkills.Single(x => x.Name.Equals(RESOURCE_SKILL_WELDING))
                         .Id,
                     HierarchyNumber = 10,
-                    MachineToolId = machineTool.Id
+                    ResourceToolId = resourceTool.Id
                 },
                 new M_Operation
                 {
                     ArticleId = articles.Single(a => a.Name == ARTICLE_DESK_LEG).Id,
                     Name = OPERATION_DESK_LEG_2, Duration = 3,
-                    MachineGroupId = machineGroups
-                        .Single(x => x.Name.Equals(MACHINE_GROUP_ASSEMBLING)).Id,
+                    ResourceSkillId = resourceSkills
+                        .Single(x => x.Name.Equals(RESOURCE_SKILL_WELDING)).Id,
                     HierarchyNumber = 20,
-                    MachineToolId = machineTool.Id
+                    ResourceToolId = resourceTool.Id
                 }
             };
         }
 
-        private static M_Machine[] CreateMachines(M_MachineGroup[] machineGroups)
+        private static M_Resource[] CreateResources(M_ResourceSkill[] machineGroups)
         {
-            return new M_Machine[]
+            return new M_Resource[]
             {
                 // Verpacken
-                new M_Machine
+                new M_Resource
                 {
                     Capacity = 1, Name = "Endmontage 1", Count = 1,
-                    MachineGroup = machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_PACKING))
+                    ResourceSkills = machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_PACKING)).ToList()
                 },
                 // Schweißen
-                new M_Machine
+                new M_Resource
                 {
                     Capacity = 1, Name = "Schweißen 1", Count = 1,
-                    MachineGroup = machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_WELDING))
+                    ResourceSkills = machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_WELDING)).ToList()
                 },
-                new M_Machine
+                new M_Resource
                 {
                     Capacity = 1, Name = "Schweißen 2", Count = 1,
-                    MachineGroup = machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_WELDING))
+                    ResourceSkills = machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_WELDING)).ToList()
                 },
                 // Montage der Beine an Tisch
-                new M_Machine
+                new M_Resource
                 {
                     Capacity = 1, Name = "Montage 1", Count = 1,
-                    MachineGroup =
-                        machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_ASSEMBLING))
+                    ResourceSkills =
+                        machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_ASSEMBLING)).ToList()
                 },
-                new M_Machine
+                new M_Resource
                 {
                     Capacity = 1, Name = "Montage 2", Count = 1,
-                    MachineGroup =
-                        machineGroups.Single(x => x.Name.Equals(MACHINE_GROUP_ASSEMBLING))
+                    ResourceSkills =
+                        machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_ASSEMBLING)).ToList()
                 },
             };
         }
@@ -356,35 +389,35 @@ namespace Zpp.Test.Configuration
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_DESK_SURFACE).Id, PackSize = 1,
                     Price = 20,
-                    DueTime = 100
+                    TimeToDelivery = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_SCREWS).Id, PackSize = 100,
                     Price = 5,
-                    DueTime = 100
+                    TimeToDelivery = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_MOUNTING_PLATE).Id, PackSize = 10,
                     Price = 10,
-                    DueTime = 100
+                    TimeToDelivery = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_STEEL_PIPE).Id, PackSize = 10,
                     Price = 20,
-                    DueTime = 100
+                    TimeToDelivery = 100
                 },
                 new M_ArticleToBusinessPartner
                 {
                     BusinessPartnerId = businessPartnerWholeSale.Id,
                     ArticleId = articles.Single(x => x.Name == ARTICLE_FELT_GLIDERS).Id, PackSize = 10,
                     Price = 2,
-                    DueTime = 100
+                    TimeToDelivery = 100
                 },
             };
         }

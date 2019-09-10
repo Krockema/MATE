@@ -21,14 +21,14 @@ namespace Zpp.GraphicalRepresentation
                 
                 ganttChartBar.operation = productionOrderOperation.ToString();
                 ganttChartBar.operationId = tProductionOrderOperation.Id.ToString();
-                if (tProductionOrderOperation.Machine == null)
+                if (tProductionOrderOperation.Resource == null)
                 {
-                    tProductionOrderOperation.Machine = dbMasterDataCache
-                        .M_MachineGetById(new Id(tProductionOrderOperation.MachineId
+                    tProductionOrderOperation.Resource = dbMasterDataCache
+                        .M_ResourceGetById(new Id(tProductionOrderOperation.ResourceId
                             .GetValueOrDefault())).GetValue();
                 }
 
-                ganttChartBar.resource = tProductionOrderOperation.Machine.ToString();
+                ganttChartBar.resource = tProductionOrderOperation.Resource.ToString();
                 ganttChartBar.start = tProductionOrderOperation.Start.ToString();
                 ganttChartBar.end = tProductionOrderOperation.End.ToString();
 

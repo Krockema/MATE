@@ -164,10 +164,10 @@ namespace Zpp.Mrp.ProductionManagement
             productionOrderOperation.HierarchyNumber = articleBom.Operation.HierarchyNumber;
             productionOrderOperation.Duration = articleBom.Operation.Duration * (int)quantity.GetValue();
             // Tool has no meaning yet, ignore it
-            productionOrderOperation.MachineTool = articleBom.Operation.MachineTool;
-            productionOrderOperation.MachineToolId = articleBom.Operation.MachineToolId;
-            productionOrderOperation.MachineGroup = articleBom.Operation.MachineGroup;
-            productionOrderOperation.MachineGroupId = articleBom.Operation.MachineGroupId;
+            productionOrderOperation.ResourceToolId = articleBom.Operation.ResourceToolId;
+            productionOrderOperation.ResourceTool = articleBom.Operation.ResourceTool;
+            productionOrderOperation.ResourceSkill = articleBom.Operation.ResourceSkill;
+            productionOrderOperation.ResourceSkillId = articleBom.Operation.ResourceSkillId;
             productionOrderOperation.ProducingState = ProducingState.Created;
             productionOrderOperation.ProductionOrder =
                 (T_ProductionOrder) parentProductionOrder.ToIProvider();

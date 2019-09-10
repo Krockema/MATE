@@ -40,17 +40,17 @@ namespace Zpp.DbCache
 
         M_ArticleType M_ArticleTypeGetById(Id id);
 
-        Machine M_MachineGetById(Id id);
+        Resource M_ResourceGetById(Id id);
         
-        List<Machine> M_MachineGetAllByMachineGroupId(Id id);
+        List<Resource> M_ResourcesGetAllForSkillId(Id id);
         
-        List<Machine> M_MachineGetAll();
+        List<Resource> M_ResourceGetAll();
 
-        M_MachineGroup M_MachineGroupGetById(Id id);
+        M_ResourceSkill M_ResourceSkillById(Id id);
         
-        List<M_MachineGroup> M_MachineGroupGetAll();
+        List<M_ResourceSkill> M_ResourceSkillGetAll();
 
-        M_MachineTool M_MachineToolGetById(Id id);
+        M_ResourceTool M_ResourceToolGetById(Id id);
 
         M_Operation M_OperationGetById(Id id);
 

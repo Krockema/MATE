@@ -73,7 +73,8 @@ namespace Zpp.DbCache
                 .ToList();
             _articles = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
                 .ThenInclude(m => m.ArticleChild).Include(m => m.ArticleBoms)
-                .ThenInclude(x => x.Operation).ThenInclude(x => x.MachineGroup)
+                .ThenInclude(x => x.Operation).ThenInclude(x => x.ResourceSkill)
+                .ThenInclude(s => s.ResourceSetups).ThenInclude(r => r.Resource)
                 .Include(x => x.ArticleToBusinessPartners).ThenInclude(x => x.BusinessPartner)
                 .ToList();
 

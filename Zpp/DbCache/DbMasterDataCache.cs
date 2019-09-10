@@ -28,9 +28,9 @@ namespace Zpp.DbCache
         private readonly IMasterDataTable<M_ArticleToBusinessPartner> _articleToBusinessPartners;
         private readonly IMasterDataTable<M_ArticleType> _articleTypes;
         private readonly IMasterDataTable<M_BusinessPartner> _businessPartners;
-        private readonly IMasterDataTable<M_Machine> _machines;
-        private readonly IMasterDataTable<M_MachineGroup> _machineGroups;
-        private readonly IMasterDataTable<M_MachineTool> _machineTools;
+        private readonly IMasterDataTable<M_Resource> _resources;
+        private readonly IMasterDataTable<M_ResourceSkill> _resourceSkills;
+        private readonly IMasterDataTable<M_ResourceTool> _resourceTools;
         private readonly IMasterDataTable<M_Operation> _operations;
         private readonly IMasterDataTable<M_Stock> _stocks;
         private readonly IMasterDataTable<M_Unit> _units;
@@ -49,9 +49,9 @@ namespace Zpp.DbCache
                 new MasterDataTable<M_ArticleToBusinessPartner>(_productionDomainContext.ArticleToBusinessPartners);
             _articleTypes = new MasterDataTable<M_ArticleType>(_productionDomainContext.ArticleTypes);
             _businessPartners = new MasterDataTable<M_BusinessPartner>(_productionDomainContext.BusinessPartners);
-            _machines = new MasterDataTable<M_Machine>(_productionDomainContext.Machines);
-            _machineGroups = new MasterDataTable<M_MachineGroup>(_productionDomainContext.MachineGroups);
-            _machineTools = new MasterDataTable<M_MachineTool>(_productionDomainContext.MachineTools);
+            _resources = new MasterDataTable<M_Resource>(_productionDomainContext.Resources);
+            _resourceSkills = new MasterDataTable<M_ResourceSkill>(_productionDomainContext.ResourceSkills);
+            _resourceTools = new MasterDataTable<M_ResourceTool>(_productionDomainContext.ResourceTools);
             _operations = new MasterDataTable<M_Operation>(_productionDomainContext.Operations);
             _stocks = new MasterDataTable<M_Stock>(_productionDomainContext.Stocks);
             _units = new MasterDataTable<M_Unit>(_productionDomainContext.Units);
@@ -87,19 +87,19 @@ namespace Zpp.DbCache
             return _articleTypes.GetById(id);
         }
 
-        public Machine M_MachineGetById(Id id)
+        public Resource M_ResourceGetById(Id id)
         {
-            return new Machine(_machines.GetById(id));
+            return new Resource(_resources.GetById(id));
         }
 
-        public M_MachineGroup M_MachineGroupGetById(Id id)
+        public M_ResourceSkill M_ResourceSkillById(Id id)
         {
-            return _machineGroups.GetById(id);
+            return _resourceSkills.GetById(id);
         }
 
-        public M_MachineTool M_MachineToolGetById(Id id)
+        public M_ResourceTool M_ResourceToolGetById(Id id)
         {
-            return _machineTools.GetById(id);
+            return _resourceTools.GetById(id);
         }
 
         public M_Operation M_OperationGetById(Id id)
@@ -230,24 +230,24 @@ namespace Zpp.DbCache
             _stocks.SetAll(stocks);
         }
 
-        public List<Machine> M_MachineGetAll()
+        public List<Resource> M_ResourceGetAll()
         {
-            List<Machine> machines = new List<Machine>();
-            foreach (var machine in _machines.GetAll())
+            List<Resource> machines = new List<Resource>();
+            foreach (var machine in _resources.GetAll())
             {
-                machines.Add(new Machine(machine));
+                machines.Add(new Resource(machine));
             }
             return machines;
         }
 
-        public List<Machine> M_MachineGetAllByMachineGroupId(Id id)
+        public List<Resource> M_ResourcesGetAllForSkillId(Id id)
         {
-            return M_MachineGetAll().Where(x=>x.GetMachineGroupId().Equals(id)).ToList();
+            return M_ResourceGetAll().Where(x=>x.GetFirstMachineSkillId().Equals(id)).ToList();
         }
 
-        public List<M_MachineGroup> M_MachineGroupGetAll()
+        public List<M_ResourceSkill> M_ResourceSkillGetAll()
         {
-            return _machineGroups.GetAll();
+            return _resourceSkills.GetAll();
         }
 
         public M_ArticleBom M_ArticleBomGetByArticleChildId(Id id)

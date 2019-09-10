@@ -43,12 +43,12 @@ namespace Zpp.Mrp.PurchaseManagement
                                  $"businessPartner {purchaseOrder.BusinessPartner.Id}";
 
             // demand cannot be fulfilled in time
-            if (articleToBusinessPartner.DueTime > dueTime.GetValue())
+            if (articleToBusinessPartner.TimeToDelivery > dueTime.GetValue())
             {
                 Logger.Error($"Article {article.GetId()} from demand {demand.GetId()} " +
                              $"should be available at {dueTime}, but " +
                              $"businessPartner {businessPartner.Id} " +
-                             $"can only deliver at {articleToBusinessPartner.DueTime}.");
+                             $"can only deliver at {articleToBusinessPartner.TimeToDelivery}.");
             }
 
             // init a new purchaseOderPart

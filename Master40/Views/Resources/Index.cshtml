@@ -1,4 +1,4 @@
-@model IEnumerable<Master40.DB.DataModel.M_Machine>
+@model IEnumerable<Master40.DB.DataModel.M_Resource>
 
 @{
     ViewData[index: "Title"] = "Index";
@@ -58,9 +58,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(expression: modelItem => item.Capacity)
-                </td>
-                <td>
-                    @Html.DisplayFor(expression: modelItem => item.MachineGroup.Name)
                 </td>
                 <td style="text-align: right;">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">

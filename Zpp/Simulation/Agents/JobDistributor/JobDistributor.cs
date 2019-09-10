@@ -59,20 +59,20 @@ namespace Zpp.Simulation.Agents.JobDistributor
             }
 
             // split into machineGroups 
-            var operationGroupedByMachine = operationLeafs.GetAll()
-                .GroupBy(x => x.GetValue().MachineId, (machineId, operations) => new { machineId , operations });
+            var operationGroupedBySkill = operationLeafs.GetAll()
+                .GroupBy(x => x.GetValue().ResourceId, (resourceId, operations) => new { resourceId , operations });
 
-            // get next item for each machine.
-            foreach (var machine in operationGroupedByMachine)
+            // get next item for each resource.
+            foreach (var machine in operationGroupedBySkill)
             {
                 // TODO:  no idea what performs the best
-                // var first = machine.operations.Select(p => (p.GetValue().Start, p)).Min().p.GetValue();
+                // var first = resource.operations.Select(p => (p.GetValue().Start, p)).Min().p.GetValue();
                 var first = machine.operations.OrderBy(x => x.GetValue().Start).FirstOrDefault();
                 if (first == null) continue;
 
                 // should never happen. but who knows...
-                Debug.Assert(machine.machineId != null, "machine.machineId is null");
-                if (ScheduleOperation(productionOrderOperation: first, machineId: machine.machineId.Value))
+                Debug.Assert(machine.resourceId != null, "resource.machineId is null");
+                if (ScheduleOperation(productionOrderOperation: first, machineId: machine.resourceId.Value))
                 {
                     OperationManager.RemoveOperation(first);
                 }
@@ -89,7 +89,7 @@ namespace Zpp.Simulation.Agents.JobDistributor
             ResourceDetails machine = ResourceManager.GetResourceRefById(new Id(machineId));
             if (machine.IsWorking)
             {
-                Debug.WriteLine("Machine is still Working.");
+                Debug.WriteLine("Resource is still Working.");
                 return false;
             }
 
@@ -128,14 +128,14 @@ namespace Zpp.Simulation.Agents.JobDistributor
             // TODO Check for Preconditions (Previous job is finished and Material is Provided.)
             var rawOperation = operation.GetValue();
             rawOperation.ProducingState = ProducingState.Finished;
-            var machineId = rawOperation.MachineId;
-            if (machineId == null)
-                throw new Exception("Machine not found.");
+            var resourceId = rawOperation.ResourceId;
+            if (resourceId == null)
+                throw new Exception("Resource not found.");
 
             OperationManager.InsertMaterialsIntoStock(operation, TimePeriod);
 
-            var machine = ResourceManager.GetResourceRefById(new Id(machineId.Value));
-            machine.IsWorking = false;
+            var resource = ResourceManager.GetResourceRefById(new Id(resourceId.Value));
+            resource.IsWorking = false;
 
             PushWork();
         }
