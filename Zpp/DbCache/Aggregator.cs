@@ -1,8 +1,8 @@
+using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.DataModel;
 using Zpp.Common.DemandDomain;
 using Zpp.Common.DemandDomain.Wrappers;
 using Zpp.Common.DemandDomain.WrappersForCollections;
@@ -10,7 +10,6 @@ using Zpp.Common.ProviderDomain;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.Common.ProviderDomain.WrappersForCollections;
 using Zpp.Mrp.MachineManagement;
-using Zpp.Simulation.Types;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 
@@ -34,17 +33,14 @@ namespace Zpp.DbCache
             throw new System.NotImplementedException();
         }
 
-        public List<Resource> GetMachinesOfProductionOrderOperation(
-            ProductionOrderOperation productionOrderOperation)
+        public List<Resource> GetResourcesByResourceSkillId(
+            Id resourceSkillId)
         {
-            return _dbMasterDataCache.M_ResourceGetAll().Where(x =>
-                x.GetFirstMachineSkillId().GetValue()
-                    .Equals(productionOrderOperation.GetValue().ResourceSkillId)).ToList();
-        }
-
-        public List<ProductionOrderOperation> GetProductionOrderOperationsOfMachine(Resource resource)
-        {
-            throw new System.NotImplementedException();
+            var setupIds = _dbMasterDataCache.M_ResourceSetupGetAll()
+                                             .Where(x => x.ResourceSkillId.Equals(resourceSkillId.GetValue()))
+                                             .Select(i => i.ResourceId);
+            var resources = _dbMasterDataCache.ResourceGetAll().Where(x => setupIds.Contains(x.GetValue().Id)).ToList();
+            return resources;
         }
 
         public List<ProductionOrderOperation> GetProductionOrderOperationsOfProductionOrder(

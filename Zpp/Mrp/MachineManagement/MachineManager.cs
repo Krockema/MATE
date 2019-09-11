@@ -116,12 +116,12 @@ namespace Zpp.Mrp.MachineManagement
                     productionOrderOperationGraph);
             }
 
-            Dictionary<Id, List<Resource>> machinesByMachineGroupId =
+            Dictionary<Id, List<Resource>> resourcesByResourceSkillId =
                 new Dictionary<Id, List<Resource>>();
-            foreach (var machineGroup in dbMasterDataCache.M_ResourceSkillGetAll())
+            foreach (var resourceSkill in dbMasterDataCache.M_ResourceSkillGetAll())
             {
-                machinesByMachineGroupId.Add(machineGroup.GetId(),
-                    dbMasterDataCache.M_ResourcesGetAllForSkillId(machineGroup.GetId()));
+                resourcesByResourceSkillId.Add(resourceSkill.GetId(),
+                    dbTransactionData.GetAggregator().GetResourcesByResourceSkillId(resourceSkill.GetId()));
             }
 
             /*
@@ -183,7 +183,7 @@ namespace Zpp.Mrp.MachineManagement
 
                     List<ProductionOrderOperation> allO1 = new List<ProductionOrderOperation>();
 
-                    foreach (var machine in machinesByMachineGroupId[o_min.GetResourceSkillId()]
+                    foreach (var machine in resourcesByResourceSkillId[o_min.GetResourceSkillId()]
                         .OrderBy(x => x.GetIdleStartTime().GetValue()))
                     {
                         if (K.Any() == false)

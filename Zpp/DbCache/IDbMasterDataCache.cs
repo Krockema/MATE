@@ -37,14 +37,14 @@ namespace Zpp.DbCache
         BusinessPartners M_ArticleToBusinessPartnerGetAllBusinessPartnersByArticleId(Id articleId);
         
         List<M_ArticleToBusinessPartner> M_ArticleToBusinessPartnerGetAllByArticleId(Id articleId);
-
+        List<Resource> ResourcesGetAllBySkillId(Id id);
         M_ArticleType M_ArticleTypeGetById(Id id);
 
         Resource M_ResourceGetById(Id id);
-        
-        List<Resource> M_ResourcesGetAllForSkillId(Id id);
-        
-        List<Resource> M_ResourceGetAll();
+
+        List<M_ResourceSetup> M_ResourceSetupGetAll();
+
+        List<Resource> ResourceGetAll();
 
         M_ResourceSkill M_ResourceSkillById(Id id);
         

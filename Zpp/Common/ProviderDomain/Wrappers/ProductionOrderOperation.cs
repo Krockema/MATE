@@ -105,7 +105,7 @@ namespace Zpp.Common.ProviderDomain.Wrappers
         /// <returns></returns>
         public List<Resource> GetMachines(IDbTransactionData dbTransactionData)
         {
-            return dbTransactionData.GetAggregator().GetMachinesOfProductionOrderOperation(this);
+            return dbTransactionData.GetAggregator().GetResourcesByResourceSkillId(this.GetResourceSkillId());
         }
 
         public override bool Equals(object obj)

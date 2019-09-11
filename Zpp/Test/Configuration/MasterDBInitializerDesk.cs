@@ -217,40 +217,29 @@ namespace Zpp.Test.Configuration
             };
         }
 
-        private static M_Resource[] CreateResources(M_ResourceSkill[] machineGroups)
+        private static M_Resource[] CreateResources(M_ResourceSkill[] resourceSkills)
         {
             return new M_Resource[]
             {
                 // Verpacken
                 new M_Resource
                 {
-                    Capacity = 1, Name = "Endmontage 1", Count = 1,
-                    ResourceSkills = machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_PACKING)).ToList()
+                    Capacity = 1, Name = RESOURCE_WRAPPER, Count = 1,
+                    ResourceSkills = resourceSkills.Where(x => x.Name.Equals(RESOURCE_SKILL_PACKING)).ToList()
                 },
                 // Schweißen
                 new M_Resource
                 {
-                    Capacity = 1, Name = "Schweißen 1", Count = 1,
-                    ResourceSkills = machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_WELDING)).ToList()
-                },
-                new M_Resource
-                {
-                    Capacity = 1, Name = "Schweißen 2", Count = 1,
-                    ResourceSkills = machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_WELDING)).ToList()
+                    Capacity = 1, Name = RESOURCE_WELDING_1, Count = 1,
+                    ResourceSkills = resourceSkills.Where(x => x.Name.Equals(RESOURCE_SKILL_WELDING)).ToList()
                 },
                 // Montage der Beine an Tisch
                 new M_Resource
                 {
-                    Capacity = 1, Name = "Montage 1", Count = 1,
+                    Capacity = 1, Name = RESOURCE_ASSEMBLY_1, Count = 1,
                     ResourceSkills =
-                        machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_ASSEMBLING)).ToList()
-                },
-                new M_Resource
-                {
-                    Capacity = 1, Name = "Montage 2", Count = 1,
-                    ResourceSkills =
-                        machineGroups.Where(x => x.Name.Equals(RESOURCE_SKILL_ASSEMBLING)).ToList()
-                },
+                        resourceSkills.Where(x => x.Name.Equals(RESOURCE_SKILL_ASSEMBLING)).ToList()
+                }
             };
         }
 

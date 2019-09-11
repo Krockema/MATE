@@ -5,7 +5,8 @@ namespace Master40.DB.DataModel
 {
     public class M_Resource : BaseEntity
     {
-        public int ResourceId { get; set; }
+        // TODO: why is this required ?
+        // public int ResourceId { get; set; }
         public string Name { get; set; }
         public int Count { get; set; }
         /*

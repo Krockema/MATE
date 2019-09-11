@@ -37,7 +37,7 @@ namespace Zpp.Simulation.Agents.JobDistributor.Types
             foreach (var resourceSkill in masterDataCache.M_ResourceSkillGetAll())
             {
                 resources.Add(resourceSkill.GetId(),
-                    masterDataCache.M_ResourcesGetAllForSkillId(resourceSkill.GetId()));
+                    masterDataCache.ResourcesGetAllBySkillId(resourceSkill.GetId()));
             }
             return resources;
         }

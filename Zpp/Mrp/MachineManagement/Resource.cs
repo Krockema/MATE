@@ -7,38 +7,29 @@ namespace Zpp.Mrp.MachineManagement
 {
     public class Resource : IResource
     {
-        private readonly M_Resource _machine;
+        private readonly M_Resource _resource;
         private int _idleStartTime = 0;
 
-        public Resource(M_Resource machine)
+        public Resource(M_Resource resource)
         {
-            _machine = machine;
+            _resource = resource;
         }
 
         public M_Resource GetValue()
         {
-            return _machine;
+            return _resource;
         }
-        /// <summary>
-        /// Depricated 
-        /// </summary>
-        /// <returns></returns>
-        public Id GetFirstMachineSkillId()
-        {
-            return new Id(_machine.ResourceSkills.First().Id);
-        }
-
         public override bool Equals(object obj)
         {
             var other = obj as Resource;
-            if (other?._machine == null)
+            if (other?._resource == null)
                 return false;
-            return _machine.Equals(other._machine);
+            return _resource.Equals(other._resource);
         }
 
         public override int GetHashCode()
         {
-            return _machine.GetHashCode();
+            return _resource.GetHashCode();
         }
 
         public DueTime GetIdleStartTime()

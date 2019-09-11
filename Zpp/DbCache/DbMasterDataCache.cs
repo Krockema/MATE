@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Util.Internal;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
@@ -30,6 +31,7 @@ namespace Zpp.DbCache
         private readonly IMasterDataTable<M_BusinessPartner> _businessPartners;
         private readonly IMasterDataTable<M_Resource> _resources;
         private readonly IMasterDataTable<M_ResourceSkill> _resourceSkills;
+        private readonly IMasterDataTable<M_ResourceSetup> _resourceSetups;
         private readonly IMasterDataTable<M_ResourceTool> _resourceTools;
         private readonly IMasterDataTable<M_Operation> _operations;
         private readonly IMasterDataTable<M_Stock> _stocks;
@@ -52,6 +54,7 @@ namespace Zpp.DbCache
             _resources = new MasterDataTable<M_Resource>(_productionDomainContext.Resources);
             _resourceSkills = new MasterDataTable<M_ResourceSkill>(_productionDomainContext.ResourceSkills);
             _resourceTools = new MasterDataTable<M_ResourceTool>(_productionDomainContext.ResourceTools);
+            _resourceSetups = new MasterDataTable<M_ResourceSetup>(_productionDomainContext.ResourceSetups);
             _operations = new MasterDataTable<M_Operation>(_productionDomainContext.Operations);
             _stocks = new MasterDataTable<M_Stock>(_productionDomainContext.Stocks);
             _units = new MasterDataTable<M_Unit>(_productionDomainContext.Units);
@@ -90,6 +93,17 @@ namespace Zpp.DbCache
         public Resource M_ResourceGetById(Id id)
         {
             return new Resource(_resources.GetById(id));
+        }
+
+        public List<Resource> ResourcesGetAllBySkillId(Id id)
+        {
+            var skill = _resourceSkills.GetById(id);
+            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceSkillId == skill.Id).Select(x => x.ResourceId).ToList();
+            var resourceList = new List<Resource>();
+            _resources.GetAll()
+                      .Where(x => resourceIds.Contains(x.Id))
+                      .ForEach(e => resourceList.Add(new Resource(e)));
+            return resourceList;
         }
 
         public M_ResourceSkill M_ResourceSkillById(Id id)
@@ -230,7 +244,12 @@ namespace Zpp.DbCache
             _stocks.SetAll(stocks);
         }
 
-        public List<Resource> M_ResourceGetAll()
+        public List<M_ResourceSetup> M_ResourceSetupGetAll()
+        {
+            return _resourceSetups.GetAll();
+        }
+
+        public List<Resource> ResourceGetAll()
         {
             List<Resource> machines = new List<Resource>();
             foreach (var machine in _resources.GetAll())
@@ -239,12 +258,7 @@ namespace Zpp.DbCache
             }
             return machines;
         }
-
-        public List<Resource> M_ResourcesGetAllForSkillId(Id id)
-        {
-            return M_ResourceGetAll().Where(x=>x.GetFirstMachineSkillId().Equals(id)).ToList();
-        }
-
+        
         public List<M_ResourceSkill> M_ResourceSkillGetAll()
         {
             return _resourceSkills.GetAll();
