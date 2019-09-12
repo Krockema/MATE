@@ -112,5 +112,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 _ctxResult.SaveChanges();
             }
         }
+        [Fact]
+        private void DbInit()
+        {
+
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace Zpp.Test.Simulation
         public void TestSimulationWithResults()
         {
             var Simulator = new Simulator(_dbMasterDataCache, _dbTransactionData);
-            var simulationInterval = new SimulationInterval(0, 300);
+            var simulationInterval = new SimulationInterval(0, 1440);
             Simulator.ProcessCurrentInterval(simulationInterval);
             _dbTransactionData.PersistDbCache();
         }
