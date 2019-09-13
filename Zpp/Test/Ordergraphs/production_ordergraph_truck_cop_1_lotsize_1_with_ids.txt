@@ -1,7 +1,0 @@
-﻿"15528;P(PrO);1.00;\nRace-Truck;1529" -> "15582;P(PrO);1.00;\nSkeleton;1514";
-"15528;P(PrO);1.00;\nRace-Truck;1529" -> "15728;P(PrO);1.00;\nChassis Type: Race;1514";
-"15528;P(PrO);1.00;\nRace-Truck;1529" -> "15893;P(PrO);1.00;\nRace Wing;1529";
-"15582;P(PrO);1.00;\nSkeleton;1514" -> "15614;P(PrO);1.00;\nBase plate;1469";
-"15728;P(PrO);1.00;\nChassis Type: Race;1514" -> "15776;P(PrO);1.00;\nCabin;1484";
-"15728;P(PrO);1.00;\nChassis Type: Race;1514" -> "15813;P(PrO);1.00;\nEngine-Block;1499";
-"15728;P(PrO);1.00;\nChassis Type: Race;1514" -> "15817;P(PrO);1.00;\nEngine Race Extension;1499";
