@@ -95,7 +95,6 @@ namespace Master40.DB.Data.Context
             };
 
             this.CustomerOrders.Add(entity: order);
-            SaveChanges();
             return order;
         }
 

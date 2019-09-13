@@ -3,6 +3,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Environment.Options;
+using Microsoft.EntityFrameworkCore;
 using Zpp.DbCache;
 
 namespace Zpp.Test.Configuration.Scenarios
@@ -23,11 +24,17 @@ namespace Zpp.Test.Configuration.Scenarios
                 new MinDeliveryTime(value: 300), 
                 new MaxDeliveryTime(value: 600), 
             });
-            var productIds = productionDomainContext.Articles.Where(x => x.ArticleTypeId == 1).Select(x => x.Id)
-                .ToList();
+            var productIds = productionDomainContext.Articles.Include(x => x.ArticleType)
+                                                             .Where(x => x.ArticleType.Name == "Product")
+                                                             .Select(x => x.Id)
+                                                             .ToList();
             var orderGenerator = new OrderGenerator(config, productionDomainContext, productIds);
-            productionDomainContext.CustomerOrders.Add(orderGenerator.GetNewRandomOrder(0));
-            productionDomainContext.SaveChanges();
+            for (int i = 0; i < quantity.GetValue(); i++)
+            {
+                var order = orderGenerator.GetNewRandomOrder(0);
+                productionDomainContext.CustomerOrders.Add(order);
+                productionDomainContext.SaveChanges();
+            }
         }
     }
 }

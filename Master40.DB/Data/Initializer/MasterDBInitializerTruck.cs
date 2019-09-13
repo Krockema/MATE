@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer.Tables;
+using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Initializer
 {
@@ -40,6 +43,21 @@ namespace Master40.DB.Data.Initializer
             var businessPartner = MasterTableBusinessPartner.Init(context);
 
             MasterTableArticleToBusinessPartner.Init(context);
+
+            var updateArticleLotSize = context.Articles
+                .Include(x => x.ArticleType)
+                .Include(x => x.ArticleToBusinessPartners)
+                .ToList();
+            foreach (var article in updateArticleLotSize)
+            {
+                if (article.ArticleType.Name != "Product")
+                {
+                    article.LotSize = article.ArticleToBusinessPartners.First().PackSize;
+                    
+                }
+            }
+            DbUtils.InsertOrUpdateRange(updateArticleLotSize, context.Articles, context);
+            context.SaveChanges();
         }
     }
 }

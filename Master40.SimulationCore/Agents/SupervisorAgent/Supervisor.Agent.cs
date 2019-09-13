@@ -179,6 +179,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
+            // TODO : Handle this another way
+            _productionDomainContext.SaveChanges();
             Send(instruction: Instruction.PopOrder.Create(message: "PopNext", target: Self), waitFor: order.CreationTime - CurrentTime);
             var eta = _estimatedThroughPuts.Get(name: order.CustomerOrderParts.First().Article.Name);
             DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");

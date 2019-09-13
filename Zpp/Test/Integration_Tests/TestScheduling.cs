@@ -30,7 +30,7 @@ namespace Zpp.Test.Integration_Tests
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestBackwardScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -52,7 +52,7 @@ namespace Zpp.Test.Integration_Tests
         [Theory]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestForwardScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -99,7 +99,7 @@ namespace Zpp.Test.Integration_Tests
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestJobShopScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -127,7 +127,7 @@ namespace Zpp.Test.Integration_Tests
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestPredecessorNodeTimeIsGreaterOrEqualInDemandToProviderGraph(
             string testConfigurationFileName)
         {

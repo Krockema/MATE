@@ -37,8 +37,6 @@ namespace Master40.SimulationCore.DistributionProvider
                                                     , randomSource: _seededRandom);
         }
 
-
-
         public T_CustomerOrder GetNewRandomOrder(long time)
         {
             var creationTime = (long)Math.Round(value: _exponential.Sample(), mode: MidpointRounding.AwayFromZero);

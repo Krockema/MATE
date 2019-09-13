@@ -223,25 +223,6 @@ namespace Zpp.DbCache
                 dbSet.Update(foundEntity);
             }
         }
-
-        private static void CopyProperties<T, TU>(T source, TU destination)
-        {
-            var sourceProps = typeof(T).GetProperties().Where(x => x.CanRead).ToList();
-            var destProps = typeof(TU).GetProperties().Where(x => x.CanWrite).ToList();
-
-            foreach (var sourceProp in sourceProps)
-            {
-                if (destProps.Any(x => x.Name == sourceProp.Name))
-                {
-                    var p = destProps.First(x => x.Name == sourceProp.Name);
-                    if (p.CanWrite)
-                    {
-                        // check if the property can be set or no.
-                        p.SetValue(destination, sourceProp.GetValue(source, null), null);
-                    }
-                }
-            }
-        }
         public static void CopyDbPropertiesTo<T>(T source, T dest)
         {
             var plist = from prop in typeof(T).GetProperties() where prop.CanRead && prop.CanWrite select prop;

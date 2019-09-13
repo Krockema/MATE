@@ -40,7 +40,7 @@ namespace Zpp.Test.Integration_Tests
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestAllEdgesAreInOrderGraph(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -92,7 +92,7 @@ namespace Zpp.Test.Integration_Tests
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestEdgeTypes(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
@@ -167,8 +167,8 @@ namespace Zpp.Test.Integration_Tests
         [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_1_LOTSIZE_1)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_1_LOTSIZE_1)]
         public void TestOrderGraphStaysTheSame(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
