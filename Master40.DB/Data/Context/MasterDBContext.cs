@@ -153,7 +153,10 @@ namespace Master40.DB.Data.Context
                 .WithMany(navigationExpression: b => b.ProductionOrderBoms)
                 .HasForeignKey(foreignKeyExpression: fk => fk.ProductionOrderOperationId)
                 .OnDelete(deleteBehavior: DeleteBehavior.Restrict);
-          
+
+            modelBuilder.Entity<T_ProductionOrderOperation>()
+                .ToTable(name: "T_ProductionOrderOperation");
+
             modelBuilder.Entity<T_DemandToProvider>()
                 .ToTable("T_DemandToProvider");
             modelBuilder.Entity<T_ProviderToDemand>()

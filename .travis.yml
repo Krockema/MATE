@@ -16,6 +16,7 @@ script:
   - dotnet test -v:n --filter Master40.XUnitTest.SimulationImmutables.JobPriorityRules
   - dotnet test -v:n --filter Master40.XUnitTest.SimulationEnvironment.Configuration
   - dotnet test -v:n --filter Master40.XUnitTest.Agents
+  - dotnet test Zpp/Zpp.csproj
 
 notifications:
   slack: infocomhtw:7H5jePcDELUv916neaRS3LQ1
