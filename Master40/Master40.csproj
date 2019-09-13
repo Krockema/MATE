@@ -52,7 +52,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Shared\Components\Menu\" />
-    <Folder Include="wwwroot\lib\" />
+    <Folder Include="wwwroot\lib\bootstrap\css\" />
+    <Folder Include="wwwroot\lib\bootstrap\js\" />
+    <Folder Include="wwwroot\lib\Chart.js\" />
+    <Folder Include="wwwroot\lib\font-awesome\css\" />
+    <Folder Include="wwwroot\lib\font-awesome\js\" />
+    <Folder Include="wwwroot\lib\font-awesome\sprites\" />
+    <Folder Include="wwwroot\lib\font-awesome\webfonts\" />
+    <Folder Include="wwwroot\lib\jquery\" />
+    <Folder Include="wwwroot\lib\moment.js\locale\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />

@@ -60,7 +60,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: SimulationType.None) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 10)
+                                                    , new OrderQuantity(value: 1)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 600)
                                                     , new DebugAgents(value: true)
@@ -111,6 +111,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
             }
+        }
+        [Fact]
+        private void DbInit()
+        {
+
         }
     }
 }

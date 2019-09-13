@@ -74,7 +74,7 @@ namespace Master40.ViewComponents
             {
                 case 3: // Machine Based
                     project = _ganttContext.Tasks
-                        .Where(predicate: x => x.type == GanttType.project && x.id == "M" + (pow.MachineId ?? 0));
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "M" + (pow.ResourceId ?? 0));
                     if (project.Any())
                     {
                         return project.First();
@@ -128,12 +128,12 @@ namespace Master40.ViewComponents
             switch (_schedulingState)
             {
                 case 1:
-                    start = (_today + item.StartBackward * 60000);
-                    end = (_today + item.EndBackward * 60000);
+                    start = (_today + item.StartBackward.GetValueOrDefault() * 60000);
+                    end = (_today + item.EndBackward.GetValueOrDefault() * 60000);
                     break;
                 case 2:
-                    start = (_today + item.StartForward * 60000);
-                    end = (_today + item.EndForward * 60000);
+                    start = (_today + item.StartForward.GetValueOrDefault() * 60000);
+                    end = (_today + item.EndForward.GetValueOrDefault() * 60000);
                     break;
                 default:
                     start = (_today + item.Start * 60000);
@@ -152,7 +152,7 @@ namespace Master40.ViewComponents
                 id = item.Id.ToString(),
                 type = GanttType.task,
                 desc = item.Name,
-                text = _schedulingState == 4 ? item.MachineGroup.Name : "P.O.: " + item.ProductionOrderId,
+                text = _schedulingState == 4 ? item.ResourceSkill.Name : "P.O.: " + item.ProductionOrderId,
                 start_date = start.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 end_date = end.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 IntFrom = start,

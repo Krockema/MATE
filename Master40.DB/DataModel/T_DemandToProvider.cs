@@ -1,4 +1,5 @@
-﻿using Master40.DB.Interfaces;
+﻿using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
 {
@@ -10,8 +11,28 @@ namespace Master40.DB.DataModel
     public class T_DemandToProvider : BaseEntity, IDemandToProvider
     {
         public int DemandId { get; set; }
-        public T_Demand Demand { get; set; }
         public int ProviderId { get; set; }
-        public T_Provider Provider { get; set; }
+        
+        public decimal Quantity { get; set; }
+
+        public override string ToString()
+        {
+            return $"demand: {DemandId}, provider: {ProviderId}, quantity: {Quantity}";
+        }
+
+        public Id GetProviderId()
+        {
+            return new Id(ProviderId);
+        }
+
+        public Id GetDemandId()
+        {
+            return new Id(DemandId);
+        }
+
+        public Quantity GetQuantity()
+        {
+            return new Quantity(Quantity);
+        }
     }
 }

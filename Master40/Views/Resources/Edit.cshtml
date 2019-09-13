@@ -1,4 +1,4 @@
-@model Master40.DB.DataModel.M_Machine
+@model Master40.DB.DataModel.M_Resource
 
 @{
     ViewData[index: "Title"] = "Edit";
@@ -24,13 +24,6 @@
             <div class="col-md-10">
                 <input asp-for="Count" class="form-control" />
                 <span asp-validation-for="Count" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label asp-for="MachineGroupId" class="control-label col-md-2"></label>
-            <div class="col-md-10">
-                <select asp-for="MachineGroupId" class="form-control" asp-items="ViewBag.MachineGroupId"></select>
-                <span asp-validation-for="MachineGroupId" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">

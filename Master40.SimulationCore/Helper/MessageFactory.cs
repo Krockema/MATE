@@ -101,7 +101,7 @@ namespace Master40.SimulationCore.Helper
                 , quantity: orderPart.Quantity
                 , article: orderPart.Article
                 , creationTime: currentTime
-                , customerOrderId: orderPart.Id
+                , customerOrderId: orderPart.CustomerOrderId
                 , isHeadDemand: true
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 using Newtonsoft.Json;
@@ -25,8 +26,17 @@ namespace Master40.DB.DataModel
         [NotMapped]
         public string Source { get; private set; }
         */
-        public int? DemandID { get; set; }
-        public T_Demand Demand { get; set; }
+
+        public M_Article GetArticle()
+        {
+            return Article;
+        }
+
+        public Quantity GetQuantity()
+        {
+            return new Quantity(Quantity);
+        }
+        
     }
 
 }

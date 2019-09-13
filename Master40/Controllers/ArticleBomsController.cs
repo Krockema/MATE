@@ -31,7 +31,7 @@ namespace Master40.Controllers
                 */
 
             var masterDBContext = _context.Articles.Include(navigationPropertyPath: w => w.Operations)
-                .Where(predicate: x => x.ArticleTypeId == 4 /* Equals("Product") */).ToList();
+                .Where(predicate: x => x.ArticleTypeId == 10027 /* Equals("Product") */).ToList();
 
             var articleList = new List<M_Article>();
             foreach (var item in masterDBContext)

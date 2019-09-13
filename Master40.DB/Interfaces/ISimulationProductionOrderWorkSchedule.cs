@@ -10,7 +10,7 @@ namespace Master40.DB.Interfaces
         int HierarchyNumber { get; set; }
         int Start { get; set; }
         int End { get; set; }
-        int ProductionOrderId { get; set; }
+        int? ProductionOrderId { get; set; }
         T_ProductionOrder ProductionOrder { get; set; }
     }
 }

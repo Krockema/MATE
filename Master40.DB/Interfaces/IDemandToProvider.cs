@@ -1,4 +1,5 @@
-﻿using Master40.DB.DataModel;
+﻿using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
 
 namespace Master40.DB.Interfaces
 {
@@ -6,8 +7,12 @@ namespace Master40.DB.Interfaces
     {
         int Id { get; set; }
         int DemandId { get; set; }
-        T_Demand Demand { get; set; }
         int ProviderId { get; set; }
-        T_Provider Provider { get; set; }
+        
+        decimal Quantity { get; set; }
+
+        Id GetProviderId();
+
+        Id GetDemandId();
     }
 }
