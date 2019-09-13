@@ -1,0 +1,92 @@
+﻿[
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11446: Tisch zusammenbauen",
+    "operationId": "11446",
+    "resource": "11030: Endmontage 1",
+    "start": "356",
+    "end": "378",
+    "groupId": "11443"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11469: Anschraubplatte anschweißen",
+    "operationId": "11469",
+    "resource": "11031: Schweißen 1",
+    "start": "100",
+    "end": "260",
+    "groupId": "11466"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11473: Flizgleiter anstecken",
+    "operationId": "11473",
+    "resource": "11033: Montage 1",
+    "start": "332",
+    "end": "356",
+    "groupId": "11466"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11513: Tisch zusammenbauen",
+    "operationId": "11513",
+    "resource": "11030: Endmontage 1",
+    "start": "456",
+    "end": "478",
+    "groupId": "11510"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11542: Anschraubplatte anschweißen",
+    "operationId": "11542",
+    "resource": "11032: Schweißen 2",
+    "start": "200",
+    "end": "360",
+    "groupId": "11539"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11546: Flizgleiter anstecken",
+    "operationId": "11546",
+    "resource": "11034: Montage 2",
+    "start": "432",
+    "end": "456",
+    "groupId": "11539"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11589: Tisch zusammenbauen",
+    "operationId": "11589",
+    "resource": "11030: Endmontage 1",
+    "start": "556",
+    "end": "578",
+    "groupId": "11586"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11613: Anschraubplatte anschweißen",
+    "operationId": "11613",
+    "resource": "11031: Schweißen 1",
+    "start": "300",
+    "end": "460",
+    "groupId": "11610"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11617: Flizgleiter anstecken",
+    "operationId": "11617",
+    "resource": "11033: Montage 1",
+    "start": "532",
+    "end": "556",
+    "groupId": "11610"
+  }
+]

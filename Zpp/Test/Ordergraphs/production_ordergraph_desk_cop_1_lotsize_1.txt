@@ -1,0 +1,1 @@
+﻿"P(PrO);1.00;\nTisch;61"  -> "P(PrO);4.00;\nTischbein;61";

@@ -1,0 +1,6 @@
+﻿"P(PrO);2.00;\nTisch;7"  -> "P(PrO);4.00;\nTischbein;7";
+"P(PrO);2.00;\nTisch;7"  -> "P(PrO);4.00;\nTischbein;7";
+"P(PrO);2.00;\nTisch;59"  -> "P(PrO);4.00;\nTischbein;59";
+"P(PrO);2.00;\nTisch;59"  -> "P(PrO);4.00;\nTischbein;59";
+"P(PrO);2.00;\nTisch;83"  -> "P(PrO);4.00;\nTischbein;83";
+"P(PrO);2.00;\nTisch;83"  -> "P(PrO);4.00;\nTischbein;83";
