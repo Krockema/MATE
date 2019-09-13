@@ -120,9 +120,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                 , SimulationNumber = Collector.simulationNumber.Value
                                                 , SimulationType = Collector.simulationKind.Value
                                                 , SimulationConfigurationId = Collector.simulationId.Value };  // TODO
-
+            System.Diagnostics.Debug.WriteLine($"Order created {op.CustomerOrder.Id}" , "CollectorAgent");
             simulationOrders.Add(item: order);
-
             openOrderParts++;
             newOrderParts++;
         }

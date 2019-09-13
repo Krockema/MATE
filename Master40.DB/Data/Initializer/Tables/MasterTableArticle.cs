@@ -25,7 +25,7 @@ namespace Master40.DB.Data.Initializer.Tables
         public static M_Article SKELETON = new M_Article
         {
             Name = "Skeleton",
-            ArticleTypeId = MasterTableArticleType.PRODUCT.Id,
+            ArticleTypeId = MasterTableArticleType.ASSEMBLY.Id,
             CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 10,
             UnitId = MasterTableUnit.PIECES.Id, Price = 15.00, ToPurchase = false,
             ToBuild = true, PictureUrl = "/images/Product/01_Bodenplatte.jpg"

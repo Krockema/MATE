@@ -29,7 +29,7 @@ namespace Master40.DB.Data.Initializer.Tables
 
          internal static M_Operation GLUE_RACE_WING = new M_Operation
          {
-             ArticleId = MasterTableArticle.DUMP_TRUCK.Id, Name = "Glue Race Wing", Duration = 5,
+             ArticleId = MasterTableArticle.RACE_TRUCK.Id, Name = "Glue Race Wing", Duration = 5,
              ResourceSkillId = MasterTableResourceSkill.ASSEMBLING.Id,
              ResourceToolId = MasterTableResourceTool.ASSEMBLY_SCREWDRIVER.Id, HierarchyNumber = 20
          };

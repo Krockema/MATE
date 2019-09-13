@@ -92,11 +92,11 @@ namespace Master40.SimulationCore
 
         private void CreateSupervisor(Configuration configuration)
         {
-            var productBoms = _dBContext.GetProductBoms();
+            var products = _dBContext.GetProducts();
             var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
 
-            var estimatedThroughputs = productBoms.Select(a => new FSetEstimatedThroughputTime(a.ArticleChild.Id, initialTime, a.ArticleChild.Name))
-                                                  .ToList();
+            var estimatedThroughputs = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
+                                               .ToList();
 
 
             ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem
