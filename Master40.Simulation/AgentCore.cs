@@ -40,13 +40,13 @@ namespace Master40.Simulation
                                         + _configuration.GetOption<SimulationId>().Value.ToString()
                                         , msgType: MessageType.info);
             //In-memory database only exists while the connection is open
-            var _inMemory = InMemoryContext.CreateInMemoryContext();
-            InMemoryContext.LoadData(source: _context, target: _inMemory);
+            //var _inMemory = InMemoryContext.CreateInMemoryContext();
+            // InMemoryContext.LoadData(source: _context, target: _inMemory);
             //MasterDBInitializerSimple.DbInitialize(_inMemory);
             
             _messageHub.SendToAllClients(msg: "Prepare Simulation", msgType: MessageType.info);
 
-            _agentSimulation = new AgentSimulation(DBContext: _inMemory
+            _agentSimulation = new AgentSimulation(DBContext: _context
                                                    ,messageHub: _messageHub); // Defines the status output
             
             var simulation = _agentSimulation.InitializeSimulation(configuration: _configuration).Result;

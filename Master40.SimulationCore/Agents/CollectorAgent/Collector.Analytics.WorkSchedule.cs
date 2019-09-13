@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Master40.SimulationCore.Agents.ResourceAgent;
 using static FBreakDowns;
 using static FCreateSimulationWorks;
 using static FAgentInformations;
@@ -23,6 +24,7 @@ using static FUpdateSimulationWorkProviders;
 using static FUpdateSimulationWorks;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 using static FThroughPutTimes;
+using static FCreateSimulationResourceSetups;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -32,15 +34,20 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             _resources = resources;
         }
 
-        private List<SimulationWorkschedule> simulationWorkschedules = new List<SimulationWorkschedule>();
+        private List<SimulationWorkschedule> simulationWorkschedules { get; } = new List<SimulationWorkschedule>();
+
+        private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
-        private long lastIntervalStart = 0;
-        private List<FUpdateSimulationWork> _updatedSimulationWork = new List<FUpdateSimulationWork>();
-        private List<FThroughPutTime> _ThroughPutTimes = new List<FThroughPutTime>();
+        private long lastIntervalStart { get; set; } = 0;
+        private List<FUpdateSimulationWork> _updatedSimulationWork { get;  } = new List<FUpdateSimulationWork>();
+        private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
         private ResourceList _resources { get; set; } = new ResourceList();
         public Collector Collector { get; set; }
-        private CultureInfo _cultureInfo = CultureInfo.GetCultureInfo(name: "en-GB"); // Required to get Number output with . instead of ,
-        private List<Kpi> Kpis = new List<Kpi>();
+        /// <summary>
+        /// Required to get Number output with . instead of ,
+        /// </summary>
+        private CultureInfo _cultureInfo { get; } = CultureInfo.GetCultureInfo(name: "en-GB");
+        private List<Kpi> Kpis { get; } = new List<Kpi>();
 
         internal static List<Type> GetStreamTypes()
         {
@@ -50,7 +57,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                      typeof(UpdateLiveFeed),
                                      typeof(FThroughPutTime),
                                      typeof(Hub.Instruction.AddResourceToHub),
-                                     typeof(BasicInstruction.ResourceBrakeDown)
+                                     typeof(BasicInstruction.ResourceBrakeDown),
+                                     typeof(FCreateSimulationResourceSetup)
 
             };
         }
@@ -68,14 +76,39 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 case FCreateSimulationWork m: CreateSimulationWorkSchedule(cws: m); break;
                 case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(uws: m); break;
+                case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
-                case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
+                //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
             }
+            // Collector.messageHub.SendToAllClients(msg: $"Just finished {message.GetType().Name}");
             return true;
+        }
+
+        /// <summary>
+        /// collect the resourceSetups of resource
+        /// </summary>
+        /// <param name="simulationResourceSetup"></param>
+        private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup simulationResourceSetup)
+        {
+            var _SimulationResourceSetup = new SimulationResourceSetup
+            {
+                WorkScheduleId = simulationResourceSetup.WorkScheduleId,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                SimulationType = Collector.simulationKind.Value,
+                Time = (int)(Collector.Time),
+                Resource = simulationResourceSetup.Resource,
+                ResourceTool = simulationResourceSetup.ToString(),
+                Start = (int)simulationResourceSetup.Start,
+                End = simulationResourceSetup.Start + simulationResourceSetup.Duration
+            };
+
+            simulationResourceSetups.Add(item: _SimulationResourceSetup);
+
         }
 
         private void UpdateThroughputTimes(FThroughPutTime m)
@@ -95,7 +128,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateFeed(bool writeResultsToDB)
         {
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
+            //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             MachineUtilization();
@@ -244,6 +277,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //     Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "intern");
             // }
             // tuples.Clear();
+
+            // Cut all lower bound ?
+            // TODO save removed items to somewhere
+            var removed = simulationWorkschedules.RemoveAll(sw => sw.CreatedForOrderId != string.Empty
+                                                               && sw.End < lastIntervalStart);
+            Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed {removed}");
         }
 
         private void CreateKpi(Collector agent, string value, string name, KpiType kpiType)
@@ -268,7 +307,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var ws = cws.Operation;
             var sws = new SimulationWorkschedule
             {
-                CreatedForOrderId = cws.CustomerOrderId,
+                CreatedForOrderId = string.Empty,
                 WorkScheduleId = ws.Key.ToString(),
                 Article = ws.Operation.Article.Name,
                 WorkScheduleName = ws.Operation.Name,
@@ -278,7 +317,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationType = Collector.simulationKind.Value,
                 OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.Operation.HierarchyNumber,
-                ProductionOrderId = "[" + ws.ProductionAgent.Path.Uid + "]",
+                // TODO this is now a fArticleKey (Guid)
+                ProductionOrderId = "[" + cws.fArticleKey+ "]",
                 Parent = cws.IsHeadDemand.ToString(),
                 ParentId = "[]",
                 Time = (int)(Collector.Time),
@@ -289,13 +329,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (edit != null)
             {
                 sws.Start = (int)edit.Start;
-                sws.End = (int)(edit.Start + edit.Duration + 1);
+                sws.End = (int)(edit.Start + edit.Duration);
                 sws.Machine = edit.Machine;
                 _updatedSimulationWork.Remove(item: edit);
             }
-
-
-
             simulationWorkschedules.Add(item: sws);
         }
 
@@ -307,7 +344,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (edit != null)
             {
                 edit.Start = (int)uws.Start;
-                edit.End = (int)(uws.Start + uws.Duration + 1); // to have Time Points instead of Time Periods
+                edit.End = (int)(uws.Start + uws.Duration); // to have Time Points instead of Time Periods
                 edit.Machine = uws.Machine;
                 return;
             }

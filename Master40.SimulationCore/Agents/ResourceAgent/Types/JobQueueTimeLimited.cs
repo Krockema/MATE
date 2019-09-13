@@ -28,10 +28,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="job"></param>
         /// <param name="currentTime"></param>
+        /// <param name="resourceIsBlockedUntil"></param>
+        /// <param name="processingQueueLength"></param>
+        /// <param name="setupDuration">optional parameter which adds the setupDuration to queable time</param>
         /// <returns></returns>
-        public QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength)
+        public QueueingPosition GetQueueAbleTime(IJob job,long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
         {
-            var queuePosition = new QueueingPosition {EstimatedStart = currentTime + processingQueueLength };
+            var queuePosition = new QueueingPosition {EstimatedStart = currentTime + processingQueueLength + setupDuration};
             var totalWorkLoad = 0L;
             if (resourceIsBlockedUntil != 0)
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;

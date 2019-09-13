@@ -40,7 +40,7 @@ namespace Master40
             
             services.AddDbContext<MasterDBContext>
                 (optionsAction: options => options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "DefaultConnection")));
-
+          
             services.AddDbContext<OrderDomainContext>(optionsAction: options =>
                 options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "DefaultConnection")));
 
@@ -49,6 +49,8 @@ namespace Master40
 
             services.AddDbContext<ProductionDomainContext>(optionsAction: options =>
                 options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "DefaultConnection")));
+            services.AddLogging(builder => { builder.AddFilter("Microsoft", LogLevel.Error); });
+
 
             // Hangfire
             services.AddDbContext<HangfireDBContext>(optionsAction: options =>
@@ -104,7 +106,7 @@ namespace Master40
 
             //MasterDBInitializerLarge.DbInitialize(context);
             //MasterDBInitializerLarge.DbInitialize(context);
-            MasterDBInitializerSimple.DbInitialize(context: context);
+            MasterDbInitializerTable.DbInitialize(context: context);
 
             ResultDBInitializerBasic.DbInitialize(context: contextResults);
 
@@ -119,9 +121,6 @@ namespace Master40
             app.UseHangfireDashboard();
             app.UseHangfireServer();
             #endregion
-
-            loggerFactory.AddConsole(configuration: Configuration.GetSection(key: "Logging"));
-            loggerFactory.AddDebug();
 
             if (env.IsDevelopment())
             {

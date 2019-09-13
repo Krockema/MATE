@@ -2,6 +2,7 @@
 using AkkaSim.Definitions;
 using static FAgentInformations;
 using static FProposals;
+using static FResourceInformations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent
@@ -12,7 +13,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             public class AddResourceToHub : SimulationMessage
             {
-                public static AddResourceToHub Create(FAgentInformation message, IActorRef target, bool logThis = false)
+                public static AddResourceToHub Create(FResourceInformation message, IActorRef target, bool logThis = false)
                 {
                     return new AddResourceToHub(message: message, target: target, logThis: logThis);
                 }
@@ -20,7 +21,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 {
 
                 }
-                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
+                public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
             }
 
             public class EnqueueJob : SimulationMessage

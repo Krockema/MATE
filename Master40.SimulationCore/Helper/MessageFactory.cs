@@ -55,6 +55,7 @@ namespace Master40.SimulationCore.Helper
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , operation: operation
+                                , tool: operation.ResourceTool
                                 , proposals: new List<FProposal>());
         }
 
@@ -72,7 +73,7 @@ namespace Master40.SimulationCore.Helper
             return new FBucket(key: Guid.NewGuid()
                                 //, prioRule: prioRule.ToFSharpFunc()
                                 , priority: prioRule.ToFSharpFunc()
-                                , name: $"{operation.Operation.ResourceTool.Name}({BucketNumber++})"
+                                , name: $"{operation.Operation.ResourceSkill.Name}({BucketNumber++})"
                                 , creationTime: time
                                 , forwardStart: 0
                                 , forwardEnd: 0
@@ -86,6 +87,7 @@ namespace Master40.SimulationCore.Helper
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , operations: new FSharpSet<FOperation>(elements: operations)
+                                , tool: operation.Tool
                                 , proposals: new List<FProposal>());
         }
 

@@ -28,7 +28,7 @@ namespace Master40.Controllers
                     {
                         case "Tables":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerSimple.DbInitialize(context: _context);
+                            MasterDbInitializerTable.DbInitialize(context: _context);
                             break;
                         case "Trucks":
                             _context.Database.EnsureDeleted();

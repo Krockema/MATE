@@ -9,6 +9,7 @@ open FStartConditions
 open IKeys
 open IJobs
 open System.Linq
+open Master40.DB.DataModel
 
     type public FBucket =
         { Key : Guid
@@ -25,6 +26,7 @@ open System.Linq
           ResourceAgent : IActorRef
           mutable HubAgent : IActorRef
           Operations : Set<FOperation>
+          Tool : M_ResourceTool
           MaxBucketSize : double
           MinBucketSize : double
           Proposals : System.Collections.Generic.List<FProposal> 
@@ -46,6 +48,7 @@ open System.Linq
                 member this.Priority time = this.Priority this time 
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
+                member this.Tool with get() = this.Tool
                 member this.Duration = this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
                 member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
                                                                                          Start = (int64)estimatedStart;

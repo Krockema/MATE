@@ -20,7 +20,7 @@ namespace Master40.XUnitTest.Preparations
         {
             return new AgentMoc(actorPaths: actorPaths,
                                    time: 0,
-                                  debug: true,
+                                  debug: false,
                               principal: principal,
                               behaviour: behaviour, 
                            guardianType: guardianType);

@@ -82,7 +82,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void UpdateFeed(bool writeResultsToDB)
         {
             //var open = openOrderParts.GroupBy(x => x.Article).Select(y => new { Article =  y.Key, Count = y.Sum(z => z.Quantity)} );
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Contracts");
+            //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Contracts");
 
             Collector.messageHub
                  .SendToClient(listener: "Contracts", 

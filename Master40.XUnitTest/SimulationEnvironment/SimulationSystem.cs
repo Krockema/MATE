@@ -36,7 +36,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            //MasterDBInitializerSimple.DbInitialize(_masterDBContext);
+            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
             MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             _ctxResult.Database.EnsureCreated();
@@ -58,9 +58,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     new DBConnectionString(value: localresultdb)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
-                                                    , new SimulationKind(value: SimulationType.None) // SimulationType.Bucket
+                                                    , new SimulationKind(value: SimulationType.DefaultSetup) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 600)
+                                                    , new OrderQuantity(value: 10)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 600)
                                                     , new DebugAgents(value: true)

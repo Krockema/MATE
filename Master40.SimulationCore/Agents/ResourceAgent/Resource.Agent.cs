@@ -2,12 +2,14 @@
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Helper;
+using System.Collections.Generic;
+using Master40.SimulationCore.Types;
 using static FAgentInformations;
+using static FResourceInformations;
 using static FResourceTypes;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
-    // Alt: CapacityAgent, ProducerAgent, PotencialFactorAgent, SchedulingAgent, 
     public partial class Resource : Agent
     {
         // public Constructor
@@ -18,8 +20,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
         public Resource(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
-            //this.Send(Hub.Instruction.AddMachineToHub.Create(new FHubInformation(ResourceType.Machine, machine.MachineGroup.Name, this.Self), principal));
-            this.Send(instruction: Hub.Instruction.AddResourceToHub.Create(message: new FAgentInformation(fromType: FResourceType.Machine, requiredFor: this.Name, @ref: this.Self), target: principal));
+        }
+
+        protected override void OnInit(IBehaviour o)
+        {
+            Behaviour.AfterInit();
         }
     }
 }

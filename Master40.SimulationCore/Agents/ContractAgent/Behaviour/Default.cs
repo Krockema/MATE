@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
     public class Default : Types.Behaviour, IDefaultProperties
     {
         internal Default(SimulationType simulationType = SimulationType.None)
-                        : base(childMaker: null, obj: simulationType) { }
+                        : base(childMaker: null, simulationType: simulationType) { }
 
         public FArticle _fArticle { get; internal set; }
 
@@ -44,7 +44,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         }
 
         /// <summary>
-        /// TODO: Test Finish.
+        /// 
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
@@ -57,6 +57,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             // try to Finish if time has come
             if (Agent.CurrentTime >= _fArticle.DueTime)
             {
+                _fArticle = _fArticle.SetProvided;
                 Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ");
                 Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));

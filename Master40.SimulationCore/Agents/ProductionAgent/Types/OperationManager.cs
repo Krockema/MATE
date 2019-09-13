@@ -106,7 +106,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
                 }
             }
             //TODO Log this somewhere
-            // System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
+            //System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
 
             
 

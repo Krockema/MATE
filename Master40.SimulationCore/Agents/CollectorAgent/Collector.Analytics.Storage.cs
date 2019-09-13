@@ -48,7 +48,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void UpdateFeed(bool writeToDatabase)
         {
 
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Storage");
+            //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Storage");
             var groupedByType = from sw in CurrentStockValues
                                 group sw by sw.Value.ArticleType into grouped
                                 select new
