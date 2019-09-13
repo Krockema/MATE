@@ -1,6 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using static FAgentInformations;
+using static FBucketToRequeues;
+using static IJobResults;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
@@ -57,6 +59,31 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                 }
             }
 
+            public class FinishBucket : SimulationMessage
+            {
+                public static FinishBucket Create(IJobResult message, IActorRef target)
+                {
+                    return new FinishBucket(message: message, target: target);
+                }
+                private FinishBucket(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
+            }
+
+            public class AskRequeueBucket : SimulationMessage
+            {
+                public static AskRequeueBucket Create(FBucketToRequeue message, IActorRef target)
+                {
+                    return new AskRequeueBucket(message: message, target: target);
+                }
+                private AskRequeueBucket(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FBucketToRequeue GetObjectFromMessage { get => Message as FBucketToRequeue; }
+            }
+
+            
         }
     }
 }

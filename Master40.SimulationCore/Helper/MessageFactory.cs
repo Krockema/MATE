@@ -73,7 +73,8 @@ namespace Master40.SimulationCore.Helper
             return new FBucket(key: Guid.NewGuid()
                                 //, prioRule: prioRule.ToFSharpFunc()
                                 , priority: prioRule.ToFSharpFunc()
-                                , name: $"{operation.Operation.ResourceSkill.Name}({BucketNumber++})"
+                                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
+                                , isFixPlanned: false
                                 , creationTime: time
                                 , forwardStart: 0
                                 , forwardEnd: 0
@@ -83,7 +84,7 @@ namespace Master40.SimulationCore.Helper
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
                                 , maxBucketSize: 1
-                                , minBucketSize: 1
+                                , minBucketSize: 1000
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , operations: new FSharpSet<FOperation>(elements: operations)

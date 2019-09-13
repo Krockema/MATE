@@ -36,8 +36,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            //MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             _ctxResult.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
@@ -45,8 +45,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
 
-        [Fact]
-        public async Task SystemTestAsync()
+        
+        [Theory]
+        //[InlineData(SimulationType.None)]
+        //[InlineData(SimulationType.DefaultSetup)]
+        [InlineData(SimulationType.Bucket)]
+        public async Task SystemTestAsync(SimulationType simulationType)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
 
@@ -58,7 +62,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     new DBConnectionString(value: localresultdb)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
-                                                    , new SimulationKind(value: SimulationType.DefaultSetup) // implements the used behaviour, if None --> DefaultBehaviour
+                                                    , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
                                                     , new OrderQuantity(value: 10)
                                                     , new TransitionFactor(value: 3)

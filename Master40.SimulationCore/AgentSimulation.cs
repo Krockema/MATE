@@ -131,9 +131,9 @@ namespace Master40.SimulationCore
             ContractCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()), name: "ContractCollector");
-            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsWorkSchedule.Get(resources: resourcelist)
+            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: resourcelist)
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
-                                                            , streamTypes: CollectorAnalyticsWorkSchedule.GetStreamTypes()), name: "WorkScheduleCollector");
+                                                            , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "WorkScheduleCollector");
         }
 
         private void GenerateGuardians()

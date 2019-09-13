@@ -28,14 +28,13 @@ using static FCreateSimulationResourceSetups;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
-    public class CollectorAnalyticsWorkSchedule : Behaviour, ICollectorBehaviour
+    public class CollectorAnalyticResource : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticsWorkSchedule(ResourceList resources) : base() {
+        private CollectorAnalyticResource(ResourceList resources) : base() {
             _resources = resources;
         }
 
         private List<SimulationWorkschedule> simulationWorkschedules { get; } = new List<SimulationWorkschedule>();
-
         private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart { get; set; } = 0;
@@ -63,9 +62,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             };
         }
 
-        public static CollectorAnalyticsWorkSchedule Get(ResourceList resources)
+        public static CollectorAnalyticResource Get(ResourceList resources)
         {
-            return new CollectorAnalyticsWorkSchedule(resources: resources);
+            return new CollectorAnalyticResource(resources: resources);
         }
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
@@ -89,7 +88,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         /// <summary>
-        /// collect the resourceSetups of resource
+        /// collect the resourceSetups of resource, cant be updated afterwards
         /// </summary>
         /// <param name="simulationResourceSetup"></param>
         private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup simulationResourceSetup)
@@ -149,6 +148,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
                     ctx.SimulationOperations.AddRange(entities: simulationWorkschedules);
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetups);
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();

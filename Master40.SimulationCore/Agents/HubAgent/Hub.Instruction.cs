@@ -1,9 +1,9 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using static FAgentInformations;
 using static FProposals;
 using static FResourceInformations;
 using static IJobs;
+using static FBucketToRequeues;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -35,6 +35,32 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                 }
                 public IJob GetObjectFromMessage { get => Message as IJob; }
+            }
+
+            public class EnqueueBucket : SimulationMessage
+            {
+                public static EnqueueBucket Create(IJob message, IActorRef target)
+                {
+                    return new EnqueueBucket(message: message, target: target);
+                }
+                private EnqueueBucket(object message, IActorRef target) : base(message: message, target: target)
+                {
+
+                }
+                public IJob GetObjectFromMessage { get => Message as IJob; }
+            }
+
+            public class RequeueBucket : SimulationMessage
+            {
+                public static RequeueBucket Create(FBucketToRequeue message, IActorRef target)
+                {
+                    return new RequeueBucket(message: message, target: target);
+                }
+                private RequeueBucket(object message, IActorRef target) : base(message: message, target: target)
+                {
+
+                }
+                public FBucketToRequeue GetObjectFromMessage { get => Message as FBucketToRequeue; }
             }
 
             public class ProposalFromResource : SimulationMessage

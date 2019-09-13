@@ -10,10 +10,12 @@ open IKeys
 open IJobs
 open System.Linq
 open Master40.DB.DataModel
+open FUpdateStartConditions
 
     type public FBucket =
         { Key : Guid
           Name : string
+          IsFixPlanned : bool
           CreationTime : int64
           BackwardEnd : int64 
           BackwardStart : int64 
@@ -58,3 +60,5 @@ open Master40.DB.DataModel
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.AddOperation op = { this with Operations = this.Operations.Add(op) }
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
+        member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
+                                                                                 this.StartConditions.PreCondition <- startCondition.PreCondition
