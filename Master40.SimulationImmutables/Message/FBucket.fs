@@ -62,3 +62,4 @@ open FUpdateStartConditions
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
         member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
                                                                                  this.StartConditions.PreCondition <- startCondition.PreCondition
+        member this.SetFixPlanned = { this with IsFixPlanned = true}

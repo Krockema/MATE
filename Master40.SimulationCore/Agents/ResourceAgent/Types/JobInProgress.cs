@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Akka.Pattern;
+using static FBuckets;
+using static FOperations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -29,6 +31,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             Current = null;
             ResourceIsBusyUntil = 0;
             StartTime = 0;
+        }
+
+        internal void RemoveOperation(FOperation operation)
+        {
+            var bucket = (FBucket) Current;
+            Current = bucket.RemoveOperation(operation);
+
         }
     }
 }

@@ -26,5 +26,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         }
 
         public long SumDurations => this.jobs.Sum(x => x.Duration);
+
+        internal void Replace(IJob job)
+        {
+            var jobToReplace = jobs.FirstOrDefault(x => x.Key == job.Key);
+            if (jobToReplace == null) return;
+
+            jobs.Remove(jobToReplace);
+            Enqueue(job);
+            
+        }
     }
 }

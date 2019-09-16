@@ -89,5 +89,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             job.StartConditions.PreCondition = startCondition.PreCondition;
             return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
+
+        internal void SetBucketReady(Guid bucketKey)
+        {
+            var job = jobs.SingleOrDefault(x => x.Key == bucketKey);
+            if (job == null) 
+                throw new Exception($"Something went wrong");
+            job.StartConditions.ArticlesProvided = true;
+            job.StartConditions.PreCondition = true;
+        }
     }
 }

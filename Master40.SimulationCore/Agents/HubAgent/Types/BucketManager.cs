@@ -32,12 +32,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             _buckets.Replace(bucket);
         }
 
+        /// <summary>
+        /// Find the operation in all buckets 
+        /// </summary>
+        /// <param name="operationKey"></param>
+        /// <returns></returns>
         internal FOperation GetOperationByKey(Guid operationKey)
         {
             FOperation operation = null;
             foreach (var bucket in _buckets)
             {
-                var op = bucket.Operations.Single(x => x.Key == operationKey);
+                var op = bucket.Operations.FirstOrDefault(x => x.Key == operationKey);
                 if (op != null)
                 {
                     operation = op;
@@ -56,8 +61,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var operation = GetOperationByKey(operationKey);
             var bucket = GetBucketByOperationKey(operationKey);
 
-            bucket.RemoveOperation(operation);
-
+            bucket = bucket.RemoveOperation(operation);
+            _buckets.Replace(bucket);
         }
 
         internal FBucket AddToBucket(Guid bucketKey, FOperation fOperation)
@@ -66,7 +71,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             if (bucket == null) throw new Exception($"Bucket {bucketKey} does not exits");
 
-            bucket.AddOperation(fOperation);
+            bucket = bucket.AddOperation(fOperation);
             _buckets.Replace(bucket);
 
             return bucket;
@@ -75,12 +80,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         internal FBucket FindBucket(FOperation fOperation, long currentTime)
         {
             var bucket = _buckets.SingleOrDefault(x => x.Tool.Id == fOperation.Tool.Id 
-                                                       && !x.IsFixPlanned 
-                                                       && x.BackwardEnd > fOperation.BackwardEnd 
-                                                       && x.ForwardStart < fOperation.ForwardStart);
+                                                       && !x.IsFixPlanned);
 
             return bucket;
 
         }
+
     }
 }

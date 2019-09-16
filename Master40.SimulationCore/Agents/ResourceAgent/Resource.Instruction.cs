@@ -1,6 +1,8 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
+using System;
 using static FAgentInformations;
+using static FBuckets;
 using static FBucketToRequeues;
 using static IJobResults;
 using static IJobs;
@@ -83,7 +85,31 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                 public FBucketToRequeue GetObjectFromMessage { get => Message as FBucketToRequeue; }
             }
 
-            
+            public class EnqueueProcessingQueue : SimulationMessage
+            {
+                public static EnqueueProcessingQueue Create(FBucket message, IActorRef target)
+                {
+                    return new EnqueueProcessingQueue(message: message, target: target);
+                }
+                private EnqueueProcessingQueue(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FBucket GetObjectFromMessage { get => Message as FBucket; }
+            }
+
+            public class BucketReady : SimulationMessage
+            {
+                public static BucketReady Create(Guid message, IActorRef target)
+                {
+                    return new BucketReady(message: message, target: target);
+                }
+                private BucketReady(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public Guid GetObjectFromMessage { get => (Guid)Message; }
+            }
+
+
         }
     }
 }

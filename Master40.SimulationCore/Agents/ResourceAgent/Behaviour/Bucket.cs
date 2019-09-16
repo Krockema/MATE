@@ -6,6 +6,8 @@ using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using Master40.DB.Data.Helper;
 using Master40.DB.DataModel;
 using static FOperationResults;
 using static FPostponeds;
@@ -48,11 +50,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
                 case Resource.Instruction.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
-                case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(startCondition: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.BucketReady msg: BucketReady(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.DoWork msg: DoWork(); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.FinishBucket msg: FinishBucket(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.AskRequeueBucket msg: AskRequeueBucket(msg.GetObjectFromMessage); break;
+                case Resource.Instruction.EnqueueProcessingQueue msg: EnqueueProcessingQueue(msg.GetObjectFromMessage); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -118,6 +121,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , resourceAgent: Agent.Context.Self
                 , jobKey: jobItem.Key);
 
+            System.Diagnostics.Debug.WriteLine($"Job {jobItem.Key} IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart} at resource {Agent.Context.Self.Path.Name}");
             Agent.Send(instruction: Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
@@ -127,7 +131,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         public void AcknowledgeProposal(IJob jobItem)
         {
-            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key} at resource {Agent.Context.Self.Path.Name}");
 
             var setupDuration = GetSetupTime(jobItem: jobItem);
 
@@ -148,7 +152,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             jobItem = jobItem.UpdateEstimations(queuePosition.EstimatedStart, Agent.Context.Self);
             _planingQueue.Enqueue(item: jobItem);
 
-            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
+            Agent.DebugMessage(msg: $"AcknowledgeProposal Accepted Item: {jobItem.Name} with Id: {jobItem.Key} at resource {Agent.Context.Self }");
+            System.Diagnostics.Debug.WriteLine($"AcknowledgeProposal Accepted Item: {jobItem.Name} with {((FBucket)jobItem).Operations.Count} Id: {jobItem.Key}");
+
             UpdateAndRequeuePlanedJobs(jobItem: jobItem);
             UpdateProcessingQueue();
             TryToWork();
@@ -184,26 +190,34 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 var job = _planingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
                 Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Key} {job.Name} Try to start processing.");
-                var ok = _processingQueue.Enqueue(item: job);
-                if (!ok)
-                {
-                    throw new Exception(message: "Something went wrong with Queueing!");
-                }
+                _processingQueue.Enqueue(item: job);
+                //notify hub that bucket is in progress now
+                Agent.Send(Hub.Instruction.SetJobFix.Create(message: job, target: job.HubAgent));
             }
 
+            
             Agent.DebugMessage(msg: $"Buckets ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
-        private void UpdateStartCondition(FUpdateStartCondition startCondition)
+        private void EnqueueProcessingQueue(IJob job)
         {
-            Agent.DebugMessage(msg: $"UpdateArticleProvided for article: {startCondition.OperationKey} ArticleProvided: {startCondition.ArticlesProvided} && PreCondition {startCondition.PreCondition}");
+            System.Diagnostics.Debug.WriteLine($"EnqueueProcessingQueue {job.Name} {job.Key}");
 
-            if (_planingQueue.UpdatePreCondition(startCondition: startCondition))
-            {
-                UpdateProcessingQueue();
-                TryToWork();
-            }
+            _processingQueue.Replace(job);
 
+            DoSetup();
+        }
+
+
+
+        private void BucketReady(Guid bucketKey)
+        {
+            Agent.DebugMessage(msg: $"UpdateArticleProvided for bucket: {bucketKey}");
+            
+            _planingQueue.SetBucketReady(bucketKey);
+            UpdateProcessingQueue();
+            TryToWork();
+            
         }
 
         internal void TryToWork()
@@ -215,7 +229,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
 
             var nextJobInProgress = _processingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
-            
+
             // Wait if nothing more to do
             if (nextJobInProgress == null)
             {
@@ -226,9 +240,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             UpdateProcessingQueue();
 
-            _jobInProgress.Set(job: nextJobInProgress, currentTime: Agent.CurrentTime);
-            
-            DoSetup();
+            _jobInProgress.Set(nextJobInProgress, Agent.CurrentTime);
+
         }
 
         private void DoSetup()
@@ -249,8 +262,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.SetStartTime(Agent.CurrentTime);
 
-            Agent.Send(instruction: Resource.Instruction.DoWork.Create(message: null, target: Agent.Context.Self),
-                waitFor: setupDuration);
+            System.Diagnostics.Debug.WriteLine($"Setup takes {setupDuration} {_jobInProgress.Current.Name} with {((FBucket)_jobInProgress.Current).Operations.Count} operation Id: {_jobInProgress.Current.Key} at resource {Agent.Context.Self}");
+
+            Agent.Send(instruction: Resource.Instruction.DoWork.Create(message: null, target: Agent.Context.Self), waitFor: setupDuration);
         }
 
         /// <summary>
@@ -259,10 +273,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void DoWork()
         {
             //TODO for each operation in bucket try to work
-            var bucket = ((FBucket) _jobInProgress.Current);
+            var bucket = ((FBucket)_jobInProgress.Current);
+            System.Diagnostics.Debug.WriteLine($"Do Work(): {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations at resource {Agent.Context.Self.Path.Name}");
+
             //get first satisfied item with lowest priority in bucket
             var operation = bucket.Operations.OrderByDescending(prio => prio.DueTime)
-                .FirstOrDefault(op => op.StartConditions.Satisfied == true);
+                .FirstOrDefault(op => op.StartConditions.Satisfied);
 
             //if there arent any operations - finish bucket
             if (operation == null)
@@ -275,11 +291,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     , productionAgent: ActorRefs.Nobody
                     , resourceAgent: Agent.Context.Self);
 
-                Agent.Send(instruction: Resource.Instruction.FinishBucket.Create(message: fBucketResult, target: Agent.Context.Self));
+                System.Diagnostics.Debug.WriteLine($"Nothing more in bucket: {bucket.Name} with {bucket.Operations.Count} Id: {bucket.Key}");
 
+                Agent.Send(instruction: Resource.Instruction.FinishBucket.Create(message: fBucketResult, target: Agent.Context.Self));
+                return;
             }
 
-            //else - finish bucket
+            //else - finish operation
+            System.Diagnostics.Debug.WriteLine($"Start withdraw for article {operation.Operation.Name} {operation.Key} at resource {Agent.Context.Self.Path.Name}");
             Agent.DebugMessage(msg: $"Start withdraw for article {operation.Operation.Name} {operation.Key}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: operation.Key, target: _jobInProgress.Current.HubAgent));
 
@@ -292,7 +311,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(instruction: Resource.Instruction.DoWork.Create(message: null, target: Agent.Context.Self),
                 waitFor: randomizedWorkDuration);
 
-            var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Key
+            var fOperationResult = new FOperationResult(key: operation.Key
                 , creationTime: 0
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + randomizedWorkDuration
@@ -311,15 +330,20 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <param name="job">Job to Remove</param>
         private void AskRequeueBucket(FBucketToRequeue bucketToRequeue)
         {
-            var jobToRequeue = _planingQueue.jobs.SingleOrDefault(x => x.Key == bucketToRequeue.Bucket.Key);
+            var jobToRequeue = _planingQueue.jobs.FirstOrDefault(x => x.Key == bucketToRequeue.Bucket.Key);
+            if (jobToRequeue != null)
+            {
+                _planingQueue.RemoveJob(jobToRequeue);
+                System.Diagnostics.Debug.WriteLine($"Asked to Requeue Bucket {jobToRequeue.Key} with {((FBucket)jobToRequeue).Operations.Count} operations");
 
-            _planingQueue.RemoveJob(jobToRequeue);
-
-            Agent.Send(Hub.Instruction.RequeueBucket.Create(message: bucketToRequeue, target: jobToRequeue.HubAgent));
+                Agent.Send(Hub.Instruction.RequeueBucket.Create(message: bucketToRequeue, target: jobToRequeue.HubAgent));
+            }
         }
 
         private void FinishBucket(IJobResult jobResult)
         {
+            System.Diagnostics.Debug.WriteLine($"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} at resource {Agent.Context.Self.Path.Name} take next...");
+
             Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);
 
@@ -330,16 +354,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (jobResult.OriginalDuration != Agent.CurrentTime - jobResult.Start)
                 RequeueAllRemainingJobs();
 
+            TryToWork();
         }
 
         private void FinishJob(IJobResult jobResult)
         {
-            var bucket = (FBucket) _jobInProgress.Current;
+            var bucket = (FBucket)_jobInProgress.Current;
             var operation = bucket.Operations.Single(x => x.Key == jobResult.Key);
-            bucket.RemoveOperation(operation);
-
-            // Do Work
-            TryToWork();
+            _jobInProgress.RemoveOperation(operation);
+            System.Diagnostics.Debug.WriteLine($"Resource {Agent.Context.Self.Path.Name} called Item  {operation.Key} from bucket {bucket.Name} finished");
+            
+            DoWork();
         }
 
         private int GetSetupTime(IJob jobItem)

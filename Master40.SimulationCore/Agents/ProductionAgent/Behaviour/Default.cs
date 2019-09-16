@@ -153,11 +153,11 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
             // TODO Only for Debugging
             var operation = OperationManager.GetOperationByKey(operationKey: operationKey);
-            Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name}");
 
             var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey);
             foreach (var dispo in dispoAgents)
             {
+                Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name} at {dispo.Path.Name}");
                 Agent.Send(Dispo.Instruction
                                 .WithdrawArticleFromStock
                                 .Create(message: "Production Start"

@@ -50,6 +50,19 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 public IJob GetObjectFromMessage { get => Message as IJob; }
             }
 
+            public class SetJobFix : SimulationMessage
+            {
+                public static SetJobFix Create(IJob message, IActorRef target)
+                {
+                    return new SetJobFix(message: message, target: target);
+                }
+                private SetJobFix(object message, IActorRef target) : base(message: message, target: target)
+                {
+
+                }
+                public IJob GetObjectFromMessage { get => Message as IJob; }
+            }
+
             public class RequeueBucket : SimulationMessage
             {
                 public static RequeueBucket Create(FBucketToRequeue message, IActorRef target)
