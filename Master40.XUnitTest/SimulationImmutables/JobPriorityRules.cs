@@ -36,9 +36,9 @@ namespace Master40.XUnitTest.SimulationImmutables
                 var time = 0L;
                 var probe = this.CreateTestProbe();
 
-                var w1 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 10 , ResourceSkill = new M_ResourceSkill() { Name = "Saw blade big"} }, 50, productionAgent: probe, firstOperation: false ,  0);
-                var w2 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5 , ResourceSkill = new M_ResourceSkill() { Name = "Saw blade big" } }, 20, productionAgent: probe, firstOperation: false, 0);
-                var w3 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 15 , ResourceSkill = new M_ResourceSkill() { Name = "Saw blade big" } }, 100, productionAgent: probe, firstOperation: false, 0);
+                var w1 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 10 , ResourceSkill = new M_ResourceSkill() { Name = "Cut"}, ResourceTool = new M_ResourceTool() { Name = "Saw blade big" } }, 50, productionAgent: probe, firstOperation: false ,  0);
+                var w2 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5 , ResourceSkill = new M_ResourceSkill() { Name = "Cut" }, ResourceTool = new M_ResourceTool() { Name = "Saw blade big" } }, 20, productionAgent: probe, firstOperation: false, 0);
+                var w3 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 15 , ResourceSkill = new M_ResourceSkill() { Name = "Cut" }, ResourceTool = new M_ResourceTool() { Name = "Saw blade big" } }, 100, productionAgent: probe, firstOperation: false, 0);
 
                 var bucket1 = MessageFactory.ToBucketItem(operation: w1, time: time);
                 var prio1 = ((IJob)bucket1).Priority(time);

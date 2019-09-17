@@ -10,14 +10,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     public class ResourceManager
     {
         private List<ResourceSetup> _resources = new List<ResourceSetup>();
-        
-        public ResourceManager()
-        {
-            
-        }
-
+    
         /// <summary>
-        /// TODO make bool?
+        /// 
         /// </summary>
         /// <param name="resourceSetups"></param>
         public void Add(ResourceSetup resourceSetups)
@@ -30,7 +25,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var resourceAgents = new List<IActorRef>();
             foreach (var resource in _resources)
             {
-                if (resource.HasTool(resourceTool)) { 
+                if (resource.HasTool(resourceTool: resourceTool)) { 
                     resourceAgents.Add(resource.GetActorRef());
                 }
             }

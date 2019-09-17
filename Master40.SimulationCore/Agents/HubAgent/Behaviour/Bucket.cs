@@ -256,7 +256,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
         }
 
-
         private void AddResourceToHub(FResourceInformation hubInformation)
         {
             var resourceSetup = new ResourceSetup(hubInformation.ResourceSetups, hubInformation.Ref, hubInformation.RequiredFor);

@@ -148,12 +148,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 return;
             }
 
-
             jobItem = jobItem.UpdateEstimations(queuePosition.EstimatedStart, Agent.Context.Self);
             _planingQueue.Enqueue(item: jobItem);
 
             Agent.DebugMessage(msg: $"AcknowledgeProposal Accepted Item: {jobItem.Name} with Id: {jobItem.Key} at resource {Agent.Context.Self }");
-            System.Diagnostics.Debug.WriteLine($"AcknowledgeProposal Accepted Item: {jobItem.Name} with {((FBucket)jobItem).Operations.Count} Id: {jobItem.Key}");
+            System.Diagnostics.Debug.WriteLine($"AcknowledgeProposal by {Agent.Context.Self.Path.Name} Accepted Item: {jobItem.Name} with {((FBucket)jobItem).Operations.Count} Id: {jobItem.Key}");
 
             UpdateAndRequeuePlanedJobs(jobItem: jobItem);
             UpdateProcessingQueue();
@@ -370,9 +369,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private int GetSetupTime(IJob jobItem)
         {
             var setupTime = 0;
-            if (!_toolManager.AlreadyEquipped(jobItem.Tool))
+            if (!_toolManager.AlreadyEquipped(requiredResourceTool: jobItem.Tool))
             {
-                setupTime = _toolManager.GetSetupDurationByTool(jobItem.Tool);
+                setupTime = _toolManager.GetSetupDurationByTool(resourceTool: jobItem.Tool);
             }
 
             Agent.DebugMessage(

@@ -317,7 +317,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationType = Collector.simulationKind.Value,
                 OrderId = "[" + cws.CustomerOrderId + "]",
                 HierarchyNumber = ws.Operation.HierarchyNumber,
-                // TODO this is now a fArticleKey (Guid)
+                //Remember this is now a fArticleKey (Guid)
                 ProductionOrderId = "[" + cws.fArticleKey+ "]",
                 Parent = cws.IsHeadDemand.ToString(),
                 ParentId = "[]",

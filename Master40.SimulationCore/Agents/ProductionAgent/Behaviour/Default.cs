@@ -151,7 +151,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// <param name="operationKey"></param>
         private void WithdrawRequiredArticles(Guid operationKey)
         {
-            // TODO Only for Debugging
+            // Remember Only for Debugging
             var operation = OperationManager.GetOperationByKey(operationKey: operationKey);
 
             var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey);
