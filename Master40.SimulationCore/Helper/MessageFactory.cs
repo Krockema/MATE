@@ -19,12 +19,11 @@ namespace Master40.SimulationCore.Helper
     {
         private static int BucketNumber = 0;
         /// <summary>
-        /// TODO: Fulfill Creator
+        /// Fulfill Creator
         /// </summary>
         /// <param name="operation"></param>
         /// <param name="dueTime"></param>
         /// <param name="productionAgent"></param>
-        /// <param name="lastLeaf"></param>
         /// <param name="firstOperation"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
@@ -59,6 +58,13 @@ namespace Master40.SimulationCore.Helper
                                 , proposals: new List<FProposal>());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="hubAgent"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public static FBucket ToBucketItem(this FOperation operation, IActorRef hubAgent, long time)
         {
             // TO BE TESTET

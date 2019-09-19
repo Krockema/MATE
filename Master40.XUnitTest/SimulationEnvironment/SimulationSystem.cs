@@ -49,8 +49,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(SimulationType.None)]
         //[InlineData(SimulationType.DefaultSetup)]
-        [InlineData(SimulationType.DefaultSetupStack)]
+        //[InlineData(SimulationType.DefaultSetupStack)]
         //[InlineData(SimulationType.Bucket)]
+        [InlineData(SimulationType.BucketScope)]
         public async Task SystemTestAsync(SimulationType simulationType)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);

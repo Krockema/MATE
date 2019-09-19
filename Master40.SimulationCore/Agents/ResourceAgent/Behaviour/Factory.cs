@@ -15,11 +15,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case SimulationType.DefaultSetup:
                     behaviour = DefaultSetup(workTimeGenerator: workTimeGenerator, toolManager: toolManager);
                     break;
+                case SimulationType.DefaultSetupStack:
+                    behaviour = DefaultSetupStack(workTimeGenerator: workTimeGenerator, toolManager: toolManager);
+                    break;
                 case SimulationType.Bucket:
                     behaviour = Bucket(workTimeGenerator: workTimeGenerator, toolManager: toolManager);
                     break;
-                case SimulationType.DefaultSetupStack:
-                    behaviour = DefaultSetupStack(workTimeGenerator: workTimeGenerator, toolManager: toolManager);
+                case SimulationType.BucketScope:
+                    behaviour = BucketScope(workTimeGenerator: workTimeGenerator, toolManager: toolManager);
                     break;
                 default:
                     behaviour = Default(workTimeGenerator: workTimeGenerator, toolManager: toolManager);
@@ -57,6 +60,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , workTimeGenerator: workTimeGenerator
                 , toolManager: toolManager);
         }
+        private static IBehaviour BucketScope(WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
+        {
+            //TODO - create config item.
+            return new BucketScope(planingJobQueueLength: 45
+                , fixedJobQueueSize: 1
+                , workTimeGenerator: workTimeGenerator
+                , toolManager: toolManager);
+        }
+
         private static IBehaviour DefaultSetupStack(WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
         {
             //TODO - create config item.

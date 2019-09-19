@@ -6,22 +6,17 @@ using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Master40.DB.Data.Helper;
-using Master40.DB.DataModel;
+using static FBucketResults;
+using static FBuckets;
+using static FCreateSimulationResourceSetups;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
-using static FBuckets;
+using static FRequestToRequeues;
+using static FResourceInformations;
 using static FUpdateSimulationWorks;
-using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
-using static FOperations;
-using static FCreateSimulationResourceSetups;
-using static FResourceInformations;
-using static FBucketResults;
-using static FRequestToRequeues;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {

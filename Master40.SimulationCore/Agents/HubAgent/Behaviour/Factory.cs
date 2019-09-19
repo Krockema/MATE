@@ -1,8 +1,5 @@
 ﻿using Master40.DB.Enums;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Types;
-using static FOperations;
-using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -16,11 +13,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case SimulationType.DefaultSetup:
                     behaviour = DefaultSetup();
                     break;
-                case SimulationType.Bucket:
-                     behaviour = Bucket();
-                    break;
                 case SimulationType.DefaultSetupStack:
                     behaviour = DefaultSetup();
+                    break;
+                case SimulationType.Bucket:
+                    behaviour = Bucket();
+                    break;
+                case SimulationType.BucketScope:
+                    behaviour = BucketScope();
                     break;
                 default:
                     behaviour =  Default();
@@ -48,6 +48,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
 
             return new Bucket();
+
+        }
+
+        private static IBehaviour BucketScope()
+        {
+
+            return new BucketScope();
 
         }
 
