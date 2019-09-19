@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static IJobs;
 
@@ -17,7 +18,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (Limit <= this.jobs.Count) return false;
             this.jobs.Add(item: item);
             return true;
+        }
 
+        public bool EnqueueAll(List<IJob> jobs)
+        {
+            if (Limit <= this.jobs.Count) return false;
+            this.jobs.AddRange(jobs);
+            return true;
         }
 
         public override bool CapacitiesLeft()

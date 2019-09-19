@@ -43,7 +43,7 @@ open FUpdateStartConditions
                 member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
-                member this.ForwardStart with get() = this.ForwardStart
+                member this.ForwardStart with get() = this.Operations.Min(fun y -> y.ForwardStart)
                 member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions

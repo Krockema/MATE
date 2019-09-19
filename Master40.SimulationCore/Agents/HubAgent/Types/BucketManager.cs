@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
 using static FBuckets;
 using static FOperations;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -15,9 +17,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         private List<FBucket> _buckets { get; set; } = new List<FBucket>();
 
-        internal FBucket CreateBucket(FOperation fOperation, long currentTime)
+        internal FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
-            var bucket = MessageFactory.ToBucketItem(fOperation, currentTime);
+            var bucket = MessageFactory.ToBucketItem(fOperation, hubAgent, currentTime);
             _buckets.Add(bucket);
             return bucket;
         }
@@ -77,14 +79,39 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
-        internal FBucket FindBucket(FOperation fOperation, long currentTime)
+        internal FBucket FindOrCreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
-            var bucket = _buckets.SingleOrDefault(x => x.Tool.Id == fOperation.Tool.Id 
-                                                       && !x.IsFixPlanned);
+            var matchingBuckets = FindAllMatching(fOperation);
+
+            var bucket = FindBestMatching(matchingBuckets, fOperation);
+
+            if (bucket == null)
+            {
+                bucket = CreateBucket(fOperation, hubAgent, currentTime);
+                _buckets.Add(bucket);
+            }
 
             return bucket;
 
         }
 
+        internal List<FBucket> FindAllMatching(FOperation fOperation)
+        {
+            return _buckets.Where(x => x.Tool.Id == fOperation.Tool.Id && !x.IsFixPlanned).ToList();
+        }
+
+        internal FBucket FindBestMatching(List<FBucket> buckets, FOperation operation)
+        {
+            
+            // Simple Rule
+            var bucket = buckets.FirstOrDefault(x => ((IJob)x).Duration + operation.Operation.Duration <= 30);
+
+            // TODO Complex Rule
+            // Gest First ELement of CurrentBucket
+            // min(bucket.forward.start,Operation.Forward.Start) + bucket.Duration + Operation.Duration <= first.BackWardStart
+            // else try Next Bucket.
+
+            return bucket;
+        }
     }
 }

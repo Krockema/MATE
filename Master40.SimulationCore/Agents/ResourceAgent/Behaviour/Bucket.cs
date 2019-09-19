@@ -21,7 +21,7 @@ using static FOperations;
 using static FCreateSimulationResourceSetups;
 using static FResourceInformations;
 using static FBucketResults;
-using static FBucketToRequeues;
+using static FRequestToRequeues;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -54,7 +54,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.DoWork msg: DoWork(); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.FinishBucket msg: FinishBucket(msg.GetObjectFromMessage); break;
-                case Resource.Instruction.AskRequeueBucket msg: AskRequeueBucket(msg.GetObjectFromMessage); break;
+                case Resource.Instruction.RequestToRequeue msg: RequestRequeueBucket(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.EnqueueProcessingQueue msg: EnqueueProcessingQueue(msg.GetObjectFromMessage); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
@@ -241,6 +241,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.Set(nextJobInProgress, Agent.CurrentTime);
 
+            DoSetup();
         }
 
         private void DoSetup()
@@ -278,6 +279,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             //get first satisfied item with lowest priority in bucket
             var operation = bucket.Operations.OrderByDescending(prio => prio.DueTime)
                 .FirstOrDefault(op => op.StartConditions.Satisfied);
+            _jobInProgress.RemoveOperation(operation);
 
             //if there arent any operations - finish bucket
             if (operation == null)
@@ -327,16 +329,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// target: feedback to hub, that job can be requeued now
         /// </summary>
         /// <param name="job">Job to Remove</param>
-        private void AskRequeueBucket(FBucketToRequeue bucketToRequeue)
+        private void RequestRequeueBucket(FRequestToRequeue requestToRequeue)
         {
-            var jobToRequeue = _planingQueue.jobs.FirstOrDefault(x => x.Key == bucketToRequeue.Bucket.Key);
+            var jobToRequeue = _planingQueue.jobs.FirstOrDefault(x => x.Key == requestToRequeue.JobKey);
             if (jobToRequeue != null)
             {
                 _planingQueue.RemoveJob(jobToRequeue);
+                requestToRequeue = requestToRequeue.SetApproved;
                 System.Diagnostics.Debug.WriteLine($"Asked to Requeue Bucket {jobToRequeue.Key} with {((FBucket)jobToRequeue).Operations.Count} operations");
-
-                Agent.Send(Hub.Instruction.RequeueBucket.Create(message: bucketToRequeue, target: jobToRequeue.HubAgent));
             }
+
+            Agent.Send(Hub.Instruction.ResponseRequeueBucket.Create(message: requestToRequeue, target: jobToRequeue.HubAgent));
         }
 
         private void FinishBucket(IJobResult jobResult)
@@ -360,7 +363,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var bucket = (FBucket)_jobInProgress.Current;
             var operation = bucket.Operations.Single(x => x.Key == jobResult.Key);
-            _jobInProgress.RemoveOperation(operation);
             System.Diagnostics.Debug.WriteLine($"Resource {Agent.Context.Self.Path.Name} called Item  {operation.Key} from bucket {bucket.Name} finished");
             
             DoWork();

@@ -19,6 +19,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case SimulationType.Bucket:
                      behaviour = Bucket();
                     break;
+                case SimulationType.DefaultSetupStack:
+                    behaviour = DefaultSetup();
+                    break;
                 default:
                     behaviour =  Default();
                     break;

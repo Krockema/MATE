@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Helper
                                 , proposals: new List<FProposal>());
         }
 
-        public static FBucket ToBucketItem(this FOperation operation, long time)
+        public static FBucket ToBucketItem(this FOperation operation, IActorRef hubAgent, long time)
         {
             // TO BE TESTET
             var prioRule = Extension.CreateFunc(
@@ -86,7 +86,7 @@ namespace Master40.SimulationCore.Helper
                                 , maxBucketSize: 1
                                 , minBucketSize: 1000
                                 , resourceAgent: ActorRefs.NoSender
-                                , hubAgent: ActorRefs.NoSender
+                                , hubAgent: hubAgent
                                 , operations: new FSharpSet<FOperation>(elements: operations)
                                 , tool: operation.Tool
                                 , proposals: new List<FProposal>());

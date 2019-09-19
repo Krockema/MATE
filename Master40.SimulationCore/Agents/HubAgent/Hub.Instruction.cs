@@ -3,7 +3,7 @@ using AkkaSim.Definitions;
 using static FProposals;
 using static FResourceInformations;
 using static IJobs;
-using static FBucketToRequeues;
+using static FRequestToRequeues;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -65,7 +65,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
             public class RequeueBucket : SimulationMessage
             {
-                public static RequeueBucket Create(FBucketToRequeue message, IActorRef target)
+                public static RequeueBucket Create(FRequestToRequeue message, IActorRef target)
                 {
                     return new RequeueBucket(message: message, target: target);
                 }
@@ -73,7 +73,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 {
 
                 }
-                public FBucketToRequeue GetObjectFromMessage { get => Message as FBucketToRequeue; }
+                public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
             }
 
             public class ProposalFromResource : SimulationMessage
@@ -89,6 +89,18 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 public FProposal GetObjectFromMessage { get => Message as FProposal; }
             }
 
+            public class ResponseRequeueBucket : SimulationMessage
+            {
+                public static ResponseRequeueBucket Create(FRequestToRequeue message, IActorRef target)
+                {
+                    return new ResponseRequeueBucket(message: message, target: target);
+                }
+                private ResponseRequeueBucket(object message, IActorRef target) : base(message: message, target: target)
+                {
+
+                }
+                public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
+            }
         }
     }
 }

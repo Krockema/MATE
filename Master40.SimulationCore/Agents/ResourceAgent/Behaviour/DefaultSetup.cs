@@ -6,17 +6,15 @@ using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
-using Master40.DB.DataModel;
+using static FCreateSimulationResourceSetups;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
+using static FResourceInformations;
 using static FUpdateSimulationWorks;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
-using static FOperations;
-using static FCreateSimulationResourceSetups;
-using static FResourceInformations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -64,7 +62,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Register the Resource in the System on Startup and Save the Hub agent.
         /// </summary>
-        private void SetHubAgent(IActorRef hubAgent)
+        internal void SetHubAgent(IActorRef hubAgent)
         {
             // Save to Value Store
             _agentDictionary.Add(key: hubAgent, value: "Default");
@@ -76,7 +74,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        private void RequestProposal(IJob jobItem)
+        internal void RequestProposal(IJob jobItem)
         {
             Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + jobItem.Name + " with Id: " + jobItem.Key + ")");
 
@@ -87,7 +85,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void SendProposalTo(IJob jobItem)
+        internal virtual void SendProposalTo(IJob jobItem)
         {
             var setupDuration = GetSetupTime(jobItem: jobItem);
 
@@ -118,7 +116,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        public void AcknowledgeProposal(IJob jobItem)
+        internal void AcknowledgeProposal(IJob jobItem)
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
@@ -147,7 +145,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        private void RequeueAllRemainingJobs()
+        internal void RequeueAllRemainingJobs()
         {
             Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
             var item = _planingQueue.jobs.FirstOrDefault();
@@ -158,7 +156,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 
-        private void UpdateAndRequeuePlanedJobs(IJob jobItem)
+        internal void UpdateAndRequeuePlanedJobs(IJob jobItem)
         {
             Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
             var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, job: jobItem);
@@ -171,7 +169,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 
-        private void UpdateProcessingQueue()
+        internal virtual void UpdateProcessingQueue()
         {
             while (_processingQueue.CapacitiesLeft() && _planingQueue.HasQueueAbleJobs())
             {
@@ -189,7 +187,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
-        private void UpdateStartCondition(FUpdateStartCondition startCondition)
+        internal void UpdateStartCondition(FUpdateStartCondition startCondition)
         {
             Agent.DebugMessage(msg: $"UpdateArticleProvided for article: {startCondition.OperationKey} ArticleProvided: {startCondition.ArticlesProvided} && PreCondition {startCondition.PreCondition}");
 
@@ -226,7 +224,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             DoSetup();
         }
 
-        private void DoSetup()
+        internal void DoSetup()
         {
             //Start setup if necessary 
             var setupDuration = GetSetupTime(_jobInProgress.Current);
@@ -269,7 +267,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        private void FinishJob(IJobResult jobResult)
+        internal void FinishJob(IJobResult jobResult)
         {
             Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);
@@ -285,7 +283,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        private int GetSetupTime(IJob jobItem)
+        internal int GetSetupTime(IJob jobItem)
         {
             var setupTime = 0;
             if (!_toolManager.AlreadyEquipped(jobItem.Tool))

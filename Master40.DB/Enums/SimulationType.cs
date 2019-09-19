@@ -8,6 +8,7 @@
         ForwardPlanning,
         BackwardPlanning,
         Bucket,
-        DefaultSetup
+        DefaultSetup,
+        DefaultSetupStack
     }
 }

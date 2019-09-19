@@ -32,6 +32,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return item;
         }
 
+        internal List<IJob> GetAllSatisfiedSameTool(long currentTime)
+        {
+            var job = DequeueFirstSatisfied(currentTime);
+            var list = this.jobs.Where(x => x.StartConditions.Satisfied && x.Tool.Id == job.Tool.Id).ToList();
+            foreach(var item in list)
+            {
+                this.jobs.Remove(item: item);
+            }
+            list.Add(job);
+            return list;
+        }
+
         public abstract bool CapacitiesLeft();
 
         public bool HasQueueAbleJobs()
