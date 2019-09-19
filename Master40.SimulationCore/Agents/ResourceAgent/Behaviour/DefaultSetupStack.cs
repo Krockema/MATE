@@ -66,7 +66,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var setupDuration = GetSetupTime(jobItem: jobItem);
 
-            var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
+            var queuePosition = _planingQueue.GetQueueAbleTimeByStack(job: jobItem
                 , currentTime: Agent.CurrentTime
                 , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
                 , processingQueueLength: _processingQueue.SumDurations
@@ -89,6 +89,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , jobKey: jobItem.Key);
 
             Agent.Send(instruction: Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
+        }
+
+        internal override void UpdateAndRequeuePlanedJobs(IJobs.IJob jobItem)
+        {
+            Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
+            var toRequeue = _planingQueue.CutTailByStack(currentTime: Agent.CurrentTime, job: jobItem);
+            foreach (var job in toRequeue)
+            {
+                _planingQueue.RemoveJob(job: job);
+                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: job, target: job.HubAgent));
+            }
+            Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
     }
 }

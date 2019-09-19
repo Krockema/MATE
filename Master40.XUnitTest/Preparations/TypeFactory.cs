@@ -11,7 +11,7 @@ namespace Master40.XUnitTest.Preparations
 {
     public static class TypeFactory
     {
-        public static FOperation CreateJobItem(string jobName, int jobDuration, bool preCondition = true, int dueTime = 50, string skillName = "Sewing", M_ArticleBom bom = null)
+        public static FOperation CreateJobItem(string jobName, int jobDuration, bool preCondition = true, bool materialsProvide = true, int dueTime = 50, string skillName = "Sewing", M_ResourceTool tool = null, M_ArticleBom bom = null)
         {
             var operation = new M_Operation()
             {
@@ -22,9 +22,10 @@ namespace Master40.XUnitTest.Preparations
                 Id = 1,
                 Name = jobName,
                 ArticleBoms = new List<M_ArticleBom> { bom },
-                ResourceSkill = new M_ResourceSkill() { Name = skillName }
+                ResourceSkill = new M_ResourceSkill() { Name = skillName },
+                ResourceTool = tool
             };
-            return operation.ToOperationItem(dueTime: 50, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: 0);
+            return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: 0);
         }
 
         public static FArticle CreateDummyArticle(int dueTime, int currentTime, M_Article article, int quantity)

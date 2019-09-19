@@ -156,7 +156,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 
-        internal void UpdateAndRequeuePlanedJobs(IJob jobItem)
+        internal virtual void UpdateAndRequeuePlanedJobs(IJob jobItem)
         {
             Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
             var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, job: jobItem);
