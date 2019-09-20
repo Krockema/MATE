@@ -10,7 +10,7 @@ using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
 using static FResourceInformations;
-using static FUpdateSimulationWorks;
+using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
@@ -215,7 +215,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Duration);
             Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Name}  Key: {nextJobInProgress.Key} new Duration is {randomizedDuration}");
 
-            var pub = new FUpdateSimulationWork(workScheduleId: nextJobInProgress.Key.ToString(), duration: randomizedDuration, start: Agent.CurrentTime, machine: Agent.Name);
+            var pub = new FUpdateSimulationJob(job: nextJobInProgress, duration: randomizedDuration, start: Agent.CurrentTime, resource: Agent.Name, jobType: JobType.OPERATION);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: nextJobInProgress.Key

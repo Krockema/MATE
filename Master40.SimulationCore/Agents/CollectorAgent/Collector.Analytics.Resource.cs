@@ -1,4 +1,3 @@
-
 using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
@@ -15,16 +14,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using Master40.SimulationCore.Agents.ResourceAgent;
-using static FBreakDowns;
-using static FCreateSimulationWorks;
 using static FAgentInformations;
-using static FSetEstimatedThroughputTimes;
-using static FUpdateSimulationWorkProviders;
-using static FUpdateSimulationWorks;
-using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
-using static FThroughPutTimes;
+using static FBreakDowns;
+using static FCreateSimulationJobs;
 using static FCreateSimulationResourceSetups;
+using static FOperations;
+using static FSetEstimatedThroughputTimes;
+using static FThroughPutTimes;
+using static FUpdateSimulationJobs;
+using static FUpdateSimulationWorkProviders;
+using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -34,11 +33,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             _resources = resources;
         }
 
-        private List<SimulationWorkschedule> simulationWorkschedules { get; } = new List<SimulationWorkschedule>();
+        private List<SimulationJob> simulationJobs { get; } = new List<SimulationJob>();
+        private List<SimulationJob> simulationJobsForDb { get; } = new List<SimulationJob>();
         private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
+        private List<SimulationResourceSetup> simulationResourceSetupsForDb { get; } = new List<SimulationResourceSetup>();
         //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
         private long lastIntervalStart { get; set; } = 0;
-        private List<FUpdateSimulationWork> _updatedSimulationWork { get;  } = new List<FUpdateSimulationWork>();
+        private List<FUpdateSimulationJob> _updatedSimulationJob { get;  } = new List<FUpdateSimulationJob>();
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
         private ResourceList _resources { get; set; } = new ResourceList();
         public Collector Collector { get; set; }
@@ -50,8 +51,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         internal static List<Type> GetStreamTypes()
         {
-            return new List<Type> { typeof(FCreateSimulationWork),
-                                     typeof(FUpdateSimulationWork),
+            return new List<Type> { typeof(FCreateSimulationJob),
+                                     typeof(FUpdateSimulationJob),
                                      typeof(FUpdateSimulationWorkProvider),
                                      typeof(UpdateLiveFeed),
                                      typeof(FThroughPutTime),
@@ -73,8 +74,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             switch (message)
             {
-                case FCreateSimulationWork m: CreateSimulationWorkSchedule(cws: m); break;
-                case FUpdateSimulationWork m: UpdateSimulationWorkSchedule(uws: m); break;
+                case FCreateSimulationJob m: CreateSimulationOperation(simJob: m); break;
+                case FUpdateSimulationJob m: UpdateSimulationOperation(simJob: m); break;
                 case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
@@ -95,13 +96,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             var _SimulationResourceSetup = new SimulationResourceSetup
             {
-                WorkScheduleId = simulationResourceSetup.WorkScheduleId,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
                 Time = (int)(Collector.Time),
                 Resource = simulationResourceSetup.Resource,
-                ResourceTool = simulationResourceSetup.ToString(),
+                ResourceTool = simulationResourceSetup.ResourceTool,
                 Start = (int)simulationResourceSetup.Start,
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration
             };
@@ -147,8 +147,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SimulationOperations.AddRange(entities: simulationWorkschedules);
-                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetups);
+                    ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -186,7 +186,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}"); 
             }
 
-            var v2 = simulationWorkschedules.Where(predicate: a => a.ArticleType == "Product"
+            var v2 = simulationJobs.Where(predicate: a => a.ArticleType == "Product"
                                                    && a.HierarchyNumber == 20
                                                    && a.End == 0);
 
@@ -203,34 +203,34 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //simulationWorkschedules.WriteCSV( @"C:\Users\mtko\source\output.csv");
 
 
-            var lower_borders = from sw in simulationWorkschedules
+            var lower_borders = from sw in simulationJobs
                                 where sw.Start < lastIntervalStart
                                    && sw.End > lastIntervalStart
-                                   && sw.Machine != null
+                                   && sw.Resource != null
                                 select new
                                 {
-                                    M = sw.Machine,
+                                    M = sw.Resource,
                                     C = 1,
                                     W = sw.End - lastIntervalStart
                                 };
 
-            var upper_borders = from sw in simulationWorkschedules
+            var upper_borders = from sw in simulationJobs
                                 where sw.Start < Collector.Time
                                    && sw.End > Collector.Time
-                                   && sw.Machine != null
+                                   && sw.Resource != null
                                 select new
                                 {
-                                    M = sw.Machine,
+                                    M = sw.Resource,
                                     C = 1,
                                     W = Collector.Time - sw.Start
                                 };
 
 
-            var from_work = from sw in simulationWorkschedules
+            var from_work = from sw in simulationJobs
                             where sw.Start >= lastIntervalStart 
                                && sw.End <= Collector.Time
-                               && sw.Machine != null
-                            group sw by sw.Machine into mg
+                               && sw.Resource != null
+                            group sw by sw.Resource into mg
                             select new
                             {
                                 M = mg.Key,
@@ -280,9 +280,16 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             // Cut all lower bound ?
             // TODO save removed items to somewhere
-            var removed = simulationWorkschedules.RemoveAll(sw => sw.CreatedForOrderId != string.Empty
-                                                               && sw.End < lastIntervalStart);
-            Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed {removed}");
+            simulationJobsForDb.AddRange(simulationJobs.Where(op => op.CreatedForOrderId != string.Empty
+                                                                         && op.End < lastIntervalStart));
+            simulationJobs.RemoveAll(op => op.CreatedForOrderId != string.Empty
+                                                && op.End < lastIntervalStart);
+
+            simulationResourceSetupsForDb.AddRange(simulationResourceSetups.Where(rs => rs.End < lastIntervalStart));
+            simulationResourceSetups.RemoveAll(rs => rs.End < lastIntervalStart);
+
+
+            Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed");
         }
 
         private void CreateKpi(Collector agent, string value, string name, KpiType kpiType)
@@ -302,53 +309,55 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Kpis.Add(item: k);
         }
 
-        private void CreateSimulationWorkSchedule(FCreateSimulationWork cws)
+        private void CreateSimulationOperation(FCreateSimulationJob simJob)
         {
-            var ws = cws.Operation;
-            var sws = new SimulationWorkschedule
+            var fOperation = ((FOperation)simJob.Job);
+            var simulationJob = new SimulationJob
             {
-                CreatedForOrderId = string.Empty,
-                WorkScheduleId = ws.Key.ToString(),
-                Article = ws.Operation.Article.Name,
-                WorkScheduleName = ws.Operation.Name,
-                DueTime = (int)ws.DueTime,
+                JobId = simJob.Job.Key.ToString(),
+                
+                JobName = fOperation.Operation.Name,
+                JobType = simJob.JobType,
+                DueTime = (int)simJob.Job.DueTime,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
-                OrderId = "[" + cws.CustomerOrderId + "]",
-                HierarchyNumber = ws.Operation.HierarchyNumber,
+                CreatedForOrderId = string.Empty,
+                Article = fOperation.Operation.Article.Name,
+                OrderId = "[" + simJob.CustomerOrderId + "]",
+                HierarchyNumber = fOperation.Operation.HierarchyNumber,
                 //Remember this is now a fArticleKey (Guid)
-                ProductionOrderId = "[" + cws.fArticleKey+ "]",
-                Parent = cws.IsHeadDemand.ToString(),
+                ProductionOrderId = "[" + simJob.fArticleKey+ "]",
+                Parent = simJob.IsHeadDemand.ToString(),
                 ParentId = "[]",
                 Time = (int)(Collector.Time),
-                ArticleType = cws.ArticleType
+                ArticleType = simJob.ArticleType
             };
 
-            var edit = _updatedSimulationWork.FirstOrDefault(predicate: x => x.WorkScheduleId.Equals(value: ws.Key.ToString()));
+            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fOperation.Key));
             if (edit != null)
             {
-                sws.Start = (int)edit.Start;
-                sws.End = (int)(edit.Start + edit.Duration);
-                sws.Machine = edit.Machine;
-                _updatedSimulationWork.Remove(item: edit);
+                simulationJob.Start = (int)edit.Start;
+                simulationJob.End = (int)(edit.Start + edit.Duration);
+                simulationJob.Resource = edit.Resource;
+                _updatedSimulationJob.Remove(item: edit);
             }
-            simulationWorkschedules.Add(item: sws);
+            simulationJobs.Add(item: simulationJob);
         }
 
 
-        private void UpdateSimulationWorkSchedule(FUpdateSimulationWork uws)
+        private void UpdateSimulationOperation(FUpdateSimulationJob simJob)
         {
-
-            var edit = simulationWorkschedules.FirstOrDefault(predicate: x => x.WorkScheduleId.Equals(value: uws.WorkScheduleId));
+            var operation = ((FOperation) simJob.Job);
+            var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: operation.Key.ToString()));
             if (edit != null)
             {
-                edit.Start = (int)uws.Start;
-                edit.End = (int)(uws.Start + uws.Duration); // to have Time Points instead of Time Periods
-                edit.Machine = uws.Machine;
+                edit.Start = (int)simJob.Start;
+                edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
+                edit.Resource = simJob.Resource;
                 return;
             }
-            _updatedSimulationWork.Add(item: uws);
+            _updatedSimulationJob.Add(item: simJob);
 
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
@@ -357,7 +366,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var items = simulationWorkschedules.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
+                var items = simulationJobs.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";

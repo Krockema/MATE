@@ -19,7 +19,7 @@ namespace Master40.DB.Data.Context
         public ResultContext(DbContextOptions<ResultContext> options) : base(options: options) { }
 
         public DbSet<SimulationConfiguration> SimulationConfigurations { get; set; }
-        public DbSet<SimulationWorkschedule> SimulationOperations { get; set; }
+        public DbSet<SimulationJob> SimulationJobs { get; set; }
         public DbSet<SimulationResourceSetup> SimulationResourceSetups { get; set; }
         public DbSet<SimulationOrder> SimulationOrders { get; set; }
         public DbSet<Kpi> Kpis { get; set; }

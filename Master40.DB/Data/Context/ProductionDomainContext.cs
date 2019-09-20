@@ -24,11 +24,11 @@ namespace Master40.DB.Data.Context
         {
             return CustomerOrders.FirstOrDefault(predicate: x => x.Id == id);
         }
-        public Task<List<SimulationWorkschedule>> GetFollowerProductionOrderWorkSchedules(SimulationWorkschedule simulationWorkSchedule, SimulationType type, List<SimulationWorkschedule> relevantItems)
+        public Task<List<SimulationJob>> GetFollowerProductionOrderWorkSchedules(SimulationJob simulationWorkSchedule, SimulationType type, List<SimulationJob> relevantItems)
         {
             var rs = Task.Run(function: () =>
             {
-                var priorItems = new List<SimulationWorkschedule>();
+                var priorItems = new List<SimulationJob>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
                 var maxHierarchy = relevantItems.Where(predicate: x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
                     .Max(selector: x => x.HierarchyNumber);
@@ -115,12 +115,12 @@ namespace Master40.DB.Data.Context
 
         }
 
-        public int GetEarliestStart(ResultContext kpiContext, SimulationWorkschedule simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationWorkschedule> schedules = null)
+        public int GetEarliestStart(ResultContext kpiContext, SimulationJob simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationJob> schedules = null)
         {
             if (simulationType == SimulationType.Central)
             {
                 var orderId = simulationWorkschedule.OrderId.Replace(oldValue: "[", newValue: "").Replace(oldValue: "]", newValue: "");
-                var start = kpiContext.SimulationOperations
+                var start = kpiContext.SimulationJobs
                     .Where(predicate: x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                     .Where(predicate: a =>
                     a.OrderId.Equals("[" + orderId.ToString() + ",")
@@ -130,7 +130,7 @@ namespace Master40.DB.Data.Context
                 return start;
             }
 
-            var children = new List<SimulationWorkschedule>();
+            var children = new List<SimulationJob>();
             children = schedules.Where(predicate: x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                                 .Where(predicate: a => a.ParentId.Equals(value: simulationWorkschedule.ProductionOrderId.ToString())).ToList();
             

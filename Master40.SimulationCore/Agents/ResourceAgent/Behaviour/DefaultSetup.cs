@@ -11,7 +11,7 @@ using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
 using static FResourceInformations;
-using static FUpdateSimulationWorks;
+using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
@@ -235,8 +235,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
                 _toolManager.Mount(requiredResourceTool: _jobInProgress.Current.Tool);
-                var pubSetup = new FCreateSimulationResourceSetup(workScheduleId: _jobInProgress.Current.Key.ToString(),
-                    duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name);
+                var pubSetup = new FCreateSimulationResourceSetup(duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, resourceTool: _toolManager._equippedResourceTool.ResourceTool.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
@@ -252,7 +251,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Duration);
             Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} new Duration is {randomizedWorkDuration}");
 
-            var pub = new FUpdateSimulationWork(workScheduleId: _jobInProgress.Current.Key.ToString(), duration: randomizedWorkDuration, start: Agent.CurrentTime, machine: Agent.Name);
+            var pub = new FUpdateSimulationJob(job: _jobInProgress.Current, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Key

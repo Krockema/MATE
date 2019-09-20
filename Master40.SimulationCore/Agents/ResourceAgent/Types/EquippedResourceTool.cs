@@ -27,7 +27,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public bool Mount(M_ResourceTool resourceTool)
         {
             if (SetupPhase != false) return false;
-            SetupPhase = true;
             ResourceTool = resourceTool;
             return true;
         }

@@ -1,5 +1,4 @@
-﻿
-module FResourceSetupDefinitions
+﻿module FResourceSetupDefinitions
 
     type public FResourceSetupDefinition = {
         WorkTimeGenerator : obj

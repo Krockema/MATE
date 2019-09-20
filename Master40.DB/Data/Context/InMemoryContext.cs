@@ -170,9 +170,9 @@ namespace Master40.DB.Data.Context
             }
             target.SaveChanges();
 
-            foreach (var item in source.SimulationOperations)
+            foreach (var item in source.SimulationJobs)
             {
-                target.SimulationOperations.Add(entity: item.CopyProperties());
+                target.SimulationJobs.Add(entity: item.CopyProperties());
             }
             target.SaveChanges();
 

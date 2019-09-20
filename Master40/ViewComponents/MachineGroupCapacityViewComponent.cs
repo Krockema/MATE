@@ -53,7 +53,7 @@ namespace Master40.ViewComponents
 
                 // charttype
                 var schedules =
-                    _resultContext.SimulationOperations.Where(
+                    _resultContext.SimulationJobs.Where(
                         predicate: x => x.SimulationConfigurationId == 1 && x.SimulationNumber == 1 && x.SimulationType == simType).ToList();
 
                 // no data no Gant.
@@ -105,7 +105,7 @@ namespace Master40.ViewComponents
         /// 2: Forward
         /// 3: Default
         /// <returns></returns>
-        private List<string> GetRangeForSchedulingType(int schedulingState, List<SimulationWorkschedule> schedules)
+        private List<string> GetRangeForSchedulingType(int schedulingState, List<SimulationJob> schedules)
         {
             List<string> labeList = new List<string>();
             int min, max;
@@ -149,10 +149,10 @@ namespace Master40.ViewComponents
 
 
 
-        private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange,int state, List<SimulationWorkschedule> simulationWorkschedule)
+        private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange,int state, List<SimulationJob> simulationWorkschedule)
         {
        
-            var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(predicate: x => x.Machine == machineGroupId.ToString());
+            var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(predicate: x => x.Resource == machineGroupId.ToString());
             
             var data = new List<double>();
             for (var i = minRange; i < maxRange; i++)

@@ -5,9 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    
-
-    
     <Compile Include="Message\FResourceInformations.fs" />
     <Compile Include="Message\FCreateSimulationResourceSetup.fs" />
     <Compile Include="Message\FThroughPutTimers.fs" />
@@ -35,8 +32,8 @@
     <Compile Include="Message\FSetEstimatedThroughputTimes.fs" />
     <Compile Include="Message\FBreakDown.fs" />
     <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
-    <Compile Include="Message\FUpdateSimulationWork.fs" />
-    <Compile Include="Message\FCreateSimulationWork.fs" />
+    <Compile Include="Message\FUpdateSimulationJobs.fs" />
+    <Compile Include="Message\FCreateSimulationJobs.fs" />
     <Compile Include="Message\FResourceSetupDefinition.fs" />
   </ItemGroup>
 

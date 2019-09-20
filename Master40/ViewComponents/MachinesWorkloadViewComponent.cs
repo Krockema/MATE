@@ -44,7 +44,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(function: () =>
             {
-                if (!_resultContext.SimulationOperations.Any())
+                if (!_resultContext.SimulationJobs.Any())
                 {
                     return null;
                 }
@@ -136,7 +136,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(function: () =>
             {
-                if (!_resultContext.SimulationOperations.Any())
+                if (!_resultContext.SimulationJobs.Any())
                 {
                     return null;
                 }

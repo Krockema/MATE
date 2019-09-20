@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Akka.Actor;
-using Master40.DB.Enums;
+﻿using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.DistributionProvider;
-using Master40.SimulationCore.Types;
+using System;
+using System.Linq;
 using static FPostponeds;
 using static FProposals;
 

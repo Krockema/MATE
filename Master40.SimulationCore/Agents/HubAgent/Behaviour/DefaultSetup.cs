@@ -44,8 +44,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return true;
         }
 
-        
-        private void EnqueueJob(FOperation fOperation)
+        internal virtual void EnqueueJob(FOperation fOperation)
         {
             var localItem = _operationList.FirstOrDefault(x => x.Key == fOperation.Key);
             // If item is not Already in Queue Add item to Queue

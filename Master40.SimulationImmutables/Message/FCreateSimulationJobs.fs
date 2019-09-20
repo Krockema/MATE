@@ -1,10 +1,11 @@
-﻿module FCreateSimulationWorks
+﻿module FCreateSimulationJobs
 
-open FOperations
 open System
+open IJobs
 
-    type public FCreateSimulationWork = {
-        Operation : FOperation
+    type public FCreateSimulationJob = {
+        Job : IJob
+        JobType : string
         CustomerOrderId : string
         IsHeadDemand : bool
         ArticleType : string

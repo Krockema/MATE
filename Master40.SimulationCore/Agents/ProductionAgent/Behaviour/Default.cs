@@ -13,7 +13,7 @@ using System.Linq;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
-using static FCreateSimulationWorks;
+using static FCreateSimulationJobs;
 using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;
@@ -232,7 +232,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 OperationManager.AddOperation(fJob);
 
                 // send update to collector
-                var pub = new FCreateSimulationWork(operation: fJob
+                var pub = new FCreateSimulationJob(job: fJob
+                    , jobType: JobType.OPERATION
                     , customerOrderId: fArticle.CustomerOrderId.ToString()
                     , isHeadDemand: fArticle.IsHeadDemand
                     , fArticleKey : fArticle.Key

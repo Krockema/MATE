@@ -78,7 +78,7 @@ namespace Master40.ViewComponents
             ViewData[index: "MaxPage"] = _maxPage;
 
             // if no data 
-            if (!_resultContext.SimulationOperations.Any())
+            if (!_resultContext.SimulationJobs.Any())
             {
                 return View(viewName: "SimulationTimeline", model: _ganttContext); ;
             }
@@ -123,11 +123,11 @@ namespace Master40.ViewComponents
         {
             foreach (var ordersPart in ordersParts)
             {
-                var pows = _resultContext.SimulationOperations.Where(predicate: x => x.OrderId == "[" + ordersPart.ToString() + "]"
+                var pows = _resultContext.SimulationJobs.Where(predicate: x => x.OrderId == "[" + ordersPart.ToString() + "]"
                                                                         && x.SimulationType == _simulationType
                                                                         && x.SimulationNumber == _simulationNumber
                                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                            .OrderBy(keySelector: x => x.Machine).ThenBy(keySelector: x => x.ProductionOrderId).ThenBy(keySelector: x => x.Start);
+                                                            .OrderBy(keySelector: x => x.Resource).ThenBy(keySelector: x => x.ProductionOrderId).ThenBy(keySelector: x => x.Start);
 
 
                 foreach (var pow in pows)
@@ -168,11 +168,11 @@ namespace Master40.ViewComponents
 
         private async Task GetSchedulesForTimeSlotListAsync(int pageStart, int pageEnd, bool folowLinks)
         {
-            var pows = _resultContext.SimulationOperations.Where(predicate: x => x.Start >= pageStart && x.End <= pageEnd
+            var pows = _resultContext.SimulationJobs.Where(predicate: x => x.Start >= pageStart && x.End <= pageEnd
                                                                     && x.SimulationType == _simulationType
                                                                     && x.SimulationNumber == _simulationNumber
                                                                     && x.SimulationConfigurationId == _simulationConfigurationId);
-            _maxPage = (int)Math.Ceiling(a: (double)_resultContext.SimulationOperations.Where(predicate: x => x.SimulationType == _simulationType
+            _maxPage = (int)Math.Ceiling(a: (double)_resultContext.SimulationJobs.Where(predicate: x => x.SimulationType == _simulationType
                                                                                       && x.SimulationNumber == _simulationNumber
                                                                                       && x.SimulationConfigurationId ==
                                                                                       _simulationConfigurationId) .Max(selector: m => m.End) / _timeSpan);
@@ -222,7 +222,7 @@ namespace Master40.ViewComponents
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.
         /// -- Headline for one Project
         /// </summary>
-        private GanttTask GetOrCreateTimeline(SimulationWorkschedule pow, int orderId = 0)
+        private GanttTask GetOrCreateTimeline(SimulationJob pow, int orderId = 0)
         {
             IEnumerable<GanttTask> project;
             // get Timeline
@@ -230,7 +230,7 @@ namespace Master40.ViewComponents
             {
                 case 3: // Machine Based
                     project = _ganttContext.Tasks
-                        .Where(predicate: x => x.type == GanttType.project && x.id == "M_" + pow.Machine);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "M_" + pow.Resource);
                     if (project.Any())
                     {
                         return project.First();
@@ -239,7 +239,7 @@ namespace Master40.ViewComponents
                     {
                         var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
                         //var mg = _context.MachineGroups.First(x => x.Id.ToString() == pow.Machine.ToString()).Name;
-                        var pt = CreateProjectTask(id: "M_" + pow.Machine, name: pow.Machine, desc: "", @group: 0, gc: (GanttColors)gc);
+                        var pt = CreateProjectTask(id: "M_" + pow.Resource, name: pow.Resource, desc: "", @group: 0, gc: (GanttColors)gc);
                         _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
@@ -283,7 +283,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Defines start and end for the ganttchart based on the Scheduling State
         /// </summary>
-        private void DefineStartEnd(ref long start, ref long end, SimulationWorkschedule item)
+        private void DefineStartEnd(ref long start, ref long end, SimulationJob item)
         {
             start = (_today + item.Start * 60000);
             end = (_today + item.End * 60000);
@@ -292,14 +292,14 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Creates new TimelineItem with a label depending on the schedulingState
         /// </summary>
-        public GanttTask CreateGanttTask(SimulationWorkschedule item, long start, long end, GanttColors gc, string parent)
+        public GanttTask CreateGanttTask(SimulationJob item, long start, long end, GanttColors gc, string parent)
         {
             var gantTask = new GanttTask()
             {
                 id = item.Id.ToString(),
                 type = GanttType.task,
-                desc = item.WorkScheduleName,
-                text = _schedulingState == 4 ? item.Machine : "P.O.: " + item.ProductionOrderId,
+                desc = item.JobName,
+                text = _schedulingState == 4 ? item.Resource : "P.O.: " + item.ProductionOrderId,
                 start_date = start.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 end_date = end.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 IntFrom = start,
@@ -330,7 +330,7 @@ namespace Master40.ViewComponents
         {
             // var itemList = new List<SelectListItem>();
             var itemList = new List<SelectListItem> { new SelectListItem() { Text="Backward", Value="1"} };
-            if (_resultContext.SimulationOperations.Any(predicate: x => x.SimulationType == SimulationType.ForwardPlanning && x.Start > 0))
+            if (_resultContext.SimulationJobs.Any(predicate: x => x.SimulationType == SimulationType.ForwardPlanning && x.Start > 0))
             {
                 itemList.Add(item: new SelectListItem() {Text = "Forward", Value = "2"});
             }

@@ -24,7 +24,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(function: () =>
             {
-                if (!_context.SimulationOperations.Any())
+                if (!_context.SimulationJobs.Any())
                 {
                     return null;
                 }
