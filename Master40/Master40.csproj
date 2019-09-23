@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
     <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
@@ -16,17 +17,16 @@
     <LangVersion>7.3</LangVersion>
     <UserSecretsId>8704d405-f8e4-4ac1-bc7f-a240f95a29a5</UserSecretsId>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="bootstrap" Version="4.3.1" />
-    <PackageReference Include="Chart.js" Version="2.8.0" />
+    <Compile Remove="BusinessLogic\**" />
+    <Content Remove="BusinessLogic\**" />
+    <EmbeddedResource Remove="BusinessLogic\**" />
+    </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="ChartJSCore" Version="1.5.5" />
-    <PackageReference Include="cldrjs" Version="0.5.1" />
-    <PackageReference Include="Font.Awesome" Version="5.10.0" />
-    <PackageReference Include="Growl" Version="0.6.0" />
     <PackageReference Include="Hangfire" Version="1.7.6" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.7.6" />
-    <PackageReference Include="jquery-globalize" Version="1.3.0" />
-    <PackageReference Include="jQuery.Validation" Version="1.17.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
@@ -34,15 +34,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Localization" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
-    <PackageReference Include="Microsoft.jQuery.Unobtrusive.Validation" Version="3.2.11" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
-    <PackageReference Include="Moment.js" Version="2.24.0" />
-    <PackageReference Include="popper.js" Version="1.14.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
     <PackageReference Include="System.Composition" Version="1.2.0" />
   </ItemGroup>
@@ -52,15 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Shared\Components\Menu\" />
-    <Folder Include="wwwroot\lib\bootstrap\css\" />
-    <Folder Include="wwwroot\lib\bootstrap\js\" />
-    <Folder Include="wwwroot\lib\Chart.js\" />
-    <Folder Include="wwwroot\lib\font-awesome\css\" />
-    <Folder Include="wwwroot\lib\font-awesome\js\" />
-    <Folder Include="wwwroot\lib\font-awesome\sprites\" />
-    <Folder Include="wwwroot\lib\font-awesome\webfonts\" />
-    <Folder Include="wwwroot\lib\jquery\" />
-    <Folder Include="wwwroot\lib\moment.js\locale\" />
+    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
