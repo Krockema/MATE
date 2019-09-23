@@ -255,7 +255,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 var value = Math.Round(value: item.W / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                var machine = item.M.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Machine(", newValue: "");
+                var machine = item.M.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
                 Collector.messageHub.SendToClient(listener: machine, msg: value);
                 CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.M, kpiType: KpiType.MachineUtilization);
             }
@@ -300,7 +300,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 var value = Math.Round(value: resource.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Machine(", newValue: "");
+                var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
                 //TODO to implement GUI
                 //Collector.messageHub.SendToClient(listener: machine, msg: value);
                 CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: KpiType.ResourceSetup);

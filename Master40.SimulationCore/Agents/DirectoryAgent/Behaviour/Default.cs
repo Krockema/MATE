@@ -97,7 +97,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     // TODO : Handle 1 resource in multiply hub agents
                                                                     , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
-                                                    , name: ("Machine(" + resource.Name + ")").ToActorName());
+                                                    , name: ("Resource(" + resource.Name + ")").ToActorName());
 
 
             Agent.Send(instruction: BasicInstruction.Initialize

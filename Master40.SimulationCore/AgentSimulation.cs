@@ -123,7 +123,7 @@ namespace Master40.SimulationCore
         private void CreateCollectorAgents(Configuration configuration)
         {
             var resourcelist = new ResourceList();
-            resourcelist.AddRange(collection: _dBContext.Resources.Select(selector: x => "Resources(" + x.Name.Replace(" ", "") + ")"));
+            resourcelist.AddRange(collection: _dBContext.Resources.Select(selector: x => "Resource(" + x.Name.Replace(" ", "") + ")"));
 
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents

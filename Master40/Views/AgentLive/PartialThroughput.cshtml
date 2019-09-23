@@ -69,15 +69,15 @@
         processingProxy.on("Throughput", function (msg) {
             console.log("Throughput : " + msg);
             var serialized = JSON.parse(msg);
-            for (item of serialized.group) {
-                switch (item.Key) {
+            for (item of serialized.leadTime) {
+                switch (item.ArticleName) {
                     case "Race-Truck":
-                        item.List.push(...ThroughputChart.data.datasets[0].data[0]);
-                        ThroughputChart.data.datasets[0].data[0] = shiftArray(item.List);
+                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[0]);
+                        ThroughputChart.data.datasets[0].data[0] = shiftArray(item.Dlz);
                         break;
                     case "Dump-Truck":
-                        item.List.push(...ThroughputChart.data.datasets[1].data[0]);
-                        ThroughputChart.data.datasets[1].data[0] = shiftArray(item.List);
+                        item.Dlz.push(...ThroughputChart.data.datasets[1].data[0]);
+                        ThroughputChart.data.datasets[1].data[0] = shiftArray(item.Dlz);
                         break;
                     default:
                         console.log("Sorry, we are out of " + expr + ".");
