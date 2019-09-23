@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Agents.CollectorAgent;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
@@ -47,6 +48,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
             _ctxResult.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
 
+        }
+
+        [Fact(Skip = "manual test")]
+        public void ResetDB()
+        {
+            ResultContext masterResults = ResultContext.GetContext(resultCon:
+            "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true");
+            masterResults.Database.EnsureDeleted();
+            masterResults.Database.EnsureCreated();
         }
 
         

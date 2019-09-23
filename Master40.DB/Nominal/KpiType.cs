@@ -8,6 +8,7 @@ namespace Master40.DB.Enums
     {
         LeadTime,
         MachineUtilization,
+        ResourceSetup,
         Timeliness,
         StockEvolution,
         LayTime,

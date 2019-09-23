@@ -11,6 +11,7 @@ using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -202,7 +203,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             //simulationWorkschedules.WriteCSV( @"C:\Users\mtko\source\output.csv");
 
-
+            //JobWorkingTimes for interval
             var lower_borders = from sw in simulationJobs
                                 where sw.Start < lastIntervalStart
                                    && sw.End > lastIntervalStart
@@ -256,30 +257,63 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
                 var machine = item.M.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Machine(", newValue: "");
                 Collector.messageHub.SendToClient(listener: machine, msg: value);
-                CreateKpi(agent: Collector, value: value, name: item.M, kpiType: KpiType.MachineUtilization);
+                CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.M, kpiType: KpiType.MachineUtilization);
             }
 
             var totalLoad = Math.Round(value: final.Sum(selector: x => x.W) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalLoad == "NaN")  totalLoad = "0";
             Collector.messageHub.SendToClient(listener: "TotalWork", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Load = totalLoad }));
             CreateKpi(agent: Collector, value: totalLoad, name: "TotalWork", kpiType: KpiType.MachineUtilization);
-            // // Kontrolle
-            // var from_work2 = from sw in tuples
-            //                  group sw by sw.Item1 into mg
-            //                  select new
-            //                  {
-            //                      M = mg.Key,
-            //                      W = (double)(mg.Sum(x => x.Item2))
-            //                  };
-            // 
-            // foreach (var item in from_work2.OrderBy(x => x.M))
-            // {
-            //     Debug.WriteLine(item.M + " workload " + Math.Round(item.W / divisor, 3) + " %!", "intern");
-            // }
-            // tuples.Clear();
 
-            // Cut all lower bound ?
-            // TODO save removed items to somewhere
+            //ResourceSetupTimes for interval
+
+            var setups_lower_borders = from sw in simulationResourceSetups
+                where sw.Start < lastIntervalStart
+                      && sw.End > lastIntervalStart
+                      && sw.Resource != null
+                group sw by sw.Resource
+                into rs
+                select new Tuple<string, long>(rs.Key,
+                    rs.Sum(selector: x => x.End - lastIntervalStart));
+
+            var setups_upper_borders = from sw in simulationResourceSetups
+                where sw.Start < Collector.Time
+                      && sw.End > Collector.Time
+                      && sw.Resource != null
+                group sw by sw.Resource
+                      into rs
+                select new Tuple<string, long>(rs.Key,
+                    rs.Sum(selector: x => Collector.Time - x.Start));
+
+            var totalSetups = from m in simulationResourceSetups
+                              where m.Start >= lastIntervalStart
+                                 && m.End <= Collector.Time
+                              group m by m.Resource
+                              into rs
+                              select new Tuple<string, long>(rs.Key,
+                                                              rs.Sum(selector: x => x.End - x.Start));
+
+            var union = totalSetups.Union(setups_lower_borders).Union(setups_upper_borders).ToList();
+
+            foreach (var resource in union.OrderBy(keySelector: x => x.Item1))
+            {
+                var value = Math.Round(value: resource.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
+                if (value == "NaN") value = "0";
+                //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
+                var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Machine(", newValue: "");
+                //TODO to implement GUI
+                //Collector.messageHub.SendToClient(listener: machine, msg: value);
+                CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: KpiType.ResourceSetup);
+            }
+
+            var totalSetup = Math.Round(value: union.Sum(selector: x => x.Item2) / divisor / final.Count(), digits: 3).ToString(provider: _cultureInfo);
+            if (totalSetup == "NaN") totalSetup = "0";
+            //TODO to implement GUI
+            //Collector.messageHub.SendToClient(listener: "TotalSetup", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Load = totalSetup }));
+            CreateKpi(agent: Collector, value: totalSetup, name: "TotalSetup", kpiType: KpiType.ResourceSetup);
+
+            //Persist Jobs
+            // TODO make it better
             simulationJobsForDb.AddRange(simulationJobs.Where(op => op.CreatedForOrderId != string.Empty
                                                                          && op.End < lastIntervalStart));
             simulationJobs.RemoveAll(op => op.CreatedForOrderId != string.Empty
@@ -288,8 +322,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             simulationResourceSetupsForDb.AddRange(simulationResourceSetups.Where(rs => rs.End < lastIntervalStart));
             simulationResourceSetups.RemoveAll(rs => rs.End < lastIntervalStart);
 
-
-            Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed");
+            //Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed");
         }
 
         private void CreateKpi(Collector agent, string value, string name, KpiType kpiType)
