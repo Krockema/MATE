@@ -10,7 +10,6 @@
       <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
       <PackageReference Include="NLog.Extensions.Logging" Version="1.5.4" />
       <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
-      <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     </ItemGroup>
   <ItemGroup>
     <None Update="NLog.config">
@@ -19,10 +18,6 @@
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>    
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
-      <ProjectReference Include="..\Master40.XUnitTest\Master40.XUnitTest.csproj" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Common\DemandDomain\WrappersForCollections\" />
@@ -35,15 +30,17 @@
       <Folder Include="LotSize\" />
       <Folder Include="OrderGraph\" />
       <Folder Include="Properties\" />
-      <Folder Include="Test\Configuration\Scenarios\" />
-      <Folder Include="Test\Integration_Tests\" />
-      <Folder Include="Test\Ordergraphs\GanttChart\" />
-      <Folder Include="Test\Unit_Tests\Demand\" />
-      <Folder Include="Test\Unit_Tests\Provider\" />
-      <Folder Include="Test\WrappersForPrimitives\" />
+      <Folder Include="Simulation\Agents\JobDistributor\Skills\" />
+      <Folder Include="Simulation\Agents\JobDistributor\Types\" />
+      <Folder Include="Simulation\Agents\Resource\Skills\" />
+      <Folder Include="Simulation\Monitors\" />
+      <Folder Include="Simulation\Types\" />
       <Folder Include="Utils\Queue\" />
       <Folder Include="WrappersForCollections\" />
       <Folder Include="WrappersForPrimitives\" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
     </ItemGroup>
 
 </Project>

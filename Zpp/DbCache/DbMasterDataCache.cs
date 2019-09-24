@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Util.Internal;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
@@ -101,7 +100,7 @@ namespace Zpp.DbCache
             var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceSkillId == skill.Id).Select(x => x.ResourceId).ToList();
             var resourceList = new List<Resource>();
             _resources.GetAll()
-                      .Where(x => resourceIds.Contains(x.Id))
+                      .Where(x => resourceIds.Contains(x.Id)).ToList()
                       .ForEach(e => resourceList.Add(new Resource(e)));
             return resourceList;
         }
