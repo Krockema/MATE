@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+    <ProjectReference Include="..\Master40.SimulationMrp\Master40.SimulationMrp.csproj" />
     <ProjectReference Include="..\Master40.Simulation\Master40.Simulation.csproj" />
   </ItemGroup>
   <ItemGroup>

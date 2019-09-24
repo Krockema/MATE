@@ -1,0 +1,8 @@
+{
+  "CustomerOrderPartQuantity": 1,
+  "LotSize": 1,
+  "LotSizeType": "FixedLotSize",
+  "Name": "desk_cop_1_lotsize_1",
+  "DbSetInitializer": "Master40.XUnitTest.Zpp.Test.Configuration.MasterDBInitializerDesk",
+  "TestScenario": "Master40.XUnitTest.Zpp.Test.Configuration.Scenarios.DeskScenarioSequentially"
+}

@@ -1,0 +1,32 @@
+﻿[
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11863: Tisch zusammenbauen",
+    "operationId": "11863",
+    "resource": "11610: Endmontage 1",
+    "start": "356",
+    "end": "367",
+    "groupId": "11860"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11888: Anschraubplatte anschweißen",
+    "operationId": "11888",
+    "resource": "11611: Schweißen 1",
+    "start": "100",
+    "end": "260",
+    "groupId": "11885"
+  },
+  {
+    "article": null,
+    "articleId": null,
+    "operation": "11892: Flizgleiter anstecken",
+    "operationId": "11892",
+    "resource": "11613: Montage 1",
+    "start": "332",
+    "end": "356",
+    "groupId": "11885"
+  }
+]

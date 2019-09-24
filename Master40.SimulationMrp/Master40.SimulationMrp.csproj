@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
+    <ProjectReference Include="..\Zpp\Zpp.csproj" />
+  </ItemGroup>
+</Project>

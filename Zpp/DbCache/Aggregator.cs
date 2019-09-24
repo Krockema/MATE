@@ -10,7 +10,6 @@ using Zpp.Common.ProviderDomain;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.Common.ProviderDomain.WrappersForCollections;
 using Zpp.Mrp.MachineManagement;
-using Zpp.Simulation.Types;
 using Zpp.Utils;
 using Zpp.WrappersForPrimitives;
 

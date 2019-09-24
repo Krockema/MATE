@@ -1,8 +1,0 @@
-{
-  "CustomerOrderPartQuantity": 1,
-  "LotSize": 1,
-  "LotSizeType": "FixedLotSize",
-  "Name": "desk_cop_1_lotsize_1",
-  "DbSetInitializer": "Zpp.Test.Configuration.MasterDBInitializerDesk",
-  "TestScenario": "Zpp.Test.Configuration.Scenarios.DeskScenarioSequentially"
-}
