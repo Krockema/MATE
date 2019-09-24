@@ -39,9 +39,9 @@ namespace Master40.XUnitTest.Zpp.Test.Integration_Tests
             InitThisTest(testConfigurationFileName);
             
             string orderGraphFileName =
-                $"../../../Test/Ordergraphs/production_ordergraph_{TestConfiguration.Name}.txt";
+                $"../../../Zpp/Test/Ordergraphs/production_ordergraph_{TestConfiguration.Name}.txt";
             string orderGraphFileNameWithIds =
-                $"../../../Test/Ordergraphs/production_ordergraph_{TestConfiguration.Name}_with_ids.txt";
+                $"../../../Zpp/Test/Ordergraphs/production_ordergraph_{TestConfiguration.Name}_with_ids.txt";
 
             // build orderGraph up
             IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
