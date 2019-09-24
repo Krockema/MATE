@@ -1,4 +1,4 @@
-﻿@{ 
+﻿@{
 
 }
 <style>
@@ -8,83 +8,85 @@
         width: 100%;
     }
 </style>
-    <div class="chartWrapper" style="float:left">
-        <div class="chartAreaWrapper">
-            <div class="chartAreaWrapperWorkload">
-                <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="TotalWorkLoad" height="125"></canvas>
-            </div>
+<div class="chartWrapper" style="float:left">
+    <div class="chartAreaWrapper">
+        <div class="chartAreaWrapperWorkload">
+            <!--div id="js-legend" class="chart-legend"><div-->
+            <canvas id="TotalWorkLoad" height="125"></canvas>
         </div>
     </div>
+</div>
 
-    <script>
-        var TotalWorkLoadElement = document.getElementById("TotalWorkLoad");
-        var TotalWorkLoadChart =
-            new Chart(TotalWorkLoadElement, {
-                type: "scatter"
-                , data: {
-                    datasets: [{
-                        "data": [{ "x": 0.0, "y": 100.0 }, { "x": 2880.0, "y": 100.0 }]
-                        , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
-                    },
-                        {
-                        data: [{ "x": 0.0, "y": 0.0 }]
-                        , type: "line"
-                        , lineTension: 0.5
-                        , borderWidth: 1
-                        , borderColor: "rgb(3,79,175, .6)"
-                        , pointBackgroundColor: "rgb(3,79,175, .6)"
-                        , showLine: true
-                        , fill: false
-                        , label: "Total Workload"
-                        , yAxisID: "first-y-axis"
-                    }]
-                    , labels: ["Settling time","All Machines"]
+<script>
+    var TotalWorkLoadElement = document.getElementById("TotalWorkLoad");
+    var TotalWorkLoadChart =
+        new Chart(TotalWorkLoadElement, {
+            type: "scatter"
+            , data: {
+                datasets: [{
+                    "data": [{ "x": 0.0, "y": 100.0 }, { "x": 2880.0, "y": 100.0 }]
+                    , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
                 },
-                options: {
-                    responsive: true
-                    , maintainAspectRatio: false
-                    , title: {
-                        position: "top"
-                      , fontSize: 24
-                      , fontStyle: "bold"
-                      , text: "Total Workload"
-                    }, legend: {
-                        display: false
-                      , position: "bottom"
-                      , fullWidth: true
-                    },
-                    scales: {
-                         xAxes: [{
-                             type: "linear"
-                             , id: "first-x-axis"
-                             , scaleLabel: { display: true, labelString: "Time in min", fontSize: 12 }
-                             , ticks: { min: 0.0, max: 20000.0, display: true }
-                             , display: true
-                         }]
-                        , yAxes: [{
-                            type: "linear"
-                            , id: "first-y-axis"
-                            , scaleLabel: {
-                                display: true
-                                , labelString: "Workload in %"
-                                , fontSize: 12
-                            }
-                            , ticks: { min: 0.0, stepSize: 50, max: 100, display: true }
-                            , display: true
-                        }]
-                    }
+                {
+                    data: [{ "x": 0.0, "y": 0.0 }]
+                    , type: "line"
+                    , lineTension: 0.5
+                    , borderWidth: 1
+                    , borderColor: "rgb(3,79,175, .6)"
+                    , pointBackgroundColor: "rgb(3,79,175, .6)"
+                    , showLine: true
+                    , fill: false
+                    , label: "Total Workload"
+                    , yAxisID: "first-y-axis"
+                }]
+                , labels: ["Settling time", "All Machines"]
+            },
+            options: {
+                responsive: true
+                , maintainAspectRatio: false
+                , title: {
+                    position: "top"
+                    , fontSize: 24
+                    , fontStyle: "bold"
+                    , text: "Total Workload"
+                }, legend: {
+                    display: false
+                    , position: "bottom"
+                    , fullWidth: true
+                },
+                scales: {
+                    xAxes: [{
+                        type: "linear"
+                        , id: "first-x-axis"
+                        , scaleLabel: { display: true, labelString: "Time in min", fontSize: 12 }
+                        , ticks: { min: 0.0, max: 20000.0, display: true }
+                        , display: true
+                    }]
+                    , yAxes: [{
+                        type: "linear"
+                        , id: "first-y-axis"
+                        , scaleLabel: {
+                            display: true
+                            , labelString: "Workload in %"
+                            , fontSize: 12
+                        }
+                        , ticks: { min: 0.0, stepSize: 50, max: 100, display: true }
+                        , display: true
+                    }]
                 }
-            });
-
-        processingProxy.on("TotalWork", function (msg) {
-            // console.log("TotalWork : " + msg);
-            var serialized = JSON.parse(msg);
-            TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Load });
-           
-            TotalWorkLoadChart.update();
+            }
         });
-    </script>
+
+    processingProxy.on("TotalTimes", function (msg) {
+        console.log("TotalTimes : " + msg);
+        var serialized = JSON.parse(msg);
+        var load = JSON.parse(serialized.Load);
+        TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: load.Work });
+        TotalWorkLoadChart.data.datasets[2].data.push({ x: serialized.Time, y: load.Work + load.Setup });
+
+        TotalWorkLoadChart.update();
+    });
+</script>
 
 
 

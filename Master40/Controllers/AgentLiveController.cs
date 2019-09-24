@@ -37,7 +37,7 @@ namespace Master40.Controllers
                                                     new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
                                                     , new SimulationId(value: simId)
                                                     , new SimulationNumber(value: 1)
-                                                    , new SimulationKind(value: SimulationType.None)
+                                                    , new SimulationKind(value: SimulationType.DefaultSetupStack)
                                                     , new OrderArrivalRate(value: arivalRate)
                                                     , new OrderQuantity(value: orderAmount)
                                                     , new EstimatedThroughPut(value: estimatedThroughputTime)
@@ -52,7 +52,7 @@ namespace Master40.Controllers
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
-                                                    , new SaveToDB(value: false)
+                                                    , new SaveToDB(value: true)
                                                 });
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }
