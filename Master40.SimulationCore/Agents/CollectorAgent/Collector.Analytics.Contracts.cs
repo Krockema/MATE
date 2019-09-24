@@ -61,13 +61,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
-                Collector.messageHub.SendToAllClients(msg: $"Oder No: {finishedArticle.OriginRequester} finished {finishedArticle.Article.Name} in time at {Collector.Time}");
+                Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}");
 
-                Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
                 inTime++;
             }else
             {
-                Collector.messageHub.SendToAllClients(msg: $"Oder No: {finishedArticle.OriginRequester} finished {finishedArticle.Article.Name} too late at {Collector.Time}");
+                Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}");
                 toLate++;
             }
 
@@ -76,7 +75,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             openOrderParts--;
             finishedOrderParts++;
             totalOrders++;
-            
+
+            Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
+
         }
 
         private void UpdateFeed(bool writeResultsToDB)
