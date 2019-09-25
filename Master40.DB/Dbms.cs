@@ -37,6 +37,15 @@ namespace Master40.DB
             return  Constants.DbConnectionSqlServerMaster;
         }
 
+        public static string GetResultConnectionString()
+        {
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                return Constants.DbConnectionResultSqlServerLocal;
+            }
+            return Constants.DbConnectionResultSqlServer;
+        }
+
         public static ProductionDomainContext GetDbContext()
         {
             ProductionDomainContext productionDomainContext;

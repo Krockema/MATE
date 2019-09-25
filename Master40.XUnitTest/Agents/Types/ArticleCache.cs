@@ -15,10 +15,10 @@ namespace Master40.XUnitTest.Agents.Types
         private string _dbConnectionString;
         public ArticleCache()
         {
-            _masterDBContext = Dbms.GetDbContext();
+            _dbConnectionString = Dbms.GetConnectionString();
+            _masterDBContext = ProductionDomainContext.GetContext(_dbConnectionString) ;
             _masterDBContext.Database.EnsureCreated();
             MasterDbInitializerTable.DbInitialize(context: _masterDBContext);
-            _dbConnectionString = _masterDBContext.Database.GetDbConnection().ConnectionString;
         }
 
 

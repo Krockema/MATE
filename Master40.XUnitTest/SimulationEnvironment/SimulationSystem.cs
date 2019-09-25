@@ -19,14 +19,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
     public class SimulationSystem : TestKit
     {
         private string localresultdb;
+        private string productionDbConnectionString;
         private ProductionDomainContext _context;
         private ResultContext _resultContext;
         private int simNr = 999;
 
         public SimulationSystem()
         {
-            _context = Dbms.GetDbContext();
-            _resultContext = Dbms.GetDbResultContext();
+            productionDbConnectionString = Dbms.GetConnectionString();
+            localresultdb = Dbms.GetResultConnectionString();
+            _context = ProductionDomainContext.GetContext(productionDbConnectionString);
+            _resultContext = ResultContext.GetContext(localresultdb);
 
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
