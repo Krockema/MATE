@@ -28,42 +28,30 @@ namespace Master40.DB
             return false;
         }
 
+        public static string GetConnectionString()
+        {
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                return Constants.DbConnectionLocalDb;
+            }
+            return  Constants.DbConnectionSqlServerMaster;
+        }
 
-    public static ProductionDomainContext GetDbContext()
+        public static ProductionDomainContext GetDbContext()
         {
             ProductionDomainContext productionDomainContext;
 
-            // EF inMemory
-            // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
-            /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                .Options);*/
-
             if (UseLocalDb() && Constants.IsWindows)
             {
-                productionDomainContext = new ProductionDomainContext(
-                    new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(
-                            // Constants.DbConnectionZppLocalDb)
-                            Constants.DbConnectionLocalDb).Options);
                     Constants.IsLocalDb = true;
             } else if (Constants.IsWindows)
             {
-                // Windows
-                productionDomainContext = new ProductionDomainContext(
-                    new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(
-                            // Constants.DbConnectionZppLocalDb)
-                            Constants.DbConnectionMasterSqlServer).Options);
                 Constants.IsLocalDb = false;
             }
-            else
-            {
-                // With Sql Server for Mac/Linux
-                productionDomainContext = new ProductionDomainContext(
-                    new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(Constants.DbConnectionMasterSqlServer).Options);
-            }
+            // else Linux
+            productionDomainContext = new ProductionDomainContext(
+                new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
+                    .UseSqlServer(GetConnectionString()).Options);
 
             MyLoggerFactory.AddNLog();
 
@@ -78,36 +66,20 @@ namespace Master40.DB
         {
             ResultContext resultContext;
 
-            // EF inMemory
-            // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
-            /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
-                .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                .Options);*/
-
             if (UseLocalDb() && Constants.IsWindows)
             {
                 resultContext = new ResultContext(
                     new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(Constants.DbConnectionResultDbLocal).Options);
+                        .UseSqlServer(Constants.DbConnectionResultSqlServerLocal).Options);
             }
             else if (Constants.IsWindows)
             {
-                // Windows
-                resultContext = new ResultContext(
-                    new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(
-                            // Constants.DbConnectionZppLocalDb)
-                            Constants.DbConnectionResultSqlServer).Options);
                 Constants.IsLocalDb = false;
             }
-            else
-            {
-                // With Sql Server for Mac/Linux
-                resultContext = new ResultContext(
+            resultContext = new ResultContext(
                     new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
                         .UseSqlServer(Constants.DbConnectionResultSqlServer).Options);
-            }
-
+            
             MyLoggerFactory.AddNLog();
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
@@ -139,16 +111,16 @@ namespace Master40.DB
         /**
          * @return: true, if db was succesfully dropped
          */
-        public static bool DropDatabase(string dbName)
+        public static bool DropDatabase(string dbName, string connectionString)
         {
-            if (CanConnect(Constants.DbConnectionMasterSqlServer) == false)
+            if (CanConnect(connectionString) == false)
             {
                 return false;
             }
 
             int result = 0;
 
-            using (SqlConnection con = new SqlConnection(Constants.DbConnectionZppSqlServerMaster))
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
                 String sqlCommandText = @"

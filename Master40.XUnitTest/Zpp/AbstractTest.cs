@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.XUnitTest.Zpp.Configuration;
 using Master40.XUnitTest.Zpp.Configuration.Scenarios;
@@ -81,7 +82,7 @@ namespace Master40.XUnitTest.Zpp
 
             else
             {
-                bool wasDropped = Dbms.DropDatabase(Constants.GetDbName());
+                bool wasDropped = Dbms.DropDatabase(Constants.GetDbName(), Dbms.GetConnectionString());
                 if (wasDropped == false)
                 {
                     LOGGER.Warn($"Database {Constants.GetDbName()} could not be dropped.");
