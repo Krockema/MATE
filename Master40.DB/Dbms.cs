@@ -1,12 +1,13 @@
-using Master40.DB.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
-namespace Zpp.Utils
+namespace Master40.DB
 {
     public static class Dbms
     {
@@ -44,7 +45,7 @@ namespace Zpp.Utils
                     new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
                         .UseSqlServer(
                             // Constants.DbConnectionZppLocalDb)
-                            Constants.DbConnectionZppLocalDb).Options);
+                            Constants.DbConnectionLocalDb).Options);
                     Constants.IsLocalDb = true;
             } else if (Constants.IsWindows)
             {
@@ -53,7 +54,7 @@ namespace Zpp.Utils
                     new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
                         .UseSqlServer(
                             // Constants.DbConnectionZppLocalDb)
-                            Constants.DbConnectionZppSqlServer()).Options);
+                            Constants.DbConnectionMasterSqlServer).Options);
                 Constants.IsLocalDb = false;
             }
             else
@@ -61,7 +62,7 @@ namespace Zpp.Utils
                 // With Sql Server for Mac/Linux
                 productionDomainContext = new ProductionDomainContext(
                     new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(Constants.DbConnectionZppSqlServer()).Options);
+                        .UseSqlServer(Constants.DbConnectionMasterSqlServer).Options);
             }
 
             MyLoggerFactory.AddNLog();
@@ -72,6 +73,50 @@ namespace Zpp.Utils
 
             return productionDomainContext;
         }
+
+        public static ResultContext GetDbResultContext()
+        {
+            ResultContext resultContext;
+
+            // EF inMemory
+            // MasterDBContext _inMemmoryContext = new MasterDBContext(new DbContextOptionsBuilder<MasterDBContext>()
+            /*_productionDomainContext = new ProductionDomainContext(new DbContextOptionsBuilder<MasterDBContext>()
+                .UseInMemoryDatabase(databaseName: "InMemoryDB")
+                .Options);*/
+
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                resultContext = new ResultContext(
+                    new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
+                        .UseSqlServer(Constants.DbConnectionResultDbLocal).Options);
+            }
+            else if (Constants.IsWindows)
+            {
+                // Windows
+                resultContext = new ResultContext(
+                    new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
+                        .UseSqlServer(
+                            // Constants.DbConnectionZppLocalDb)
+                            Constants.DbConnectionResultSqlServer).Options);
+                Constants.IsLocalDb = false;
+            }
+            else
+            {
+                // With Sql Server for Mac/Linux
+                resultContext = new ResultContext(
+                    new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
+                        .UseSqlServer(Constants.DbConnectionResultSqlServer).Options);
+            }
+
+            MyLoggerFactory.AddNLog();
+
+            // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
+            resultContext.ChangeTracker.QueryTrackingBehavior =
+                QueryTrackingBehavior.NoTracking;
+
+            return resultContext;
+        }
+
 
         public static bool CanConnect(string connectionString)
         {
@@ -96,15 +141,14 @@ namespace Zpp.Utils
          */
         public static bool DropDatabase(string dbName)
         {
-            if (CanConnect(Constants.DbConnectionZppSqlServer()) == false)
+            if (CanConnect(Constants.DbConnectionMasterSqlServer) == false)
             {
                 return false;
             }
 
-            String connectionString = Constants.DbConnectionZppSqlServerMaster();
             int result = 0;
 
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using (SqlConnection con = new SqlConnection(Constants.DbConnectionZppSqlServerMaster))
             {
                 con.Open();
                 String sqlCommandText = @"

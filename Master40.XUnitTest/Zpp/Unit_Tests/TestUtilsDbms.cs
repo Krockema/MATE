@@ -1,3 +1,4 @@
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Xunit;

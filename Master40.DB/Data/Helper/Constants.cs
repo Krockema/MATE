@@ -32,20 +32,26 @@ namespace Master40.DB.Data.Helper
             return DateTime.Now.ToString("MM-dd_HH:mm") + $"__{ticks.Substring(10, ticks.Length - 10)}";
         }
 
-        public static String DbConnectionZppLocalDb { get; } =
+        public static String DbConnectionLocalDb { get; } =
             $"Server=(localdb)\\mssqllocaldb;Database=UnitTestDB;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-        public static String DbConnectionZppSqlServer()
-        {
-            return $"Server=localhost,1433;Database={GetDbName()};" +
-                   $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
-        }
+        public static String DbConnectionResultDbLocal { get; } =
+            $"Server=(localdb)\\mssqllocaldb;Database=UnitTestResultDB;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-        public static String DbConnectionZppSqlServerMaster()
-        {
-            return $"Server=localhost,1433;Database=master;" +
-                   $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
-        }
+        public static String DbConnectionMasterSqlServer => 
+            $"Server=localhost,1433;Database={GetDbName()};" +
+            $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
+        
+
+        public static String DbConnectionResultSqlServer =>
+             $"Server=localhost,1433;Database=Result{GetDbName()};" +
+             $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
+        
+
+        public static String DbConnectionZppSqlServerMaster =>  
+            $"Server=localhost,1433;Database=master;" +
+            $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
+
 
         public static string EnumToString<T>(T enumValue, Type enumType)
         {

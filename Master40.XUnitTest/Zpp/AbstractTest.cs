@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.XUnitTest.Zpp.Configuration;

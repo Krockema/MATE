@@ -10,7 +10,9 @@ using Master40.XUnitTest.Preparations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB;
 using Xunit;
+using Zpp.Utils;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -23,8 +25,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         public SimulationSystem()
         {
-            _context = ProductionDomainContext.GetContext(Dbms.GetDbContextString());
-            _resultContext = ResultContext.GetContext(Dbms.GetResultContext());
+            _context = Dbms.GetDbContext();
+            _resultContext = Dbms.GetDbResultContext();
 
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
