@@ -250,8 +250,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
                 _toolManager.Mount(requiredResourceTool: _jobInProgress.Current.Tool);
+                //TODO ExpectedDuration might be different by randomize setupDuration (see WorktimeGenerator at JobDuration)
                 var pubSetup = new FCreateSimulationResourceSetup(
-                    duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, resourceTool: _jobInProgress.Current.Tool.Name);
+                    expectedDuration: setupDuration, duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, resourceTool: _jobInProgress.Current.Tool.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 

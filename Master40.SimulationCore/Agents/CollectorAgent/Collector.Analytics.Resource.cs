@@ -35,11 +35,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             _resources = resources;
         }
 
-        private List<SimulationJob> simulationJobs { get; } = new List<SimulationJob>();
-        private List<SimulationJob> simulationJobsForDb { get; } = new List<SimulationJob>();
+        private List<SimulationResourceJob> simulationJobs { get; } = new List<SimulationResourceJob>();
+        private List<SimulationResourceJob> simulationJobsForDb { get; } = new List<SimulationResourceJob>();
         private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         private List<SimulationResourceSetup> simulationResourceSetupsForDb { get; } = new List<SimulationResourceSetup>();
-        //private List<Tuple<string, long>> tuples = new List<Tuple<string, long>>();
+        //TODO KpiManager to implement
+        private KpiManager kpiManager { get; } = new KpiManager();
+
         private long lastIntervalStart { get; set; } = 0;
         private List<FUpdateSimulationJob> _updatedSimulationJob { get; } = new List<FUpdateSimulationJob>();
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
@@ -105,7 +107,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Resource = simulationResourceSetup.Resource,
                 ResourceTool = simulationResourceSetup.ResourceTool,
                 Start = (int)simulationResourceSetup.Start,
-                End = simulationResourceSetup.Start + simulationResourceSetup.Duration
+                End = simulationResourceSetup.Start + simulationResourceSetup.Duration,
+                ExpectedDuration = simulationResourceSetup.ExpectedDuration
             };
 
             simulationResourceSetups.Add(item: _SimulationResourceSetup);
@@ -132,7 +135,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
-            MachineUtilization();
+            ResourceUtilization();
+
             ThroughPut();
             lastIntervalStart = Collector.Time;
 
@@ -196,8 +200,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = v2.Count().ToString() }));
         }
 
-        //TODO make it better than that piece of s***
-        private void MachineUtilization()
+        private void OverallEquipmentEffectiveness()
+        {
+
+        }
+
+        //TODO solution = KpiManager
+        private void ResourceUtilization()
         {
             double divisor = Collector.Time - lastIntervalStart;
             var tupleList = new List<Tuple<string, string>>();
@@ -344,13 +353,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Kpis.Add(item: k);
         }
 
+        //TODO implement Interface for ISimulationJob (FCreateSimluationOperation, FCreateSimulationBucket)
         private void CreateSimulationOperation(FCreateSimulationJob simJob)
         {
             var fOperation = ((FOperation)simJob.Job);
-            var simulationJob = new SimulationJob
+            var simulationJob = new SimulationResourceJob
             {
                 JobId = simJob.Job.Key.ToString(),
-
                 JobName = fOperation.Operation.Name,
                 JobType = simJob.JobType,
                 DueTime = (int)simJob.Job.DueTime,
@@ -366,6 +375,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Parent = simJob.IsHeadDemand.ToString(),
                 ParentId = "[]",
                 Time = (int)(Collector.Time),
+                ExpectedDuration = fOperation.Operation.Duration,
                 ArticleType = simJob.ArticleType
             };
 

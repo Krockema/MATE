@@ -105,10 +105,10 @@ namespace Master40.ViewComponents
         /// 2: Forward
         /// 3: Default
         /// <returns></returns>
-        private List<string> GetRangeForSchedulingType(int schedulingState, List<SimulationJob> schedules)
+        private List<string> GetRangeForSchedulingType(int schedulingState, List<SimulationResourceJob> schedules)
         {
             List<string> labeList = new List<string>();
-            int min, max;
+            long min, max;
 
             switch (schedulingState)
             {
@@ -140,7 +140,7 @@ namespace Master40.ViewComponents
                     */
             }
 
-            for (int i = min; i < max; i++)
+            for (var i = min; i < max; i++)
             {
                 labeList.Add(item: i.ToString());
             }
@@ -149,7 +149,7 @@ namespace Master40.ViewComponents
 
 
 
-        private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange,int state, List<SimulationJob> simulationWorkschedule)
+        private BarDataset GetCapacityForMachineGroupById(int machineGroupId, int minRange, int maxRange,int state, List<SimulationResourceJob> simulationWorkschedule)
         {
        
             var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(predicate: x => x.Resource == machineGroupId.ToString());

@@ -222,7 +222,7 @@ namespace Master40.ViewComponents
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.
         /// -- Headline for one Project
         /// </summary>
-        private GanttTask GetOrCreateTimeline(SimulationJob pow, int orderId = 0)
+        private GanttTask GetOrCreateTimeline(SimulationResourceJob pow, int orderId = 0)
         {
             IEnumerable<GanttTask> project;
             // get Timeline
@@ -283,7 +283,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Defines start and end for the ganttchart based on the Scheduling State
         /// </summary>
-        private void DefineStartEnd(ref long start, ref long end, SimulationJob item)
+        private void DefineStartEnd(ref long start, ref long end, SimulationResourceJob item)
         {
             start = (_today + item.Start * 60000);
             end = (_today + item.End * 60000);
@@ -292,7 +292,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Creates new TimelineItem with a label depending on the schedulingState
         /// </summary>
-        public GanttTask CreateGanttTask(SimulationJob item, long start, long end, GanttColors gc, string parent)
+        public GanttTask CreateGanttTask(SimulationResourceJob item, long start, long end, GanttColors gc, string parent)
         {
             var gantTask = new GanttTask()
             {

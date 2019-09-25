@@ -1,22 +1,23 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Master40.DB.Enums;
+using Master40.DB.ReportingModel.Interface;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationJob : BaseEntity
+    public class SimulationResourceJob : BaseEntity, ISimulationResourceData
     {
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
-        public int Time { get; set; }
+        public long Time { get; set; }
         public string JobName { get; set; }
         public string JobType { get; set; }
         public string Article { get; set; }
-        public int Start { get; set; }
-        public int End { get; set; }
-        public int EstimatedStart { get; set; }
-        public int EstimatedEnd { get; set; }
+        public long ExpectedDuration { get; set; }
+        public long Start { get; set; }
+        public long End { get; set; }
         public string Resource { get; set; }
+        public string ResourceTool { get; set; }
         public string JobId { get; set; }
         public string ProductionOrderId { get; set; }
         public int DueTime { get; set; }

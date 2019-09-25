@@ -51,7 +51,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Fact(Skip = "manual test")]
-        public void ResetDB()
+        public void ResetMaster40ResultsDB()
         {
             ResultContext masterResults = ResultContext.GetContext(resultCon:
             "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true");

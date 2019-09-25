@@ -11,24 +11,24 @@ namespace Master40.DB.Data.Context
 {
     public class ProductionDomainContext : MasterDBContext
     {
-        public static ProductionDomainContext GetContext(string defaultCon)
+        public ProductionDomainContext(DbContextOptions<MasterDBContext> options) : base(options: options) { }
+
+        public new static ProductionDomainContext GetContext(string connectionString)
         {
             return new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(connectionString: defaultCon)
+                .UseSqlServer(connectionString: connectionString)
                 .Options);
         }
 
-        public ProductionDomainContext(DbContextOptions<MasterDBContext> options) : base(options: options) { }
-        
         public T_CustomerOrder OrderById(int id)
         {
             return CustomerOrders.FirstOrDefault(predicate: x => x.Id == id);
         }
-        public Task<List<SimulationJob>> GetFollowerProductionOrderWorkSchedules(SimulationJob simulationWorkSchedule, SimulationType type, List<SimulationJob> relevantItems)
+        public Task<List<SimulationResourceJob>> GetFollowerProductionOrderWorkSchedules(SimulationResourceJob simulationWorkSchedule, SimulationType type, List<SimulationResourceJob> relevantItems)
         {
             var rs = Task.Run(function: () =>
             {
-                var priorItems = new List<SimulationJob>();
+                var priorItems = new List<SimulationResourceJob>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
                 var maxHierarchy = relevantItems.Where(predicate: x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
                     .Max(selector: x => x.HierarchyNumber);
@@ -115,7 +115,7 @@ namespace Master40.DB.Data.Context
 
         }
 
-        public int GetEarliestStart(ResultContext kpiContext, SimulationJob simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationJob> schedules = null)
+        public long GetEarliestStart(ResultContext kpiContext, SimulationResourceJob simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationResourceJob> schedules = null)
         {
             if (simulationType == SimulationType.Central)
             {
@@ -130,7 +130,7 @@ namespace Master40.DB.Data.Context
                 return start;
             }
 
-            var children = new List<SimulationJob>();
+            var children = new List<SimulationResourceJob>();
             children = schedules.Where(predicate: x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                                 .Where(predicate: a => a.ParentId.Equals(value: simulationWorkschedule.ProductionOrderId.ToString())).ToList();
             

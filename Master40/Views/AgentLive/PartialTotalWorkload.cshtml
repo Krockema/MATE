@@ -24,7 +24,7 @@
             type: "scatter"
             , data: {
                 datasets: [{
-                    "data": [{ "x": 0.0, "y": 100.0 }, { "x": 2880.0, "y": 100.0 }]
+                    "data": [{ "x": 0.0, "y": 100.0, "y2": 0}, { "x": 2880.0, "y": 100.0 }]
                     , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
                 },
                 {
@@ -38,7 +38,19 @@
                     , fill: false
                     , label: "Total Workload"
                     , yAxisID: "first-y-axis"
-                }]
+                    },
+                    {
+                        data: [{ "x": 0.0, "y2": 0.0 }]
+                        , type: "line"
+                        , lineTension: 0.5
+                        , borderWidth: 1
+                        , borderColor: "rgb(3,79,175, .6)"
+                        , pointBackgroundColor: "rgb(3,79,175, .6)"
+                        , showLine: true
+                        , fill: false
+                        , label: "Total Workload"
+                        , yAxisID: "second-y-axis"
+                    }]
                 , labels: ["Settling time", "All Machines"]
             },
             options: {
@@ -72,7 +84,18 @@
                         }
                         , ticks: { min: 0.0, stepSize: 50, max: 100, display: true }
                         , display: true
-                    }]
+                    },
+                        {
+                            type: "linear"
+                            , id: "second-y-axis"
+                            , scaleLabel: {
+                                display: true
+                                , labelString: "Setup in %"
+                                , fontSize: 12
+                            }
+                            , ticks: { min: 0.0, stepSize: 50, max: 100, display: true }
+                            , display: true
+                        }]
                 }
             }
         });
@@ -81,8 +104,7 @@
         console.log("TotalTimes : " + msg);
         var serialized = JSON.parse(msg);
         var load = JSON.parse(serialized.Load);
-        TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: load.Work });
-        TotalWorkLoadChart.data.datasets[2].data.push({ x: serialized.Time, y: load.Work + load.Setup });
+        TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: load.Work, y2: load.Setup });
 
         TotalWorkLoadChart.update();
     });

@@ -16,7 +16,7 @@ namespace Master40.Simulation
             Console.WriteLine(value: "Welcome to AkkaSim Cli");
             
 
-            var masterDb = ProductionDomainContext.GetContext(defaultCon: ConfigurationManager.AppSettings[index: 0]);
+            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
             var validCommands = new Commands();
             var command = validCommands.Single(predicate: x => x.ArgLong == "Help");
             var lastArg = 0;

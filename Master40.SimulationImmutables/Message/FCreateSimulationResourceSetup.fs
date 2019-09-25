@@ -5,4 +5,5 @@
         Duration : int64
         Resource : string
         ResourceTool : string
+        ExpectedDuration : int64
     } 
