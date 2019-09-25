@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Akka.TestKit.Xunit;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.XUnitTest.Preparations;
@@ -14,13 +15,12 @@ namespace Master40.XUnitTest.Agents.Types
         private string _dbConnectionString;
         public ArticleCache()
         {
-            _dbConnectionString = Dbms.GetDbContextString();
-            _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                                .UseSqlServer(connectionString: _dbConnectionString)
-                                .Options);
+            _masterDBContext = Dbms.GetDbContext();
             _masterDBContext.Database.EnsureCreated();
             MasterDbInitializerTable.DbInitialize(context: _masterDBContext);
-         }
+            _dbConnectionString = _masterDBContext.Database.GetDbConnection().ConnectionString;
+        }
+
 
 
         [Fact]
