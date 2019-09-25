@@ -13,17 +13,18 @@ namespace Master40.XUnitTest.Zpp.Unit_Tests
         [Fact(Skip = "Doesnt work with LocalDB and Unix Systems")]
         public void TestDropExistingDatabase()
         {
-            ProductionDomainContext productionDomainContext = Dbms.GetDbContext();
-            if (productionDomainContext.Database.CanConnect() == false)
+            DataBase<ProductionDomainContext> productionDataBase = Dbms.GetDataBase();
+            if (productionDataBase.DbContext.Database.CanConnect() == false)
             {
-                productionDomainContext.Database.EnsureCreated();
+                productionDataBase.DbContext.Database.EnsureCreated();
             }
 
-            productionDomainContext.Database.CloseConnection();
+            productionDataBase.DbContext.Database.CloseConnection();
 
-            bool wasDropped = Dbms.DropDatabase(Constants.GetDbName(), Dbms.GetConnectionString());
+            bool wasDropped = Dbms.DropDatabase(productionDataBase.DataBaseName.Value,
+                                                productionDataBase.ConnectionString.Value );
             Assert.True(wasDropped, "Db could not be dropped.");
-            Assert.False(productionDomainContext.Database.CanConnect(),
+            Assert.False(productionDataBase.DbContext.Database.CanConnect(),
                 "Can still connect to database.");
         }
     }

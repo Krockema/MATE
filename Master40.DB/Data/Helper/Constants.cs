@@ -1,27 +1,30 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Master40.DB.Data.Helper.Types;
 
 namespace Master40.DB.Data.Helper
 {
     public static class Constants
     {
         public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public static DataBaseName DbSuffixMaster = new DataBaseName(GetDbName("Test")) ;
+        public static DataBaseName DbSuffixResults = new DataBaseName(GetDbName("TestResults"));
 
         public static bool IsLocalDb = false;
         // TODO: the random/dateTime is a workaround, remove this if drop database query in Dispose() in TestClasses is added
         private static readonly string random = $"{new Random().Next(1, 1000000)}";
 
-        public static string GetDbName()
+        public static string GetDbName(string dbSuffix)
         {
             if (IsWindows)
             {
                 // use always the same databaseName and drop db before the next test
-                return "zpp2";
+                return $"{dbSuffix}{GetDateString()}";
             }
             else
             {
                 // never got this feature working: use always the same databaseName and drop db before the next test
-                return $"zpp{GetDateString()}";
+                return $"{dbSuffix}{GetDateString()}";
             }
         }
 
@@ -32,22 +35,16 @@ namespace Master40.DB.Data.Helper
             return DateTime.Now.ToString("MM-dd_HH:mm") + $"__{ticks.Substring(10, ticks.Length - 10)}";
         }
 
-        public static String DbConnectionLocalDb =>
-            $"Server=(localdb)\\mssqllocaldb;Database={GetDbName()}" + 
+        public static String CreateLocalConnectionString(DataBaseName dataBaseName)
+        { 
+            return $"Server=(localdb)\\mssqllocaldb;Database={dataBaseName.Value}" + 
             ";Trusted_Connection=True;MultipleActiveResultSets=true";
+        }
 
-        public static String DbConnectionSqlServerMaster =>
-            $"Server=localhost,1433;Database={GetDbName()};" +
+        public static String CreateServerConnectionString(DataBaseName dataBaseName) { 
+            return $"Server=localhost,1433;Database={dataBaseName.Value};" +
             $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
-
-        public static String DbConnectionResultSqlServer =>
-            $"Server=localhost,1433;Database=Result{GetDbName()};" +
-            $"MultipleActiveResultSets=true;User ID=SA;Password=123*Start#";
-
-        public static String DbConnectionResultSqlServerLocal =>
-            $"Server=(localdb)\\mssqllocaldb;Database=Result{GetDbName()};" + 
-            "Trusted_Connection=True;MultipleActiveResultSets=true";
-
+        }
 
         public static string EnumToString<T>(T enumValue, Type enumType)
         {

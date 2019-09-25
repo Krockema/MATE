@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
+using Master40.DB.Data.Helper.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
@@ -28,74 +29,80 @@ namespace Master40.DB
             return false;
         }
 
-        public static string GetConnectionString()
+        private static DbConnectionString GetConnectionString(DataBaseName dataBaseName)
         {
+            var connectionString = String.Empty;
             if (UseLocalDb() && Constants.IsWindows)
             {
-                return Constants.DbConnectionLocalDb;
-            }
-            return  Constants.DbConnectionSqlServerMaster;
-        }
-
-        public static string GetResultConnectionString()
-        {
-            if (UseLocalDb() && Constants.IsWindows)
-            {
-                return Constants.DbConnectionResultSqlServerLocal;
-            }
-            return Constants.DbConnectionResultSqlServer;
-        }
-
-        public static ProductionDomainContext GetDbContext()
-        {
-            ProductionDomainContext productionDomainContext;
-
-            if (UseLocalDb() && Constants.IsWindows)
-            {
-                    Constants.IsLocalDb = true;
-            } else if (Constants.IsWindows)
-            {
-                Constants.IsLocalDb = false;
-            }
-            // else Linux
-            productionDomainContext = new ProductionDomainContext(
-                new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
-                    .UseSqlServer(GetConnectionString()).Options);
-
-            MyLoggerFactory.AddNLog();
-
-            // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
-            productionDomainContext.ChangeTracker.QueryTrackingBehavior =
-                QueryTrackingBehavior.NoTracking;
-
-            return productionDomainContext;
-        }
-
-        public static ResultContext GetDbResultContext()
-        {
-            ResultContext resultContext;
-
-            if (UseLocalDb() && Constants.IsWindows)
-            {
-                resultContext = new ResultContext(
-                    new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(Constants.DbConnectionResultSqlServerLocal).Options);
+                connectionString = Constants.CreateLocalConnectionString(dataBaseName);
+                Constants.IsLocalDb = true;
             }
             else if (Constants.IsWindows)
             {
                 Constants.IsLocalDb = false;
+                connectionString = Constants.CreateServerConnectionString(dataBaseName);
             }
-            resultContext = new ResultContext(
-                    new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
-                        .UseSqlServer(Constants.DbConnectionResultSqlServer).Options);
-            
+            else
+            {
+                connectionString = Constants.CreateServerConnectionString(dataBaseName);
+            }
+            return new DbConnectionString(connectionString);
+        }
+
+        private static DbConnectionString GetResultConnectionString(DataBaseName dataBaseName)
+        {
+            var connectionString = String.Empty;
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                connectionString = Constants.CreateLocalConnectionString(dataBaseName);
+            } else { 
+                connectionString = Constants.CreateServerConnectionString(dataBaseName);
+            }
+            return new DbConnectionString(connectionString);
+        }
+
+        public static DataBase<ProductionDomainContext> GetDataBase()
+        {
+            DataBase<ProductionDomainContext> dbInfo = 
+                new DataBase<ProductionDomainContext>(Constants.DbSuffixMaster);
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                    Constants.IsLocalDb = true;
+            }
+            else if (Constants.IsWindows)
+            {
+                    Constants.IsLocalDb = false;
+            }
+            // else Linux
+            dbInfo.ConnectionString = GetConnectionString(dbInfo.DataBaseName);
+            dbInfo.DbContext = new ProductionDomainContext(
+                new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
+                    .UseSqlServer(dbInfo.ConnectionString.Value).Options);
+
             MyLoggerFactory.AddNLog();
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
-            resultContext.ChangeTracker.QueryTrackingBehavior =
+            dbInfo.DbContext.ChangeTracker.QueryTrackingBehavior =
                 QueryTrackingBehavior.NoTracking;
 
-            return resultContext;
+            return dbInfo;
+        }
+
+        public static DataBase<ResultContext> GetResultDataBase()
+        {
+            DataBase<ResultContext> dbInfo = new DataBase<ResultContext>(Constants.DbSuffixResults);
+            dbInfo.ConnectionString = GetResultConnectionString(dbInfo.DataBaseName);
+            dbInfo.DbContext = new ResultContext(
+                new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
+                    .UseSqlServer(dbInfo.ConnectionString.Value).Options);
+
+            MyLoggerFactory.AddNLog();
+
+            // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
+            dbInfo.DbContext.ChangeTracker.QueryTrackingBehavior =
+                QueryTrackingBehavior.NoTracking;
+
+            return dbInfo;
         }
 
 

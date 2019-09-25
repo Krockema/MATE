@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB;
+using Master40.DB.Data.Helper;
 using Xunit;
 using Zpp.Utils;
 
@@ -18,26 +19,21 @@ namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class SimulationSystem : TestKit
     {
-        private string localresultdb;
-        private string productionDbConnectionString;
-        private ProductionDomainContext _context;
-        private ResultContext _resultContext;
+        private DataBase<ProductionDomainContext> _dataBaseProduction;
+        private DataBase<ResultContext> _dataBaseResult;
         private int simNr = 999;
 
         public SimulationSystem()
         {
-            productionDbConnectionString = Dbms.GetConnectionString();
-            localresultdb = Dbms.GetResultConnectionString();
-            _context = ProductionDomainContext.GetContext(productionDbConnectionString);
-            _resultContext = ResultContext.GetContext(localresultdb);
-
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
+            _dataBaseProduction = Dbms.GetDataBase();
+            _dataBaseResult = Dbms.GetResultDataBase();
+            _dataBaseProduction.DbContext.Database.EnsureDeleted();
+            _dataBaseProduction.DbContext.Database.EnsureCreated();
             //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _context);
+            MasterDBInitializerTruck.DbInitialize(context: _dataBaseProduction.DbContext);
 
-            _resultContext.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(context: _resultContext);
+            
+            ResultDBInitializerBasic.DbInitialize(context: _dataBaseResult.DbContext);
 
         }
 
@@ -47,12 +43,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
 
-            var simContext = new AgentSimulation(DBContext: _context, messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(DBContext: _dataBaseProduction.DbContext, messageHub: new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
                                                     // set ResultDBString and set SaveToDB true
-                                                    new DBConnectionString(value: localresultdb)
+                                                    new DBConnectionString(value: _dataBaseResult.ConnectionString.Value)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: SimulationType.None) // implements the used behaviour, if None --> DefaultBehaviour
@@ -101,12 +97,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
         {
             var _simNr = simNr;
-            using (_resultContext)
+            using (_dataBaseResult.DbContext)
             {
-                _resultContext.RemoveRange(entities: _resultContext.SimulationOperations.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _resultContext.RemoveRange(entities: _resultContext.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _resultContext.RemoveRange(entities: _resultContext.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _resultContext.SaveChanges();
+                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.SimulationOperations.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _dataBaseResult.DbContext.SaveChanges();
             }
         }
     }

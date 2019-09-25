@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
@@ -8,9 +6,10 @@ using Master40.XUnitTest.Zpp.Configuration;
 using Master40.XUnitTest.Zpp.Configuration.Scenarios;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.IO;
 using Zpp.DbCache;
 using Zpp.LotSize;
-using Zpp.Utils;
 
 namespace Master40.XUnitTest.Zpp
 {
@@ -23,6 +22,7 @@ namespace Master40.XUnitTest.Zpp
     public abstract class AbstractTest : IDisposable
     {
         private readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
+        private DataBase<ProductionDomainContext> ProductionDataBase;
         protected readonly ProductionDomainContext ProductionDomainContext;
 
         protected static TestConfiguration TestConfiguration;
@@ -44,7 +44,8 @@ namespace Master40.XUnitTest.Zpp
          */
         public AbstractTest(bool initDefaultTestConfig)
         {
-            ProductionDomainContext = Dbms.GetDbContext();
+            ProductionDataBase = Dbms.GetDataBase();
+            ProductionDomainContext = ProductionDataBase.DbContext;
             if (initDefaultTestConfig)
             {
                 InitTestScenario(_defaultTestScenario);
@@ -82,10 +83,11 @@ namespace Master40.XUnitTest.Zpp
 
             else
             {
-                bool wasDropped = Dbms.DropDatabase(Constants.GetDbName(), Dbms.GetConnectionString());
+                bool wasDropped = Dbms.DropDatabase(ProductionDataBase.DataBaseName.Value,
+                                                    ProductionDataBase.ConnectionString.Value);
                 if (wasDropped == false)
                 {
-                    LOGGER.Warn($"Database {Constants.GetDbName()} could not be dropped.");
+                    LOGGER.Warn($"Database {ProductionDataBase.DataBaseName.Value} could not be dropped.");
                 }
             }
 

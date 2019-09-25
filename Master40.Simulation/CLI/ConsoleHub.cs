@@ -8,14 +8,14 @@ namespace Master40.Simulation.CLI
     {
         public void SendToAllClients(string msg)
         {
-            System.Diagnostics.Debug.WriteLine(message: msg);
-            ///Console.WriteLine(msg);
+            //System.Diagnostics.Debug.WriteLine(message: msg);
+            Console.WriteLine(msg);
         }
 
         public void SendToAllClients(string msg, MessageType msgType)
         {
-            System.Diagnostics.Debug.WriteLine(message: msgType.ToString() + ": " + msg);
-            //Console.WriteLine(msg);
+            //System.Diagnostics.Debug.WriteLine(message: msgType.ToString() + ": " + msg);
+            Console.WriteLine(msg);
         }
 
         public void SendToClient(string listener, string msg, MessageType msgType)
