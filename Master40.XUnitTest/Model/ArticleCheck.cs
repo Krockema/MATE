@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.XUnitTest.Preparations;
@@ -10,13 +11,9 @@ namespace Master40.XUnitTest.Model
     public class ArticleCheck
     {
         private ProductionDomainContext _masterDBContext;
-        private string _dbConnectionString;
         public ArticleCheck()
         {
-            _dbConnectionString = Dbms.GetDbContextString().Replace("UnitTestDB", "TruckTest");
-            _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(connectionString: _dbConnectionString)
-                .Options);
+            _masterDBContext = Dbms.GetDbContext();
             _masterDBContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
         }
