@@ -51,7 +51,7 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
 
             // with ids
             string actualOrderGraphWithIds = orderDirectedGraph.ToString();
-            if (File.Exists(orderGraphFileName) == false)
+            if (File.Exists(orderGraphFileNameWithIds) == false)
             {
                 File.WriteAllText(orderGraphFileNameWithIds, actualOrderGraphWithIds,
                     Encoding.UTF8);

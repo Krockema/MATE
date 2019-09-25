@@ -4,5 +4,5 @@
   "LotSizeType": "LotForLotOrderQuantity",
   "Name": "desk_cop_1_lot_order_quantity",
   "DbSetInitializer": "Master40.XUnitTest.Zpp.Configuration.MasterDBInitializerDesk",
-  "TestScenario": "Zpp.Configuration.Scenarios.DeskScenarioSequentially"
+  "TestScenario": "Master40.XUnitTest.Zpp.Configuration.Scenarios.DeskScenarioSequentially"
 }

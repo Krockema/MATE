@@ -14,7 +14,7 @@ namespace Master40.XUnitTest.Agents.Types
         private string _dbConnectionString;
         public ArticleCache()
         {
-            _dbConnectionString = Dbms.getDbContextString();
+            _dbConnectionString = Dbms.GetDbContextString();
             _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                                 .UseSqlServer(connectionString: _dbConnectionString)
                                 .Options);

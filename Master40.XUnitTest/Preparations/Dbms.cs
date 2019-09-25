@@ -1,4 +1,5 @@
-﻿using Master40.DB.Data.Context;
+﻿using System;
+using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.XUnitTest.Preparations
@@ -29,7 +30,7 @@ namespace Master40.XUnitTest.Preparations
             return _productionDomainContext;
         }
 
-        public static string getDbContextString()
+        public static string GetDbContextString()
         {
             if (ConnectionsStrings.IsWindows)
             {
@@ -38,6 +39,18 @@ namespace Master40.XUnitTest.Preparations
             else
             {
                 return ConnectionsStrings.DbConnectionZppUnix;
+            }
+        }
+
+        internal static string GetResultContext()
+        {
+            if (ConnectionsStrings.IsWindows)
+            {
+                return ConnectionsStrings.DbConnectionResultWindows;
+            }
+            else
+            {
+                return ConnectionsStrings.DbConnectionResultUnix;
             }
         }
     }

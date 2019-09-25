@@ -13,7 +13,7 @@ namespace Master40.XUnitTest.Model
         private string _dbConnectionString;
         public ArticleCheck()
         {
-            _dbConnectionString = Dbms.getDbContextString().Replace("UnitTestDB", "TruckTest");
+            _dbConnectionString = Dbms.GetDbContextString().Replace("UnitTestDB", "TruckTest");
             _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                 .UseSqlServer(connectionString: _dbConnectionString)
                 .Options);
