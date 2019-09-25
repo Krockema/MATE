@@ -10,7 +10,7 @@ namespace Master40.XUnitTest.Zpp.Unit_Tests
     public class TestUtilsDbms
     {
 
-        [Fact]
+        [Fact(Skip = "Doesnt work with LocalDB and Unix Systems")]
         public void TestDropExistingDatabase()
         {
             ProductionDomainContext productionDomainContext = Dbms.GetDbContext();
