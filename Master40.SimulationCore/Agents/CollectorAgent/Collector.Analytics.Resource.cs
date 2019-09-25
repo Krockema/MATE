@@ -15,6 +15,8 @@ using System.Data.HashFunction.xxHash;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Master40.DB.DataModel;
+using Master40.DB.ReportingModel.Interface;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FCreateSimulationJobs;
@@ -200,7 +202,70 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = v2.Count().ToString() }));
         }
 
-        private void OverallEquipmentEffectiveness()
+        /// <summary>
+        /// OEE for dashboard
+        /// </summary>
+        private void OverallEquipmentEffectiveness(List<M_Resource> resources, long startInterval, long endInterval)
+        {
+            var totalInterval = endInterval - startInterval;
+            var totalPlannedProductionTime = totalInterval * resources.Count;
+
+            var totalPlannedDowntime = 0L;
+
+            //1.Parameter Availability calculation
+            var breakDown = 0L;
+
+            List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
+            allSimulationResourceSetups.AddRange(simulationJobs);
+            allSimulationResourceSetups.AddRange(simulationJobsForDb);
+
+            var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
+            var totalUnplannedDowntime = breakDown + setupTime;
+
+            var stopTime = totalPlannedDowntime - totalUnplannedDowntime;
+
+            var runTime = totalPlannedProductionTime - stopTime;
+
+            var availability = runTime / totalPlannedProductionTime;
+
+            //2. Parameter Performance calculation
+            //for now calculate workTime and 
+            List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
+            allSimulationResourceJobs.AddRange(simulationJobs);
+            allSimulationResourceJobs.AddRange(simulationJobsForDb);
+
+            var workTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
+
+            var totalUtilization = setupTime + workTime;
+            //var workTime = kpiManager.GetTotalIdleTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
+            var idleTime = runTime - totalUtilization;
+            // TODO if resource exits with different speed --> see Ant-man
+            var reducedSpeed = 0;
+            var totalPerformanceLoss = idleTime + reducedSpeed;
+
+            var totalPerformanceTime = runTime - totalPerformanceLoss;
+
+            var performance = totalPerformanceTime / availability;
+
+            //3. Parameter Quality calculation
+            var goodGoods = 35;
+            var badGoods = 0;
+            var totalGoods = goodGoods + badGoods;
+
+            var totalQualityLoss = totalPerformanceTime / totalGoods * goodGoods;
+            
+            var quality = totalQualityLoss / totalPerformanceTime;
+
+            //Total OEE
+            var totalOEE = availability * performance * quality;
+
+            //TODO Implement View for GUI
+        }
+
+        /// <summary>
+        /// produced units per Interval
+        /// </summary>
+        public void ProducedUnitesPerInterval()
         {
 
         }
@@ -245,8 +310,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             select new Tuple<string, long>(rs.Key,
                                 rs.Sum(selector: x => x.End - x.Start));
 
-            var machineList = _resources.Select(selector: x => new Tuple<string, long>(x, 0 ));
-            var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: machineList).ToList();
+            var reourceList = _resources.Select(selector: x => new Tuple<string, long>(x, 0 ));
+            var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: reourceList).ToList();
 
             var final = from m in merge
                 group m by m.Item1
@@ -376,7 +441,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ParentId = "[]",
                 Time = (int)(Collector.Time),
                 ExpectedDuration = fOperation.Operation.Duration,
-                ArticleType = simJob.ArticleType
+                ArticleType = simJob.ArticleType,
+                ResourceTool = fOperation.Tool.Name
             };
 
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fOperation.Key));
@@ -423,6 +489,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 }
             }
 
+        }
+
+        private void getAllSimulationResourceDatas()
+        {
+            
         }
 
 
