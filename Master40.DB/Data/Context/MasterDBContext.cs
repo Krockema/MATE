@@ -31,7 +31,7 @@ namespace Master40.DB.Data.Context
         public DbSet<M_Unit> Units { get; set; }
         public DbSet<M_Operation> Operations { get; set; }
         public DbSet<T_DemandToProvider> DemandToProviders { get; set; }
-        //public DbSet<DemandToProvider> DemandToProvider { get; set; }
+        public DbSet<T_ProviderToDemand> ProviderToDemand { get; set; }
         public DbSet<T_CustomerOrder> CustomerOrders { get; set; }
         public DbSet<T_CustomerOrderPart> CustomerOrderParts { get; set; }
         public DbSet<T_PurchaseOrder> PurchaseOrders { get; set; }
@@ -40,8 +40,6 @@ namespace Master40.DB.Data.Context
         public DbSet<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
         public DbSet<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
         public DbSet<T_StockExchange> StockExchanges { get; set; }
-        public DbSet<T_Demand> Demands { get; set; }
-        public DbSet<T_Provider> Providers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -157,23 +155,17 @@ namespace Master40.DB.Data.Context
                 .OnDelete(deleteBehavior: DeleteBehavior.Restrict);
 
             modelBuilder.Entity<T_ProductionOrderOperation>()
-                .ToTable(name: "T_ProductionOrderOperation")
-                .HasOne(navigationExpression: m => m.MachineGroup)
-                .WithMany(navigationExpression: m => m.ProductionOrderWorkSchedules)
-                .OnDelete(deleteBehavior: DeleteBehavior.Restrict);
+                .ToTable(name: "T_ProductionOrderOperation");
 
-            modelBuilder.Entity<T_ProductionOrderOperation>()
-                .ToTable(name: "T_ProductionOrderOperation")
-                .HasOne(navigationExpression: m => m.Resource)
-                .WithMany(navigationExpression: m => m.ProductionOrderWorkSchedules)
-                .OnDelete(deleteBehavior: DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<T_Demand>()
-                .ToTable(name: "T_Demand");
-            modelBuilder.Entity<T_Provider>()
-                .ToTable(name: "T_Provider");
             modelBuilder.Entity<T_DemandToProvider>()
-                .ToTable(name: "T_DemandToProvider");
+                .ToTable("T_DemandToProvider");
+            modelBuilder.Entity<T_ProviderToDemand>()
+                .ToTable("T_ProviderToDemand");
+        }
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
         }
     }
 }

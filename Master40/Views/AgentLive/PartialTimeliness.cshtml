@@ -31,29 +31,18 @@
             margin-right: 20px;
         }
     </style>
-    <script>
-        var TimelinessElement = document.getElementById("TimelinessElement");
-        var TimelinessChart = new Chart(TimelinessElement, {
+<script>
+    var TimelinessElement = document.getElementById("TimelinessElement");
+    var TimelinessChart = new Chart(TimelinessElement, {
             "type": "bar"
             , "data": {
                 "datasets": [
-                //{
-                //    "type": "bar"
-                //    , "backgroundColor": ["rgba(0, 0, 0, 0.0)"]
-                //    , "data": [0.0]
-                //}
-                //,
-                {
-                    "type": "bar"
-                    , "label" : "in time"
-                    , "backgroundColor": ["rgba(125, 180, 86, 0.6)"]
-                    , "data": [0.0] }
-                , {
-                    "type": "bar"
-                    ,"label": "to late"
-                    , "backgroundColor": ["rgba(227, 76, 87, 0.6)"]
-                    , "data": [0.0]
-                }], "labels": ["in time", "to late"]
+                    {
+                        "type": "bar"
+                        ,"label": "to late"
+                        , "backgroundColor": ["rgba(125, 180, 86, 0.6)", "rgba(227, 76, 87, 0.6)"]
+                        , "data": [95.0, 5.0]
+                    }], "labels": ["in time", "to late"]
             }, "options": {
                 "responsive": true, "maintainAspectRatio": false, "legend": { "display": false }
                 , "scales": {
@@ -66,19 +55,12 @@
                 }
             }
         }
-        );;
-
-        processingProxy.on("Timeliness", function (msg) {
-            // console.log("Timeliness :" + msg);
-
-            TimelinessChart.data.datasets[0].data = [msg];
-            TimelinessChart.data.datasets[1].data = [100 - msg];
-            TimelinessChart.update();
-            var val = Math.round(msg*100)/100;
-            $("#valueTimeliness").replaceWith("<span id='valueTimeliness'>In time: " + val + " %</span>");
-            
-        });
-    </script>
-
-
-
+    );;
+    processingProxy.on("Timeliness", function (msg) {
+        // console.log("Timeliness :" + msg);
+        TimelinessChart.data.datasets[0].data = [msg, 100 - msg];
+        TimelinessChart.update();
+        var val = Math.round(msg*100)/100;
+        $("#valueTimeliness").replaceWith("<span id='valueTimeliness'>In time: " + val + " %</span>");
+    });
+</script>

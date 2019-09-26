@@ -1,25 +1,20 @@
-﻿using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
 {
-    /// <summary>
-    /// derived Class for Damand to DemandProvider
-    /// To Access a specific Demand use:
-    /// var purchaseDemands = context.Demands.OfType<DemandPurchase>().ToList();
-    /// </summary>
-    public class T_DemandToProvider : BaseEntity, ILinkDemandAndProvider
+    public class T_ProviderToDemand : BaseEntity, ILinkDemandAndProvider
     {
-        public int DemandId { get; set; }
         public int ProviderId { get; set; }
+        public int DemandId { get; set; }
         
         public decimal Quantity { get; set; }
 
-        public T_DemandToProvider()
+        public T_ProviderToDemand()
         {
         }
 
-        public T_DemandToProvider(Id demandId, Id providerId, Quantity quantity)
+        public T_ProviderToDemand(Id providerId, Id demandId, Quantity quantity)
         {
             ProviderId = providerId.GetValue();
             DemandId = demandId.GetValue();
@@ -28,9 +23,9 @@ namespace Master40.DB.DataModel
 
         public override string ToString()
         {
-            return $"demand: {DemandId}, provider: {ProviderId}, quantity: {Quantity}";
+            return $"provider: {ProviderId}, demand: {DemandId}";
         }
-
+        
         public Id GetProviderId()
         {
             return new Id(ProviderId);

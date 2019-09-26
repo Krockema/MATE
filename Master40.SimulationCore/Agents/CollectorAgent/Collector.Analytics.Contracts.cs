@@ -64,7 +64,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}");
 
                 inTime++;
-            }else
+            }
+            else
             {
                 Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}");
                 toLate++;

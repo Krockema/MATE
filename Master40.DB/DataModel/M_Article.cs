@@ -18,7 +18,8 @@ namespace Master40.DB.DataModel
         public virtual M_ArticleType ArticleType { get; set; }
         //[DisplayFormat(DataFormatString = "{0:0,0}")]
         // 
-        [DataType(dataType: DataType.Currency)]
+        public int? LotSize { get; set; }
+        [DataType(DataType.Currency)]
         public double Price { get; set; }
         public int DeliveryPeriod { get; set; }
         [DataType(dataType: DataType.Date)]
@@ -57,6 +58,11 @@ namespace Master40.DB.DataModel
                     }
                 }
 
+        }
+
+        public override string ToString()
+        {
+            return $"{Id.ToString()}: {Name}";
         }
 
     }

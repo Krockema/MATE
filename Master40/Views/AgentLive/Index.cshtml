@@ -112,7 +112,7 @@
                                     .textLayer {
                                         padding-top:" + textPadding + @"px;
                                         font: bold"+ fontSize + @"px Helvetica;
-                                </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.ResourceId))
+                                </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.Id))
                                                         {@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialMachine.cshtml",
                                                       model: section)}
                             </div>

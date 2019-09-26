@@ -5,7 +5,8 @@ namespace Master40.DB.DataModel
 {
     public class M_Resource : BaseEntity
     {
-        public int ResourceId { get; set; }
+        // TODO: why is this required ?
+        // public int ResourceId { get; set; }
         public string Name { get; set; }
         public int Count { get; set; }
         /*
@@ -16,7 +17,11 @@ namespace Master40.DB.DataModel
 
         public int Capacity { get; set; }
         [JsonIgnore]
-        public virtual ICollection<T_ProductionOrderOperation> ProductionOrderWorkSchedules { get; set; }
+        public virtual ICollection<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
 
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
