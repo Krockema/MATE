@@ -2,6 +2,6 @@
   "CustomerOrderPartQuantity": 6,
   "LotSize": 2,
   "Name": "truck_cop_6_lotsize_2",
-  "DbSetInitializer": "Master40.DB.Data.Initializer.MasterDBInitializerSmall, Master40.DB",
+  "DbSetInitializer": "Master40.DB.Data.Initializer.MasterDBInitializerTruck, Master40.DB",
   "TestScenario": "Master40.XUnitTest.Zpp.Configuration.Scenarios.TruckScenario"
 }
