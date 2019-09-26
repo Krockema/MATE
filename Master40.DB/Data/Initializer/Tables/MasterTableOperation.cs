@@ -83,7 +83,7 @@ namespace Master40.DB.Data.Initializer.Tables
                  Name = "Dump-Truck: Wedding",
                  Duration = 15,
                  ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                  HierarchyNumber = 10
              };
 
@@ -93,7 +93,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue Truck-Bed",
                 Duration = 10,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 HierarchyNumber = 20
             };
 
@@ -104,7 +104,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Race-Truck: Wedding",
                 Duration = 15,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                 HierarchyNumber = 10
             };
 
@@ -114,7 +114,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue Race Wing",
                 Duration = 5,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 HierarchyNumber = 20
             };
 
@@ -156,7 +156,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Mount Engine Extension",
                 Duration = 5,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                 HierarchyNumber = 20
             };
 
@@ -197,7 +197,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue Semitrailer",
                 Duration = 5,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 HierarchyNumber = 30
             };
 
@@ -208,7 +208,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue side walls and base plate together",
                 Duration = 5,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 HierarchyNumber = 10
             };
 

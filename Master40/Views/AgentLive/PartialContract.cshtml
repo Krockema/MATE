@@ -5,7 +5,7 @@
         <div class="chartAreaWrapper">
             <div class="chartAreaWrapper2">
                 <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="ContractChart" height="290"></canvas>
+                <canvas id="ContractChart" height="200"></canvas>
             </div>
         </div>
     </div>
@@ -20,9 +20,9 @@
                     "datasets": [{
                         "data": [{ "x": 0.0, "y": 30.0 }, { "x": 2880.0, "y": 30.0 }]
                         , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
-                    }, { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(184, 224, 112, 0.6)", "borderWidth": 3, "borderColor": "rgba(184, 224, 112, 0.6)", "showLine": true, "label": "Input" }
-                    , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(246, 167, 30, 0.6)", "borderWidth": 3, "borderColor": "rgba(246, 167, 30, 0.6)", "showLine": true, "label": "Processing" }
-                    , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(205, 10, 10, 0.6)", "borderWidth": 3, "borderColor": "rgba(205, 10, 10, 0.6)", "showLine": true, "label": "Output" }]
+                    }, { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false,  "lineTension": 0.5, "backgroundColor": "rgba(184, 224, 112, 0.6)", "borderWidth": 1, "borderColor": "rgba(184, 224, 112, 0.6)", "showLine": true, "label": "Input" }
+                    , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(246, 167, 30, 0.6)", "borderWidth": 1, "borderColor": "rgba(246, 167, 30, 0.6)", "showLine": true, "label": "Processing" }
+                    , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(205, 10, 10, 0.6)", "borderWidth": 1, "borderColor": "rgba(205, 10, 10, 0.6)", "showLine": true, "label": "Output" }]
                 }, "options": {
                     "responsive": true, "maintainAspectRatio": false, "title": { "position": "top", "fontSize": 24, "fontStyle": "bold", "text": "Order Evolution" }, "legend": { "display": true, "position": "bottom", "fullWidth": true }
                     , "scales": {

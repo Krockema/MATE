@@ -10,6 +10,8 @@ namespace Master40.DB.Data.Initializer.Tables
         internal M_ResourceTool DRILL_HEAD_M6;
         internal M_ResourceTool DRILL_HEAD_M4;
         internal M_ResourceTool ASSEMBLY_SCREWDRIVER;
+        internal M_ResourceTool ASSEMBLY_HOLDING;
+        internal M_ResourceTool ASSEMBLY_HAMMER;
 
         internal MasterTableResourceTool()
         {
@@ -18,6 +20,8 @@ namespace Master40.DB.Data.Initializer.Tables
             DRILL_HEAD_M6 = new M_ResourceTool { Name = "Drill head M6" };
             DRILL_HEAD_M4 = new M_ResourceTool { Name = "Drill head M4" };
             ASSEMBLY_SCREWDRIVER = new M_ResourceTool { Name = "Screwdriver universal" };
+            ASSEMBLY_HOLDING = new M_ResourceTool { Name = "Holding" };
+            ASSEMBLY_HAMMER = new M_ResourceTool { Name = "Hammer" };
         }
 
         internal M_ResourceTool[] Init(MasterDBContext context)
@@ -28,8 +32,11 @@ namespace Master40.DB.Data.Initializer.Tables
                 SAW_BLADE_SMALL,
                 DRILL_HEAD_M6,
                 DRILL_HEAD_M4,
-                ASSEMBLY_SCREWDRIVER
-            };
+                ASSEMBLY_SCREWDRIVER,
+                ASSEMBLY_HOLDING,
+                ASSEMBLY_HAMMER
+
+        };
             context.ResourceTools.AddRange(entities: resourceTools);
             context.SaveChanges();
             return resourceTools;

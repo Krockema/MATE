@@ -183,14 +183,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
                 var boxPlot = item.Dlz.FiveNumberSummary();
                 var upperQuartile = Convert.ToInt64(value: boxPlot[4]);
-                Collector.actorPaths.SimulationContext.Ref.Tell(
-                    message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
-                        message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
-                        , target: Collector.actorPaths.SystemAgent.Ref
-                    )
-                    , sender: ActorRefs.NoSender);
-
-                Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}");
+                // Collector.actorPaths.SimulationContext.Ref.Tell(
+                //     message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
+                //         message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
+                //         , target: Collector.actorPaths.SystemAgent.Ref
+                //     )
+                //     , sender: ActorRefs.NoSender);
+                // 
+                // Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}");
             }
 
             var v2 = simulationJobs.Where(predicate: a => a.ArticleType == "Product"
