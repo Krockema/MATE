@@ -12,8 +12,6 @@ namespace Master40.DB
 {
     public static class Dbms
     {
-        private static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-
         public static readonly LoggerFactory MyLoggerFactory = new LoggerFactory();
 
         /// <summary>
