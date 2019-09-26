@@ -9,9 +9,9 @@ namespace Master40.DB.Data.Helper
 {
     public class DataBase<T> where T : DbContext
     {
-        public DataBase(DataBaseName dataBaseName)
+        public DataBase(string dataBaseName)
         {
-            DataBaseName = dataBaseName;
+            DataBaseName = new DataBaseName(dataBaseName);
         }
         public T DbContext { get; set; }
         public DbConnectionString ConnectionString { get; set; }

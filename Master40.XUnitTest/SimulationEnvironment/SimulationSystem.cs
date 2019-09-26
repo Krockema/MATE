@@ -25,7 +25,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         public SimulationSystem()
         {
-            _dataBaseProduction = Dbms.GetDataBase();
+            _dataBaseProduction = Dbms.GetNewDataBase();
             _dataBaseResult = Dbms.GetResultDataBase();
             _dataBaseProduction.DbContext.Database.EnsureDeleted();
             _dataBaseProduction.DbContext.Database.EnsureCreated();

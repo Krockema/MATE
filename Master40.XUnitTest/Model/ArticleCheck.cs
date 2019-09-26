@@ -13,7 +13,7 @@ namespace Master40.XUnitTest.Model
         private DataBase<ProductionDomainContext> DataBase;
         public ArticleCheck()
         {
-            DataBase = Dbms.GetDataBase();
+            DataBase = Dbms.GetNewDataBase();
             MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext);
         }
 

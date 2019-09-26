@@ -8,12 +8,11 @@ namespace Master40.DB.Data.Helper
     public static class Constants
     {
         public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        public static DataBaseName DbSuffixMaster = new DataBaseName(GetDbName("Test")) ;
-        public static DataBaseName DbSuffixResults = new DataBaseName(GetDbName("TestResults"));
-
+        public static string DbWithSuffixMaster() => GetDbName("Test");
+        public static string DbWithSuffixResults() => GetDbName("TestResults");
         public static bool IsLocalDb = false;
         // TODO: the random/dateTime is a workaround, remove this if drop database query in Dispose() in TestClasses is added
-        private static readonly string random = $"{new Random().Next(1, 1000000)}";
+        // private static readonly string random = $"{new Random().Next(1, 1000000)}";
 
         public static string GetDbName(string dbSuffix)
         {
@@ -31,9 +30,11 @@ namespace Master40.DB.Data.Helper
 
         private static string GetDateString()
         {
-            string ticks = new DateTime(DateTime.Now.Ticks).Ticks.ToString();
+            var date = new DateTime(DateTime.Now.Ticks);
+            var ticks = date.Ticks.ToString();
             // the last 9 decimal places of ticks are enough
-            return DateTime.Now.ToString("MM-dd_HH:mm") + $"__{ticks.Substring(10, ticks.Length - 10)}";
+            return date.ToString("MM-dd_HH:mm") 
+                   + $"__{ticks.Substring(10, ticks.Length - 10)}";
         }
 
         public static String CreateLocalConnectionString(DataBaseName dataBaseName)

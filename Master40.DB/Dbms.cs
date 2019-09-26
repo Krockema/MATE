@@ -61,10 +61,10 @@ namespace Master40.DB
             return new DbConnectionString(connectionString);
         }
 
-        public static DataBase<ProductionDomainContext> GetDataBase()
+        public static DataBase<ProductionDomainContext> GetNewDataBase()
         {
             DataBase<ProductionDomainContext> dbInfo = 
-                new DataBase<ProductionDomainContext>(Constants.DbSuffixMaster);
+                new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster());
             if (UseLocalDb() && Constants.IsWindows)
             {
                     Constants.IsLocalDb = true;
@@ -90,7 +90,7 @@ namespace Master40.DB
 
         public static DataBase<ResultContext> GetResultDataBase()
         {
-            DataBase<ResultContext> dbInfo = new DataBase<ResultContext>(Constants.DbSuffixResults);
+            DataBase<ResultContext> dbInfo = new DataBase<ResultContext>(Constants.DbWithSuffixResults());
             dbInfo.ConnectionString = GetResultConnectionString(dbInfo.DataBaseName);
             dbInfo.DbContext = new ResultContext(
                 new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)

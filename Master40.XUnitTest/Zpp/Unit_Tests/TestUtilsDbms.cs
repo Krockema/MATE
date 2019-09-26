@@ -13,7 +13,7 @@ namespace Master40.XUnitTest.Zpp.Unit_Tests
         [Fact(Skip = "Doesnt work with LocalDB and Unix Systems")]
         public void TestDropExistingDatabase()
         {
-            DataBase<ProductionDomainContext> productionDataBase = Dbms.GetDataBase();
+            DataBase<ProductionDomainContext> productionDataBase = Dbms.GetNewDataBase();
             if (productionDataBase.DbContext.Database.CanConnect() == false)
             {
                 productionDataBase.DbContext.Database.EnsureCreated();

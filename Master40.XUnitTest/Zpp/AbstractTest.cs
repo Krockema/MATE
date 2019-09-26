@@ -44,7 +44,7 @@ namespace Master40.XUnitTest.Zpp
          */
         public AbstractTest(bool initDefaultTestConfig)
         {
-            ProductionDataBase = Dbms.GetDataBase();
+            ProductionDataBase = Dbms.GetNewDataBase();
             ProductionDomainContext = ProductionDataBase.DbContext;
             if (initDefaultTestConfig)
             {
