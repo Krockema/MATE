@@ -83,7 +83,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
@@ -129,7 +129,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Collector.messageHub.SendToClient(listener: item.RequiredFor + "_State", msg: "online");
         }
 
-        private void UpdateFeed(bool writeResultsToDB)
+        private void UpdateFeed(bool finalCall)
         {
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
@@ -141,11 +141,37 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             ThroughPut();
             lastIntervalStart = Collector.Time;
 
+            LogToDB(writeResultsToDB: finalCall);
 
-            LogToDB(writeResultsToDB: writeResultsToDB);
+            CallTotal(finalCall);
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
+        }
+
+        private void CallTotal(bool finalCall)
+        {
+            if (finalCall)
+            {
+                List<ISimulationResourceData> allSimulationData = new List<ISimulationResourceData>();
+                allSimulationData.AddRange(simulationJobs);
+                allSimulationData.AddRange(simulationJobsForDb);
+
+                List<ISimulationResourceData> allSimulationSetupData = new List<ISimulationResourceData>();
+                allSimulationSetupData.AddRange(simulationResourceSetups);
+                allSimulationSetupData.AddRange(simulationResourceSetupsForDb);
+
+                var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
+
+                var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
+
+                foreach (var resource in resourcesDatas) { 
+                    var tuple = resource._workTime + " " + resource._setupTime;
+                    var machine = resource._resource.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
+                    Collector.messageHub.SendToClient(listener: machine, msg: tuple);
+                }
+
+            }
         }
 
         private void LogToDB(bool writeResultsToDB)
