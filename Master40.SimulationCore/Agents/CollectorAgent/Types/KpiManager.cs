@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
         }
 
-        internal long GetTotalTimeForInterval(List<M_Resource> resources, List<ISimulationResourceData> simulationResourceData, long startInterval, long endInterval)
+        internal long GetTotalTimeForInterval(ResourceList resources, List<ISimulationResourceData> simulationResourceData, long startInterval, long endInterval)
         {
             var totalSetupTime = 0L;
             foreach (var resource in resources)
@@ -29,23 +29,23 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             return totalSetupTime;
         }
 
-        private long GetResourceTimeForInterval(M_Resource resource, List<ISimulationResourceData> simulationResourceData, long startInterval, long endInterval)
+        private long GetResourceTimeForInterval(string resource, List<ISimulationResourceData> simulationResourceData, long startInterval, long endInterval)
         {
             var time = 0L;
 
             var lower_borders = simulationResourceData.Where(x => x.Start < startInterval
                                                                   && x.End > startInterval
-                                                                  && x.Resource == resource.Name).ToList()
+                                                                  && x.Resource == resource).ToList()
                                                                     .Sum(y => y.End - startInterval);
 
             var upper_borders = simulationResourceData.Where(x => x.Start < endInterval
                                                                   && x.End > endInterval
-                                                                  && x.Resource == resource.Name).ToList()
+                                                                  && x.Resource == resource).ToList()
                                                                     .Sum(y => endInterval - y.Start);
 
             var between = simulationResourceData.Where(x => x.Start >= startInterval
                                                             && x.End <= endInterval
-                                                            && x.Resource == resource.Name).ToList()
+                                                            && x.Resource == resource).ToList()
                                                                     .Sum(y => y.End - y.Start);
 
             time = between + lower_borders + upper_borders;

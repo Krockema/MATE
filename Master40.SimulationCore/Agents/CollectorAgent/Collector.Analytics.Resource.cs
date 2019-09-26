@@ -138,7 +138,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             ResourceUtilization();
-
+            OverallEquipmentEffectiveness(resources: _resources, 0L, Collector.Time);
             ThroughPut();
             lastIntervalStart = Collector.Time;
 
@@ -205,56 +205,58 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <summary>
         /// OEE for dashboard
         /// </summary>
-        private void OverallEquipmentEffectiveness(List<M_Resource> resources, long startInterval, long endInterval)
+        private void OverallEquipmentEffectiveness(ResourceList resources, long startInterval, long endInterval)
         {
+            /* ------------- Total Production Time --------------------*/
             var totalInterval = endInterval - startInterval;
-            var totalPlannedProductionTime = totalInterval * resources.Count;
+            var totalProductionTime = totalInterval * resources.Count;
 
+            /* ------------- RunTime --------------------*/
             var totalPlannedDowntime = 0L;
-
-            //1.Parameter Availability calculation
+            var totalBreakTime = 0L;
+            double runTime = totalProductionTime - (totalPlannedDowntime - totalBreakTime);
+            
+            /* ------------- WorkTime --------------------*/
             var breakDown = 0L;
 
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
             allSimulationResourceSetups.AddRange(simulationJobs);
             allSimulationResourceSetups.AddRange(simulationJobsForDb);
-
             var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
+
             var totalUnplannedDowntime = breakDown + setupTime;
 
-            var stopTime = totalPlannedDowntime - totalUnplannedDowntime;
+            double workTime = runTime - totalUnplannedDowntime;
 
-            var runTime = totalPlannedProductionTime - stopTime;
-
-            var availability = runTime / totalPlannedProductionTime;
-
-            //2. Parameter Performance calculation
-            //for now calculate workTime and 
+            /* ------------- PerformanceTime --------------------*/
             List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
             allSimulationResourceJobs.AddRange(simulationJobs);
             allSimulationResourceJobs.AddRange(simulationJobsForDb);
+            var jobTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
 
-            var workTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
+            var idleTime = workTime - jobTime;
 
-            var totalUtilization = setupTime + workTime;
-            //var workTime = kpiManager.GetTotalIdleTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
-            var idleTime = runTime - totalUtilization;
-            // TODO if resource exits with different speed --> see Ant-man
-            var reducedSpeed = 0;
-            var totalPerformanceLoss = idleTime + reducedSpeed;
+            var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
 
-            var totalPerformanceTime = runTime - totalPerformanceLoss;
+            double performanceTime = jobTime;
 
-            var performance = totalPerformanceTime / availability;
+            /* ------------- zeroToleranceTime --------------------*/
 
-            //3. Parameter Quality calculation
-            var goodGoods = 35;
-            var badGoods = 0;
+            //TODO add goods
+            var goodGoods = 35L;
+            var badGoods = 0L;
             var totalGoods = goodGoods + badGoods;
 
-            var totalQualityLoss = totalPerformanceTime / totalGoods * goodGoods;
-            
-            var quality = totalQualityLoss / totalPerformanceTime;
+            double zeroToleranceTime = performanceTime / totalGoods * goodGoods;
+
+            //1.Parameter Availability calculation
+            double availability =  workTime /runTime;
+
+            //2. Parameter Performance calculation
+            double performance = performanceTime / workTime;
+
+            //3. Parameter Quality calculation
+            double quality = zeroToleranceTime / performanceTime;
 
             //Total OEE
             var totalOEE = availability * performance * quality;
