@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Master40.DB.Data.Helper.Types;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Master40.DB.Data.Helper
 {
@@ -30,7 +31,7 @@ namespace Master40.DB.Data.Helper
 
         private static string GetDateString()
         {
-            string ticks = DateTime.UtcNow.Ticks.ToString();
+            string ticks = new DateTime(DateTime.Now.Ticks).Ticks.ToString();
             // the last 9 decimal places of ticks are enough
             return DateTime.Now.ToString("MM-dd_HH:mm") + $"__{ticks.Substring(10, ticks.Length - 10)}";
         }

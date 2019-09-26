@@ -32,7 +32,7 @@ namespace Master40.XUnitTest.Zpp
 
         private IDbMasterDataCache _dbMasterDataCache;
 
-        public AbstractTest() : this(true)
+        public AbstractTest() : this(initDefaultTestConfig: true)
         {
             _dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
         }
