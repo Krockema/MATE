@@ -29,16 +29,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             _dataBaseResult = Dbms.GetResultDataBase();
             _dataBaseProduction.DbContext.Database.EnsureDeleted();
             _dataBaseProduction.DbContext.Database.EnsureCreated();
-            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
             MasterDBInitializerTruck.DbInitialize(context: _dataBaseProduction.DbContext);
-
-            
             ResultDBInitializerBasic.DbInitialize(context: _dataBaseResult.DbContext);
-
         }
 
 
-        [Fact]
+        [Fact(Skip = "To be activated after Merge")]
         public async Task SystemTestAsync()
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
@@ -48,7 +44,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
                                                     // set ResultDBString and set SaveToDB true
-                                                    new DBConnectionString(value: _dataBaseResult.ConnectionString.Value)
+                                                      new DBConnectionString(value: _dataBaseResult.ConnectionString.Value)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: SimulationType.None) // implements the used behaviour, if None --> DefaultBehaviour
