@@ -3,6 +3,7 @@ using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
+using Master40.DB.ReportingModel.Interface;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
@@ -11,12 +12,9 @@ using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.HashFunction.xxHash;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using Master40.DB.DataModel;
-using Master40.DB.ReportingModel.Interface;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FCreateSimulationJobs;
@@ -112,7 +110,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration,
                 ExpectedDuration = simulationResourceSetup.ExpectedDuration
             };
-
             simulationResourceSetups.Add(item: _SimulationResourceSetup);
 
         }
@@ -389,13 +386,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: KpiType.ResourceSetup);
             }
 
-            var totalSetup = Math.Round(value: finalSetup.Sum(selector: x => x.Item2) / divisor / finalSetup.Count(), digits: 3).ToString(provider: _cultureInfo);
+            var totalSetup = Math.Round(value: finalSetup.Sum(selector: x => x.Item2) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalSetup == "NaN") totalSetup = "0";
             var totalTimes = totalLoad + totalSetup;
             //TODO to implement GUI
             CreateKpi(agent: Collector, value: totalSetup, name: "TotalSetup", kpiType: KpiType.ResourceSetup);
 
-            Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Load = JsonConvert.SerializeObject(new{Work = totalLoad, Setup = totalSetup}) }));
+            Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: 
+                new { Time = Collector.Time
+                    , Load = new { Work = totalLoad, Setup = totalSetup }}));
 
             //Persist Jobs
             // TODO make it better
