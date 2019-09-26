@@ -261,6 +261,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //Total OEE
             var totalOEE = availability * performance * quality;
 
+            var totalOEEString = Math.Round(totalOEE * 100, 2).ToString();
+
+            Collector.messageHub.SendToClient(listener: "oeeListener", msg: totalOEEString);
+
             //TODO Implement View for GUI
         }
 
