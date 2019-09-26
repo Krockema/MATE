@@ -288,6 +288,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var totalOEE = availability * performance * quality;
 
             var totalOEEString = Math.Round(totalOEE * 100, 2).ToString();
+            if (totalOEEString == "NaN") totalOEEString = "0";
 
             Collector.messageHub.SendToClient(listener: "oeeListener", msg: totalOEEString);
 
