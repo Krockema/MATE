@@ -138,7 +138,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             ResourceUtilization();
-            OverallEquipmentEffectiveness(resources: _resources, 0L, Collector.Time);
+
+            OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+
             ThroughPut();
             lastIntervalStart = Collector.Time;
 
@@ -220,8 +222,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var breakDown = 0L;
 
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
-            allSimulationResourceSetups.AddRange(simulationJobs);
-            allSimulationResourceSetups.AddRange(simulationJobsForDb);
+            allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval+50).ToList());
+            allSimulationResourceSetups.AddRange(simulationResourceSetupsForDb.Where(x => x.Start >= startInterval + 50).ToList());
+
             var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
 
             var totalUnplannedDowntime = breakDown + setupTime;
@@ -230,8 +233,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             /* ------------- PerformanceTime --------------------*/
             List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
-            allSimulationResourceJobs.AddRange(simulationJobs);
-            allSimulationResourceJobs.AddRange(simulationJobsForDb);
+            allSimulationResourceJobs.AddRange(simulationJobs.Where(x => x.Start >= startInterval + 50).ToList());
+            allSimulationResourceJobs.AddRange(simulationJobsForDb.Where(x => x.Start >= startInterval + 50).ToList());
             var jobTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
 
             var idleTime = workTime - jobTime;
