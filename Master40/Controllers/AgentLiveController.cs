@@ -52,7 +52,7 @@ namespace Master40.Controllers
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
-                                                    , new SaveToDB(value: true)
+                                                    , new SaveToDB(value: false)
                                                 });
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }
