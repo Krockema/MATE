@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka;
 using Master40.Simulation;
 using Master40.SimulationCore.Environment.Options;
 using Master40.DB.Enums;
@@ -27,17 +28,26 @@ namespace Master40.Controllers
             return View(model: await masterDBContext.ToListAsync());
         }
 
-        [HttpGet(template: "[Controller]/RunAsync/{simId}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
-        public async void RunAsync(int simId, int orderAmount, double arivalRate,int estimatedThroughputTime)
+        [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
+        public async void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
-            if (simId == 0) return;
+            var simKind = SimulationType.None;
+            switch (simulationType)
+            {
+                case 1: simKind = SimulationType.None; break;
+                case 2: simKind = SimulationType.DefaultSetup; break;
+                case 3: simKind = SimulationType.DefaultSetupStack; break;
+                default: return;
+            }
+
+
             // using Default Test Values.
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
                                                     new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
-                                                    , new SimulationId(value: simId)
+                                                    , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: 1)
-                                                    , new SimulationKind(value: SimulationType.DefaultSetupStack)
+                                                    , new SimulationKind(value: simKind)
                                                     , new OrderArrivalRate(value: arivalRate)
                                                     , new OrderQuantity(value: orderAmount)
                                                     , new EstimatedThroughPut(value: estimatedThroughputTime)
