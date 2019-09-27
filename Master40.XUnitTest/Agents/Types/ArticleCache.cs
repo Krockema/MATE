@@ -15,7 +15,7 @@ namespace Master40.XUnitTest.Agents.Types
         private DataBase<ProductionDomainContext> DataBase;
         public ArticleCache()
         {
-            DataBase = Dbms.GetNewDataBase();
+            DataBase = Dbms.GetNewMasterDataBase();
             DataBase.DbContext.Database.EnsureCreated();
             MasterDbInitializerTable.DbInitialize(context: DataBase.DbContext);
         }

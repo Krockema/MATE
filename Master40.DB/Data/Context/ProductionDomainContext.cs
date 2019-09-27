@@ -11,7 +11,7 @@ namespace Master40.DB.Data.Context
 {
     public class ProductionDomainContext : MasterDBContext
     {
-        public static ProductionDomainContext GetContext(string defaultCon)
+        public new static ProductionDomainContext GetContext(string defaultCon)
         {
             return new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                 .UseSqlServer(connectionString: defaultCon)
