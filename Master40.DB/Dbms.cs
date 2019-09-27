@@ -59,9 +59,9 @@ namespace Master40.DB
             return new DbConnectionString(connectionString);
         }
 
-        public static DataBase<ProductionDomainContext> GetNewDataBase()
+        public static DataBase<ProductionDomainContext> GetNewMasterDataBase()
         {
-            DataBase<ProductionDomainContext> dbInfo = 
+            DataBase<ProductionDomainContext> dataBase = 
                 new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster());
             if (UseLocalDb() && Constants.IsWindows)
             {
@@ -72,35 +72,35 @@ namespace Master40.DB
                     Constants.IsLocalDb = false;
             }
             // else Linux
-            dbInfo.ConnectionString = GetConnectionString(dbInfo.DataBaseName);
-            dbInfo.DbContext = new ProductionDomainContext(
+            dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
+            dataBase.DbContext = new ProductionDomainContext(
                 new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
-                    .UseSqlServer(dbInfo.ConnectionString.Value).Options);
+                    .UseSqlServer(dataBase.ConnectionString.Value).Options);
 
             MyLoggerFactory.AddNLog();
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
-            dbInfo.DbContext.ChangeTracker.QueryTrackingBehavior =
+            dataBase.DbContext.ChangeTracker.QueryTrackingBehavior =
                 QueryTrackingBehavior.NoTracking;
 
-            return dbInfo;
+            return dataBase;
         }
 
-        public static DataBase<ResultContext> GetResultDataBase()
+        public static DataBase<ResultContext> GetNewResultDataBase()
         {
-            DataBase<ResultContext> dbInfo = new DataBase<ResultContext>(Constants.DbWithSuffixResults());
-            dbInfo.ConnectionString = GetResultConnectionString(dbInfo.DataBaseName);
-            dbInfo.DbContext = new ResultContext(
+            DataBase<ResultContext> dataBase = new DataBase<ResultContext>(Constants.DbWithSuffixResults());
+            dataBase.ConnectionString = GetResultConnectionString(dataBase.DataBaseName);
+            dataBase.DbContext = new ResultContext(
                 new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
-                    .UseSqlServer(dbInfo.ConnectionString.Value).Options);
+                    .UseSqlServer(dataBase.ConnectionString.Value).Options);
 
             MyLoggerFactory.AddNLog();
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
-            dbInfo.DbContext.ChangeTracker.QueryTrackingBehavior =
+            dataBase.DbContext.ChangeTracker.QueryTrackingBehavior =
                 QueryTrackingBehavior.NoTracking;
 
-            return dbInfo;
+            return dataBase;
         }
 
 
