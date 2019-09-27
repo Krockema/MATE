@@ -6,7 +6,7 @@
         overflow-x: hidden;
         position: relative;
         width: 250px;
-        height: 300px;
+        height: 420px;
         margin: 0 auto;
     }
 
@@ -16,7 +16,7 @@
         <div class="chartAreaWrapper">
             <div class="chartThroughputWrapper">
                 <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="Throughput" height="335"></canvas>
+                <canvas id="Throughput" height="400" width="120"></canvas>
             </div>
         </div>
     </div>
@@ -45,6 +45,7 @@
                 ]
         },
             options: {
+                maintainAspectRatio: false,
                 responsive: true,
                 legend: {
                     display: false,
@@ -82,7 +83,7 @@
 
         function shiftArray(list) {
             if (list.length > 50) {
-               return list.slice(0, 50)
+                return list.slice(0, 50);
             }
             return list;
         }

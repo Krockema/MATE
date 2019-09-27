@@ -1,13 +1,25 @@
 ﻿@{ 
 }
-
-<div style="float:left; margin-top: 5px; margin-bottom: 5px;">
+<style>
+    .chartLayerTimeliness > canvas {
+        width: 100px;
+        height: 200px;
+    }
+    .chartContainerTimeliness {
+        position: relative;
+        width: 200px;
+        height: 220px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+</style>
+<div style="float:left;">
     <div class="chartContainerTimeliness">
-        <div class="chartLayerTimeliness" style="margin-top: 20px">
+        <div class="chartLayerTimeliness" >
 
             <!--div id="js-legend" class="chart-legend"><div-->
 
-            <canvas id="TimelinessElement" style="height: 280px"></canvas>
+            <canvas id="TimelinessElement" style="height: 200px"></canvas>
         </div>
         <div class="text-center">
             <b>
@@ -18,19 +30,7 @@
         </div>
     </div>
 </div>
-    <style>
-        .chartLayerTimeliness > canvas {
-            width: 100px;
-            height: 280px;
-        }
-        .chartContainerTimeliness {
-            position: relative;
-            width: 200px;
-            height: 300px;
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-    </style>
+
 <script>
     var TimelinessElement = document.getElementById("TimelinessElement");
     var TimelinessChart = new Chart(TimelinessElement, {
@@ -51,7 +51,7 @@
                     "yAxes": [{
                         "type": "linear", "id": "first-x-axis"
                         , "scaleLabel": { "display": true, "labelString": "Timeliness", "fontSize": 12 }
-                        , "ticks": { "max": 100.0, "min": 0, "display": true }
+                        , "ticks": { "max": 100.0, "min": 0, "stepSize": 20, "display": true }
                         , "display": true, "stacked": false
                     }], "xAxes": [{ "display": true, "stacked": false }]
                 }

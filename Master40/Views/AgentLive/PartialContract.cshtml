@@ -11,14 +11,14 @@
     </div>
 
     <script>
-        var plotMax = 50;
+        var plotMax = 20;
         var ContractElement = document.getElementById("ContractChart");
         var ContractChartCtx = new Chart(ContractElement,
             {
                 "type": "scatter"
                 , "data": {
                     "datasets": [{
-                        "data": [{ "x": 0.0, "y": 30.0 }, { "x": 2880.0, "y": 30.0 }]
+                        "data": [{ "x": 0.0, "y": 20.0 }, { "x": 2880.0, "y": 20.0 }]
                         , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
                     }, { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false,  "lineTension": 0.5, "backgroundColor": "rgba(205, 10, 10, 0.6)",  "borderWidth": 1, "borderColor": "rgba(205, 10, 10, 1)", "showLine": true, "label": "Input" }
                     , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(246, 167, 30, 0.6)", "borderWidth": 1, "borderColor": "rgba(255, 204, 0, 1)", "showLine": true, "label": "Processing" }
@@ -57,9 +57,8 @@
             //console.log("Contracts : " + msg);
             var serialized = JSON.parse(msg);
 
-            MaxPlotHight(serialized.Processing);
-
             ContractChartCtx.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Processing });
+            MaxPlotHight(serialized.Processing);
             ContractChartCtx.update();
         });
 

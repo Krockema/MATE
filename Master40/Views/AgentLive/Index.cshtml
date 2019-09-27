@@ -93,8 +93,27 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-9">
+                        <div class="card" style="margin-top: 10px;">
+                            <div class="card-header">
+                                <b>Work in Progress</b>
+                            </div>
+                            <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialContract.cshtml")</div>
+                        </div>
+                    </div>
+                   
+            <div class="col-lg-3 col-md-3">
+                <div class="card"  style="margin-top: 10px;">
+                    <div class="card-header">
+                        <b>Timeliness</b>
+                    </div>
+                    <div class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTimeliness.cshtml")</div>
+                </div>
+            </div>
+        </div>
+                <div class="row">
                     <div class="col-lg-9 col-md-9">
-                        <div class="card">
+                        <div class="card"  style="margin-top: 10px;">
                             <div class="card-header">
                                 <b>Machine Workload</b>
                             </div>
@@ -105,57 +124,39 @@
                                         {
                                             containerSize = 75; textPadding = 35; fontSize = 10;
                                         } @Html.Raw(value: @"
-                              <style>
-                                  .chartContainer {
-                                      position: relative;
-                                      background-color: transparent;
-                                      width:" + containerSize + @"px;
-                                      height:" + containerSize + @"px;
-                                      margin-left: 5px;
-                                      margin-right: 5px;
-                                      margin-bottom: 5px;
-                                  }
-                                  .machineText {
-                                      font:" + fontSize + @"px Helvetica;
-                                  }
-                                  .textLayer {
-                                      padding-top:" + textPadding + @"px;
-                                      font: bold" + fontSize + @"px Helvetica;
-                              </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.Id))
+                            <style>
+                                .chartContainer {
+                                    position: relative;
+                                    background-color: transparent;
+                                    width:" + containerSize + @"px;
+                                    height:" + containerSize + @"px;
+                                    margin-left: 5px;
+                                    margin-right: 5px;
+                                    margin-bottom: 5px;
+                                }
+                                .machineText {
+                                    font:" + fontSize + @"px Helvetica;
+                                }
+                                .textLayer {
+                                    padding-top:" + textPadding + @"px;
+                                    font: bold" + fontSize + @"px Helvetica;
+                            </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.Id))
                                     {@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialMachine.cshtml",
-                                 model: section)}
+                                model: section)}
                         </div>
                         <div>@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTotalWorkLoad.cshtml")</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <b>Timeliness</b>
-                    </div>
-                    <div class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTimeliness.cshtml")</div>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-9">
-                <div class="card" style="margin-top: 10px;">
-                    <div class="card-header">
-                        <b>Work in Progress</b>
+                <div class="col-lg-3">
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-header">
+                            <b>Throughput Times</b>
+                        </div>
+                        <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialThroughput.cshtml")</div>
                     </div>
-                    <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialContract.cshtml")</div>
                 </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="card" style="margin-top: 10px;">
-                    <div class="card-header">
-                        <b>Throughput Times</b>
-                    </div>
-                    <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialThroughput.cshtml")</div>
                 </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col-lg-12 col-md-12">
                 <div class="card" style="margin-top: 10px;">
