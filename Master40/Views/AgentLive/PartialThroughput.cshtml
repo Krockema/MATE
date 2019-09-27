@@ -28,34 +28,26 @@
             type: 'boxplot',
             data: {
                 // define label tree
-                labels: ['Products'],
+                labels: ['Dump-Truck', 'Race-Truck'],
                 datasets: [{
-                    label: 'Dump-Truck',
-                    backgroundColor: 'rgba(30, 152, 166,  .6)',
-                    borderColor: 'rgba(30, 152, 166,  1)',
+                    label: 'Products',
+                    backgroundColor: 'rgba(170, 103, 8,  .4)',
+                    borderColor: 'rgba(170, 103, 8,  1)',
                     borderWidth: 1,
                     outlierColor: '#000000',
                     padding: 10,
                     itemRadius: 2,
                     data: [
-                        [600,650,550]
+                        [600, 650, 550]
+                       ,[600, 650, 550]   
                     ]
-                }, {
-                    label: 'Race-Truck',
-                    backgroundColor: 'rgba(113, 50, 168,  .6)',
-                    borderColor: 'rgba(113, 50, 168, 1)',
-                    borderWidth: 1,
-                    outlierColor: '#000000',
-                    padding: 10,
-                    itemRadius: 2,
-                    data: [
-                        [600, 650, 550]    
-                    ]
-                }]
+                }
+                ]
         },
             options: {
                 responsive: true,
                 legend: {
+                    display: false,
                     position: 'bottom',
                 },
                 title: {
@@ -72,12 +64,12 @@
             for (item of serialized.leadTime) {
                 switch (item.ArticleName) {
                     case "Race-Truck":
-                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[0]);
-                        ThroughputChart.data.datasets[0].data[0] = shiftArray(item.Dlz);
+                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[1]);
+                        ThroughputChart.data.datasets[0].data[1] = shiftArray(item.Dlz);
                         break;
                     case "Dump-Truck":
-                        item.Dlz.push(...ThroughputChart.data.datasets[1].data[0]);
-                        ThroughputChart.data.datasets[1].data[0] = shiftArray(item.Dlz);
+                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[0]);
+                        ThroughputChart.data.datasets[0].data[0] = shiftArray(item.Dlz);
                         break;
                     default:
                         console.log("Sorry, we are out of " + expr + ".");
