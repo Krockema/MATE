@@ -1,6 +1,0 @@
-﻿"13811;P(PrO);2.00;\nTisch;7" -> "13873;P(PrO);4.00;\nTischbein;7";
-"13811;P(PrO);2.00;\nTisch;7" -> "13837;P(PrO);4.00;\nTischbein;7";
-"13903;P(PrO);2.00;\nTisch;59" -> "13930;P(PrO);4.00;\nTischbein;59";
-"13903;P(PrO);2.00;\nTisch;59" -> "13963;P(PrO);4.00;\nTischbein;59";
-"13986;P(PrO);2.00;\nTisch;83" -> "14013;P(PrO);4.00;\nTischbein;83";
-"13986;P(PrO);2.00;\nTisch;83" -> "14028;P(PrO);4.00;\nTischbein;83";

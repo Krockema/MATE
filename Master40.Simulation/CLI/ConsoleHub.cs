@@ -9,7 +9,7 @@ namespace Master40.Simulation.CLI
         public void SendToAllClients(string msg)
         {
             System.Diagnostics.Debug.WriteLine(message: msg);
-            ///Console.WriteLine(msg);
+            //Console.WriteLine(msg);
         }
 
         public void SendToAllClients(string msg, MessageType msgType)
@@ -20,7 +20,8 @@ namespace Master40.Simulation.CLI
 
         public void SendToClient(string listener, string msg, MessageType msgType)
         {
-            Console.WriteLine(value: listener + ": " + msg);
+            System.Diagnostics.Debug.WriteLine(listener + ": " + msg);
+            //Console.WriteLine(value: listener + ": " + msg);
         }
 
         public string ReturnMsgBox(string msg, MessageType type)

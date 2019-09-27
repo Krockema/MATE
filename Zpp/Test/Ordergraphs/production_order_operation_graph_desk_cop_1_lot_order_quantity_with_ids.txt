@@ -1,3 +1,0 @@
-﻿"10183;P(PrO);1.00;\nTisch;39" -> "10186;Tisch verpacken";
-"10221;P(PrO);4.00;\nTischbein;0" -> "10228;Flizgleiter anstecken";
-"10228;Flizgleiter anstecken" -> "10224;Anschraubplatte anschweißen";

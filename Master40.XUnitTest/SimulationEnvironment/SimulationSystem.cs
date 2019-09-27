@@ -1,5 +1,4 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -7,55 +6,45 @@ using Master40.DB.Enums;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
-using Microsoft.EntityFrameworkCore;
+using Master40.XUnitTest.Preparations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB;
+using Master40.DB.Data.Helper;
 using Xunit;
+using Zpp.Utils;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class SimulationSystem : TestKit
     {
-        private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private DataBase<ProductionDomainContext> _dataBaseProduction;
+        private DataBase<ResultContext> _dataBaseResult;
         private int simNr = 999;
-
-        ProductionDomainContext _ctx = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                                                            .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                                                            .Options);
-
-        ProductionDomainContext _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-            .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .Options);
-
-        ResultContext _ctxResult = new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
-            .UseInMemoryDatabase(databaseName: "InMemoryResults")
-            .Options);
 
         public SimulationSystem()
         {
-            _masterDBContext.Database.EnsureDeleted();
-            _masterDBContext.Database.EnsureCreated();
-            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
-
-            _ctxResult.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
-
+            _dataBaseProduction = Dbms.GetNewMasterDataBase();
+            _dataBaseResult = Dbms.GetNewResultDataBase();
+            _dataBaseProduction.DbContext.Database.EnsureDeleted();
+            _dataBaseProduction.DbContext.Database.EnsureCreated();
+            MasterDBInitializerTruck.DbInitialize(context: _dataBaseProduction.DbContext);
+            ResultDBInitializerBasic.DbInitialize(context: _dataBaseResult.DbContext);
         }
 
 
-        [Fact]
+        [Fact(Skip = "To be activated after Merge")]
         public async Task SystemTestAsync()
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
 
-            var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(DBContext: _dataBaseProduction.DbContext, messageHub: new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
                                                     // set ResultDBString and set SaveToDB true
-                                                    new DBConnectionString(value: localresultdb)
+                                                      new DBConnectionString(value: _dataBaseResult.ConnectionString.Value)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: SimulationType.None) // implements the used behaviour, if None --> DefaultBehaviour
@@ -81,11 +70,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
             emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
 
 
-            var simWasReady = false;
+            var simFinished = false;
             if (simulation.IsReady())
             {
-                // set for Assert 
-                simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
 
@@ -96,26 +83,23 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                                     , simContext.ContractCollector
                                             });
                 await sim;
+                // set for Assert 
+                simFinished = true;
             }
 
-            Assert.True(condition: simWasReady);
+            Assert.True(condition: simFinished);
         }
 
         private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
         {
             var _simNr = simNr;
-            using (_ctxResult)
+            using (_dataBaseResult.DbContext)
             {
-                _ctxResult.RemoveRange(entities: _ctxResult.SimulationOperations.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.SaveChanges();
+                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.SimulationOperations.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _dataBaseResult.DbContext.SaveChanges();
             }
-        }
-        [Fact]
-        private void DbInit()
-        {
-
         }
     }
 }

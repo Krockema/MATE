@@ -1,37 +1,33 @@
-﻿using System.Linq;
+﻿using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
-using Master40.XUnitTest.Preparations;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Xunit;
 
 namespace Master40.XUnitTest.Model
 {
     public class ArticleCheck
     {
-        private ProductionDomainContext _masterDBContext;
-        private string _dbConnectionString;
+        private DataBase<ProductionDomainContext> DataBase;
         public ArticleCheck()
         {
-            _dbConnectionString = Dbms.getDbContextString().Replace("UnitTestDB", "TruckTest");
-            _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(connectionString: _dbConnectionString)
-                .Options);
-            _masterDBContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            DataBase = Dbms.GetNewMasterDataBase();
+            MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext);
         }
 
-        [Fact]
+        [Fact(Skip = "Activate after merge")]
         public void HasBoms()
         {
-            var articles = _masterDBContext.Articles.Include(x => x.ArticleBoms);
+            var articles = DataBase.DbContext.Articles.Include(x => x.ArticleBoms);
             Assert.True(articles.All(x => x.ArticleBoms.Count >= 0));
         }
 
-        [Fact]
+        [Fact(Skip = "Activate after merge")]
         public void AllBomsWithOperation()
         {
-            var boms = _masterDBContext.ArticleBoms;
+            var boms = DataBase.DbContext.ArticleBoms;
             Assert.True(boms.All(x => x.OperationId != null));
         }
 

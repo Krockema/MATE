@@ -306,3 +306,5 @@ paket-files/
 bin/
 obj/
 /Master40/wwwroot/lib/
+/Master40.XUnitTest/Zpp/Ordergraphs/GanttChart/*.json
+/Master40.XUnitTest/Zpp/Ordergraphs/*.txt
