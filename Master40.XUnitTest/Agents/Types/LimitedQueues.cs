@@ -22,10 +22,10 @@ namespace Master40.XUnitTest.Agents.Types
         public void AddToTimeLimitedQueue()
         {
             var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
-            jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10));
+            jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10));
             Assert.True(condition: jobQueueTimeLimited.Count == 1);
             
-            jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateJobItem(jobName: "Sample Operation 2", jobDuration: 5));
+            jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5));
             Assert.True(jobQueueTimeLimited.Count == 2);
 
             //addItemStatus = jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateJobItem(jobName: "Sample Operation 3", jobDuration: 10));
@@ -37,11 +37,11 @@ namespace Master40.XUnitTest.Agents.Types
         public void AddToItemLimitedQueue()
         {
             var jobQueueItemLimited = new JobQueueItemLimited(limit: 1);
-            var firstJob = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var firstJob = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
             var addItemStatus = jobQueueItemLimited.Enqueue(item: firstJob);
             Assert.True(condition: addItemStatus);
 
-            var secondJob = TypeFactory.CreateJobItem(jobName: "Sample Operation 2", jobDuration: 20);
+            var secondJob = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 20);
             addItemStatus = jobQueueItemLimited.Enqueue(item: secondJob);
             Assert.False(condition: addItemStatus);
 
@@ -53,12 +53,12 @@ namespace Master40.XUnitTest.Agents.Types
         public void DequeueFromTimeLimitedQueue(int durationItemOne , int dueTimeItemOne, int durationItemTwo, int dueTimeItemTwo, int currentTime, string expected)
         {
             var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
-            var operation1 = TypeFactory.CreateJobItem(jobName: "SampleOne", jobDuration: durationItemOne, dueTime: dueTimeItemOne);
+            var operation1 = TypeFactory.CreateDummyJobItem(jobName: "SampleOne", jobDuration: durationItemOne, dueTime: dueTimeItemOne);
             operation1.StartConditions.ArticlesProvided = true;
 
             jobQueueTimeLimited.Enqueue(item: operation1);
 
-            var operation2 = TypeFactory.CreateJobItem(jobName: "SampleTwo", jobDuration: durationItemTwo, dueTime: dueTimeItemTwo);
+            var operation2 = TypeFactory.CreateDummyJobItem(jobName: "SampleTwo", jobDuration: durationItemTwo, dueTime: dueTimeItemTwo);
             jobQueueTimeLimited.Enqueue(item: operation2);
 
             Assert.Equal(expected: 2, actual: jobQueueTimeLimited.Count);

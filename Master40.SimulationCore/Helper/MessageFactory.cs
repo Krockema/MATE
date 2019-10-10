@@ -42,9 +42,9 @@ namespace Master40.SimulationCore.Helper
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
                                 , creationTime: currentTime
-                                , forwardStart: 0
-                                , forwardEnd: 0
-                                , backwardStart: dueTime - operation.Duration
+                                , forwardStart: currentTime
+                                , forwardEnd: currentTime + operation.Duration + operation.AverageTransitionDuration
+                                , backwardStart: dueTime - operation.Duration - operation.AverageTransitionDuration
                                 , backwardEnd: dueTime
                                 , end: 0
                                 , start: 0
@@ -82,10 +82,10 @@ namespace Master40.SimulationCore.Helper
                                 , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
                                 , isFixPlanned: false
                                 , creationTime: time
-                                , forwardStart: 0
-                                , forwardEnd: 0
-                                , backwardStart: 0
-                                , backwardEnd: 0
+                                , forwardStart: operation.ForwardStart
+                                , forwardEnd: operation.ForwardEnd
+                                , backwardStart: operation.BackwardStart
+                                , backwardEnd: operation.BackwardEnd
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)

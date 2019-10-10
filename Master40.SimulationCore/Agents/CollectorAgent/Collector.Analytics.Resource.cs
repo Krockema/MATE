@@ -62,7 +62,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                      typeof(FUpdateSimulationWorkProvider),
                                      typeof(UpdateLiveFeed),
                                      typeof(FThroughPutTime),
-                                     typeof(Hub.Instruction.AddResourceToHub),
+                                     typeof(Hub.Instruction.Default.AddResourceToHub),
                                      typeof(BasicInstruction.ResourceBrakeDown),
                                      typeof(FCreateSimulationResourceSetup)
 

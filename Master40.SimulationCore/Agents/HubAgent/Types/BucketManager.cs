@@ -17,19 +17,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         private List<FBucket> _buckets { get; set; } = new List<FBucket>();
 
-        internal FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var bucket = MessageFactory.ToBucketItem(fOperation, hubAgent, currentTime);
             _buckets.Add(bucket);
             return bucket;
         }
 
-        internal FBucket GetBucketById(Guid key)
+        public FBucket GetBucketById(Guid key)
         {
             return _buckets.Single(x => x.Key == key);
         }
 
-        internal void Replace(FBucket bucket)
+        public void Replace(FBucket bucket)
         {
             _buckets.Replace(bucket);
         }
@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// </summary>
         /// <param name="operationKey"></param>
         /// <returns></returns>
-        internal FOperation GetOperationByKey(Guid operationKey)
+        public FOperation GetOperationByKey(Guid operationKey)
         {
             FOperation operation = null;
             foreach (var bucket in _buckets)
@@ -53,12 +53,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return operation;
         }
 
-        internal FBucket GetBucketByOperationKey(Guid operationKey)
+        public FBucket GetBucketByOperationKey(Guid operationKey)
         {
             return _buckets.Single(x => x.Operations.Any(y => y.Key == operationKey));
         }
 
-        internal void Remove(Guid operationKey)
+        public void Remove(Guid operationKey)
         {
             var operation = GetOperationByKey(operationKey);
             var bucket = GetBucketByOperationKey(operationKey);
@@ -67,7 +67,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             _buckets.Replace(bucket);
         }
 
-        internal FBucket AddToBucket(Guid bucketKey, FOperation fOperation)
+        public FBucket AddToBucket(Guid bucketKey, FOperation fOperation)
         {
             var bucket = _buckets.Single(x => x.Key == bucketKey);
 
@@ -79,7 +79,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
-        internal FBucket FindOrCreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public FBucket FindOrCreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var matchingBuckets = FindAllMatching(fOperation);
 
@@ -95,16 +95,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        internal List<FBucket> FindAllMatching(FOperation fOperation)
+        public List<FBucket> FindAllMatching(FOperation fOperation)
         {
             return _buckets.Where(x => x.Tool.Id == fOperation.Tool.Id && !x.IsFixPlanned).ToList();
         }
 
-        internal FBucket FindBestMatching(List<FBucket> buckets, FOperation operation)
+        public FBucket FindBestMatching(List<FBucket> buckets, FOperation operation)
         {
             
             // Simple Rule
-            var bucket = buckets.FirstOrDefault(x => ((IJob)x).Duration + operation.Operation.Duration <= 30);
+            var bucket = buckets.FirstOrDefault(x => ((IJob)x).Duration + operation.Operation.Duration + operation.Operation.AverageTransitionDuration <= 30);
 
             // TODO Complex Rule
             // Gest First ELement of CurrentBucket
@@ -113,5 +113,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             return bucket;
         }
+
+
     }
 }

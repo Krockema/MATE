@@ -11,12 +11,14 @@ namespace Master40.XUnitTest.Preparations
 {
     public static class TypeFactory
     {
-        public static FOperation CreateJobItem(string jobName, int jobDuration, bool preCondition = true, bool materialsProvide = true, int dueTime = 50, string skillName = "Sewing", M_ResourceTool tool = null, M_ArticleBom bom = null)
+        public static FOperation CreateDummyJobItem(string jobName, int jobDuration, int averageTransitionDuration = 20, bool preCondition = true, bool materialsProvide = true, 
+                                                    int dueTime = 50, string skillName = "Sewing", M_ResourceTool tool = null, 
+                                                    M_ArticleBom bom = null)
         {
             var operation = new M_Operation()
             {
                 ArticleId = 10,
-                AverageTransitionDuration = 20,
+                AverageTransitionDuration = averageTransitionDuration,
                 Duration = jobDuration,
                 HierarchyNumber = 10,
                 Id = 1,
@@ -25,6 +27,7 @@ namespace Master40.XUnitTest.Preparations
                 ResourceSkill = new M_ResourceSkill() { Name = skillName },
                 ResourceTool = tool
             };
+
             return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: 0);
         }
 

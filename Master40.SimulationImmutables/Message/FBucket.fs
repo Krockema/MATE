@@ -43,7 +43,7 @@ open FUpdateStartConditions
                 member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
-                member this.ForwardStart with get() = this.Operations.Min(fun y -> y.ForwardStart)
+                member this.ForwardStart with get() = this.ForwardStart
                 member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
@@ -58,7 +58,7 @@ open FUpdateStartConditions
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
-        member this.AddOperation op = { this with Operations = this.Operations.Add(op) }
+        member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
         member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
                                                                                  this.StartConditions.PreCondition <- startCondition.PreCondition

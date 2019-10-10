@@ -32,12 +32,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             switch (message)
             {
-                case Hub.Instruction.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
-                case Hub.Instruction.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
+                case Hub.Instruction.Default.EnqueueJob msg: EnqueueJob(fOperation: msg.GetObjectFromMessage as FOperation); break;
+                case Hub.Instruction.Default.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
-                case Hub.Instruction.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
+                case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -72,7 +72,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             foreach (var actorRef in resourceToRequest)
             {
                 Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                Agent.Send(instruction: Resource.Instruction.RequestProposal.Create(message: localItem, target: actorRef));
+                Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
             }
         }
 
@@ -103,7 +103,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     // Call Hub Agent to Requeue
                     fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
                     _operationList.Replace(val: fOperation);
-                    Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postPonedFor);
+                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postPonedFor);
                     return;
                 }
 
@@ -121,7 +121,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 // set Proposal Start for Machine to Requeue if time slot is closed.
                 _operationList.Replace(fOperation);
-                Agent.Send(instruction: Resource.Instruction.AcknowledgeProposal.Create(message: fOperation, target: acknowledgement.ResourceAgent));
+                Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal.Create(message: fOperation, target: acknowledgement.ResourceAgent));
             }
         }
 

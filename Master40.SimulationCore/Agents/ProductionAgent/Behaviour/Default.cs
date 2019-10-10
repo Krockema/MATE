@@ -140,7 +140,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             foreach (var operation in OperationManager.GetOperationBySkill(hub.RequiredFor))
             {
                 operation.UpdateHubAgent(hub.Ref);
-                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: hub.Ref));
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: operation, target: hub.Ref));
             }
 
         }

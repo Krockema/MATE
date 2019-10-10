@@ -13,103 +13,113 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
     {
         public class Instruction
         {
-            public class SetHubAgent : SimulationMessage
+            public class Default
             {
-                public static SetHubAgent Create(FAgentInformation message, IActorRef target)
+                public class SetHubAgent : SimulationMessage
                 {
-                    return new SetHubAgent(message: message, target: target);
+                    public static SetHubAgent Create(FAgentInformation message, IActorRef target)
+                    {
+                        return new SetHubAgent(message: message, target: target);
+                    }
+                    private SetHubAgent(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
                 }
-                private SetHubAgent(object message, IActorRef target) : base(message: message, target: target)
+
+                public class RequestProposal : SimulationMessage
                 {
+                    public static RequestProposal Create(IJob message, IActorRef target)
+                    {
+                        return new RequestProposal(message: message, target: target);
+                    }
+                    private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public IJob GetObjectFromMessage { get => Message as IJob; }
                 }
-                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
+
+                public class AcknowledgeProposal : SimulationMessage
+                {
+                    public static AcknowledgeProposal Create(IJob message, IActorRef target)
+                    {
+                        return new AcknowledgeProposal(message: message, target: target);
+                    }
+                    private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public IJob GetObjectFromMessage { get => Message as IJob; }
+                }
+
+
+                public class DoWork : SimulationMessage
+                {
+                    public static DoWork Create(object message, IActorRef target)
+                    {
+                        return new DoWork(message: message, target: target);
+                    }
+                    private DoWork(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                }
+
+
+
+                public class RequestToRequeue : SimulationMessage
+                {
+                    public static RequestToRequeue Create(FRequestToRequeue message, IActorRef target)
+                    {
+                        return new RequestToRequeue(message: message, target: target);
+                    }
+                    private RequestToRequeue(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
+                }
+
             }
 
-            public class RequestProposal : SimulationMessage
+            public class BucketScope
             {
-                public static RequestProposal Create(IJob message, IActorRef target)
+                public class FinishBucket : SimulationMessage
                 {
-                    return new RequestProposal(message: message, target: target);
+                    public static FinishBucket Create(IJobResult message, IActorRef target)
+                    {
+                        return new FinishBucket(message: message, target: target);
+                    }
+                    private FinishBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
                 }
-                private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
+
+                public class EnqueueProcessingQueue : SimulationMessage
                 {
+                    public static EnqueueProcessingQueue Create(FBucket message, IActorRef target)
+                    {
+                        return new EnqueueProcessingQueue(message: message, target: target);
+                    }
+                    private EnqueueProcessingQueue(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
                 }
-                public IJob GetObjectFromMessage { get => Message as IJob; }
+
+                public class BucketReady : SimulationMessage
+                {
+                    public static BucketReady Create(Guid message, IActorRef target)
+                    {
+                        return new BucketReady(message: message, target: target);
+                    }
+                    private BucketReady(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
             }
-
-            public class AcknowledgeProposal : SimulationMessage
-            {
-                public static AcknowledgeProposal Create(IJob message, IActorRef target)
-                {
-                    return new AcknowledgeProposal(message: message, target: target);
-                }
-                private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public IJob GetObjectFromMessage { get => Message as IJob; }
-            }
-
-
-            public class DoWork : SimulationMessage
-            {
-                public static DoWork Create(object message, IActorRef target)
-                {
-                    return new DoWork(message: message, target: target);
-                }
-                private DoWork(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-            }
-
-            public class FinishBucket : SimulationMessage
-            {
-                public static FinishBucket Create(IJobResult message, IActorRef target)
-                {
-                    return new FinishBucket(message: message, target: target);
-                }
-                private FinishBucket(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
-            }
-
-            public class EnqueueProcessingQueue : SimulationMessage
-            {
-                public static EnqueueProcessingQueue Create(FBucket message, IActorRef target)
-                {
-                    return new EnqueueProcessingQueue(message: message, target: target);
-                }
-                private EnqueueProcessingQueue(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public FBucket GetObjectFromMessage { get => Message as FBucket; }
-            }
-
-            public class BucketReady : SimulationMessage
-            {
-                public static BucketReady Create(Guid message, IActorRef target)
-                {
-                    return new BucketReady(message: message, target: target);
-                }
-                private BucketReady(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public Guid GetObjectFromMessage { get => (Guid)Message; }
-            }
-
-            public class RequestToRequeue : SimulationMessage
-            {
-                public static RequestToRequeue Create(FRequestToRequeue message, IActorRef target)
-                {
-                    return new RequestToRequeue(message: message, target: target);
-                }
-                private RequestToRequeue(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
-            }
-            
-
         }
+
+        
     }
 }

@@ -84,7 +84,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , resourceAgent: Agent.Context.Self
                 , jobKey: jobItem.Key);
 
-            Agent.Send(instruction: Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
+            Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
         internal override void UpdateAndRequeuePlanedJobs(IJobs.IJob jobItem)
@@ -94,7 +94,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             foreach (var job in toRequeue)
             {
                 _planingQueue.RemoveJob(job: job);
-                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: job, target: job.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: job, target: job.HubAgent));
             }
             Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
