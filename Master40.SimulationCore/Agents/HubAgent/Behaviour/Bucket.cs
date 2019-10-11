@@ -33,10 +33,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.Default.EnqueueJob msg: AssignJob(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.ResponseRequeueBucket msg: ResponseRequeueBucket(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage as FBucket); break;
                 case Hub.Instruction.Default.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.BucketScope.SetJobFix msg: SetBucketFix(msg.GetObjectFromMessage as FBucket); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
@@ -45,11 +43,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return true;
         }
 
-        /// <summary>
-        /// source: production agent
-        /// target: 
-        /// </summary>
-        /// <param name="fOperation"></param>
+       
         private void AssignJob(IJob job)
         {
             var operation = (FOperation) job;
@@ -64,7 +58,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void FindOrCreateBucket(FOperation fOperation)
         {
-            var bucket = _bucketManager.AddOrCreateBucket(fOperation, Agent.Context.Self, Agent.CurrentTime);
+            var bucket = _bucketManager.FindAndAddBucket(fOperation, Agent.Context.Self, Agent.CurrentTime);
 
             //create new bucket
             if (bucket == null)

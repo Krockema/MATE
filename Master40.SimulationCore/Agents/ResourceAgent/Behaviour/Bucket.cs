@@ -186,7 +186,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Key} {job.Name} Try to start processing.");
                 _processingQueue.Enqueue(item: job);
                 //notify hub that bucket is in progress now
-                Agent.Send(Hub.Instruction.BucketScope.SetJobFix.Create(message: job, target: job.HubAgent));
+                Agent.Send(Hub.Instruction.BucketScope.SetBucketFix.Create(job.Key, target: job.HubAgent));
             }
 
             

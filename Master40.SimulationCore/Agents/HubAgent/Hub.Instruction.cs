@@ -4,6 +4,10 @@ using static FProposals;
 using static FResourceInformations;
 using static IJobs;
 using static FRequestToRequeues;
+using static FBucketScopes;
+using static FOperations;
+using System;
+using static FBuckets;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -59,8 +63,38 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
 
             }
+
+            /// <summary>
+            /// Implements the classes for BucketScope
+            /// </summary>
             public class BucketScope
             {
+               
+                public class SetBucketFix : SimulationMessage
+                {
+                    public static SetBucketFix Create(Guid key, IActorRef target)
+                    {
+                        return new SetBucketFix(message: key, target: target);
+                    }
+                    private SetBucketFix(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+                public class EnqueueOperation : SimulationMessage
+                {
+                    public static EnqueueOperation Create(FOperation message, IActorRef target)
+                    {
+                        return new EnqueueOperation(message: message, target: target);
+                    }
+                    private EnqueueOperation(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public FOperation GetObjectFromMessage { get => Message as FOperation; }
+                }
+
                 public class EnqueueBucket : SimulationMessage
                 {
                     public static EnqueueBucket Create(IJob message, IActorRef target)
@@ -72,31 +106,6 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                     }
                     public IJob GetObjectFromMessage { get => Message as IJob; }
-                }
-
-                public class SetJobFix : SimulationMessage
-                {
-                    public static SetJobFix Create(IJob message, IActorRef target)
-                    {
-                        return new SetJobFix(message: message, target: target);
-                    }
-                    private SetJobFix(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public IJob GetObjectFromMessage { get => Message as IJob; }
-                }
-                public class RequeueBucket : SimulationMessage
-                {
-                    public static RequeueBucket Create(FRequestToRequeue message, IActorRef target)
-                    {
-                        return new RequeueBucket(message: message, target: target);
-                    }
-                    private RequeueBucket(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
                 }
                 public class ResponseRequeueBucket : SimulationMessage
                 {

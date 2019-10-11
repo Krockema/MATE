@@ -84,7 +84,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <param name="hubAgent"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public FBucket AddOrCreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public FBucket FindAndAddBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var matchingBuckets = FindAllWithSameTool(fOperation);
 
@@ -96,16 +96,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 if (bucket != null)
                 {
                     bucket = AddToBucket(bucket: bucket, fOperation: fOperation);
-                    return bucket;
                 }
             }
-
-            bucket = CreateBucket(fOperation: fOperation, hubAgent: hubAgent, currentTime: currentTime);
-            _buckets.Add(item: bucket);
-
+            
             return bucket;
 
         }
+
+
+
+
 
         public List<FBucket> FindAllWithSameTool(FOperation fOperation)
         {
@@ -125,6 +125,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
+       
         /// <summary>
         /// Return null if no matching bucket exits
         /// </summary>
@@ -172,5 +173,38 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             return operation.ForwardStart >= bucket.ForwardStart;
         }
+
+        public bool HasEarlierBackwardStart(FBucket bucket, FOperation operation)
+        {
+            return operation.BackwardStart <= bucket.BackwardStart;
+        }
+
+        internal FBucket SetBucketFix(Guid bucketKey)
+        {
+            var bucket = GetBucketById(bucketKey);
+            bucket = bucket.SetFixPlanned;
+            Replace(bucket);
+
+            return bucket;
+        }
+
+        internal List<FOperation> RemoveAllNotSatisfiedOperations(FBucket bucket)
+        {
+            List<FOperation> notSatisfiedOperations = new List<FOperation>();
+
+            foreach (var operation in bucket.Operations)
+            {
+                if (!operation.StartConditions.Satisfied)
+                {
+                    notSatisfiedOperations.Add(operation);
+                    bucket.RemoveOperation(operation);
+                }
+            }
+
+            Replace(bucket);
+            
+            return notSatisfiedOperations;
+        }
+
     }
 }

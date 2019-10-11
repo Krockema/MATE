@@ -3,7 +3,9 @@ using AkkaSim.Definitions;
 using System;
 using static FAgentInformations;
 using static FBuckets;
+using static FBucketScopes;
 using static FRequestToRequeues;
+using static FUpdateBucketScopes;
 using static IJobResults;
 using static IJobs;
 
@@ -81,6 +83,59 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
             public class BucketScope
             {
+                
+
+                public class EnqueueBucket : SimulationMessage
+                {
+                    public static EnqueueBucket Create(FBucket message, IActorRef target)
+                    {
+                        return new EnqueueBucket(message: message, target: target);
+                    }
+                    private EnqueueBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
+                }
+
+                public class RequestProposalForBucketScope : SimulationMessage
+                {
+                    public static RequestProposalForBucketScope Create(FBucketScope message, IActorRef target)
+                    {
+                        return new RequestProposalForBucketScope(message: message, target: target);
+                    }
+                    private RequestProposalForBucketScope(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public FBucketScope GetObjectFromMessage { get => Message as FBucketScope; }
+                }
+
+                public class AcknowledgeBucketScope : SimulationMessage
+                {
+                    public static AcknowledgeBucketScope Create(Guid message, IActorRef target)
+                    {
+                        return new AcknowledgeBucketScope(message: message, target: target);
+                    }
+                    private AcknowledgeBucketScope(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+                public class UpdateBucketScope : SimulationMessage
+                {
+                    public static UpdateBucketScope Create(FBucketScope message, IActorRef target)
+                    {
+                        return new UpdateBucketScope(message: message, target: target);
+                    }
+                    private UpdateBucketScope(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public FBucketScope GetObjectFromMessage { get => Message as FBucketScope; }
+                }
+
                 public class FinishBucket : SimulationMessage
                 {
                     public static FinishBucket Create(IJobResult message, IActorRef target)
@@ -120,6 +175,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             }
         }
 
-        
+
     }
 }
