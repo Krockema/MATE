@@ -13,7 +13,7 @@ namespace Master40.XUnitTest.Preparations
     {
         public static FOperation CreateDummyJobItem(string jobName, int jobDuration, int averageTransitionDuration = 20, bool preCondition = true, bool materialsProvide = true, 
                                                     int dueTime = 50, string skillName = "Sewing", M_ResourceTool tool = null, 
-                                                    M_ArticleBom bom = null)
+                                                    M_ArticleBom bom = null, long currentTime = 0L)
         {
             var operation = new M_Operation()
             {
@@ -28,7 +28,7 @@ namespace Master40.XUnitTest.Preparations
                 ResourceTool = tool
             };
 
-            return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: 0);
+            return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: currentTime);
         }
 
         public static FArticle CreateDummyArticle(int dueTime, int currentTime, M_Article article, int quantity)

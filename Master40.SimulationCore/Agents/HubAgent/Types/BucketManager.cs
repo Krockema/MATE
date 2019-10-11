@@ -67,11 +67,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             _buckets.Replace(bucket);
         }
 
-        public FBucket AddToBucket(Guid bucketKey, FOperation fOperation)
+        public FBucket AddToBucket(FBucket bucket, FOperation fOperation)
         {
-            var bucket = _buckets.Single(x => x.Key == bucketKey);
-
-            if (bucket == null) throw new Exception($"Bucket {bucketKey} does not exits");
+            if (bucket == null) throw new Exception($"Bucket {bucket.Name} does not exits");
 
             bucket = bucket.AddOperation(fOperation);
             _buckets.Replace(bucket);
@@ -79,41 +77,100 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
-        public FBucket FindOrCreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        /// <summary>
+        /// Add the operation to an existing matching bucket or otherwise creates a new one
+        /// </summary>
+        /// <param name="fOperation"></param>
+        /// <param name="hubAgent"></param>
+        /// <param name="currentTime"></param>
+        /// <returns></returns>
+        public FBucket AddOrCreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
-            var matchingBuckets = FindAllMatching(fOperation);
+            var matchingBuckets = FindAllWithSameTool(fOperation);
 
-            var bucket = FindBestMatching(matchingBuckets, fOperation);
+            FBucket bucket = null;
 
-            if (bucket == null)
+            if (matchingBuckets != null)
             {
-                bucket = CreateBucket(fOperation, hubAgent, currentTime);
-                _buckets.Add(bucket);
+                bucket = FindEarliestAndLatestScopeMatching(matchingBuckets, fOperation);
+                if (bucket != null)
+                {
+                    bucket = AddToBucket(bucket: bucket, fOperation: fOperation);
+                    return bucket;
+                }
             }
 
+            bucket = CreateBucket(fOperation: fOperation, hubAgent: hubAgent, currentTime: currentTime);
+            _buckets.Add(item: bucket);
+
             return bucket;
 
         }
 
-        public List<FBucket> FindAllMatching(FOperation fOperation)
+        public List<FBucket> FindAllWithSameTool(FOperation fOperation)
         {
-            return _buckets.Where(x => x.Tool.Id == fOperation.Tool.Id && !x.IsFixPlanned).ToList();
+            return _buckets.Where(x => x.Tool.Name == fOperation.Tool.Name && !x.IsFixPlanned).ToList();
         }
 
-        public FBucket FindBestMatching(List<FBucket> buckets, FOperation operation)
+        /// <summary>
+        /// Return null if no matching bucket exists
+        /// </summary>
+        /// <param name="buckets"></param>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public FBucket FindSimpleRuleMatching(List<FBucket> buckets, FOperation operation)
         {
-            
             // Simple Rule
-            var bucket = buckets.FirstOrDefault(x => ((IJob)x).Duration + operation.Operation.Duration + operation.Operation.AverageTransitionDuration <= 30);
+            return buckets.FirstOrDefault(x => ((IJob)x).Duration + operation.Operation.Duration + operation.Operation.AverageTransitionDuration <= 30);
 
-            // TODO Complex Rule
-            // Gest First ELement of CurrentBucket
-            // min(bucket.forward.start,Operation.Forward.Start) + bucket.Duration + Operation.Duration <= first.BackWardStart
-            // else try Next Bucket.
+        }
 
-            return bucket;
+        /// <summary>
+        /// Return null if no matching bucket exits
+        /// </summary>
+        /// <param name="buckets">gets a List of all bi</param>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public FBucket FindEarliestAndLatestScopeMatching(List<FBucket> buckets, FOperation operation)
+        {
+            List<FBucket> matchingBuckets = new List<FBucket>();
+
+            foreach (var bucket in buckets)
+            {
+                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation))
+                {
+                    matchingBuckets.Add(bucket);
+                }
+
+            }
+
+            var matchingBucket = GetBucketWithMostLeftCapacity(matchingBuckets);
+
+            return matchingBucket;
+        }
+
+        public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
+        {
+            buckets.OrderBy(x => x.GetCapacityLeft).ToList();
+
+            foreach (var bucket in buckets)
+            {
+                System.Diagnostics.Debug.WriteLine($"{bucket.Name} has {bucket.GetCapacityLeft} left");
+            }
+
+            return buckets.FirstOrDefault();
         }
 
 
+        public bool HasCapacityLeft(FBucket bucket, FOperation operation)
+        {
+            return bucket.BackwardStart - bucket.ForwardStart > ((IJob)bucket).Duration + operation.Operation.Duration;
+        }
+
+
+        public bool HasLaterForwardStart(FBucket bucket, FOperation operation)
+        {
+            return operation.ForwardStart >= bucket.ForwardStart;
+        }
     }
 }

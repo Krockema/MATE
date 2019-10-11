@@ -63,3 +63,4 @@ open FUpdateStartConditions
         member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
                                                                                  this.StartConditions.PreCondition <- startCondition.PreCondition
         member this.SetFixPlanned = { this with IsFixPlanned = true}
+        member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
