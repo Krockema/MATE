@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using static FBucketScopes;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
+    /// <summary>
+    /// Queue for Planing the Scopes
+    /// </summary>
     public class BucketScopeQueue
     {
-        private Queue<BucketScope> _bucketScopeQueue = new Queue<BucketScope>();
+        public Queue<BucketScope> bucketScopes { get; private set; } = new Queue<BucketScope>();
 
-        private long _limit = 0L;
+        private long limit = 0L;
 
-        private long _size = 0L;
+        private long size = 0L;
 
         public BucketScopeQueue(long limit)
         {
-            _limit = limit;
+            this.limit = limit;
         }
 
         public void Dequeue(BucketScope bucketScope)
@@ -25,19 +29,29 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public void Enqueue(BucketScope bucketScope)
         {
-            _size += bucketScope._duration;
-            _bucketScopeQueue.Enqueue(bucketScope);
+            size += bucketScope._duration;
+            bucketScopes.Enqueue(bucketScope);
         }
 
         public bool HasCapacityLeft(BucketScope bucketScope)
         {
-            return _limit < _size + bucketScope._duration;
+            return limit < size + bucketScope._duration;
         }
 
-        internal long GetQueueableScope(FBucketScopes.FBucketScope bucketScope)
+        internal void GetQueueableScope()
         {
-            var queueableTime = -1L;
-            return queueableTime;
+
         }
+
+        internal bool HasQueueAbleJobs()
+        {
+
+            //Check if any Scope is ready and can
+                
+            //Sort by priority put 
+            throw new NotImplementedException();
+        }
+
+       
     }
 }

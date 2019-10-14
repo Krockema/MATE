@@ -145,7 +145,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal void RequeueAllRemainingJobs()
+        internal virtual void RequeueAllRemainingJobs()
         {
             Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
             var item = _planingQueue.jobs.FirstOrDefault();
@@ -224,7 +224,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             DoSetup();
         }
 
-        internal void DoSetup()
+        internal virtual void DoSetup()
         {
             //Start setup if necessary 
             var setupDuration = GetSetupTime(_jobInProgress.Current);
@@ -246,7 +246,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Starts the next Job
         /// </summary>
-        internal void DoWork()
+        internal virtual void DoWork()
         {
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Duration);
             Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} new Duration is {randomizedWorkDuration}");
@@ -266,7 +266,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        internal void FinishJob(IJobResult jobResult)
+        internal virtual void FinishJob(IJobResult jobResult)
         {
             Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);

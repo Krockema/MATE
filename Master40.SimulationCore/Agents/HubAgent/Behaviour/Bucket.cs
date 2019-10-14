@@ -58,7 +58,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void FindOrCreateBucket(FOperation fOperation)
         {
-            var bucket = _bucketManager.FindAndAddBucket(fOperation, Agent.Context.Self, Agent.CurrentTime);
+            var bucket = _bucketManager.AddToBucket(fOperation, Agent.Context.Self, Agent.CurrentTime);
 
             //create new bucket
             if (bucket == null)

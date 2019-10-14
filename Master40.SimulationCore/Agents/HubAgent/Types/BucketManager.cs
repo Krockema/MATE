@@ -7,6 +7,7 @@ using Master40.SimulationCore.Types;
 using static FBuckets;
 using static FOperations;
 using static IJobs;
+using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -67,7 +68,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             _buckets.Replace(bucket);
         }
 
-        public FBucket AddToBucket(FBucket bucket, FOperation fOperation)
+        public FBucket Add(FBucket bucket, FOperation fOperation)
         {
             if (bucket == null) throw new Exception($"Bucket {bucket.Name} does not exits");
 
@@ -77,6 +78,28 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
+        public List<FOperation> ModifyBucket(FOperation fOperation)
+        {
+            List<FOperation> operationsToModify = null;
+            
+            var bucketsToModify = FindAllBucketsLaterForwardStart(fOperation);
+            
+            if (bucketsToModify != null)
+            {
+                //Remove Start to requeue the buckets order by FS?
+                foreach (var bucket in bucketsToModify)
+                {
+                    operationsToModify.AddRange(bucket.Operations);
+                    _buckets.Remove(bucket);
+                }
+
+            }
+
+            return operationsToModify;
+        }
+
+
+
         /// <summary>
         /// Add the operation to an existing matching bucket or otherwise creates a new one
         /// </summary>
@@ -84,7 +107,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <param name="hubAgent"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public FBucket FindAndAddBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public FBucket AddToBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var matchingBuckets = FindAllWithSameTool(fOperation);
 
@@ -92,20 +115,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             if (matchingBuckets != null)
             {
+                //Add
                 bucket = FindEarliestAndLatestScopeMatching(matchingBuckets, fOperation);
                 if (bucket != null)
                 {
-                    bucket = AddToBucket(bucket: bucket, fOperation: fOperation);
+                    bucket = Add(bucket: bucket, fOperation: fOperation);
+                    return bucket;
                 }
+
             }
-            
+            //need to create a new one
             return bucket;
 
         }
-
-
-
-
 
         public List<FBucket> FindAllWithSameTool(FOperation fOperation)
         {
@@ -125,7 +147,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-       
+        public List<FBucket> FindAllBucketsLaterForwardStart(FOperation operation)
+        {
+            var matchingBuckets = FindAllWithSameTool(operation);
+            return matchingBuckets.Where(x => x.ForwardStart > operation.ForwardStart).ToList();
+        }
+
         /// <summary>
         /// Return null if no matching bucket exits
         /// </summary>
@@ -202,9 +229,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             }
 
             Replace(bucket);
-            
+
             return notSatisfiedOperations;
         }
 
+        public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)
+        {
+            var bucket = GetBucketByOperationKey(operationKey);
+
+            var operation = bucket.Operations.Single(x => x.Key == operationKey);
+            operation.SetStartConditions(startCondition);
+
+            _buckets.Replace(bucket);
+            return bucket;
+        }
     }
 }

@@ -86,6 +86,7 @@ namespace Master40.SimulationCore.Helper
                                 , forwardEnd: operation.ForwardEnd
                                 , backwardStart: operation.BackwardStart
                                 , backwardEnd: operation.BackwardEnd
+                                , scope: operation.BackwardStart - operation.ForwardStart
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)

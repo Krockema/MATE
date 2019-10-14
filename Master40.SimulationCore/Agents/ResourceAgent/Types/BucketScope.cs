@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Master40.SimulationCore.Agents.HubAgent;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
@@ -11,7 +12,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public long _bucketEnd { get; }
         public long _duration { get; private set; }
 
-        BucketScope(Guid bucketKey, long bucketStart, long bucketEnd, long duration)
+        public bool _fix { get; private set; } = false;
+
+        public void SetFix() => _fix = true;
+
+        public BucketScope(Guid bucketKey, long bucketStart, long bucketEnd, long duration)
         {
             _bucketKey = bucketKey;
             _bucketStart = bucketStart;
@@ -22,7 +27,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public void SetDuration(long duration)
         {
             _duration = duration;
-        } 
+        }
+
 
     }
 }

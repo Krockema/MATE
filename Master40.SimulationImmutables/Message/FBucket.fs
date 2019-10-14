@@ -18,11 +18,12 @@ open FUpdateStartConditions
           IsFixPlanned : bool
           CreationTime : int64
           BackwardEnd : int64 
-          BackwardStart : int64 
-          End : int64 
+          BackwardStart : int64
           ForwardEnd : int64 
           ForwardStart : int64 
+          Scope : int64
           Start : int64
+          End : int64 
           StartConditions : FStartCondition
           Priority : FBucket -> int64 -> double
           ResourceAgent : IActorRef

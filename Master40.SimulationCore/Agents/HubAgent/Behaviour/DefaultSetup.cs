@@ -80,7 +80,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// 
         /// </summary>
         /// <param name="proposal"></param>
-        private void ProposalFromResource(FProposal fProposal)
+        internal void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
             var fOperation = _operationList.Single(predicate: x => x.Key == fProposal.JobKey);
@@ -125,7 +125,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
         }
 
-        private void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
+        internal virtual void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
             var operation = _operationList.Single(predicate: x => x.Key == startCondition.OperationKey);
             operation.SetStartConditions(startCondition: startCondition);
@@ -146,7 +146,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// Target: Method should forward message to the associated production agent
         /// </summary>
         /// <param name="key"></param>
-        public void WithdrawRequiredArticles(Guid operationKey)
+        internal void WithdrawRequiredArticles(Guid operationKey)
         {
             var operation = _operationList.Single(predicate: x => x.Key == operationKey);
 
@@ -155,7 +155,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                            , target: operation.ProductionAgent));
         }
 
-        public void FinishJob(IJobResult jobResult)
+        internal virtual void FinishJob(IJobResult jobResult)
         {
             var operation = _operationList.Find(match: x => x.Key == jobResult.Key);
 
@@ -165,7 +165,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        private void AddResourceToHub(FResourceInformation hubInformation)
+        internal virtual void AddResourceToHub(FResourceInformation hubInformation)
         {
             var resourceSetup = new ResourceSetup(hubInformation.ResourceSetups, hubInformation.Ref, hubInformation.RequiredFor);
             _resourceManager.Add(resourceSetup);

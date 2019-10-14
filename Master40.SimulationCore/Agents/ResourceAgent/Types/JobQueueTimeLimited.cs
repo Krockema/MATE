@@ -4,6 +4,7 @@ using System.Data.HashFunction.xxHash;
 using System.Linq;
 using MessagePack.Resolvers;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobs;
 
@@ -52,6 +53,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return queuePosition;
         }
 
+
         public QueueingPosition GetQueueAbleTimeByStack(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
         {
             var queuePosition = new QueueingPosition { EstimatedStart = currentTime + processingQueueLength + setupDuration };
@@ -74,6 +76,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 queuePosition.EstimatedStart += totalWorkLoad;
 
             }
+            if (totalWorkLoad < Limit || job.StartConditions.Satisfied)
+                queuePosition.IsQueueAble = true;
+            return queuePosition;
+        }
+
+        public QueueingPosition GetQueueAbleTimeBucket(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
+        {
+            var queuePosition = new QueueingPosition { EstimatedStart = currentTime + processingQueueLength + setupDuration };
+            var totalWorkLoad = 0L;
+            if (resourceIsBlockedUntil != 0)
+                queuePosition.EstimatedStart = resourceIsBlockedUntil;
+
+            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
+            {
+                totalWorkLoad = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
+                    .Sum(e => e.Duration);
+                queuePosition.EstimatedStart += totalWorkLoad;
+            }
+
             if (totalWorkLoad < Limit || job.StartConditions.Satisfied)
                 queuePosition.IsQueueAble = true;
             return queuePosition;
@@ -132,13 +153,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
 
-        internal void SetBucketReady(Guid bucketKey)
+        internal void UpdatePreConditionForOperation(FUpdateStartCondition startCondition)
         {
-            var job = jobs.SingleOrDefault(x => x.Key == bucketKey);
-            if (job == null) 
+            var bucket = (FBucket)jobs.Where()
+            return 
+        }
+        internal void SetBucketFix(Guid bucketKey)
+        {
+            var bucket = (FBucket)jobs.SingleOrDefault(x => x.Key == bucketKey);
+            if (bucket == null) 
                 throw new Exception($"Something went wrong");
-            job.StartConditions.ArticlesProvided = true;
-            job.StartConditions.PreCondition = true;
+            bucket = bucket.SetFixPlanned;
         }
     }
 }

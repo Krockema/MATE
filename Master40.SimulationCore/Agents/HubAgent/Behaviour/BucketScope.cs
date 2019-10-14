@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Akka.Actor;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using static FBuckets;
 using static FBucketScopes;
 using static FOperations;
-using static FUpdateBucketScopes;
 using static IJobs;
+using static FStartConditions;
+using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public class BucketScope : DefaultSetup
     {
-        internal BucketScope(SimulationType simulationType = SimulationType.BucketScope)
+        public BucketScope(SimulationType simulationType = SimulationType.BucketScope)
             : base(simulationType: simulationType) { }
 
         private BucketManager _bucketManager { get; } = new BucketManager();
@@ -48,39 +52,63 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void EnqueueOperation(FOperation operation)
         {
+            System.Diagnostics.Debug.WriteLine($"Modify Buckets");
 
-            var bucket = _bucketManager.FindAndAddBucket(operation, Agent.Context.Self, Agent.CurrentTime);
+            var operationsToModify = _bucketManager.ModifyBucket(operation);
 
-            if(bucket != null) { 
+            if (operationsToModify != null)
+            {
+                operationsToModify.Add(operation);
+                RequeueOperations(operationsToModify);
+                return;
+            }
+
+            //if no bucket has to be modified try to add
+            System.Diagnostics.Debug.WriteLine($"Add To Buckets");
+            var bucket = _bucketManager.AddToBucket(operation, Agent.Context.Self, Agent.CurrentTime);
+
+            if (bucket != null)
+            {
+
+                System.Diagnostics.Debug.WriteLine($"Add {operation.Operation.Name} to {bucket.Name}");
+                if (bucket.ResourceAgent != null)
+                {
                     FBucketScope updateBucketScope = new FBucketScope(bucketKey: bucket.Key
                                                                      , start: 0
                                                                      , end: 0
                                                                      , duration: ((IJob)bucket).Duration);
-                    //TODO ResourceAgent has to be set
+
                     Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucketScope.Create(updateBucketScope, bucket.ResourceAgent));
 
+                }
+                return;
             }
-            
-            //Else Create a new one 
-            bucket = _bucketManager.CreateBucket(operation, Agent.Context.Self, Agent.CurrentTime);
+
+            //if no bucket to add exists create a new one
+            bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
+            System.Diagnostics.Debug.WriteLine($"Create {bucket.Name}");
             EnqueueBucket(bucket);
 
         }
 
         internal void EnqueueBucket(FBucket bucket)
         {
-            //TODO Create the Scope and send it to the ressources
-            FBucketScope bucketScope = new FBucketScope(bucketKey: bucket.Key
-                                                        ,start: bucket.ForwardStart
-                                                        ,end: bucket.BackwardStart
-                                                        ,duration: ((IJob)bucket).Duration);
-
+            System.Diagnostics.Debug.WriteLine($"Enqueue {bucket.Name}");
             var resourceToRequest = _resourceManager.GetResourceByTool(bucket.Tool);
 
             foreach (var actorRef in resourceToRequest)
             {
                 Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                Agent.Send(instruction: Resource.Instruction.BucketScope.RequestProposalForBucketScope.Create(message: bucketScope, target: actorRef));
+                Agent.Send(instruction: Resource.Instruction.BucketScope.RequestProposalForBucketScope.Create(message: bucket, target: actorRef));
+            }
+
+        }
+
+        internal void RequeueOperations(List<FOperation> operations)
+        {
+            foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
+            {
+                EnqueueOperation(operation);
             }
 
         }
@@ -92,23 +120,30 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal void SetBucketFix(Guid bucketKey)
         {
             var bucket = _bucketManager.SetBucketFix(bucketKey);
-
             var notSatisfiedOperations = _bucketManager.RemoveAllNotSatisfiedOperations(bucket);
-
             bucket = _bucketManager.GetBucketById(bucketKey);
 
+            //Send fix bucket
             Agent.Send(Resource.Instruction.BucketScope.EnqueueBucket.Create(bucket, bucket.ResourceAgent));
-            
-            //take all left Operations and search for new Buckets for them
-            foreach (var operation in notSatisfiedOperations)
-            {
-                EnqueueOperation(operation);
-            }
+
+            //Requeue all unsatisfied operations
+            RequeueOperations(notSatisfiedOperations);
         }
 
+        internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
+        {
+            var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
 
+            if (bucket.ResourceAgent.IsNobody())
+                return;
+            
+            Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
+                                    $"| ArticleProvided: {startCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {startCondition.PreCondition} " +
+                                    $"to resource {bucket.ResourceAgent}");
 
+            Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: bucket.ResourceAgent));
 
-
+        }
     }
 }

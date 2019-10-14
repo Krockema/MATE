@@ -100,7 +100,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class RequestProposalForBucketScope : SimulationMessage
                 {
-                    public static RequestProposalForBucketScope Create(FBucketScope message, IActorRef target)
+                    public static RequestProposalForBucketScope Create(FBucket message, IActorRef target)
                     {
                         return new RequestProposalForBucketScope(message: message, target: target);
                     }
@@ -108,7 +108,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
 
                     }
-                    public FBucketScope GetObjectFromMessage { get => Message as FBucketScope; }
+                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
                 }
 
                 public class AcknowledgeBucketScope : SimulationMessage

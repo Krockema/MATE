@@ -45,7 +45,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.Default.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
                 case Resource.Instruction.Default.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
-                case Resource.Instruction.BucketScope.BucketReady msg: BucketReady(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.DoWork msg: DoWork(); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(msg.GetObjectFromMessage); break;
@@ -204,15 +203,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
 
 
-        private void BucketReady(Guid bucketKey)
-        {
-            Agent.DebugMessage(msg: $"UpdateArticleProvided for bucket: {bucketKey}");
-            
-            _planingQueue.SetBucketReady(bucketKey);
-            UpdateProcessingQueue();
-            TryToWork();
-            
-        }
 
         internal void TryToWork()
         {

@@ -4,10 +4,14 @@ using Master40.SimulationCore.DistributionProvider;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Master40.DB.Data.Helper;
 using static FBucketScopes;
 using static FUpdateBucketScopes;
+using Master40.SimulationCore.Agents.HubAgent;
+using static FBuckets;
+using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -30,11 +34,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             switch (message)
             {
                 case Resource.Instruction.BucketScope.RequestProposalForBucketScope msg:
-                    RequestProposalForBucketScope(msg.GetObjectFromMessage); break;
-                case Resource.Instruction.BucketScope.UpdateBucketScope msg:
-                    UpdateBucketScope(msg.GetObjectFromMessage); break;
+                    RequestProposalForBucketScope(msg.GetObjectFromMessage as FBucket); break;
                 case Resource.Instruction.BucketScope.AcknowledgeBucketScope msg:
                     AcknowledgeBucketScope(msg.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateStartConditions msg:
+                    UpdateStartConditions(msg.GetObjectFromMessage);
+                    break;
                 default:
                     success = base.Action(message);
                     break;
@@ -42,11 +47,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return success;
         }
 
-        internal void RequestProposalForBucketScope(FBucketScope bucketScope)
+        private void UpdateStartConditions(FUpdateStartCondition startCondition)
+        {
+            _planingQueue.UpdatePreConditionForOperation(startCondition);
+
+        }
+
+        internal void RequestProposalForBucketScope(FBucket bucket)
         {
             //Recieves a new bucket scope
+            var bucketScope = new Types.BucketScope(bucketKey: bucket.Key
+                                                    , bucketStart: bucket.ForwardStart
+                                                    , bucketEnd: bucket.BackwardStart
+                                                    , duration: ((IJobs.IJob)bucket).Duration);
 
-            var scope = _bucketScopeQueue.GetQueueableScope(bucketScope);
+            
+            
+            //GetQueableTime
+
+
 
 
         }
@@ -58,12 +77,26 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 
-        internal void UpdateBucketScope(FBucketScope updateBucketScope)
+        internal override void UpdateProcessingQueue()
         {
+            // take the next scope and make it fix 
+            while (_processingQueue.CapacitiesLeft() && _bucketScopeQueue.HasQueueAbleJobs())
+            {
+                var job = _planingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Key} {job.Name} Try to start processing.");
+                var ok = _processingQueue.Enqueue(item: job);
+                if (!ok)
+                {
+                    throw new Exception(message: "Something wen wrong with Queueing!");
+                }
+                Agent.DebugMessage(msg: $"Start withdraw for article {job.Name} {job.Key}");
+                Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
+            }
+
+            Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
+
 
         }
-
         
-
     }
 }
