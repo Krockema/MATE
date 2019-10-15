@@ -20,7 +20,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
-            var bucket = MessageFactory.ToBucketItem(fOperation, hubAgent, currentTime);
+            var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime);
             _buckets.Add(bucket);
             return bucket;
         }
@@ -176,6 +176,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             return matchingBucket;
         }
+
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
         {

@@ -116,7 +116,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        internal void AcknowledgeProposal(IJob jobItem)
+        internal virtual void AcknowledgeProposal(IJob jobItem)
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 

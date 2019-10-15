@@ -80,7 +80,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// 
         /// </summary>
         /// <param name="proposal"></param>
-        internal void ProposalFromResource(FProposal fProposal)
+        internal virtual void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
             var fOperation = _operationList.Single(predicate: x => x.Key == fProposal.JobKey);

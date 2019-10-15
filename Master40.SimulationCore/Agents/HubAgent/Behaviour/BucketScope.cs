@@ -11,6 +11,7 @@ using static FOperations;
 using static IJobs;
 using static FStartConditions;
 using static FUpdateStartConditions;
+using static FProposals;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -73,12 +74,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 System.Diagnostics.Debug.WriteLine($"Add {operation.Operation.Name} to {bucket.Name}");
                 if (bucket.ResourceAgent != null)
                 {
-                    FBucketScope updateBucketScope = new FBucketScope(bucketKey: bucket.Key
-                                                                     , start: 0
-                                                                     , end: 0
-                                                                     , duration: ((IJob)bucket).Duration);
-
-                    Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucketScope.Create(updateBucketScope, bucket.ResourceAgent));
+                    Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucket.Create(bucket, bucket.ResourceAgent));
 
                 }
                 return;
@@ -86,7 +82,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             //if no bucket to add exists create a new one
             bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
-            System.Diagnostics.Debug.WriteLine($"Create {bucket.Name}");
+            System.Diagnostics.Debug.WriteLine($"Create {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             EnqueueBucket(bucket);
 
         }
@@ -99,19 +95,55 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             foreach (var actorRef in resourceToRequest)
             {
                 Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                Agent.Send(instruction: Resource.Instruction.BucketScope.RequestProposalForBucketScope.Create(message: bucket, target: actorRef));
+                Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: bucket, target: actorRef));
             }
 
         }
 
-        internal void RequeueOperations(List<FOperation> operations)
+        internal override void ProposalFromResource(FProposal fProposal)
         {
-            foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
-            {
-                EnqueueOperation(operation);
-            }
+            // get related operation and add proposal.
+            var bucket = _bucketManager.GetBucketById(fProposal.JobKey);
+            bucket.Proposals.RemoveAll(x => x.ResourceAgent.Equals(fProposal.ResourceAgent));
+            // add New Proposal
+            bucket.Proposals.Add(item: fProposal);
 
+            Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
+
+            // if all Machines Answered
+            if (bucket.Proposals.Count == _resourceManager.GetResourceByTool(bucket.Tool).Count)
+            {
+
+                // item Postponed by All Machines ? -> requeue after given amount of time.
+                if (bucket.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
+                {
+                    var postPonedFor = bucket.Proposals.Min(x => x.Postponed.Offset);
+                    Agent.DebugMessage(msg: $"{bucket.Name} {bucket.Key} postponed to {postPonedFor}");
+                    // Call Hub Agent to Requeue
+                    bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
+                    _bucketManager.Replace(bucket);
+                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(message: bucket, target: Agent.Context.Self), waitFor: postPonedFor);
+                    return;
+                }
+
+                // acknowledge Machine -> therefore get Machine -> send acknowledgement
+                var earliestPossibleStart = bucket.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
+                                                               .Min(selector: p => p.PossibleSchedule);
+
+                var acknowledgement = bucket.Proposals.First(predicate: x => x.PossibleSchedule == earliestPossibleStart
+                                                                        && x.Postponed.IsPostponed == false);
+
+                bucket = ((IJob)bucket).UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent) as FBucket;
+
+                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {acknowledgement.ResourceAgent}");
+
+                // set Proposal Start for Machine to Requeue if time slot is closed.
+                _bucketManager.Replace(bucket);
+                Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal.Create(message: bucket, target: acknowledgement.ResourceAgent));
+            }
         }
+
+
 
         /// <summary>
         /// Source: ResourceAgent 
@@ -136,13 +168,25 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (bucket.ResourceAgent.IsNobody())
                 return;
-            
-            Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
+
+            if (bucket.Operations.Any(x => x.StartConditions.Satisfied))
+            {
+
+                Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} " +
                                     $"to resource {bucket.ResourceAgent}");
 
-            Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: bucket.ResourceAgent));
+                Agent.Send(instruction: Resource.Instruction.BucketScope.ScopeHasSatisfiedJob.Create(message: bucket.Key, target: bucket.ResourceAgent));
+            }
+        }
+
+        internal void RequeueOperations(List<FOperation> operations)
+        {
+            foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
+            {
+                EnqueueOperation(operation);
+            }
 
         }
     }

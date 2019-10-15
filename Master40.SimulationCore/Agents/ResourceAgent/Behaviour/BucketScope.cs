@@ -2,16 +2,8 @@
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.DistributionProvider;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Master40.DB.Data.Helper;
-using static FBucketScopes;
-using static FUpdateBucketScopes;
 using Master40.SimulationCore.Agents.HubAgent;
-using static FBuckets;
-using static FUpdateStartConditions;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -26,20 +18,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
-        private BucketScopeQueue _bucketScopeQueue = new BucketScopeQueue(limit: 1000L);
+        /// <summary>
+        /// default to 1000
+        /// </summary>
+        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 1000);
 
         public override bool Action(object message)
         {
             var success = true;
             switch (message)
             {
-                case Resource.Instruction.BucketScope.RequestProposalForBucketScope msg:
-                    RequestProposalForBucketScope(msg.GetObjectFromMessage as FBucket); break;
-                case Resource.Instruction.BucketScope.AcknowledgeBucketScope msg:
-                    AcknowledgeBucketScope(msg.GetObjectFromMessage); break;
-                case BasicInstruction.UpdateStartConditions msg:
-                    UpdateStartConditions(msg.GetObjectFromMessage);
-                    break;
+                case Resource.Instruction.Default.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
                     break;
@@ -47,42 +36,83 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return success;
         }
 
-        private void UpdateStartConditions(FUpdateStartCondition startCondition)
-        {
-            _planingQueue.UpdatePreConditionForOperation(startCondition);
 
+        internal override void SendProposalTo(IJob jobItem)
+        {
+            var setupDuration = GetSetupTime(jobItem: jobItem);
+
+            var queuePosition = _scopeQueue.GetQueueAbleTime(job: jobItem
+                , currentTime: Agent.CurrentTime
+                , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
+                , processingQueueLength: _processingQueue.SumDurations
+                , setupDuration: setupDuration);
+
+            if (queuePosition.IsQueueAble)
+            {
+                Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
+            }
+            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : _planingQueue.Limit);
+
+            if (fPostponed.IsPostponed)
+            {
+                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset} ");
+            }
+            // calculate proposal
+            var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
+                , postponed: fPostponed
+                , resourceAgent: Agent.Context.Self
+                , jobKey: jobItem.Key);
+
+            Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
-        internal void RequestProposalForBucketScope(FBucket bucket)
+        internal override void AcknowledgeProposal(IJob jobItem)
         {
-            //Recieves a new bucket scope
-            var bucketScope = new Types.BucketScope(bucketKey: bucket.Key
-                                                    , bucketStart: bucket.ForwardStart
-                                                    , bucketEnd: bucket.BackwardStart
-                                                    , duration: ((IJobs.IJob)bucket).Duration);
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
-            
-            
-            //GetQueableTime
+            var setupDuration = GetSetupTime(jobItem: jobItem);
+
+            var queuePosition = _scopeQueue.GetQueueAbleTime(job: jobItem
+                , currentTime: Agent.CurrentTime
+                , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
+                , processingQueueLength: _processingQueue.SumDurations
+                , setupDuration: setupDuration);
+            // if not QueueAble
+            if (!queuePosition.IsQueueAble)
+            {
+                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
+                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(message: jobItem, target: jobItem.HubAgent));
+                return;
+            }
 
 
+            jobItem = jobItem.UpdateEstimations(queuePosition.EstimatedStart, Agent.Context.Self);
+            _scopeQueue.Enqueue(jobItem);
 
-
+            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
+            UpdateAndRequeuePlanedJobs(jobItem: jobItem);
+            UpdateProcessingQueue();
+            TryToWork();
         }
 
-        internal void AcknowledgeBucketScope(Guid bucketKey)
+        internal override void UpdateAndRequeuePlanedJobs(IJob jobItem)
         {
-
-
+            Agent.DebugMessage(msg: "Old planning queue length = " + _scopeQueue.Count);
+            var toRequeue = _scopeQueue.CutTail(currentTime: Agent.CurrentTime, job: jobItem);
+            foreach (var job in toRequeue)
+            {
+                _planingQueue.RemoveJob(job: job);
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: job, target: job.HubAgent));
+            }
+            Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
-
 
         internal override void UpdateProcessingQueue()
         {
             // take the next scope and make it fix 
-            while (_processingQueue.CapacitiesLeft() && _bucketScopeQueue.HasQueueAbleJobs())
+            while (_processingQueue.CapacitiesLeft() && _scopeQueue.BucketScopeHasSatisfiedJob())
             {
-                var job = _planingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
                 Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Key} {job.Name} Try to start processing.");
                 var ok = _processingQueue.Enqueue(item: job);
                 if (!ok)
@@ -94,8 +124,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
 
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
-
-
         }
         
     }

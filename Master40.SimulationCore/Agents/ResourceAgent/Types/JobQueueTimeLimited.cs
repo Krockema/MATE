@@ -153,17 +153,5 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
 
-        internal void UpdatePreConditionForOperation(FUpdateStartCondition startCondition)
-        {
-            var bucket = (FBucket)jobs.Where()
-            return 
-        }
-        internal void SetBucketFix(Guid bucketKey)
-        {
-            var bucket = (FBucket)jobs.SingleOrDefault(x => x.Key == bucketKey);
-            if (bucket == null) 
-                throw new Exception($"Something went wrong");
-            bucket = bucket.SetFixPlanned;
-        }
     }
 }

@@ -97,6 +97,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     }
                     public FBucket GetObjectFromMessage { get => Message as FBucket; }
                 }
+                public class UpdateBucket : SimulationMessage
+                {
+                    public static UpdateBucket Create(FBucket message, IActorRef target)
+                    {
+                        return new UpdateBucket(message: message, target: target);
+                    }
+                    private UpdateBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
+                }
 
                 public class RequestProposalForBucketScope : SimulationMessage
                 {
@@ -123,17 +135,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
-                public class UpdateBucketScope : SimulationMessage
+                public class ScopeHasSatisfiedJob : SimulationMessage
                 {
-                    public static UpdateBucketScope Create(FBucketScope message, IActorRef target)
+                    public static ScopeHasSatisfiedJob Create(Guid message, IActorRef target)
                     {
-                        return new UpdateBucketScope(message: message, target: target);
+                        return new ScopeHasSatisfiedJob(message: message, target: target);
                     }
-                    private UpdateBucketScope(object message, IActorRef target) : base(message: message, target: target)
+                    private ScopeHasSatisfiedJob(object message, IActorRef target) : base(message: message, target: target)
                     {
 
                     }
-                    public FBucketScope GetObjectFromMessage { get => Message as FBucketScope; }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
                 public class FinishBucket : SimulationMessage
