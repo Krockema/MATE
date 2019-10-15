@@ -156,7 +156,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             bucket = _bucketManager.GetBucketById(bucketKey);
 
             //Send fix bucket
-            Agent.Send(Resource.Instruction.BucketScope.EnqueueBucket.Create(bucket, bucket.ResourceAgent));
+            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(bucket, bucket.ResourceAgent));
 
             //Requeue all unsatisfied operations
             RequeueOperations(notSatisfiedOperations);

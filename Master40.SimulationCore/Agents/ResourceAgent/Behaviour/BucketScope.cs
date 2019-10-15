@@ -4,6 +4,7 @@ using Master40.SimulationCore.DistributionProvider;
 using System;
 using Master40.SimulationCore.Agents.HubAgent;
 using static IJobs;
+using static FBuckets;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -18,9 +19,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
-        /// <summary>
-        /// default to 1000
-        /// </summary>
         private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 1000);
 
         public override bool Action(object message)
@@ -119,12 +117,31 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 {
                     throw new Exception(message: "Something wen wrong with Queueing!");
                 }
-                Agent.DebugMessage(msg: $"Start withdraw for article {job.Name} {job.Key}");
-                Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
+                Agent.DebugMessage(msg: $"Ask for fix {job.Name} {job.Key}");
+                Agent.Send(instruction: Hub.Instruction.BucketScope.SetBucketFix.Create(key: job.Key, target: job.HubAgent));
+
             }
 
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
-        
+
+        /// <summary>
+        /// After new Job has been put into the ProcessingQueue
+        /// </summary>
+        /// <param name="job"></param>
+        internal void AcknowledgeJob(IJob job)
+        {
+            var bucket = (FBucket) job;
+            Agent.DebugMessage(msg: $"Start withdraw for {job.Name} {job.Key}");
+
+            foreach (var operation in bucket.Operations)
+            {
+                Agent.DebugMessage(msg: $"Start withdraw for article {operation.Operation.Name} {operation.Key}");
+                Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: operation.Key, target: job.HubAgent));
+            }
+            
+            TryToWork();
+        }
+
     }
 }

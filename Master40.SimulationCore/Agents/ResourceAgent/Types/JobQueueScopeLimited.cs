@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using System.Text;
 using static FBuckets;
@@ -41,21 +42,27 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return hasSatisfiedJob;
         }
 
-        internal QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long processingQueueLength, long setupDuration, long resourceIsBlockedUntil)
+        public QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, long setupDuration = 0)
         {
             var queuePosition = new QueueingPosition { EstimatedStart = currentTime + processingQueueLength + setupDuration };
             var totalWorkLoad = 0L;
             if (resourceIsBlockedUntil != 0)
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
+            System.Diagnostics.Debug.WriteLine($"{job.Name} with priority {job.Priority(currentTime)}");
             if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                totalWorkLoad = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
-                    .Sum(e => e.Duration);
+                var higherPrioBuckets = jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))   
+                    .Cast<FBucket>().ToList();
+                foreach (var bucket in higherPrioBuckets)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{bucket.Name} has higher priority with {((IJob)bucket).Priority(currentTime)}");
+                }
+                totalWorkLoad = higherPrioBuckets.Sum(x => x.Scope);
                 queuePosition.EstimatedStart += totalWorkLoad;
             }
 
-            if (totalWorkLoad < Limit || job.StartConditions.Satisfied)
+            if (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob)
                 queuePosition.IsQueueAble = true;
             return queuePosition;
         }
