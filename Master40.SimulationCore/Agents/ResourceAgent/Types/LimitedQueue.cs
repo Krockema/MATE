@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public IJob DequeueFirstSatisfied(long currentTime)
+        public virtual IJob DequeueFirstSatisfied(long currentTime)
         {
             var item = this.jobs.Where(x => x.StartConditions.Satisfied).OrderBy(keySelector: x => x.Priority(currentTime)).FirstOrDefault();
             if (item != null)
@@ -46,7 +46,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public abstract bool CapacitiesLeft();
 
-        public bool HasQueueAbleJobs()
+        public virtual bool HasQueueAbleJobs()
         {
             return this.jobs.Any(x => x.StartConditions.Satisfied);
         }

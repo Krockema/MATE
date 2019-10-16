@@ -81,25 +81,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return queuePosition;
         }
 
-        public QueueingPosition GetQueueAbleTimeBucket(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
-        {
-            var queuePosition = new QueueingPosition { EstimatedStart = currentTime + processingQueueLength + setupDuration };
-            var totalWorkLoad = 0L;
-            if (resourceIsBlockedUntil != 0)
-                queuePosition.EstimatedStart = resourceIsBlockedUntil;
-
-            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
-            {
-                totalWorkLoad = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
-                    .Sum(e => e.Duration);
-                queuePosition.EstimatedStart += totalWorkLoad;
-            }
-
-            if (totalWorkLoad < Limit || job.StartConditions.Satisfied)
-                queuePosition.IsQueueAble = true;
-            return queuePosition;
-        }
-
         /// <summary>
         /// Return true if queue limit is not reached
         /// </summary>

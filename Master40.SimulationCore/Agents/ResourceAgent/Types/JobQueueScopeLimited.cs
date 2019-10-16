@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.HashFunction.xxHash;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using static FBuckets;
 using static FBucketScopes;
@@ -20,15 +21,30 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         }
 
+        public override IJob DequeueFirstSatisfied(long currentTime)
+        {
+            var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList();
+            var bucket = buckets.OrderBy(x => x.Priority).FirstOrDefault(); 
+            if (bucket != null)
+            {
+                this.jobs.Remove((IJob)bucket);
+            }
+            return (IJob)bucket;
+        }
 
         public void Enqueue(IJob job)
         {
             jobs.Add(item: job);
         }
 
+        internal bool RemoveJob(IJob job)
+        {
+            return jobs.Remove(item: job);
+        }
+
 
         //TODO to be tested
-        internal bool BucketScopeHasSatisfiedJob()
+        public override bool HasQueueAbleJobs()
         {
             var hasSatisfiedJob = false;
             foreach (var job in jobs)
@@ -54,6 +70,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             {
                 var higherPrioBuckets = jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))   
                     .Cast<FBucket>().ToList();
+                //TODO just debugging
                 foreach (var bucket in higherPrioBuckets)
                 {
                     System.Diagnostics.Debug.WriteLine($"{bucket.Name} has higher priority with {((IJob)bucket).Priority(currentTime)}");
@@ -83,18 +100,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return toRequeue;
         }
 
-        internal void SetBucketFix(Guid bucketKey)
-        {
-            var bucket = (FBucket)jobs.SingleOrDefault(x => x.Key == bucketKey);
-            if (bucket == null)
-                throw new Exception($"Something went wrong");
-            bucket = bucket.SetFixPlanned;
-            //TODO to be tested
-        }
-
         public override bool CapacitiesLeft()
         {
-            throw new NotImplementedException();
+            return Limit > this.jobs.Cast<FBucket>().ToList().Sum(selector: x => x.Scope);
         }
+
+        public void UpdateBucket(IJob job)
+        {
+            RemoveJob(job);
+            Enqueue(job);
+        }
+
     }
 }

@@ -146,7 +146,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// Target: Method should forward message to the associated production agent
         /// </summary>
         /// <param name="key"></param>
-        internal void WithdrawRequiredArticles(Guid operationKey)
+        internal virtual void WithdrawRequiredArticles(Guid operationKey)
         {
             var operation = _operationList.Single(predicate: x => x.Key == operationKey);
 

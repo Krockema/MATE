@@ -199,7 +199,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        internal void TryToWork()
+        internal virtual void TryToWork()
         {
             if (_jobInProgress.IsSet)
             {

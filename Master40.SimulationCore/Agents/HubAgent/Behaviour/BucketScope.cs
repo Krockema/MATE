@@ -177,8 +177,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                     $"| PreCondition: {startCondition.PreCondition} " +
                                     $"to resource {bucket.ResourceAgent}");
 
-                Agent.Send(instruction: Resource.Instruction.BucketScope.ScopeHasSatisfiedJob.Create(message: bucket.Key, target: bucket.ResourceAgent));
+                Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucket.Create(message: bucket, target: bucket.ResourceAgent));
             }
+        }
+
+        internal override void WithdrawRequiredArticles(Guid operationKey)
+        {
+            var operation = _bucketManager.GetOperationByKey(operationKey);
+            System.Diagnostics.Debug.WriteLine($"WithdrawRequiredArticles for operation {operationKey} was sent from {Agent.Sender.Path.Name}");
+                Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
+                .Create(message: operation.Key
+                    , target: operation.ProductionAgent));
+
         }
 
         internal void RequeueOperations(List<FOperation> operations)
