@@ -97,7 +97,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                 public class EnqueueBucket : SimulationMessage
                 {
-                    public static EnqueueBucket Create(IJob message, IActorRef target)
+                    public static EnqueueBucket Create(FBucket message, IActorRef target)
                     {
                         return new EnqueueBucket(message: message, target: target);
                     }
@@ -105,7 +105,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     {
 
                     }
-                    public IJob GetObjectFromMessage { get => Message as IJob; }
+                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
                 }
                 public class ResponseRequeueBucket : SimulationMessage
                 {

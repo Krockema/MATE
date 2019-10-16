@@ -76,11 +76,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                     System.Diagnostics.Debug.WriteLine($"{bucket.Name} has higher priority with {((IJob)bucket).Priority(currentTime)}");
                 }
                 totalWorkLoad = higherPrioBuckets.Sum(x => x.Scope);
+                var totalEstimatedWorkload = higherPrioBuckets.Cast<IJob>().ToList().Sum(x => x.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
+                queuePosition.EstimatedWorkload = totalEstimatedWorkload;
             }
 
             if (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob)
                 queuePosition.IsQueueAble = true;
+
+            System.Diagnostics.Debug.WriteLine($"{job.Name} has queuePosition {queuePosition.EstimatedStart}");
             return queuePosition;
         }
 
