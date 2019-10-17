@@ -80,7 +80,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public List<FOperation> ModifyBucket(FOperation fOperation)
         {
-            List<FOperation> operationsToModify = null;
+            List<FOperation> operationsToModify = new List<FOperation>();
             
             var bucketsToModify = FindAllBucketsLaterForwardStart(fOperation);
             

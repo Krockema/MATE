@@ -158,7 +158,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal void TryToWork()
+        internal override void TryToWork()
         {
             if (_jobInProgress.IsSet)
             {
@@ -183,7 +183,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             DoSetup();
         }
 
-        private void DoSetup()
+        internal override void DoSetup()
         {
             //Start setup if necessary 
             var setupDuration = GetSetupTime(_jobInProgress.Current);

@@ -57,9 +57,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             System.Diagnostics.Debug.WriteLine($"Modify Buckets");
 
             var operationsToModify = _bucketManager.ModifyBucket(operation);
-
-            if (operationsToModify != null)
+            
+            if (!operationsToModify.Count.Equals(0))
             {
+                Agent.DebugMessage(msg: $"{operationsToModify.Count} operations have to be requeued after modifying bucket");
                 operationsToModify.Add(operation);
                 RequeueOperations(operationsToModify);
                 return;
@@ -90,6 +91,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void EnqueueBucket(FBucket bucket)
         {
+            var bucketExits = _bucketManager.GetBucketById(bucket.Key);
+
+            if (bucketExits != null)
+            {
+                bucket = bucketExits;
+            }
+
             System.Diagnostics.Debug.WriteLine($"Enqueue {bucket.Name}");
             var resourceToRequest = _resourceManager.GetResourceByTool(bucket.Tool);
 
@@ -156,10 +164,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var notSatisfiedOperations = _bucketManager.RemoveAllNotSatisfiedOperations(bucket);
             bucket = _bucketManager.GetBucketById(bucketKey);
 
+            Agent.DebugMessage(msg: $"{bucket.Name} has been set fix");
             //Send fix bucket
             Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(bucket, bucket.ResourceAgent));
 
             //Requeue all unsatisfied operations
+            Agent.DebugMessage(msg: $"{bucket.Name} has {notSatisfiedOperations.Count} operations to requeue");
             RequeueOperations(notSatisfiedOperations);
         }
 
@@ -196,6 +206,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
             {
+                Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name}");
                 EnqueueOperation(operation);
             }
 
