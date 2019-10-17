@@ -24,7 +24,7 @@ namespace Master40.XUnitTest.Agents.Types
 
             //Adds operation to Bucket(1) because first one is over capacity
             var operation2 = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 70, averageTransitionDuration: 10, dueTime: 50, tool: tool1);
-            bucket = bucketManager.AddToBucket(operation1, ActorRefs.Nobody, currentTime: 0);
+            bucket = bucketManager.AddToBucket(operation2, ActorRefs.Nobody, currentTime: 0);
             Assert.Equal(2, bucket.Operations.Count);
 
             //Create new bucket because ForwardTime is earlier / see currentTime
