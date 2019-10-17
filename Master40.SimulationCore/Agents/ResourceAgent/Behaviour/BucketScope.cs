@@ -31,6 +31,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             switch (message)
             {
                 case Resource.Instruction.Default.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.BucketScope.RequeueBucket msg: RequeueBucket(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.UpdateBucket msg: UpdateBucket(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(msg.GetObjectFromMessage); break;
@@ -42,6 +43,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return success;
         }
 
+        private void RequeueBucket(Guid bucketKey)
+        {
+
+            var bucket = _scopeQueue.GetBucket(bucketKey);
+
+            var success = _scopeQueue.RemoveJob(bucket);
+
+            if (success)
+            {
+                Agent.Send(Hub.Instruction.BucketScope.ResetBucket.Create(bucketKey, bucket.HubAgent));
+            }
+
+        }
 
         internal override void SendProposalTo(IJob jobItem)
         {
@@ -145,7 +159,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <param name="job"></param>
         internal void AcknowledgeJob(IJob job)
         {
-            var bucket = (FBucket) job;
+            var bucket = (FBucket)job;
             _processingQueue.Replace(bucket);
 
             //Agent.DebugMessage(msg: $"Start withdraw for {bucket.Name} {bucket.Key} by {Agent.Context.Self.Path.Name}");
@@ -295,6 +309,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-       
+
     }
 }

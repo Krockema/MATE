@@ -241,7 +241,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var operationsNotSatisfied = bucket.Operations.Where(x => x.StartConditions.Satisfied != true);
             foreach (var operation in operationsNotSatisfied)
             {
-                _bucketManager.Remove(operation.Key);
+                _bucketManager.RemoveOperation(operation.Key);
                 AssignJob(operation);
             }
             _bucketManager.Replace(bucket);
@@ -274,7 +274,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             foreach (var op in bucket.Operations)
             {
                 Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: op.ProductionAgent));
-                _bucketManager.Remove(op.Key);
+                _bucketManager.RemoveOperation(op.Key);
             }
             
         }

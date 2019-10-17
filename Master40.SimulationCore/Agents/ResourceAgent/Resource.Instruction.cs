@@ -83,7 +83,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
             public class BucketScope
             {
+
                 
+                public class RequeueBucket : SimulationMessage
+                {
+                    public static RequeueBucket Create(Guid message, IActorRef target)
+                    {
+                        return new RequeueBucket(message: message, target: target);
+                    }
+                    private RequeueBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
                 public class AcknowledgeJob : SimulationMessage
                 {
                     public static AcknowledgeJob Create(IJob message, IActorRef target)

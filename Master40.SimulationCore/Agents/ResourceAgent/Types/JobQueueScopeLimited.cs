@@ -107,6 +107,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return Limit > this.jobs.Cast<FBucket>().ToList().Sum(selector: x => x.Scope);
         }
 
+        public FBucket GetBucket(Guid bucketKey)
+        {
+            return jobs.SingleOrDefault(x => x.Key == bucketKey) as FBucket;
+        }
+
         public void UpdateBucket(IJob job)
         {
             RemoveJob(job);

@@ -59,7 +59,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _buckets.Single(x => x.Operations.Any(y => y.Key == operationKey));
         }
 
-        public void Remove(Guid operationKey)
+        public bool Remove(FBucket bucket)
+        {
+            return _buckets.Remove(bucket);
+        }
+
+        public void RemoveOperation(Guid operationKey)
         {
             var operation = GetOperationByKey(operationKey);
             var bucket = GetBucketByOperationKey(operationKey);

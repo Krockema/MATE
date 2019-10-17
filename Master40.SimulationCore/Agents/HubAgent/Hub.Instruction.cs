@@ -69,7 +69,20 @@ namespace Master40.SimulationCore.Agents.HubAgent
             /// </summary>
             public class BucketScope
             {
-               
+
+                public class ResetBucket : SimulationMessage
+                {
+                    public static ResetBucket Create(Guid bucketKey, IActorRef target)
+                    {
+                        return new ResetBucket(message: bucketKey, target: target);
+                    }
+                    private ResetBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
                 public class SetBucketFix : SimulationMessage
                 {
                     public static SetBucketFix Create(Guid key, IActorRef target)

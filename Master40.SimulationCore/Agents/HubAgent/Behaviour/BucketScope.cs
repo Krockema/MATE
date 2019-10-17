@@ -31,6 +31,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.Default.EnqueueJob msg: AssignJob(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueOperation msg: EnqueueOperation(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.BucketScope.ResetBucket msg: ResetBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
@@ -40,6 +41,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
             return success;
         }
+
+        private void ResetBucket(Guid bucketKey)
+        {
+            var bucket = _bucketManager.GetBucketById(bucketKey);
+
+            var successRemove =  _bucketManager.Remove(bucket);
+
+            if (successRemove)
+            {
+                RequeueOperations(bucket.Operations.OrderBy(x => x.ForwardStart).ToList());
+            }
+
+        }
+
         private void AssignJob(IJob job)
         {
             var operation = (FOperation)job;
@@ -56,33 +71,34 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal void EnqueueOperation(FOperation operation)
         {
             var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
-            foreach (var b in bucketsToModify)
+
+            if (bucketsToModify != null)
             {
-                System.Diagnostics.Debug.WriteLine($"{b.Name} {b.Key} has to be modified modified");
-            }
-            var operationsToModify = _bucketManager.ModifyBucket(operation);
-            
-            if (!operationsToModify.Count.Equals(0))
-            {
-                System.Diagnostics.Debug.WriteLine($"{operationsToModify.Count} operations have to be requeued after modifying bucket");
-                Agent.DebugMessage(msg: $"{operationsToModify.Count} operations have to be requeued after modifying bucket");
-                operationsToModify.Add(operation);
-                RequeueOperations(operationsToModify);
-                return;
+                foreach (var modBucket in bucketsToModify)
+                {
+                    if (!modBucket.ResourceAgent.IsNobody())
+                    {
+                        Agent.Send(Resource.Instruction.BucketScope.RequeueBucket.Create(modBucket.Key, modBucket.ResourceAgent));
+                    }
+                    else
+                    {
+                        RequeueOperations(modBucket.Operations.ToList());
+                    }
+                    
+                }
+
             }
 
             //if no bucket has to be modified try to add
-            System.Diagnostics.Debug.WriteLine($"Add To Buckets");
             var bucket = _bucketManager.AddToBucket(operation, Agent.Context.Self, Agent.CurrentTime);
 
             if (bucket != null)
             {
 
                 System.Diagnostics.Debug.WriteLine($"Add {operation.Operation.Name} to {bucket.Name}");
-                if (bucket.ResourceAgent != null)
+                if (!bucket.ResourceAgent.IsNobody())
                 {
                     Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucket.Create(bucket, bucket.ResourceAgent));
-
                 }
                 return;
             }
