@@ -45,7 +45,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             FOperation operation = null;
             foreach (var bucket in _buckets)
             {
-                var op = bucket.Operations.FirstOrDefault(x => x.Key == operationKey);
+                var op = bucket.Operations.SingleOrDefault(x => x.Key == operationKey);
                 if (op != null)
                 {
                     operation = op;
@@ -180,7 +180,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
         {
-            buckets.OrderBy(x => x.GetCapacityLeft).ToList();
+            buckets = buckets.Where(x => x.IsFixPlanned.Equals(false)).ToList().OrderBy(x => x.GetCapacityLeft).ToList();
 
             foreach (var bucket in buckets)
             {
@@ -228,10 +228,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     bucket.RemoveOperation(operation);
                 }
             }
-
+            
             Replace(bucket);
 
             return notSatisfiedOperations;
+        }
+
+        public FBucket SetBucketSatisfied(FBucket bucket)
+        {
+            bool preConditons = bucket.Operations.All(x => x.StartConditions.PreCondition);
+            bool articlesProvided = bucket.Operations.All(x => x.StartConditions.ArticlesProvided);
+
+            bucket.SetStartConditions(startCondition: new FUpdateStartCondition(operationKey: bucket.Key, preCondition: preConditons, articlesProvided: articlesProvided));
+
+            return bucket;
         }
 
         public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)

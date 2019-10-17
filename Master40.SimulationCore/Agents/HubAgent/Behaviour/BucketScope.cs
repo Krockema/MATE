@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Akka.Util.Internal;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
@@ -54,12 +55,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void EnqueueOperation(FOperation operation)
         {
-            System.Diagnostics.Debug.WriteLine($"Modify Buckets");
-
+            var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
+            foreach (var b in bucketsToModify)
+            {
+                System.Diagnostics.Debug.WriteLine($"{b.Name} {b.Key} has to be modified modified");
+            }
             var operationsToModify = _bucketManager.ModifyBucket(operation);
             
             if (!operationsToModify.Count.Equals(0))
             {
+                System.Diagnostics.Debug.WriteLine($"{operationsToModify.Count} operations have to be requeued after modifying bucket");
                 Agent.DebugMessage(msg: $"{operationsToModify.Count} operations have to be requeued after modifying bucket");
                 operationsToModify.Add(operation);
                 RequeueOperations(operationsToModify);
@@ -98,7 +103,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 bucket = bucketExits;
             }
 
-            System.Diagnostics.Debug.WriteLine($"Enqueue {bucket.Name}");
+            System.Diagnostics.Debug.WriteLine($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
+            foreach (var operation in bucket.Operations)
+            {
+                System.Diagnostics.Debug.WriteLine($"{bucket.Name} has operation {operation.Operation.Name} {operation.Key}");
+            }
             var resourceToRequest = _resourceManager.GetResourceByTool(bucket.Tool);
 
             foreach (var actorRef in resourceToRequest)
@@ -163,6 +172,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = _bucketManager.SetBucketFix(bucketKey);
             var notSatisfiedOperations = _bucketManager.RemoveAllNotSatisfiedOperations(bucket);
             bucket = _bucketManager.GetBucketById(bucketKey);
+            bucket = _bucketManager.SetBucketSatisfied(bucket);
 
             Agent.DebugMessage(msg: $"{bucket.Name} has been set fix");
             //Send fix bucket
@@ -176,7 +186,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
             var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
-
+            
             if (bucket.ResourceAgent.IsNobody())
                 return;
 
@@ -195,7 +205,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal override void WithdrawRequiredArticles(Guid operationKey)
         {
             var operation = _bucketManager.GetOperationByKey(operationKey);
-            System.Diagnostics.Debug.WriteLine($"WithdrawRequiredArticles for operation {operationKey} was sent from {Agent.Sender.Path.Name}");
+            System.Diagnostics.Debug.WriteLine($"WithdrawRequiredArticles for operation {operation.Operation.Name} {operationKey} on {Agent.Context.Self.Path.Name}");
                 Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
                 .Create(message: operation.Key
                     , target: operation.ProductionAgent));
@@ -206,7 +216,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
             {
-                Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name}");
+                Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
                 EnqueueOperation(operation);
             }
 

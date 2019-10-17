@@ -23,13 +23,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public override IJob DequeueFirstSatisfied(long currentTime)
         {
-            var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList();
-            var bucket = buckets.OrderBy(x => x.Priority).FirstOrDefault(); 
+            var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList().Cast<IJob>();
+            var bucket = buckets.OrderBy(x => x.Priority(currentTime)).FirstOrDefault(); 
             if (bucket != null)
             {
-                this.jobs.Remove((IJob)bucket);
+                this.jobs.Remove(bucket);
             }
-            return (IJob)bucket;
+            return bucket;
         }
 
         public void Enqueue(IJob job)
@@ -42,8 +42,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return jobs.Remove(item: job);
         }
 
-
-        //TODO to be tested
         public override bool HasQueueAbleJobs()
         {
             var hasSatisfiedJob = false;

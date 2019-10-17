@@ -129,9 +129,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 var ok = _processingQueue.Enqueue(item: job);
                 if (!ok)
                 {
-                    throw new Exception(message: "Something wen wrong with Queueing!");
+                    throw new Exception(message: "Something went wrong with Queueing!");
                 }
-                Agent.DebugMessage(msg: $"Ask for fix {job.Name} {job.Key}");
+                Agent.DebugMessage(msg: $"Ask for fix {job.Name} {job.Key} at {Agent.Context.Self.Path.Name}");
                 Agent.Send(instruction: Hub.Instruction.BucketScope.SetBucketFix.Create(key: job.Key, target: job.HubAgent));
 
             }
@@ -147,14 +147,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var bucket = (FBucket) job;
             _processingQueue.Replace(bucket);
-            Agent.DebugMessage(msg: $"Start withdraw for {bucket.Name} {bucket.Key}");
 
+            //Agent.DebugMessage(msg: $"Start withdraw for {bucket.Name} {bucket.Key} by {Agent.Context.Self.Path.Name}");
+            /*
             foreach (var operation in bucket.Operations)
             {
-                Agent.DebugMessage(msg: $"Start withdraw for article {operation.Operation.Name} {operation.Key}");
+                Agent.DebugMessage(msg: $"Start withdraw from {bucket.Name} for article {operation.Operation.Name} {operation.Key} was send from {Agent.Context.Self.Path.Name}");
                 Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: operation.Key, target: job.HubAgent));
             }
-            
+            */
             TryToWork();
         }
 
@@ -180,6 +181,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.Set(nextJobInProgress, Agent.CurrentTime);
 
+            System.Diagnostics.Debug.WriteLine($"Next job {_jobInProgress.Current.Name} was set on {Agent.Context.Self.Path.Name}");
             DoSetup();
         }
 
@@ -216,10 +218,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var bucket = ((FBucket)_jobInProgress.Current);
             System.Diagnostics.Debug.WriteLine($"Do Work(): {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations at resource {Agent.Context.Self.Path.Name}");
 
+            Agent.DebugMessage(
+                msg:
+                $"Do Work(): {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations at resource {Agent.Context.Self.Path.Name}");
             //get first satisfied item with lowest priority in bucket
             var operation = bucket.Operations.OrderByDescending(prio => prio.DueTime)
                 .FirstOrDefault(op => op.StartConditions.Satisfied);
-            _jobInProgress.RemoveOperation(operation);
 
             //if there arent any operations - finish bucket
             if (operation == null)
@@ -264,10 +268,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        internal void FinishJob(IJobResult jobResult)
+        internal override void FinishJob(IJobResult jobResult)
         {
             var bucket = (FBucket)_jobInProgress.Current;
             var operation = bucket.Operations.Single(x => x.Key == jobResult.Key);
+            _jobInProgress.RemoveOperation(operation);
             System.Diagnostics.Debug.WriteLine($"Resource {Agent.Context.Self.Path.Name} called Item  {operation.Key} from bucket {bucket.Name} finished");
 
             DoWork();
