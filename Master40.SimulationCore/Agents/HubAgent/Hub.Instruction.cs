@@ -8,6 +8,7 @@ using static FBucketScopes;
 using static FOperations;
 using System;
 using static FBuckets;
+using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -69,7 +70,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
             /// </summary>
             public class BucketScope
             {
-
+                
                 public class ResetBucket : SimulationMessage
                 {
                     public static ResetBucket Create(Guid bucketKey, IActorRef target)
@@ -97,9 +98,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
                 }
                 public class EnqueueOperation : SimulationMessage
                 {
-                    public static EnqueueOperation Create(FOperation message, IActorRef target)
+                    public static EnqueueOperation Create(FOperation operation, IActorRef target)
                     {
-                        return new EnqueueOperation(message: message, target: target);
+                        return new EnqueueOperation(message: operation, target: target);
                     }
                     private EnqueueOperation(object message, IActorRef target) : base(message: message, target: target)
                     {
@@ -110,9 +111,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                 public class EnqueueBucket : SimulationMessage
                 {
-                    public static EnqueueBucket Create(FBucket message, IActorRef target)
+                    public static EnqueueBucket Create(FBucket bucket, IActorRef target)
                     {
-                        return new EnqueueBucket(message: message, target: target);
+                        return new EnqueueBucket(message: bucket, target: target);
                     }
                     private EnqueueBucket(object message, IActorRef target) : base(message: message, target: target)
                     {

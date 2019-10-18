@@ -22,6 +22,8 @@ using static FBreakDowns;
 using static FCreateSimulationJobs;
 using static FCreateSimulationResourceSetups;
 using static FOperations;
+using static FBuckets;
+using static IJobs;
 using static FSetEstimatedThroughputTimes;
 using static FThroughPutTimes;
 using static FUpdateSimulationJobs;
@@ -423,6 +425,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         //TODO implement Interface for ISimulationJob (FCreateSimluationOperation, FCreateSimulationBucket)
         private void CreateSimulationOperation(FCreateSimulationJob simJob)
         {
+            if (simJob.JobType == JobType.BUCKET)
+            {
+                CreateSimulationBucket(simJob);
+                return;
+            }
             var fOperation = ((FOperation)simJob.Job);
             var simulationJob = new SimulationResourceJob
             {
@@ -458,13 +465,40 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             simulationJobs.Add(item: simulationJob);
         }
 
+        private void CreateSimulationBucket(FCreateSimulationJob simJob)
+        {
+            var fBucket = ((FBucket)simJob.Job);
+            var simulationJob = new SimulationResourceJob
+            {
+                JobId = simJob.Job.Key.ToString(),
+                JobName = fBucket.Name,
+                JobType = simJob.JobType,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                SimulationType = Collector.simulationKind.Value,
+                //Remember this is now a fArticleKey (Guid)
+                Time = (int)(Collector.Time),
+                ResourceTool = fBucket.Tool.Name
+            };
+
+            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fBucket.Key));
+            if (edit != null)
+            {
+                simulationJob.JobType = edit.JobType;
+                simulationJob.Start = (int)edit.Start;
+                simulationJob.End = (int)(edit.Start + edit.Duration);
+                simulationJob.Resource = edit.Resource;
+                _updatedSimulationJob.Remove(item: edit);
+            }
+            simulationJobs.Add(item: simulationJob);
+        }
 
         private void UpdateSimulationOperation(FUpdateSimulationJob simJob)
         {
-            var operation = ((FOperation)simJob.Job);
-            var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: operation.Key.ToString()));
+            var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: simJob.Job.Key.ToString()));
             if (edit != null)
             {
+                edit.JobType = simJob.JobType;
                 edit.Start = (int)simJob.Start;
                 edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
                 edit.Resource = simJob.Resource;

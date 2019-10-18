@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
-using Akka.Util.Internal;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using static FBuckets;
-using static FBucketScopes;
 using static FOperations;
 using static IJobs;
 using static FStartConditions;
 using static FUpdateStartConditions;
 using static FProposals;
+using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -34,7 +33,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.BucketScope.ResetBucket msg: ResetBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
-                case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
+                case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
                     break;
@@ -156,7 +155,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     // Call Hub Agent to Requeue
                     bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
                     _bucketManager.Replace(bucket);
-                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(message: bucket, target: Agent.Context.Self), waitFor: postPonedFor);
+                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket: bucket, target: Agent.Context.Self), waitFor: postPonedFor);
                     return;
                 }
 
@@ -237,5 +236,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
         }
+
+        /// <summary>
+        /// Job = Bucket
+        /// </summary>
+        /// <param name="jobResult"></param>
+        internal override void FinishJob(IJobResult jobResult)
+        {
+            var bucket = _bucketManager.GetBucketById(jobResult.Key);
+            System.Diagnostics.Debug.WriteLine($"Resource called Item  {bucket.Name}  {jobResult.Key} finished");
+            Agent.DebugMessage(msg: $"Resource called Item {bucket.Name} {jobResult.Key} finished.");
+
+            _bucketManager.Remove(bucket);
+
+        }
+
     }
 }

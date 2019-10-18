@@ -60,7 +60,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         
-        //[Theory]
+        [Theory]
         //[InlineData(SimulationType.None)]
         //[InlineData(SimulationType.DefaultSetup)]
         //[InlineData(SimulationType.DefaultSetupStack)]

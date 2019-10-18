@@ -138,7 +138,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (!queuePosition.IsQueueAble)
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
-                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(message: (FBucket)jobItem, target: jobItem.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create((FBucket)jobItem, target: jobItem.HubAgent));
                 return;
             }
 
@@ -171,7 +171,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             foreach (var job in toRequeue)
             {
                 _planingQueue.RemoveJob(job: job);
-                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(message: (FBucket)job, target: job.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create((FBucket)job, target: job.HubAgent));
             }
             Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
