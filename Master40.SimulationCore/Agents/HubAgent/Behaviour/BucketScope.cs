@@ -8,7 +8,6 @@ using Master40.SimulationCore.Agents.ResourceAgent;
 using static FBuckets;
 using static FOperations;
 using static IJobs;
-using static FStartConditions;
 using static FUpdateStartConditions;
 using static FProposals;
 using static IJobResults;

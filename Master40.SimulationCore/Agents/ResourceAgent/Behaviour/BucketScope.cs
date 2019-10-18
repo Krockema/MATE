@@ -181,7 +181,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 return; // Resource Agent is still working
             }
 
-            var nextJobInProgress = _processingQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+            var nextJobInProgress = _processingQueue.DequeueFirstSatisfiedFix(currentTime: Agent.CurrentTime);
 
             // Wait if nothing more to do
             if (nextJobInProgress == null)

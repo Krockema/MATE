@@ -9,7 +9,10 @@ using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Agents.CollectorAgent;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
@@ -30,13 +33,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
             .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
 
-        private ResultContext _ctxResult = ResultContext.GetContext( resultCon:
+        private ResultContext _ctxResult = ResultContext.GetContext(resultCon:
             "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true");
 
-            // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
-            // .UseInMemoryDatabase(databaseName: "InMemoryResults")
-            // .Options);
-            // 
+        // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
+        // .UseInMemoryDatabase(databaseName: "InMemoryResults")
+        // .Options);
+        // 
         public SimulationSystem()
         {
             _masterDBContext.Database.EnsureDeleted();
@@ -50,6 +53,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         }
 
+        [Fact]
+        public void CreateDGML()
+        {
+            var path = Path.GetTempFileName() + ".dgml";
+            File.WriteAllText(path, _masterDBContext.AsDgml(), Encoding.UTF8);
+            Process.Start(path);
+
+        }
+
         [Fact(Skip = "manual test")]
         public void ResetMaster40ResultsDB()
         {
@@ -59,7 +71,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterResults.Database.EnsureCreated();
         }
 
-        
+
         [Theory]
         //[InlineData(SimulationType.None)]
         //[InlineData(SimulationType.DefaultSetup)]

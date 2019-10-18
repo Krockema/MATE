@@ -16,6 +16,7 @@
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.6.0" />
     <PackageReference Include="EntityFrameworkCore.Cacheable" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
