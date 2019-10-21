@@ -53,15 +53,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         }
 
-        [Fact]
-        public void CreateDGML()
-        {
-            var path = Path.GetTempFileName() + ".dgml";
-            File.WriteAllText(path, _masterDBContext.AsDgml(), Encoding.UTF8);
-            Process.Start(path);
-
-        }
-
         [Fact(Skip = "manual test")]
         public void ResetMaster40ResultsDB()
         {
