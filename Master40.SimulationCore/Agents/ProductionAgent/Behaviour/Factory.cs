@@ -15,9 +15,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case SimulationType.DefaultSetup:
                     behaviour = Default();
                     break;
-                case SimulationType.Bucket:
-                    behaviour = Default();
-                    break;
                 default:
                     behaviour = Default();
                     break;
