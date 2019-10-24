@@ -427,9 +427,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (simJob.JobType == JobType.BUCKET)
             {
-                CreateSimulationBucket(simJob);
+                //CreateSimulationBucket(simJob);
                 return;
             }
+
             var fOperation = ((FOperation)simJob.Job);
             var simulationJob = new SimulationResourceJob
             {

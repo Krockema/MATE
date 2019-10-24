@@ -27,7 +27,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FBucket GetBucketById(Guid key)
         {
-            return _buckets.Single(x => x.Key == key);
+            return _buckets.SingleOrDefault(x => x.Key == key);
         }
 
         public void Replace(FBucket bucket)
@@ -56,7 +56,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FBucket GetBucketByOperationKey(Guid operationKey)
         {
-            return _buckets.Single(x => x.Operations.Any(y => y.Key == operationKey));
+            return _buckets.SingleOrDefault(x => x.Operations.Any(y => y.Key == operationKey));
         }
 
         public bool Remove(FBucket bucket)
@@ -71,6 +71,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             bucket = bucket.RemoveOperation(operation);
             _buckets.Replace(bucket);
+            //TODO delete this one after working
+            //System.Diagnostics.Debug.WriteLine($"{bucket.Name} has removed operation {operation.Operation.Name} {operation.Key} und has now {bucket.Operations.Count} operations left");
         }
 
         public FBucket Add(FBucket bucket, FOperation fOperation)
@@ -86,9 +88,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public List<FOperation> ModifyBucket(FOperation fOperation)
         {
             List<FOperation> operationsToModify = new List<FOperation>();
-            
+
             var bucketsToModify = FindAllBucketsLaterForwardStart(fOperation);
-            
+
             if (bucketsToModify != null)
             {
                 //Remove Start to requeue the buckets order by FS?
@@ -187,10 +189,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             buckets = buckets.Where(x => x.IsFixPlanned.Equals(false)).ToList().OrderBy(x => x.GetCapacityLeft).ToList();
 
-            foreach (var bucket in buckets)
+            /*foreach (var bucket in buckets)
             {
                 System.Diagnostics.Debug.WriteLine($"{bucket.Name} has {bucket.GetCapacityLeft} left");
-            }
+            }*/
 
             return buckets.FirstOrDefault();
         }
@@ -212,41 +214,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return operation.BackwardStart <= bucket.BackwardStart;
         }
 
-        internal FBucket SetBucketFix(Guid bucketKey)
+
+        internal FBucket RemoveOperations(FBucket bucket, List<FOperation> operationsToRemove)
         {
-            var bucket = GetBucketById(bucketKey);
-            bucket = bucket.SetFixPlanned;
-            Replace(bucket);
+            var _bucket = bucket;
 
-            return bucket;
-        }
-
-        internal List<FOperation> RemoveAllNotSatisfiedOperations(FBucket bucket)
-        {
-            List<FOperation> notSatisfiedOperations = new List<FOperation>();
-
-            foreach (var operation in bucket.Operations)
+            foreach (var operation in operationsToRemove)
             {
-                if (!operation.StartConditions.Satisfied)
-                {
-                    notSatisfiedOperations.Add(operation);
-                    bucket.RemoveOperation(operation);
-                }
+                _bucket = _bucket.RemoveOperation(operation);
             }
-            
-            Replace(bucket);
 
-            return notSatisfiedOperations;
-        }
+            _buckets.Replace(_bucket);
 
-        public FBucket SetBucketSatisfied(FBucket bucket)
-        {
-            bool preConditons = bucket.Operations.All(x => x.StartConditions.PreCondition);
-            bool articlesProvided = bucket.Operations.All(x => x.StartConditions.ArticlesProvided);
-
-            bucket.SetStartConditions(startCondition: new FUpdateStartCondition(operationKey: bucket.Key, preCondition: preConditons, articlesProvided: articlesProvided));
-
-            return bucket;
+            return _bucket;
         }
 
         public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)
@@ -258,6 +238,30 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             _buckets.Replace(bucket);
             return bucket;
+        }
+
+        public bool SetBucketSatisfied(FBucket bucket)
+        {
+            bool preConditons = bucket.Operations.All(x => x.StartConditions.PreCondition);
+            bool articlesProvided = bucket.Operations.All(x => x.StartConditions.ArticlesProvided);
+
+            bucket.SetStartConditions(startCondition: new FUpdateStartCondition(operationKey: bucket.Key, preCondition: preConditons, articlesProvided: articlesProvided));
+            _buckets.Replace(bucket);
+            return preConditons && articlesProvided;
+        }
+
+
+        public List<FOperation> GetAllNotSatifsiedOperation(FBucket bucket)
+        {
+            List<FOperation> notSatisfiedOperations = new List<FOperation>();
+            foreach (var operation in bucket.Operations)
+            {
+                if (!operation.StartConditions.Satisfied)
+                {
+                    notSatisfiedOperations.Add(operation);
+                }
+            }
+            return notSatisfiedOperations;
         }
     }
 }

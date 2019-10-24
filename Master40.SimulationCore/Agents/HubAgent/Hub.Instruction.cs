@@ -133,6 +133,20 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     }
                     public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
                 }
+
+
+                public class FinishBucket : SimulationMessage
+                {
+                    public static FinishBucket Create(IJobResult jobResult, IActorRef target)
+                    {
+                        return new FinishBucket(message: jobResult, target: target);
+                    }
+                    private FinishBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
+                }
             }
 
 

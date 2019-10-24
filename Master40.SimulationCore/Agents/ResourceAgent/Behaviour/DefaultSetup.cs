@@ -187,7 +187,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
-        internal void UpdateStartCondition(FUpdateStartCondition startCondition)
+        internal virtual void UpdateStartCondition(FUpdateStartCondition startCondition)
         {
             Agent.DebugMessage(msg: $"UpdateArticleProvided for article: {startCondition.OperationKey} ArticleProvided: {startCondition.ArticlesProvided} && PreCondition {startCondition.PreCondition}");
 

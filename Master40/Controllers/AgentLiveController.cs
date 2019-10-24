@@ -37,7 +37,7 @@ namespace Master40.Controllers
                                                     new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
                                                     , new SimulationId(value: simId)
                                                     , new SimulationNumber(value: 1)
-                                                    , new SimulationKind(value: SimulationType.DefaultSetupStack)
+                                                    , new SimulationKind(value: SimulationType.BucketScope)
                                                     , new OrderArrivalRate(value: arivalRate)
                                                     , new OrderQuantity(value: orderAmount)
                                                     , new EstimatedThroughPut(value: estimatedThroughputTime)
