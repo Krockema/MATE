@@ -37,6 +37,7 @@ namespace Master40.Controllers
                 case 1: simKind = SimulationType.None; break;
                 case 2: simKind = SimulationType.DefaultSetup; break;
                 case 3: simKind = SimulationType.DefaultSetupStack; break;
+                case 4: simKind = SimulationType.BucketScope; break;
                 default: return;
             }
 
