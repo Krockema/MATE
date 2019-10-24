@@ -24,6 +24,14 @@ namespace Master40.DB.Data.Context
         {
             return CustomerOrders.FirstOrDefault(predicate: x => x.Id == id);
         }
+
+        public List<M_Article> GetProducts()
+        {
+            return this.Articles.Include(x => x.ArticleType)
+                .Where(predicate: b => b.ArticleType.Name == "Product")
+                .ToList();
+        }
+
         public Task<List<SimulationResourceJob>> GetFollowerProductionOrderWorkSchedules(SimulationResourceJob simulationWorkSchedule, SimulationType type, List<SimulationResourceJob> relevantItems)
         {
             var rs = Task.Run(function: () =>
@@ -96,7 +104,6 @@ namespace Master40.DB.Data.Context
             };
 
             this.CustomerOrders.Add(entity: order);
-            SaveChanges();
             return order;
         }
 

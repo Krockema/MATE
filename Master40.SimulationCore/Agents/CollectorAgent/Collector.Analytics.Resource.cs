@@ -3,6 +3,7 @@ using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel;
+using Master40.DB.ReportingModel.Interface;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
@@ -11,12 +12,9 @@ using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.HashFunction.xxHash;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using Master40.DB.DataModel;
-using Master40.DB.ReportingModel.Interface;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FCreateSimulationJobs;
@@ -87,7 +85,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
@@ -114,7 +112,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration,
                 ExpectedDuration = simulationResourceSetup.ExpectedDuration
             };
-
             simulationResourceSetups.Add(item: _SimulationResourceSetup);
 
         }
@@ -134,21 +131,49 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Collector.messageHub.SendToClient(listener: item.RequiredFor + "_State", msg: "online");
         }
 
-        private void UpdateFeed(bool writeResultsToDB)
+        private void UpdateFeed(bool finalCall)
         {
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             ResourceUtilization();
-            OverallEquipmentEffectiveness(resources: _resources, 0L, Collector.Time);
+
+            OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+
             ThroughPut();
             lastIntervalStart = Collector.Time;
 
+            LogToDB(writeResultsToDB: finalCall);
 
-            LogToDB(writeResultsToDB: writeResultsToDB);
+            CallTotal(finalCall);
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
+        }
+
+        private void CallTotal(bool finalCall)
+        {
+            if (finalCall)
+            {
+                List<ISimulationResourceData> allSimulationData = new List<ISimulationResourceData>();
+                allSimulationData.AddRange(simulationJobs);
+                allSimulationData.AddRange(simulationJobsForDb);
+
+                List<ISimulationResourceData> allSimulationSetupData = new List<ISimulationResourceData>();
+                allSimulationSetupData.AddRange(simulationResourceSetups);
+                allSimulationSetupData.AddRange(simulationResourceSetupsForDb);
+
+                var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
+
+                var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
+
+                foreach (var resource in resourcesDatas) { 
+                    var tuple = resource._workTime + " " + resource._setupTime;
+                    var machine = resource._resource.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
+                    Collector.messageHub.SendToClient(listener: machine, msg: tuple);
+                }
+
+            }
         }
 
         private void LogToDB(bool writeResultsToDB)
@@ -186,14 +211,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
                 var boxPlot = item.Dlz.FiveNumberSummary();
                 var upperQuartile = Convert.ToInt64(value: boxPlot[4]);
-                Collector.actorPaths.SimulationContext.Ref.Tell(
-                    message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
-                        message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
-                        , target: Collector.actorPaths.SystemAgent.Ref
-                    )
-                    , sender: ActorRefs.NoSender);
-
-                Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}");
+                // Collector.actorPaths.SimulationContext.Ref.Tell(
+                //     message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
+                //         message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
+                //         , target: Collector.actorPaths.SystemAgent.Ref
+                //     )
+                //     , sender: ActorRefs.NoSender);
+                // 
+                // Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}");
             }
 
             var v2 = simulationJobs.Where(predicate: a => a.ArticleType == "Product"
@@ -222,8 +247,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var breakDown = 0L;
 
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
-            allSimulationResourceSetups.AddRange(simulationJobs);
-            allSimulationResourceSetups.AddRange(simulationJobsForDb);
+            allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval+50).ToList());
+            allSimulationResourceSetups.AddRange(simulationResourceSetupsForDb.Where(x => x.Start >= startInterval + 50).ToList());
+
             var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
 
             var totalUnplannedDowntime = breakDown + setupTime;
@@ -232,8 +258,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             /* ------------- PerformanceTime --------------------*/
             List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
-            allSimulationResourceJobs.AddRange(simulationJobs);
-            allSimulationResourceJobs.AddRange(simulationJobsForDb);
+            allSimulationResourceJobs.AddRange(simulationJobs.Where(x => x.Start >= startInterval + 50).ToList());
+            allSimulationResourceJobs.AddRange(simulationJobsForDb.Where(x => x.Start >= startInterval + 50).ToList());
             var jobTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
 
             var idleTime = workTime - jobTime;
@@ -262,6 +288,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             //Total OEE
             var totalOEE = availability * performance * quality;
+
+            var totalOEEString = Math.Round(totalOEE * 100, 2).ToString();
+            if (totalOEEString == "NaN") totalOEEString = "0";
+
+            Collector.messageHub.SendToClient(listener: "oeeListener", msg: totalOEEString);
 
             //TODO Implement View for GUI
         }
@@ -384,13 +415,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: KpiType.ResourceSetup);
             }
 
-            var totalSetup = Math.Round(value: finalSetup.Sum(selector: x => x.Item2) / divisor / finalSetup.Count(), digits: 3).ToString(provider: _cultureInfo);
+            var totalSetup = Math.Round(value: finalSetup.Sum(selector: x => x.Item2) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalSetup == "NaN") totalSetup = "0";
             var totalTimes = totalLoad + totalSetup;
             //TODO to implement GUI
             CreateKpi(agent: Collector, value: totalSetup, name: "TotalSetup", kpiType: KpiType.ResourceSetup);
 
-            Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Load = JsonConvert.SerializeObject(new{Work = totalLoad, Setup = totalSetup}) }));
+            Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: 
+                new { Time = Collector.Time
+                    , Load = new { Work = totalLoad, Setup = totalSetup }}));
 
             //Persist Jobs
             // TODO make it better

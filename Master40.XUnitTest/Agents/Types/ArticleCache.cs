@@ -17,6 +17,7 @@ namespace Master40.XUnitTest.Agents.Types
             _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                                 .UseSqlServer(connectionString: _dbConnectionString)
                                 .Options);
+            _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
             MasterDbInitializerTable.DbInitialize(context: _masterDBContext);
          }
@@ -26,6 +27,7 @@ namespace Master40.XUnitTest.Agents.Types
         public void AddArticle()
         {
             var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _dbConnectionString);
+            //BUG need to change system for new IDs not given from Db - see new Database for each test
             var article = _articleCache.GetArticleById(id: 1, transitionFactor: 3);
             Assert.Equal(actual: article.Name, expected: "Tisch");
         }
