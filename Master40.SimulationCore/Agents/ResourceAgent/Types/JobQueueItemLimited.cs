@@ -54,5 +54,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             }
             return item;
         }
+
     }
 }

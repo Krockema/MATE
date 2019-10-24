@@ -44,8 +44,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            //MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             _ctxResult.Database.EnsureDeleted();
             _ctxResult.Database.EnsureCreated();
@@ -62,11 +62,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterResults.Database.EnsureCreated();
         }
 
-
         [Theory]
         //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup)]
-        //[InlineData(SimulationType.DefaultSetupStack)]
+        //[InlineData(SimulationType.DefaultSetup)]
+        [InlineData(SimulationType.DefaultSetupStack)]
         //[InlineData(SimulationType.Bucket)]
         //[InlineData(SimulationType.BucketScope)]
         public async Task SystemTestAsync(SimulationType simulationType)

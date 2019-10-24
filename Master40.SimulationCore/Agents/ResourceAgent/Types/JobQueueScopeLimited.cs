@@ -23,12 +23,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public override IJob DequeueFirstSatisfied(long currentTime)
         {
-            var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList().Cast<IJob>();
-            var bucket = buckets.OrderBy(x => x.Priority(currentTime)).FirstOrDefault(); 
+            var bucket = GetFirstSatisfied(currentTime);
             if (bucket != null)
             {
                 this.jobs.Remove(bucket);
             }
+            return bucket;
+        }
+
+        public IJob GetFirstSatisfied(long currentTime)
+        {
+            var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList().Cast<IJob>();
+            var bucket = buckets.OrderBy(x => x.Priority(currentTime)).FirstOrDefault();
+            
             return bucket;
         }
 
@@ -63,16 +70,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (resourceIsBlockedUntil != 0)
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
-            System.Diagnostics.Debug.WriteLine($"{job.Name} with priority {job.Priority(currentTime)}");
+            //System.Diagnostics.Debug.WriteLine($"{job.Name} with priority {job.Priority(currentTime)}");
             if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
             {
                 var higherPrioBuckets = jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))   
                     .Cast<FBucket>().ToList();
-                //TODO just debugging
+                /*TODO just debugging
                 foreach (var bucket in higherPrioBuckets)
                 {
                     System.Diagnostics.Debug.WriteLine($"{bucket.Name} has higher priority with {((IJob)bucket).Priority(currentTime)}");
-                }
+                }*/
                 totalWorkLoad = higherPrioBuckets.Sum(x => x.Scope);
                 var totalEstimatedWorkload = higherPrioBuckets.Cast<IJob>().ToList().Sum(x => x.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
@@ -82,7 +89,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob)
                 queuePosition.IsQueueAble = true;
 
-            System.Diagnostics.Debug.WriteLine($"{job.Name} has queuePosition {queuePosition.EstimatedStart}");
+            //System.Diagnostics.Debug.WriteLine($"{job.Name} has queuePosition {queuePosition.EstimatedStart}");
             return queuePosition;
         }
 
@@ -112,11 +119,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return jobs.SingleOrDefault(x => x.Key == bucketKey) as FBucket;
         }
 
-        public void UpdateBucket(IJob job)
-        {
-            RemoveJob(job);
-            Enqueue(job);
-        }
 
     }
 }

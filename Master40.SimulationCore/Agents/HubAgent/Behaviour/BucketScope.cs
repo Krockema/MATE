@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 using Akka.Actor;
 using Master40.DB.Enums;
@@ -33,6 +34,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.BucketScope.FinishBucket msg: FinishBucket(msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
                     break;
@@ -44,7 +46,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var bucket = _bucketManager.GetBucketById(bucketKey);
 
-            var successRemove =  _bucketManager.Remove(bucket);
+            var successRemove = _bucketManager.Remove(bucket);
 
             if (successRemove)
             {
@@ -57,8 +59,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var operation = (FOperation)job;
 
-            System.Diagnostics.Debug.WriteLine($"Enqueue Operation {operation.Operation.Name} {operation.Key} ");
-            Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} | with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}");
+            Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key} | with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}");
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
@@ -68,6 +69,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void EnqueueOperation(FOperation operation)
         {
+            var operationInBucket = _bucketManager.GetBucketByOperationKey(operation.Key);
+
+            if (operationInBucket != null && !_operationList.Any(x => x.Key == operation.Key))
+            {
+                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} is already in bucket or operationlist");
+                return;
+            }
+
             var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
 
             if (bucketsToModify != null)
@@ -82,7 +91,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     {
                         RequeueOperations(modBucket.Operations.ToList());
                     }
-                    
+
                 }
 
             }
@@ -93,17 +102,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (bucket != null)
             {
 
-                System.Diagnostics.Debug.WriteLine($"Add {operation.Operation.Name} to {bucket.Name}");
+                Agent.DebugMessage($"Add {operation.Operation.Name} to {bucket.Name}");
                 if (!bucket.ResourceAgent.IsNobody())
                 {
-                    Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucket.Create(bucket, bucket.ResourceAgent));
+                    //TODO Maybe update bucket on Resource! But pay attention to possible inconsitency
                 }
                 return;
             }
 
             //if no bucket to add exists create a new one
             bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
-            System.Diagnostics.Debug.WriteLine($"Create {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
+            Agent.DebugMessage($"Create {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             EnqueueBucket(bucket);
 
         }
@@ -117,11 +126,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 bucket = bucketExits;
             }
 
-            System.Diagnostics.Debug.WriteLine($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
-            foreach (var operation in bucket.Operations)
-            {
-                System.Diagnostics.Debug.WriteLine($"{bucket.Name} has operation {operation.Operation.Name} {operation.Key}");
-            }
+            bucket.Proposals.Clear();
+            bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
+            _bucketManager.Replace(bucket);
+
+            Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
+            
             var resourceToRequest = _resourceManager.GetResourceByTool(bucket.Tool);
 
             foreach (var actorRef in resourceToRequest)
@@ -175,54 +185,72 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
         }
 
-
-
         /// <summary>
         /// Source: ResourceAgent 
         /// </summary>
         /// <param name="bucketKey"></param>
         internal void SetBucketFix(Guid bucketKey)
         {
-            var bucket = _bucketManager.SetBucketFix(bucketKey);
-            var notSatisfiedOperations = _bucketManager.RemoveAllNotSatisfiedOperations(bucket);
-            bucket = _bucketManager.GetBucketById(bucketKey);
-            bucket = _bucketManager.SetBucketSatisfied(bucket);
+            var bucket = _bucketManager.GetBucketById(bucketKey);
+            
+            //refuse bucket if not exits anymore
+            if (bucket != null)
+            {
+                var notSatisfiedOperations = _bucketManager.GetAllNotSatifsiedOperation(bucket);
+                
+                Agent.DebugMessage($"{bucket.Name} has {bucket.Operations.Count} before remove");
+                if (notSatisfiedOperations.Count > 0)
+                {
+                    bucket = _bucketManager.RemoveOperations(bucket, notSatisfiedOperations);
+                }
 
-            Agent.DebugMessage(msg: $"{bucket.Name} has been set fix");
-            //Send fix bucket
+                Agent.DebugMessage($"{bucket.Name} has {bucket.Operations.Count} after remove");
+
+                bucket = bucket.SetFixPlanned;
+
+                _bucketManager.SetBucketSatisfied(bucket);
+
+                Agent.DebugMessage(msg: $"{bucket.Name} with {bucket.Operations.Count} operations has been set fix: {bucket.IsFixPlanned} and has set satisfied: {bucket.StartConditions.Satisfied}");
+               
+                Agent.DebugMessage(msg: $"{bucket.Name} has {notSatisfiedOperations.Count} operations to requeue");
+                RequeueOperations(notSatisfiedOperations);
+                
+            }
+            else
+            {
+                Agent.DebugMessage(msg: $"{bucket.Name} does not exits anymore");
+            }
+            //Send fix/refuse bucket
             Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(bucket, bucket.ResourceAgent));
-
             //Requeue all unsatisfied operations
-            Agent.DebugMessage(msg: $"{bucket.Name} has {notSatisfiedOperations.Count} operations to requeue");
-            RequeueOperations(notSatisfiedOperations);
+            
         }
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
             var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
-            
+
             if (bucket.ResourceAgent.IsNobody())
                 return;
 
             if (bucket.Operations.Any(x => x.StartConditions.Satisfied))
             {
-
                 Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} " +
                                     $"to resource {bucket.ResourceAgent}");
 
-                Agent.Send(instruction: Resource.Instruction.BucketScope.UpdateBucket.Create(message: bucket, target: bucket.ResourceAgent));
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: bucket.ResourceAgent));
             }
         }
 
         internal override void WithdrawRequiredArticles(Guid operationKey)
         {
             var operation = _bucketManager.GetOperationByKey(operationKey);
-            System.Diagnostics.Debug.WriteLine($"WithdrawRequiredArticles for operation {operation.Operation.Name} {operationKey} on {Agent.Context.Self.Path.Name}");
-                Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
-                .Create(message: operation.Key
-                    , target: operation.ProductionAgent));
+            Agent.DebugMessage($"WithdrawRequiredArticles for operation {operation.Operation.Name} {operationKey} on {Agent.Context.Self.Path.Name}");
+            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
+            .Create(message: operation.Key
+                , target: operation.ProductionAgent));
 
         }
 
@@ -242,12 +270,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// <param name="jobResult"></param>
         internal override void FinishJob(IJobResult jobResult)
         {
+            var operation = _bucketManager.GetOperationByKey(jobResult.Key);
+            _bucketManager.RemoveOperation(operation.Key);
+            Agent.DebugMessage(msg: $"Resource called Item {operation.Operation.Name} {jobResult.Key} finished.");
+
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
+            
+        }
+
+        internal void FinishBucket(IJobResult jobResult)
+        {
             var bucket = _bucketManager.GetBucketById(jobResult.Key);
-            System.Diagnostics.Debug.WriteLine($"Resource called Item  {bucket.Name}  {jobResult.Key} finished");
             Agent.DebugMessage(msg: $"Resource called Item {bucket.Name} {jobResult.Key} finished.");
 
             _bucketManager.Remove(bucket);
-
         }
 
     }
