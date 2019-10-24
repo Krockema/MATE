@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FUpdateBucketScopes.fs" />
+    <Compile Include="Message\FBucketScopes.fs" />
     <Compile Include="Message\FResourceInformations.fs" />
     <Compile Include="Message\FCreateSimulationResourceSetup.fs" />
     <Compile Include="Message\FThroughPutTimers.fs" />

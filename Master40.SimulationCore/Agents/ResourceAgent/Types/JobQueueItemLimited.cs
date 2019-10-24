@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using static IJobs;
+using static FBuckets;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
@@ -42,6 +43,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             jobs.Remove(jobToReplace);
             Enqueue(job);
             
+        }
+
+        internal IJob DequeueFirstSatisfiedFix(long currentTime)
+        {
+            var item = this.jobs.Cast<FBucket>().Where(x => x.StartConditions.Satisfied && x.IsFixPlanned).Cast<IJob>().OrderBy(keySelector: x => x.Priority(currentTime)).FirstOrDefault();
+            if (item != null)
+            {
+                this.jobs.Remove(item: item);
+            }
+            return item;
         }
     }
 }

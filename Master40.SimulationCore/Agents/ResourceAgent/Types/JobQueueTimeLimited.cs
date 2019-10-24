@@ -4,6 +4,7 @@ using System.Data.HashFunction.xxHash;
 using System.Linq;
 using MessagePack.Resolvers;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobs;
 
@@ -51,6 +52,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 queuePosition.IsQueueAble = true;
             return queuePosition;
         }
+
 
         public QueueingPosition GetQueueAbleTimeByStack(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
         {
@@ -132,13 +134,5 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
 
-        internal void SetBucketReady(Guid bucketKey)
-        {
-            var job = jobs.SingleOrDefault(x => x.Key == bucketKey);
-            if (job == null) 
-                throw new Exception($"Something went wrong");
-            job.StartConditions.ArticlesProvided = true;
-            job.StartConditions.PreCondition = true;
-        }
     }
 }

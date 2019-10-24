@@ -18,11 +18,12 @@ open FUpdateStartConditions
           IsFixPlanned : bool
           CreationTime : int64
           BackwardEnd : int64 
-          BackwardStart : int64 
-          End : int64 
+          BackwardStart : int64
           ForwardEnd : int64 
           ForwardStart : int64 
+          Scope : int64
           Start : int64
+          End : int64 
           StartConditions : FStartCondition
           Priority : FBucket -> int64 -> double
           ResourceAgent : IActorRef
@@ -43,7 +44,7 @@ open FUpdateStartConditions
                 member this.DueTime = this.Operations.Min(fun y -> y.DueTime)
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
-                member this.ForwardStart with get() = this.Operations.Min(fun y -> y.ForwardStart)
+                member this.ForwardStart with get() = this.ForwardStart
                 member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
@@ -58,8 +59,10 @@ open FUpdateStartConditions
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
-        member this.AddOperation op = { this with Operations = this.Operations.Add(op) }
+        member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
         member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
                                                                                  this.StartConditions.PreCondition <- startCondition.PreCondition
         member this.SetFixPlanned = { this with IsFixPlanned = true}
+        member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
+        member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)

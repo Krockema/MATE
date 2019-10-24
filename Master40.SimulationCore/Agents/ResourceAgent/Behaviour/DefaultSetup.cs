@@ -40,11 +40,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             switch (message)
             {
-                case Resource.Instruction.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
-                case Resource.Instruction.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
-                case Resource.Instruction.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.Default.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
+                case Resource.Instruction.Default.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.Default.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(startCondition: msg.GetObjectFromMessage); break;
-                case Resource.Instruction.DoWork msg: DoWork(); break;
+                case Resource.Instruction.Default.DoWork msg: DoWork(); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
@@ -54,7 +54,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Hub.Instruction.AddResourceToHub.Create(message: new FResourceInformation(resourceSetups: _toolManager.GetAllSetups()
+            Agent.Send(instruction: Hub.Instruction.Default.AddResourceToHub.Create(message: new FResourceInformation(resourceSetups: _toolManager.GetAllSetups()
                 , requiredFor: Agent.Name, @ref: Agent.Context.Self), target: Agent.VirtualParent));
             return true;
         }
@@ -109,14 +109,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , resourceAgent: Agent.Context.Self
                 , jobKey: jobItem.Key);
 
-            Agent.Send(instruction: Hub.Instruction.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
+            Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
        
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        internal void AcknowledgeProposal(IJob jobItem)
+        internal virtual void AcknowledgeProposal(IJob jobItem)
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
@@ -131,7 +131,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (!queuePosition.IsQueueAble)
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
-                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: jobItem, target: jobItem.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: jobItem, target: jobItem.HubAgent));
                 return;
             }
 
@@ -145,7 +145,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal void RequeueAllRemainingJobs()
+        internal virtual void RequeueAllRemainingJobs()
         {
             Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
             var item = _planingQueue.jobs.FirstOrDefault();
@@ -163,7 +163,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             foreach (var job in toRequeue)
             {
                 _planingQueue.RemoveJob(job: job);
-                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: job, target: job.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: job, target: job.HubAgent));
             }
             Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
@@ -199,7 +199,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        internal void TryToWork()
+        internal virtual void TryToWork()
         {
             if (_jobInProgress.IsSet)
             {
@@ -224,7 +224,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             DoSetup();
         }
 
-        internal void DoSetup()
+        internal virtual void DoSetup()
         {
             //Start setup if necessary 
             var setupDuration = GetSetupTime(_jobInProgress.Current);
@@ -239,14 +239,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
-            Agent.Send(instruction: Resource.Instruction.DoWork.Create(message: null, target: Agent.Context.Self),
+            Agent.Send(instruction: Resource.Instruction.Default.DoWork.Create(message: null, target: Agent.Context.Self),
                 waitFor: setupDuration);
         }
 
         /// <summary>
         /// Starts the next Job
         /// </summary>
-        internal void DoWork()
+        internal virtual void DoWork()
         {
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Duration);
             Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} new Duration is {randomizedWorkDuration}");
@@ -266,7 +266,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        internal void FinishJob(IJobResult jobResult)
+        internal virtual void FinishJob(IJobResult jobResult)
         {
             Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);

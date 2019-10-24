@@ -9,7 +9,10 @@ using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Agents.CollectorAgent;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
@@ -30,19 +33,19 @@ namespace Master40.XUnitTest.SimulationEnvironment
             .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true")
             .Options);
 
-        private ResultContext _ctxResult = ResultContext.GetContext( resultCon:
+        private ResultContext _ctxResult = ResultContext.GetContext(resultCon:
             "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true");
 
-            // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
-            // .UseInMemoryDatabase(databaseName: "InMemoryResults")
-            // .Options);
-            // 
+        // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
+        // .UseInMemoryDatabase(databaseName: "InMemoryResults")
+        // .Options);
+        // 
         public SimulationSystem()
         {
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            //MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             _ctxResult.Database.EnsureDeleted();
             _ctxResult.Database.EnsureCreated();
@@ -59,11 +62,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterResults.Database.EnsureCreated();
         }
 
-        
+
         [Theory]
         //[InlineData(SimulationType.None)]
-        //[InlineData(SimulationType.DefaultSetup)]
-        [InlineData(SimulationType.DefaultSetupStack)]
+        [InlineData(SimulationType.DefaultSetup)]
+        //[InlineData(SimulationType.DefaultSetupStack)]
         //[InlineData(SimulationType.Bucket)]
         //[InlineData(SimulationType.BucketScope)]
         public async Task SystemTestAsync(SimulationType simulationType)

@@ -42,9 +42,9 @@ namespace Master40.SimulationCore.Helper
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
                                 , creationTime: currentTime
-                                , forwardStart: 0
-                                , forwardEnd: 0
-                                , backwardStart: dueTime - operation.Duration
+                                , forwardStart: currentTime
+                                , forwardEnd: currentTime + operation.Duration + operation.AverageTransitionDuration
+                                , backwardStart: dueTime - operation.Duration - operation.AverageTransitionDuration
                                 , backwardEnd: dueTime
                                 , end: 0
                                 , start: 0
@@ -73,6 +73,7 @@ namespace Master40.SimulationCore.Helper
                     func: (bucket, currentTime) => bucket.Operations.Min(selector: y => ((IJob)y).Priority(time))
                     // ENDE
                 );
+
             var operations = new List<FOperation>();
             operations.Add(item: operation);
 
@@ -82,10 +83,11 @@ namespace Master40.SimulationCore.Helper
                                 , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
                                 , isFixPlanned: false
                                 , creationTime: time
-                                , forwardStart: 0
-                                , forwardEnd: 0
-                                , backwardStart: 0
-                                , backwardEnd: 0
+                                , forwardStart: operation.ForwardStart
+                                , forwardEnd: operation.ForwardEnd
+                                , backwardStart: operation.BackwardStart
+                                , backwardEnd: operation.BackwardEnd
+                                , scope: operation.BackwardStart - operation.ForwardStart
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
@@ -96,6 +98,43 @@ namespace Master40.SimulationCore.Helper
                                 , operations: new FSharpSet<FOperation>(elements: operations)
                                 , tool: operation.Tool
                                 , proposals: new List<FProposal>());
+        }
+
+        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time)
+        {
+            //scope
+            var scope = (operation.BackwardStart - operation.ForwardStart);
+            // TO BE TESTET
+            var prioRule = Extension.CreateFunc(
+                // Lamda zur Func.
+                func: (bucket, currentTime) => operation.BackwardEnd - scope - time
+                // ENDE
+            );
+
+            var operations = new List<FOperation>();
+            operations.Add(item: operation);
+
+            return new FBucket(key: Guid.NewGuid()
+                //, prioRule: prioRule.ToFSharpFunc()
+                , priority: prioRule.ToFSharpFunc()
+                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
+                , isFixPlanned: false
+                , creationTime: time
+                , forwardStart: operation.ForwardStart
+                , forwardEnd: operation.ForwardEnd
+                , backwardStart: operation.BackwardStart
+                , backwardEnd: operation.BackwardEnd
+                , scope: scope
+                , end: 0
+                , start: 0
+                , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
+                , maxBucketSize: 1
+                , minBucketSize: 1000
+                , resourceAgent: ActorRefs.NoSender
+                , hubAgent: hubAgent
+                , operations: new FSharpSet<FOperation>(elements: operations)
+                , tool: operation.Tool
+                , proposals: new List<FProposal>());
         }
 
         public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart
