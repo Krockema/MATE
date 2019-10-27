@@ -83,7 +83,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new OrderArrivalRate(value: 0.025)
                                                     , new OrderQuantity(value: 50)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 600)
+                                                    , new EstimatedThroughPut(value: 1440)
                                                     , new DebugAgents(value: true)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)

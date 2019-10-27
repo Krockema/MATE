@@ -80,7 +80,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             switch (message)
             {
-                case FCreateSimulationJob m: CreateSimulationOperation(simJob: m); break;
+                case FCreateSimulationJob m: CreateSimulationJob(simJob: m); break;
                 case FUpdateSimulationJob m: UpdateSimulationOperation(simJob: m); break;
                 case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
@@ -455,15 +455,22 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Kpis.Add(item: k);
         }
 
+        private void CreateSimulationJob(FCreateSimulationJob simJob)
+        {
+            switch (simJob.JobType)
+            {
+                case JobType.OPERATION: CreateSimulationOperation(simJob);
+                    break;
+                case JobType.BUCKET: CreateSimulationBucket(simJob);
+                    break;
+                default: throw new Exception("There is no JobType definied for this Simulationjob");
+                    
+            }
+        }
+
         //TODO implement Interface for ISimulationJob (FCreateSimluationOperation, FCreateSimulationBucket)
         private void CreateSimulationOperation(FCreateSimulationJob simJob)
         {
-            if (simJob.JobType == JobType.BUCKET)
-            {
-                //CreateSimulationBucket(simJob);
-                return;
-            }
-
             var fOperation = ((FOperation)simJob.Job);
             var simulationJob = new SimulationResourceJob
             {
@@ -512,7 +519,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationType = Collector.simulationKind.Value,
                 //Remember this is now a fArticleKey (Guid)
                 Time = (int)(Collector.Time),
-                ResourceTool = fBucket.Tool.Name
+                ResourceTool = fBucket.Tool.Name,
+                ProductionOrderId = String.Empty
             };
 
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fBucket.Key));
