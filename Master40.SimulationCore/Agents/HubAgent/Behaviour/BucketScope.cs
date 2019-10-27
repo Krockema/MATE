@@ -79,10 +79,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
 
-            if (bucketsToModify != null)
+            if (bucketsToModify.Count > 0)
             {
                 foreach (var modBucket in bucketsToModify)
                 {
+                    Agent.DebugMessage($"Modify(Delete) Bucket: {operation.Operation.Name} {operation.Key} modifies {modBucket.Name}");
                     if (!modBucket.ResourceAgent.IsNobody())
                     {
                         Agent.Send(Resource.Instruction.BucketScope.RequeueBucket.Create(modBucket.Key, modBucket.ResourceAgent));
@@ -101,8 +102,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (bucket != null)
             {
-
-                Agent.DebugMessage($"Add {operation.Operation.Name} to {bucket.Name}");
+                Agent.DebugMessage($"Add to Bucket: {operation.Operation.Name} to {bucket.Name}");
                 if (!bucket.ResourceAgent.IsNobody())
                 {
                     //TODO Maybe update bucket on Resource! But pay attention to possible inconsitency
@@ -112,7 +112,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             //if no bucket to add exists create a new one
             bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
-            Agent.DebugMessage($"Create {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
+            Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             EnqueueBucket(bucket);
 
         }
@@ -271,8 +271,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal override void FinishJob(IJobResult jobResult)
         {
             var operation = _bucketManager.GetOperationByKey(jobResult.Key);
+            var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
             _bucketManager.RemoveOperation(operation.Key);
-            Agent.DebugMessage(msg: $"Resource called Item {operation.Operation.Name} {jobResult.Key} finished.");
+
+            Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
 
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
             
@@ -281,7 +283,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal void FinishBucket(IJobResult jobResult)
         {
             var bucket = _bucketManager.GetBucketById(jobResult.Key);
-            Agent.DebugMessage(msg: $"Resource called Item {bucket.Name} {jobResult.Key} finished.");
+            Agent.DebugMessage(msg: $"Bucket finished: {bucket.Name} {jobResult.Key}");
 
             _bucketManager.Remove(bucket);
         }

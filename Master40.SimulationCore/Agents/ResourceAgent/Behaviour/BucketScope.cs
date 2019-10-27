@@ -192,7 +192,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _processingQueue.Replace(job);
 
-            Agent.DebugMessage($"{job.Name} has now been acknowledged");
+            Agent.DebugMessage($"Bucket start {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations has now been acknowledged");
             TryToWork();
         }
 
