@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Agents.CollectorAgent;
@@ -80,8 +81,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
-                                                    , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 50)
+                                                    , new OrderArrivalRate(value: 0.02)
+                                                    , new OrderQuantity(value: 500)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1440)
                                                     , new DebugAgents(value: true)

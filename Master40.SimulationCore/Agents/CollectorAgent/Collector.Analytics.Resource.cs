@@ -1,4 +1,3 @@
-using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
@@ -12,17 +11,14 @@ using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using static FAgentInformations;
 using static FBreakDowns;
+using static FBuckets;
 using static FCreateSimulationJobs;
 using static FCreateSimulationResourceSetups;
 using static FOperations;
-using static FBuckets;
-using static IJobs;
-using static FSetEstimatedThroughputTimes;
 using static FThroughPutTimes;
 using static FUpdateSimulationJobs;
 using static FUpdateSimulationWorkProviders;
@@ -520,9 +516,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 //Remember this is now a fArticleKey (Guid)
                 Time = (int)(Collector.Time),
                 ResourceTool = fBucket.Tool.Name,
+                Resource = fBucket.ResourceAgent.ToString(),
                 ProductionOrderId = String.Empty
             };
-
+            /*
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fBucket.Key));
             if (edit != null)
             {
@@ -531,7 +528,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 simulationJob.End = (int)(edit.Start + edit.Duration);
                 simulationJob.Resource = edit.Resource;
                 _updatedSimulationJob.Remove(item: edit);
-            }
+            }*/
             simulationJobs.Add(item: simulationJob);
         }
 
@@ -555,7 +552,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var items = simulationJobs.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
+                var operations = simulationJobs.Where(x => x.JobType.Equals(JobType.OPERATION)).ToList();
+                var items = operations.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
@@ -573,8 +571,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             
         }
-
-
 
 
     }
