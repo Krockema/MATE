@@ -132,6 +132,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
+            // check if Update has been processed this time step.
+            if (lastIntervalStart == Collector.Time)
+                return;
+
             ResourceUtilization();
 
             OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
@@ -307,6 +311,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void ResourceUtilization()
         {
             double divisor = Collector.Time - lastIntervalStart;
+
             var tupleList = new List<Tuple<string, string>>();
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from DataCollection");
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Time since last Update: " + divisor + "min");
@@ -355,11 +360,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 var value = Math.Round(value: item.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
-                //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                var machine = item.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
                 tupleList.Add(new Tuple<string, string>(item.Item1, value));
                 CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.Item1, kpiType: KpiType.MachineUtilization);
             }
+
 
             var totalLoad = Math.Round(value: final.Sum(selector: x => x.Item2) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalLoad == "NaN") totalLoad = "0";
@@ -404,9 +408,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 var value = Math.Round(value: resource.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
-                //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
                 var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
-                //TODO to implement GUI
                 var workValue = tupleList.Single(x => x.Item1 == resource.Item1).Item2;
                 var all = workValue + " " + value;
                 Collector.messageHub.SendToClient(listener: machine, msg: all);
@@ -415,8 +417,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             var totalSetup = Math.Round(value: finalSetup.Sum(selector: x => x.Item2) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalSetup == "NaN") totalSetup = "0";
-            var totalTimes = totalLoad + totalSetup;
-            //TODO to implement GUI
             CreateKpi(agent: Collector, value: totalSetup.Replace(".", ","), name: "TotalSetup", kpiType: KpiType.ResourceSetup);
 
             Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: 
@@ -441,7 +441,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var k = new Kpi
             {
                 Name = name,
-                Value = Convert.ToDouble(value: value),
+                Value = Math.Round(Convert.ToDouble(value: value), 2),
                 Time = (int)agent.Time,
                 KpiType = kpiType,
                 SimulationConfigurationId = agent.simulationId.Value,

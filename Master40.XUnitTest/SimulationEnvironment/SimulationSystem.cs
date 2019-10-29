@@ -82,7 +82,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.02)
-                                                    , new OrderQuantity(value: 500)
+                                                    , new OrderQuantity(value: 350)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1440)
                                                     , new DebugAgents(value: true)
