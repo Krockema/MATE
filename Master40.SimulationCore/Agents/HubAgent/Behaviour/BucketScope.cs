@@ -50,7 +50,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (successRemove)
             {
-                RequeueOperations(bucket.Operations.OrderBy(x => x.ForwardStart).ToList());
+                _operationList.AddRange(bucket.Operations);
+                RequeueOperations(bucket.Operations.ToList());
             }
 
         }
@@ -63,6 +64,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
+            _operationList.Add(operation);
             EnqueueOperation(operation);
 
         }
@@ -71,30 +73,32 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var operationInBucket = _bucketManager.GetBucketByOperationKey(operation.Key);
 
-            if (operationInBucket != null && !_operationList.Any(x => x.Key == operation.Key))
+            if (operationInBucket != null)
             {
-                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} is already in bucket or operationlist");
+                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} is already in bucket");
                 return;
             }
 
+            _operationList.Remove(operation);
+            
             var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
 
             if (bucketsToModify.Count > 0)
             {
+                Agent.DebugMessage($"{bucketsToModify.Count} buckets to modify");
                 foreach (var modBucket in bucketsToModify)
                 {
-                    Agent.DebugMessage($"Modify(Delete) Bucket: {operation.Operation.Name} {operation.Key} modifies {modBucket.Name}");
+                    Agent.DebugMessage($"Modify Bucket: {operation.Operation.Name} {operation.Key} modifies {modBucket.Name}");
                     if (!modBucket.ResourceAgent.IsNobody())
                     {
                         Agent.Send(Resource.Instruction.BucketScope.RequeueBucket.Create(modBucket.Key, modBucket.ResourceAgent));
                     }
                     else
                     {
-                        RequeueOperations(modBucket.Operations.ToList());
+                        ResetBucket(modBucket.Key);
                     }
-
                 }
-
+                
             }
 
             //if no bucket has to be modified try to add
@@ -102,7 +106,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (bucket != null)
             {
-                Agent.DebugMessage($"Add to Bucket: {operation.Operation.Name} to {bucket.Name}");
+                Agent.DebugMessage($"Extend Bucket: {operation.Operation.Name} {operation.Key} to {bucket.Name}");
                 if (!bucket.ResourceAgent.IsNobody())
                 {
                     //TODO Maybe update bucket on Resource! But pay attention to possible inconsitency
@@ -124,11 +128,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (bucketExits != null)
             {
                 bucket = bucketExits;
+                bucket.Proposals.Clear();
+                bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
+                _bucketManager.Replace(bucket);
             }
 
-            bucket.Proposals.Clear();
-            bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
-            _bucketManager.Replace(bucket);
 
             Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
             
@@ -146,6 +150,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             // get related operation and add proposal.
             var bucket = _bucketManager.GetBucketById(fProposal.JobKey);
+            
+            if (bucket == null) return;
+
             bucket.Proposals.RemoveAll(x => x.ResourceAgent.Equals(fProposal.ResourceAgent));
             // add New Proposal
             bucket.Proposals.Add(item: fProposal);
@@ -213,6 +220,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 Agent.DebugMessage(msg: $"{bucket.Name} with {bucket.Operations.Count} operations has been set fix: {bucket.IsFixPlanned} and has set satisfied: {bucket.StartConditions.Satisfied}");
                
                 Agent.DebugMessage(msg: $"{bucket.Name} has {notSatisfiedOperations.Count} operations to requeue");
+                
+                _operationList.AddRange(notSatisfiedOperations); 
                 RequeueOperations(notSatisfiedOperations);
                 
             }
@@ -228,6 +237,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
+            var operation = _operationList.SingleOrDefault(x => x.Key == startCondition.OperationKey);
+
+            if (operation != null)
+            {
+                operation.SetStartConditions(startCondition);
+                return;
+            }
+
             var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
 
             if (bucket.ResourceAgent.IsNobody())

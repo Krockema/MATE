@@ -172,7 +172,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             foreach (var bucket in buckets)
             {
-                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation))
+                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && ((IJob)bucket).Duration + operation.Operation.Duration < 240)
                 {
                     matchingBuckets.Add(bucket);
                 }

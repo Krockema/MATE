@@ -179,7 +179,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
                     ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SaveChanges();
                     ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -361,7 +363,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             var totalLoad = Math.Round(value: final.Sum(selector: x => x.Item2) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalLoad == "NaN") totalLoad = "0";
-            CreateKpi(agent: Collector, value: totalLoad, name: "TotalWork", kpiType: KpiType.MachineUtilization);
+            CreateKpi(agent: Collector, value: totalLoad.Replace(".", ","), name: "TotalWork", kpiType: KpiType.MachineUtilization);
 
             //ResourceSetupTimes for interval
             var setups_lower_borders = from sw in simulationResourceSetups
@@ -415,7 +417,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (totalSetup == "NaN") totalSetup = "0";
             var totalTimes = totalLoad + totalSetup;
             //TODO to implement GUI
-            CreateKpi(agent: Collector, value: totalSetup, name: "TotalSetup", kpiType: KpiType.ResourceSetup);
+            CreateKpi(agent: Collector, value: totalSetup.Replace(".", ","), name: "TotalSetup", kpiType: KpiType.ResourceSetup);
 
             Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: 
                 new { Time = Collector.Time
@@ -519,7 +521,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Resource = fBucket.ResourceAgent.ToString(),
                 ProductionOrderId = String.Empty
             };
-            /*
+
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fBucket.Key));
             if (edit != null)
             {
@@ -528,7 +530,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 simulationJob.End = (int)(edit.Start + edit.Duration);
                 simulationJob.Resource = edit.Resource;
                 _updatedSimulationJob.Remove(item: edit);
-            }*/
+            }
+
             simulationJobs.Add(item: simulationJob);
         }
 
@@ -552,8 +555,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var operations = simulationJobs.Where(x => x.JobType.Equals(JobType.OPERATION)).ToList();
-                var items = operations.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
+                var items = simulationJobs.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
