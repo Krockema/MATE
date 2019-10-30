@@ -37,7 +37,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<SimulationResourceJob> simulationJobsForDb { get; } = new List<SimulationResourceJob>();
         private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         private List<SimulationResourceSetup> simulationResourceSetupsForDb { get; } = new List<SimulationResourceSetup>();
-        //TODO KpiManager to implement
+        
         private KpiManager kpiManager { get; } = new KpiManager();
 
         private long lastIntervalStart { get; set; } = 0;
@@ -133,15 +133,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             // check if Update has been processed this time step.
-            if (lastIntervalStart == Collector.Time)
-                return;
+            
 
-            ResourceUtilization();
+            if (lastIntervalStart != Collector.Time)
+            {
+                ResourceUtilization();
 
-            OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+                OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
 
-            ThroughPut();
-            lastIntervalStart = Collector.Time;
+                ThroughPut();
+                lastIntervalStart = Collector.Time;
+            }
 
             LogToDB(writeResultsToDB: finalCall);
 
@@ -311,7 +313,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private void ResourceUtilization()
         {
             double divisor = Collector.Time - lastIntervalStart;
-
             var tupleList = new List<Tuple<string, string>>();
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from DataCollection");
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Time since last Update: " + divisor + "min");
