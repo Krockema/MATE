@@ -194,14 +194,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
         {
-            buckets = buckets.Where(x => x.IsFixPlanned.Equals(false)).ToList().OrderBy(x => x.GetCapacityLeft).ToList();
+            var bucket = buckets.Where(x => !x.IsFixPlanned).ToList().OrderBy(x => x.GetCapacityLeft).ToList().FirstOrDefault();
 
-            /*foreach (var bucket in buckets)
-            {
-                System.Diagnostics.Debug.WriteLine($"{bucket.Name} has {bucket.GetCapacityLeft} left");
-            }*/
-
-            return buckets.FirstOrDefault();
+            return bucket;
         }
 
 
@@ -240,10 +235,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             var bucket = GetBucketByOperationKey(operationKey);
 
-            var operation = bucket.Operations.Single(x => x.Key == operationKey);
-            operation.SetStartConditions(startCondition);
+            if (bucket != null)
+            {
+                var operation = bucket.Operations.Single(x => x.Key == operationKey);
+                operation.SetStartConditions(startCondition);
+                _buckets.Replace(bucket);
+            }
 
-            _buckets.Replace(bucket);
             return bucket;
         }
 
