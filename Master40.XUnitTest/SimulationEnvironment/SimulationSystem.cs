@@ -67,7 +67,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.None)]
         //[InlineData(SimulationType.DefaultSetup)]
         //[InlineData(SimulationType.DefaultSetupStack)]
-        //[InlineData(SimulationType.Bucket)]
         [InlineData(SimulationType.BucketScope)]
         public async Task SystemTestAsync(SimulationType simulationType)
         {
@@ -82,7 +81,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.02)
-                                                    , new OrderQuantity(value: 480)
+                                                    , new OrderQuantity(value: 75)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1440)
                                                     , new MaxBucketSize(value: 480)

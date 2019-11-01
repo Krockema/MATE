@@ -238,7 +238,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     , isHeadDemand: fArticle.IsHeadDemand
                     , fArticleKey : fArticle.Key
                     , fArticleName: fArticle.Article.Name
-                    , articleType: fArticle.Article.ArticleType.Name);
+                    , articleType: fArticle.Article.ArticleType.Name
+                    , start: fJob.Start
+                    , end: fJob.End);
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 

@@ -519,19 +519,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 //Remember this is now a fArticleKey (Guid)
                 Time = (int)(Collector.Time),
                 ResourceTool = fBucket.Tool.Name,
-                Resource = fBucket.ResourceAgent.ToString(),
-                ProductionOrderId = String.Empty
+                Resource = fBucket.ResourceAgent.Path.Name,
+                ProductionOrderId = String.Empty,
+                Start = simJob.Start,
+                End = simJob.End
             };
-
-            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fBucket.Key));
-            if (edit != null)
-            {
-                simulationJob.JobType = edit.JobType;
-                simulationJob.Start = (int)edit.Start;
-                simulationJob.End = (int)(edit.Start + edit.Duration);
-                simulationJob.Resource = edit.Resource;
-                _updatedSimulationJob.Remove(item: edit);
-            }
 
             simulationJobs.Add(item: simulationJob);
         }

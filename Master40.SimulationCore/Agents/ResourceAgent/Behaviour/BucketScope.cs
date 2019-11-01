@@ -187,6 +187,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (bucket == null)
             {
                 Agent.DebugMessage($"{job.Name} doesn't exits and couldn't be acknowledged");
+                _processingQueue.Remove(job);
                 return;
             }
 
@@ -214,7 +215,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(msg: "Nothing more Ready in Queue!");
                 return;
             }
-
+            
             UpdateProcessingQueue();
 
             _jobInProgress.Set(nextJobInProgress, Agent.CurrentTime);
@@ -318,9 +319,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void FinishBucket(IJobResult jobResult)
         {
             Agent.DebugMessage(msg: $"Bucket finished work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
-            
+
             //TODO for collector
-            var pub = new FCreateSimulationJobs.FCreateSimulationJob(job: _jobInProgress.Current, jobType: JobType.BUCKET, null, false, null, System.Guid.Empty, null);
+            var pub = new FCreateSimulationJobs.FCreateSimulationJob(job: _jobInProgress.Current, jobType: JobType.BUCKET, null, false, null, System.Guid.Empty, null, start: _jobInProgress.StartTime, end: Agent.CurrentTime);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             Agent.Send(instruction: Hub.Instruction.BucketScope.FinishBucket.Create(jobResult: jobResult, target: _jobInProgress.Current.HubAgent));

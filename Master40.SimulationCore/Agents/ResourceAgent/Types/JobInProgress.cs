@@ -11,8 +11,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class JobInProgress
     {
         public IJob Current { get; private set; }
-
-        public long StartTime { get; private set; } = 0;
+        public long StartTime { get; private set; }
         public long ResourceIsBusyUntil { get; set; } = 0;
         public bool IsSet => Current != null;
         public void SetStartTime(long time) => StartTime = time;
@@ -23,6 +22,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 return false;
             Current = job;
             ResourceIsBusyUntil = currentTime + job.Duration;
+            StartTime = currentTime;
             return true;
         }
 
@@ -30,7 +30,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             Current = null;
             ResourceIsBusyUntil = 0;
-            StartTime = 0;
         }
 
         internal void RemoveOperation(FOperation operation)
