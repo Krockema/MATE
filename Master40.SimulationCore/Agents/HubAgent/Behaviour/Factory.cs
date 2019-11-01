@@ -5,7 +5,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType)
+        public static IBehaviour Get(SimulationType simType, long maxBucketSize)
         {
             IBehaviour behaviour;
             switch (simType)
@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     behaviour = DefaultSetup();
                     break;
                 case SimulationType.BucketScope:
-                    behaviour = BucketScope();
+                    behaviour = BucketScope(maxBucketSize);
                     break;
                 default:
                     behaviour =  Default();
@@ -41,10 +41,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         }
 
-        private static IBehaviour BucketScope()
+        private static IBehaviour BucketScope(long maxBucketSize)
         {
 
-            return new BucketScope();
+            return new BucketScope(maxBucketSize: maxBucketSize);
 
         }
 

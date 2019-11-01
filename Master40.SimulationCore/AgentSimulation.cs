@@ -195,6 +195,8 @@ namespace Master40.SimulationCore
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
 
+            var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
+
             var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)
                                                                     .ThenInclude(s => s.ResourceSetups)
@@ -207,7 +209,7 @@ namespace Master40.SimulationCore
             {
                 var resourceSetups = setups.Where(predicate: x => x.ResourceId == resource.Id).ToList();
 
-                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, debug: _debugAgents);
+                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: maxBucketSize, debug: _debugAgents);
 
                 _simulation.SimulationContext.Tell(message: Directory.Instruction
                                                             .CreateMachineAgents

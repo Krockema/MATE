@@ -18,6 +18,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         private List<FBucket> _buckets { get; set; } = new List<FBucket>();
 
+        private long _maxBucketSize { get; set; }
+
+        public BucketManager(long maxBucketSize)
+        {
+            _maxBucketSize = maxBucketSize;
+        }
+
         public FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime);
@@ -172,7 +179,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             foreach (var bucket in buckets)
             {
-                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && ((IJob)bucket).Duration + operation.Operation.Duration < 240)
+                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && ((IJob)bucket).Duration + operation.Operation.Duration < _maxBucketSize)
                 {
                     matchingBuckets.Add(bucket);
                 }

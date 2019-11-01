@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
+using System.Dynamic;
 using System.Linq;
 using Akka.Actor;
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
+using Master40.SimulationCore.Environment.Options;
 using static FBuckets;
 using static FOperations;
 using static IJobs;
@@ -17,10 +19,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public class BucketScope : DefaultSetup
     {
-        public BucketScope(SimulationType simulationType = SimulationType.BucketScope)
-            : base(simulationType: simulationType) { }
+        public BucketScope(long maxBucketSize, SimulationType simulationType = SimulationType.BucketScope)
+            : base(simulationType: simulationType)
+        {
+            _maxBucketSize = maxBucketSize;
+        }
 
-        private BucketManager _bucketManager { get; } = new BucketManager();
+        private static long _maxBucketSize { get; set; }
+
+        private BucketManager _bucketManager { get; } = new BucketManager(maxBucketSize: _maxBucketSize);
 
         public override bool Action(object message)
         {
