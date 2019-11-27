@@ -41,9 +41,9 @@ namespace Master40.DB.Data.WrappersForPrimitives
             return _int > t._int;
         }
 
-        public bool IsGreaterThanNull()
+        public bool IsGreaterThanZero()
         {
-            return IsGreaterThan(Null());
+            return IsGreaterThan(Zero());
         }
 
         public bool IsSmallerThan(T t)
@@ -80,7 +80,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
             return newObject;
         }
 
-        public bool IsNull()
+        public bool IsZero()
         {
             return _int.Equals(0);
         }
@@ -90,11 +90,10 @@ namespace Master40.DB.Data.WrappersForPrimitives
             return _int < 0;
         }
 
-        public static T Null()
+        public static T Zero()
         {
-            int newValue = 0;
             T newObject = (T) Activator.CreateInstance(typeof(T));
-            newObject._int = newValue;
+            newObject._int = 0;
             return newObject;
         }
 

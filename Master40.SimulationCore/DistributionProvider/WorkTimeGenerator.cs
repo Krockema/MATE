@@ -14,6 +14,7 @@ namespace Master40.SimulationCore.DistributionProvider
                 , deviation: configuration.GetOption<WorkTimeDeviation>().Value
                 , simNumber: configuration.GetOption<SimulationNumber>().Value);
         }
+
         public WorkTimeGenerator(int seed, double deviation, int simNumber)
         {
             var source = new Random(Seed: seed + simNumber);
