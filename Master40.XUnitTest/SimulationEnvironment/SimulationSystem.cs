@@ -23,8 +23,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
     public class SimulationSystem : TestKit
     {
         private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private int simNr = 999;
-
+        
         ProductionDomainContext _ctx = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                                                             .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                             .Options);
@@ -64,11 +63,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup)]
-        //[InlineData(SimulationType.DefaultSetupStack)]
-        //[InlineData(SimulationType.Bucket)]
-        //[InlineData(SimulationType.BucketScope)]
-        public async Task SystemTestAsync(SimulationType simulationType)
+        [InlineData(SimulationType.DefaultSetup, 1)]
+        [InlineData(SimulationType.DefaultSetupStack, 2)]
+        [InlineData(SimulationType.BucketScope, 3)]
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
@@ -80,11 +78,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
-                                                    , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 50)
+                                                    , new OrderArrivalRate(value: 0.02)
+                                                    , new OrderQuantity(value: 500)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1440)
-                                                    , new DebugAgents(value: true)
+                                                    , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new Seed(value: 1337)

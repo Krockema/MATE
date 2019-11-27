@@ -98,12 +98,8 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
         private void ResponseFromProduction(FProductionResult productionResult)
         {
-            Agent.DebugMessage(msg: $"{productionResult.Amount} {_stockManager.Name} was send from {Agent.Sender.Path.Name}");
-
             // Add the Produced item to Stock
-            LogValueChange(article: _stockManager.Article, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
-
-
+            Agent.DebugMessage(msg: $"{productionResult.Amount} {_stockManager.Name} was send from {Agent.Sender.Path.Name}");
             var stockExchange = new T_StockExchange
             {
                 StockId = _stockManager.Id,
@@ -116,6 +112,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             };
             _stockManager.AddToStock(stockExchange);
             _stockManager.StockExchanges.Add(stockExchange);
+
+            // log Changes 
+            LogValueChange(article: _stockManager.Article, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
             // Check if the most Important Request can be provided.
             var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
