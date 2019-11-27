@@ -186,13 +186,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             if (bucket == null)
             {
-                Agent.DebugMessage($"{job.Name} has doesn't exits and couldn't be acknowledged");
+                Agent.DebugMessage($"{job.Name} doesn't exits and couldn't be acknowledged");
+                _processingQueue.Remove(job);
                 return;
             }
 
             _processingQueue.Replace(job);
-
-            Agent.DebugMessage($"Bucket start {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations has now been acknowledged");
+           
+            Agent.DebugMessage($"{bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations has now been acknowledged");
+            
             TryToWork();
         }
 
@@ -213,12 +215,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(msg: "Nothing more Ready in Queue!");
                 return;
             }
-
+            
             UpdateProcessingQueue();
 
             _jobInProgress.Set(nextJobInProgress, Agent.CurrentTime);
 
-            Agent.DebugMessage($"Next job {_jobInProgress.Current.Name} was set on {Agent.Context.Self.Path.Name}");
+            Agent.DebugMessage($"Bucket start {_jobInProgress.Current.Name} was set on {Agent.Context.Self.Path.Name}");
             DoSetup();
         }
 
@@ -241,8 +243,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.SetStartTime(Agent.CurrentTime);
 
-            Agent.DebugMessage($"Setup takes {setupDuration} {_jobInProgress.Current.Name} with {((FBucket)_jobInProgress.Current).Operations.Count} operation Id: {_jobInProgress.Current.Key} at resource {Agent.Context.Self}");
-
             Agent.Send(instruction: Resource.Instruction.Default.DoWork.Create(message: null, target: Agent.Context.Self), waitFor: setupDuration);
         }
 
@@ -251,6 +251,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         internal override void DoWork()
         {
+            Agent.DebugMessage("Call start Job");
             //TODO for each operation in bucket try to work
             var bucket = ((FBucket)_jobInProgress.Current);
 
@@ -261,24 +262,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var operation = bucket.Operations.OrderByDescending(prio => prio.DueTime)
                 .FirstOrDefault(op => op.StartConditions.Satisfied);
             
-
-            //if there arent any operations - finish bucket
-            if (operation == null)
-            {
-                var fBucketResult = new FBucketResults.FBucketResult(key: _jobInProgress.Current.Key
-                    , creationTime: 0
-                    , start: _jobInProgress.StartTime
-                    , end: Agent.CurrentTime
-                    , originalDuration: _jobInProgress.Current.Duration
-                    , productionAgent: ActorRefs.Nobody
-                    , resourceAgent: Agent.Context.Self);
-
-                Agent.DebugMessage($"Nothing more in bucket: {bucket.Name} with {bucket.Operations.Count} Id: {bucket.Key}");
-
-                Agent.Send(instruction: Resource.Instruction.BucketScope.FinishBucket.Create(message: fBucketResult, target: Agent.Context.Self));
-                return;
-            }
-
             //else - finish operation
             Agent.DebugMessage(msg: $"Start withdraw for article {operation.Operation.Name} {operation.Key}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: operation.Key, target: _jobInProgress.Current.HubAgent));
@@ -303,6 +286,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void FinishJob(IJobResult jobResult)
         {
+            Agent.DebugMessage("Call finish Job");
             var bucket = (FBucket)_jobInProgress.Current;
             var operation = bucket.Operations.Single(x => x.Key == jobResult.Key);
             _jobInProgress.RemoveOperation(operation);
@@ -310,15 +294,34 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             Agent.Send(BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.HubAgent));
 
+            var nextOperation = ((FBucket)_jobInProgress.Current).Operations.OrderByDescending(prio => prio.DueTime)
+                .FirstOrDefault(op => op.StartConditions.Satisfied);
+            //if there arent any operations - finish bucket
+            if (nextOperation == null)
+            {
+                var fBucketResult = new FBucketResults.FBucketResult(key: _jobInProgress.Current.Key
+                    , creationTime: 0
+                    , start: _jobInProgress.StartTime
+                    , end: Agent.CurrentTime
+                    , originalDuration: _jobInProgress.Current.Duration
+                    , productionAgent: ActorRefs.Nobody
+                    , resourceAgent: Agent.Context.Self);
+
+                Agent.DebugMessage($"Nothing more in bucket: {bucket.Name} with {bucket.Operations.Count} Id: {bucket.Key}");
+
+                Agent.Send(instruction: Resource.Instruction.BucketScope.FinishBucket.Create(message: fBucketResult, target: Agent.Context.Self));
+                return;
+            }
+
             DoWork();
         }
 
         internal void FinishBucket(IJobResult jobResult)
         {
-            Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
+            Agent.DebugMessage(msg: $"Bucket finished work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
 
             //TODO for collector
-            var pub = new FCreateSimulationJobs.FCreateSimulationJob(job: _jobInProgress.Current, jobType: JobType.BUCKET, null, false, null, System.Guid.Empty, null);
+            var pub = new FCreateSimulationJobs.FCreateSimulationJob(job: _jobInProgress.Current, jobType: JobType.BUCKET, null, false, null, System.Guid.Empty, null, start: _jobInProgress.StartTime, end: Agent.CurrentTime);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             Agent.Send(instruction: Hub.Instruction.BucketScope.FinishBucket.Create(jobResult: jobResult, target: _jobInProgress.Current.HubAgent));

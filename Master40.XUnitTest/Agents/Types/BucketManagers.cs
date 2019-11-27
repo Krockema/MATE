@@ -45,7 +45,7 @@ namespace Master40.XUnitTest.Agents.Types
         [Fact]
         void CreateBucket()
         {
-            var bucketManager = new BucketManager();
+            var bucketManager = new BucketManager(240);
             var tool = new M_ResourceTool(){Name = "SawBig"};
             var operationJob = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 35, averageTransitionDuration: 10, tool: tool);
 
@@ -58,7 +58,7 @@ namespace Master40.XUnitTest.Agents.Types
         [Fact]
         void BackwardAndForwardTestForBucket()
         {
-            var bucketManager = new BucketManager();
+            var bucketManager = new BucketManager(240);
             var tool = new M_ResourceTool() { Name = "SawBig" };
             var operationJob = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 5, averageTransitionDuration: 10, tool: tool);
 
@@ -76,7 +76,7 @@ namespace Master40.XUnitTest.Agents.Types
         [Fact]
         void BackwardAndForwardTestForModifiedBucket()
         {
-            var bucketManager = new BucketManager();
+            var bucketManager = new BucketManager(240);
             var tool = new M_ResourceTool() { Name = "SawBig" };
             var operationJob = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 5, averageTransitionDuration: 10, dueTime: 50, tool: tool);
 
@@ -109,7 +109,7 @@ namespace Master40.XUnitTest.Agents.Types
         /// </summary>
         BucketManager CreateTestSetForBuckets()
         {
-            var bucketManager = new BucketManager();
+            var bucketManager = new BucketManager(240);
             var tool1 = new M_ResourceTool() { Name = "SawBig" };
             var tool2 = new M_ResourceTool() { Name = "SawSmall" };
 

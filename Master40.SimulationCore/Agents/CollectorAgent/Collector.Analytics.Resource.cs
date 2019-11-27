@@ -1,4 +1,3 @@
-using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.Enums;
@@ -12,17 +11,14 @@ using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using static FAgentInformations;
 using static FBreakDowns;
+using static FBuckets;
 using static FCreateSimulationJobs;
 using static FCreateSimulationResourceSetups;
 using static FOperations;
-using static FBuckets;
-using static IJobs;
-using static FSetEstimatedThroughputTimes;
 using static FThroughPutTimes;
 using static FUpdateSimulationJobs;
 using static FUpdateSimulationWorkProviders;
@@ -41,7 +37,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<SimulationResourceJob> simulationJobsForDb { get; } = new List<SimulationResourceJob>();
         private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         private List<SimulationResourceSetup> simulationResourceSetupsForDb { get; } = new List<SimulationResourceSetup>();
-        //TODO KpiManager to implement
+        
         private KpiManager kpiManager { get; } = new KpiManager();
 
         private long lastIntervalStart { get; set; } = 0;
@@ -136,12 +132,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
             // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
             // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
-            ResourceUtilization();
+            // check if Update has been processed this time step.
+            
 
-            OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+            if (lastIntervalStart != Collector.Time)
+            {
+                ResourceUtilization();
 
-            ThroughPut();
-            lastIntervalStart = Collector.Time;
+                OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+
+                ThroughPut();
+                lastIntervalStart = Collector.Time;
+            }
 
             LogToDB(writeResultsToDB: finalCall);
 
@@ -183,7 +185,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
                     ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SaveChanges();
                     ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -357,15 +361,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 var value = Math.Round(value: item.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
-                //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
-                var machine = item.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
                 tupleList.Add(new Tuple<string, string>(item.Item1, value));
                 CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.Item1, kpiType: KpiType.MachineUtilization);
             }
 
+
             var totalLoad = Math.Round(value: final.Sum(selector: x => x.Item2) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalLoad == "NaN") totalLoad = "0";
-            CreateKpi(agent: Collector, value: totalLoad, name: "TotalWork", kpiType: KpiType.MachineUtilization);
+            CreateKpi(agent: Collector, value: totalLoad.Replace(".", ","), name: "TotalWork", kpiType: KpiType.MachineUtilization);
 
             //ResourceSetupTimes for interval
             var setups_lower_borders = from sw in simulationResourceSetups
@@ -406,9 +409,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 var value = Math.Round(value: resource.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN") value = "0";
-                //Debug.WriteLine(item.M + " worked " + item.W + " min of " + divisor + " min with " + item.C + " items!", "work");
                 var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
-                //TODO to implement GUI
                 var workValue = tupleList.Single(x => x.Item1 == resource.Item1).Item2;
                 var all = workValue + " " + value;
                 Collector.messageHub.SendToClient(listener: machine, msg: all);
@@ -417,9 +418,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             var totalSetup = Math.Round(value: finalSetup.Sum(selector: x => x.Item2) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalSetup == "NaN") totalSetup = "0";
-            var totalTimes = totalLoad + totalSetup;
-            //TODO to implement GUI
-            CreateKpi(agent: Collector, value: totalSetup, name: "TotalSetup", kpiType: KpiType.ResourceSetup);
+            CreateKpi(agent: Collector, value: totalSetup.Replace(".", ","), name: "TotalSetup", kpiType: KpiType.ResourceSetup);
 
             Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value: 
                 new { Time = Collector.Time
@@ -443,7 +442,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var k = new Kpi
             {
                 Name = name,
-                Value = Convert.ToDouble(value: value),
+                Value = Math.Round(Convert.ToDouble(value: value), 2),
                 Time = (int)agent.Time,
                 KpiType = kpiType,
                 SimulationConfigurationId = agent.simulationId.Value,
@@ -520,18 +519,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 //Remember this is now a fArticleKey (Guid)
                 Time = (int)(Collector.Time),
                 ResourceTool = fBucket.Tool.Name,
-                ProductionOrderId = String.Empty
+                Resource = fBucket.ResourceAgent.Path.Name,
+                ProductionOrderId = String.Empty,
+                Start = simJob.Start,
+                End = simJob.End
             };
 
-            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fBucket.Key));
-            if (edit != null)
-            {
-                simulationJob.JobType = edit.JobType;
-                simulationJob.Start = (int)edit.Start;
-                simulationJob.End = (int)(edit.Start + edit.Duration);
-                simulationJob.Resource = edit.Resource;
-                _updatedSimulationJob.Remove(item: edit);
-            }
             simulationJobs.Add(item: simulationJob);
         }
 
@@ -573,8 +566,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             
         }
-
-
 
 
     }

@@ -79,6 +79,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                     var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
                                                                  , time: Agent.CurrentTime
                                                                  , simtype: SimulationType
+                                                                 , maxBucketSize: resourceSetupDefinition.MaxBucketSize
                                                                  , debug: Agent.DebugThis
                                                                  , principal: Agent.Context.Self)
                                                         , name: "Hub(" + resourceSetup.ResourceSkill.Name + ")");

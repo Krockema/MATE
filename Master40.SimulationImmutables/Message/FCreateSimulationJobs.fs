@@ -11,4 +11,6 @@ open IJobs
         ArticleType : string
         fArticleKey : Guid
         fArticleName: string
+        Start : int64
+        End : int64
     }

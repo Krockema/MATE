@@ -55,5 +55,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return item;
         }
 
+        internal void Remove(IJob job)
+        {
+            this.jobs.Remove(item: job);
+        }
     }
 }
