@@ -1,14 +1,17 @@
 using System;
+using Microsoft.Extensions.DependencyModel;
 
 namespace Master40.DB.Data.WrappersForPrimitives
 {
     public class DecimalPrimitive<T>: INumericPrimitive<T> where T : DecimalPrimitive<T>, new()
     {
         private decimal _decimal;
+        private decimal _remainder;
 
         public DecimalPrimitive(decimal @decimal)
         {
             _decimal = @decimal;
+            _remainder = 0;
         }
 
         public DecimalPrimitive()
@@ -25,11 +28,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
             _decimal += t._decimal;
         }
 
-        public void IncrementBy(decimal compareOperation)
-        {
-            _decimal += compareOperation;
-        }
-        
+       
         public void DecrementBy(T t)
         {
             _decimal -= t._decimal;
@@ -46,9 +45,9 @@ namespace Master40.DB.Data.WrappersForPrimitives
             return _decimal > t._decimal;
         }
         
-        public bool IsGreaterThanNull()
+        public bool IsGreaterThanZero()
         {
-            return IsGreaterThan(Null());
+            return IsGreaterThan(Zero());
         }
 
         public bool IsSmallerThan(T t)
@@ -68,7 +67,36 @@ namespace Master40.DB.Data.WrappersForPrimitives
             newObject._decimal = newValue;
             return newObject;
         }
-        
+
+
+        /// <summary>
+        /// Decrements the value to Zero and returns true if Zero is exceeded.
+        /// </summary>
+        /// <param name="q"></param>
+        /// <returns></returns>
+        public bool MinusToZero(T t)
+        {
+            if (this._decimal >= t._decimal)
+            {
+                DecrementBy(t);
+                _remainder = 0;
+                return false;
+            }
+            else
+            {
+                _remainder = t._decimal - this._decimal;
+                _decimal = 0;
+                return true;
+            }
+        }
+
+        public T GetRemainder()
+        {
+            T newObject = (T)Activator.CreateInstance(typeof(T));
+            newObject._decimal = _remainder;
+            return newObject;
+        }
+
         public T Plus(T t)
         {
             decimal newValue = _decimal + t._decimal;
@@ -85,7 +113,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
             return newObject;
         }
         
-        public bool IsNull()
+        public bool IsZero()
         {
             return _decimal.Equals(0);
         }
@@ -95,7 +123,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
             return _decimal < 0;
         }
         
-        public static T Null()
+        public static T Zero()
         {
             decimal newValue = 0;
             T newObject = (T) Activator.CreateInstance(typeof(T));

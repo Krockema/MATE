@@ -148,7 +148,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         internal void WithdrawArticleFromStock()
         {
             Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} {_fArticle.Key} from Stock exchange {_fArticle.StockExchangeId}");
-            Agent.Send(instruction: Storage.Instruction.WithdrawArticle
+            Agent.Send(instruction: WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));
             Agent.TryToFinish();

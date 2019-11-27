@@ -13,7 +13,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
         
         bool IsGreaterThan(T t);
         
-        bool IsGreaterThanNull();
+        bool IsGreaterThanZero();
 
         bool IsSmallerThan(T t);
         
@@ -25,7 +25,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
 
         T AbsoluteValue();
         
-        bool IsNull();
+        bool IsZero();
 
         bool IsNegative();
     }
