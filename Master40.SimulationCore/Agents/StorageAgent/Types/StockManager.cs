@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
             });
         }
 
-        internal List<Guid> GetProviderGuidsFor(Quantity totalRequiredQuantity)
+        internal List<T_StockExchange> GetProviderGuidsFor(Quantity totalRequiredQuantity)
         {
             List<T_StockExchange> providerList = new List<T_StockExchange>();
             var requiredQuantity = totalRequiredQuantity;
@@ -84,7 +84,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
                 providerList.Add(provider.StockExchange);
             }
 
-            return providerList.Select(x => x.ProductionArticleKey).ToList();
+            return providerList;
         }
     }
 }

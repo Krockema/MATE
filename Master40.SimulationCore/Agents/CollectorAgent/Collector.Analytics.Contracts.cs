@@ -62,7 +62,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
                 Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}");
-
                 inTime++;
             }
             else
@@ -139,7 +138,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
 
             toUpdate.State = DB.Enums.State.Finished;
-            toUpdate.FinishingTime = (int)item.FinishedAt;
+            toUpdate.ProductionFinishedTime = (int) item.ProvidedAt;
+            toUpdate.StockExchangeGuid = item.StockExchangeId;
+            toUpdate.FinishingTime = (int) item.FinishedAt;
         }
 
         private void WriteToDB(Collector agent,bool writeResultsToDB)

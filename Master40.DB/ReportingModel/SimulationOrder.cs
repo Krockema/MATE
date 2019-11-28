@@ -1,4 +1,5 @@
-﻿using Master40.DB.Enums;
+﻿using System;
+using Master40.DB.Enums;
 using Master40.DB.Interfaces;
 
 namespace Master40.DB.ReportingModel
@@ -9,8 +10,10 @@ namespace Master40.DB.ReportingModel
         public int OriginId { get; set; }
         public int DueTime { get; set; }
         public int CreationTime { get; set; }
+        public int ProductionFinishedTime { get; set; }
         public int FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }
+        public Guid StockExchangeGuid { get; set; }
         public State State { get; set; }
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }

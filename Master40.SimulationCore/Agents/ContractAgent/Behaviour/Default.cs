@@ -53,12 +53,14 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         {
             Agent.DebugMessage(msg: "Ready to Deliver");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
-            _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 
             // try to Finish if time has come
             if (Agent.CurrentTime >= _fArticle.DueTime)
             {
-                _fArticle = _fArticle.SetProvided;
+                _fArticle = _fArticle.SetProvided
+                                    .UpdateFinishedAt(Agent.CurrentTime)
+                                    .UpdateProvidedAt(fArticleProvider.ArticleFinishedAt)
+                                    .UpdateStockExchangeId(fArticleProvider.StockExchangeId);
                 Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ");
                 System.Diagnostics.Debug.WriteLine($"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ");
                 Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));

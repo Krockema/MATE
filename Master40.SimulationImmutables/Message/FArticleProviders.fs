@@ -8,5 +8,6 @@ open System
             ArticleKey : Guid 
             ArticleName : string
             StockExchangeId : Guid
+            ArticleFinishedAt : int64
             Provider : System.Collections.Generic.List<Guid>
         }

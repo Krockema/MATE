@@ -87,9 +87,10 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                         .Create(message: new FArticleProvider(articleKey: request.Key
-                                                                                            ,articleName: request.Article.Name
-                                                                                        ,stockExchangeId: request.StockExchangeId
-                                                                                              , provider: new List<Guid>(new [] { stockExchange.TrackingGuid }))
+                                                                                             ,articleName: request.Article.Name
+                                                                                             , articleFinishedAt: Agent.CurrentTime
+                                                                                             ,stockExchangeId: request.StockExchangeId
+                                                                                             , provider: new List<Guid>(new [] { stockExchange.TrackingGuid }))
                                                                , target: request.DispoRequester
                                                               , logThis: false));
                 _requestedArticles.Remove(item: request);
@@ -145,9 +146,10 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
             if (article.Quantity <= _stockManager.Current)
             {
-                
-                article = article.UpdateProviderList(p: _stockManager.GetProviderGuidsFor(new Quantity(article.Quantity)));
-                
+                var providerList = _stockManager.GetProviderGuidsFor(new Quantity(article.Quantity));
+                article = article.UpdateProviderList(p: providerList.Select(x => x.ProductionArticleKey).ToList());
+                article = article.UpdateFinishedAt(providerList.Max(x => x.Time));
+
                 Agent.DebugMessage(msg: "------------->> items in STOCK: " + _stockManager.Current + " Items Requested " + article.Quantity);
                 // Reduce Stock 
                 // Done in GetProviderGuidsFor //TODO: find better Naming or split methods
@@ -155,15 +157,16 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 // Remove from Requester List
                 //TODO might be to early, handle headdemands different?
                 _requestedArticles.RemoveByKey(key: article.Key);
-
+                
                 // Agent Sender can be a DispoAgent (ProvideArticleAtDue) or a ProductionAgent (ResponseFromProduction)
                 Agent.DebugMessage(msg: $"Provide Article: {article.Article.Name} {article.Key} from {Agent.Sender}");
 
                 // Create Callback for Production
                 Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: new FArticleProvider(articleKey: article.Key
-                                                                                                           ,articleName: article.Article.Name
-                                                                                                           ,stockExchangeId: article.StockExchangeId
-                                                                                                             , provider: article.ProviderList)
+                                                                                                           , articleName: article.Article.Name
+                                                                                                           , stockExchangeId: article.StockExchangeId
+                                                                                                           , articleFinishedAt: article.FinishedAt
+                                                                                                           , provider: article.ProviderList)
                                                                               , target: article.DispoRequester
                                                                              , logThis: false));
 

@@ -47,17 +47,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //MasterDbInitializerTable.DbInitialize(_masterDBContext);
             MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
-            _ctxResult.Database.EnsureDeleted();
-            _ctxResult.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
+            // _ctxResult.Database.EnsureDeleted();
+            // _ctxResult.Database.EnsureCreated();
+            // ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
 
         }
 
-        [Fact(Skip = "manual test")]
+        //[Fact(Skip = "manual test")]
+        [Fact]
         public void ResetMaster40ResultsDB()
         {
-            ResultContext masterResults = ResultContext.GetContext(resultCon:
-            "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true");
+            ResultContext masterResults =  _ctxResult;
             masterResults.Database.EnsureDeleted();
             masterResults.Database.EnsureCreated();
         }
@@ -79,7 +79,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
-                                                    , new OrderArrivalRate(value: 0.02)
+                                                    , new OrderArrivalRate(value: 0.025)
                                                     , new OrderQuantity(value: 500)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1440)
@@ -87,8 +87,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new Seed(value: 1337)
-                                                    , new MinDeliveryTime(value: 1160)
-                                                    , new MaxDeliveryTime(value: 1600)
+                                                    , new MinDeliveryTime(value: 1440)
+                                                    , new MaxDeliveryTime(value: 2400)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)
