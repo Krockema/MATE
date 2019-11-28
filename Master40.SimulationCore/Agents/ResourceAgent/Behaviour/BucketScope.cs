@@ -269,7 +269,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: operation.Operation.Duration);
             Agent.DebugMessage(msg: $"Starting Job {operation.Operation.Name}  Key: {operation.Key} new Duration is {randomizedWorkDuration}");
 
-            var pub = new FUpdateSimulationJobs.FUpdateSimulationJob(job: operation, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name);
+            var pub = new FUpdateSimulationJobs.FUpdateSimulationJob(job: operation, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name, bucket: bucket.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResults.FOperationResult(key: operation.Key
@@ -319,11 +319,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void FinishBucket(IJobResult jobResult)
         {
             Agent.DebugMessage(msg: $"Bucket finished work with {_jobInProgress.Current.Name} {_jobInProgress.Current.Key} take next...");
-
-            //TODO for collector
-            var pub = new FCreateSimulationJobs.FCreateSimulationJob(job: _jobInProgress.Current, jobType: JobType.BUCKET, null, false, null, System.Guid.Empty, null, start: _jobInProgress.StartTime, end: Agent.CurrentTime);
-            Agent.Context.System.EventStream.Publish(@event: pub);
-
+            
             Agent.Send(instruction: Hub.Instruction.BucketScope.FinishBucket.Create(jobResult: jobResult, target: _jobInProgress.Current.HubAgent));
 
             _jobInProgress.Reset();

@@ -26,6 +26,7 @@ namespace Master40.DB.ReportingModel
         public int HierarchyNumber { get; set; }
         public string Parent { get; set; }
         public string ParentId { get; set; }
+        public string Bucket { get; set; }
         
         [NotMapped]
         public string ArticleType { get; set; }

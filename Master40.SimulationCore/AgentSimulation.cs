@@ -195,7 +195,7 @@ namespace Master40.SimulationCore
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
 
-            var maxBucketSize = 0;
+            var maxBucketSize = 240;
 
             var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)

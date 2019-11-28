@@ -8,5 +8,6 @@ open IJobs
         Duration : int64
         Start : int64
         Resource : string
+        Bucket : string
     } 
 
