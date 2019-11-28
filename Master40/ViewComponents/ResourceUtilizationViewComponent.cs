@@ -66,7 +66,7 @@ namespace Master40.ViewComponents
                 var workKpi = _resultContext.Kpis.Where(x =>
                         x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                         && x.SimulationType == simType
-                        && x.KpiType == KpiType.MachineUtilization
+                        && x.KpiType == KpiType.ResourceUtilization
                         && x.IsKpi
                         && x.Name == resourceName
                         && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))

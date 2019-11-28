@@ -82,9 +82,10 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             if (reservation.IsInStock && !_fArticle.IsHeadDemand)
             {
                 ProvideRequest(new FArticleProvider(articleKey: _fArticle.Key
-                                                  ,articleName: _fArticle.Article.Name
+                                                  , articleName: _fArticle.Article.Name
                                                   , stockExchangeId: reservation.TrackingId
-                                                     ,provider: new List<Guid>(new[] { reservation.TrackingId })));
+                                                  , articleFinishedAt: Agent.CurrentTime
+                                                  , provider: new List<Guid>(new[] { reservation.TrackingId })));
             }
 
             // else create Production Agents if ToBuild

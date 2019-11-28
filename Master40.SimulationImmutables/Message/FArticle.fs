@@ -18,12 +18,14 @@ open IKeys
             ProviderList : System.Collections.Generic.List<Guid> 
             CustomerOrderId : int
             IsProvided : bool
+            ProvidedAt : int64
             IsHeadDemand : bool 
             FinishedAt : int64 } 
             interface IKey with
                 member this.Key with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
             member this.UpdateFinishedAt f = { this with FinishedAt = f }
+            member this.UpdateProvidedAt t = { this with ProvidedAt = t }
             member this.UpdateOriginRequester r = { this with OriginRequester = r }
             member this.UpdateDispoRequester r = { this with DispoRequester = r }
             member this.UpdateCustomerOrderAndDue id due storage = { this with CustomerOrderId = id; DueTime = due; StorageAgent = storage }

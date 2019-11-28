@@ -44,6 +44,7 @@ namespace Master40.XUnitTest.Preparations
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , isProvided: false
+                , providedAt: 0
                 , originRequester: ActorRefs.Nobody
                 , dispoRequester: ActorRefs.Nobody
                 , providerList: new List<Guid>()

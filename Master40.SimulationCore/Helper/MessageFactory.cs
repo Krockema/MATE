@@ -152,6 +152,7 @@ namespace Master40.SimulationCore.Helper
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , isProvided: false
+                , providedAt: 0
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
                 , providerList: new List<Guid>()
@@ -170,6 +171,7 @@ namespace Master40.SimulationCore.Helper
                 , article: articleBom.ArticleChild
                 , customerOrderId: requestItem.CustomerOrderId
                 , isHeadDemand: false
+                , providedAt: 0
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester
