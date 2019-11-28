@@ -78,7 +78,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             switch (message)
             {
-                case FCreateSimulationJob m: CreateSimulationJob(simJob: m); break;
+                case FCreateSimulationJob m: CreateSimulationOperation(simJob: m); break;
                 case FUpdateSimulationJob m: UpdateSimulationOperation(simJob: m); break;
                 case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
@@ -456,19 +456,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Kpis.Add(item: k);
         }
 
-        private void CreateSimulationJob(FCreateSimulationJob simJob)
-        {
-            switch (simJob.JobType)
-            {
-                case JobType.OPERATION: CreateSimulationOperation(simJob);
-                    break;
-                case JobType.BUCKET: CreateSimulationBucket(simJob);
-                    break;
-                default: throw new Exception("There is no JobType definied for this Simulationjob");
-                    
-            }
-        }
-
         //TODO implement Interface for ISimulationJob (FCreateSimluationOperation, FCreateSimulationBucket)
         private void CreateSimulationOperation(FCreateSimulationJob simJob)
         {
@@ -539,6 +526,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 edit.Start = (int)simJob.Start;
                 edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
                 edit.Resource = simJob.Resource;
+                edit.Bucket = simJob.Bucket;
+
                 return;
             }
             _updatedSimulationJob.Add(item: simJob);
