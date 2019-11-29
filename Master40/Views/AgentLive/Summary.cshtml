@@ -1,0 +1,106 @@
+﻿<div id="accordion" style="width: 100%; margin-top: 10px;">
+    <div class="card">
+        <div class="card-header" id="headingOne" style="padding: 0 0 0 0;">
+            <h5 class="mb-0">
+                <button style="width: 100%; height: 100%; border-color: rgba(0, 0, 0, 0.125); text-align: left; color: black; padding: 10px 20px;"
+                        class="btn btn-link show" data-toggle="collapse" data-target="#collapseMessages" aria-expanded="true" aria-controls="collapseMessages">
+                    Simulation Messages
+                </button>
+            </h5>
+        </div>
+
+        <div id="collapseMessages" class="collapse show" aria-labelledby="collapseMessages" data-parent="#accordion">
+            <div class="card-body">
+                <div id="" class="MessageDisplay" style="max-height: 600px; overflow: auto;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingTwo" style="padding: 0 0 0 0;">
+            <h5 class="mb-0">
+                <button style="width: 100%; height: 100%; border-color: rgba(0, 0, 0, 0.125); text-align: left; color: black; padding: 10px 20px;"
+                        class="btn btn-link collapsed" data-toggle="collapse" data-target="#summary" aria-expanded="false" aria-controls="summary">
+                    Simulation Summary
+                </button>
+            </h5>
+        </div>
+        <div id="summary" class="collapse" aria-labelledby="summary" data-parent="#accordion">
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Totals</th>
+                        <th scope="col" style="text-align: right">Value in %</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">Work Time</th>
+                        <td><p id="workTimeTotal">0</p></td>
+                        <td style="text-align: right"><p id="workTime">0</p></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Setup Time</th>
+                        <td><p id="setupTimeTotal">0</p></td>
+                        <td style="text-align: right"><p id="setupTime">0</p></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Capital Bound</th>
+                        <td colspan="2">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Group</th>
+                                    <th scope="col" style="text-align: right">Value in &euro;</th>
+                                </tr>
+                                </thead>
+                                <tbody id="stockValueBody">
+                                <tr>
+                                    <th>Product</th>
+                                    <td style="text-align: right">0</td>
+                                </tr>
+                                <tr>
+                                    <th>Assembly</th>
+                                    <td style="text-align: right">0</td>
+                                </tr>
+                                <tr>
+                                    <th>Consumable</th>
+                                    <td style="text-align: right">0</td>
+                                </tr>
+                                <tr>
+                                    <th>Material</th>
+                                    <td style="text-align: right">0</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    processingProxy.on("totalUtilizationListener", function (msg) {
+        var serialized = JSON.parse(msg);
+        $("#setupTime").replaceWith("<p id='setupTime'>" + serialized.SetupTimePercent + "</p>");
+        $("#setupTimeTotal").replaceWith("<p id='setupTimeTotal'>" + serialized.SetupTime + "</p>");
+        $("#workTime").replaceWith("<p id='workTime'>" + serialized.WorkTimePercent + "</p>");
+        $("#workTimeTotal").replaceWith("<p id='workTimeTotal'>" + serialized.WorkTime + "</p>");
+    });
+
+    processingProxy.on("stockTotalsListener", function (msg) {
+        var serialized = JSON.parse(msg);
+
+        var tBody = "<tbody id='stockValueBody'><tr><th>Product</th><td style='text-align: right'>"
+                    + serialized[3].Value + "</td></tr><tr><th>Assembly</th><td style='text-align: right'>"
+                    + serialized[0].Value + "</td></tr><tr><th>Consumable</th><td style='text-align: right'>" +
+                    + serialized[1].Value + "</td></tr><tr><th>Material</th><td style='text-align: right'>" +
+                    + serialized[2].Value + "</td></tr></tbody>";
+
+        $("#stockValueBody").replaceWith(tBody);
+    });
+</script>

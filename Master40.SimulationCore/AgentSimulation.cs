@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Configuration;
 using static FResourceSetupDefinitions;
 using static FSetEstimatedThroughputTimes;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
@@ -195,7 +196,7 @@ namespace Master40.SimulationCore
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
 
-            var maxBucketSize = 240;
+            var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
 
             var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)

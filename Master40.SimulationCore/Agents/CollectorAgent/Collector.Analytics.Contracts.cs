@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Enums;
 using static FArticles;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -22,7 +23,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private int finishedOrderParts = 0;
         private int openOrderParts = 0;
         private int totalOrders = 0;
-
+        private List<Kpi> Kpis = new List<Kpi>();
         private double inTime = 0;
         private double toLate = 0;
         private long lastIntervalStart = 0;
@@ -92,17 +93,47 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                                   Output = finishedOrderParts,
                                                                   Time = Collector.Time }));
 
+
+            var timelines = 1.0;
             if (inTime != 0)
             {
-                var timeliness = (inTime / (inTime + toLate) * 100).ToString().Replace(oldValue: ",", newValue: ".");
-                Collector.messageHub
-                    .SendToClient(listener: "Timeliness", msg: timeliness);
+                timelines = (inTime / (inTime + toLate) * 100);
+                Collector.messageHub.SendToClient(listener: "Timeliness", msg: timelines.ToString().Replace(oldValue: ",", newValue: "."));
             }
 
             newOrderParts = 0;
             finishedOrderParts = 0;
 
+            if (writeResultsToDB)
+            {
+                Kpis.Add(new Kpi
+                {
+                    Name = "timeliness",
+                    Value = Math.Round(timelines, 2),
+                    Time = (int) Collector.Time,
+                    KpiType = KpiType.Timeliness,
+                    SimulationConfigurationId = Collector.simulationId.Value,
+                    SimulationNumber = Collector.simulationNumber.Value,
+                    IsFinal = true,
+                    IsKpi = true,
+                    SimulationType = Collector.simulationKind.Value
+                });
 
+                Kpis.Add(new Kpi
+                {
+                    Name = "OrderProcessed",
+                    Value = totalOrders,
+                    ValueMax = openOrderParts,
+                    Time = (int) Collector.Time,
+                    KpiType = KpiType.Timeliness,
+                    SimulationConfigurationId = Collector.simulationId.Value,
+                    SimulationNumber = Collector.simulationNumber.Value,
+                    IsFinal = true,
+                    IsKpi = true,
+                    SimulationType = Collector.simulationKind.Value
+                });
+
+            }
             WriteToDB(agent: Collector, writeResultsToDB: writeResultsToDB);
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
@@ -150,6 +181,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
                 {
                     ctx.SimulationOrders.AddRange(entities: simulationOrders);
+                    ctx.SaveChanges();
+                    ctx.Kpis.AddRange(Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }
