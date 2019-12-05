@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using static FArticles;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -145,7 +146,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var op = m.GetObjectFromMessage;
             var order = new SimulationOrder() { CreationTime = op.CustomerOrder.CreationTime
                                                 ,DueTime = op.CustomerOrder.DueTime
-                                                , State = DB.Enums.State.Created
+                                                , State = State.Created
                                                 , BusinessPartnerId = op.CustomerOrder.BusinessPartnerId
                                                 , Name = op.CustomerOrder.Name
                                                 , OriginId  = op.CustomerOrder.Id
@@ -168,7 +169,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 throw new Exception(message: "OrderNotFound during Order update from Contract Collector Agent");
             }
 
-            toUpdate.State = DB.Enums.State.Finished;
+            toUpdate.State = State.Finished;
             toUpdate.ProductionFinishedTime = (int) item.ProvidedAt;
             toUpdate.StockExchangeGuid = item.StockExchangeId;
             toUpdate.FinishingTime = (int) item.FinishedAt;

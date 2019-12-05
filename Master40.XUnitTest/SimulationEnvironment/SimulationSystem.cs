@@ -61,15 +61,20 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterResults.Database.EnsureCreated();
         }
 
-        [Theory]
+        // [Theory]
         //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup, 1, 60)]
-        [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
-        [InlineData(SimulationType.BucketScope, 3, 60)]
-        [InlineData(SimulationType.BucketScope, 4, 120)]
-        [InlineData(SimulationType.BucketScope, 5, 240)]
-        [InlineData(SimulationType.BucketScope, 6, 480)]
-        [InlineData(SimulationType.BucketScope, 7, Int32.MaxValue)]
+        // [InlineData(SimulationType.DefaultSetup, 1, 60)]
+        // [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
+        // [InlineData(SimulationType.BucketScope, 3, 60)]
+        // [InlineData(SimulationType.BucketScope, 4, 120)]
+        // [InlineData(SimulationType.BucketScope, 5, 240)]
+        // [InlineData(SimulationType.BucketScope, 6, 480)]
+        // [InlineData(SimulationType.BucketScope, 1, 120)]
+        // [InlineData(SimulationType.BucketScope, 2, 120)]
+        // [InlineData(SimulationType.BucketScope, 3, 120)]
+        // [InlineData(SimulationType.BucketScope, 4, 120)]
+        // [InlineData(SimulationType.BucketScope, 5, 120)]
+        // [InlineData(SimulationType.BucketScope, 7, Int32.MaxValue)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
