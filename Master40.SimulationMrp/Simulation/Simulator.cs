@@ -40,8 +40,8 @@ namespace Master40.SimulationMrp.Simulation
                                                 .ActorOf(props: JobDistributor.Props(_akkaSimulation.SimulationContext, _currentTime)
                                                         , name: "JobDistributor");
 
-            // ToDo reflect CurrentTimespawn ?
-            _akkaSimulation.Shutdown(simulationInterval.EndAt);
+            // ToDo Shutdwon at the end.
+            // _akkaSimulation.SimulationContext.Shutdown(simulationInterval.EndAt);
             // Create a Machines
             CreateResource(jobDistributor);
             
