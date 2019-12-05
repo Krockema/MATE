@@ -202,7 +202,7 @@ namespace Master40.SimulationCore
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)
                                                                     .ThenInclude(s => s.ResourceSetups)
                                                                  .Include(navigationPropertyPath: t => t.ResourceTool)
-                                                                 .AsNoTracking().ToListAsync().Result;
+                                                                 .ToListAsync().Result;
 
             var resourceList = _dBContext.Resources.ToList();
 

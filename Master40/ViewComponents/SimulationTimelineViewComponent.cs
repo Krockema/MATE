@@ -1,18 +1,16 @@
-﻿using Master40.Extensions;
+﻿using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
+using Master40.DB.Enums;
+using Master40.DB.ReportingModel;
+using Master40.Extensions;
 using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
-using Master40.DB.DataModel;
-using Microsoft.EntityFrameworkCore;
-using Master40.DB.Enums;
-using Master40.DB.ReportingModel;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Master40.ViewComponents
 {
