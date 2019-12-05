@@ -1,18 +1,14 @@
 language: csharp
 mono: none
-dist: bionic
+dist: xenial
 dotnet: 3.1.100
 
 services:
   - docker
 
 install:
-  - sudo add-apt-repository ppa:chris-lea/redis-server -y
-  - sudo apt-get update
-  - sudo apt-get install -qq dotnet-sdk-2.0.9
   - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
   - dotnet restore
-  
 
 script:
   - dotnet build
