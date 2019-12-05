@@ -1,17 +1,11 @@
 ﻿using Akka.Actor;
-using Master40.SimulationCore.Agents.ProductionAgent.Types;
 using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Master40.SimulationCore.Types;
-using Microsoft.FSharp.Core;
-using Remotion.Linq.Parsing;
 using static FArticleProviders;
 using static FArticles;
 using static FOperations;
-using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Types
 {

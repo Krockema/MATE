@@ -66,10 +66,10 @@ namespace Master40
             // services.AddSingleton<Client>();
 
             // Register the Swagger generator, defining one or more Swagger documents
-            services.AddSwaggerGen(setupAction: c =>
-            {
-                c.SwaggerDoc(name: "v1", info: new Info { Title = "SSPS 4.0 API", Version = "v1" });
-            });
+            // services.AddSwaggerGen(setupAction: c =>
+            // {
+            //     c.SwaggerDoc(name: "v1", info: new Info { Title = "SSPS 4.0 API", Version = "v1" });
+            // });
 
 
             services.Configure<RequestLocalizationOptions>(
@@ -89,7 +89,7 @@ namespace Master40
                 });
                 
             // Add Framework Service
-            services.AddMvc();
+            services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddSignalR();
         }
 
@@ -147,13 +147,13 @@ namespace Master40
             app.UseHangfireServer(options: serverOptions);
             app.UseHangfireDashboard();
 
-            app.UseSwagger();
+            // app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(setupAction: c =>
-            {
-                c.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "API DOC V1");
-            });
+            // app.UseSwaggerUI(setupAction: c =>
+            // {
+            //     c.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "API DOC V1");
+            // });
 
 
             app.UseMvc(configureRoutes: routes =>
