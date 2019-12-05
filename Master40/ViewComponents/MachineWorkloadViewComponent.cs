@@ -26,7 +26,7 @@ namespace Master40.ViewComponents
             var generateChartTask = Task.Run(function: () =>
             {
 
-                if (!_context.SimulationOperations.Any())
+                if (!_context.SimulationJobs.Any())
                 {
                     return null;
                 }
@@ -43,9 +43,9 @@ namespace Master40.ViewComponents
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
 
-                var endSum = _context.SimulationOperations.Where(predicate: x => x.Machine == machine).Sum(selector: x => x.End);
-                var startSum = _context.SimulationOperations.Where(predicate: x => x.Machine == machine).Sum(selector: x => x.Start);
-                var max = _context.SimulationOperations.Max(selector: x => x.End);
+                var endSum = _context.SimulationJobs.Where(predicate: x => x.Resource == machine).Sum(selector: x => x.End);
+                var startSum = _context.SimulationJobs.Where(predicate: x => x.Resource == machine).Sum(selector: x => x.Start);
+                var max = _context.SimulationJobs.Max(selector: x => x.End);
                 var work = endSum - startSum;
                 var wait = max - work;
                 var cc = new ChartColors();

@@ -10,17 +10,20 @@ open IKeys
 open IJobs
 open System.Linq
 open Master40.DB.DataModel
+open FUpdateStartConditions
 
     type public FBucket =
         { Key : Guid
           Name : string
+          IsFixPlanned : bool
           CreationTime : int64
           BackwardEnd : int64 
-          BackwardStart : int64 
-          End : int64 
+          BackwardStart : int64
           ForwardEnd : int64 
           ForwardStart : int64 
+          Scope : int64
           Start : int64
+          End : int64 
           StartConditions : FStartCondition
           Priority : FBucket -> int64 -> double
           ResourceAgent : IActorRef
@@ -56,5 +59,10 @@ open Master40.DB.DataModel
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
-        member this.AddOperation op = { this with Operations = this.Operations.Add(op) }
+        member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
+        member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
+                                                                                 this.StartConditions.PreCondition <- startCondition.PreCondition
+        member this.SetFixPlanned = { this with IsFixPlanned = true}
+        member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
+        member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)

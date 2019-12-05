@@ -6,6 +6,8 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Util.Internal;
+using Newtonsoft.Json;
 using static FUpdateStockValues;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -15,6 +17,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
     {
         private CollectorAnalyticsStorage() : base() {
             CurrentStockValues = new Dictionary<string, FUpdateStockValue>();
+            TotalValues = new Dictionary<string, decimal>();
         }
         internal static List<Type> GetStreamTypes()
         {
@@ -23,7 +26,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         private Dictionary<string, FUpdateStockValue> CurrentStockValues;
+        private Dictionary<string, decimal> TotalValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
+        private List<Kpi> StockTotalValues = new List<Kpi>();
 
         public Collector Collector { get; set; }
 
@@ -39,7 +44,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             switch (message)
             {
                 case FUpdateStockValue m: UpdateStock(values: m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeToDatabase: m.GetObjectFromMessage); break;
+                case UpdateLiveFeed m: UpdateFeed(writeToDatabase: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -60,7 +65,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             foreach (var item in groupedByType.OrderBy(x => x.Value))
             {
-                Collector.messageHub.SendToClient(listener: "Storage", msg: Newtonsoft.Json.JsonConvert.SerializeObject(value: item));
+                Collector.messageHub.SendToClient(listener: "Storage", msg: JsonConvert.SerializeObject(value: item));
             }
 
 
@@ -69,10 +74,26 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 foreach (var item in CurrentStockValues)
                 {
                     System.Diagnostics.Debug.WriteLine($"Storage: {item.Value.StockName} in stock {item.Value.NewValue} ");
+                    UpdateKPI(item.Value);
                 }
                 
+                var stockTotals = from so in StockValuesOverTime
+                    group so by so.Name.Substring(0, 8)
+                    into summarized orderby summarized.Key
+                    select new
+                    {
+                        Key = summarized.Key,
+                        Value = summarized.Sum(x => ((x.Time - x.ValueMin) * x.Value / Collector.Time) * 0.10)
+                    };
+                Collector.messageHub.SendToClient(listener: "stockTotalsListener", msg: JsonConvert.SerializeObject(stockTotals));
+                stockTotals.ForEach(st => CreateKpi(st.Key, st.Value));
             }
 
+            // select Substring(Name, 0, 8), (Sum((Time - ValueMin) * Value) / 20160) * 0.10  
+            // from [dbo].[Kpis]
+            // where KpiType = 4 and SimulationNumber = 2
+            // group by Substring(Name, 0, 8)
+            
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
@@ -90,8 +111,19 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void UpdateKPI(FUpdateStockValue values)
         {
-            var k = new Kpi { Name = values.StockName
+            var lastTime = 0; 
+            var lastValue = StockValuesOverTime.FindAll(x => x.Name == values.ArticleType + " " + values.StockName);
+            if(lastValue.Any()) { 
+                lastTime = lastValue.Max(x => x.Time);
+            }
+            else
+            {
+                CreateKpiStartEntry(values);
+            }
+
+            var k = new Kpi { Name = values.ArticleType + " " + values.StockName
                             , Value = values.NewValue
+                            , ValueMin = lastTime
                             , Time = (int)Collector.Time
                             , KpiType = DB.Enums.KpiType.StockEvolution
                             , SimulationConfigurationId = Collector.simulationId.Value
@@ -101,7 +133,40 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             , SimulationType = Collector.simulationKind.Value
             };
             StockValuesOverTime.Add(item: k);
+        }
 
+        private void CreateKpiStartEntry(FUpdateStockValue values)
+        {
+            var k = new Kpi
+            {
+                Name = values.ArticleType + " " + values.StockName,
+                Value = values.NewValue,
+                Time = 0,
+                KpiType = DB.Enums.KpiType.StockEvolution,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                IsFinal = false,
+                IsKpi = true,
+                SimulationType = Collector.simulationKind.Value
+            };
+            StockValuesOverTime.Add(item: k);
+        }
+
+        private void CreateKpi(string name, double values)
+        {
+            var k = new Kpi
+            {
+                Name = name,
+                Value = values,
+                Time = (int)Collector.Time,
+                KpiType = DB.Enums.KpiType.StockTotals,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                IsFinal = true,
+                IsKpi = true,
+                SimulationType = Collector.simulationKind.Value
+            };
+            StockTotalValues.Add(item: k);
         }
 
         private void LogToDB(Collector agent, bool writeToDatabase)
@@ -110,7 +175,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.Kpis.AddRange(entities: StockValuesOverTime);
+                    // ctx.Kpis.AddRange(entities: StockValuesOverTime);
+                    // ctx.SaveChanges();
+                    ctx.Kpis.AddRange(StockTotalValues);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

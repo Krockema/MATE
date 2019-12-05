@@ -11,9 +11,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         private List<M_ResourceSetup> _resourceSetups { get; } = new List<M_ResourceSetup>();
 
-        private IActorRef _resourceAgent { get; set; }
+        private IActorRef _resourceAgent { get; }
 
-        private string _resourceName { get; set; } 
+        private string _resourceName { get; } 
 
         public ResourceSetup(List<M_ResourceSetup> resourceSetups, IActorRef resourceAgent, string resourceName)
         {

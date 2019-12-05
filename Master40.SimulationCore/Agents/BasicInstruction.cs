@@ -120,6 +120,17 @@ namespace Master40.SimulationCore.Agents
             }
             public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
         }
+        public class FinishOperation : SimulationMessage
+        {
+            public static FinishOperation Create(IJobResult message, IActorRef target)
+            {
+                return new FinishOperation(message: message, target: target);
+            }
+            private FinishOperation(object message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
+        }
         public class UpdateStartConditions : SimulationMessage
         {
             public static UpdateStartConditions Create(FUpdateStartCondition message, IActorRef target)

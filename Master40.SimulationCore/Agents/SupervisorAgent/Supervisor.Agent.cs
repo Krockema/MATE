@@ -151,12 +151,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                 throw new InvalidCastException(message: this.Name + " Cast to RequestItem Failed");
             }
 
-            var order = _productionDomainContext.CustomerOrders
-                                                .Include(navigationPropertyPath: x => x.CustomerOrderParts)
-                                                .Single(predicate: x => x.Id == requestItem.CustomerOrderId);
-            order.FinishingTime = (int)this.TimePeriod;
-            order.State = State.Finished;
-            _productionDomainContext.SaveChanges();
+            // var order = _productionDomainContext.CustomerOrders
+            //     .Include(navigationPropertyPath: x => x.CustomerOrderParts)
+            //     .Single(predicate: x => x.Id == _productionDomainContext.CustomerOrderParts.Single(s => s.Id == requestItem.CustomerOrderId).CustomerOrderId);
+            // order.FinishingTime = (int)this.TimePeriod;
+            // order.State = State.Finished;
+            //_productionDomainContext.SaveChanges();
             _messageHub.ProcessingUpdate(simId: _configID, finished: _orderCounter.ProvidedOrder(), simType: SimulationType.Decentral.ToString(), max: _orderCounter.Max);
         }
 
@@ -179,6 +179,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: CurrentTime);
+            
             Send(instruction: Instruction.PopOrder.Create(message: "PopNext", target: Self), waitFor: order.CreationTime - CurrentTime);
             var eta = _estimatedThroughPuts.Get(name: order.CustomerOrderParts.First().Article.Name);
             DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");

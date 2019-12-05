@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka;
 using Master40.Simulation;
 using Master40.SimulationCore.Environment.Options;
 using Master40.DB.Enums;
@@ -27,30 +28,42 @@ namespace Master40.Controllers
             return View(model: await masterDBContext.ToListAsync());
         }
 
-        [HttpGet(template: "[Controller]/RunAsync/{simId}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
-        public async void RunAsync(int simId, int orderAmount, double arivalRate,int estimatedThroughputTime)
+        [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
+        public async void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
-            if (simId == 0) return;
+            var simKind = SimulationType.None;
+            switch (simulationType)
+            {
+                case 1: simKind = SimulationType.None; break;
+                case 2: simKind = SimulationType.DefaultSetup; break;
+                case 3: simKind = SimulationType.DefaultSetupStack; break;
+                case 4: simKind = SimulationType.BucketScope; break;
+                default: return;
+            }
+
+
             // using Default Test Values.
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
-                                                    new DBConnectionString(value: "")
-                                                    , new SimulationId(value: simId)
-                                                    , new SimulationNumber(value: 1)
-                                                    , new SimulationKind(value: SimulationType.Decentral)
+                                                    new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
+                                                    , new SimulationId(value: 1)
+                                                    , new SimulationNumber(value: simulationType)
+                                                    , new SimulationKind(value: simKind)
                                                     , new OrderArrivalRate(value: arivalRate)
                                                     , new OrderQuantity(value: orderAmount)
                                                     , new EstimatedThroughPut(value: estimatedThroughputTime)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
-                                                    , new MinDeliveryTime(value: 1160)
-                                                    , new MaxDeliveryTime(value: 1600)
+                                                    // , new MinDeliveryTime(value: 1160)
+                                                    // , new MaxDeliveryTime(value: 1600)
+                                                    , new MinDeliveryTime(value: 1440)
+                                                    , new MaxDeliveryTime(value: 2400)
                                                     , new TransitionFactor(value: 3)
                                                     , new TimePeriodForThrougputCalculation(value: 1920)
                                                     , new Seed(value: 1337)
                                                     , new SettlingStart(value: 2880)
-                                                    , new SimulationEnd(value: 40320)
+                                                    , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: false)
                                                 });

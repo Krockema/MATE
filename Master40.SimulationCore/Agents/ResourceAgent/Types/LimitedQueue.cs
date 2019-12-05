@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public IJob DequeueFirstSatisfied(long currentTime)
+        public virtual IJob DequeueFirstSatisfied(long currentTime)
         {
             var item = this.jobs.Where(x => x.StartConditions.Satisfied).OrderBy(keySelector: x => x.Priority(currentTime)).FirstOrDefault();
             if (item != null)
@@ -32,9 +32,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return item;
         }
 
+        internal List<IJob> GetAllSatisfiedSameTool(long currentTime)
+        {
+            var job = DequeueFirstSatisfied(currentTime);
+            var list = this.jobs.Where(x => x.StartConditions.Satisfied && x.Tool.Id == job.Tool.Id).ToList();
+            foreach(var item in list)
+            {
+                this.jobs.Remove(item: item);
+            }
+            list.Add(job);
+            return list;
+        }
+
         public abstract bool CapacitiesLeft();
 
-        public bool HasQueueAbleJobs()
+        public virtual bool HasQueueAbleJobs()
         {
             return this.jobs.Any(x => x.StartConditions.Satisfied);
         }

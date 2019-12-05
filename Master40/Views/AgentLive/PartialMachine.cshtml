@@ -32,24 +32,33 @@
                 {
                     "type": "doughnut"
                     , "data": {
-                        "datasets": [{ "type": "pie", "backgroundColor": ["rgba(125, 180, 86, 0.3)", "rgba(227, 76, 87, 0.3)"], "borderColor": ["rgba(125, 180, 86, 0.8)", "rgba(227, 76, 87, 0.8)"], "borderWidth": 1, "data": [0, 100] }]
-                        , "labels": ["Working", "Empty"]
+                        "datasets": [{
+                            "type": "pie"
+                            , "backgroundColor": ["rgba(3,79,175, .3)", "rgba(246, 167, 30,  .3)", "rgba(0, 0, 0, 0.1)"]
+                            , "borderColor": ["rgba(3,79,175, .6)", "rgba(246, 167, 30,  .6)", "rgba(0, 0, 0, 0.3)"]
+                            , "borderWidth": 1, "data": [0, 0, 100]
+                        }]
+                        , "labels": ["Working", "Setup", "Empty"]
                     }, "options": {
                         "cutoutPercantage": 80, "rotation": 2.5132741228718345, "circumference": 4.39822971502571, "responsive": true, "maintainAspectRatio": false
-                        , "title": { "position": "top", "fontSize": 24, "fontStyle": "bold", "text": "Machine Workload" }
+                        , "title": { "position": "top", "fontSize": 24, "fontStyle": "bold", "text": "Resource Workload" }
                         , "legend": { "display": false, "position": "bottom" }
                     }
                 }
             );
 
         processingProxy.on("@name", function (msg) {
-            console.log("@name :" + msg);
 
-            msg = msg * 100;
-            if (isNaN(msg)) msg=0;
+            var a = msg.split(/ /);
+            console.log(@name + msg);
+            work = a[0] * 100.0, 0;
+            setup = a[1] * 100.0, 0;
+            idle = 100 - work - setup;
+            console.log(@name + " Work: " + work + " Setup: " + setup + " Idle " + idle);
+            if (isNaN(msg)) msg = 0;
           
-            document.getElementsByClassName("@name")[0].innerHTML = Math.round(msg) + " %";
-            (Workload_@name).data.datasets[0].data = [msg, 100 - msg];
+            document.getElementsByClassName("@name")[0].innerHTML = Math.round(work + setup, 0)  + " %";
+            (Workload_@name).data.datasets[0].data = [work, setup, idle];
             (Workload_@name).update();
         });
 

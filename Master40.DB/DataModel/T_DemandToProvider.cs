@@ -8,12 +8,23 @@ namespace Master40.DB.DataModel
     /// To Access a specific Demand use:
     /// var purchaseDemands = context.Demands.OfType<DemandPurchase>().ToList();
     /// </summary>
-    public class T_DemandToProvider : BaseEntity, IDemandToProvider
+    public class T_DemandToProvider : BaseEntity, ILinkDemandAndProvider
     {
         public int DemandId { get; set; }
         public int ProviderId { get; set; }
         
         public decimal Quantity { get; set; }
+
+        public T_DemandToProvider()
+        {
+        }
+
+        public T_DemandToProvider(Id demandId, Id providerId, Quantity quantity)
+        {
+            ProviderId = providerId.GetValue();
+            DemandId = demandId.GetValue();
+            Quantity = quantity.GetValue();
+        }
 
         public override string ToString()
         {

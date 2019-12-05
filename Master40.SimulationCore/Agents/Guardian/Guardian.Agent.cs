@@ -40,7 +40,7 @@ namespace Master40.SimulationCore.Agents.Guardian
         {
             
             ((GuardianBehaviour)this.Behaviour).counterChilds--;
-            //System.Diagnostics.Debug.WriteLine($"{Sender.Path.Name} finished child and has {((GuardianBehaviour)this.Behaviour).counterChilds} now");
+            //System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} finished child and has {((GuardianBehaviour)this.Behaviour).counterChilds} now");
 
         }
     }

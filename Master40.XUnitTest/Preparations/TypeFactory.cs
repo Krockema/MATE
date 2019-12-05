@@ -11,20 +11,24 @@ namespace Master40.XUnitTest.Preparations
 {
     public static class TypeFactory
     {
-        public static FOperation CreateJobItem(string jobName, int jobDuration, bool preCondition = true, int dueTime = 50, string skillName = "Sewing", M_ArticleBom bom = null)
+        public static FOperation CreateDummyJobItem(string jobName, int jobDuration, int averageTransitionDuration = 20, bool preCondition = true, bool materialsProvide = true, 
+                                                    int dueTime = 50, string skillName = "Sewing", M_ResourceTool tool = null, 
+                                                    M_ArticleBom bom = null, long currentTime = 0L)
         {
             var operation = new M_Operation()
             {
                 ArticleId = 10,
-                AverageTransitionDuration = 20,
+                AverageTransitionDuration = averageTransitionDuration,
                 Duration = jobDuration,
                 HierarchyNumber = 10,
                 Id = 1,
                 Name = jobName,
                 ArticleBoms = new List<M_ArticleBom> { bom },
-                ResourceSkill = new M_ResourceSkill() { Name = skillName }
+                ResourceSkill = new M_ResourceSkill() { Name = skillName },
+                ResourceTool = tool
             };
-            return operation.ToOperationItem(dueTime: 50, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: 0);
+
+            return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: currentTime);
         }
 
         public static FArticle CreateDummyArticle(int dueTime, int currentTime, M_Article article, int quantity)
@@ -40,6 +44,7 @@ namespace Master40.XUnitTest.Preparations
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , isProvided: false
+                , providedAt: 0
                 , originRequester: ActorRefs.Nobody
                 , dispoRequester: ActorRefs.Nobody
                 , providerList: new List<Guid>()

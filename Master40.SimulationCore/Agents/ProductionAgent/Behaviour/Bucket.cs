@@ -13,7 +13,7 @@ using System.Linq;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
-using static FCreateSimulationWorks;
+using static FCreateSimulationJobs;
 using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;

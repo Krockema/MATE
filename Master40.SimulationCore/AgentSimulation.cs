@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Configuration;
 using static FResourceSetupDefinitions;
 using static FSetEstimatedThroughputTimes;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
@@ -96,7 +97,7 @@ namespace Master40.SimulationCore
             var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
 
             var estimatedThroughputs = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
-                                               .ToList();
+                .ToList();
 
 
             ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem
@@ -123,7 +124,7 @@ namespace Master40.SimulationCore
         private void CreateCollectorAgents(Configuration configuration)
         {
             var resourcelist = new ResourceList();
-            resourcelist.AddRange(collection: _dBContext.Resources.Select(selector: x => "Resources(" + x.Name.Replace(" ", "") + ")"));
+            resourcelist.AddRange(collection: _dBContext.Resources.Select(selector: x => "Resource(" + x.Name.Replace(" ", "") + ")"));
 
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
@@ -131,9 +132,9 @@ namespace Master40.SimulationCore
             ContractCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()), name: "ContractCollector");
-            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsWorkSchedule.Get(resources: resourcelist)
+            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: resourcelist)
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
-                                                            , streamTypes: CollectorAnalyticsWorkSchedule.GetStreamTypes()), name: "WorkScheduleCollector");
+                                                            , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "WorkScheduleCollector");
         }
 
         private void GenerateGuardians()
@@ -195,6 +196,8 @@ namespace Master40.SimulationCore
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
 
+            var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
+
             var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)
                                                                     .ThenInclude(s => s.ResourceSetups)
@@ -207,7 +210,7 @@ namespace Master40.SimulationCore
             {
                 var resourceSetups = setups.Where(predicate: x => x.ResourceId == resource.Id).ToList();
 
-                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, debug: _debugAgents);
+                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: maxBucketSize, debug: _debugAgents);
 
                 _simulation.SimulationContext.Tell(message: Directory.Instruction
                                                             .CreateMachineAgents

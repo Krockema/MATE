@@ -13,7 +13,7 @@ using System.Linq;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
-using static FCreateSimulationWorks;
+using static FCreateSimulationJobs;
 using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;
@@ -140,7 +140,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             foreach (var operation in OperationManager.GetOperationBySkill(hub.RequiredFor))
             {
                 operation.UpdateHubAgent(hub.Ref);
-                Agent.Send(instruction: Hub.Instruction.EnqueueJob.Create(message: operation, target: hub.Ref));
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: operation, target: hub.Ref));
             }
 
         }
@@ -151,13 +151,13 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// <param name="operationKey"></param>
         private void WithdrawRequiredArticles(Guid operationKey)
         {
-            // TODO Only for Debugging
+            // Remember Only for Debugging
             var operation = OperationManager.GetOperationByKey(operationKey: operationKey);
-            Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name}");
 
             var dispoAgents = OperationManager.GetProviderForOperation(operationKey: operationKey);
             foreach (var dispo in dispoAgents)
             {
+                Agent.DebugMessage(msg: $"Withdraw required articles for operation: {operation.Operation.Name} at {dispo.Path.Name}");
                 Agent.Send(Dispo.Instruction
                                 .WithdrawArticleFromStock
                                 .Create(message: "Production Start"
@@ -232,12 +232,15 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 OperationManager.AddOperation(fJob);
 
                 // send update to collector
-                var pub = new FCreateSimulationWork(operation: fJob
+                var pub = new FCreateSimulationJob(job: fJob
+                    , jobType: JobType.OPERATION
                     , customerOrderId: fArticle.CustomerOrderId.ToString()
                     , isHeadDemand: fArticle.IsHeadDemand
                     , fArticleKey : fArticle.Key
                     , fArticleName: fArticle.Article.Name
-                    , articleType: fArticle.Article.ArticleType.Name);
+                    , articleType: fArticle.Article.ArticleType.Name
+                    , start: fJob.Start
+                    , end: fJob.End);
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 

@@ -1,4 +1,5 @@
-﻿using Master40.SimulationMrp.Simulation;
+﻿using Master40.DB.Data.WrappersForPrimitives;
+using Master40.SimulationMrp.Simulation;
 using Master40.SimulationMrp.Simulation.Types;
 using Xunit;
 using Zpp.DbCache;

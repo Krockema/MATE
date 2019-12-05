@@ -1,4 +1,5 @@
 using System;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Xunit;
 using Zpp.DbCache;

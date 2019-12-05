@@ -1,16 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Master40.DB.Data.Context;
+﻿using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
-    internal static class MasterTableResourceSkill
+    internal class MasterTableResourceSkill
     {
-        internal static M_ResourceSkill CUTTING = new M_ResourceSkill { Name = "Cutting" };
-        internal static M_ResourceSkill DRILLING = new M_ResourceSkill {Name = "Drilling" };
-        internal static M_ResourceSkill ASSEMBLING = new M_ResourceSkill { Name = "Assembling" };
-        internal static  M_ResourceSkill[] Init(MasterDBContext context)
+        internal M_ResourceSkill CUTTING;
+        internal M_ResourceSkill DRILLING;
+        internal M_ResourceSkill ASSEMBLING;
+
+        internal MasterTableResourceSkill()
+        {
+            CUTTING = new M_ResourceSkill { Name = "Cutting" };
+            DRILLING = new M_ResourceSkill { Name = "Drilling" };
+            ASSEMBLING = new M_ResourceSkill { Name = "Assembling" };
+        }
+
+        internal M_ResourceSkill[] Init(MasterDBContext context)
         {
             var resourceSkills = new M_ResourceSkill[]
             {

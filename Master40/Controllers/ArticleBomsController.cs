@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.DataModel;
 
 namespace Master40.Controllers
@@ -30,8 +31,10 @@ namespace Master40.Controllers
                 .ThenInclude(b => b.ArticleChilds).ToList().Where(a => 1 == 1);
                 */
 
-            var masterDBContext = _context.Articles.Include(navigationPropertyPath: w => w.Operations)
-                .Where(predicate: x => x.ArticleTypeId == 10027 /* Equals("Product") */).ToList();
+            var masterDBContext = _context.Articles
+                .Include(x => x.ArticleType)
+                .Include(navigationPropertyPath: w => w.Operations)
+                .Where(predicate: x => x.ArticleType.Name == MasterTableArticle.ARTICLE_PRODUCTS /* Equals("Product") */).ToList();
 
             var articleList = new List<M_Article>();
             foreach (var item in masterDBContext)

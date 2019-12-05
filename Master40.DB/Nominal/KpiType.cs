@@ -7,11 +7,15 @@ namespace Master40.DB.Enums
     public enum KpiType
     {
         LeadTime,
-        MachineUtilization,
+        ResourceUtilization,
+        ResourceSetup,
         Timeliness,
         StockEvolution,
         LayTime,
         AgentStatistics,
-        MeanTimeToStart
+        MeanTimeToStart,
+        ResourceUtilizationTotal,
+        ResourceSetupTotal,
+        StockTotals
     }
 }

@@ -1,24 +1,30 @@
 ﻿using Master40.DB.Enums;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Types;
-using static FOperations;
-using static FUpdateStartConditions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType)
+        public static IBehaviour Get(SimulationType simType, long maxBucketSize)
         {
+            IBehaviour behaviour;
             switch (simType)
             {
                 case SimulationType.DefaultSetup:
-                    return DefaultSetup();
-                case SimulationType.Bucket:
-                    return Bucket();
+                    behaviour = DefaultSetup();
+                    break;
+                case SimulationType.DefaultSetupStack:
+                    behaviour = DefaultSetup();
+                    break;
+                case SimulationType.BucketScope:
+                    behaviour = BucketScope(maxBucketSize);
+                    break;
                 default:
-                    return Default();
+                    behaviour =  Default();
+                    break;
             }
+
+            return behaviour;
         }
 
         private static IBehaviour Default()
@@ -35,10 +41,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         }
 
-        private static IBehaviour Bucket()
+        private static IBehaviour BucketScope(long maxBucketSize)
         {
 
-            return new Bucket();
+            return new BucketScope(maxBucketSize: maxBucketSize);
 
         }
 

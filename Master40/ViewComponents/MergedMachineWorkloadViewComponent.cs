@@ -55,7 +55,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(function: () =>
             {
-                if (!_context.SimulationOperations.Any())
+                if (!_context.SimulationJobs.Any())
                 {
                     return null;
                 }
@@ -71,7 +71,7 @@ namespace Master40.ViewComponents
                 foreach (var sim in _simList)
                 {
                     var trick17 = _context.Kpis.Where(predicate: x => x.SimulationConfigurationId == sim.Item1
-                                                 && x.KpiType == KpiType.MachineUtilization
+                                                 && x.KpiType == KpiType.ResourceUtilization
                                                  && x.IsKpi && x.SimulationType == sim.Item2
                                                  && x.SimulationNumber == 1
                                                  && x.IsFinal).OrderByDescending(keySelector: g => g.Name);

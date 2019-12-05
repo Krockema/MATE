@@ -21,7 +21,7 @@ namespace Master40.XUnitTest.Agents.Types
         public void AddAndRetrieveOperationByKey()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
             operationManager.AddOperation(job);
             var returnedJob = operationManager.GetByOperationKey(job.Key);
 
@@ -33,7 +33,7 @@ namespace Master40.XUnitTest.Agents.Types
         public void GetOperationsBySkill()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
             var returnedJob = operationManager.GetOperationBySkill("Sewing");
             Assert.True(returnedJob != null);
         }
@@ -43,7 +43,7 @@ namespace Master40.XUnitTest.Agents.Types
         {
             var operationManager = new OperationManager();
             var bom = new M_ArticleBom() { ArticleChild = new M_Article() {Name = "Wood"} };
-            var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10, bom: bom );
+            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10, bom: bom );
             var article = new M_Article()
             {
                 Name = "Bear"
@@ -62,7 +62,7 @@ namespace Master40.XUnitTest.Agents.Types
         public void ProvideArticle()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
             operationManager.AddOperation(job);
             var returnedJob = operationManager.GetByOperationKey(job.Key);
 

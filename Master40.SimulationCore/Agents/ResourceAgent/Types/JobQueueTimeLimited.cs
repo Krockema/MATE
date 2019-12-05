@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using MessagePack.Resolvers;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobs;
 
@@ -51,6 +53,34 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return queuePosition;
         }
 
+
+        public QueueingPosition GetQueueAbleTimeByStack(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
+        {
+            var queuePosition = new QueueingPosition { EstimatedStart = currentTime + processingQueueLength + setupDuration };
+            var totalWorkLoad = 0L;
+            if (resourceIsBlockedUntil != 0)
+                queuePosition.EstimatedStart = resourceIsBlockedUntil;
+
+            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
+            {
+                var allPreviousJobs = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime)).ToList();
+                var resourceTools = allPreviousJobs.Select(x => x.Tool.Id).Distinct().ToList();
+                var sumAllJobsWithToolId = jobs.Where(x => resourceTools.Contains(x.Tool.Id)
+                                                     && x.Tool.Id != job.Tool.Id)
+                                               .Sum(x => x.Duration);
+
+                var sumAllJobsWithSameToolId =
+                    allPreviousJobs.Where(x => x.Tool.Id == job.Tool.Id).Sum(x => x.Duration);
+                
+                totalWorkLoad = sumAllJobsWithSameToolId + sumAllJobsWithToolId;
+                queuePosition.EstimatedStart += totalWorkLoad;
+
+            }
+            if (totalWorkLoad < Limit || job.StartConditions.Satisfied)
+                queuePosition.IsQueueAble = true;
+            return queuePosition;
+        }
+
         /// <summary>
         /// Return true if queue limit is not reached
         /// </summary>
@@ -62,7 +92,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public List<IJob> CutTail(long currentTime, IJob job)
         {
-            // Enqued before another item?
+            // queued before another item?
             var toRequeue = new List<IJob>();
             var position = jobs.OrderBy(x => x.Priority(currentTime)).ToList().IndexOf(job);
 
@@ -72,6 +102,20 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 toRequeue = jobs.OrderBy(x => x.Priority(currentTime)).ToList()
                     .GetRange(position + 1, jobs.Count() - position - 1);
             }
+
+            return toRequeue;
+        }
+
+        public List<IJob> CutTailByStack(long currentTime, IJob job)
+        {
+            var allPreviousJobs = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime)).ToList();
+            var resourceTools = allPreviousJobs.Select(x => x.Tool.Id).Distinct().ToList();
+
+            var toRequeue = this.jobs.Where(e => e.Priority(currentTime) > job.Priority(currentTime)
+                                                        && (!resourceTools.Contains(e.Tool.Id) 
+                                                        || e.Tool.Id == job.Tool.Id))
+                                                            .ToList();
+
 
             return toRequeue;
         }
@@ -89,5 +133,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             job.StartConditions.PreCondition = startCondition.PreCondition;
             return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
+
     }
 }

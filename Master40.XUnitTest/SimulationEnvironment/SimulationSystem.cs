@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -6,63 +7,102 @@ using Master40.DB.Enums;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
-using Master40.XUnitTest.Preparations;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB;
-using Master40.DB.Data.Helper;
+using SQLitePCL;
 using Xunit;
-using Zpp.Utils;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class SimulationSystem : TestKit
     {
-        private DataBase<ProductionDomainContext> _dataBaseProduction;
-        private DataBase<ResultContext> _dataBaseResult;
-        private int simNr = 999;
+        private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
 
+        ProductionDomainContext _ctx = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
+                                                            .UseInMemoryDatabase(databaseName: "InMemoryDB")
+                                                            .Options);
+
+        ProductionDomainContext _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
+            .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true")
+            .Options);
+
+        private ResultContext _ctxResult = ResultContext.GetContext(resultCon:
+            "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true");
+
+        // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
+        // .UseInMemoryDatabase(databaseName: "InMemoryResults")
+        // .Options);
+        // 
         public SimulationSystem()
         {
-            _dataBaseProduction = Dbms.GetNewMasterDataBase();
-            _dataBaseResult = Dbms.GetNewResultDataBase();
-            _dataBaseProduction.DbContext.Database.EnsureDeleted();
-            _dataBaseProduction.DbContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(context: _dataBaseProduction.DbContext);
-            ResultDBInitializerBasic.DbInitialize(context: _dataBaseResult.DbContext);
+            // _masterDBContext.Database.EnsureDeleted();
+            // _masterDBContext.Database.EnsureCreated();
+            // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+
+            // _ctxResult.Database.EnsureDeleted();
+            // _ctxResult.Database.EnsureCreated();
+            // ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
+
         }
 
+        //[Fact(Skip = "manual test")]
+        [Theory]
+        [InlineData(testResultCtxString)]
+        [InlineData(masterResultCtxString)]
+        public void ResetResultsDB(string connectionString)
+        {
+            ResultContext masterResults = ResultContext.GetContext(resultCon: connectionString);
+            masterResults.Database.EnsureDeleted();
+            masterResults.Database.EnsureCreated();
+        }
 
-        [Fact(Skip = "To be activated after Merge")]
-        public async Task SystemTestAsync()
+        [Theory]
+        //[InlineData(SimulationType.None)]
+        [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
+        // [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
+        // [InlineData(SimulationType.BucketScope, 3, 60)]
+        // [InlineData(SimulationType.BucketScope, 4, 120)]
+        // [InlineData(SimulationType.BucketScope, 5, 240)]
+        // [InlineData(SimulationType.BucketScope, 6, 480)]
+        // [InlineData(SimulationType.BucketScope, 1, 120)]
+        // [InlineData(SimulationType.BucketScope, 2, 120)]
+        // [InlineData(SimulationType.BucketScope, 3, 120)]
+        // [InlineData(SimulationType.BucketScope, 4, 120)]
+        // [InlineData(SimulationType.BucketScope, 5, 120)]
+        // [InlineData(SimulationType.BucketScope, 7, Int32.MaxValue)]
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-
-            var simContext = new AgentSimulation(DBContext: _dataBaseProduction.DbContext, messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
                                                     // set ResultDBString and set SaveToDB true
-                                                      new DBConnectionString(value: _dataBaseResult.ConnectionString.Value)
+                                                    new DBConnectionString(value: localresultdb)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
-                                                    , new SimulationKind(value: SimulationType.None) // implements the used behaviour, if None --> DefaultBehaviour
+                                                    , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 1)
+                                                    , new OrderQuantity(value: 500)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 600)
-                                                    , new DebugAgents(value: true)
+                                                    , new EstimatedThroughPut(value: 1440)
+                                                    , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
+                                                    , new MaxBucketSize(value: maxBucketSize)
                                                     , new Seed(value: 1337)
-                                                    , new MinDeliveryTime(value: 1160)
-                                                    , new MaxDeliveryTime(value: 1600)
+                                                    , new MinDeliveryTime(value: 1440)
+                                                    , new MaxDeliveryTime(value: 2400)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
-                                                    , new SaveToDB(value: false)
+                                                    , new SaveToDB(value: true)
                                                 });
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
@@ -70,9 +110,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
             emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
 
 
-            var simFinished = false;
+            var simWasReady = false;
             if (simulation.IsReady())
             {
+                // set for Assert 
+                simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
 
@@ -83,22 +125,20 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                                     , simContext.ContractCollector
                                             });
                 await sim;
-                // set for Assert 
-                simFinished = true;
             }
 
-            Assert.True(condition: simFinished);
+            Assert.True(condition: simWasReady);
         }
 
         private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
         {
             var _simNr = simNr;
-            using (_dataBaseResult.DbContext)
+            using (_ctxResult)
             {
-                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.SimulationOperations.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _dataBaseResult.DbContext.RemoveRange(entities: _dataBaseResult.DbContext.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _dataBaseResult.DbContext.SaveChanges();
+                _ctxResult.RemoveRange(entities: _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.SaveChanges();
             }
         }
     }

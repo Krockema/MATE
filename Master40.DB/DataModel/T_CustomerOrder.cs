@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Master40.DB.Nominal;
 using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel

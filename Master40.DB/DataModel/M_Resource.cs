@@ -19,5 +19,9 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
 
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

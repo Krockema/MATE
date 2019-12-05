@@ -5,6 +5,7 @@ using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationMrp.Simulation.Agents.JobDistributor.Skills;
 using Master40.SimulationMrp.Simulation.Agents.JobDistributor.Types;

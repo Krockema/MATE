@@ -44,7 +44,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(function: () =>
             {
-                if (!_resultContext.SimulationOperations.Any())
+                if (!_resultContext.SimulationJobs.Any())
                 {
                     return null;
                 }
@@ -64,7 +64,7 @@ namespace Master40.ViewComponents
                 // use available hight in Chart
                 var machines = _resultContext.Kpis.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                         && x.SimulationType == simType
-                                                        && x.KpiType == KpiType.MachineUtilization
+                                                        && x.KpiType == KpiType.ResourceUtilization
                                                         && x.IsKpi
                                                         && x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
                                            .OrderByDescending(keySelector: g => g.Name)
@@ -136,7 +136,7 @@ namespace Master40.ViewComponents
         {
             var generateChartTask = Task.Run(function: () =>
             {
-                if (!_resultContext.SimulationOperations.Any())
+                if (!_resultContext.SimulationJobs.Any())
                 {
                     return null;
                 }
@@ -153,7 +153,7 @@ namespace Master40.ViewComponents
                 // use available hight in Chart
                 var machinesKpi = _resultContext.Kpis.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                         && x.SimulationType == simType
-                                                        && x.KpiType == KpiType.MachineUtilization
+                                                        && x.KpiType == KpiType.ResourceUtilization
                                                         && !x.IsKpi
                                                         && !x.IsFinal && x.SimulationNumber == Convert.ToInt32(paramsList[2]))
                     .ToList();

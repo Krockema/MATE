@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FUpdateBucketScopes.fs" />
+    <Compile Include="Message\FBucketScopes.fs" />
     <Compile Include="Message\FResourceInformations.fs" />
     <Compile Include="Message\FCreateSimulationResourceSetup.fs" />
     <Compile Include="Message\FThroughPutTimers.fs" />
@@ -23,6 +25,8 @@
     <Compile Include="Message\FArticle.fs" />
     <Compile Include="Message\FProductionResults.fs" />
 	  <Compile Include="Message\FBucket.fs" />
+    <Compile Include="Message\FRequestToRequeues.fs" />
+    <Compile Include="Message\FBucketResults.fs" />
     <Compile Include="Message\FRequestResource.fs" />
     <Compile Include="Message\FAgentInformation.fs" />
     <Compile Include="Message\FUpdateStockValues.fs" />
@@ -30,8 +34,8 @@
     <Compile Include="Message\FSetEstimatedThroughputTimes.fs" />
     <Compile Include="Message\FBreakDown.fs" />
     <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
-    <Compile Include="Message\FUpdateSimulationWork.fs" />
-    <Compile Include="Message\FCreateSimulationWork.fs" />
+    <Compile Include="Message\FUpdateSimulationJobs.fs" />
+    <Compile Include="Message\FCreateSimulationJobs.fs" />
     <Compile Include="Message\FResourceSetupDefinition.fs" />
   </ItemGroup>
 

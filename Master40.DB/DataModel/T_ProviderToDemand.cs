@@ -3,12 +3,23 @@ using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
 {
-    public class T_ProviderToDemand : BaseEntity, IProviderToDemand
+    public class T_ProviderToDemand : BaseEntity, ILinkDemandAndProvider
     {
         public int ProviderId { get; set; }
         public int DemandId { get; set; }
         
         public decimal Quantity { get; set; }
+
+        public T_ProviderToDemand()
+        {
+        }
+
+        public T_ProviderToDemand(Id providerId, Id demandId, Quantity quantity)
+        {
+            ProviderId = providerId.GetValue();
+            DemandId = demandId.GetValue();
+            Quantity = quantity.GetValue();
+        }
 
         public override string ToString()
         {
@@ -28,15 +39,6 @@ namespace Master40.DB.DataModel
         public Quantity GetQuantity()
         {
             return new Quantity(Quantity);
-        }
-
-        public T_DemandToProvider ToDemandToProvider()
-        {
-            T_DemandToProvider demandToProvider = new T_DemandToProvider();
-            demandToProvider.DemandId = DemandId;
-            demandToProvider.ProviderId = ProviderId;
-            demandToProvider.Quantity = Quantity;
-            return demandToProvider;
         }
     }
 }
