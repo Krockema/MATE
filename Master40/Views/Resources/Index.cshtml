@@ -1,0 +1,76 @@
+@model IEnumerable<Master40.DB.DataModel.M_Resource>
+
+@{
+    ViewData[index: "Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var holymoly = (string)ViewData[index: "Machines"];
+}
+
+<link href="~/css/mermaid.css" rel="stylesheet" />
+<style>
+    #mermaidChart0 .node > rect {
+        height: 60px;
+    }
+</style>
+<script src="~/js/mermaid.js"></script>
+<script>
+    mermaidAPI.initialize({
+        startOnLoad: true
+    });
+
+</script>
+<h2>Index </h2>
+<p>
+    <a asp-action="Create" class="btn btn-outline-secondary"><i class="fa fa-plus-square-o fa-1x fa-unset"></i> New</a>
+    | <a asp-action="Setup" asp-route-id="Small" class="btn btn-outline-secondary">small Setup</a> 
+    | <a asp-action="Setup" asp-route-id="Large" class="btn btn-outline-secondary">large Setup</a>
+</p>
+<div class="mermaid">
+    @holymoly
+</div>
+<table class="table table-sm table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Count)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Capacity)
+            </th>
+            <th>
+                Machine Group
+            </th>
+            <th style="text-align: right;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.Count)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.Capacity)
+                </td>
+                <td style="text-align: right;">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-pencil-square-o fa-1x fa-unset"></i> Edit
+                    </a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-eye fa-1x fa-unset"></i> Details
+                    </a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-trash fa-1x fa-unset"></i> Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

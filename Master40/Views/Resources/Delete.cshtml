@@ -1,0 +1,42 @@
+@model Master40.DB.DataModel.M_Resource
+
+@{
+    ViewData[index: "Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Machine</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Count)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Count)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Capacity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Capacity)
+        </dd>
+        <input type="hidden" asp-for="Id" />
+    </dl>
+    
+    <form asp-action="Delete">
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </form>
+</div>
