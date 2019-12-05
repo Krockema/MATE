@@ -1,6 +1,6 @@
 language: csharp
 mono: none
-dist: xenial
+dist: bionic
 dotnet: 3.1.100
 
 services:

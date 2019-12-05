@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using Hangfire;
+using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer;
+using Master40.Simulation;
+using Master40.Tools.SignalR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -8,12 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Master40.DB.Data.Context;
-using Hangfire;
-using Master40.DB.Data.Initializer;
-using Master40.Simulation;
-using Master40.Tools.SignalR;
-using Swashbuckle.AspNetCore.Swagger;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Master40
 {
@@ -125,7 +124,6 @@ namespace Master40
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
             else
             {
