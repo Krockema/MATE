@@ -34,8 +34,8 @@ namespace Zpp.OrderGraph
 
                 INode fromNode = new Node(provider, providerToDemand.GetProviderId());
                 INode toNode = new Node(demand, providerToDemand.GetDemandId());
-                AddEdge(fromNode,
-                    new Edge(providerToDemand.ToDemandToProvider(), fromNode, toNode));
+                //AddEdge(fromNode,
+                //    new Edge(providerToDemand.ToDemandToProvider(), fromNode, toNode));
             }
         }
     }

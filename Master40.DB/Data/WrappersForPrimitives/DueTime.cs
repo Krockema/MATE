@@ -16,5 +16,10 @@ namespace Master40.DB.Data.WrappersForPrimitives
         public DueTime()
         {
         }
+
+        public static DueTime Null()
+        {
+            return new DueTime(0);
+        }
     }
 }

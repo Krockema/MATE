@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Akka.Actor;
 using AkkaSim;
 using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationMrp.Simulation.Agents.JobDistributor.Skills;
 using Master40.SimulationMrp.Simulation.Agents.Resource.Skills;
 using Zpp.Common.ProviderDomain.Wrappers;

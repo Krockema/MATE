@@ -61,9 +61,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterResults.Database.EnsureCreated();
         }
 
-        // [Theory]
+        [Theory]
         //[InlineData(SimulationType.None)]
-        // [InlineData(SimulationType.DefaultSetup, 1, 60)]
+        [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
         // [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
         // [InlineData(SimulationType.BucketScope, 3, 60)]
         // [InlineData(SimulationType.BucketScope, 4, 120)]

@@ -9,7 +9,7 @@ using System.Linq;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
-using static FUpdateSimulationWorks;
+using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Master40.DB.Data.WrappersForPrimitives;
 using Zpp.Common.ProviderDomain.Wrappers;
 using Zpp.DbCache;
 using Zpp.WrappersForPrimitives;
