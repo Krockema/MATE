@@ -7,6 +7,7 @@ services:
   - docker
 
 install:
+  - sudo apt-get install -qq dotnet-sdk-2.0.9
   - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
   - dotnet restore
   
