@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseRazorBuildServer>false</UseRazorBuildServer>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
