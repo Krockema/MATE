@@ -1,19 +1,21 @@
-using Zpp.LotSize;
+using Zpp.Mrp2.impl.Mrp1.impl.LotSize.Impl;
+using Zpp.Utils;
 
 namespace Master40.XUnitTest.Zpp.Configuration
 {
-    public class TestConfiguration
+    public class TestConfiguration : ICentralPlanningConfiguration
     {
-        public int CustomerOrderPartQuantity { get; set; }
-        public int LotSize { get; set; }
-        
-        public LotSizeType LotSizeType { get; set; }
-        public string Name { get; set; }
-        
-        // classname as full AssemblyQualifiedName see MSDoc AssemblyQualifiedName
-        public string DbSetInitializer { get; set; }
-        
-        // classname as full AssemblyQualifiedName see MSDoc AssemblyQualifiedName
-        public string TestScenario { get; set; }
+    public int CustomerOrderPartQuantity { get; set; }
+    public int LotSize { get; set; }
+
+    public LotSizeType LotSizeType { get; set; }
+    public string Name { get; set; }
+
+    // classname as full AssemblyQualifiedName see MSDoc AssemblyQualifiedName
+    public string DbSetInitializer { get; set; }
+
+    public int SimulationMaximumDuration { get; set; } = 20160;
+
+    public int SimulationInterval { get; set; } = 1440;
     }
 }

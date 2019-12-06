@@ -20,7 +20,7 @@ namespace Master40.XUnitTest.Zpp.Configuration
 
         private const string OPERATION_DESK = "Tisch verpacken";
         private const string OPERATION_DESK_LEG_1 = "Anschraubplatte anschweißen";
-        private const string OPERATION_DESK_LEG_2 = "Flizgleiter anstecken";
+        private const string OPERATION_DESK_LEG_2 = "Filzgleiter anstecken";
 
         private const string BUSINESS_PARTNER_PRINT_SHOP = "Druckerei";
         private const string BUSINESS_PARTNER_DESK_DISTRIBUTOR = "Tischverkäufer";

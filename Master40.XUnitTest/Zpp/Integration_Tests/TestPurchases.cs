@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Master40.SimulationMrp;
 using Xunit;
-using Zpp.DbCache;
-using Zpp.Mrp;
+using Zpp;
+using Zpp.DataLayer;
 
 namespace Master40.XUnitTest.Zpp.Integration_Tests
 {
@@ -18,11 +19,13 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
         [Fact]
         public void TestPurchaseQuantityIsAMultipleOfPackSize()
         {
-            MrpRun.Start(ProductionDomainContext);
+            IZppSimulator zppSimulator = new global::Master40.SimulationMrp.impl.ZppSimulator();
+            zppSimulator.StartTestCycle();
 
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+        IDbMasterDataCache dbMasterDataCache =
+            ZppConfiguration.CacheManager.GetMasterDataCache();
             IDbTransactionData persistedTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+                ZppConfiguration.CacheManager.ReloadTransactionData();
 
             List<T_PurchaseOrderPart> tPurchaseOrderParts = persistedTransactionData
                 .PurchaseOrderPartGetAll().GetAllAs<T_PurchaseOrderPart>();

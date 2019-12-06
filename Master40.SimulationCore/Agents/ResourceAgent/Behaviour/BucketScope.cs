@@ -2,9 +2,9 @@
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.DistributionProvider;
 using System;
 using System.Linq;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobResults;

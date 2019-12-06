@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Agents\Hub\**" />
+    <EmbeddedResource Remove="Agents\Hub\**" />
+    <None Remove="Agents\Hub\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Akka.TestKit.Xunit" Version="1.3.16" />
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
@@ -30,10 +36,6 @@
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Agents\Hub\" />
   </ItemGroup>
 
 </Project>

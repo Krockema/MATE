@@ -19,8 +19,8 @@ using System.Data.Common;
 using System.Linq;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
-using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Agents.SupervisorAgent.Types;
+using Master40.SimulationCore.Helper.DistributionProvider;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent
 {

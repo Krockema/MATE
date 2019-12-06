@@ -36,7 +36,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
         /// </summary>
         private Queue<StockItem> _providerQueue { get; }
         public M_Stock Stock { get; }
-        public decimal Current => _providerQueue.Sum(x => x.QuantityLeft.GetValue());
+        public decimal? Current => _providerQueue.Sum(x => x.QuantityLeft.GetValue());
         public int Id => Stock.Id;
         public string Name => Stock.Name;
         public double Price => Stock.Article.Price;

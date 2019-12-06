@@ -1,0 +1,8 @@
+{
+  "CustomerOrderPartQuantity": 100,
+  "LotSize": 2,
+  "Name": "desk_cop_500_lotsize_2",
+  "DbSetInitializer": "Master40.XUnitTest.Zpp.Configuration.MasterDBInitializerDesk",
+  "SimulationMaximumDuration": 20160,
+  "SimulationInterval": 20160
+}

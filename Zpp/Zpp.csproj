@@ -3,12 +3,19 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+		<LangVersion>7.1</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Json.Net" Version="1.0.18" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0-preview-20191115-01" />
+      <Compile Remove="Test\**" />
+      <EmbeddedResource Remove="Test\**" />
+      <None Remove="Test\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Json.Net" Version="1.0.16" />
       <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     </ItemGroup>
   <ItemGroup>
     <None Update="NLog.config">
@@ -19,27 +26,14 @@
     </None>    
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Common\DemandDomain\WrappersForCollections\" />
-      <Folder Include="Common\DemandDomain\Wrappers\" />
-      <Folder Include="Common\ProviderDomain\WrappersForCollections\" />
-      <Folder Include="Common\ProviderDomain\Wrappers\" />
-      <Folder Include="Configuration\" />
-      <Folder Include="DbCache\" />
-      <Folder Include="GraphicalRepresentation\" />
-      <Folder Include="LotSize\" />
-      <Folder Include="OrderGraph\" />
-      <Folder Include="Properties\" />
-      <Folder Include="Simulation\Agents\JobDistributor\Skills\" />
-      <Folder Include="Simulation\Agents\JobDistributor\Types\" />
-      <Folder Include="Simulation\Agents\Resource\Skills\" />
-      <Folder Include="Simulation\Monitors\" />
-      <Folder Include="Simulation\Types\" />
-      <Folder Include="Utils\Queue\" />
-      <Folder Include="WrappersForCollections\" />
-      <Folder Include="WrappersForPrimitives\" />
+      <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+      <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
+      <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+      <Folder Include="DataLayer\" />
+      <Folder Include="GraphicalRepresentation\" />
+      <Folder Include="Properties\" />
+      <Folder Include="Utils\Queue\" />
     </ItemGroup>
-
 </Project>

@@ -1,31 +1,40 @@
 using Master40.DB;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using Zpp.Utils;
 
 namespace Master40.XUnitTest.Zpp.Unit_Tests
 {
     public class TestUtilsDbms
     {
-
-        [Fact(Skip = "Doesnt work with LocalDB and Unix Systems")]
+        [Fact(Skip = "Sql server 'drop database' does not work on non-Windows-systems.")]
         public void TestDropExistingDatabase()
         {
-            DataBase<ProductionDomainContext> productionDataBase = Dbms.GetNewMasterDataBase();
-            if (productionDataBase.DbContext.Database.CanConnect() == false)
+            ProductionDomainContext productionDomainContext =Dbms.GetNewMasterDataBase().DbContext;
+            
+            if (productionDomainContext.Database.CanConnect() == false)
             {
-                productionDataBase.DbContext.Database.EnsureCreated();
+                productionDomainContext.Database.EnsureCreated();
             }
 
-            productionDataBase.DbContext.Database.CloseConnection();
+            productionDomainContext.Database.CloseConnection();
 
-            bool wasDropped = Dbms.DropDatabase(productionDataBase.DataBaseName.Value,
-                                                productionDataBase.ConnectionString.Value );
+            bool wasDropped =
+                Dbms.DropDatabase(productionDomainContext.Database.GetDbConnection().Database,
+                    productionDomainContext.Database.GetDbConnection().ConnectionString);
             Assert.True(wasDropped, "Db could not be dropped.");
-            Assert.False(productionDataBase.DbContext.Database.CanConnect(),
+            Assert.False(productionDomainContext.Database.CanConnect(),
                 "Can still connect to database.");
+        }
+
+        [Fact]
+        public void TestDropNonExistingDatabase()
+        {
+            ProductionDomainContext productionDomainContext =Dbms.GetNewMasterDataBase().DbContext;
+            
+            bool wasDropped = Dbms.DropDatabase("bla",
+                productionDomainContext.Database.GetDbConnection().ConnectionString);
+            Assert.False(wasDropped, "Db could be dropped, although it doesn't exist.");
         }
     }
 }

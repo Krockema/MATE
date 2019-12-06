@@ -1,16 +1,21 @@
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
+using Master40.SimulationMrp;
 using Master40.XUnitTest.Zpp.Configuration;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
-using Zpp.Common.DemandDomain;
-using Zpp.Common.DemandDomain.Wrappers;
-using Zpp.Common.ProviderDomain;
-using Zpp.DbCache;
-using Zpp.Mrp;
-using Zpp.OrderGraph;
-using Zpp.WrappersForPrimitives;
+using Zpp;
+using Zpp.DataLayer;
+using Zpp.DataLayer.impl.DemandDomain;
+using Zpp.DataLayer.impl.DemandDomain.Wrappers;
+using Zpp.DataLayer.impl.ProviderDomain;
+using Zpp.DataLayer.impl.ProviderDomain.Wrappers;
+using Zpp.Mrp2.impl.Scheduling.impl;
+using Zpp.Util;
+using Zpp.Util.Graph;
+using Zpp.Util.Graph.impl;
+using Zpp.Util.StackSet;
 
 namespace Master40.XUnitTest.Zpp.Integration_Tests
 {
@@ -24,43 +29,42 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
         {
             InitTestScenario(testConfiguration);
 
-            MrpRun.Start(ProductionDomainContext);
+            IZppSimulator zppSimulator = new global::Master40.SimulationMrp.impl.ZppSimulator();
+            zppSimulator.StartTestCycle();
         }
 
 
         [Theory]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestBackwardScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
 
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+
             IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+                global::Zpp.ZppConfiguration.CacheManager.ReloadTransactionData();
 
             foreach (var productionOrderOperation in dbTransactionData
                 .ProductionOrderOperationGetAll())
             {
-                Assert.True((bool) (productionOrderOperation.GetValue().EndBackward != null),
+                Assert.True(productionOrderOperation.GetValue().EndBackward != null,
                     $"EndBackward of operation ({productionOrderOperation} is not scheduled.)");
-                Assert.True((bool) (productionOrderOperation.GetValue().StartBackward != null),
+                Assert.True(productionOrderOperation.GetValue().StartBackward != null,
                     $"StartBackward of operation ({productionOrderOperation} is not scheduled.)");
             }
         }
 
         [Theory]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestForwardScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
 
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+
             IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+                global::Zpp.ZppConfiguration.CacheManager.ReloadTransactionData();
 
             foreach (var productionOrderOperation in dbTransactionData
                 .ProductionOrderOperationGetAll())
@@ -81,32 +85,30 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
             }
 
             List<DueTime> dueTimes = new List<DueTime>();
-            foreach (var demand in dbTransactionData.DemandsGetAll().GetAll())
+            foreach (var demand in dbTransactionData.DemandsGetAll())
             {
-                dueTimes.Add(demand.GetDueTime(dbTransactionData));
-                Assert.True(demand.GetDueTime(dbTransactionData).GetValue() >= 0,
+                dueTimes.Add(demand.GetStartTimeBackward());
+                Assert.True(demand.GetStartTimeBackward().GetValue() >= 0,
                     $"DueTime of demand ({demand}) is negative.");
             }
 
-            foreach (var provider in dbTransactionData.ProvidersGetAll().GetAll())
+            foreach (var provider in dbTransactionData.ProvidersGetAll())
             {
-                dueTimes.Add(provider.GetDueTime(dbTransactionData));
-                Assert.True(provider.GetDueTime(dbTransactionData).GetValue() >= 0,
+                dueTimes.Add(provider.GetStartTimeBackward());
+                Assert.True(provider.GetStartTimeBackward().GetValue() >= 0,
                     $"DueTime of provider ({provider}) is negative.");
             }
         }
 
         [Theory]
-        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         public void TestJobShopScheduling(string testConfigurationFileName)
         {
             InitThisTest(testConfigurationFileName);
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+
             IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+                global::Zpp.ZppConfiguration.CacheManager.ReloadTransactionData();
             foreach (var productionOrderOperation in dbTransactionData
                 .ProductionOrderOperationGetAll())
             {
@@ -117,82 +119,185 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
                 Assert.True(tProductionOrderOperation.ResourceId != null,
                     $"{productionOrderOperation} was not scheduled.");
                 Assert.True(
-                    tProductionOrderOperation.Start >= tProductionOrderOperation.StartBackward,
-                    "The startTime for producing cannot be earlier than estimated by backwards scheduling.");
-                Assert.True(tProductionOrderOperation.End >= tProductionOrderOperation.EndBackward,
-                    "The endTime for producing cannot be earlier than estimated by backwards scheduling.");
+                    tProductionOrderOperation.Start >= productionOrderOperation
+                        .GetEarliestPossibleStartTime().GetValue(),
+                    "A productionOrderOperation cannot start before its material is available.");
             }
         }
 
         [Theory]
-        [InlineData(TestConfigurationFileNames.DESK_COP_1_LOT_ORDER_QUANTITY)]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_CONCURRENT_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.DESK_COP_5_SEQUENTIALLY_LOTSIZE_2)]
-        // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
-        public void TestPredecessorNodeTimeIsGreaterOrEqualInDemandToProviderGraph(
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        public void TestParentsDueTimeIsGreaterThanOrEqualToChildsDueTime(
             string testConfigurationFileName)
         {
             // init
             InitThisTest(testConfigurationFileName);
-            IDbMasterDataCache dbMasterDataCache = new DbMasterDataCache(ProductionDomainContext);
+
             IDbTransactionData dbTransactionData =
-                new DbTransactionData(ProductionDomainContext, dbMasterDataCache);
+                global::Zpp.ZppConfiguration.CacheManager.ReloadTransactionData();
 
-            IDirectedGraph<INode> demandToProviderGraph =
-                new DemandToProviderDirectedGraph(dbTransactionData);
-
-            // start
-
-            INodes allLeafs = demandToProviderGraph.GetLeafNodes();
-
-            foreach (var leaf in allLeafs)
+            foreach (var demandToProvider in dbTransactionData.DemandToProviderGetAll())
             {
-                INodes predecessorNodes = demandToProviderGraph.GetPredecessorNodes(leaf);
+                Demand parentDemand =
+                    dbTransactionData.DemandsGetById(demandToProvider.GetDemandId());
+                if (parentDemand.GetType() == typeof(CustomerOrderPart))
+                {
+                    continue;
+                }
 
-                ValidatePredecessorNodeTimeIsGreaterOrEqual(predecessorNodes, leaf, dbTransactionData,
-                    demandToProviderGraph);
+                Provider childProvider =
+                    dbTransactionData.ProvidersGetById(demandToProvider.GetProviderId());
+
+
+                DueTime parentDueTime = parentDemand.GetStartTimeBackward();
+                DueTime childDueTime = childProvider.GetEndTimeBackward();
+
+                Assert.True(parentDueTime.IsGreaterThanOrEqualTo(childDueTime),
+                    "ParentDemand's dueTime cannot be smaller than childProvider's dueTime.");
+            }
+
+            foreach (var providerToDemand in dbTransactionData.ProviderToDemandGetAll())
+            {
+                Provider parentProvider =
+                    dbTransactionData.ProvidersGetById(providerToDemand.GetProviderId());
+                Demand childDemand =
+                    dbTransactionData.DemandsGetById(providerToDemand.GetDemandId());
+
+                DueTime parentDueTime = parentProvider.GetStartTimeBackward();
+                DueTime childDueTime = childDemand.GetEndTimeBackward();
+
+                Assert.True(parentDueTime.IsGreaterThanOrEqualTo(childDueTime),
+                    "ParentProvider's dueTime cannot be smaller than childDemand's dueTime.");
             }
         }
 
-        private void ValidatePredecessorNodeTimeIsGreaterOrEqual(INodes predecessorNodes,
-            INode lastNode, IDbTransactionData dbTransactionData,
-            IDirectedGraph<INode> demandToProviderGraph)
+        [Theory]
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        public void TestBackwardSchedulingTransitionTimeForeachOperationIsCorrect(
+            string testConfigurationFileName)
         {
-            if (predecessorNodes == null || predecessorNodes.Any() == false)
+            InitThisTest(testConfigurationFileName);
+
+            IDbTransactionData dbTransactionData =
+                global::Zpp.ZppConfiguration.CacheManager.ReloadTransactionData();
+
+            foreach (var productionOrderBomAsDemand in dbTransactionData.ProductionOrderBomGetAll())
+            {
+                ProductionOrderBom productionOrderBom =
+                    (ProductionOrderBom) productionOrderBomAsDemand;
+                int expectedStartBackward = productionOrderBom.GetStartTimeBackward().GetValue() +
+                                            TransitionTimer.GetTransitionTimeFactor() *
+                                            productionOrderBom.GetDurationOfOperation().GetValue();
+                int actualStartBackward = productionOrderBom.GetStartTimeOfOperation().GetValue();
+                Assert.True(expectedStartBackward.Equals(actualStartBackward),
+                    $"The transition time before operationStart is not correct: " +
+                    $"expectedStartBackward: {expectedStartBackward}, actualStartBackward {actualStartBackward}");
+
+                int expectedEndBackward = productionOrderBom.GetStartTimeOfOperation().GetValue() +
+                                          productionOrderBom.GetDurationOfOperation().GetValue();
+                int actualEndBackward = productionOrderBom.GetEndTimeBackward().GetValue();
+                Assert.True(expectedEndBackward.Equals(actualEndBackward),
+                    $"EndBackward is not correct: " +
+                    $"expectedEndBackward: {expectedEndBackward}, actualEndBackward {actualEndBackward}");
+            }
+        }
+
+        [Theory]
+        [InlineData(TestConfigurationFileNames.DESK_COP_5_LOTSIZE_2)]
+        [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
+        public void TestBackwardSchedulingTransitionTimeBetweenOperationsIsCorrect(
+            string testConfigurationFileName)
+        {
+            InitThisTest(testConfigurationFileName);
+
+            IDbTransactionData dbTransactionData =
+                global::Zpp.ZppConfiguration.CacheManager.ReloadTransactionData();
+
+            IDirectedGraph<INode> operationGraph =
+                new OperationGraph(new OrderOperationGraph());
+
+            IStackSet<INode> innerLeafs =
+                operationGraph.GetLeafNodes().ToStackSet();
+            IStackSet<INode> traversedNodes = new StackSet<INode>();
+            foreach (var leaf in innerLeafs)
+            {
+                INodes predecessorNodesRecursive =
+                    operationGraph.GetPredecessorNodesRecursive(leaf);
+                IStackSet<ProductionOrderOperation> newPredecessorNodes =
+                    new StackSet<ProductionOrderOperation>(
+                        predecessorNodesRecursive.Select(x =>
+                            (ProductionOrderOperation) x.GetEntity()));
+
+                ProductionOrderOperation
+                    lastOperation = (ProductionOrderOperation) leaf.GetEntity();
+                ValidatePredecessorOperationsTransitionTimeIsCorrect(newPredecessorNodes,
+                    lastOperation, operationGraph, traversedNodes);
+                traversedNodes.Push(leaf);
+            }
+
+            int expectedTraversedOperationCount =
+                new Stack<ProductionOrderOperation>(
+                    dbTransactionData.ProductionOrderOperationGetAll()).Count();
+            int actualTraversedOperationCount = traversedNodes.Count();
+
+            Assert.True(actualTraversedOperationCount.Equals(expectedTraversedOperationCount),
+                $"expectedTraversedOperationCount {expectedTraversedOperationCount} " +
+                $"doesn't equal actualTraversedOperationCount {actualTraversedOperationCount}'");
+        }
+
+        /**
+         * Bottom-Up-Traversal
+         */
+        private void ValidatePredecessorOperationsTransitionTimeIsCorrect(
+            IStackSet<ProductionOrderOperation> predecessorOperations,
+            ProductionOrderOperation lastOperation,
+            IDirectedGraph<INode> operationGraph,
+            IStackSet<INode> traversedOperations)
+        {
+            if (predecessorOperations == null)
             {
                 return;
             }
 
-            foreach (var predecessorNode in predecessorNodes)
+            foreach (var currentPredecessor in predecessorOperations)
             {
-                if (predecessorNode.GetEntity().GetNodeType().Equals(NodeType.Demand))
+                if (currentPredecessor.GetType() == typeof(ProductionOrderOperation))
                 {
-                    Demand currentDemand = (Demand)predecessorNode.GetEntity();
+                    ProductionOrderOperation currentOperation = currentPredecessor;
+                    traversedOperations.Push(new Node(currentPredecessor));
 
-                    DueTime lastDueTime =
-                        ((Provider)lastNode.GetEntity()).GetDueTime(dbTransactionData);
-                    if (currentDemand.GetType() != typeof(CustomerOrderPart))
+                    // transition time MUST be before the start of Operation
+                    int expectedStartBackwardLowerLimit =
+                        lastOperation.GetValue().EndBackward.GetValueOrDefault() +
+                        TransitionTimer.GetTransitionTimeFactor() *
+                        currentOperation.GetValue().Duration;
+                    int actualStartBackward = currentOperation.GetValue().StartBackward
+                        .GetValueOrDefault();
+                    Assert.True(actualStartBackward >= expectedStartBackwardLowerLimit,
+                        $"The transition time between the operations is not correct: " +
+                        $"expectedStartBackward: {expectedStartBackwardLowerLimit}, actualStartBackward {actualStartBackward}");
+
+                    INodes predecessorNodesRecursive =
+                        operationGraph.GetPredecessorNodesRecursive(new Node(currentPredecessor));
+                    if (predecessorNodesRecursive != null)
                     {
-                        Assert.True((bool) currentDemand.GetDueTime(dbTransactionData)
-                            .IsGreaterThanOrEqualTo(lastDueTime), "PredecessorNodeTime cannot be smaller than node's time.");
+                        IStackSet<ProductionOrderOperation> newPredecessorNodes =
+                            new StackSet<ProductionOrderOperation>(
+                                predecessorNodesRecursive.Select(x =>
+                                    (ProductionOrderOperation) x.GetEntity()));
+                        ValidatePredecessorOperationsTransitionTimeIsCorrect(newPredecessorNodes,
+                            currentOperation, operationGraph, traversedOperations);
                     }
                 }
-                else if (predecessorNode.GetNodeType().Equals(NodeType.Provider))
+                else
                 {
-                    Provider currentProvider = (Provider)predecessorNode.GetEntity();
-
-                    DueTime lastDueTime =
-                        ((Demand)lastNode.GetEntity()).GetDueTime(dbTransactionData);
-                    Assert.True((bool) currentProvider.GetDueTime(dbTransactionData)
-                        .IsGreaterThanOrEqualTo(lastDueTime), "PredecessorNodeTime cannot be smaller than node's time.");
+                    throw new MrpRunException(
+                        "ProductionOrderToOperationGraph should only contain productionOrders/operations.");
                 }
-
-                INodes newPredecessorNodes =
-                    demandToProviderGraph.GetPredecessorNodes(predecessorNode);
-
-                ValidatePredecessorNodeTimeIsGreaterOrEqual(newPredecessorNodes, predecessorNode,
-                    dbTransactionData, demandToProviderGraph);
             }
         }
+        
     }
 }

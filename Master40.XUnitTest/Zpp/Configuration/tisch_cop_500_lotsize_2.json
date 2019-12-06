@@ -1,0 +1,6 @@
+{
+  "CustomerOrderPartQuantity": 500,
+  "LotSize": 2,
+  "Name": "desk_cop_500_lotsize_2",
+  "DbSetInitializer": "Master40.XUnitTest.Zpp.Configuration.MasterDBInitializerDesk"
+}

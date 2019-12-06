@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
     <PackageReference Include="EntityFrameworkCore.Cacheable" Version="2.0.1" />
+    <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
@@ -29,6 +30,7 @@
     <PackageReference Include="System.Composition" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Data\Helper\DistributionProvider\" />
     <Folder Include="ReportingModel\Interface\" />
   </ItemGroup>
 </Project>

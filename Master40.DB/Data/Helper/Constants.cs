@@ -8,7 +8,7 @@ namespace Master40.DB.Data.Helper
     public static class Constants
     {
         public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        public static string DbWithSuffixMaster() => GetDbName("Test");
+        public static string DbWithSuffixMaster(string appendix = "") => GetDbName("Test" + appendix);
         public static string DbWithSuffixResults() => GetDbName("TestResults");
         public static bool IsLocalDb = false;
         // TODO: the random/dateTime is a workaround, remove this if drop database query in Dispose() in TestClasses is added

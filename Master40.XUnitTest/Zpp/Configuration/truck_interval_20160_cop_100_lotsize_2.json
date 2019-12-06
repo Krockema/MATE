@@ -1,0 +1,9 @@
+{
+  "CustomerOrderPartQuantity": 100,
+  "LotSize": 2,
+  "Name": "truck_interval_20160_cop_100_lotsize_2",
+  "DbSetInitializer": "Master40.DB.Data.Initializer.MasterDBInitializerTruck, Master40.DB",
+
+  "SimulationMaximumDuration": 20160,
+  "SimulationInterval": 20160
+}

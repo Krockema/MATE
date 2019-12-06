@@ -60,10 +60,12 @@ namespace Master40.DB
             return new DbConnectionString(connectionString);
         }
 
-        public static DataBase<ProductionDomainContext> GetNewMasterDataBase()
+        public static DataBase<ProductionDomainContext> GetNewMasterDataBase(bool archive = false)
         {
+            var archiveSuffix = "";
+            if (archive) archiveSuffix = "_archive"; 
             DataBase<ProductionDomainContext> dataBase = 
-                new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster());
+                new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster(archiveSuffix));
             if (UseLocalDb() && Constants.IsWindows)
             {
                     Constants.IsLocalDb = true;

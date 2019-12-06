@@ -18,7 +18,7 @@ namespace Master40.DB.Data.WrappersForPrimitives
         {
         }
 
-        public static Quantity Null()
+        public static Quantity Zero()
         {
             return new Quantity(0);
         }
