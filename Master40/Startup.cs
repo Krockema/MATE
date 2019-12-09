@@ -13,12 +13,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.Extensions.Hosting;
 
 namespace Master40
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(basePath: env.ContentRootPath)
@@ -95,7 +96,7 @@ namespace Master40
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app
-                            , IHostingEnvironment env
+                            , IWebHostEnvironment env
                             , ILoggerFactory loggerFactory
                             , HangfireDBContext hangfireContext
                             , MasterDBContext context
@@ -136,7 +137,7 @@ namespace Master40
             app.UseSignalR(configure: router =>
             {
                 router.MapHub<MessageHub>(path: "/MessageHub");
-            }) ;
+            });
 
             var serverOptions = new BackgroundJobServerOptions()
             {
