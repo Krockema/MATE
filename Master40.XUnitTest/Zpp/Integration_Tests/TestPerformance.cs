@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Akka.TestKit;
 using Master40.SimulationMrp;
 using Master40.XUnitTest.Zpp.Configuration;
 using Xunit;
@@ -43,7 +44,7 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
                 $"takes longer than {MAX_TIME_FOR_MRP_RUN} seconds: {neededTime}");
         }
 
-        [Theory]
+        [Theory(Skip = "Performance Study checks for DA, Pascal Schumann")]
         // [InlineData(TestConfigurationFileNames.DESK_COP_2_LOTSIZE_2)]
         // [InlineData(TestConfigurationFileNames.TRUCK_COP_5_LOTSIZE_2)]
         [InlineData(TestConfigurationFileNames.DESK_COP_100_LOTSIZE_2)]
