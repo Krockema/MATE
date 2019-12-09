@@ -12,7 +12,7 @@ install:
 
 script:
   - dotnet build
-  - dotnet test Zpp/Zpp.csproj --filter FullyQualifiedName!~TestPerformanceStudy | FullyQualifiedName!~SimulationSystem
+  - dotnet test Zpp/Zpp.csproj --filter FullyQualifiedName!~TestPerformanceStudy|FullyQualifiedName!~SimulationSystem
 
 
 notifications:
