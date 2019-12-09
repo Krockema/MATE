@@ -166,7 +166,6 @@ namespace Zpp.DataLayer.impl.ProviderDomain.Wrappers
          */
         public DueTime GetEarliestPossibleStartTime()
         {
-            DueTime maxDueTime = null;
             IAggregator aggregator = ZppConfiguration.CacheManager.GetAggregator();
             
                 DueTime earliestDueTime =

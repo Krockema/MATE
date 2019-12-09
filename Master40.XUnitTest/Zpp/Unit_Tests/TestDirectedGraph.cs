@@ -154,7 +154,6 @@ namespace Master40.XUnitTest.Zpp.Unit_Tests
         private IDirectedGraph<INode> CreateBinaryDirectedGraph(INode[] nodes)
         {
             IDirectedGraph<INode> directedGraph = new DirectedGraph();
-            INode root;
             INodes leafs = new Nodes();
             for (int i = 0; i < nodes.Length; i++)
             {

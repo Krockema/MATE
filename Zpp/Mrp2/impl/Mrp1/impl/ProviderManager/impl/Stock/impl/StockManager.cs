@@ -59,7 +59,7 @@ namespace Zpp.Mrp2.impl.Mrp1.impl.Stock.impl
         private Provider CreateStockExchangeProvider(M_Article article, DueTime dueTime,
             Quantity demandedQuantity)
         {
-            if (demandedQuantity == null || demandedQuantity.GetValue() == null)
+            if (demandedQuantity == null || demandedQuantity.GetValue() == 0)
             {
                 throw new MrpRunException("Quantity is not set.");
             }

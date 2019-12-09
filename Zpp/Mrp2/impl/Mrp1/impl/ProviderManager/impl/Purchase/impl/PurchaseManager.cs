@@ -87,7 +87,7 @@ namespace Zpp.Mrp2.impl.Mrp1.impl.Purchase.impl
         private static int CalculateQuantity(M_ArticleToBusinessPartner articleToBusinessPartner,
             Quantity demandQuantity)
         {
-            if (demandQuantity == null || demandQuantity.GetValue() == null)
+            if (demandQuantity == null || demandQuantity.GetValue() == 0)
             {
                 throw new MrpRunException("Quantity is not set.");
             }

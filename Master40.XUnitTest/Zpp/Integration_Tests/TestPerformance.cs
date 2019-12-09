@@ -76,8 +76,6 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
                 .CustomerOrderPartQuantity;
             int customerOrderCountOriginal = customerOrderCount;
             int elapsedMinutes = 0;
-            int elapsedSeconds = 0;
-            int maxTime = 5;
             int cycles = testConfiguration.SimulationMaximumDuration /
                          testConfiguration.SimulationInterval;
 

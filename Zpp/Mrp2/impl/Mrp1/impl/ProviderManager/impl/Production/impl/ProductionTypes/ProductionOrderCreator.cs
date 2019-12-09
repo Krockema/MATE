@@ -19,7 +19,7 @@ namespace Zpp.Mrp2.impl.Mrp1.impl.Production.impl.ProductionTypes
 
         public EntityCollector CreateProductionOrder(Demand demand, Quantity quantity)
         {
-            if (quantity == null || quantity.GetValue() == null)
+            if (quantity == null || quantity.GetValue() == 0)
             {
                 throw new MrpRunException("Quantity is not set.");
             }

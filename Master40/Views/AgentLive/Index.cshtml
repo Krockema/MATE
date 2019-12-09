@@ -98,7 +98,7 @@
                             <div class="card-header">
                                 <b>Work in Progress</b>
                             </div>
-                            <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialContract.cshtml")</div>
+                            <div style="text-align: center" class="card-body"><partial name="~/Views/AgentLive/PartialContract.cshtml" /></div>
                         </div>
                     </div>
                    
@@ -107,7 +107,7 @@
                     <div class="card-header">
                         <b>Timeliness</b>
                     </div>
-                    <div class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTimeliness.cshtml")</div>
+                    <div class="card-body"> <partial name="~/Views/AgentLive/PartialTimeliness.cshtml"/></div>
                 </div>
             </div>
         </div>
@@ -140,11 +140,11 @@
                                 .textLayer {
                                     padding-top:" + textPadding + @"px;
                                     font: bold" + fontSize + @"px Helvetica;
-                            </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.Id))
-                                    {@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialMachine.cshtml",
-                                model: section)}
+                            </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.Id)){
+                                    <partial name="~/Views/AgentLive/PartialMachine.cshtml" model="section"/>
+                                }
                         </div>
-                        <div>@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialTotalWorkLoad.cshtml")</div>
+                                <div> <partial name="~/Views/AgentLive/PartialTotalWorkLoad.cshtml" /></div>
                     </div>
                 </div>
                 </div>
@@ -153,7 +153,7 @@
                         <div class="card-header">
                             <b>Throughput Times</b>
                         </div>
-                        <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialThroughput.cshtml")</div>
+                        <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialThroughput.cshtml"/></div>
                     </div>
                 </div>
                 </div>
@@ -163,7 +163,7 @@
                     <div class="card-header">
                         <b>Storage Value in Euro </b>
                     </div>
-                    <div style="text-align: center" class="card-body">@await Html.PartialAsync(partialViewName: "~/Views/AgentLive/PartialStock.cshtml")</div>
+                    <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialStock.cshtml" /></div>
                 </div>
             </div>
         </div>
@@ -221,7 +221,7 @@
             </div>
         </div>
         <div class="row">
-            @await Html.PartialAsync(partialViewName: "~/Views/AgentLive/Summary.cshtml")
+             <partial name="~/Views/AgentLive/Summary.cshtml" />
         </div>
     </div>
 </div>

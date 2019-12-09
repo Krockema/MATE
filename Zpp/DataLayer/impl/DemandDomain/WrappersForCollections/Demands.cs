@@ -10,8 +10,6 @@ namespace Zpp.DataLayer.impl.DemandDomain.WrappersForCollections
      */
     public class Demands : CollectionWrapperWithStackSet<Demand>
     {
-        private readonly HierarchyNumber _hierarchyNumber;
-
         public Demands()
         {
         }
@@ -35,11 +33,6 @@ namespace Zpp.DataLayer.impl.DemandDomain.WrappersForCollections
                 productionOrderBoms.Add((T)demand.ToIDemand());
             }
             return productionOrderBoms;
-        }
-
-        public HierarchyNumber GetHierarchyNumber()
-        {
-            return _hierarchyNumber;
         }
 
         public Quantity GetQuantityOfAll()

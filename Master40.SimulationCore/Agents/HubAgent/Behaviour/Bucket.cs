@@ -39,7 +39,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 //case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
             }
-            return true;
         }
 
     }

@@ -77,9 +77,11 @@ namespace Master40.DB
             // else Linux
             dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
             dataBase.DbContext = new ProductionDomainContext(
-                new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
+                new DbContextOptionsBuilder<MasterDBContext>()
+                    .UseLoggerFactory(MyLoggerFactory)
                     .UseSqlServer(dataBase.ConnectionString.Value).Options);
 
+            
             MyLoggerFactory.AddNLog();
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
@@ -117,7 +119,7 @@ namespace Master40.DB
                     con.Open();
                     canConnect = con.State == ConnectionState.Open;
                 }
-                catch (SqlException e)
+                catch (SqlException)
                 {
                     canConnect = false;
                 }
@@ -150,7 +152,7 @@ namespace Master40.DB
                 {
                     result = sqlCommand.ExecuteNonQuery();
                 }
-                catch (SqlException sqlException)
+                catch (SqlException)
                 {
                     return false;
                 }

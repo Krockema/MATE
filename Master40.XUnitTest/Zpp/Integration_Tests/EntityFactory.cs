@@ -30,7 +30,7 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
             
             Demand demand, Quantity quantity)
         {
-            if (quantity == null || quantity.GetValue() == null)
+            if (quantity == null || quantity.GetValue() == 0)
             {
                 throw new MrpRunException("Quantity is not set.");
             }

@@ -55,7 +55,7 @@
         if (item.ArticleChild.ArticleBoms != null)
         {
             ViewData[index: "level"] = level + count.ToString();
-            @Html.Partial(partialViewName: "ArticleBom", model: item.ArticleChild.ArticleBoms, viewData: this.ViewData)
+            <partial name="ArticleBom" model="item.ArticleChild.ArticleBoms" view-data="this.ViewData" />
             }
         }
 }

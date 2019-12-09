@@ -50,7 +50,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
-            return true;
         }
     }
 }

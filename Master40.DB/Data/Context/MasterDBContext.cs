@@ -8,7 +8,6 @@ namespace Master40.DB.Data.Context
 {
     public class MasterDBContext : DbContext
     {
-        private DbContextOptions<ProductionDomainContext> options;
         public static MasterDBContext GetContext(string connectionString)
         {
             return new MasterDBContext(options: new DbContextOptionsBuilder<MasterDBContext>()

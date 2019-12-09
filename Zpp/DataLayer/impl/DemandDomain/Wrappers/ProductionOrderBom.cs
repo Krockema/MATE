@@ -37,7 +37,7 @@ namespace Zpp.DataLayer.impl.DemandDomain.Wrappers
             Quantity quantity)
         {
             T_ProductionOrderBom productionOrderBom = new T_ProductionOrderBom();
-            if (quantity == null || quantity.GetValue() == null)
+            if (quantity == null || quantity.GetValue() == 0)
             {
                 throw new MrpRunException("Quantity is not set.");
             }

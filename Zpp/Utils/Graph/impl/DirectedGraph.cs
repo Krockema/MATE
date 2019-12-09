@@ -211,7 +211,6 @@ namespace Zpp.Util.Graph.impl
             INodes traversed = new Nodes();
 
             stack.Push(new Node(startNode));
-            INode parentNode;
 
             while (stack.Any())
             {

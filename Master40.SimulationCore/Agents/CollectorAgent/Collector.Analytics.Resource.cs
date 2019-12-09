@@ -277,7 +277,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             var idleTime = workTime - jobTime;
 
-            var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
+            // var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
 
             double performanceTime = jobTime;
 
