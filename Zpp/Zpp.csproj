@@ -31,7 +31,6 @@
       <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="DataLayer\" />
       <Folder Include="GraphicalRepresentation\" />
       <Folder Include="Properties\" />
       <Folder Include="Utils\Queue\" />
