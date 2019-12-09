@@ -3,7 +3,7 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Interfaces
 {
-    public interface IProvider: IBaseEntity
+    public interface IProvider: IBaseEntityCodeGeneratedId
     {
        
         M_Article GetArticle();

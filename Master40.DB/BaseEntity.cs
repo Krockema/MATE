@@ -9,7 +9,7 @@ using Master40.DB.Interfaces;
 
 namespace Master40.DB
 {
-    public class BaseEntity : IBaseEntity, IId
+    public class BaseEntity : IBaseEntityCodeGeneratedId, IId
     {
         // [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

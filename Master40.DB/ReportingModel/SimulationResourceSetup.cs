@@ -3,7 +3,7 @@ using Master40.DB.ReportingModel.Interface;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationResourceSetup : BaseEntity, ISimulationResourceData
+    public class SimulationResourceSetup : ResultBaseEntity, ISimulationResourceData
     {
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }

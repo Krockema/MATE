@@ -5,7 +5,7 @@ using Master40.DB.Nominal;
 
 namespace Master40.DB.ReportingModel
 {
-    public class StockExchange : BaseEntity, IStockExchange
+    public class StockExchange : ResultBaseEntity, IStockExchange
     {
         public int StockId { get; set; }
         public Guid TrackingGuid { get; set; }

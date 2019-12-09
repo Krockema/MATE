@@ -121,16 +121,5 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
             IZppSimulator zppSimulator = new SimulationMrp.impl.ZppSimulator();
             zppSimulator.StartMultipleTestCycles();
         }
-
-        [Fact]
-        public void TestCpuCycles()
-        {
-            PerformanceMonitor performanceMonitor = new PerformanceMonitor(InstanceToTrack.Global);
-            performanceMonitor.Start();
-            System.Threading.Thread.Sleep(1000);
-            performanceMonitor.Stop();
-            Assert.True(performanceMonitor.GetMeasuredCpuCycles() < 3000000);
-        }
-        
     }
 }

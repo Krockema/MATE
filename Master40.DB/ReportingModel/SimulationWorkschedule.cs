@@ -3,7 +3,7 @@ using Master40.DB.Enums;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationWorkschedule : BaseEntity
+    public class SimulationWorkschedule : ResultBaseEntity
     {
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }

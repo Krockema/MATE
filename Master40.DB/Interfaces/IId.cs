@@ -6,5 +6,5 @@ namespace Master40.DB.Interfaces
     {
         Id GetId();
         
-        }
+    }
 }

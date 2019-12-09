@@ -90,7 +90,7 @@ namespace Master40.DB.Data.Helper
 
             return dest;
         }
-        public static List<T> ResetId<T>(this List<T> entity) where T : IBaseEntity
+        public static List<T> ResetId<T>(this List<T> entity) where T : IBaseEntityCodeGeneratedId
         {
             return entity.Select(selector: x => { x.Id = 0; return x; }).ToList();
         }

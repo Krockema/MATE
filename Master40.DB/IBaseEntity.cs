@@ -1,6 +1,6 @@
 ﻿namespace Master40.DB
 {
-    public interface IBaseEntity
+    public interface IBaseEntityCodeGeneratedId
     {
         int Id { get; set; }
         /**
