@@ -16,16 +16,16 @@ namespace Zpp.DataLayer.impl
         public MasterDataTable(DbSet<T> entitySet)
         {
             _entities = entitySet.ToList();
-            _entitesAsDictionary = entityListToDictionary(_entities);
+            _entitesAsDictionary = EntityListToDictionary<T>(_entities);
         }
         
         public MasterDataTable(List<T> entitySetAsList)
         {
             _entities = entitySetAsList;
-            _entitesAsDictionary = entityListToDictionary(_entities);
+            _entitesAsDictionary = EntityListToDictionary<T>(_entities);
         }
         
-        private Dictionary<Id, T> entityListToDictionary<T>(List<T> entityList) where T : BaseEntity
+        private static Dictionary<Id, T> EntityListToDictionary<TU>(List<T> entityList) where TU : BaseEntity
         {
             Dictionary<Id, T> dictionary = new Dictionary<Id, T>();
             foreach (var entity in entityList)

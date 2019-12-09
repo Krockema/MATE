@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Globalization;
+using Hangfire.Dashboard;
 using Microsoft.Extensions.Hosting;
 
 namespace Master40
@@ -89,7 +90,8 @@ namespace Master40
                 });
                 
             // Add Framework Service
-            services.AddMvc(option => option.EnableEndpointRouting = false);
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
             services.AddSignalR();
         }
 
@@ -97,7 +99,6 @@ namespace Master40
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app
                             , IWebHostEnvironment env
-                            , ILoggerFactory loggerFactory
                             , HangfireDBContext hangfireContext
                             , MasterDBContext context
                             , ResultContext contextResults
@@ -134,10 +135,8 @@ namespace Master40
             app.UseFileServer();
             app.UseStaticFiles();
             // app.UseSignalR();
-            app.UseSignalR(configure: router =>
-            {
-                router.MapHub<MessageHub>(path: "/MessageHub");
-            });
+            app.UseRouting();
+            app.UseEndpoints(router => { router.MapHub<MessageHub>("/MessageHub"); });
 
             var serverOptions = new BackgroundJobServerOptions()
             {

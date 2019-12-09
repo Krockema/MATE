@@ -8,7 +8,7 @@ open FStartConditions
 open IKeys
 open IJobs
 open FUpdateStartConditions
-
+    [<CustomEquality;CustomComparison>] 
     type public FOperation =
         { Key : Guid
           DueTime : int64 
@@ -55,6 +55,12 @@ open FUpdateStartConditions
                     match fWorkItem with 
                     | :? FOperation as other -> compare other.Key this.Key
                     | _ -> invalidArg "Operation" "cannot compare value of different types" 
+                
+        override this.Equals(other) =
+            match other with
+            | :? FOperation as operation -> this.Key.Equals(operation.Key)
+            | _ -> invalidArg "Operation" "cannot compare value of different types" 
+        override this.GetHashCode() = this.Key.GetHashCode()
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.AsIjob = this :> IJob
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
