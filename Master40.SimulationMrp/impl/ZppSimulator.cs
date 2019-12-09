@@ -14,14 +14,12 @@ namespace Master40.SimulationMrp.impl
 {
     public class ZppSimulator : IZppSimulator
     {
-        private readonly PerformanceMonitors _performanceMonitors;
-        
+       
         private readonly IConfirmationManager _confirmationManager = new ConfirmationManager();
         private ICustomerOrderCreator _customerOrderCreator = null;
 
         public ZppSimulator()
         {
-            _performanceMonitors = new PerformanceMonitors();
         }
 
         public void StartOneCycle(SimulationInterval simulationInterval)
@@ -34,23 +32,17 @@ namespace Master40.SimulationMrp.impl
         {
             IDbTransactionData dbTransactionData =
                 ZppConfiguration.CacheManager.GetDbTransactionData();
-
-            _performanceMonitors.Start(InstanceToTrack.CreateCustomerOrders);
+            
             _customerOrderCreator.CreateCustomerOrders(simulationInterval, customerOrderQuantity);
-            _performanceMonitors.Stop(InstanceToTrack.CreateCustomerOrders);
 
             // Mrp2
-            _performanceMonitors.Start(InstanceToTrack.Mrp2);
-            Zpp.Mrp2.impl.Mrp2 mrp2 = new Zpp.Mrp2.impl.Mrp2(_performanceMonitors, simulationInterval);
+            Zpp.Mrp2.impl.Mrp2 mrp2 = new Zpp.Mrp2.impl.Mrp2(simulationInterval);
             mrp2.StartMrp2();
-            _performanceMonitors.Stop(InstanceToTrack.Mrp2);
             DebuggingTools.PrintStateToFiles(simulationInterval, dbTransactionData, "1_after_mrp2",
                 true);
 
             // CreateConfirmations
-            _performanceMonitors.Start(InstanceToTrack.CreateConfirmations);
             _confirmationManager.CreateConfirmations(simulationInterval);
-            _performanceMonitors.Stop(InstanceToTrack.CreateConfirmations);
             DebuggingTools.PrintStateToFiles(simulationInterval, dbTransactionData,
                 "2_after_create_confirmations", false);
 
@@ -63,10 +55,8 @@ namespace Master40.SimulationMrp.impl
             string demandToProviderGraphArchiveString = demandToProviderGraphArchive.ToString();
             ZppConfiguration.CacheManager.UseArchiveForGettersRevert();*/
             
-            _performanceMonitors.Start(InstanceToTrack.ApplyConfirmations);
             _confirmationManager.ApplyConfirmations();
-            _performanceMonitors.Stop(InstanceToTrack.ApplyConfirmations);
-            
+
             DebuggingTools.PrintStateToFiles(simulationInterval, dbTransactionData,
                 "3_after_apply_confirmations", false);
             
@@ -105,7 +95,7 @@ namespace Master40.SimulationMrp.impl
             _customerOrderCreator.CreateCustomerOrders(simulationInterval, customerOrderQuantity);
 
             // execute mrp2
-            Zpp.Mrp2.impl.Mrp2 mrp2 = new Zpp.Mrp2.impl.Mrp2(_performanceMonitors, simulationInterval);
+            Zpp.Mrp2.impl.Mrp2 mrp2 = new Zpp.Mrp2.impl.Mrp2(simulationInterval);
             mrp2.StartMrp2();
 
             DebuggingTools.PrintStateToFiles(simulationInterval,
@@ -134,7 +124,6 @@ namespace Master40.SimulationMrp.impl
             _customerOrderCreator = new CustomerOrderCreator(customerOrderQuantity);
 
             string performanceLogCycles = "[";
-            _performanceMonitors.Start(InstanceToTrack.Global);
 
             for (int i = 0; i * defaultInterval <= maxSimulatingTime; i++)
             {
@@ -148,13 +137,9 @@ namespace Master40.SimulationMrp.impl
                 {
                     break;
                 }
-
-                performanceLogCycles += _performanceMonitors.ToString() + ",";
+                
             }
-
-            _performanceMonitors.Stop(InstanceToTrack.Global);
-            performanceLogCycles += $"{_performanceMonitors.ToString()}]";
-
+            // TODO: here is no performance measure anymore, remove whole surounding method ?
             // DebuggingTools.PrintStateToFiles(dbTransactionData, true);
             DebuggingTools.WritePerformanceLog(performanceLogCycles);
 

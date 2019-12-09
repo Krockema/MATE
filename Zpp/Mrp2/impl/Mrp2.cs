@@ -23,12 +23,10 @@ namespace Zpp.Mrp2.impl
     public class Mrp2 : IMrp2
     {
         private readonly IJobShopScheduler _jobShopScheduler = new JobShopScheduler();
-        private readonly PerformanceMonitors _performanceMonitors;
         private readonly SimulationInterval _simulationInterval;
 
-        public Mrp2(PerformanceMonitors performanceMonitors, SimulationInterval simulationInterval)
+        public Mrp2(SimulationInterval simulationInterval)
         {
-            _performanceMonitors = performanceMonitors;
             _simulationInterval = simulationInterval;
         }
 
@@ -41,14 +39,11 @@ namespace Zpp.Mrp2.impl
             }
 
             // MaterialRequirementsPlanning
-            _performanceMonitors.Start(InstanceToTrack.Mrp1);
             IMrp1 mrp1 = new Mrp1.impl.Mrp1(dbDemands);
             mrp1.StartMrp1();
-            _performanceMonitors.Stop(InstanceToTrack.Mrp1);
 
 
             // BackwardForwardBackwardScheduling
-            _performanceMonitors.Start(InstanceToTrack.BackwardForwardBackwardScheduling);
 
             OrderOperationGraph orderOperationGraph = new OrderOperationGraph();
 
@@ -58,12 +53,8 @@ namespace Zpp.Mrp2.impl
             ScheduleForward(orderOperationGraph, _simulationInterval);
             ScheduleBackwardSecond(orderOperationGraph);
 
-            _performanceMonitors.Stop(InstanceToTrack.BackwardForwardBackwardScheduling);
-
             // job shop scheduling
-            _performanceMonitors.Start(InstanceToTrack.JobShopScheduling);
             JobShopScheduling(orderOperationGraph);
-            _performanceMonitors.Stop(InstanceToTrack.JobShopScheduling);
         }
 
         private void AssertEveryDemandAndProviderIsScheduled()
