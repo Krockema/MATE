@@ -33,7 +33,7 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
 
             DateTime startTime = DateTime.UtcNow;
 
-            IZppSimulator zppSimulator = new global::Master40.SimulationMrp.impl.ZppSimulator();
+            IZppSimulator zppSimulator = new Master40.SimulationMrp.impl.ZppSimulator();
             zppSimulator.StartTestCycle();
 
             DateTime endTime = DateTime.UtcNow;
@@ -55,24 +55,16 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
             ExecutePerformanceStudy(testConfigurationFileName, false);
         }
         
-          [Theory]
-        [InlineData(TestConfigurationFileNames.TRUCK_COP_1_LOTSIZE_2)]
-        [InlineData(TestConfigurationFileNames.TRUCK_INTERVAL_20160_COP_1_LOTSIZE_2)]
-        public void TestPerformanceStudyWithDbPersist(string testConfigurationFileName)
-        {
-            ExecutePerformanceStudy(testConfigurationFileName, true);
-        }
-
         private void ExecutePerformanceStudy(string testConfigurationFileName, bool shouldPersist)
         {
             PerformanceMonitor performanceMonitor = new PerformanceMonitor(InstanceToTrack.Global);
             // int maxPossibleCops = int.MaxValue / 100;
             int maxPossibleCops = 1000;
             
-            global::Zpp.ZppConfiguration.CacheManager.ReadInTestConfiguration(testConfigurationFileName);
+            ZppConfiguration.CacheManager.ReadInTestConfiguration(testConfigurationFileName);
             ICentralPlanningConfiguration testConfiguration =
-                global::Zpp.ZppConfiguration.CacheManager.GetTestConfiguration();
-            int customerOrderCount = global::Zpp.ZppConfiguration.CacheManager.GetTestConfiguration()
+               ZppConfiguration.CacheManager.GetTestConfiguration();
+            int customerOrderCount = ZppConfiguration.CacheManager.GetTestConfiguration()
                 .CustomerOrderPartQuantity;
             int customerOrderCountOriginal = customerOrderCount;
             int elapsedMinutes = 0;

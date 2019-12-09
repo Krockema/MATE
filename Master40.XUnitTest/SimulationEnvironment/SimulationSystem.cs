@@ -1,8 +1,6 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
@@ -11,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SQLitePCL;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment

@@ -4,7 +4,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.DataModel;
 
-namespace Master40.XUnitTest.Zpp.Configuration
+namespace Master40.DB.Data.Initializer
 {
     public class MasterDBInitializerDesk
     {

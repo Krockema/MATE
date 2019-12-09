@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Akka;
 using Master40.Simulation;
 using Master40.SimulationCore.Environment.Options;
 using Master40.DB.Enums;
