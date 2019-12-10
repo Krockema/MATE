@@ -251,7 +251,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Duration);
             Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} new Duration is {randomizedWorkDuration}");
 
-            var pub = new FUpdateSimulationJob(job: _jobInProgress.Current, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name, bucket: String.Empty);
+            var pub = new FUpdateSimulationJob(job: _jobInProgress.Current, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name, bucket: _jobInProgress.Current.Bucket);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Key

@@ -47,7 +47,7 @@ namespace Master40.Controllers
                                                 {
                                                     new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
                                                     , new SimulationId(value: 1)
-                                                    , new SimulationNumber(value: 1)
+                                                    , new SimulationNumber(value: simulationType)
                                                     , new SimulationKind(value: simKind)
                                                     , new OrderArrivalRate(value: arivalRate)
                                                     , new OrderQuantity(value: orderAmount)
@@ -55,15 +55,18 @@ namespace Master40.Controllers
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
-                                                    , new MinDeliveryTime(value: 1160)
-                                                    , new MaxDeliveryTime(value: 1600)
+                                                    // , new MinDeliveryTime(value: 1160)
+                                                    // , new MaxDeliveryTime(value: 1600)
+                                                    , new MinDeliveryTime(value: 1440)
+                                                    , new MaxDeliveryTime(value: 1920)
                                                     , new TransitionFactor(value: 3)
                                                     , new TimePeriodForThrougputCalculation(value: 1920)
-                                                    , new Seed(value: 1337)
+                                                    , new Seed(value: 133)
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: false)
+                                                    , new MaxBucketSize(value: 420) 
                                                 });
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }

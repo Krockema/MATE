@@ -9,14 +9,9 @@ using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
-using Master40.SimulationCore.Agents.CollectorAgent;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using SQLitePCL;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
@@ -24,7 +19,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
     public class SimulationSystem : TestKit
     {
         private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        
+        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
+
         ProductionDomainContext _ctx = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                                                             .UseInMemoryDatabase(databaseName: "InMemoryDB")
                                                             .Options);
@@ -42,10 +39,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // 
         public SimulationSystem()
         {
-            _masterDBContext.Database.EnsureDeleted();
-            _masterDBContext.Database.EnsureCreated();
-            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            // _masterDBContext.Database.EnsureDeleted();
+            // _masterDBContext.Database.EnsureCreated();
+            // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             // _ctxResult.Database.EnsureDeleted();
             // _ctxResult.Database.EnsureCreated();
@@ -54,20 +51,37 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         //[Fact(Skip = "manual test")]
-        [Fact]
-        public void ResetMaster40ResultsDB()
+        [Theory]
+        [InlineData(testResultCtxString)]
+        [InlineData(masterResultCtxString)]
+        public void ResetResultsDB(string connectionString)
+        
         {
-            ResultContext masterResults =  _ctxResult;
+            ResultContext masterResults = ResultContext.GetContext(resultCon: connectionString);
             masterResults.Database.EnsureDeleted();
             masterResults.Database.EnsureCreated();
+
+            _masterDBContext.Database.EnsureDeleted();
+            _masterDBContext.Database.EnsureCreated();
+            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
         }
 
         [Theory]
         //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup, 1)]
-        [InlineData(SimulationType.DefaultSetupStack, 2)]
-        [InlineData(SimulationType.BucketScope, 3)]
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr)
+        [InlineData(SimulationType.DefaultSetup, 1, 60)]
+        [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
+        [InlineData(SimulationType.BucketScope, 6, 240)]
+        [InlineData(SimulationType.BucketScope, 7, 300)]
+        [InlineData(SimulationType.BucketScope, 8, 360)]
+        [InlineData(SimulationType.BucketScope, 9, 420)]
+        [InlineData(SimulationType.BucketScope, 10, 480)]
+        [InlineData(SimulationType.BucketScope, 11, 600)]
+        [InlineData(SimulationType.BucketScope, 12, 720)]
+        [InlineData(SimulationType.BucketScope, 13, 840)]
+        [InlineData(SimulationType.BucketScope, 14, 960)]
+        [InlineData(SimulationType.BucketScope, 20, Int32.MaxValue)]
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
@@ -80,15 +94,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 500)
+                                                    , new OrderQuantity(value: 1500)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 1440)
+                                                    , new EstimatedThroughPut(value: 600)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
+                                                    , new MaxBucketSize(value: maxBucketSize)
                                                     , new Seed(value: 1337)
                                                     , new MinDeliveryTime(value: 1440)
-                                                    , new MaxDeliveryTime(value: 2400)
+                                                    , new MaxDeliveryTime(value: 1920)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)

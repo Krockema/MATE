@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection.Metadata.Ecma335;
 using Master40.DB.Enums;
 using Master40.DB.Interfaces;
+using Master40.DB.Nominal;
 
 namespace Master40.DB.DataModel
 {

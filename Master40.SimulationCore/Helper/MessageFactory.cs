@@ -55,7 +55,8 @@ namespace Master40.SimulationCore.Helper
                                 , productionAgent: productionAgent
                                 , operation: operation
                                 , tool: operation.ResourceTool
-                                , proposals: new List<FProposal>());
+                                , proposals: new List<FProposal>()
+                                , bucket: String.Empty);
         }
 
         /// <summary>
@@ -97,7 +98,8 @@ namespace Master40.SimulationCore.Helper
                                 , hubAgent: hubAgent
                                 , operations: new FSharpSet<FOperation>(elements: operations)
                                 , tool: operation.Tool
-                                , proposals: new List<FProposal>());
+                                , proposals: new List<FProposal>()
+                                , bucket: String.Empty);
         }
 
         public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time)
@@ -134,7 +136,8 @@ namespace Master40.SimulationCore.Helper
                 , hubAgent: hubAgent
                 , operations: new FSharpSet<FOperation>(elements: operations)
                 , tool: operation.Tool
-                , proposals: new List<FProposal>());
+                , proposals: new List<FProposal>()
+                , bucket: String.Empty);
         }
 
         public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart

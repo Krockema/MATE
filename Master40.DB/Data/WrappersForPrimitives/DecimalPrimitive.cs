@@ -90,6 +90,15 @@ namespace Master40.DB.Data.WrappersForPrimitives
             }
         }
 
+        public bool IsNull()
+        {
+            if (this._decimal == 0)
+            {
+                return true;
+            }
+            else return false;
+        }
+
         public T GetRemainder()
         {
             T newObject = (T)Activator.CreateInstance(typeof(T));

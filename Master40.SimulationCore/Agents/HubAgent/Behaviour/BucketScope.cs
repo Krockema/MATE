@@ -122,7 +122,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 operation = _operationList.Single(x => x.Key == operation.Key);
                 _operationList.Remove(operation);
-                //System.Diagnostics.Debug.WriteLine($"{operation.Key} to existing bucket {bucket.Name}");
+                //System.Diagnostics.Debug.WriteLine($"Extend Bucket: {operation.Operation.Name} {operation.Key} to {bucket.Name}");
                 Agent.DebugMessage($"Extend Bucket: {operation.Operation.Name} {operation.Key} to {bucket.Name}");
                 _bucketManager.Replace(bucket);
                 if (!bucket.ResourceAgent.IsNobody())
@@ -133,7 +133,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             //if no bucket to add exists create a new one
-            
 
             bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
             Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");

@@ -1,4 +1,4 @@
-﻿namespace Master40.DB.Enums
+﻿namespace Master40.DB.Nominal
 {
     public enum State
     {

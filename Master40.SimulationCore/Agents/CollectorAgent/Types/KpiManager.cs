@@ -1,13 +1,8 @@
-﻿using Master40.DB.DataModel;
-using Master40.DB.ReportingModel;
+﻿using Master40.DB.ReportingModel.Interface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Master40.DB.ReportingModel.Interface;
-using Master40.SimulationCore.Agents.ResourceAgent;
-using Remotion.Linq.Clauses;
 using System.Globalization;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 {
@@ -31,14 +26,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                 ResourceSimulationData resourceSimulationData = new ResourceSimulationData(resource);
 
                 var resourceData = simulationResourceData.Where(x => x.Resource == resource).ToList();
-                var workTime = GetResourceTimeForInterval(resource, resourceData, startInterval, endInterval);
-                var work = Math.Round(value: Convert.ToDouble(workTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
+                resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource, resourceData, startInterval, endInterval);
+                
+                var work = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalWorkTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (work == "NaN") work = "0";
                 resourceSimulationData._workTime = work;
 
                 var resourceSetupData = simulationResourceSetupData.Where(x => x.Resource == resource).ToList();
-                var setupTime = GetResourceTimeForInterval(resource, resourceSetupData, startInterval, endInterval);
-                var setup = Math.Round(value: Convert.ToDouble(setupTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
+                resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource, resourceSetupData, startInterval, endInterval);
+                var setup = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalSetupTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (setup == "NaN") setup = "0";
                 resourceSimulationData._setupTime = setup;
 

@@ -13,8 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using Akka.Dispatch.SysMsg;
+using Remotion.Linq.Utilities;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FBuckets;
@@ -140,13 +139,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (lastIntervalStart != Collector.Time)
             {
                 ResourceUtilization();
-
                 OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
 
-                ThroughPut(finalCall);
                 lastIntervalStart = Collector.Time;
             }
-
+            ThroughPut(finalCall);
             CallTotal(finalCall);
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
@@ -166,17 +163,25 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 allSimulationSetupData.AddRange(simulationResourceSetupsForDb);
 
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
-
                 var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
 
                 foreach (var resource in resourcesDatas) { 
                     var tuple = resource._workTime + " " + resource._setupTime;
                     var machine = resource._resource.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
                     Collector.messageHub.SendToClient(listener: machine, msg: tuple);
-                    CreateKpi(Collector, resource._workTime, machine, KpiType.ResourceUtilizationTotal);
-                    CreateKpi(Collector, resource._setupTime, machine, KpiType.ResourceSetupTotal);
+                    CreateKpi(Collector, resource._workTime.Replace(".",","), machine, KpiType.ResourceUtilizationTotal, true);
+                    CreateKpi(Collector, resource._setupTime.Replace(".", ","), machine, KpiType.ResourceSetupTotal, true);
                 }
-                
+
+                var toSend = new
+                {
+                    WorkTime = resourcesDatas.Sum(x => x._totalWorkTime),
+                    WorkTimePercent = Math.Round((resourcesDatas.Sum(x => Convert.ToDouble(x._workTime.Replace(".", ","))) / resourcesDatas.Count * 100), 4).ToString(_cultureInfo),
+                    SetupTime = resourcesDatas.Sum(x => x._totalSetupTime),
+                    SetupTimePercent = Math.Round((resourcesDatas.Sum(x => Convert.ToDouble(x._setupTime.Replace(".", ","))) / resourcesDatas.Count * 100), 4).ToString(_cultureInfo)
+                };
+
+                Collector.messageHub.SendToClient(listener: "totalUtilizationListener", msg: JsonConvert.SerializeObject(value: toSend ));
             }
         }
 
@@ -209,36 +214,37 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                Dlz = so.Select(selector: x => (double)x.End - x.Start).ToList()
                            };
 
-
-            foreach (var item in leadTime)
+            if (!leadTime.Any())
             {
-                var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
-                Collector.messageHub.SendToClient(listener: "Throughput", msg: thoughput);
-
-                var boxPlot = item.Dlz.FiveNumberSummary();
-                var upperQuartile = Convert.ToInt64(value: boxPlot[4]);
-                // Collector.actorPaths.SimulationContext.Ref.Tell(
-                //     message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
-                //         message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
-                //         , target: Collector.actorPaths.SystemAgent.Ref
-                //     )
-                //     , sender: ActorRefs.NoSender);
-                // 
-                // Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}");
+                return;
             }
+
+            var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
+            Collector.messageHub.SendToClient(listener: "Throughput", msg: thoughput);
+
+            if (finalCall)
+            {
+                CreateKpi(Collector, (leadTime.Average(x => x.Dlz.Average()) / leadTime.Count()).ToString() , "AverageLeadTime", KpiType.LeadTime, true);    
+            }
+            
+            // foreach (var item in leadTime)
+            // {
+            //     var boxPlot = item.Dlz.FiveNumberSummary();
+            //     var upperQuartile = Convert.ToInt64(value: boxPlot[4]);
+            //     // Collector.actorPaths.SimulationContext.Ref.Tell(
+            //     //     message: SupervisorAgent.Supervisor.Instruction.SetEstimatedThroughputTime.Create(
+            //     //         message: new FSetEstimatedThroughputTime(articleId: 0, time: upperQuartile, articleName: item.ArticleName)
+            //     //         , target: Collector.actorPaths.SystemAgent.Ref
+            //     //     )
+            //     //     , sender: ActorRefs.NoSender);
+            //     // 
+            //     // Debug.WriteLine(message: $"({Collector.Time}) Update Throughput time for article {item.ArticleName} to {upperQuartile}");
+            // }
 
 
             var v2 = simulationJobs.Where(predicate: a => a.ArticleType == "Product"
                                                    && a.HierarchyNumber == 20
                                                    && a.End == 0);
-
-            if (finalCall)
-            {
-                foreach (var item in _ThroughPutTimes)
-                {
-                    CreateKpi(Collector,  (item.End - item.Start).ToString(), item.ArticleName, KpiType.LeadTime);
-                }
-            }
 
             Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = v2.Count().ToString() }));
         }
@@ -439,7 +445,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //Collector.messageHub.SendToAllClients(msg: $"({Collector.Time}) Removed");
         }
 
-        private void CreateKpi(Collector agent, string value, string name, KpiType kpiType)
+        private void CreateKpi(Collector agent, string value, string name, KpiType kpiType, bool isFinal = false)
         {
             var k = new Kpi
             {
@@ -449,7 +455,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 KpiType = kpiType,
                 SimulationConfigurationId = agent.simulationId.Value,
                 SimulationNumber = agent.simulationNumber.Value,
-                IsFinal = false,
+                IsFinal = isFinal,
                 IsKpi = true,
                 SimulationType = agent.simulationKind.Value
             };
@@ -546,7 +552,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + uswp.CustomerOrderId + "]";
-
+                    
                     // item.OrderId = orderId;
                 }
             }

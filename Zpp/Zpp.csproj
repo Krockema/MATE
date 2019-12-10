@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Json.Net" Version="1.0.16" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+      <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+    </ItemGroup>
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>    
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Common\DemandDomain\WrappersForCollections\" />
+      <Folder Include="Common\DemandDomain\Wrappers\" />
+      <Folder Include="Common\ProviderDomain\WrappersForCollections\" />
+      <Folder Include="Common\ProviderDomain\Wrappers\" />
+      <Folder Include="Configuration\" />
+      <Folder Include="DbCache\" />
+      <Folder Include="GraphicalRepresentation\" />
+      <Folder Include="LotSize\" />
+      <Folder Include="OrderGraph\" />
+      <Folder Include="Properties\" />
+      <Folder Include="Simulation\Agents\JobDistributor\Skills\" />
+      <Folder Include="Simulation\Agents\JobDistributor\Types\" />
+      <Folder Include="Simulation\Agents\Resource\Skills\" />
+      <Folder Include="Simulation\Monitors\" />
+      <Folder Include="Simulation\Types\" />
+      <Folder Include="Utils\Queue\" />
+      <Folder Include="WrappersForCollections\" />
+      <Folder Include="WrappersForPrimitives\" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+    </ItemGroup>
+
+</Project>

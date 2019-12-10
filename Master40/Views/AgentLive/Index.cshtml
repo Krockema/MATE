@@ -220,17 +220,8 @@
                 </div>
             </div>
         </div>
-
         <div class="row">
-            <div class="card" style="width: 100%; margin-top: 10px;">
-                <div class="card-header">
-                    Messages
-                </div>
-                <div class="card-body">
-                    <div id="" class="MessageDisplay" style="max-height: 600px; overflow: auto;"></div>
-                </div>
-            </div>
-
+            @await Html.PartialAsync(partialViewName: "~/Views/AgentLive/Summary.cshtml")
         </div>
     </div>
 </div>

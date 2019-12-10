@@ -84,7 +84,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
         public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
             List<ArticleProvider> listAP = new List<ArticleProvider>();
-            var counter = articleToProduce.Article.ArticleBoms.Count;
             foreach (var fOperation in GetOperations) { 
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
                 if (fOperation.Operation.ArticleBoms.Count == 0)

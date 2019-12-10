@@ -15,6 +15,7 @@ namespace Master40.DB.Enums
         AgentStatistics,
         MeanTimeToStart,
         ResourceUtilizationTotal,
-        ResourceSetupTotal
+        ResourceSetupTotal,
+        StockTotals
     }
 }
