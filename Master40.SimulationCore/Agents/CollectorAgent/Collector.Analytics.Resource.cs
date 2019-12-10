@@ -7,13 +7,11 @@ using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Types;
-using MathNet.Numerics.Statistics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Remotion.Linq.Utilities;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FBuckets;
@@ -92,7 +90,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         /// <summary>
-        /// collect the resourceSetups of resource, cant be updated afterwards
+        /// collect the resourceSetups of resource, cant be updated afterward
         /// </summary>
         /// <param name="simulationResourceSetup"></param>
         private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup simulationResourceSetup)
@@ -214,11 +212,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                Dlz = so.Select(selector: x => (double)x.End - x.Start).ToList()
                            };
 
-            if (!leadTime.Any())
-            {
-                return;
-            }
-
             var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
             Collector.messageHub.SendToClient(listener: "Throughput", msg: thoughput);
 
@@ -284,7 +277,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             var idleTime = workTime - jobTime;
 
-            var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
+            // var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
 
             double performanceTime = jobTime;
 
@@ -480,9 +473,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 OrderId = "[" + simJob.CustomerOrderId + "]",
                 HierarchyNumber = fOperation.Operation.HierarchyNumber,
                 //Remember this is now a fArticleKey (Guid)
-                ProductionOrderId = "[" + simJob.fArticleKey + "]",
+                ProductionOrderId =  simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
-                ParentId = "[]",
+                FArticleKey = simJob.fArticleKey.ToString(),
                 Time = (int)(Collector.Time),
                 ExpectedDuration = fOperation.Operation.Duration,
                 ArticleType = simJob.ArticleType,
@@ -545,15 +538,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var items = simulationJobs.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
+                var items = simulationJobs.Where(predicate: x => x.FArticleKey.Equals(value: fpk.ProvidesArticleKey.ToString())
+                                                            && x.ProductionOrderId == fpk.ProductionAgentKey); 
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + uswp.CustomerOrderId + "]";
-                    
-                    // item.OrderId = orderId;
                 }
             }
 

@@ -5,7 +5,7 @@ using Master40.DB.Nominal;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationOrder : BaseEntity, IOrder
+    public class SimulationOrder : ResultBaseEntity, IOrder
     {
         public string Name { get; set; }
         public int OriginId { get; set; }

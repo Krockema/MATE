@@ -10,7 +10,6 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Event;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -29,7 +28,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
         }
 
-        private bool _notStartet = true;
         /// <summary>
         /// Operation related Hubagents
         /// </summary>
@@ -98,6 +96,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void StartProductionAgent(FArticle fArticle)
         {
+
             _forwardScheduleTimeCalculator = new ForwardScheduleTimeCalculator(fArticle: fArticle);
             // check for Children
             if (fArticle.Article.ArticleBoms.Any())
@@ -239,6 +238,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     , isHeadDemand: fArticle.IsHeadDemand
                     , fArticleKey : fArticle.Key
                     , fArticleName: fArticle.Article.Name
+                    , productionAgent: this.Agent.Name
                     , articleType: fArticle.Article.ArticleType.Name
                     , start: fJob.Start
                     , end: fJob.End);
@@ -251,6 +251,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void AddForwardTime(long earliestStartForForwardScheduling)
         {
+
             _forwardScheduleTimeCalculator.Add(earliestStartForForwardScheduling: earliestStartForForwardScheduling);
             SetForwardScheduling();
         }

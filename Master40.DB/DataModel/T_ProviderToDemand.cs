@@ -8,7 +8,7 @@ namespace Master40.DB.DataModel
         public int ProviderId { get; set; }
         public int DemandId { get; set; }
         
-        public decimal Quantity { get; set; }
+        public decimal? Quantity { get; set; }
 
         public T_ProviderToDemand()
         {
@@ -18,7 +18,10 @@ namespace Master40.DB.DataModel
         {
             ProviderId = providerId.GetValue();
             DemandId = demandId.GetValue();
-            Quantity = quantity.GetValue();
+            if (quantity != null)
+            {
+                Quantity = quantity.GetValue();   
+            }
         }
 
         public override string ToString()
@@ -38,7 +41,18 @@ namespace Master40.DB.DataModel
 
         public Quantity GetQuantity()
         {
-            return new Quantity(Quantity);
+            return new Quantity((decimal) Quantity);
+        }
+        
+        public override bool Equals(object obj)
+        {
+            T_ProviderToDemand other = (T_ProviderToDemand) obj;
+            return DemandId.Equals(other.DemandId) && ProviderId.Equals(other.ProviderId);
+        }
+
+        public override int GetHashCode()
+        {
+            return DemandId.GetHashCode() + ProviderId.GetHashCode();
         }
     }
 }

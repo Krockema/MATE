@@ -1,7 +1,7 @@
 language: csharp
 mono: none
 dist: bionic
-dotnet: 2.2
+dotnet: 3.1.100
 
 services:
   - docker
@@ -9,13 +9,11 @@ services:
 install:
   - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
   - dotnet restore
-  
 
 script:
   - dotnet build
-  - dotnet test -v:n --filter Master40.XUnitTest.SimulationImmutables.JobPriorityRules
-  - dotnet test -v:n --filter Master40.XUnitTest.SimulationEnvironment.Configuration
-  - dotnet test -v:n --filter Master40.XUnitTest.Agents
-  
+  - dotnet test Master40.XUnitTest/Master40.XUnitTest.csproj --filter FullyQualifiedName!~SimulationSystem
+
+
 notifications:
   slack: infocomhtw:7H5jePcDELUv916neaRS3LQ1

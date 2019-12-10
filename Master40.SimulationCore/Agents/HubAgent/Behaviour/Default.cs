@@ -45,7 +45,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void ResourceBreakDown(FBreakDown breakDown)
         {
-            var brockenMachine = _resourceAgents.Single(predicate: x => breakDown.Resource == x.Value).Key;
+            var brockenMachine = _resourceAgents.Single(predicate: x => breakDown.Resource == x.Value.ToString()).Key;
             _resourceAgents.Remove(key: brockenMachine);
             Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: brockenMachine, logThis: true), waitFor: 45);
 

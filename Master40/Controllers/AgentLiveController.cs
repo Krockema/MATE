@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Akka;
 using Master40.Simulation;
 using Master40.SimulationCore.Environment.Options;
 using Master40.DB.Enums;
@@ -58,15 +57,15 @@ namespace Master40.Controllers
                                                     // , new MinDeliveryTime(value: 1160)
                                                     // , new MaxDeliveryTime(value: 1600)
                                                     , new MinDeliveryTime(value: 1440)
-                                                    , new MaxDeliveryTime(value: 1920)
+                                                    , new MaxDeliveryTime(value: 2400)
                                                     , new TransitionFactor(value: 3)
+                                                    , new MaxBucketSize(value: 120)
                                                     , new TimePeriodForThrougputCalculation(value: 1920)
-                                                    , new Seed(value: 133)
+                                                    , new Seed(value: 1337)
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: false)
-                                                    , new MaxBucketSize(value: 420) 
                                                 });
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }

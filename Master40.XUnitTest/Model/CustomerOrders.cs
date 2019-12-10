@@ -3,7 +3,6 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Enums;
-using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Xunit;

@@ -1,7 +1,0 @@
-{
-  "CustomerOrderPartQuantity": 5,
-  "LotSize": 2,
-  "Name": "desk_cop_5_concurrent_lotsize_2",
-  "DbSetInitializer": "Master40.XUnitTest.Zpp.Configuration.MasterDBInitializerDesk",
-  "TestScenario": "Master40.XUnitTest.Zpp.Configuration.Scenarios.DeskScenarioConcurrent"
-}

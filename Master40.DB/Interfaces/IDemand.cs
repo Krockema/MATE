@@ -3,10 +3,8 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Interfaces
 {
-    public interface IDemand
+    public interface IDemand: IBaseEntityCodeGeneratedId
     {
-        int Id { get; set; }
-
         Quantity GetQuantity();
     }
 }

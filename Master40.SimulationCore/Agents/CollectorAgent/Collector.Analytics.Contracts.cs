@@ -27,7 +27,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<Kpi> Kpis = new List<Kpi>();
         private double inTime = 0;
         private double toLate = 0;
-        private long lastIntervalStart = 0;
 
         private List<SimulationOrder> simulationOrders = new List<SimulationOrder>();
 

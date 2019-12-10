@@ -1,19 +1,16 @@
-using System;
-using System.Data;
-using System.Data.SqlClient;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Helper.Types;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using System;
+using System.Data;
 
 namespace Master40.DB
 {
     public static class Dbms
     {
-        public static readonly LoggerFactory MyLoggerFactory = new LoggerFactory();
-
         /// <summary>
         /// If localDb shall be used - set it via command line with :
         /// setx UseLocalDb true
@@ -59,10 +56,12 @@ namespace Master40.DB
             return new DbConnectionString(connectionString);
         }
 
-        public static DataBase<ProductionDomainContext> GetNewMasterDataBase()
+        public static DataBase<ProductionDomainContext> GetNewMasterDataBase(bool archive = false)
         {
+            var archiveSuffix = "";
+            if (archive) archiveSuffix = "_archive"; 
             DataBase<ProductionDomainContext> dataBase = 
-                new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster());
+                new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster(archiveSuffix));
             if (UseLocalDb() && Constants.IsWindows)
             {
                     Constants.IsLocalDb = true;
@@ -74,11 +73,9 @@ namespace Master40.DB
             // else Linux
             dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
             dataBase.DbContext = new ProductionDomainContext(
-                new DbContextOptionsBuilder<MasterDBContext>().UseLoggerFactory(MyLoggerFactory)
+                new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(dataBase.ConnectionString.Value).Options);
-
-            MyLoggerFactory.AddNLog();
-
+            
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
             dataBase.DbContext.ChangeTracker.QueryTrackingBehavior =
                 QueryTrackingBehavior.NoTracking;
@@ -91,10 +88,8 @@ namespace Master40.DB
             DataBase<ResultContext> dataBase = new DataBase<ResultContext>(Constants.DbWithSuffixResults());
             dataBase.ConnectionString = GetResultConnectionString(dataBase.DataBaseName);
             dataBase.DbContext = new ResultContext(
-                new DbContextOptionsBuilder<ResultContext>().UseLoggerFactory(MyLoggerFactory)
+                new DbContextOptionsBuilder<ResultContext>()
                     .UseSqlServer(dataBase.ConnectionString.Value).Options);
-
-            MyLoggerFactory.AddNLog();
 
             // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
             dataBase.DbContext.ChangeTracker.QueryTrackingBehavior =
@@ -114,7 +109,7 @@ namespace Master40.DB
                     con.Open();
                     canConnect = con.State == ConnectionState.Open;
                 }
-                catch (SqlException e)
+                catch (SqlException)
                 {
                     canConnect = false;
                 }
@@ -147,7 +142,7 @@ namespace Master40.DB
                 {
                     result = sqlCommand.ExecuteNonQuery();
                 }
-                catch (SqlException sqlException)
+                catch (SqlException)
                 {
                     return false;
                 }

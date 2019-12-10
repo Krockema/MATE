@@ -24,7 +24,8 @@ namespace Master40.DB.DataModel
         public ExchangeType ExchangeType { get; set; }
 
         public StockExchangeType StockExchangeType { get; set; }
-
+        [NotMapped]
+        public string ProductionAgent { get; set; }
         [NotMapped]
         public Guid ProductionArticleKey { get; set; }
 

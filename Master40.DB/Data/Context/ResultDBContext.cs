@@ -7,8 +7,6 @@ namespace Master40.DB.Data.Context
 {
     public class ResultContext : DbContext
     {
-        private DbContextOptions<ResultContext> options;
-
         public static ResultContext GetContext(string resultCon)
         {
             return new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()

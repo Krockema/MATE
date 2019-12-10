@@ -1,6 +1,6 @@
 ﻿namespace Master40.DB.ReportingModel
 {
-    public class SimulationConfiguration : BaseEntity
+    public class SimulationConfiguration : ResultBaseEntity
     { 
         public string Name { get; set; }
         public int Time { get; set; }

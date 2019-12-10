@@ -9,6 +9,7 @@ using System.Linq;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
+using static FStockProviders;
 using static FStockReservations;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using static Master40.SimulationCore.Agents.StorageAgent.Storage.Instruction;
@@ -85,7 +86,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                                                   , articleName: _fArticle.Article.Name
                                                   , stockExchangeId: reservation.TrackingId
                                                   , articleFinishedAt: Agent.CurrentTime
-                                                  , provider: new List<Guid>(new[] { reservation.TrackingId })));
+                                                  , provider: new List<FStockProvider>(new[] { new FStockProvider(reservation.TrackingId, "In Stock") })));
             }
 
             // else create Production Agents if ToBuild

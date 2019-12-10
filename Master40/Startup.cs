@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using Hangfire;
+using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer;
+using Master40.Simulation;
+using Master40.Tools.SignalR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -8,18 +11,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Master40.DB.Data.Context;
-using Hangfire;
-using Master40.DB.Data.Initializer;
-using Master40.Simulation;
-using Master40.Tools.SignalR;
-using Swashbuckle.AspNetCore.Swagger;
+using System.Collections.Generic;
+using System.Globalization;
+using Hangfire.Dashboard;
+using Microsoft.Extensions.Hosting;
 
 namespace Master40
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(basePath: env.ContentRootPath)
@@ -66,10 +67,10 @@ namespace Master40
             // services.AddSingleton<Client>();
 
             // Register the Swagger generator, defining one or more Swagger documents
-            services.AddSwaggerGen(setupAction: c =>
-            {
-                c.SwaggerDoc(name: "v1", info: new Info { Title = "SSPS 4.0 API", Version = "v1" });
-            });
+            // services.AddSwaggerGen(setupAction: c =>
+            // {
+            //     c.SwaggerDoc(name: "v1", info: new Info { Title = "SSPS 4.0 API", Version = "v1" });
+            // });
 
 
             services.Configure<RequestLocalizationOptions>(
@@ -89,15 +90,15 @@ namespace Master40
                 });
                 
             // Add Framework Service
-            services.AddMvc();
+            services.AddMvc(option => option.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
             services.AddSignalR();
         }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app
-                            , IHostingEnvironment env
-                            , ILoggerFactory loggerFactory
+                            , IWebHostEnvironment env
                             , HangfireDBContext hangfireContext
                             , MasterDBContext context
                             , ResultContext contextResults
@@ -125,7 +126,6 @@ namespace Master40
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
             else
             {
@@ -135,10 +135,8 @@ namespace Master40
             app.UseFileServer();
             app.UseStaticFiles();
             // app.UseSignalR();
-            app.UseSignalR(configure: router =>
-            {
-                router.MapHub<MessageHub>(path: "/MessageHub");
-            }) ;
+            app.UseRouting();
+            app.UseEndpoints(router => { router.MapHub<MessageHub>("/MessageHub"); });
 
             var serverOptions = new BackgroundJobServerOptions()
             {
@@ -147,13 +145,13 @@ namespace Master40
             app.UseHangfireServer(options: serverOptions);
             app.UseHangfireDashboard();
 
-            app.UseSwagger();
+            // app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(setupAction: c =>
-            {
-                c.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "API DOC V1");
-            });
+            // app.UseSwaggerUI(setupAction: c =>
+            // {
+            //     c.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "API DOC V1");
+            // });
 
 
             app.UseMvc(configureRoutes: routes =>

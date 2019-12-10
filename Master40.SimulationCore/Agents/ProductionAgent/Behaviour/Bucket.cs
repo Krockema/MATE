@@ -55,8 +55,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
                 default: return false;
             }
-
-            return true;
         }
 
     }

@@ -11,7 +11,6 @@ using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.Guardian.Options;
 using Master40.SimulationCore.Agents.SupervisorAgent;
-using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
@@ -23,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Configuration;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using static FResourceSetupDefinitions;
 using static FSetEstimatedThroughputTimes;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
@@ -202,7 +202,7 @@ namespace Master40.SimulationCore
                                                                  .Include(navigationPropertyPath: r => r.ResourceSkill)
                                                                     .ThenInclude(s => s.ResourceSetups)
                                                                  .Include(navigationPropertyPath: t => t.ResourceTool)
-                                                                 .AsNoTracking().ToListAsync().Result;
+                                                                 .ToListAsync().Result;
 
             var resourceList = _dBContext.Resources.ToList();
 

@@ -2,10 +2,10 @@
 using Master40.DB.Enums;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
@@ -50,7 +50,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
                 default: return false;
             }
-            return true;
         }
     }
 }

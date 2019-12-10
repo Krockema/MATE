@@ -2,7 +2,7 @@
 
 namespace Master40.DB.ReportingModel
 {
-    public class Kpi : BaseEntity
+    public class Kpi : ResultBaseEntity
     {
         public double Value { get; set; }
         public double ValueMin { get; set; }
