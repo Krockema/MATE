@@ -45,9 +45,9 @@ namespace Master40.XUnitTest.Agents.Resource.Behaviour
                 TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, tool: tools[2]);
             var bucket = MessageFactory.ToBucketScopeItem(newJobItem, hubAgentActorRef, 0);
 
-            var queableTime = JobQueueScopeLimited.GetQueueAbleTime(job: bucket, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0);
+            var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(job: bucket, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0);
 
-            Assert.Equal(expected: 125L, actual: queableTime.EstimatedStart);
+            Assert.Equal(expected: 5L, actual: queueableTime.EstimatedStart);
         }
 
         private void PrepareModel()
