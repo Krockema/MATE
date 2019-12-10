@@ -70,7 +70,5 @@ namespace Master40.XUnitTest.Agents.Types
 
         }
 
-
-
     }
 }

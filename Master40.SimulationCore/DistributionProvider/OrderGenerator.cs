@@ -22,7 +22,9 @@ namespace Master40.SimulationCore.DistributionProvider
         public OrderGenerator(Configuration simConfig, ProductionDomainContext productionDomainContext, List<int> productIds)
         {
             _seededRandom = new Random(Seed: simConfig.GetOption<Seed>().Value
-                                     + simConfig.GetOption<SimulationNumber>().Value);
+                //TODO: Do it better                    
+                //+ simConfig.GetOption<SimulationNumber>().Value
+                                     );
             _exponential = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value
                                          , randomSource: _seededRandom);
             _productIds = productIds;

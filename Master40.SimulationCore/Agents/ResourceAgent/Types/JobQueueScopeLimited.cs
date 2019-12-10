@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Data.HashFunction.xxHash;
 using System.Linq;
@@ -21,9 +22,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         }
 
-        public override IJob DequeueFirstSatisfied(long currentTime)
+        public override IJob DequeueFirstSatisfied(long currentTime, M_ResourceTool resourceTool = null)
         {
-            var bucket = GetFirstSatisfied(currentTime);
+            var bucket = GetFirstSatisfied(currentTime, resourceTool);
             if (bucket != null)
             {
                 this.jobs.Remove(bucket);
@@ -31,10 +32,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return bucket;
         }
 
-        public IJob GetFirstSatisfied(long currentTime)
+        public IJob GetFirstSatisfied(long currentTime, M_ResourceTool resourceTool)
         {
             var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList().Cast<IJob>();
-            var bucket = buckets.OrderBy(x => x.Priority(currentTime)).FirstOrDefault();
+
+            var avgResourceSetupTime = resourceTool != null ? resourceTool.ResourceSetups.Average(x => x.SetupTime): 0;
+            var toolname = "";
+            if (resourceTool != null)
+                toolname = resourceTool.Name;
+            
+            var bucket = buckets.OrderBy(x => x.Priority(currentTime) + x.Tool.Name != toolname ? avgResourceSetupTime : 0).FirstOrDefault();
             
             return bucket;
         }
@@ -80,7 +87,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 {
                     System.Diagnostics.Debug.WriteLine($"{bucket.Name} has higher priority with {((IJob)bucket).Priority(currentTime)}");
                 }*/
-                totalWorkLoad = higherPrioBuckets.Sum(x => x.Scope);
+                totalWorkLoad = higherPrioBuckets.Cast<IJob>().ToList().Sum(x => x.Duration);
                 var totalEstimatedWorkload = higherPrioBuckets.Cast<IJob>().ToList().Sum(x => x.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
                 queuePosition.EstimatedWorkload = totalEstimatedWorkload;

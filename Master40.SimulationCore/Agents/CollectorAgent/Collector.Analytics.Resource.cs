@@ -191,10 +191,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    // ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
-                    // ctx.SaveChanges();
-                    // ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
-                    // ctx.SaveChanges();
+                    ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SaveChanges();
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -213,6 +213,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                ArticleName = so.Key,
                                Dlz = so.Select(selector: x => (double)x.End - x.Start).ToList()
                            };
+
+            if (!leadTime.Any())
+            {
+                return;
+            }
 
             var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
             Collector.messageHub.SendToClient(listener: "Throughput", msg: thoughput);
@@ -547,7 +552,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + uswp.CustomerOrderId + "]";
-
+                    
                     // item.OrderId = orderId;
                 }
             }

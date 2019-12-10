@@ -55,21 +55,32 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [InlineData(testResultCtxString)]
         [InlineData(masterResultCtxString)]
         public void ResetResultsDB(string connectionString)
+        
         {
             ResultContext masterResults = ResultContext.GetContext(resultCon: connectionString);
             masterResults.Database.EnsureDeleted();
             masterResults.Database.EnsureCreated();
+
+            _masterDBContext.Database.EnsureDeleted();
+            _masterDBContext.Database.EnsureCreated();
+            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
         }
 
         [Theory]
         //[InlineData(SimulationType.None)]
         [InlineData(SimulationType.DefaultSetup, 1, 60)]
         [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
-        [InlineData(SimulationType.BucketScope, 3, 60)]
-        [InlineData(SimulationType.BucketScope, 4, 120)]
-        [InlineData(SimulationType.BucketScope, 5, 240)]
-        [InlineData(SimulationType.BucketScope, 6, 480)]
-        [InlineData(SimulationType.BucketScope, 7, Int32.MaxValue)]
+        [InlineData(SimulationType.BucketScope, 6, 240)]
+        [InlineData(SimulationType.BucketScope, 7, 300)]
+        [InlineData(SimulationType.BucketScope, 8, 360)]
+        [InlineData(SimulationType.BucketScope, 9, 420)]
+        [InlineData(SimulationType.BucketScope, 10, 480)]
+        [InlineData(SimulationType.BucketScope, 11, 600)]
+        [InlineData(SimulationType.BucketScope, 12, 720)]
+        [InlineData(SimulationType.BucketScope, 13, 840)]
+        [InlineData(SimulationType.BucketScope, 14, 960)]
+        [InlineData(SimulationType.BucketScope, 20, Int32.MaxValue)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
@@ -83,16 +94,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 500)
+                                                    , new OrderQuantity(value: 1500)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 1440)
+                                                    , new EstimatedThroughPut(value: 600)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new MaxBucketSize(value: maxBucketSize)
                                                     , new Seed(value: 1337)
                                                     , new MinDeliveryTime(value: 1440)
-                                                    , new MaxDeliveryTime(value: 2400)
+                                                    , new MaxDeliveryTime(value: 1920)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 2880)
                                                     , new SimulationEnd(value: 20160)

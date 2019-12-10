@@ -17,7 +17,10 @@ namespace Master40.SimulationCore.DistributionProvider
 
         public WorkTimeGenerator(int seed, double deviation, int simNumber)
         {
-            var source = new Random(Seed: seed + simNumber);
+            var source = new Random(Seed: seed 
+                                          //TODO WARUM?
+                                          //+ simNumber
+                                          );
             _distribution = new LogNormal(mu: 0, sigma: deviation, randomSource: source);
         }
 
