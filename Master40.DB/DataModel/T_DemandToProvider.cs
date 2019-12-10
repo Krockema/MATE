@@ -29,17 +29,6 @@ namespace Master40.DB.DataModel
             }
         }
 
-        public T_DemandToProvider()
-        {
-        }
-
-        public T_DemandToProvider(Id demandId, Id providerId, Quantity quantity)
-        {
-            ProviderId = providerId.GetValue();
-            DemandId = demandId.GetValue();
-            Quantity = quantity.GetValue();
-        }
-
         public override string ToString()
         {
             return $"demand: {DemandId}, provider: {ProviderId}, quantity: {Quantity}";

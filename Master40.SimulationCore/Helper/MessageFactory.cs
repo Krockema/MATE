@@ -141,42 +141,6 @@ namespace Master40.SimulationCore.Helper
                 , bucket: String.Empty);
         }
 
-        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time)
-        {
-            //scope
-            var scope = (operation.BackwardStart - operation.ForwardStart);
-            // TO BE TESTET
-            var prioRule = Extension.CreateFunc(
-                // Lamda zur Func.
-                func: (bucket, currentTime) => operation.BackwardEnd - scope - time
-                // ENDE
-            );
-
-            var operations = new List<FOperation>();
-            operations.Add(item: operation);
-
-            return new FBucket(key: Guid.NewGuid()
-                //, prioRule: prioRule.ToFSharpFunc()
-                , priority: prioRule.ToFSharpFunc()
-                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
-                , isFixPlanned: false
-                , creationTime: time
-                , forwardStart: operation.ForwardStart
-                , forwardEnd: operation.ForwardEnd
-                , backwardStart: operation.BackwardStart
-                , backwardEnd: operation.BackwardEnd
-                , scope: scope
-                , end: 0
-                , start: 0
-                , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
-                , maxBucketSize: 1
-                , minBucketSize: 1000
-                , resourceAgent: ActorRefs.NoSender
-                , hubAgent: hubAgent
-                , operations: new FSharpSet<FOperation>(elements: operations)
-                , tool: operation.Tool
-                , proposals: new List<FProposal>());
-        }
 
         public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart
                                             , IActorRef requester
