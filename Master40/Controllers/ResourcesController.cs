@@ -10,19 +10,19 @@ using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
-    public class MachinesController : Controller
+    public class ResourcesController : Controller
     {
         private readonly MasterDBContext _context;
 
-        public MachinesController(MasterDBContext context)
+        public ResourcesController(MasterDBContext context)
         {
             _context = context;    
         }
 
-        // GET: Machines
+        // GET: Resources
         public async Task<IActionResult> Index()
         {
-            var machines = _context.Resources.Include(navigationPropertyPath: m => m.ResourceSkills);
+            var Resources = _context.Resources.Include(navigationPropertyPath: m => m.ResourceSkills);
             
             var mermaid = @"graph LR;
                 p>Production Line]
@@ -35,7 +35,7 @@ namespace Master40.Controllers
             for (int g = 0; g < machineGroups.Count; g++)
             {
                 var start = (g == 0) ? "Start-->" : "\r\n";
-                var machine = machines.Where(predicate: x => machineGroups[g].Name == x.ResourceSkills.SingleOrDefault().Name);
+                var machine = Resources.Where(predicate: x => machineGroups[g].Name == x.ResourceSkills.SingleOrDefault().Name);
                 var i = 1;
                 var thisGroup = machineGroups[index: g].Name;
                 var nextGroup = (g+1 < machineGroups.Count)? machineGroups[index: g+1].Name : "Finish";
@@ -54,11 +54,11 @@ namespace Master40.Controllers
                 mermaid = mermaid + end;
             }
            
-            ViewData[index: "Machines"] = mermaid;
-            return View(model: await machines.ToListAsync());
+            ViewData[index: "Resources"] = mermaid;
+            return View(model: await Resources.ToListAsync());
         }
 
-        // GET: Machines/Details/5
+        // GET: Resources/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -77,14 +77,14 @@ namespace Master40.Controllers
             return View(model: machine);
         }
 
-        // GET: Machines/Create
+        // GET: Resources/Create
         public IActionResult Create()
         {
             ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceSkills, dataValueField: "Id", dataTextField: "Name");
             return View();
         }
 
-        // POST: Machines/Create
+        // POST: Resources/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -101,7 +101,7 @@ namespace Master40.Controllers
             return View(model: machine);
         }
 
-        // GET: Machines/Edit/5
+        // GET: Resources/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -118,7 +118,7 @@ namespace Master40.Controllers
             return View(model: machine);
         }
 
-        // POST: Machines/Edit/5
+        // POST: Resources/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -154,7 +154,7 @@ namespace Master40.Controllers
             return View(model: machine);
         }
 
-        // GET: Machines/Delete/5
+        // GET: Resources/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -173,7 +173,7 @@ namespace Master40.Controllers
             return View(model: machine);
         }
 
-        // POST: Machines/Delete/5
+        // POST: Resources/Delete/5
         [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -197,7 +197,7 @@ namespace Master40.Controllers
             _context.Resources.RemoveRange(entities: _context.Resources.Where(predicate: x => x.Capacity == 0).ToList());
             if (setup == "Large")
             {
-                var machines = new M_Resource[] {
+                var Resources = new M_Resource[] {
                     new M_Resource{Capacity=0, Name="Saw 3", Count = 1},
                     new M_Resource{Capacity=0, Name="Saw 4", Count = 1},
                     new M_Resource{Capacity=0, Name="Saw 5", Count = 1},
@@ -209,7 +209,7 @@ namespace Master40.Controllers
                     new M_Resource{Capacity=0, Name="AssemblyUnit 5", Count=1},
                     new M_Resource{Capacity=0, Name="AssemblyUnit 6", Count=1}
                 };
-                _context.Resources.AddRange(entities: machines);
+                _context.Resources.AddRange(entities: Resources);
 
             }
 

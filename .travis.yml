@@ -9,6 +9,7 @@ services:
 install:
   - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
   - dotnet restore
+  
 
 script:
   - dotnet build
@@ -17,6 +18,4 @@ script:
   - dotnet test -v:n --filter Master40.XUnitTest.Agents
   
 notifications:
-  email: 
-  - krockert@htw-dresden.de
   slack: infocomhtw:7H5jePcDELUv916neaRS3LQ1

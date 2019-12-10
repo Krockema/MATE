@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Enums;
+using Master40.DB.Nominal;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Types
 {

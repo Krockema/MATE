@@ -1,0 +1,37 @@
+@model Master40.DB.DataModel.M_Resource
+
+@{
+    ViewData[index: "Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Machine</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Count)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Count)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Capacity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Capacity)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
