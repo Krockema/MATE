@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Master40.DB.Enums;
 using Master40.DB.ReportingModel.Interface;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Master40.DB.ReportingModel
 {
@@ -27,7 +28,8 @@ namespace Master40.DB.ReportingModel
         public string Parent { get; set; }
         public string ParentId { get; set; }
         public string Bucket { get; set; }
-        
+        [NotMapped]
+        public string FArticleKey { get; set; }
         [NotMapped]
         public string ArticleType { get; set; }
 

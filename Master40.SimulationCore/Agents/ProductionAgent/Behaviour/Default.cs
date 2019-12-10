@@ -238,6 +238,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     , isHeadDemand: fArticle.IsHeadDemand
                     , fArticleKey : fArticle.Key
                     , fArticleName: fArticle.Article.Name
+                    , productionAgent: this.Agent.Name
                     , articleType: fArticle.Article.ArticleType.Name
                     , start: fJob.Start
                     , end: fJob.End);

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Master40.Simulation.CLI.Arguments;
 using static FArticles;
 using static FOperations;
+using static FStockProviders;
 
 namespace Master40.XUnitTest.Preparations
 {
@@ -47,7 +48,7 @@ namespace Master40.XUnitTest.Preparations
                 , providedAt: 0
                 , originRequester: ActorRefs.Nobody
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<Guid>()
+                , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
         }

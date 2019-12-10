@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.Data.Initializer;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
@@ -36,14 +37,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // 
         public SimulationSystem()
         {
-            // _masterDBContext.Database.EnsureDeleted();
-            // _masterDBContext.Database.EnsureCreated();
-            // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+             _masterDBContext.Database.EnsureDeleted();
+             _masterDBContext.Database.EnsureCreated();
+            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
-            // _ctxResult.Database.EnsureDeleted();
-            // _ctxResult.Database.EnsureCreated();
-            // ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
+             _ctxResult.Database.EnsureDeleted();
+             _ctxResult.Database.EnsureCreated();
+             ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
 
         }
 

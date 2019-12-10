@@ -12,6 +12,7 @@ using static FStartConditions;
 using static FBuckets;
 using static IJobs;
 using Master40.SimulationCore.Types;
+using static FStockProviders;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -155,7 +156,7 @@ namespace Master40.SimulationCore.Helper
                 , providedAt: 0
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<Guid>()
+                , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
         }
@@ -176,7 +177,7 @@ namespace Master40.SimulationCore.Helper
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<Guid>()
+                , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
         }

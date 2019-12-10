@@ -90,7 +90,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         /// <summary>
-        /// collect the resourceSetups of resource, cant be updated afterwards
+        /// collect the resourceSetups of resource, cant be updated afterward
         /// </summary>
         /// <param name="simulationResourceSetup"></param>
         private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup simulationResourceSetup)
@@ -189,10 +189,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    // ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
-                    // ctx.SaveChanges();
-                    // ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
-                    // ctx.SaveChanges();
+                    ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SaveChanges();
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -473,9 +473,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 OrderId = "[" + simJob.CustomerOrderId + "]",
                 HierarchyNumber = fOperation.Operation.HierarchyNumber,
                 //Remember this is now a fArticleKey (Guid)
-                ProductionOrderId = "[" + simJob.fArticleKey + "]",
+                ProductionOrderId =  simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
-                ParentId = "[]",
+                FArticleKey = simJob.fArticleKey.ToString(),
                 Time = (int)(Collector.Time),
                 ExpectedDuration = fOperation.Operation.Duration,
                 ArticleType = simJob.ArticleType,
@@ -538,15 +538,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var items = simulationJobs.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
+                var items = simulationJobs.Where(predicate: x => x.FArticleKey.Equals(value: fpk.ProvidesArticleKey.ToString())
+                                                            && x.ProductionOrderId == fpk.ProductionAgentKey); 
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + uswp.CustomerOrderId + "]";
-
-                    // item.OrderId = orderId;
                 }
             }
 

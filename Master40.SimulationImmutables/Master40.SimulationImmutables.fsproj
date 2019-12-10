@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />
     <Compile Include="Message\FResourceInformations.fs" />

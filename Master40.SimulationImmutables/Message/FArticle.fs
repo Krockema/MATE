@@ -4,6 +4,7 @@ open System
 open Master40.DB.DataModel
 open Akka.Actor
 open IKeys
+open FStockProviders
 
     type public FArticle =         
         {   Key : Guid
@@ -15,7 +16,7 @@ open IKeys
             DueTime : int64
             OriginRequester : IActorRef
             DispoRequester : IActorRef
-            ProviderList : System.Collections.Generic.List<Guid> 
+            ProviderList : System.Collections.Generic.List<FStockProvider> 
             CustomerOrderId : int
             IsProvided : bool
             ProvidedAt : int64
