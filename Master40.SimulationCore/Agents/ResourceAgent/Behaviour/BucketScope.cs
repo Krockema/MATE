@@ -23,7 +23,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
-        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 1000);
+        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 450);
 
         public override bool Action(object message)
         {

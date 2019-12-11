@@ -216,13 +216,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             switch (tool.Name)
             {
                 case "Screwdriver universal":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.15 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.52 * _maxBucketSize, 0));
                     break;
                 case "Holding":
                     maxBucketSize = Convert.ToInt64(Math.Round(0.31 * _maxBucketSize, 0));
                     break;
                 case "Hammer":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.52 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.15 * _maxBucketSize, 0));
                     break;
                 case "Drill head M4":
                     maxBucketSize = Convert.ToInt64(Math.Round(0.23 * _maxBucketSize, 0));
@@ -240,8 +240,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     break;
             }
 
-            //TODO set to maxBucketSize
-            return maxBucketSize;
+            //TODO set to maxBucketSize at least to 60 for 3 elements
+            return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
         }
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)

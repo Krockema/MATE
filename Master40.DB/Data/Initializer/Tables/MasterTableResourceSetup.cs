@@ -28,7 +28,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.SAW_1.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
-                SetupTime = 5
+                SetupTime = 20
             };
 
             SAW_1_BLADE_SMALL = new M_ResourceSetup
@@ -37,7 +37,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.SAW_1.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
-                SetupTime = 5
+                SetupTime = 20
             };
 
             SAW_2_BLADE_BIG = new M_ResourceSetup
@@ -46,7 +46,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.SAW_2.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
-                SetupTime = 5
+                SetupTime = 20
             };
 
             SAW_2_BLADE_SMALL = new M_ResourceSetup
@@ -55,7 +55,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.SAW_2.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
-                SetupTime = 5
+                SetupTime = 20
             };
 
             DRILL_1_M4 = new M_ResourceSetup
@@ -82,7 +82,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.ASSEMBLY_1.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                SetupTime = 5
+                SetupTime = 10
             };
 
             ASSEMBLY_1_HOLDING = new M_ResourceSetup
@@ -91,7 +91,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.ASSEMBLY_1.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                SetupTime = 5
+                SetupTime = 10
             };
 
             ASSEMBLY_1_HAMMER = new M_ResourceSetup
@@ -100,7 +100,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.ASSEMBLY_1.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                SetupTime = 5
+                SetupTime = 10
             };
 
             ASSEMBLY_2_SCREWDRIVER = new M_ResourceSetup
@@ -109,7 +109,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.ASSEMBLY_2.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                SetupTime = 5
+                SetupTime = 10
             };
 
             ASSEMBLY_2_HOLDING = new M_ResourceSetup
@@ -118,7 +118,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.ASSEMBLY_2.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                SetupTime = 5
+                SetupTime = 10
             };
 
             ASSEMBLY_2_HAMMER = new M_ResourceSetup
@@ -127,7 +127,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceId = resource.ASSEMBLY_2.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
-                SetupTime = 5
+                SetupTime = 10
             };
         }
 

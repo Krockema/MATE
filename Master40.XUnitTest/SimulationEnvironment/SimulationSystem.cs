@@ -71,15 +71,22 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.None)]
         [InlineData(SimulationType.DefaultSetup, 1, 60)]
         [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
-        [InlineData(SimulationType.BucketScope, 6, 240)]
-        [InlineData(SimulationType.BucketScope, 7, 300)]
-        [InlineData(SimulationType.BucketScope, 8, 360)]
-        [InlineData(SimulationType.BucketScope, 9, 420)]
-        [InlineData(SimulationType.BucketScope, 10, 480)]
+        //[InlineData(SimulationType.BucketScope, 3, 120)]
+        //[InlineData(SimulationType.BucketScope, 4, 150)]
+        //[InlineData(SimulationType.BucketScope, 5, 180)]
+        //[InlineData(SimulationType.BucketScope, 6, 240)]
+        //[InlineData(SimulationType.BucketScope, 7, 300)]
+        //[InlineData(SimulationType.BucketScope, 8, 360)]
+        //[InlineData(SimulationType.BucketScope, 9, 420)]
+        //[InlineData(SimulationType.BucketScope, 10, 480)]
         [InlineData(SimulationType.BucketScope, 11, 600)]
         [InlineData(SimulationType.BucketScope, 12, 720)]
         [InlineData(SimulationType.BucketScope, 13, 840)]
         [InlineData(SimulationType.BucketScope, 14, 960)]
+        [InlineData(SimulationType.BucketScope, 15, 1080)]
+        [InlineData(SimulationType.BucketScope, 16, 1200)]
+        [InlineData(SimulationType.BucketScope, 17, 1320)]
+        [InlineData(SimulationType.BucketScope, 18, 1440)]
         [InlineData(SimulationType.BucketScope, 20, Int32.MaxValue)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
@@ -96,17 +103,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new OrderArrivalRate(value: 0.025)
                                                     , new OrderQuantity(value: 1500)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 600)
+                                                    , new EstimatedThroughPut(value: 2880)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new MaxBucketSize(value: maxBucketSize)
                                                     , new Seed(value: 1337)
                                                     , new MinDeliveryTime(value: 1440)
-                                                    , new MaxDeliveryTime(value: 1920)
+                                                    , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 2880)
-                                                    , new SimulationEnd(value: 20160)
+                                                    , new SimulationEnd(value: 40360)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
                                                 });
