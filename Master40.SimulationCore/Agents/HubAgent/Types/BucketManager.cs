@@ -216,25 +216,25 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             switch (tool.Name)
             {
                 case "Screwdriver universal":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.52 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
                     break;
                 case "Holding":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.31 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.33 * _maxBucketSize, 0));
                     break;
                 case "Hammer":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.15 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.17 * _maxBucketSize, 0));
                     break;
                 case "Drill head M4":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.23 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.25 * _maxBucketSize, 0));
                     break;
                 case "Drill head M6":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.77 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.75 * _maxBucketSize, 0));
                     break;
                 case "Saw blade small":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.55 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
                     break;
                 case "Saw blade big":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.45 * _maxBucketSize, 0));
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.40 * _maxBucketSize, 0));
                     break;
                 default : maxBucketSize = _maxBucketSize;
                     break;

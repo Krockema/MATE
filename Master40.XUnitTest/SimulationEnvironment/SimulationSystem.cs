@@ -88,6 +88,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [InlineData(SimulationType.BucketScope, 17, 1320)]
         [InlineData(SimulationType.BucketScope, 18, 1440)]
         [InlineData(SimulationType.BucketScope, 20, Int32.MaxValue)]
+        [InlineData(SimulationType.BucketScope, 21, 1920)]
+        [InlineData(SimulationType.BucketScope, 22, 2400)]
+        [InlineData(SimulationType.BucketScope, 23, 2880)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
@@ -101,9 +104,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
                                                     , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: 1500)
+                                                    , new OrderQuantity(value: Int32.MaxValue)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 2880)
+                                                    , new EstimatedThroughPut(value: 1920)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
@@ -112,8 +115,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
-                                                    , new SettlingStart(value: 2880)
-                                                    , new SimulationEnd(value: 40360)
+                                                    , new SettlingStart(value: 20160)
+                                                    , new SimulationEnd(value: 60520)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
                                                 });
