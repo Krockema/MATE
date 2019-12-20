@@ -69,8 +69,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup, 1, 60)]
-        [InlineData(SimulationType.DefaultSetupStack, 2, 60)]
+        [InlineData(SimulationType.DefaultSetup, 0, 60)]
+        [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
         //[InlineData(SimulationType.BucketScope, 3, 120)]
         //[InlineData(SimulationType.BucketScope, 4, 150)]
         //[InlineData(SimulationType.BucketScope, 5, 180)]
@@ -79,18 +79,18 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.BucketScope, 8, 360)]
         //[InlineData(SimulationType.BucketScope, 9, 420)]
         //[InlineData(SimulationType.BucketScope, 10, 480)]
-        [InlineData(SimulationType.BucketScope, 11, 600)]
-        [InlineData(SimulationType.BucketScope, 12, 720)]
-        [InlineData(SimulationType.BucketScope, 13, 840)]
-        [InlineData(SimulationType.BucketScope, 14, 960)]
-        [InlineData(SimulationType.BucketScope, 15, 1080)]
-        [InlineData(SimulationType.BucketScope, 16, 1200)]
-        [InlineData(SimulationType.BucketScope, 17, 1320)]
-        [InlineData(SimulationType.BucketScope, 18, 1440)]
-        [InlineData(SimulationType.BucketScope, 20, Int32.MaxValue)]
-        [InlineData(SimulationType.BucketScope, 21, 1920)]
-        [InlineData(SimulationType.BucketScope, 22, 2400)]
-        [InlineData(SimulationType.BucketScope, 23, 2880)]
+        [InlineData(SimulationType.BucketScope, 2, 600)]
+        [InlineData(SimulationType.BucketScope, 3, 720)]
+        [InlineData(SimulationType.BucketScope, 4, 840)]
+        [InlineData(SimulationType.BucketScope, 5, 960)]
+        [InlineData(SimulationType.BucketScope, 6, 1080)]
+        [InlineData(SimulationType.BucketScope, 7, 1200)]
+        [InlineData(SimulationType.BucketScope, 8, 1320)]
+        [InlineData(SimulationType.BucketScope, 9, 1440)]
+        [InlineData(SimulationType.BucketScope, 10, 1920)]
+        [InlineData(SimulationType.BucketScope, 11, 2400)]
+        [InlineData(SimulationType.BucketScope, 12, 2880)]
+        [InlineData(SimulationType.BucketScope, 99, Int32.MaxValue)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
@@ -115,8 +115,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
-                                                    , new SettlingStart(value: 20160)
-                                                    , new SimulationEnd(value: 60520)
+                                                    , new SettlingStart(value: 4320)
+                                                    , new SimulationEnd(value: 40320)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
                                                 });
