@@ -69,7 +69,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup, 0, 60)]
+        //[InlineData(SimulationType.DefaultSetup, 0, 60)]
         [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
         //[InlineData(SimulationType.BucketScope, 3, 120)]
         //[InlineData(SimulationType.BucketScope, 4, 150)]
@@ -116,7 +116,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 4320)
-                                                    , new SimulationEnd(value: 40320)
+                                                    , new SimulationEnd(value: 10080)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
                                                 });
