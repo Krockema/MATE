@@ -18,7 +18,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class SimulationSystem : TestKit
     {
-        private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
 
@@ -39,15 +39,24 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // 
         public SimulationSystem()
         {
-            // _masterDBContext.Database.EnsureDeleted();
-            // _masterDBContext.Database.EnsureCreated();
-            // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+             // _masterDBContext.Database.EnsureDeleted();
+             // _masterDBContext.Database.EnsureCreated();
+             // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+             // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             // _ctxResult.Database.EnsureDeleted();
             // _ctxResult.Database.EnsureCreated();
             // ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
 
+        }
+
+        [Theory]
+        [InlineData(localresultdb)]
+        public void RecreateMasterDB(string connectionString) { 
+            _masterDBContext.Database.EnsureDeleted();
+            _masterDBContext.Database.EnsureCreated();
+            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
         }
 
         //[Fact(Skip = "manual test")]
@@ -79,18 +88,18 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.BucketScope, 8, 360)]
         //[InlineData(SimulationType.BucketScope, 9, 420)]
         //[InlineData(SimulationType.BucketScope, 10, 480)]
-        [InlineData(SimulationType.BucketScope, 2, 600)]
-        [InlineData(SimulationType.BucketScope, 3, 720)]
-        [InlineData(SimulationType.BucketScope, 4, 840)]
-        [InlineData(SimulationType.BucketScope, 5, 960)]
-        [InlineData(SimulationType.BucketScope, 6, 1080)]
-        [InlineData(SimulationType.BucketScope, 7, 1200)]
-        [InlineData(SimulationType.BucketScope, 8, 1320)]
-        [InlineData(SimulationType.BucketScope, 9, 1440)]
-        [InlineData(SimulationType.BucketScope, 10, 1920)]
-        [InlineData(SimulationType.BucketScope, 11, 2400)]
-        [InlineData(SimulationType.BucketScope, 12, 2880)]
-        [InlineData(SimulationType.BucketScope, 99, Int32.MaxValue)]
+        //[InlineData(SimulationType.BucketScope, 2, 600)]
+        //[InlineData(SimulationType.BucketScope, 3, 720)]
+        //[InlineData(SimulationType.BucketScope, 4, 840)]
+        //[InlineData(SimulationType.BucketScope, 5, 960)]
+        //[InlineData(SimulationType.BucketScope, 6, 1080)]
+        //[InlineData(SimulationType.BucketScope, 7, 1200)]
+        //[InlineData(SimulationType.BucketScope, 8, 1320)]
+        //[InlineData(SimulationType.BucketScope, 9, 1440)]
+        //[InlineData(SimulationType.BucketScope, 10, 1920)]
+        //[InlineData(SimulationType.BucketScope, 11, 2400)]
+        //[InlineData(SimulationType.BucketScope, 12, 2880)]
+        //[InlineData(SimulationType.BucketScope, 99, Int32.MaxValue)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);

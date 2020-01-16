@@ -68,6 +68,14 @@ namespace Master40.DB.Data.Initializer
             }
             DbUtils.InsertOrUpdateRange(updateArticleLotSize, context.Articles, context);
             context.SaveChanges();
+
+            // Extension for QUality Assurance
+            var characteristics = new MasterTableCharacteristic(articleTable, operations);
+            characteristics.Init(context);
+            var valueTypes = new MasterTableValueType();
+            valueTypes.Init(context);
+            var attributes = new MasterTableAttribute();
+            attributes.Init(context, characteristics, valueTypes);
         }
     }
 }
