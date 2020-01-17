@@ -61,10 +61,7 @@ namespace Master40.Simulation
 
                 AgentSimulation.Continuation(inbox: _agentSimulation.SimulationConfig.Inbox
                                             , sim: simulation
-                                            , collectors: new List<IActorRef> { _agentSimulation.StorageCollector
-                                                                , _agentSimulation.WorkCollector
-                                                                , _agentSimulation.ContractCollector
-                                            });
+                                            , collectors: _agentSimulation.CollectorActorRefs);
                 await sim;
             }
             _messageHub.EndScheduler();

@@ -4,6 +4,7 @@ using System;
 using static FAgentInformations;
 using static FBuckets;
 using static FBucketScopes;
+using static FJobInformations;
 using static FRequestToRequeues;
 using static FUpdateBucketScopes;
 using static IJobResults;
@@ -207,6 +208,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
+                public class CreateMeasurements : SimulationMessage
+                {
+                    public static CreateMeasurements Create(FJobInformation message, IActorRef target)
+                    {
+                        return new CreateMeasurements(message: message, target: target);
+                    }
+                    private CreateMeasurements(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FJobInformation GetObjectFromMessage { get => (FJobInformation)Message; }
                 }
 
             }

@@ -282,7 +282,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , resourceAgent: Agent.Context.Self);
 
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedWorkDuration);
-
+            
+            // Create Measurement and set it to MeasurementAgent
+            base.CreateMeasurement(pub);
         }
 
         internal override void FinishJob(IJobResult jobResult)

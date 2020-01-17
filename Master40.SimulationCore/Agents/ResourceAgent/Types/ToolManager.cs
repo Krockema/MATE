@@ -30,10 +30,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return _equippedResourceTool.IsSet(resourceTool: requiredResourceTool);
         }
 
-        internal M_ResourceSetup GetSetupByTool(M_ResourceTool resourceTool)
+        internal M_ResourceSetup GetCurrentSetup()
         {
             //TODO Take care if 1 Skill can be done by multiply tools
-            var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id);
+            var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == _equippedResourceTool.ResourceTool.Id);
             return resourceSetup;
         }
 

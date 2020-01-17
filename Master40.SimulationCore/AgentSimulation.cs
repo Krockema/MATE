@@ -21,7 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Actor.Dsl;
 using Akka.Configuration;
+using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using static FResourceSetupDefinitions;
 using static FSetEstimatedThroughputTimes;
@@ -43,6 +45,9 @@ namespace Master40.SimulationCore
         public IActorRef WorkCollector { get; private set; }
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
+        public IActorRef MeasurementCollector { get; private set; }
+        public List<IActorRef> CollectorActorRefs { get; private set; } 
+
         public static LogWriter Logger { get; set; }
 
         /// <summary>
@@ -53,6 +58,7 @@ namespace Master40.SimulationCore
         {
             _dBContext = DBContext;
             _messageHub = messageHub;
+            CollectorActorRefs = new List<IActorRef>();
         }
         public Task<Simulation> InitializeSimulation(Configuration configuration)
         {
@@ -74,6 +80,8 @@ namespace Master40.SimulationCore
 
                 // Create Guardians and Inject Childcreators
                 GenerateGuardians();
+                //Create Measurment Agent if Required
+                CreateMeasurementComponents(configuration: configuration);
 
                 // Create Supervisor Agent
                 CreateSupervisor(configuration: configuration);
@@ -89,6 +97,29 @@ namespace Master40.SimulationCore
 
                 return _simulation;
             });
+        }
+
+        private void CreateMeasurementComponents(Configuration configuration)
+        {
+            if (!configuration.GetOption<CreateQualityData>().Value 
+                && configuration.GetOption<SimulationKind>().Value != _simulationType) return;
+            
+            ActorPaths.SetMeasurementAgent(measurementActorRef: _simulation.ActorSystem
+                .ActorOf(props: Resource.Props(actorPaths: ActorPaths,
+                                                     time: 0,
+                                                    debug: _debugAgents,
+                                                principal: ActorRefs.Nobody,
+                                      measurementActorRef: ActorRefs.Nobody),
+                    name: "Measure"));
+
+            _simulation.SimulationContext.Tell(message:
+                BasicInstruction.Initialize.Create(target: ActorPaths.MeasurementAgent.Ref,
+                                                  message: Agents.ResourceAgent.Behaviour.Measurement.Get(configuration.GetOption<Seed>())));
+
+            MeasurementCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsMeasurements.Get()
+                , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                , streamTypes: CollectorAnalyticsMeasurements.GetStreamTypes()), name: "MeasurementCollector");
+            CollectorActorRefs.Add(MeasurementCollector);
         }
 
         private void CreateSupervisor(Configuration configuration)
@@ -135,6 +166,10 @@ namespace Master40.SimulationCore
             WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: resourcelist)
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "WorkScheduleCollector");
+            CollectorActorRefs.Add(StorageCollector);
+            CollectorActorRefs.Add(ContractCollector);
+            CollectorActorRefs.Add(WorkCollector);
+
         }
 
         private void GenerateGuardians()

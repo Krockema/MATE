@@ -38,6 +38,7 @@
     <Compile Include="Message\FUpdateSimulationJobs.fs" />
     <Compile Include="Message\FCreateSimulationJobs.fs" />
     <Compile Include="Message\FResourceSetupDefinition.fs" />
+    <Compile Include="Message\FJobInformation.fs" />
   </ItemGroup>
 
   <ItemGroup>

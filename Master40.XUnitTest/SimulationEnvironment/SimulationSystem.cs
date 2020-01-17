@@ -145,10 +145,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
                 AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
                                             , sim: simulation
-                                            , collectors: new List<IActorRef> { simContext.StorageCollector
-                                                                    , simContext.WorkCollector
-                                                                    , simContext.ContractCollector
-                                            });
+                                            , collectors: simContext.CollectorActorRefs);
                 await sim;
             }
 

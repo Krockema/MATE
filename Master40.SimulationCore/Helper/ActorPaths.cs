@@ -12,6 +12,7 @@ namespace Master40.SimulationCore.Helper
         public ActorMetaData StorageDirectory { get; private set; }
         public ActorMetaData HubDirectory { get; private set; }
         public ActorMetaData SimulationContext { get; }
+        public ActorMetaData MeasurementAgent { get;  private set; }
         public IActorRef SystemMailBox { get; }
         public Dictionary<GuardianType, IActorRef> Guardians { get; }
         /// <summary>
@@ -29,7 +30,10 @@ namespace Master40.SimulationCore.Helper
         {
             SystemAgent = new ActorMetaData(name: "SupervisorAgent", actorRef: systemAgent);
         }
-
+        public void SetMeasurementAgent(IActorRef measurementActorRef)
+        {
+            MeasurementAgent = new ActorMetaData(name: "MeasurementAgent", actorRef: measurementActorRef);
+        }
         public void SetHubDirectoryAgent(IActorRef hubAgent)
         {
             if (SystemAgent == null) throw new Exception(message: "Wrong Order, Please SetSystemAgent first");

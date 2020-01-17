@@ -6,6 +6,8 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
+using Master40.SimulationCore.Agents.CollectorAgent;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FCreateSimulationResourceSetups;
 using static FOperationResults;
 using static FPostponeds;
@@ -15,6 +17,7 @@ using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FJobInformations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -262,6 +265,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                           , productionAgent: ActorRefs.Nobody
                                             , resourceAgent: Agent.Context.Self);
 
+            // Create Measurement and set it to MeasurementAgent
+            CreateMeasurement(pub);
+
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedWorkDuration);
 
         }
@@ -328,5 +334,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
         */
+        internal void CreateMeasurement(FUpdateSimulationJob job)
+        {
+            var msg = Resource.Instruction.BucketScope.
+                               CreateMeasurements.Create(message: new FJobInformation(job.Job
+                                                                            , job.Resource
+                                                                            , _toolManager._equippedResourceTool.ResourceTool.Name
+                                                                            ,_toolManager.GetCurrentSetup()
+                                                                            , job.Bucket),
+                                                          target: Agent.ActorPaths.MeasurementAgent.Ref);
+            Agent.Send(msg);
+        }
+
     }
 }
