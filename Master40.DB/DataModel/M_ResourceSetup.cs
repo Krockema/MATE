@@ -20,7 +20,7 @@ namespace Master40.DB.DataModel
         /* Specific SetupTime for the ResourceTool to the Resource
          */
         public int SetupTime { get; set; }
-        public double ZForPrecision { get; set; }
+        public double Quantil { get; set; }
 
     }
 }

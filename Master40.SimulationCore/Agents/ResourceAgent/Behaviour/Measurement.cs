@@ -3,6 +3,7 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
+using Master40.Tools.DistributionProvider;
 using static FJobInformations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
@@ -45,13 +46,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 foreach (var attribute in characteristic.Attributes)
                 {
+                    var quantil = Quantiles.GetFor(fJobInformation.Setup.Quantil);
                     var attr = MessageFactory.CreateMeasurement(job, characteristic, attribute);
                     attr.TimeStamp = Agent.CurrentTime;
                     attr.ResourceTool += "(" + fJobInformation.Setup.Id + ")";
                     attr.MeasurementValue = measurementValuesGenerator.GetRandomMeasurementValues(attribute.Value
                         , attribute.Tolerance_Min
                         , attribute.Tolerance_Max
-                        , /* TODO: kommt noch */ fJobInformation.Setup.ZForPrecision);
+                        , quantil.Z);
                     measurements.Add(attr);
                 }
             }
