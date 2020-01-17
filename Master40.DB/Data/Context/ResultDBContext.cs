@@ -22,5 +22,6 @@ namespace Master40.DB.Data.Context
         public DbSet<SimulationOrder> SimulationOrders { get; set; }
         public DbSet<Kpi> Kpis { get; set; }
         public DbSet<StockExchange> StockExchanges { get; set; }
+        public DbSet<SimulationMeasurement> SimulationMeasurements { get; set; }
     }
 }

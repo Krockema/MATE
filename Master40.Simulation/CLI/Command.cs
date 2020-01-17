@@ -24,6 +24,7 @@ namespace Master40.Simulation.CLI
             this.Add(item: new SimulationId());
             this.Add(item: new SimulationKind());
             this.Add(item: new SimulationNumber());
+            this.Add(item: new CreateQualityData());
         }
 
 

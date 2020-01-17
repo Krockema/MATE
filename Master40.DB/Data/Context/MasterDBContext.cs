@@ -166,7 +166,11 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<T_ProviderToDemand>()
                 .ToTable("T_ProviderToDemand");
             modelBuilder.Entity<M_Characteristic>()
-                .ToTable("M_Characteristic");
+                .ToTable("M_Characteristic")
+                .HasOne(navigationExpression: c => c.Operation)
+                .WithMany(o => o.Characteristics)
+                .HasForeignKey(fk => fk.OperationId)
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<M_Attribute>()
                 .ToTable("M_Attribute");
             modelBuilder.Entity<T_MeasurementValue>()

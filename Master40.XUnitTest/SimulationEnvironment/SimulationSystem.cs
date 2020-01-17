@@ -39,10 +39,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // 
         public SimulationSystem()
         {
-             // _masterDBContext.Database.EnsureDeleted();
-             // _masterDBContext.Database.EnsureCreated();
-             // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-             // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            // _masterDBContext.Database.EnsureDeleted();
+            // _masterDBContext.Database.EnsureCreated();
+            // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
+            // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
 
             // _ctxResult.Database.EnsureDeleted();
             // _ctxResult.Database.EnsureCreated();
@@ -50,9 +50,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         }
 
-        [Theory]
-        [InlineData(localresultdb)]
-        public void RecreateMasterDB(string connectionString) { 
+        [Fact]
+        public void RecreateMasterDB() { 
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
             //MasterDbInitializerTable.DbInitialize(_masterDBContext);
@@ -61,14 +60,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        [InlineData(testResultCtxString)]
-        [InlineData(masterResultCtxString)]
+        [InlineData(localresultdb)]
         public void ResetResultsDB(string connectionString)
         
         {
             ResultContext masterResults = ResultContext.GetContext(resultCon: connectionString);
             masterResults.Database.EnsureDeleted();
             masterResults.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(masterResults);
 
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
@@ -128,6 +127,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationEnd(value: 10080)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
+                                                    , new CreateQualityData(value: true)
                                                 });
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);

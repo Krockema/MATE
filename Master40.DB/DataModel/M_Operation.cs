@@ -17,6 +17,7 @@ namespace Master40.DB.DataModel
         public int ResourceSkillId { get; set; }
         public M_ResourceSkill ResourceSkill { get; set; }
         public ICollection<M_ArticleBom> ArticleBoms { get; set; }
+        public ICollection<M_Characteristic> Characteristics { get; set; }
 
         /// <summary>
         /// TODO Probably necessary to add multiply skills to a hub

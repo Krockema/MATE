@@ -10,5 +10,7 @@ namespace Master40.DB.DataModel
         public int ArticleId { get; set; }
         public M_Article Article { get; set; }
         public int OperationId { get; set; }
+        public M_Operation Operation { get; set; }
+        public ICollection<M_Attribute> Attributes { get; set; }
     }
 }

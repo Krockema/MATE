@@ -13,6 +13,7 @@ using static FBuckets;
 using static IJobs;
 using Master40.SimulationCore.Types;
 using static FStockProviders;
+using Master40.DB.ReportingModel;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -184,6 +185,22 @@ namespace Master40.SimulationCore.Helper
                 , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
+        }
+
+        public static SimulationMeasurement CreateMeasurement(FOperation job, M_Characteristic characteristic, M_Attribute attribute)
+        {
+            return new SimulationMeasurement
+            {
+                JobId = job.Key,
+                JobName = job.Operation.Name,
+                ArticleName = job.Operation.Article.Name,
+                CharacteristicName = characteristic.Name,
+                ResourceTool = job.Tool.Name,//TODO: add setupId
+                Resource = job.ResourceAgent.Path.Name,
+                TargetValue = attribute.Value,
+                AttributeName = attribute.Name
+                
+            };
         }
     }
 

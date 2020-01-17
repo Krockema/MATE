@@ -4,6 +4,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.XUnitTest.Preparations;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Xunit;
 
 namespace Master40.XUnitTest.Agents.Types
@@ -20,7 +21,7 @@ namespace Master40.XUnitTest.Agents.Types
                                 .Options);
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
-            MasterDbInitializerTable.DbInitialize(context: _masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
          }
 
 
@@ -49,6 +50,17 @@ namespace Master40.XUnitTest.Agents.Types
             var article2 = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
 
             Assert.Equal(expected: article2.Name, actual: article.Name);
+        }
+        [Fact]
+        public void CheckMeasurementMetadata()
+        {
+            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _dbConnectionString);
+            var article = _articleCache.GetArticleById(id: 10035, transitionFactor: 3);
+            var article2 = _articleCache.GetArticleById(id: 10035, transitionFactor: 3);
+
+            Assert.Equal(expected: article2.Name, actual: article.Name);
+            Assert.Equal(3, article.Operations.First().Characteristics.Count);
+            Assert.Equal(2, article.Operations.First().Characteristics.First().Attributes.Count());
         }
     }
 }

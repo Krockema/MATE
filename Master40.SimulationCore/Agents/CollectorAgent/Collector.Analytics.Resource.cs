@@ -6,6 +6,8 @@ using Master40.DB.ReportingModel.Interface;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Environment.Options;
+using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using Newtonsoft.Json;
 using System;
@@ -36,9 +38,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<SimulationResourceJob> simulationJobsForDb { get; } = new List<SimulationResourceJob>();
         private List<SimulationResourceSetup> simulationResourceSetups { get; } = new List<SimulationResourceSetup>();
         private List<SimulationResourceSetup> simulationResourceSetupsForDb { get; } = new List<SimulationResourceSetup>();
-        
+        private List<SimulationMeasurement> simulationMeasurement { get; } = new List<SimulationMeasurement>();
         private KpiManager kpiManager { get; } = new KpiManager();
-
         private long lastIntervalStart { get; set; } = 0;
         private List<FUpdateSimulationJob> _updatedSimulationJob { get; } = new List<FUpdateSimulationJob>();
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
@@ -80,7 +81,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 case FCreateSimulationResourceSetup m: CreateSimulationResourceSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateSimulationWorkItemProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
+                case UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
@@ -194,6 +195,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
                     ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Kpis);
+                    ctx.SaveChanges();
+                    ctx.SimulationMeasurements.AddRange(entities: simulationMeasurement);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }
@@ -481,7 +484,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ArticleType = simJob.ArticleType,
                 ResourceTool = fOperation.Tool.Name
             };
-
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fOperation.Key));
             if (edit != null)
             {
@@ -512,7 +514,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Start = simJob.Start,
                 End = simJob.End
             };
-
             simulationJobs.Add(item: simulationJob);
         }
 
@@ -526,12 +527,37 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
                 edit.Resource = simJob.Resource;
                 edit.Bucket = simJob.Bucket;
-
+                // TODO: Create Simulation Measurement Ressource Based
+                var fOperation = ((FOperation)simJob.Job);
+                CreateMeasurement(fOperation);
                 return;
             }
             _updatedSimulationJob.Add(item: simJob);
 
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
+        }
+
+        private void CreateMeasurement(FOperation job)
+        {
+            // Create for every Characteristic and every Atribute a measurement
+            if (!Collector.Config.GetOption<CreateQualityData>().Value) return;
+
+            foreach (var characteristic in job.Operation.Characteristics)
+            {
+                foreach (var attribute in characteristic.Attributes)
+                {
+                    var attr = MessageFactory.CreateMeasurement(job, characteristic, attribute);
+                    attr.TimeStamp = Collector.Time;
+                    attr.SimulationConfigurationId = Collector.simulationId.Value;
+                    attr.SimulationNumber = Collector.simulationNumber.Value;
+                    attr.SimulationType = Collector.simulationKind.Value;
+                    attr.MeasurementValue = Collector.measurementValuesGenerator.GetRandomMeasurementValues(attribute.Value
+                                                                                                , attribute.Tolerance_Min
+                                                                                                , attribute.Tolerance_Max
+                                                                                                , /* TODO: kommt noch */ 2.3263);
+                    simulationMeasurement.Add(attr);
+                }
+            }
         }
 
         private void UpdateSimulationWorkItemProvider(FUpdateSimulationWorkProvider uswp)

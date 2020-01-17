@@ -3,6 +3,7 @@ using AkkaSim;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.Tools.SignalR;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal SimulationNumber simulationNumber;
         internal SimulationKind simulationKind;
         internal SaveToDB saveToDB;
-       
+        internal CreateQualityData createQualityData;
+
+        internal MeasurementValuesGenerator measurementValuesGenerator;
+
+
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -46,7 +51,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             simulationNumber = Config.GetOption<SimulationNumber>();
             simulationKind = Config.GetOption<SimulationKind>();
             saveToDB = Config.GetOption<SaveToDB>();
-        }
+            createQualityData = Config.GetOption<CreateQualityData>();
+            measurementValuesGenerator = new MeasurementValuesGenerator(Config.GetOption<Seed>().Value + 27);
+    }
 
         public static Props Props(ActorPaths actorPaths
             , ICollectorBehaviour collectorBehaviour
