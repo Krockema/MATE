@@ -1,7 +1,6 @@
 using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Nominal;
+using Master40.DB.Interfaces;
 using Zpp.Util.Graph.impl;
 
 namespace Zpp.Util.Graph

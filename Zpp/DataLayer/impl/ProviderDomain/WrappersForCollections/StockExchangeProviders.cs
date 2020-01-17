@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Zpp.DataLayer.impl.ProviderDomain.Wrappers;
 
 namespace Zpp.DataLayer.impl.ProviderDomain.WrappersForCollections

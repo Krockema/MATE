@@ -1,5 +1,5 @@
 ﻿using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.StorageAgent.Types;
 using System;

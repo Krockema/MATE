@@ -1,5 +1,5 @@
 ﻿using System;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Environment;
 
 namespace Master40.Simulation.CLI.Arguments
@@ -27,6 +27,14 @@ namespace Master40.Simulation.CLI.Arguments
                 else if (arg.Equals(value: SimulationType.Bucket.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
                     result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Bucket));
+                }
+                else if (arg.Equals(value: SimulationType.BucketScope.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.BucketScope));
+                }
+                else if (arg.Equals(value: SimulationType.DefaultSetupStack.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.DefaultSetupStack));
                 }
                 else
                 {

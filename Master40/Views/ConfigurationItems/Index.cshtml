@@ -1,0 +1,125 @@
+﻿@model IEnumerable<Master40.DB.ReportingModel.ConfigurationItem>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<p>
+    <div class="row">
+        <div class="col-6"><h4>Simulation Configurations</h4></div>
+        <div class="col-6"><a asp-action="Create" class="btn btn-outline-secondary float-right"><i class="fas fa-plus-square fa-1x fa-unset"></i> New</a></div>
+    </div>
+</p>
+
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Job Overview
+                </button>
+            </h5>
+        </div>
+
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                @await Component.InvokeAsync($"JobInformation")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Property)
+            </th>
+            <th>
+                Value
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Property)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PropertyValue)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <div class="bs-callout bs-callout-danger bs-callout-small" id="@Html.Raw("statusCallout"+item.PropertyValue)">
+                        Ready
+                    </div>
+                </td>
+                <td style="text-align: right;">
+                    <button class="btn btn-outline-secondary ladda-button btn-sm" id="simulationStart-btn"
+                            type="button" onclick="startAgents(@item.PropertyValue)">
+                        <i class="fas fa-play-circle fa-1x fa-unset"></i> Run!
+                    </button> |
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-edit fa-1x fa-unset"></i> Edit
+                    </a> |
+                    <a asp-action="Details" asp-route-id="@item.PropertyValue" class="btn btn-outline-secondary  btn-sm">
+                        <i class="fas fa-eye fa-1x fa-unset"></i> Details
+                    </a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-trash fa-1x fa-unset"></i> Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function startAgents(value) {
+        $(".MessageDisplayRunning").html("");
+        var l = Ladda.create(document.querySelector("#simulationStart-btn"));
+        l.start();
+        l.toggle();
+        setStatusCallout(value, "Queued...", "waring");
+
+        $.get("ConfigurationItems/Start/" + value);
+    }
+
+    processingProxy.on("clientListener", function (msg) {
+        $(".MessageDisplay").prepend(msg);
+    });
+
+    processingProxy.on("workerListener", function (msg) {
+        var json = JSON.parse(msg);
+        if (json[0] === "SimulationComplete") {
+            $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+            setStatusCallout(json[1], "Finished!", "success");
+            json[0] = "succeeded";
+            dataRef.push(json);
+        } else {
+            json[0] = "processingOn";
+            dataRef.push(json);
+            setStatusCallout(json[1], "Started!", "info");
+        }
+    });
+
+    function setStatusCallout(id, status, infoLevel) {
+        var html = "statusCallout" + id;
+        $("#" + html).replaceWith("<div class='bs-callout bs-callout-small bs-callout-"
+            + infoLevel + "' id='" + html + "'>" + status + "</div>");
+    }
+</script>

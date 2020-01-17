@@ -35,7 +35,7 @@ namespace Master40.DB.Data.Initializer
             var articleTypes = new MasterTableArticleType();
                 articleTypes.Init(context);
 
-            // requires Units and Article Types 
+                // requires Units and Article Types 
             var articleTable = new MasterTableArticle(articleTypes, units);
             var articles = articleTable.Init(context);
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Master40.Simulation.CLI.Arguments;
 
 namespace Master40.Simulation.CLI
@@ -24,6 +23,12 @@ namespace Master40.Simulation.CLI
             this.Add(item: new SimulationId());
             this.Add(item: new SimulationKind());
             this.Add(item: new SimulationNumber());
+            this.Add(item: new StartHangfire());
+            this.Add(item: new TimePeriodForThroughputCalculation());
+            this.Add(item: new MaxBucketSize());
+            this.Add(item: new TransitionFactor());
+            this.Add(item: new MaxDeliveryTime());
+            this.Add(item: new MinDeliveryTime());
         }
 
 

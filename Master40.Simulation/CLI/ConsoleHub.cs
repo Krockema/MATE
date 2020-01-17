@@ -6,12 +6,6 @@ namespace Master40.Simulation.CLI
 {
     public class ConsoleHub: IMessageHub
     {
-        public void SendToAllClients(string msg)
-        {
-            System.Diagnostics.Debug.WriteLine(message: msg);
-            ///Console.WriteLine(msg);
-        }
-
         public void SendToAllClients(string msg, MessageType msgType)
         {
             System.Diagnostics.Debug.WriteLine(message: msgType.ToString() + ": " + msg);
@@ -20,7 +14,7 @@ namespace Master40.Simulation.CLI
 
         public void SendToClient(string listener, string msg, MessageType msgType)
         {
-            Console.WriteLine(value: listener + ": " + msg);
+            System.Diagnostics.Debug.WriteLine(value: listener + ": " + msg);
         }
 
         public string ReturnMsgBox(string msg, MessageType type)
@@ -29,14 +23,9 @@ namespace Master40.Simulation.CLI
             return msg;
         }
 
-        public void EndScheduler()
+        public void StartSimulation(string simId, string simNumber)
         {
-            Console.WriteLine(value: "Finished Scheduler");
-        }
-
-        public void EndSimulation(string msg)
-        {
-            Console.WriteLine(value: msg);
+            Console.WriteLine("Start Simulation (id:" + simId + " | simNumber:" + simNumber + ")");
         }
 
         public void ProcessingUpdate(int simId, int finished, string simType, int max)

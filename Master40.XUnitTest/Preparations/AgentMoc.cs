@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Akka.Actor;
 using Akka.TestKit.Xunit;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;

@@ -1,4 +1,4 @@
-﻿using Master40.DB.Enums;
+﻿using Master40.DB.Nominal;
 using System;
 using System.Collections.Generic;
 using System.Text;

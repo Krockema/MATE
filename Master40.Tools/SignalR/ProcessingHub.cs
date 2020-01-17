@@ -1,35 +1,52 @@
 ﻿using Master40.Tools.Messages;
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Master40.Tools.SignalR
 {
-    public class ProcessingHub : Hub
+    public class ProcessingHub : IMessageHub
     {
-        /*
-        private readonly IProcessMrp _processMrp;
-        */
-        private readonly IMessageHub _hubCallback;
-
-        public ProcessingHub(IMessageHub hubCallback) //, IProcessMrp processMrp)
+        private readonly HubConnection _connection;
+        public ProcessingHub()
         {
-            //_processMrp = processMrp;
-            _hubCallback = hubCallback;
-        }
-        
-        public void SystemReady()
-        {
-            Clients.All.SendAsync(method: "Send", arg1: _hubCallback.ReturnMsgBox(msg: "SignalR Hub active.", type: MessageType.info));
+            _connection = new HubConnectionBuilder()
+                .WithUrl("http://141.56.137.26:5000/MessageHub")
+                .WithAutomaticReconnect().Build();
+            _connection.StartAsync().Wait();
         }
 
-        public void SignalReady()
+        public void SendToAllClients(string msg, MessageType msgType = MessageType.info)
         {
-            Clients.All.SendAsync(method: "Send", arg1: "SignalReady");
+            //throw new System.NotImplementedException();
         }
 
-
-        public void SystemReady2()
+        public void SendToClient(string listener, string msg, MessageType msgType = MessageType.info)
         {
-            Clients.All.SendAsync(method: "Send", arg1: _hubCallback.ReturnMsgBox(msg: "SignalR Hub active Call Internal.", type: MessageType.info));
+            //throw new System.NotImplementedException();
+        }
+
+        public string ReturnMsgBox(string msg, MessageType type)
+        {
+            return "";
+        }
+
+        public void EndScheduler()
+        {
+            //throw new System.NotImplementedException();
+        }
+
+        public void EndSimulation(string msg, string simId, string simNumber)
+        {
+            _connection.SendCoreAsync("EndSimulation", new[] { msg, simId, simNumber });
+        }
+
+        public void ProcessingUpdate(int simId, int finished, string simType, int max)
+        {
+            //throw new System.NotImplementedException();
+        }
+
+        public void StartSimulation(string simId, string simNumber)
+        {
+            _connection.SendCoreAsync("StartSimulation", new[] { simId, simNumber });
         }
     }
 }

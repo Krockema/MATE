@@ -19,8 +19,12 @@ textarea {
 .fa-unset {
     width: unset !important;
     height: unset !important;
+    padding-top: 0px;
 }
 
+.fa-menue {
+    padding: 5px 15px 5px 15px;
+}
 /* Carousel */
 .carousel-caption p {
     font-size: 20px;
@@ -160,6 +164,10 @@ textarea {
         margin-top: -5px;
     }
 
+.bs-callout-small {
+     padding: 5px; 
+     margin: 0;
+}
 /* Variations */
 .bs-callout-danger {
     border-left-color: #ce4844;

@@ -19,7 +19,7 @@ namespace Master40.XUnitTest.Agents.Contract.Behaviour
             var order = new T_CustomerOrder() { DueTime = 0, Id = 1 };
             var orderPart = new T_CustomerOrderPart() { Article = new M_Article { Name = "Bear" }, Quantity = 1, Id = 1, CustomerOrderId = 1, CustomerOrder = order };
             var message = SimulationCore.Agents.ContractAgent.Contract.Instruction.StartOrder.Create(message: orderPart, target: contractAgentRef);
-            var behave = Factory.Get(simType: DB.Enums.SimulationType.None);
+            var behave = Factory.Get(simType: DB.Nominal.SimulationType.None);
             var simContext = CreateTestProbe();
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
             AgentMoc.CreateAgent(actorPaths: actorPaths

@@ -27,6 +27,12 @@ namespace Master40.SimulationCore.Environment
             return (T)value;
         }
 
+        public bool ReplaceOption(object o)
+        {
+            this.Remove(o.GetType());
+            return AddOption(o);
+        }
+
         public SimulationConfig GetContextConfiguration()
         {
             try

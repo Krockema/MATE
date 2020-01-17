@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 
 namespace Master40.DB.ReportingModel
 {

@@ -125,7 +125,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                             , Value = values.NewValue
                             , ValueMin = lastTime
                             , Time = (int)Collector.Time
-                            , KpiType = DB.Enums.KpiType.StockEvolution
+                            , KpiType = DB.Nominal.KpiType.StockEvolution
                             , SimulationConfigurationId = Collector.simulationId.Value
                             , SimulationNumber = Collector.simulationNumber.Value
                             , IsFinal = false
@@ -142,7 +142,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Name = values.ArticleType + " " + values.StockName,
                 Value = values.NewValue,
                 Time = 0,
-                KpiType = DB.Enums.KpiType.StockEvolution,
+                KpiType = DB.Nominal.KpiType.StockEvolution,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 IsFinal = false,
@@ -159,7 +159,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Name = name,
                 Value = values,
                 Time = (int)Collector.Time,
-                KpiType = DB.Enums.KpiType.StockTotals,
+                KpiType = DB.Nominal.KpiType.StockTotals,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 IsFinal = true,

@@ -1,15 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
 using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
 using Master40.DB.Nominal;
+using System.Collections.Generic;
 using Zpp.DataLayer;
 using Zpp.DataLayer.impl.DemandDomain;
 using Zpp.DataLayer.impl.DemandDomain.Wrappers;
 using Zpp.DataLayer.impl.ProviderDomain;
 using Zpp.DataLayer.impl.ProviderDomain.Wrappers;
-using Zpp.DataLayer.impl.ProviderDomain.WrappersForCollections;
 using Zpp.DataLayer.impl.WrapperForEntities;
 using Zpp.Util;
 

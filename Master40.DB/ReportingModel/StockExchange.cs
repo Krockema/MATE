@@ -1,7 +1,6 @@
 ﻿using System;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Nominal;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB.ReportingModel
 {

@@ -1,19 +1,20 @@
-﻿using Akka.Actor;
-using AkkaSim.Definitions;
+﻿using System;
+using Akka.Actor;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Initializer;
-using Master40.DB.ReportingModel;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Agents;
+using Master40.SimulationCore.Environment.Options;
 using Master40.Tools.Messages;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.SimulationCore.Environment;
-using Master40.SimulationCore.Environment.Options;
+using Hangfire;
+using Master40.Simulation.CLI;
 using static FBreakDowns;
+using Configuration = Master40.SimulationCore.Environment.Configuration;
 
 namespace Master40.Simulation
 {
@@ -21,6 +22,7 @@ namespace Master40.Simulation
     {
 
         private readonly ProductionDomainContext _context;
+        private readonly ResultContext _resultContext;
         //private readonly ResultContext _resultContext;
         private AgentSimulation _agentSimulation;
         private Configuration _configuration;
@@ -33,17 +35,31 @@ namespace Master40.Simulation
             _messageHub = messageHub;
         }
 
+        public AgentCore()
+        {
+            _messageHub = new ProcessingHub();
+            _context = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
+            _resultContext = ResultContext.GetContext(ConfigurationManager.AppSettings[index: 2]);
+        }
+
+        [AutomaticRetry(Attempts = 0)]
+        public async Task BackgroundSimulation(int simulationId, int simNumber)
+        {
+            Task.Delay(TimeSpan.FromSeconds(5)).Wait();
+            _messageHub.StartSimulation(simId: simulationId.ToString() , simNumber: simNumber.ToString());
+            Task.Delay(TimeSpan.FromSeconds(5)).Wait();
+            var simConfig = ArgumentConverter.ConfigurationConverter(_resultContext, simulationId);
+            _messageHub.EndSimulation("Succ", simId: simulationId.ToString() , simNumber: simNumber.ToString());
+            // await RunAkkaSimulation(simConfig);
+        }
+
         public async Task RunAkkaSimulation(Configuration configuration)
         {
             _configuration = configuration;
             _messageHub.SendToAllClients(msg: "Prepare in Memory model from DB for Simulation: " 
                                         + _configuration.GetOption<SimulationId>().Value.ToString()
                                         , msgType: MessageType.info);
-            //In-memory database only exists while the connection is open
-            //var _inMemory = InMemoryContext.CreateInMemoryContext();
-            // InMemoryContext.LoadData(source: _context, target: _inMemory);
-            //MasterDBInitializerSimple.DbInitialize(_inMemory);
-            
+
             _messageHub.SendToAllClients(msg: "Prepare Simulation", msgType: MessageType.info);
 
             _agentSimulation = new AgentSimulation(DBContext: _context
@@ -55,7 +71,9 @@ namespace Master40.Simulation
             
             if (simulation.IsReady())
             {
-                _messageHub.SendToAllClients(msg: "Start Simulation ...", msgType: MessageType.info);
+                _messageHub.StartSimulation(simId: _configuration.GetOption<SimulationId>().Value.ToString()
+                                        , simNumber: _configuration.GetOption<SimulationNumber>().Value.ToString());
+                    
                 // Start simulation
                 var sim = simulation.RunAsync();
 
@@ -67,7 +85,6 @@ namespace Master40.Simulation
                                             });
                 await sim;
             }
-            _messageHub.EndScheduler();
             _messageHub.EndSimulation(msg: "Simulation Completed."
                                     , simId: _configuration.GetOption<SimulationId>().Value.ToString()
                                     , simNumber: _configuration.GetOption<SimulationNumber>().Value.ToString());

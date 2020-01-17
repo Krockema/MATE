@@ -15,7 +15,7 @@
       "destination": "wwwroot/lib/moment.js/"
     },
     {
-      "library": "font-awesome@5.8.2",
+      "library": "font-awesome@5.12.0-1",
       "destination": "wwwroot/lib/font-awesome/"
     },
     {

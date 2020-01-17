@@ -1,6 +1,6 @@
 using Master40.DB.Data.Helper;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Zpp.DataLayer;
 using Zpp.DataLayer.impl.DemandDomain;
 using Zpp.DataLayer.impl.DemandDomain.Wrappers;

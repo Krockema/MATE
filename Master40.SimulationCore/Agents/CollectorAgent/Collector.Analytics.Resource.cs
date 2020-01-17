@@ -1,6 +1,6 @@
 using AkkaSim;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
 using Master40.DB.ReportingModel.Interface;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
@@ -204,7 +204,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
 
             var leadTime = from lt in _ThroughPutTimes
-                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThrougputCalculation>().Value
+                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value
                            group lt by lt.ArticleName into so
                            select new
                            {
@@ -492,30 +492,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
             simulationJobs.Add(item: simulationJob);
         }
-
-        private void CreateSimulationBucket(FCreateSimulationJob simJob)
-        {
-            var fBucket = ((FBucket)simJob.Job);
-            var simulationJob = new SimulationResourceJob
-            {
-                JobId = simJob.Job.Key.ToString(),
-                JobName = fBucket.Name,
-                JobType = simJob.JobType,
-                SimulationConfigurationId = Collector.simulationId.Value,
-                SimulationNumber = Collector.simulationNumber.Value,
-                SimulationType = Collector.simulationKind.Value,
-                //Remember this is now a fArticleKey (Guid)
-                Time = (int)(Collector.Time),
-                ResourceTool = fBucket.Tool.Name,
-                Resource = fBucket.ResourceAgent.Path.Name,
-                ProductionOrderId = String.Empty,
-                Start = simJob.Start,
-                End = simJob.End
-            };
-
-            simulationJobs.Add(item: simulationJob);
-        }
-
+        
         private void UpdateSimulationOperation(FUpdateSimulationJob simJob)
         {
             var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: simJob.Job.Key.ToString()));
