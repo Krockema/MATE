@@ -10,7 +10,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Measurement : SimulationCore.Types.Behaviour
     {
-        private MeasurementValuesGenerator measurementValuesGenerator;
+        private readonly MeasurementValuesGenerator _measurementValuesGenerator;
+        private readonly DeflectionGenerator _deflectionGenerator;
 
         public static Measurement Get(Seed seed)
         {
@@ -19,7 +20,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public Measurement(Seed seed, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
-            measurementValuesGenerator = new MeasurementValuesGenerator(seed.Value);
+            _measurementValuesGenerator = new MeasurementValuesGenerator(seed.Value);
+            _deflectionGenerator = new DeflectionGenerator(seed.Value);
         }
 
         public override bool Action(object message)
@@ -41,16 +43,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // !Collector.Config.GetOption<CreateQualityData>().Value
             var job = ((FOperations.FOperation)fJobInformation.Job);
             var measurements = new Measurements();
-
+            var resourceUsage = _deflectionGenerator.AddUsage(setupId: fJobInformation.Setup.Id);
             foreach (var characteristic in job.Operation.Characteristics)
-            {
+            { 
                 foreach (var attribute in characteristic.Attributes)
                 {
+                    var deflectionValue = attribute.Value -
+                                          _deflectionGenerator.GetOneDirectionalDeflection(resourceUsage);
                     var quantil = Quantiles.GetFor(fJobInformation.Setup.Quantil);
                     var attr = MessageFactory.CreateMeasurement(job, characteristic, attribute);
                     attr.TimeStamp = Agent.CurrentTime;
                     attr.ResourceTool += "(" + fJobInformation.Setup.Id + ")";
-                    attr.MeasurementValue = measurementValuesGenerator.GetRandomMeasurementValues(attribute.Value
+                    attr.MeasurementValue = _measurementValuesGenerator.GetRandomMeasurementValues(deflectionValue
                         , attribute.Tolerance_Min
                         , attribute.Tolerance_Max
                         , quantil.Z);

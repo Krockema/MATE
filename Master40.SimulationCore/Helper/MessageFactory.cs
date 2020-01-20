@@ -195,11 +195,10 @@ namespace Master40.SimulationCore.Helper
                 JobName = job.Operation.Name,
                 ArticleName = job.Operation.Article.Name,
                 CharacteristicName = characteristic.Name,
-                ResourceTool = job.Tool.Name,//TODO: add setupId
+                ResourceTool = job.Tool.Name,
                 Resource = job.ResourceAgent.Path.Name,
                 TargetValue = attribute.Value,
                 AttributeName = attribute.Name
-                
             };
         }
     }

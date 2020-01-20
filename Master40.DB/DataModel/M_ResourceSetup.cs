@@ -21,6 +21,7 @@ namespace Master40.DB.DataModel
          */
         public int SetupTime { get; set; }
         public double Quantil { get; set; }
+        public int NumberOfUses { get; set; }
 
     }
 }

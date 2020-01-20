@@ -7,7 +7,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 {
     public partial class Resource : Agent
     {
-        internal Seed Seed;
         internal IActorRef MeasurementActorRef;
 
         // public Constructor

@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
             var min = estimatedValue + toleranceMin;
             var max = estimatedValue + toleranceMax;
             var deviation = (max - min) / (2 * zForPrecision);
-            return new Normal(estimatedValue, deviation, _source).Sample();
+            return Math.Round(new Normal(estimatedValue, deviation, _source).Sample(), 3, MidpointRounding.AwayFromZero);
         }
     }
 }

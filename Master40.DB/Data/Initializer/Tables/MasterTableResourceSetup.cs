@@ -29,7 +29,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
                 SetupTime = 20,
-                Quantil = 0.975
+                Quantil = 0.975,
+                NumberOfUses = 0
             };
 
             SAW_1_BLADE_SMALL = new M_ResourceSetup
@@ -39,7 +40,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
                 SetupTime = 20,
-                Quantil =  0.95
+                Quantil =  0.95,
+                NumberOfUses = 0
             };
 
             SAW_2_BLADE_BIG = new M_ResourceSetup
@@ -49,7 +51,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
                 SetupTime = 20,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             SAW_2_BLADE_SMALL = new M_ResourceSetup
@@ -59,7 +62,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
                 ResourceSkillId = resourceSkill.CUTTING.Id,
                 SetupTime = 20,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             DRILL_1_M4 = new M_ResourceSetup
@@ -69,7 +73,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.DRILL_HEAD_M4.Id,
                 ResourceSkillId = resourceSkill.DRILLING.Id,
                 SetupTime = 5,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             DRILL_1_M6 = new M_ResourceSetup
@@ -79,7 +84,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
                 ResourceSkillId = resourceSkill.DRILLING.Id,
                 SetupTime = 5,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             ASSEMBLY_1_SCREWDRIVER = new M_ResourceSetup
@@ -89,7 +95,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
                 SetupTime = 10,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             ASSEMBLY_1_HOLDING = new M_ResourceSetup
@@ -99,7 +106,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
                 SetupTime = 10,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             ASSEMBLY_1_HAMMER = new M_ResourceSetup
@@ -109,7 +117,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
                 SetupTime = 10,
-                Quantil =  0.95
+                Quantil =  0.95,
+                NumberOfUses = 0
             };
 
             ASSEMBLY_2_SCREWDRIVER = new M_ResourceSetup
@@ -119,7 +128,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
                 SetupTime = 10,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             ASSEMBLY_2_HOLDING = new M_ResourceSetup
@@ -129,7 +139,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
                 SetupTime = 10,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
 
             ASSEMBLY_2_HAMMER = new M_ResourceSetup
@@ -139,7 +150,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
                 ResourceSkillId = resourceSkill.ASSEMBLING.Id,
                 SetupTime = 10,
-                Quantil =  0.975
+                Quantil =  0.975,
+                NumberOfUses = 0
             };
         }
 
