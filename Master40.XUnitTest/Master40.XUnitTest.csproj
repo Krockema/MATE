@@ -20,6 +20,7 @@
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
     <PackageReference Include="sqlite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.112" />
+    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
@@ -30,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Master40.SimulationMrp\Master40.SimulationMrp.csproj" />
     <ProjectReference Include="..\Master40\Master40.csproj" />
+    <ProjectReference Include="..\Mater40.PiWebApi\Mater40.PiWebApi.csproj" />
   </ItemGroup>
   <ItemGroup>
    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />

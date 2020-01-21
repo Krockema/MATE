@@ -66,6 +66,7 @@ namespace Master40.Controllers
                                                     , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: false)
+                                                    , new CreateQualityData(false), 
                                                 });
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }
