@@ -167,7 +167,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void AddResourceToHub(FResourceInformation hubInformation)
         {
-            var resourceSetup = new ResourceSetup(hubInformation.ResourceSetups, hubInformation.Ref, hubInformation.RequiredFor);
+            var resourceSetup = new SetupManager(hubInformation.ResourceSetups, hubInformation.Ref, hubInformation.RequiredFor);
             _resourceManager.Add(resourceSetup);
             // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);

@@ -7,15 +7,15 @@ using Akka.Actor;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class ResourceSetup
+    public class SetupManager
     {
-        private List<M_ResourceSetup> _resourceSetups { get; } = new List<M_ResourceSetup>();
+        public List<M_ResourceSetup> _resourceSetups { get; } = new List<M_ResourceSetup>();
 
         private IActorRef _resourceAgent { get; }
 
         private string _resourceName { get; } 
 
-        public ResourceSetup(List<M_ResourceSetup> resourceSetups, IActorRef resourceAgent, string resourceName)
+        public SetupManager(List<M_ResourceSetup> resourceSetups, IActorRef resourceAgent, string resourceName)
         {
             this._resourceSetups = resourceSetups;
             this._resourceAgent = resourceAgent;
