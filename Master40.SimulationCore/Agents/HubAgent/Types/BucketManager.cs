@@ -286,7 +286,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return notSatisfiedOperations;
         }
 
-        public long AddOrUpdateIncreaseMaxBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
+        public long AddOrUpdateBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
         {
             long maxBucketSize = 0L;
             var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
@@ -305,7 +305,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public long DecreaseMaxBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
+        public long DecreaseBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
         {
             long maxBucketSize = 0L;
             var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));

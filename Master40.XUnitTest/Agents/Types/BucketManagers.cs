@@ -112,6 +112,11 @@ namespace Master40.XUnitTest.Agents.Types
             var bucketManager = new BucketManager(240);
             var tool1 = new M_ResourceTool() { Name = "SawBig" };
             var tool2 = new M_ResourceTool() { Name = "SawSmall" };
+            var cap = new M_ResourceCapability() {Name = "Sawing"};
+            var toolcap1 = new ToolCapabilityPair(tool1, cap);
+            var toolcap2 = new ToolCapabilityPair(tool2, cap);
+            bucketManager.AddOrUpdateBucketSize(toolcap1, 0);
+            
 
             //Bucket1 Saw Big
             var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 25, averageTransitionDuration: 10, dueTime: 150, tool: tool1);
@@ -119,14 +124,18 @@ namespace Master40.XUnitTest.Agents.Types
             var bucket = bucketManager.CreateBucket(operation1, hubAgent: ActorRefs.Nobody, currentTime: 0);
             bucket = bucket.AddOperation(operation2);
             bucketManager.Replace(bucket);
+            bucketManager.AddOrUpdateBucketSize(toolcap1, operation1.Operation.Duration);
+            bucketManager.AddOrUpdateBucketSize(toolcap1, operation2.Operation.Duration);
 
             //Bucket2 Saw Big
             var operation3 = TypeFactory.CreateDummyJobItem(jobName: "Job3", jobDuration: 15, averageTransitionDuration: 10, dueTime: 150, tool: tool1);
             bucketManager.CreateBucket(operation3, hubAgent: ActorRefs.Nobody, currentTime: 0);
-            
+            bucketManager.AddOrUpdateBucketSize(toolcap1, operation3.Operation.Duration);
+
             //Bucket3 Saw Small
             var operation4 = TypeFactory.CreateDummyJobItem(jobName: "Job4", jobDuration: 15, averageTransitionDuration: 10, dueTime: 150, tool: tool2);
             bucketManager.CreateBucket(operation4, hubAgent: ActorRefs.Nobody, currentTime: 0);
+            bucketManager.AddOrUpdateBucketSize(toolcap2, operation4.Operation.Duration);
 
             return bucketManager; 
 

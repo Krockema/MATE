@@ -91,7 +91,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            _bucketManager.AddOrUpdateIncreaseMaxBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
+            _bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
                 operation.Operation.Duration);
             /*
              * Implements the Self-Organizing Bucket Method
@@ -300,7 +300,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
                 EnqueueOperation(operation);
-                _bucketManager.DecreaseMaxBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
+                _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
                     operation.Operation.Duration);
             }
 
@@ -316,7 +316,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
             _bucketManager.RemoveOperation(operation.Key);
 
-            _bucketManager.DecreaseMaxBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
+            _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
                 operation.Operation.Duration);
 
             Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");

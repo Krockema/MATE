@@ -69,7 +69,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.None)]
-        //[InlineData(SimulationType.DefaultSetup, 0, 60)]
+        [InlineData(SimulationType.DefaultSetup, 0, 60)]
         [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
         //[InlineData(SimulationType.BucketScope, 3, 120)]
         //[InlineData(SimulationType.BucketScope, 4, 150)]
@@ -103,7 +103,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
-                                                    , new OrderArrivalRate(value: 0.0175)
+                                                    , new OrderArrivalRate(value: 0.0225)
                                                     , new OrderQuantity(value: Int32.MaxValue)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1920)
