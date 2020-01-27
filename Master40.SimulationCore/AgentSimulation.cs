@@ -199,7 +199,7 @@ namespace Master40.SimulationCore
             var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
 
             var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
-                                                                 .Include(navigationPropertyPath: r => r.ResourceSkill)
+                                                                 .Include(navigationPropertyPath: r => r.ResourceCapability)
                                                                     .ThenInclude(s => s.ResourceSetups)
                                                                  .Include(navigationPropertyPath: t => t.ResourceTool)
                                                                  .ToListAsync().Result;

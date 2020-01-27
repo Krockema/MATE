@@ -137,7 +137,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             // add agent to current Scope.
             _hubAgents.Add(key: hub.Ref, value: hub.RequiredFor);
             // foreach fitting operation
-            foreach (var operation in OperationManager.GetOperationBySkill(hub.RequiredFor))
+            foreach (var operation in OperationManager.GetOperationByCapability(hub.RequiredFor))
             {
                 operation.UpdateHubAgent(hub.Ref);
                 Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: operation, target: hub.Ref));
@@ -199,12 +199,12 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal void RequestHubAgentsFromDirectoryFor(Agent agent, ICollection<M_Operation> operations)
         {
             // Request Hub Agent for Operations
-            var resourceSkills = operations.Select(selector: x => x.ResourceSkill.Name).Distinct().ToList();
-            foreach (var resourceSkillName in resourceSkills)
+            var resourceCapabilities = operations.Select(selector: x => x.ResourceCapability.Name).Distinct().ToList();
+            foreach (var resourceCapabilityName in resourceCapabilities)
             {
                 agent.Send(instruction: Directory.Instruction
                     .RequestAgent
-                    .Create(discriminator: resourceSkillName
+                    .Create(discriminator: resourceCapabilityName
                         , target: agent.ActorPaths.HubDirectory.Ref));
             }
         }

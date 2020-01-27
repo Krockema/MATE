@@ -22,7 +22,7 @@ namespace Master40.Controllers
         // GET: Resources
         public async Task<IActionResult> Index()
         {
-            var Resources = _context.Resources.Include(navigationPropertyPath: m => m.ResourceSkills);
+            var Resources = _context.Resources.Include(navigationPropertyPath: m => m.ResourceCapabilities);
             
             var mermaid = @"graph LR;
                 p>Production Line]
@@ -31,11 +31,11 @@ namespace Master40.Controllers
                 ";
 
 
-            var machineGroups = _context.ResourceSkills.ToList();
+            var machineGroups = _context.ResourceCapabilities.ToList();
             for (int g = 0; g < machineGroups.Count; g++)
             {
                 var start = (g == 0) ? "Start-->" : "\r\n";
-                var machine = Resources.Where(predicate: x => machineGroups[g].Name == x.ResourceSkills.SingleOrDefault().Name);
+                var machine = Resources.Where(predicate: x => machineGroups[g].Name == x.ResourceCapabilities.SingleOrDefault().Name);
                 var i = 1;
                 var thisGroup = machineGroups[index: g].Name;
                 var nextGroup = (g+1 < machineGroups.Count)? machineGroups[index: g+1].Name : "Finish";
@@ -67,7 +67,7 @@ namespace Master40.Controllers
             }
 
             var machine = await _context.Resources
-                .Include(navigationPropertyPath: m => m.ResourceSkills)
+                .Include(navigationPropertyPath: m => m.ResourceCapabilities)
                 .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (machine == null)
             {
@@ -80,7 +80,7 @@ namespace Master40.Controllers
         // GET: Resources/Create
         public IActionResult Create()
         {
-            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceSkills, dataValueField: "Id", dataTextField: "Name");
+            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceCapabilities, dataValueField: "Id", dataTextField: "Name");
             return View();
         }
 
@@ -97,7 +97,7 @@ namespace Master40.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(actionName: "Index");
             }
-            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceSkills, dataValueField: "Id", dataTextField: "Name", selectedValue: machine.Name);
+            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceCapabilities, dataValueField: "Id", dataTextField: "Name", selectedValue: machine.Name);
             return View(model: machine);
         }
 
@@ -114,7 +114,7 @@ namespace Master40.Controllers
             {
                 return NotFound();
             }
-            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceSkills, dataValueField: "Id", dataTextField: "Name", selectedValue: machine.Name);
+            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceCapabilities, dataValueField: "Id", dataTextField: "Name", selectedValue: machine.Name);
             return View(model: machine);
         }
 
@@ -150,7 +150,7 @@ namespace Master40.Controllers
                 }
                 return RedirectToAction(actionName: "Index");
             }
-            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceSkills, dataValueField: "Id", dataTextField: "Name", selectedValue: machine.Name);
+            ViewData[index: "MachineGroupId"] = new SelectList(items: _context.ResourceCapabilities, dataValueField: "Id", dataTextField: "Name", selectedValue: machine.Name);
             return View(model: machine);
         }
 
@@ -163,7 +163,7 @@ namespace Master40.Controllers
             }
 
             var machine = await _context.Resources
-                .Include(navigationPropertyPath: m => m.ResourceSkills)
+                .Include(navigationPropertyPath: m => m.ResourceCapabilities)
                 .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (machine == null)
             {

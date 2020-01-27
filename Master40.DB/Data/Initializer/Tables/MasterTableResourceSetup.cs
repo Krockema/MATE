@@ -20,14 +20,14 @@ namespace Master40.DB.Data.Initializer.Tables
 
         internal MasterTableResourceSetup(MasterTableResource resource
                                         , MasterTableResourceTool resourceTool
-                                        , MasterTableResourceSkill resourceSkill)
+                                        , MasterTableResourceCapability resourceCapability)
         {
             SAW_1_BLADE_BIG = new M_ResourceSetup
             {
                 Name = resource.SAW_1.Name + " blade big",
                 ResourceId = resource.SAW_1.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
-                ResourceSkillId = resourceSkill.CUTTING.Id,
+                ResourceCapabilityId = resourceCapability.CUTTING.Id,
                 SetupTime = 20
             };
 
@@ -36,7 +36,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.SAW_1.Name + " blade small",
                 ResourceId = resource.SAW_1.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
-                ResourceSkillId = resourceSkill.CUTTING.Id,
+                ResourceCapabilityId = resourceCapability.CUTTING.Id,
                 SetupTime = 20
             };
 
@@ -45,7 +45,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.SAW_2.Name + " blade big",
                 ResourceId = resource.SAW_2.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
-                ResourceSkillId = resourceSkill.CUTTING.Id,
+                ResourceCapabilityId = resourceCapability.CUTTING.Id,
                 SetupTime = 20
             };
 
@@ -54,7 +54,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.SAW_2.Name + " blade small",
                 ResourceId = resource.SAW_2.Id,
                 ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
-                ResourceSkillId = resourceSkill.CUTTING.Id,
+                ResourceCapabilityId = resourceCapability.CUTTING.Id,
                 SetupTime = 20
             };
 
@@ -63,7 +63,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.DRILL_1.Name + " M4",
                 ResourceId = resource.DRILL_1.Id,
                 ResourceToolId = resourceTool.DRILL_HEAD_M4.Id,
-                ResourceSkillId = resourceSkill.DRILLING.Id,
+                ResourceCapabilityId = resourceCapability.DRILLING.Id,
                 SetupTime = 5
             };
 
@@ -72,7 +72,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.DRILL_1.Name + " M6",
                 ResourceId = resource.DRILL_1.Id,
                 ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
-                ResourceSkillId = resourceSkill.DRILLING.Id,
+                ResourceCapabilityId = resourceCapability.DRILLING.Id,
                 SetupTime = 5
             };
 
@@ -81,7 +81,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.ASSEMBLY_1.Name + " screwdriver universal",
                 ResourceId = resource.ASSEMBLY_1.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
-                ResourceSkillId = resourceSkill.ASSEMBLING.Id,
+                ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
                 SetupTime = 10
             };
 
@@ -90,7 +90,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.ASSEMBLY_1.Name + " holding",
                 ResourceId = resource.ASSEMBLY_1.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
-                ResourceSkillId = resourceSkill.ASSEMBLING.Id,
+                ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
                 SetupTime = 10
             };
 
@@ -99,7 +99,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.ASSEMBLY_1.Name + " hammer",
                 ResourceId = resource.ASSEMBLY_1.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
-                ResourceSkillId = resourceSkill.ASSEMBLING.Id,
+                ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
                 SetupTime = 10
             };
 
@@ -108,7 +108,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.ASSEMBLY_2.Name + " screwdriver universal",
                 ResourceId = resource.ASSEMBLY_2.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
-                ResourceSkillId = resourceSkill.ASSEMBLING.Id,
+                ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
                 SetupTime = 10
             };
 
@@ -117,7 +117,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.ASSEMBLY_2.Name + " holding",
                 ResourceId = resource.ASSEMBLY_2.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
-                ResourceSkillId = resourceSkill.ASSEMBLING.Id,
+                ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
                 SetupTime = 10
             };
 
@@ -126,7 +126,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = resource.ASSEMBLY_2.Name + " hammer",
                 ResourceId = resource.ASSEMBLY_2.Id,
                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
-                ResourceSkillId = resourceSkill.ASSEMBLING.Id,
+                ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
                 SetupTime = 10
             };
         }

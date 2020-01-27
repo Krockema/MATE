@@ -76,8 +76,8 @@ namespace Master40.Simulation
 
         public void ResourceBreakDown(string name)
         {
-            var machineGroup = _context.Resources.Include(navigationPropertyPath: x => x.ResourceSkills).Single(predicate: x => x.Name.Replace(" ", "") == name).ResourceSkills.SingleOrDefault().Name;
-            SimulationContext.Tell(message: BasicInstruction.ResourceBrakeDown.Create(message: new FBreakDown(resource: "Machine(" + name + ")", resourceSkill: machineGroup, isBroken: true, duration: 0),
+            var machineGroup = _context.Resources.Include(navigationPropertyPath: x => x.ResourceCapabilities).Single(predicate: x => x.Name.Replace(" ", "") == name).ResourceCapabilities.SingleOrDefault().Name;
+            SimulationContext.Tell(message: BasicInstruction.ResourceBrakeDown.Create(message: new FBreakDown(resource: "Machine(" + name + ")", resourceCapability: machineGroup, isBroken: true, duration: 0),
                                                                               target: _agentSimulation.ActorPaths.HubDirectory.Ref));
         }
     }

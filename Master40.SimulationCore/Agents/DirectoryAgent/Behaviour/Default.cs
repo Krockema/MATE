@@ -45,7 +45,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         private void ResourceBrakeDown(FBreakDown breakDown)
         {
-            var hub = fRequestResources.Single(predicate: x => x.Discriminator == breakDown.ResourceSkill && x.ResourceType == FResourceType.Hub);
+            var hub = fRequestResources.Single(predicate: x => x.Discriminator == breakDown.ResourceCapability && x.ResourceType == FResourceType.Hub);
             Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: hub.actorRef));
             System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Directory");
         }
@@ -69,11 +69,11 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         {
             var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
 
-            // Create Skill based Hub Agent for each Skill of resource
-            // TODO Currently Resource can only have one Skill and discriminator between subskills are made by resourceTool
+            // Create Capability based Hub Agent for each Capability of resource
+            // TODO Currently Resource can only have one Capability and discriminator between subCapabilities are made by resourceTool
             foreach (var resourceSetup in resourceSetups)
             {
-                var hub = fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resourceSetup.ResourceSkill.Name && x.ResourceType == FResourceType.Hub);
+                var hub = fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resourceSetup.ResourceCapability.Name && x.ResourceType == FResourceType.Hub);
                 if (hub == null)
                 {
                     var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
@@ -82,9 +82,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                  , maxBucketSize: resourceSetupDefinition.MaxBucketSize
                                                                  , debug: Agent.DebugThis
                                                                  , principal: Agent.Context.Self)
-                                                        , name: "Hub(" + resourceSetup.ResourceSkill.Name + ")");
+                                                        , name: "Hub(" + resourceSetup.ResourceCapability.Name + ")");
                     //Agent.Send(BasicInstruction.Initialize.Create(Agent.Context.Self, HubBehaviour.Get(machine.MachineGroup.Name)));
-                    hub = new FRequestResource(discriminator: resourceSetup.ResourceSkill.Name, resourceType: FResourceType.Hub, actorRef: hubAgent);
+                    hub = new FRequestResource(discriminator: resourceSetup.ResourceCapability.Name, resourceType: FResourceType.Hub, actorRef: hubAgent);
                     fRequestResources.Add(item: hub);
                 }
             }
@@ -96,7 +96,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
                                                                     // TODO : Handle 1 resource in multiply hub agents
-                                                                    , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceSkill.Name
+                                                                    , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceCapability.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 

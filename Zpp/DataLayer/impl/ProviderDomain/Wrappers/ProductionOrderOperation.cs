@@ -30,9 +30,9 @@ namespace Zpp.DataLayer.impl.ProviderDomain.Wrappers
             return _productionOrderOperation;
         }
 
-        public Id GetResourceSkillId()
+        public Id GetResourceCapabilityId()
         {
-            return new Id(_productionOrderOperation.ResourceSkillId);
+            return new Id(_productionOrderOperation.ResourceCapabilityId);
         }
 
         public void SetMachine(Resource resource)
@@ -84,7 +84,7 @@ namespace Zpp.DataLayer.impl.ProviderDomain.Wrappers
         public List<Resource> GetPossibleMachines()
         {
             return ZppConfiguration.CacheManager.GetAggregator()
-                .GetResourcesByResourceSkillId(this.GetResourceSkillId());
+                .GetResourcesByResourceCapabilityId(this.GetResourceCapabilityId());
         }
 
         public override bool Equals(object obj)

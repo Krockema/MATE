@@ -28,7 +28,7 @@ namespace Zpp.DataLayer.impl
         private readonly IMasterDataTable<M_ArticleType> _articleTypes;
         private readonly IMasterDataTable<M_BusinessPartner> _businessPartners;
         private readonly IMasterDataTable<M_Resource> _resources;
-        private readonly IMasterDataTable<M_ResourceSkill> _resourceSkills;
+        private readonly IMasterDataTable<M_ResourceCapability> _resourceCapabilities;
         private readonly IMasterDataTable<M_ResourceSetup> _resourceSetups;
         private readonly IMasterDataTable<M_ResourceTool> _resourceTools;
         private readonly IMasterDataTable<M_Operation> _operations;
@@ -51,8 +51,8 @@ namespace Zpp.DataLayer.impl
             _businessPartners =
                 new MasterDataTable<M_BusinessPartner>(_productionDomainContext.BusinessPartners);
             _resources = new MasterDataTable<M_Resource>(_productionDomainContext.Resources);
-            _resourceSkills =
-                new MasterDataTable<M_ResourceSkill>(_productionDomainContext.ResourceSkills);
+            _resourceCapabilities =
+                new MasterDataTable<M_ResourceCapability>(_productionDomainContext.ResourceCapabilities);
             _resourceTools =
                 new MasterDataTable<M_ResourceTool>(_productionDomainContext.ResourceTools);
             _resourceSetups =
@@ -81,8 +81,8 @@ namespace Zpp.DataLayer.impl
             DbTransactionData.InsertRange(_resources.GetAll(), productionDomainContext.Resources,
                 productionDomainContext);
 
-            DbTransactionData.InsertRange(_resourceSkills.GetAll(),
-                productionDomainContext.ResourceSkills, productionDomainContext);
+            DbTransactionData.InsertRange(_resourceCapabilities.GetAll(),
+                productionDomainContext.ResourceCapabilities, productionDomainContext);
 
             DbTransactionData.InsertRange(_resourceTools.GetAll(),
                 productionDomainContext.ResourceTools, productionDomainContext);
@@ -132,10 +132,10 @@ namespace Zpp.DataLayer.impl
             return new Resource(_resources.GetById(id));
         }
 
-        public List<Resource> ResourcesGetAllBySkillId(Id id)
+        public List<Resource> ResourcesGetAllByCapabilityId(Id id)
         {
-            var skill = _resourceSkills.GetById(id);
-            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceSkillId == skill.Id)
+            var skill = _resourceCapabilities.GetById(id);
+            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceCapabilityId == skill.Id)
                 .Select(x => x.ResourceId).ToList();
             var resourceList = new List<Resource>();
             _resources.GetAll().Where(x => resourceIds.Contains(x.Id)).ToList()
@@ -143,9 +143,9 @@ namespace Zpp.DataLayer.impl
             return resourceList;
         }
 
-        public M_ResourceSkill M_ResourceSkillById(Id id)
+        public M_ResourceCapability M_ResourceCapabilityById(Id id)
         {
-            return _resourceSkills.GetById(id);
+            return _resourceCapabilities.GetById(id);
         }
 
         public M_ResourceTool M_ResourceToolGetById(Id id)
@@ -270,9 +270,9 @@ namespace Zpp.DataLayer.impl
             return machines;
         }
 
-        public List<M_ResourceSkill> M_ResourceSkillGetAll()
+        public List<M_ResourceCapability> M_ResourceCapabilityGetAll()
         {
-            return _resourceSkills.GetAll();
+            return _resourceCapabilities.GetAll();
         }
 
         public M_ArticleBom M_ArticleBomGetByArticleChildId(Id id)

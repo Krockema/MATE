@@ -23,10 +23,10 @@ namespace Master40.DB.Data.Initializer
             var resource = new MasterTableResource();
                 resource.Init(context);
             // requires Tools and Resources
-            var resourceSkills = new MasterTableResourceSkill();
-                resourceSkills.Init(context);
-            // requires Tools, Resources, and Skills
-            var resourceSetups = new MasterTableResourceSetup(resource, resourceTools, resourceSkills);
+            var resourceCapabilities = new MasterTableResourceCapability();
+            resourceCapabilities.Init(context);
+            // requires Tools, Resources, and Capabilities
+            var resourceSetups = new MasterTableResourceSetup(resource, resourceTools, resourceCapabilities);
                 resourceSetups.Init(context);
 
             // Article Definitions
@@ -41,7 +41,7 @@ namespace Master40.DB.Data.Initializer
 
             MasterTableStock.Init(context, articles);
 
-            var operations = new MasterTableOperation(articleTable, resourceSkills, resourceTools);
+            var operations = new MasterTableOperation(articleTable, resourceCapabilities, resourceTools);
                 operations.Init(context);
 
             var boms = new MasterTableBom();

@@ -23,7 +23,7 @@ namespace Zpp.DataLayer
         ProductionOrderBoms
             GetProductionOrderBomsOfProductionOrder(ProductionOrder productionOrder);
 
-        List<Resource> GetResourcesByResourceSkillId(Id resourceSkillId);
+        List<Resource> GetResourcesByResourceCapabilityId(Id resourceCapabilityId);
 
         List<ProductionOrderOperation> GetProductionOrderOperationsOfProductionOrder(
             ProductionOrder productionOrder);

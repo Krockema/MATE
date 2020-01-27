@@ -10,9 +10,6 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.Bucket:
-                    behaviour = Default();
-                    break;
                 case SimulationType.DefaultSetup:
                     behaviour = Default();
                     break;

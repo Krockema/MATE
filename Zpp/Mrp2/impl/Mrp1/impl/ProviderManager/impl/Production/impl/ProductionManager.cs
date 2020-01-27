@@ -129,8 +129,8 @@ namespace Zpp.Mrp2.impl.Mrp1.impl.Production.impl
             // Tool has no meaning yet, ignore it
             productionOrderOperation.ResourceToolId = articleBom.Operation.ResourceToolId;
             productionOrderOperation.ResourceTool = articleBom.Operation.ResourceTool;
-            productionOrderOperation.ResourceSkill = articleBom.Operation.ResourceSkill;
-            productionOrderOperation.ResourceSkillId = articleBom.Operation.ResourceSkillId;
+            productionOrderOperation.ResourceCapability = articleBom.Operation.ResourceCapability;
+            productionOrderOperation.ResourceCapabilityId = articleBom.Operation.ResourceCapabilityId;
             productionOrderOperation.State = State.Created;
             productionOrderOperation.ProductionOrder =
                 (T_ProductionOrder) parentProductionOrder.ToIProvider();

@@ -6,14 +6,14 @@ using System.Text;
 namespace Master40.DB.DataModel
 {
     /*
-     * Previous called MachineGroup, now describes a Skill to do something
+     * Previous called MachineGroup, now describes a Capability to do something
      * owns a list of Resources 
      */
-    public class M_ResourceSkill : BaseEntity
+    public class M_ResourceCapability : BaseEntity
     {
         public string Name { get; set; }
         /* 
-         * Resources, who can provide the required ResourceSkill
+         * Resources, who can provide the required ResourceCapability
          */
         [JsonIgnore]
         public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
