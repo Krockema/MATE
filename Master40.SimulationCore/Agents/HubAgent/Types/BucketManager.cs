@@ -9,7 +9,6 @@ using static FOperations;
 using static IJobs;
 using static FUpdateStartConditions;
 using Master40.DB.DataModel;
-using Microsoft.EntityFrameworkCore;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -210,45 +209,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        /// <summary>
-        /// TODO: FIX THIS SHIT
-        /// </summary>
-        /// <param name="tool"></param>
-        /// <returns></returns>
-        private long GetMaximumBucketSizeForTool(M_ResourceTool tool)
-        {
-            var maxBucketSize = 0L;
-            switch (tool.Name)
-            {
-                case "Screwdriver universal":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
-                    break;
-                case "Holding":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.33 * _maxBucketSize, 0));
-                    break;
-                case "Hammer":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.17 * _maxBucketSize, 0));
-                    break;
-                case "Drill head M4":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.25 * _maxBucketSize, 0));
-                    break;
-                case "Drill head M6":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.75 * _maxBucketSize, 0));
-                    break;
-                case "Saw blade small":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
-                    break;
-                case "Saw blade big":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.40 * _maxBucketSize, 0));
-                    break;
-                default : maxBucketSize = _maxBucketSize;
-                    break;
-            }
-
-            //TODO set to maxBucketSize at least to 60 for 3 elements
-            return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
-        }
-
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
         {
             var bucket = buckets.Where(x => !x.IsFixPlanned).ToList().OrderBy(x => x.GetCapacityLeft).ToList().FirstOrDefault();
@@ -358,14 +318,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public void WriteMaxBucketSize()
-        {
-            foreach (var item in _toolBucketSizeDictionary)
-            {
-                System.Diagnostics.Debug.WriteLine($"Update Key: {item.Key._resourceTool.Name} Value: {item.Value.ToString()}");
-            }
-        }
-
         public long GetCalculatedBucketSize(M_ResourceTool tool)
         {
             var maxBucketSize = 0L;
@@ -381,10 +333,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 }
             }
 
-            var toolRatioOfCapability = Math.Round(toolCapability.Value / capabilitySize, 0);
+            var toolRatioOfCapability = toolCapability.Value / capabilitySize;
+            //System.Diagnostics.Debug.WriteLine($"{toolCapability.Key._resourceTool.Name} {toolRatioOfCapability} % of {toolCapability.Key._resourceCapability.Name}");
             maxBucketSize = Convert.ToInt64(Math.Round(toolRatioOfCapability * _maxBucketSize, 0));
 
-            //WriteMaxBucketSize();
             //TODO Maybe add min bucket size
             return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
         }

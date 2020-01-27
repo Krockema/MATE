@@ -53,7 +53,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[Fact(Skip = "manual test")]
         [Theory]
         [InlineData(testResultCtxString)]
-        [InlineData(masterResultCtxString)]
+        //[InlineData(masterResultCtxString)]
         public void ResetResultsDB(string connectionString)
         
         {
@@ -103,7 +103,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
-                                                    , new OrderArrivalRate(value: 0.025)
+                                                    , new OrderArrivalRate(value: 0.0175)
                                                     , new OrderQuantity(value: Int32.MaxValue)
                                                     , new TransitionFactor(value: 3)
                                                     , new EstimatedThroughPut(value: 1920)
@@ -111,12 +111,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new MaxBucketSize(value: maxBucketSize)
-                                                    , new Seed(value: 1337)
+                                                    , new Seed(value: 28)
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new SettlingStart(value: 4320)
-                                                    , new SimulationEnd(value: 10080)
+                                                    , new SimulationEnd(value: 20160)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
                                                 });

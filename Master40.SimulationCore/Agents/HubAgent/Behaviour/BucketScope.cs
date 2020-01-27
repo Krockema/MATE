@@ -330,7 +330,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = _bucketManager.GetBucketById(jobResult.Key);
 
             _bucketManager.Remove(bucket);
-            _bucketManager.WriteMaxBucketSize();
         }
 
     }
