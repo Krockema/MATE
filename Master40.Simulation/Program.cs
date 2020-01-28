@@ -1,13 +1,13 @@
-﻿using Master40.DB.Data.Context;
+﻿using Hangfire;
+using Master40.DB.Data.Context;
 using Master40.Simulation.CLI;
+using Master40.Simulation.CLI.Arguments;
 using System;
 using System.Configuration;
-using System.Threading.Tasks;
 using System.Linq;
-using Hangfire;
-using Hangfire.SqlServer;
-using Master40.Simulation.CLI.Arguments;
-using Master40.Simulation;
+using System.Threading.Tasks;
+using Master40.Simulation.CLI.Arguments.External;
+using Master40.Simulation.CLI.Arguments.Simulation;
 
 namespace Master40.Simulation
 {
@@ -19,7 +19,7 @@ namespace Master40.Simulation
             
 
             var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
-            var validCommands = new Commands();
+            var validCommands = Commands.GetAllValidCommands;
             var command = validCommands.Single(predicate: x => x.ArgLong == "Help");
             var lastArg = 0;
             var config = new SimulationCore.Environment.Configuration();
@@ -46,18 +46,18 @@ namespace Master40.Simulation
                 }
             }
 
-            if (config.ContainsKey(typeof(StartHangfire)))
+            if (config.TryGetValue(typeof(StartHangfire), out object startHangfire))
             {
-                StartHangfire().Wait();
+                StartHangfire(((StartHangfire)startHangfire).Silent).Wait();
+
             } else {
                 RunSimulationTask(masterDb: masterDb, config: config).Wait();
+                Console.WriteLine(value: "Simulation Run Finished.");
             }
-
-
         }
 
 
-        private static async Task StartHangfire()
+        private static async Task StartHangfire(bool silent)
         {
             GlobalConfiguration.Configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -67,8 +67,14 @@ namespace Master40.Simulation
                 .UseSqlServerStorage(ConfigurationManager.AppSettings[index: 1], HangfireConfiguration.StorageOptions.Default);
             
             Console.WriteLine("-------- Hangfire is Ready -------");
-            Console.WriteLine("Press any key to start processing.");
-            Console.ReadKey();
+
+
+            if (!silent)
+            {
+                Console.WriteLine("Press any key to start processing.");
+                Console.ReadKey();
+            }
+            
             await  Task.Run(() => new BackgroundJobServer(new BackgroundJobServerOptions { WorkerCount = 1 }));
             Console.ReadLine();
         }

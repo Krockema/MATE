@@ -1,7 +1,7 @@
 ﻿using System;
 using Master40.SimulationCore.Environment;
 
-namespace Master40.Simulation.CLI.Arguments
+namespace Master40.Simulation.CLI.Arguments.Simulation
 {
     public class MaxBucketSize : ICommand
     {

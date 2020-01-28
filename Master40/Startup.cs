@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using Hangfire.SqlServer;
+using Master40.Models;
+using Master40.Simulation.HangfireConfiguration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 
@@ -67,6 +69,8 @@ namespace Master40
 
             services.AddSingleton<AgentCore>();
 
+            services.AddTransient<HangfireJob>();
+
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
             {
                 // Not recommended for productive use
@@ -76,7 +80,7 @@ namespace Master40
                     .AllowAnyOrigin();
             }));
 
-
+            GlobalJobFilters.Filters.Add(new KeepJobInStore());
             services.Configure<RequestLocalizationOptions>(
                 configureOptions: opts =>
                 {

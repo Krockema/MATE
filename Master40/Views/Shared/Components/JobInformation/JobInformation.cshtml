@@ -1,6 +1,6 @@
 ﻿@model Master40.Models.HangfireJob
 
-<div id="canvas-holder" style="height: @Html.Raw(Model.MaxY * 30 + 20)px; width: @Html.Raw(Model.MaxX * 40 + 30)px">
+<div id="canvas-holder" style="height: @Html.Raw(Model.MaxY * 30 + 20)px; width: 100%">
     <canvas id="SimulationHeatMapChart"></canvas>
 </div>
 <br/>
@@ -26,6 +26,8 @@ var matrixChartCtx = new Chart(matrixElement,
                         return Color('#ce4844').alpha(0.3).rgbString();
                     case 'succeeded':
                         return Color('#155724').alpha(0.3).rgbString();
+                    case 'empty':
+                        return Color('#666666').alpha(0.05).rgbString();
                     case 'processingOn':
                         flickering.push(ctx.dataIndex);
                         return Color("white").rgbString();
@@ -41,6 +43,8 @@ var matrixChartCtx = new Chart(matrixElement,
                         return Color('#aa6708').rgbString();
                     case 'failed':
                         return Color('#ce4844').rgbString();
+                    case 'empty':
+                        return Color('#666666').rgbString();
                     case 'succeeded':
                         return Color('#155724').rgbString();
                     default:
@@ -104,7 +108,7 @@ var matrixChartCtx = new Chart(matrixElement,
                         max: @Html.Raw(Model.MaxY) + 0.5,
                         stepSize: 1,
                         callback: function(value, index, values) {
-                            return 'Id:' + (parseInt(index) + parseInt(1));
+                            return 'Sim Id:' + (parseInt(index) + parseInt(1));
                             // (parseInt(@Html.Raw(Model.MaxY)) - parseInt(index) + parseInt(1));
                         }
                     },

@@ -1,6 +1,6 @@
 ﻿using Master40.SimulationCore.Environment;
 using System;
-namespace Master40.Simulation.CLI.Arguments
+namespace Master40.Simulation.CLI.Arguments.External
 {
     public class Help : ICommand
     {

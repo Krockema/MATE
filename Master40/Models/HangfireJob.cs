@@ -15,6 +15,8 @@ namespace Master40.Models
         {
         }
 
+
+        public bool HasJobs => _matrix.Any();
         public string DataItem => getChartMatrix();
         public int MaxY { get; set; }
         public int MaxX { get; set; }
@@ -22,7 +24,7 @@ namespace Master40.Models
         // Tuple< x , y, state>
         private List<Tuple<int, int, string>> _matrix = new List<Tuple<int, int, string>>();
 
-        public void AddJob(dynamic item, string state)
+        public bool AddJob(dynamic item, string state)
         {
             try
             {
@@ -34,14 +36,27 @@ namespace Master40.Models
             }
             catch
             {
+                return false;
             }
+            return true;
         }
 
         private string getChartMatrix()
         {
             var matrixString = "";
             _matrix.OrderByDescending(d => d.Item2).ToList()
-                .ForEach(x => matrixString += "{ x: " + x.Item1 + ", y: " + (MaxY + 1 - x.Item2) + ", v: '" + x.Item3 + "' },");
+                .ForEach(g => matrixString += "{ x: " + g.Item1 + ", y: " + (MaxY + 1 - g.Item2) + ", v: '" + g.Item3 + "' },");
+
+            for (int i = 1; i < MaxY; i++)
+            {
+                if (!_matrix.Exists(x => x.Item2 == i))
+                {
+                    for (int j = 1; j < MaxX + 1; j++)
+                    {
+                        matrixString += "{ x: " + j + ", y: " + (MaxY + 1 - i) + ", v: 'empty' },";
+                    }
+                }
+            }
             return matrixString;
         }
 

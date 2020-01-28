@@ -1,14 +1,14 @@
 ﻿using System;
 using Master40.SimulationCore.Environment;
 
-namespace Master40.Simulation.CLI.Arguments
+namespace Master40.Simulation.CLI.Arguments.Simulation
 {
     public class SimulationNumber : ICommand
     {
         public string ArgLong => SimulationCore.Environment.Options.SimulationNumber.Type.Name;
         public string ArgShort => "simNr";
         public bool HasProperty => true;
-        public string Description => " -SimulationNumber <nr> : Specify the simulationNumber to run with";
+        public string Description => " -SimulationNumber <int> : Specify the simulationNumber to run with";
         public Action<Configuration, string> Action { get; }
 
         public SimulationNumber()

@@ -1,14 +1,14 @@
 ﻿using System;
 using Master40.SimulationCore.Environment;
 
-namespace Master40.Simulation.CLI.Arguments
+namespace Master40.Simulation.CLI.Arguments.Simulation
 {
     public class DebugSystem : ICommand
     {
         public string ArgLong => SimulationCore.Environment.Options.DebugSystem.Type.Name;
         public string ArgShort => "DebugSystem";
         public bool HasProperty => true;
-        public string Description => " -DebugSystem <id> : run the Simulation System in Debugmode";
+        public string Description => " -DebugSystem <bool> : run the Simulation System in Debugmode";
         public Action<Configuration, string> Action { get; }
         public DebugSystem()
         {

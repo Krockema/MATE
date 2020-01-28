@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
   </ItemGroup>
 
-    <ItemGroup>
-    <Folder Include="CLI\Arguments\" />
-  </ItemGroup>
-
 </Project>

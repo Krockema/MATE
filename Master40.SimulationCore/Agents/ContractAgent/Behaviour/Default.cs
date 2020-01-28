@@ -6,6 +6,7 @@ using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Helper;
 using static FArticleProviders;
 using static FArticles;
+using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 {
@@ -61,8 +62,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
                                     .UpdateFinishedAt(Agent.CurrentTime)
                                     .UpdateProvidedAt(fArticleProvider.ArticleFinishedAt)
                                     .UpdateStockExchangeId(fArticleProvider.StockExchangeId);
-                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ");
-                System.Diagnostics.Debug.WriteLine($"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ");
+                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ", LogLevel.Info);
                 Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);

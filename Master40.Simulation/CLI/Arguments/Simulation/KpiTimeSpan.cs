@@ -1,14 +1,14 @@
 ﻿using System;
 using Master40.SimulationCore.Environment;
 
-namespace Master40.Simulation.CLI.Arguments
+namespace Master40.Simulation.CLI.Arguments.Simulation
 {
     public class KpiTimeSpan : ICommand
     {
         public string ArgLong => SimulationCore.Environment.Options.KpiTimeSpan.Type.Name;
         public string ArgShort => "KTS";
         public bool HasProperty => true;
-        public string Description => " -KpiTimeSpan <id> : Specify the simulationId to run with";
+        public string Description => " -KpiTimeSpan <long> : Specify the simulationId to run with";
         public Action<Configuration, string> Action { get; }
 
         public KpiTimeSpan()

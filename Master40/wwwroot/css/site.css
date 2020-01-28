@@ -203,3 +203,11 @@ textarea {
     .bs-callout-success h4 {
         color: #155724;
     }
+
+.a :hover {
+    background-color: rgba(102, 102, 102, 1.0)
+}
+
+.card-header-btn {
+    padding: 0 !important;
+}

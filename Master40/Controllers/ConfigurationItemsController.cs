@@ -31,10 +31,24 @@ namespace Master40.Controllers
 
         public void Start(int id)
         {
-            for (int i = 1; i < 10; i++)
+            for (int i = 1; i <= 10; i++)
             {
                 BackgroundJob.Enqueue(() => _agentSimulator.BackgroundSimulation(id, i));    
             }
+        }
+       
+        [HttpGet(template: "[Controller]/Start/{simulationId}/iterateFrom/{iterateFrom}/iterateTo/{iterateTo}")]
+        public void Start(int simulationId, int iterateFrom, int iterateTo)
+        {
+            for (int i = iterateFrom; i <= iterateTo; i++)
+            {
+                BackgroundJob.Enqueue(() => _agentSimulator.BackgroundSimulation(simulationId, i));    
+            }
+        }
+
+        public IActionResult ChartStatusComponent()
+        {
+            return ViewComponent($"JobInformation");
         }
 
         // GET: ConfigurationItems/Details/5

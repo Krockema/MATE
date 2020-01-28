@@ -27,7 +27,7 @@ namespace Master40.Simulation.CLI
 
         public static SimulationCore.Environment.Configuration ConfigurationConverter(ResultContext resultCtx, int id)
         {
-            var validCommands =  new Commands();
+            var validCommands =  Commands.GetAllValidCommands;
             var config = new SimulationCore.Environment.Configuration();
             ICommand command = validCommands.Single(x => x.ArgLong == "SimulationId");
             command.Action(config, id.ToString());

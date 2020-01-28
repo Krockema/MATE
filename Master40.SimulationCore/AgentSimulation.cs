@@ -42,8 +42,7 @@ namespace Master40.SimulationCore
         public IActorRef WorkCollector { get; private set; }
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
-        public static LogWriter Logger { get; set; }
-
+        public AgentStateManager StateManager { get; private set; }
         /// <summary>
         /// Prepare Simulation Environment
         /// </summary>
@@ -61,7 +60,6 @@ namespace Master40.SimulationCore
                 // Init Simulation
                 SimulationConfig = configuration.GetContextConfiguration();
                 _debugAgents = configuration.GetOption<DebugAgents>().Value;
-                Logger = new LogWriter(writeToFile: _debugAgents);
                 _simulationType = configuration.GetOption<SimulationKind>().Value;
                 _simulation = new Simulation(simConfig: SimulationConfig);
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext, systemMailBox: SimulationConfig.Inbox.Receiver);
@@ -86,6 +84,12 @@ namespace Master40.SimulationCore
                 // Create Storages
                 CreateStorageAgents();
 
+                // Finally Initialize StateManger
+                StateManager = new AgentStateManager(new List<IActorRef> { this.StorageCollector
+                                                                         , this.WorkCollector
+                                                                         , this.ContractCollector }
+                                                    , SimulationConfig.Inbox);
+
                 return _simulation;
             });
         }
@@ -95,7 +99,7 @@ namespace Master40.SimulationCore
             var products = _dBContext.GetProducts();
             var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
 
-            var estimatedThroughputs = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
+            var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
                 .ToList();
 
 
@@ -106,7 +110,7 @@ namespace Master40.SimulationCore
                         productionDomainContext: _dBContext,
                         messageHub: _messageHub,
                         configuration: configuration,
-                        estimatedThroughputTimes: estimatedThroughputs,
+                        estimatedThroughputTimes: estimatedThroughPuts,
                         principal: ActorRefs.Nobody),
                     name: "Supervisor"));
         }
@@ -231,7 +235,6 @@ namespace Master40.SimulationCore
                 case SimulationMessage.SimulationState.Stopped:
                     System.Diagnostics.Debug.WriteLine(message: "AKKA:STOP AGENT SYSTEM", category: "AKKA-System:");
                     var tasks = new List<Task>();
-                    tasks.Add(Logger.WriteToFile());
                     foreach (var item in collectors)
                     {
                         var msg = UpdateLiveFeed.Create(setup: false, target: inbox.Receiver);

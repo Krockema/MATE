@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
@@ -28,7 +29,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // remote Context
         private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
         private const string remoteResultCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40Result;MultipleActiveResultSets=true";
-        
+
+        private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
+
+
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: remoteResultCtxString);
 
@@ -70,6 +74,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
 
+        [Fact]
+        public void ClearHangfire()
+        {
+            HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
+                .UseSqlServer(connectionString: hangfireCtxString)
+                .Options);
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            HangfireDBInitializer.DbInitialize(context: dbContext);
+        }
 
         [Theory]
         //[InlineData(SimulationType.None)]
