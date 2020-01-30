@@ -68,30 +68,20 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup, 0, 60)]
-        [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
-        //[InlineData(SimulationType.BucketScope, 3, 120)]
-        //[InlineData(SimulationType.BucketScope, 4, 150)]
-        //[InlineData(SimulationType.BucketScope, 5, 180)]
-        //[InlineData(SimulationType.BucketScope, 6, 240)]
-        //[InlineData(SimulationType.BucketScope, 7, 300)]
-        //[InlineData(SimulationType.BucketScope, 8, 360)]
-        //[InlineData(SimulationType.BucketScope, 9, 420)]
-        //[InlineData(SimulationType.BucketScope, 10, 480)]
-        [InlineData(SimulationType.BucketScope, 2, 600)]
-        [InlineData(SimulationType.BucketScope, 3, 720)]
-        [InlineData(SimulationType.BucketScope, 4, 840)]
-        [InlineData(SimulationType.BucketScope, 5, 960)]
-        [InlineData(SimulationType.BucketScope, 6, 1080)]
-        [InlineData(SimulationType.BucketScope, 7, 1200)]
-        [InlineData(SimulationType.BucketScope, 8, 1320)]
-        [InlineData(SimulationType.BucketScope, 9, 1440)]
-        [InlineData(SimulationType.BucketScope, 10, 1920)]
-        [InlineData(SimulationType.BucketScope, 11, 2400)]
-        [InlineData(SimulationType.BucketScope, 12, 2880)]
-        [InlineData(SimulationType.BucketScope, 99, Int32.MaxValue)]
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
+        [InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169)]
+        [InlineData(SimulationType.DefaultSetupStack, 2, Int32.MaxValue, 1920, 169)]
+        [InlineData(SimulationType.BucketScope, 3, Int32.MaxValue, 1920, 169)]
+
+
+
+        //[InlineData(SimulationType.BucketScope, 4, Int32.MaxValue, 480, 169)]
+        //[InlineData(SimulationType.BucketScope, 5, Int32.MaxValue, 560, 169)]
+        //[InlineData(SimulationType.BucketScope, 6, Int32.MaxValue, 640, 169)]
+        //[InlineData(SimulationType.BucketScope, 7, Int32.MaxValue, 720, 169)]
+        //[InlineData(SimulationType.BucketScope, 8, Int32.MaxValue, 800, 169)]
+        //[InlineData(SimulationType.BucketScope, 9, Int32.MaxValue, 880, 169)]
+
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
@@ -106,12 +96,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new OrderArrivalRate(value: 0.0225)
                                                     , new OrderQuantity(value: Int32.MaxValue)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 1920)
+                                                    , new EstimatedThroughPut(value: throughput)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new MaxBucketSize(value: maxBucketSize)
-                                                    , new Seed(value: 28)
+                                                    , new Seed(value: seed)
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)

@@ -76,7 +76,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
             _operationList.Add(operation);
-            //System.Diagnostics.Debug.WriteLine($"{operation.Key} add to operationlist");
+            
             EnqueueOperation(operation);
 
         }
