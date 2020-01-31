@@ -191,7 +191,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private void ArgumentConverter()
         {
             var numberOfArguments = _ctxResult.ConfigurationRelations.Count(x => x.Id == 1);
-            var config = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 2);
+            var config = Simulation. CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 2);
             Assert.Equal(numberOfArguments +1, config.Count());
         }
 
