@@ -5,11 +5,11 @@ using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.Preparations;
+using Master40.XUnitTest.Online.Preparations;
 using Xunit;
 using static IJobs;
 
-namespace Master40.XUnitTest.Agents.Resource.Behaviour
+namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
 {
     public class BucketScope : TestKit
     {

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Helper;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using Xunit;
 using static IJobs;
 
-namespace Master40.XUnitTest.SimulationImmutables
+namespace Master40.XUnitTest.Online.Simulation
 {
     public class JobPriorityRules : TestKit
     {

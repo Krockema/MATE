@@ -1,12 +1,11 @@
 ﻿using Akka.TestKit.Xunit;
-using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.XUnitTest.Preparations;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Dbms = Master40.XUnitTest.Online.Preparations.Dbms;
 
-namespace Master40.XUnitTest.Agents.Types
+namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class ArticleCache : TestKit
     {
@@ -14,7 +13,7 @@ namespace Master40.XUnitTest.Agents.Types
         private string _dbConnectionString;
         public ArticleCache()
         {
-            _dbConnectionString = Master40.XUnitTest.Preparations.Dbms.getDbContextString();
+            _dbConnectionString = Dbms.getDbContextString();
             _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                                 .UseSqlServer(connectionString: _dbConnectionString)
                                 .Options);

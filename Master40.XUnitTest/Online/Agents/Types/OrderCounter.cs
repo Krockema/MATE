@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-namespace Master40.XUnitTest.Agents.Types
+namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class OrderCounter
     {

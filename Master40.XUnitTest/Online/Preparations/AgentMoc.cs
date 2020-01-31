@@ -1,13 +1,12 @@
 ﻿using System.Linq;
 using Akka.Actor;
 using Akka.TestKit.Xunit;
-using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
 
-namespace Master40.XUnitTest.Preparations
+namespace Master40.XUnitTest.Online.Preparations
 {
     public class AgentMoc : Agent, IAgent
     {

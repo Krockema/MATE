@@ -1,13 +1,10 @@
-﻿using Akka.Actor;
-using Akka.TestKit.Xunit;
-using Master40.DB.DataModel;
+﻿using Akka.TestKit.Xunit;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.Helper;
-using Master40.XUnitTest.Preparations;
+using Master40.XUnitTest.Online.Preparations;
 using Xunit;
 using static FOperations;
 
-namespace Master40.XUnitTest.Agents.Types
+namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class LimitedQueues : TestKit
     {

@@ -1,7 +1,7 @@
 ﻿using Xunit;
 using Master40.SimulationCore.Environment.Options;
 
-namespace Master40.XUnitTest.SimulationEnvironment
+namespace Master40.XUnitTest.Simulation
 {
     public class Configuration
     {

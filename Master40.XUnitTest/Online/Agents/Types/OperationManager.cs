@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 using Akka.Actor;
-using Master40.DB.Data.Context;
-using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ProductionAgent.Types;
-using Master40.XUnitTest.Preparations;
-using Microsoft.EntityFrameworkCore;
+using Master40.XUnitTest.Online.Preparations;
 using Xunit;
 
-namespace Master40.XUnitTest.Agents.Types
+namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class OperationManagers
     {

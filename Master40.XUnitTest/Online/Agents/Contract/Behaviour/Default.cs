@@ -1,14 +1,13 @@
-﻿using Akka.TestKit.Xunit;
+﻿using System;
+using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
-using Master40.XUnitTest.Preparations;
-using System;
-using Master40.SimulationCore;
 using Master40.SimulationCore.Agents.Guardian;
+using Master40.XUnitTest.Online.Preparations;
 using Xunit;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 
-namespace Master40.XUnitTest.Agents.Contract.Behaviour
+namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
 {
     public class Default : TestKit
     {

@@ -1,11 +1,9 @@
 ﻿using System;
 using Akka.Actor;
-using Akka.Event;
 using AkkaSim.Definitions;
 using AkkaSim.Interfaces;
-using Master40.SimulationCore.Helper;
 
-namespace Master40.XUnitTest.Preparations
+namespace Master40.XUnitTest.Online.Preparations
 {
     public class SimulationContext : ReceiveActor
     {

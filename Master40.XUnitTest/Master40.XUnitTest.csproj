@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Agents\Hub\**" />
-    <EmbeddedResource Remove="Agents\Hub\**" />
-    <None Remove="Agents\Hub\**" />
+    <Compile Remove="Online\Agents\Hub\**" />
+    <EmbeddedResource Remove="Online\Agents\Hub\**" />
+    <None Remove="Online\Agents\Hub\**" />
   </ItemGroup>
 
   <ItemGroup>

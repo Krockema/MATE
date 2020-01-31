@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Master40.XUnitTest.Preparations
+namespace Master40.XUnitTest.Online.Preparations
 {
         public static class ConnectionsStrings
         {

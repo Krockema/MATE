@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Master40.XUnitTest.Preparations
+namespace Master40.XUnitTest.Online.Preparations
 {
     public class Tree
     {

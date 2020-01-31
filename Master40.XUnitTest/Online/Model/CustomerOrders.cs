@@ -1,17 +1,4 @@
-﻿using Master40.DB;
-using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
-using Master40.DB.Data.Initializer;
-using Master40.DB.Nominal;
-using Master40.SimulationCore.Environment;
-using Master40.SimulationCore.Environment.Options;
-using Xunit;
-using DBConnectionString = Master40.SimulationCore.Environment.Options.DBConnectionString;
-
-using SimulationId = Master40.SimulationCore.Environment.Options.SimulationId;
-using SimulationNumber = Master40.SimulationCore.Environment.Options.SimulationNumber;
-
-namespace Master40.XUnitTest.Model
+﻿namespace Master40.XUnitTest.Online.Model
 {
     public class CustomerOrderCheck
     {

@@ -1,7 +1,7 @@
 ﻿using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace Master40.XUnitTest.Preparations
+namespace Master40.XUnitTest.Online.Preparations
 {
     public static class Dbms
     {

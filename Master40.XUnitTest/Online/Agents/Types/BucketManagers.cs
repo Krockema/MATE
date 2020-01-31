@@ -1,12 +1,11 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent.Types;
-using Master40.XUnitTest.Preparations;
+using Master40.XUnitTest.Online.Preparations;
 using Xunit;
 
-namespace Master40.XUnitTest.Agents.Types
+namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class BucketManagers : TestKit
     {
