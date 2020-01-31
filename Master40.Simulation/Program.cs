@@ -1,13 +1,14 @@
-﻿using Hangfire;
+﻿using AkkaSim.Logging;
+using Hangfire;
+using Hangfire.Console;
 using Master40.DB.Data.Context;
 using Master40.Simulation.CLI;
-using Master40.Simulation.CLI.Arguments;
+using Master40.Simulation.CLI.Arguments.External;
 using System;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.Simulation.CLI.Arguments.External;
-using Master40.Simulation.CLI.Arguments.Simulation;
+using NLog;
 
 namespace Master40.Simulation
 {
@@ -16,7 +17,13 @@ namespace Master40.Simulation
         static void Main(string[] args)
         {
             Console.WriteLine(value: "Welcome to AkkaSim Cli");
-            
+
+            // has to be Installed here other wise it would attach a new log listener every time a simulation is called.
+            LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
+            // LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
             var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
             var validCommands = Commands.GetAllValidCommands;
@@ -50,6 +57,7 @@ namespace Master40.Simulation
             {
                 StartHangfire(((StartHangfire)startHangfire).Silent).Wait();
 
+
             } else {
                 RunSimulationTask(masterDb: masterDb, config: config).Wait();
                 Console.WriteLine(value: "Simulation Run Finished.");
@@ -62,6 +70,7 @@ namespace Master40.Simulation
             GlobalConfiguration.Configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseColouredConsoleLogProvider()
+                .UseConsole()
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(ConfigurationManager.AppSettings[index: 1], HangfireConfiguration.StorageOptions.Default);
@@ -75,7 +84,7 @@ namespace Master40.Simulation
                 Console.ReadKey();
             }
             
-            await  Task.Run(() => new BackgroundJobServer(new BackgroundJobServerOptions { WorkerCount = 1 }));
+            await Task.Run(() => new BackgroundJobServer(new BackgroundJobServerOptions { WorkerCount = 1 }));
             Console.ReadLine();
         }
 

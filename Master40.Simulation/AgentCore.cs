@@ -1,22 +1,21 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
+using Hangfire;
+using Hangfire.Server;
 using Master40.DB.Data.Context;
+using Master40.Simulation.CLI;
+using Master40.Simulation.HangfireConfiguration;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Environment.Options;
-using Master40.Tools.Messages;
+using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using AkkaSim.Logging;
-using Hangfire;
-using Master40.Simulation.CLI;
-using Master40.Simulation.HangfireConfiguration;
-using NLog;
 using static FBreakDowns;
 using Configuration = Master40.SimulationCore.Environment.Configuration;
+using ProcessingHub = Master40.Simulation.HangfireConfiguration.ProcessingHub;
 
 namespace Master40.Simulation
 {
@@ -39,30 +38,39 @@ namespace Master40.Simulation
 
         public AgentCore()
         {
-            _messageHub = new ProcessingHub();
+            
             _context = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
             _resultContext = ResultContext.GetContext(ConfigurationManager.AppSettings[index: 2]);
         }
 
         [KeepJobInStore]
         [AutomaticRetry(Attempts = 0)]
-        public async Task BackgroundSimulation(int simulationId, int simNumber)
+        public void BackgroundSimulation(int simulationId, int simNumber, PerformContext consoleContext)
         {
-            Task.Delay(TimeSpan.FromSeconds(5)).Wait();
-            _messageHub.StartSimulation(simId: simulationId.ToString() , simNumber: simNumber.ToString());
-            Task.Delay(TimeSpan.FromSeconds(5)).Wait();
+            _messageHub = new ProcessingHub(consoleContext);
+            // _messageHub.StartSimulation(simId: simulationId.ToString() , simNumber: simNumber.ToString());
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContext, simulationId);
-            _messageHub.EndSimulation("Succ", simId: simulationId.ToString() , simNumber: simNumber.ToString());
-            // await RunAkkaSimulation(simConfig);
+            simConfig.AddOption(new DBConnectionString(ConfigurationManager.AppSettings[index: 2]));
+            simConfig.Remove(typeof(SimulationNumber));
+            simConfig.AddOption(new SimulationNumber(simNumber));
+
+            RunAkkaSimulation(simConfig).Wait();
+            // _messageHub.EndSimulation("Succ", simId: simulationId.ToString() , simNumber: simNumber.ToString());
+        }
+
+        
+        [KeepJobInStore]
+        [AutomaticRetry(Attempts = 0)]
+        public void AggregateResults(int simulationId, PerformContext consoleContext)
+        {
+            _messageHub = new ProcessingHub(consoleContext);
+            var aggregator = new ResultAggregator(_resultContext);
+            aggregator.BuildResults(simulationId);
+            _messageHub.SendToAllClients("AggretationFinished for " + simulationId);
         }
 
         public async Task RunAkkaSimulation(Configuration configuration)
         {
-            LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug);
-            LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AGENTS, LogLevel.Warn);
-
-
             _configuration = configuration;
             _messageHub.SendToAllClients(msg: "Prepare in Memory model from DB for Simulation: " 
                                         + _configuration.GetOption<SimulationId>().Value);
@@ -83,14 +91,7 @@ namespace Master40.Simulation
                     
                 // Start simulation
                 var sim = simulation.RunAsync();
-
                 _agentSimulation.StateManager.ContinueExecution(simulation);
-                //AgentSimulation.Continuation(inbox: _agentSimulation.SimulationConfig.Inbox
-                //                            , sim: simulation
-                //                            , collectors: new List<IActorRef> { _agentSimulation.StorageCollector
-                //                                                , _agentSimulation.WorkCollector
-                //                                                , _agentSimulation.ContractCollector
-                //                            });
                 await sim;
             }
             _messageHub.EndSimulation(msg: "Simulation Completed."

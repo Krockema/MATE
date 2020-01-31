@@ -12,6 +12,7 @@
         MeanTimeToStart,
         ResourceUtilizationTotal,
         ResourceSetupTotal,
-        StockTotals
+        StockTotals,
+        AverageResult = 999
     }
 }

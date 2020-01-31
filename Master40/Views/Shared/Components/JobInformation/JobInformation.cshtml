@@ -123,7 +123,8 @@ var matrixChartCtx = new Chart(matrixElement,
         }
     }
 });
-setInterval(function () {
+
+function updateChart() {
     dataRef.forEach(json => {
         var indexFor = matrixChartCtx.data.datasets[0].data.findIndex(x => x.x === parseInt(json[2]) && x.y === (parseInt(@Html.Raw(Model.MaxY + 1)) - parseInt(json[1])));
         matrixChartCtx.data.datasets[0].data[indexFor].v = json[0];
@@ -132,11 +133,11 @@ setInterval(function () {
     dataRef = [];
     flickering.forEach(element => {
         matrixChartCtx.data.datasets[0].data[element].v =
-        toggle(matrixChartCtx.data.datasets[0].data[element].v);
+            toggle(matrixChartCtx.data.datasets[0].data[element].v);
     });
     flickering = [];
     matrixChartCtx.update();
-}, 500);
+}
 
 function toggle(item) {
     if (item === "processingOn") {

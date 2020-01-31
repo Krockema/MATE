@@ -5,7 +5,6 @@ using Master40.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
-using Akka.Dispatch.SysMsg;
 
 namespace Master40.ViewComponents
 {
@@ -21,17 +20,19 @@ namespace Master40.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            CreateJobCache();
-            return View($"JobInformation", _jobCache);
+            var cache = await Task.Run(CreateJobCache);
+            return View($"JobInformation", cache);
         }
 
-        private void CreateJobCache()
+        private HangfireJob CreateJobCache()
         {
             if (_jobCache.HasJobs)
-                return;
+                return _jobCache;
             //else
 
             _monitor.EnqueuedJobs("default", 0, int.MaxValue).Select(x => x.Value)
+                .ForEach(x => _jobCache.AddJob(x, HangfireJob.QUEUED));
+            _monitor.ScheduledJobs(0, int.MaxValue).Select(x => x.Value)
                 .ForEach(x => _jobCache.AddJob(x, HangfireJob.QUEUED));
             _monitor.FailedJobs(0, int.MaxValue).Select(x => x.Value)
                 .ForEach(x => _jobCache.AddJob(x, HangfireJob.FAILED));
@@ -39,6 +40,7 @@ namespace Master40.ViewComponents
                 .ForEach(x => _jobCache.AddJob(x, HangfireJob.SUCCEEDED));
             _monitor.ProcessingJobs(0, int.MaxValue).Select(x => x.Value)
                 .ForEach(x => _jobCache.AddJob(x, HangfireJob.PROCESSING));
+            return _jobCache;
         }
     }
 }

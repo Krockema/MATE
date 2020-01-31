@@ -8,8 +8,10 @@ using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.SimulationCore.Helper;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -58,7 +60,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
             ResultDBInitializerBasic.DbInitialize(results);
         }
 
-        [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
+        // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
+        [Fact]
         public void InitializeRemote()
         
         {
@@ -71,10 +74,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx);
+
+            HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
+                .UseSqlServer(connectionString: hangfireCtxString)
+                .Options);
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            HangfireDBInitializer.DbInitialize(context: dbContext);
         }
 
 
-        [Fact]
+        [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
         public void ClearHangfire()
         {
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
@@ -151,18 +161,32 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
-
-                AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
-                                            , sim: simulation
-                                            , collectors: new List<IActorRef> { simContext.StorageCollector
-                                                                    , simContext.WorkCollector
-                                                                    , simContext.ContractCollector
-                                            });
+                simContext.StateManager.ContinueExecution(simulation);
+                // AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
+                //                             , sim: simulation
+                //                             , collectors: new List<IActorRef> { simContext.StorageCollector
+                //                                                     , simContext.WorkCollector
+                //                                                     , simContext.ContractCollector
+                //                             });
                 await sim;
             }
 
             Assert.True(condition: simWasReady);
         }
+
+        [Fact]
+        public void AggreteResults()
+        {
+            var  _resultContext = ResultContext.GetContext(remoteResultCtxString);
+
+            var aggregator = new ResultAggregator(_resultContext);
+            aggregator.BuildResults(1);
+        }
+        
+        
+        
+        
+        
         [Fact]
         private void ArgumentConverter()
         {

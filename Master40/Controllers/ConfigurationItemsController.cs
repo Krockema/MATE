@@ -7,6 +7,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.Simulation;
 using Master40.Simulation.CLI;
+using MathNet.Numerics.RootFinding;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,18 +34,27 @@ namespace Master40.Controllers
         {
             for (int i = 1; i <= 10; i++)
             {
-                BackgroundJob.Enqueue(() => _agentSimulator.BackgroundSimulation(id, i));    
+                BackgroundJob.Enqueue(() => _agentSimulator.BackgroundSimulation(id, i, null));    
             }
         }
        
         [HttpGet(template: "[Controller]/Start/{simulationId}/iterateFrom/{iterateFrom}/iterateTo/{iterateTo}")]
-        public void Start(int simulationId, int iterateFrom, int iterateTo)
+        public void Start(int simulationId, int iterateFrom, int iterateTo, bool aggregateResults)
         {
+            // Create Initial Job
+            //string job =  BackgroundJob.Enqueue(() => _agentSimulator.BackgroundSimulation(simulationId, iterateFrom));    
+            string job  = "";
+            // Continue Jobs 
             for (int i = iterateFrom; i <= iterateTo; i++)
-            {
-                BackgroundJob.Enqueue(() => _agentSimulator.BackgroundSimulation(simulationId, i));    
-            }
+                job = BackgroundJob.Enqueue( () => _agentSimulator.BackgroundSimulation(simulationId, i, null));    
         }
+
+        [HttpGet(template: "[Controller]/AggregateResults/{simulationId}")]
+        public void AggregateResults(int simulationId)
+        {
+            BackgroundJob.Enqueue(() => _agentSimulator.AggregateResults(simulationId, null)); 
+        }
+
 
         public IActionResult ChartStatusComponent()
         {

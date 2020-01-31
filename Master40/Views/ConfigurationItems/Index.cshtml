@@ -25,7 +25,7 @@
                         </button>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-secondary" onclick="refreshChartComponent()">
+                        <button class="btn btn-secondary" onclick="refreshChartComponent()" title="reloadChart" aria-label="reloadChart" role="none" >
                             <i class="fas fa-sync"></i>
                         </button>
                     </div>
@@ -87,9 +87,13 @@
                     </div>
                 </td>
                 <td style="text-align: right;">
-                    <button class="btn btn-outline-secondary ladda-button btn-sm" id="simulationStart-btn"
+                    <button class="btn btn-outline-secondary ladda-button btn-sm"
                             type="button" onclick="startAgents(@item.PropertyValue)">
                         <i class="fas fa-play-circle fa-1x fa-unset"></i> Run!
+                    </button> |
+                    <button class="btn btn-outline-secondary ladda-button btn-sm"
+                            type="button" onclick="aggregateResults(@item.PropertyValue)">
+                        <i class="fas fa-code-branch fa-1x fa-unset"></i>Aggregate
                     </button> |
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-edit fa-1x fa-unset"></i> Edit
@@ -109,13 +113,18 @@
 <script>
     function startAgents(value) {
         $(".MessageDisplayRunning").html("");
-        var l = Ladda.create(document.querySelector("#simulationStart-btn"));
-        l.start();
-        l.toggle();
+        // var l = Ladda.create(document.querySelector("#simulationStart-btn"));
+        // l.start();
+        // l.toggle();
         setStatusCallout(value, "Queued...", "waring");
         var iterateFrom = document.getElementById("iterateFrom" + value).value;
         var iterateTo = document.getElementById("iterateTo" + value).value;
-        $.get("ConfigurationItems/Start/" + value + "/iterateFrom/" + iterateFrom + "/iterateTo/" + iterateTo);
+        $.get("ConfigurationItems/Start/" + value + "/iterateFrom/" + iterateFrom + "/iterateTo/" + iterateTo );
+    }
+
+    function aggregateResults(value) {
+        setStatusCallout(value, "Aggregateing...", "info");
+        $.get("ConfigurationItems/AggregateResults/" + value);
     }
 
     processingProxy.on("clientListener", function (msg) {
@@ -149,4 +158,5 @@
         $.get("/ConfigurationItems/ChartStatusComponent", function (data) { container.html(data); });
     };
 
+    setInterval(updateChart, 500);
 </script>

@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
+using Hangfire.Console;
 using Hangfire.SqlServer;
 using Master40.Models;
 using Master40.Simulation.HangfireConfiguration;
@@ -62,7 +63,7 @@ namespace Master40
 
             services.AddHangfire(configuration: options =>
                 options.UseSqlServerStorage(Configuration.GetConnectionString(name: "Hangfire"),
-                                            Simulation.HangfireConfiguration.StorageOptions.Default));
+                                            StorageOptions.Default));
 
 
             services.AddSingleton<IMessageHub, MessageHub>();
@@ -121,7 +122,8 @@ namespace Master40
             HangfireDBInitializer.DbInitialize(context: hangfireContext);
             GlobalConfiguration.Configuration
                 .UseFilter(filter: new AutomaticRetryAttribute {Attempts = 0})
-                .UseSqlServerStorage(nameOrConnectionString: Configuration.GetConnectionString(name: "Hangfire"));
+                .UseSqlServerStorage(nameOrConnectionString: Configuration.GetConnectionString(name: "Hangfire"))
+                .UseConsole(); 
             app.UseHangfireDashboard();
 
             #endregion

@@ -21,6 +21,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal SimulationNumber simulationNumber;
         internal SimulationKind simulationKind;
         internal SaveToDB saveToDB;
+        internal long maxTime;
 
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
@@ -46,6 +47,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             simulationNumber = Config.GetOption<SimulationNumber>();
             simulationKind = Config.GetOption<SimulationKind>();
             saveToDB = Config.GetOption<SaveToDB>();
+            maxTime = Config.GetOption<SimulationEnd>().Value;
             messageHub.SendToAllClients(msg: "Collector initialized: " + Self.Path.ToStringWithAddress());
         }
 

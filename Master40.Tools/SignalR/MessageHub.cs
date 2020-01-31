@@ -41,7 +41,7 @@ namespace Master40.Tools.SignalR
 
         public void ProcessingUpdate(int simId, int counter, string simType, int max)
         {
-            this._hubContext.Clients.All.SendAsync(method: "clientListener", arg1: "ProcessingUpdate", arg2: simId, arg3: Math.Round(value: (double)counter / max * 100, digits: 0).ToString(), arg4: simType.ToString() );
+            // this._hubContext.Clients.All.SendAsync(method: "clientListener", arg1: "ProcessingUpdate", arg2: simId, arg3: Math.Round(value: (double)counter / max * 100, digits: 0).ToString(), arg4: simType.ToString() );
         }
 
         public void SendToClient(string listener, string msg, MessageType msgType = MessageType.info)

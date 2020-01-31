@@ -3,7 +3,6 @@ using Master40.DB.Data.WrappersForPrimitives;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.DB.Interfaces;
-using Master40.DB.Nominal;
 using Zpp.DataLayer.impl.ProviderDomain.Wrappers;
 using Zpp.Util;
 using Zpp.Util.Graph.impl;

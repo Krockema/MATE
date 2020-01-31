@@ -66,7 +66,8 @@ namespace Master40.SimulationCore
 
                 // Create DataCollectors
                 CreateCollectorAgents(configuration: configuration);
-                if (_debugAgents) AddDeadLetterMonitor();
+                //if (_debugAgents) 
+                    AddDeadLetterMonitor();
                 AddTimeMonitor();
 
                 // Create Guardians and Inject Childcreators
@@ -221,43 +222,6 @@ namespace Master40.SimulationCore
                                                             , sender: ActorPaths.HubDirectory.Ref);
             }
         }
-
-        public static void Continuation(Inbox inbox, Simulation sim, List<IActorRef> collectors)
-        {
-
-            var something = inbox.ReceiveAsync(timeout: TimeSpan.FromHours(value: 1)).Result;
-            switch (something)
-            {
-                case SimulationMessage.SimulationState.Started:
-                    System.Diagnostics.Debug.WriteLine(message: "AKKA:START AGENT SYSTEM", category: "AKKA-System:");
-                    Continuation(inbox: inbox, sim: sim, collectors: collectors);
-                    break;
-                case SimulationMessage.SimulationState.Stopped:
-                    System.Diagnostics.Debug.WriteLine(message: "AKKA:STOP AGENT SYSTEM", category: "AKKA-System:");
-                    var tasks = new List<Task>();
-                    foreach (var item in collectors)
-                    {
-                        var msg = UpdateLiveFeed.Create(setup: false, target: inbox.Receiver);
-                        System.Diagnostics.Debug.WriteLine($"Ask for Update Feed {item.Path.Name}");
-                        tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 60 * 60)));
-                        
-                    }
-                    Task.WaitAll(tasks.ToArray());
-                    sim.Continue();
-                    Continuation(inbox: inbox, sim: sim, collectors: collectors);
-                    break;
-                case SimulationMessage.SimulationState.Finished:
-                    System.Diagnostics.Debug.WriteLine(message: "SHUTDOWN AGENT SYSTEM", category: "AKKA-System:");
-                    foreach (var item in collectors)
-                    {
-                        var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: true, target: inbox.Receiver), timeout: TimeSpan.FromHours(value: 1)).Result;
-                    }
-                    sim.ActorSystem.Terminate().Wait();
-                    break;
-                default:
-                    break;
-            }
-        }
-
+      
     }
 }

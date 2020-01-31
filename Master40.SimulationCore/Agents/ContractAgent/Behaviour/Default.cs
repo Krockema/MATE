@@ -1,4 +1,5 @@
-﻿using Akka.Event;
+﻿using System;
+using Akka.Event;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DispoAgent;
@@ -62,7 +63,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
                                     .UpdateFinishedAt(Agent.CurrentTime)
                                     .UpdateProvidedAt(fArticleProvider.ArticleFinishedAt)
                                     .UpdateStockExchangeId(fArticleProvider.StockExchangeId);
-                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}! ", LogLevel.Info);
+                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}!");
                 Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);

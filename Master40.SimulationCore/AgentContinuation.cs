@@ -13,7 +13,7 @@ namespace Master40.SimulationCore
     {
         private readonly List<IActorRef> _collectorRefs;
         private readonly Inbox _inbox;
-        private Logger _logger;
+        private readonly Logger _logger;
 
         public AgentStateManager(List<IActorRef> collectorRefs, Inbox inbox)
         {
@@ -24,7 +24,7 @@ namespace Master40.SimulationCore
 
         public void ContinueExecution(Simulation sim)
         {
-            base.Continuation(_inbox, sim);
+            Continuation(_inbox, sim);
         }
 
         public override void AfterSimulationStarted(Simulation sim)
@@ -49,8 +49,8 @@ namespace Master40.SimulationCore
         {
             foreach (var item in _collectorRefs)
             {
-                var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: true, target: _inbox.Receiver)
-                                     , timeout: TimeSpan.FromHours(value: 1)).Result;
+                item.Ask(message: UpdateLiveFeed.Create(setup: true, target: _inbox.Receiver)
+                       , timeout: TimeSpan.FromHours(value: 1)).Wait();
             }
             sim.ActorSystem.Terminate().Wait();
             _logger.Log(LogLevel.Info, $"Simulation run for { sim.ActorSystem.Uptime } and ended!");

@@ -1,5 +1,6 @@
 ﻿using AkkaSim;
 using Master40.DB.Data.Context;
+using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.SupervisorAgent;
@@ -9,8 +10,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.Nominal;
-using Master40.DB.Nominal;
 using static FArticles;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -24,11 +23,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private int finishedOrderParts = 0;
         private int openOrderParts = 0;
         private int totalOrders = 0;
-        private List<Kpi> Kpis = new List<Kpi>();
+        private readonly List<Kpi> _Kpis = new List<Kpi>();
         private double inTime = 0;
         private double toLate = 0;
 
-        private List<SimulationOrder> simulationOrders = new List<SimulationOrder>();
+        private readonly List<SimulationOrder> simulationOrders = new List<SimulationOrder>();
 
         public Collector Collector { get; set; }
 
@@ -60,23 +59,29 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void ProvideOrder(FArticle finishedArticle)
         {
+            string message;
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
-                Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}");
+                message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}";
                 inTime++;
             }
             else
             {
-                Collector.messageHub.SendToAllClients(msg: $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}");
+                message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}";
                 toLate++;
             }
-
+            
+            Collector.messageHub.SendToAllClients(msg: message);
             UpdateOrder(item: finishedArticle);
 
             openOrderParts--;
             finishedOrderParts++;
             totalOrders++;
+            var percent = Math.Round((decimal) Collector.Time / Collector.maxTime * 100, 0);
 
+            Collector.messageHub.ProcessingUpdate(finishedOrderParts, (int)percent, 
+                $" Progress({percent} %) " + message
+                , totalOrders);
             Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
 
         }
@@ -106,7 +111,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             if (writeResultsToDB)
             {
-                Kpis.Add(new Kpi
+                _Kpis.Add(new Kpi
                 {
                     Name = "timeliness",
                     Value = Math.Round(timelines, 2),
@@ -119,7 +124,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     SimulationType = Collector.simulationKind.Value
                 });
 
-                Kpis.Add(new Kpi
+                _Kpis.Add(new Kpi
                 {
                     Name = "OrderProcessed",
                     Value = totalOrders,
@@ -176,13 +181,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void WriteToDB(Collector agent,bool writeResultsToDB)
         {
+            if (writeResultsToDB)
+                Collector.messageHub.ProcessingUpdate(finishedOrderParts, openOrderParts, 
+                    $"Progress({100} %) Finalizing Steps. Write to DB and Shutdown!" 
+                    , totalOrders);
+            
             if (agent.saveToDB.Value && writeResultsToDB)
             {
                 using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
                 {
                     ctx.SimulationOrders.AddRange(entities: simulationOrders);
                     ctx.SaveChanges();
-                    ctx.Kpis.AddRange(Kpis);
+                    ctx.Kpis.AddRange(_Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

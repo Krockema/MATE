@@ -27,7 +27,7 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem {Property = "SimulationKind", PropertyValue = "DefaultSetupStack", Description = "Default"},
                 new ConfigurationItem {Property = "OrderArrivalRate", PropertyValue = "0,025", Description = "Default"},
                 new ConfigurationItem {Property = "OrderQuantity", PropertyValue = "1500", Description = "Default"},
-                new ConfigurationItem {Property = "EstimatedThroughPut", PropertyValue = "1920"},
+                new ConfigurationItem {Property = "EstimatedThroughPut", PropertyValue = "1920", Description = "Default"},
                 new ConfigurationItem {Property = "DebugAgents", PropertyValue = "false", Description = "Default"},
                 new ConfigurationItem {Property = "DebugSystem", PropertyValue = "false", Description = "Default"},
                 new ConfigurationItem {Property = "KpiTimeSpan", PropertyValue = "480", Description = "Default"},
@@ -49,6 +49,7 @@ namespace Master40.DB.Data.Initializer
             CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "OrderArrivalRate", PropertyValue = "0,0275" }}, "Higher Arrival Rate");
             CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "OrderArrivalRate", PropertyValue = "0,02" }}, "Lower Arrival Rate");
             CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "OrderArrivalRate", PropertyValue = "0,01" }}, "Super low Arrival Rate");
+            CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "EstimatedThroughPut", PropertyValue = "1440" }}, "Estimated Throguh Put: 1440");
 
             _simulationId = 1;
         }

@@ -114,28 +114,35 @@
                             </div>
                             <div class="card-body">
                                 <div style="text-align: center">
-                                    @{ var containerSize = 150; var textPadding = 75; var fontSize = 15;
+                                    @{
+                                        var containerSize = 150;
+                                        var textPadding = 75;
+                                        var fontSize = 15;
                                         if (Model.Count() > 6)
                                         {
-                                            containerSize = 75; textPadding = 35; fontSize = 10;
-                                        } @Html.Raw(value: @"
-                            <style>
-                                .chartContainer {
-                                    position: relative;
-                                    background-color: transparent;
-                                    width:" + containerSize + @"px;
-                                    height:" + containerSize + @"px;
-                                    margin-left: 5px;
-                                    margin-right: 5px;
-                                    margin-bottom: 5px;
-                                }
-                                .machineText {
-                                    font:" + fontSize + @"px Helvetica;
-                                }
-                                .textLayer {
-                                    padding-top:" + textPadding + @"px;
-                                    font: bold" + fontSize + @"px Helvetica;
-                            </style>") } 
+                                            containerSize = 75;
+                                            textPadding = 35;
+                                            fontSize = 10;
+                                        }
+                                        @Html.Raw(value: @"
+                                                <style>
+                                                    .chartContainer {
+                                                        position: relative;
+                                                        background-color: transparent;
+                                                        width:" + containerSize + @"px;
+                                                        height:" + containerSize + @"px;
+                                                        margin-left: 5px;
+                                                        margin-right: 5px;
+                                                        margin-bottom: 5px;
+                                                    }
+                                                    .machineText {
+                                                        font:" + fontSize + @"px Helvetica;
+                                                    }
+                                                    .textLayer {
+                                                        padding-top:" + textPadding + @"px;
+                                                        font: bold" + fontSize + @"px Helvetica;
+                                                </style>");
+                                    }
                                 @foreach (var section in Model.OrderBy(keySelector: x => x.Id)){
                                     <partial name="~/Views/AgentLive/PartialMachine.cshtml" model="section"/>
                                 }
