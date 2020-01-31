@@ -52,8 +52,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        [InlineData(testResultCtxString)]
-        //[InlineData(masterResultCtxString)]
+        [InlineData(testResultCtxString)] 
+        [InlineData(masterResultCtxString)]
         public void ResetResultsDB(string connectionString)
         
         {
