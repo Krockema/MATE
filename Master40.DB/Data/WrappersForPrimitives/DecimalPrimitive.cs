@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.DependencyModel;
 
 namespace Master40.DB.Data.WrappersForPrimitives
@@ -67,7 +68,6 @@ namespace Master40.DB.Data.WrappersForPrimitives
             newObject._decimal = newValue;
             return newObject;
         }
-
 
         /// <summary>
         /// Decrements the value to Zero and returns true if Zero is exceeded.

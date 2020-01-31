@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.DB.ReportingModel.Interface;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationResourceJob : BaseEntity, ISimulationResourceData
+    public class SimulationResourceJob : ResultBaseEntity, ISimulationResourceData
     {
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
@@ -27,7 +28,8 @@ namespace Master40.DB.ReportingModel
         public string Parent { get; set; }
         public string ParentId { get; set; }
         public string Bucket { get; set; }
-        
+        [NotMapped]
+        public string FArticleKey { get; set; }
         [NotMapped]
         public string ArticleType { get; set; }
 

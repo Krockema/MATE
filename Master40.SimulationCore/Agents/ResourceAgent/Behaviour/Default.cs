@@ -1,11 +1,11 @@
 ﻿using Akka.Actor;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Linq;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;

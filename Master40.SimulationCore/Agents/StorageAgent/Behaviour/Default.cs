@@ -1,16 +1,15 @@
-﻿using Master40.DB.DataModel;
-using Master40.DB.Enums;
+﻿using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.StorageAgent.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka;
-using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.Nominal;
 using static FArticleProviders;
 using static FArticles;
 using static FProductionResults;
+using static FStockProviders;
 using static FStockReservations;
 using static FUpdateSimulationWorkProviders;
 using static FUpdateStockValues;
@@ -91,7 +90,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                                                                                              ,articleName: request.Article.Name
                                                                                              , articleFinishedAt: Agent.CurrentTime
                                                                                              ,stockExchangeId: request.StockExchangeId
-                                                                                             , provider: new List<Guid>(new [] { stockExchange.TrackingGuid }))
+                                                                                             , provider: new List<FStockProvider>(new[] { new FStockProvider(stockExchange.TrackingGuid, "Purchase")}))
                                                                , target: request.DispoRequester
                                                               , logThis: false));
                 _requestedArticles.Remove(item: request);
@@ -110,7 +109,8 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                 State = State.Finished,
                 RequiredOnTime = (int)Agent.CurrentTime,
                 Time = (int)Agent.CurrentTime,
-                ProductionArticleKey = productionResult.Key
+                ProductionArticleKey = productionResult.Key,
+                ProductionAgent = Agent.Sender.Path.Name
             };
             _stockManager.AddToStock(stockExchange);
             _stockManager.StockExchanges.Add(stockExchange);
@@ -148,7 +148,14 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             if (article.Quantity <= _stockManager.Current)
             {
                 var providerList = _stockManager.GetProviderGuidsFor(new Quantity(article.Quantity));
-                article = article.UpdateProviderList(p: providerList.Select(x => x.ProductionArticleKey).ToList());
+                var prunedProviderList = providerList.Select(x =>
+                    new FStockProvider(
+                        x.ProductionArticleKey,
+                        x.ProductionAgent
+                    )).ToList();
+                article = article.UpdateProviderList(p: prunedProviderList);
+
+
                 article = article.UpdateFinishedAt(providerList.Max(x => x.Time));
 
                 Agent.DebugMessage(msg: "------------->> items in STOCK: " + _stockManager.Current + " Items Requested " + article.Quantity);
@@ -173,8 +180,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 // Update Work Item with Provider For
                 // TODO
-
-
 
                 var pub = new FUpdateSimulationWorkProvider(fArticleProviderKeys: article.ProviderList
                                                         , requestAgentId: article.DispoRequester.Path.Uid.ToString()

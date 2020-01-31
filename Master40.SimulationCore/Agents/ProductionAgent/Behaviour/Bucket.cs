@@ -1,5 +1,5 @@
 ﻿using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.HubAgent;
@@ -55,8 +55,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
                 default: return false;
             }
-
-            return true;
         }
 
     }

@@ -6,6 +6,9 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Akka.Event;
+using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -17,10 +20,8 @@ namespace Master40.SimulationCore.Agents
         /// VirtualParrent is his Principal Agent
         /// </summary>
         internal IActorRef VirtualParent { get; }
-        /// <summary>
-        /// Holds the last Known Status for each Child Entity
-        /// </summary>
-        internal IActorRef Guardian { get; }
+
+        // internal IActorRef Guardian { get; }
         internal HashSet<IActorRef> VirtualChildren { get; }
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }
@@ -28,9 +29,8 @@ namespace Master40.SimulationCore.Agents
         internal long CurrentTime => TimePeriod;
         internal void TryToFinish() => Finish();
         internal new IActorRef Sender => base.Sender;
-        internal LogWriter LogWriter { get; set; }
+        // internal LogWriter LogWriter { get; set; }
         // Diagnostic Tools
-        private Stopwatch _stopwatch = new Stopwatch();
         public bool DebugThis { get; private set; }
         
         /// <summary>
@@ -99,13 +99,16 @@ namespace Master40.SimulationCore.Agents
         /// Logging the debug Message to Systems.Diagnosics.Debug.WriteLine
         /// </summary>
         /// <param name="msg"></param>
-        internal void DebugMessage(string msg)
+        /// <param name="LogLevel" optional="true">Nlog.LogLevel</para>
+        internal void DebugMessage(string msg, LogLevel logLevel = null)
         {
-            if (!DebugThis) return;
-            // else
-            var logItem = "Time(" + TimePeriod + ").Agent(" + Name + ") : " + msg;
+            //if (!DebugThis) return;
+            if(logLevel == null) 
+                logLevel = LogLevel.Debug;
             //Debug.WriteLine(message: logItem, category: "AgentMessage");
-            AgentSimulation.Logger.Log.Add(item: logItem);
+            Logger.Log(logLevel
+                        , "Time({TimePeriod}).Agent({Name}): {msg}"
+                        , new object[] { TimePeriod, Name, msg });
         }
 
         /// <summary>
@@ -143,5 +146,7 @@ namespace Master40.SimulationCore.Agents
             DebugMessage(msg: Self + " finish has been called by " + Sender);
             base.Finish();
         }
+
+    
     }
 }

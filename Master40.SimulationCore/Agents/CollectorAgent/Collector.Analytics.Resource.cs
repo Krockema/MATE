@@ -1,6 +1,6 @@
 using AkkaSim;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
 using Master40.DB.ReportingModel.Interface;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
@@ -90,7 +90,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         /// <summary>
-        /// collect the resourceSetups of resource, cant be updated afterwards
+        /// collect the resourceSetups of resource, cant be updated afterward
         /// </summary>
         /// <param name="simulationResourceSetup"></param>
         private void CreateSimulationResourceSetup(FCreateSimulationResourceSetup simulationResourceSetup)
@@ -189,10 +189,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    // ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
-                    // ctx.SaveChanges();
-                    // ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
-                    // ctx.SaveChanges();
+                    ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SaveChanges();
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
@@ -204,7 +204,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
 
             var leadTime = from lt in _ThroughPutTimes
-                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThrougputCalculation>().Value
+                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value
                            group lt by lt.ArticleName into so
                            select new
                            {
@@ -277,7 +277,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             var idleTime = workTime - jobTime;
 
-            var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
+            // var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
 
             double performanceTime = jobTime;
 
@@ -473,9 +473,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 OrderId = "[" + simJob.CustomerOrderId + "]",
                 HierarchyNumber = fOperation.Operation.HierarchyNumber,
                 //Remember this is now a fArticleKey (Guid)
-                ProductionOrderId = "[" + simJob.fArticleKey + "]",
+                ProductionOrderId =  simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
-                ParentId = "[]",
+                FArticleKey = simJob.fArticleKey.ToString(),
                 Time = (int)(Collector.Time),
                 ExpectedDuration = fOperation.Operation.Duration,
                 ArticleType = simJob.ArticleType,
@@ -492,30 +492,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
             simulationJobs.Add(item: simulationJob);
         }
-
-        private void CreateSimulationBucket(FCreateSimulationJob simJob)
-        {
-            var fBucket = ((FBucket)simJob.Job);
-            var simulationJob = new SimulationResourceJob
-            {
-                JobId = simJob.Job.Key.ToString(),
-                JobName = fBucket.Name,
-                JobType = simJob.JobType,
-                SimulationConfigurationId = Collector.simulationId.Value,
-                SimulationNumber = Collector.simulationNumber.Value,
-                SimulationType = Collector.simulationKind.Value,
-                //Remember this is now a fArticleKey (Guid)
-                Time = (int)(Collector.Time),
-                ResourceTool = fBucket.Tool.Name,
-                Resource = fBucket.ResourceAgent.Path.Name,
-                ProductionOrderId = String.Empty,
-                Start = simJob.Start,
-                End = simJob.End
-            };
-
-            simulationJobs.Add(item: simulationJob);
-        }
-
+        
         private void UpdateSimulationOperation(FUpdateSimulationJob simJob)
         {
             var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: simJob.Job.Key.ToString()));
@@ -538,15 +515,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
-                var items = simulationJobs.Where(predicate: x => x.ProductionOrderId.Equals(value: "[" + fpk + "]")).ToList();
+                var items = simulationJobs.Where(predicate: x => x.FArticleKey.Equals(value: fpk.ProvidesArticleKey.ToString())
+                                                            && x.ProductionOrderId == fpk.ProductionAgentKey); 
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";
                     item.Parent = uswp.RequestAgentName;
                     item.CreatedForOrderId = item.OrderId;
                     item.OrderId = "[" + uswp.CustomerOrderId + "]";
-
-                    // item.OrderId = orderId;
                 }
             }
 

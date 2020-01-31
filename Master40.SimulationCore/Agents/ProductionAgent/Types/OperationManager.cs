@@ -78,7 +78,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
         public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
             List<ArticleProvider> listAP = new List<ArticleProvider>();
-            var counter = articleToProduce.Article.ArticleBoms.Count;
             foreach (var fOperation in GetOperations) { 
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
                 if (fOperation.Operation.ArticleBoms.Count == 0)
@@ -101,9 +100,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             }
             //TODO Log this somewhere
             //System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
-
-            
-
             return listAP.Count;
         }
 

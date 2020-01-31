@@ -1,14 +1,14 @@
 ﻿using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
-using Master40.SimulationCore.DistributionProvider;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using static FBreakDowns;
 using static FAgentInformations;
 using static FRequestResources;

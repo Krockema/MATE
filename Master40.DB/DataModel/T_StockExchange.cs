@@ -2,9 +2,8 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection.Metadata.Ecma335;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Nominal;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
 {
@@ -24,7 +23,8 @@ namespace Master40.DB.DataModel
         public ExchangeType ExchangeType { get; set; }
 
         public StockExchangeType StockExchangeType { get; set; }
-
+        [NotMapped]
+        public string ProductionAgent { get; set; }
         [NotMapped]
         public Guid ProductionArticleKey { get; set; }
 

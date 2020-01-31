@@ -3,10 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AkkaSim" Version="0.3.1" />
+    <PackageReference Include="AkkaSim" Version="0.4.6" />
   </ItemGroup>
 
   <ItemGroup>

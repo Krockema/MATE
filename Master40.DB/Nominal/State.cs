@@ -9,7 +9,8 @@
         ForwardScheduleExists,
         ExistsInCapacityPlan,
         Producing,
-        Finished
+        Finished,
+        InProgress
     }
 
     public enum ProducingState

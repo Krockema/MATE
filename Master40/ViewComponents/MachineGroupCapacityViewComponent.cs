@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using ChartJSCore.Models;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
 using Master40.Extensions;
 

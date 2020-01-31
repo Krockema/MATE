@@ -2,6 +2,7 @@
 
 open Akka.Actor
 open System
+open FStockProviders
 
     type public FArticleProvider =
         {
@@ -9,5 +10,5 @@ open System
             ArticleName : string
             StockExchangeId : Guid
             ArticleFinishedAt : int64
-            Provider : System.Collections.Generic.List<Guid>
+            Provider : System.Collections.Generic.List<FStockProvider>
         }

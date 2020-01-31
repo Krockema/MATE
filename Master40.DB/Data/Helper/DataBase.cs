@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper.Types;
+﻿using Master40.DB.Data.Helper.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Helper

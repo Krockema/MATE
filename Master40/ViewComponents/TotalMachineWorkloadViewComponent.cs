@@ -10,7 +10,7 @@ using Master40.Extensions;
 
 namespace Master40.ViewComponents
 {
-    public partial class TotalMachineWorkloadViewComponent : ViewComponent
+    public class TotalMachineWorkloadViewComponent : ViewComponent
     {
         private readonly ResultContext _context;
 

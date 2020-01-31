@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationMrp;
 using Xunit;
-using Zpp.Mrp;
 
 namespace Master40.XUnitTest.Zpp.Integration_Tests
 {
@@ -19,10 +19,8 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
         {
             List<int> countsMasterDataBefore = CountMasterData();
 
-            Assert.True(ProductionDomainContext.CustomerOrders.Count() == TestConfiguration.CustomerOrderPartQuantity,
-                "No customerOrders are initially available.");
-
-            MrpRun.Start(ProductionDomainContext);
+            IZppSimulator zppSimulator = new global::Master40.SimulationMrp.impl.ZppSimulator();
+            zppSimulator.StartTestCycle();
 
             // check certain constraints are not violated
 
@@ -49,8 +47,6 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
             counts.Add(ProductionDomainContext.Stocks.Count());
             counts.Add(ProductionDomainContext.Units.Count());
             counts.Add(ProductionDomainContext.Operations.Count());
-            counts.Add(ProductionDomainContext.CustomerOrders.Count());
-            counts.Add(ProductionDomainContext.CustomerOrderParts.Count());
             return counts;
         }
     }

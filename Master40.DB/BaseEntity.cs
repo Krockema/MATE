@@ -5,14 +5,17 @@ using System.Diagnostics;
 using System.Reflection;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB
 {
-    public class BaseEntity : IBaseEntity
+    public class BaseEntity : IBaseEntityCodeGeneratedId, IId
     {
         // [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
+
+        public bool IsReadOnly { get; set; } = false;
 
         protected BaseEntity()
         {
@@ -67,6 +70,12 @@ namespace Master40.DB
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            string fullName = GetType().FullName; 
+            return $"{Id}: {fullName}";
         }
     }
 

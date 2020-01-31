@@ -33,6 +33,7 @@ open FUpdateStartConditions
           MaxBucketSize : double
           MinBucketSize : double
           Proposals : System.Collections.Generic.List<FProposal> 
+          Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
@@ -56,6 +57,9 @@ open FUpdateStartConditions
                 member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
                                                                                          Start = (int64)estimatedStart;
                                                                                          ResourceAgent = resourceAgent } :> IJob
+                member this.Bucket with get() = this.Bucket
+                member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
+
          // Returns new Object with Updated Due
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
@@ -66,3 +70,4 @@ open FUpdateStartConditions
         member this.SetFixPlanned = { this with IsFixPlanned = true}
         member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
         member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)
+        member this.UpdateBucket bucketId = { this with Bucket = bucketId}

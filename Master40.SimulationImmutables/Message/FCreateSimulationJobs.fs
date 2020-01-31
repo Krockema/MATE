@@ -10,6 +10,7 @@ open IJobs
         IsHeadDemand : bool
         ArticleType : string
         fArticleKey : Guid
+        ProductionAgent : string
         fArticleName: string
         Start : int64
         End : int64

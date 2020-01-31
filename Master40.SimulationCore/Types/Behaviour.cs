@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Helper;
 using System;

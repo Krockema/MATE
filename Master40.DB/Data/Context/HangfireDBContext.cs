@@ -5,8 +5,6 @@ namespace Master40.DB.Data.Context
 {
     public class HangfireDBContext : DbContext
     {
-        private DbContextOptions<HangfireDBContext> options;
-
         public HangfireDBContext(DbContextOptions<HangfireDBContext> options) : base(options: options)
         {
         }
@@ -21,6 +19,11 @@ namespace Master40.DB.Data.Context
                 //   context.Database.EnsureDeleted();
             // else
             context.Database.EnsureCreated();
+
+
+
+
+
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Akka.Actor;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.DistributionProvider;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
 using System.Linq;
 using static FBuckets;
@@ -23,7 +23,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
-        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 1000);
+        //TODO PlaningQueueLenght as parameter
+        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 2880);
 
         public override bool Action(object message)
         {
@@ -158,7 +159,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // take the next scope and make it fix 
             while (_processingQueue.CapacitiesLeft() && _scopeQueue.HasQueueAbleJobs())
             {
-                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime);
+                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime, resourceTool: _toolManager._equippedResourceTool.ResourceTool);
 
                 var ok = _processingQueue.Enqueue(item: job);
                 if (!ok)

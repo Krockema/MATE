@@ -8,7 +8,7 @@ open FStartConditions
 open IKeys
 open IJobs
 open FUpdateStartConditions
-
+    [<CustomEquality;CustomComparison>] 
     type public FOperation =
         { Key : Guid
           DueTime : int64 
@@ -26,7 +26,8 @@ open FUpdateStartConditions
           mutable HubAgent : IActorRef
           Operation : M_Operation
           Tool : M_ResourceTool
-          Proposals : System.Collections.Generic.List<FProposal> 
+          Proposals : System.Collections.Generic.List<FProposal>
+          Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
@@ -50,11 +51,19 @@ open FUpdateStartConditions
                 member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  (int64)this.Operation.Duration;
                                                                                          Start = (int64)estimatedStart;
                                                                                          ResourceAgent = resourceAgent } :> IJob
+                member this.Bucket with get() = this.Bucket
+                member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
             interface IComparable with 
                 member this.CompareTo fWorkItem = 
                     match fWorkItem with 
                     | :? FOperation as other -> compare other.Key this.Key
                     | _ -> invalidArg "Operation" "cannot compare value of different types" 
+                
+        override this.Equals(other) =
+            match other with
+            | :? FOperation as operation -> this.Key.Equals(operation.Key)
+            | _ -> invalidArg "Operation" "cannot compare value of different types" 
+        override this.GetHashCode() = this.Key.GetHashCode()
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.AsIjob = this :> IJob
         member this.UpdateResourceAgent r = { this with ResourceAgent = r }
@@ -63,3 +72,4 @@ open FUpdateStartConditions
                                                                                  this.StartConditions.PreCondition <- startCondition.PreCondition
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }
+        member this.UpdateBucket bucketId = { this with Bucket = bucketId}

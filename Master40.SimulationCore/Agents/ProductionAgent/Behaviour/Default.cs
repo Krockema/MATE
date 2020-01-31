@@ -1,5 +1,5 @@
 ﻿using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.HubAgent;
@@ -238,6 +238,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     , isHeadDemand: fArticle.IsHeadDemand
                     , fArticleKey : fArticle.Key
                     , fArticleName: fArticle.Article.Name
+                    , productionAgent: this.Agent.Name
                     , articleType: fArticle.Article.ArticleType.Name
                     , start: fJob.Start
                     , end: fJob.End);

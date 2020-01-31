@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Master40.DB.Data.WrappersForPrimitives;
+using Master40.DB.DataModel;
+using Master40.DB.Nominal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.DataModel;
-using Master40.DB.Enums;
-using Master40.DB.Nominal;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Types
 {
@@ -36,7 +35,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
         /// </summary>
         private Queue<StockItem> _providerQueue { get; }
         public M_Stock Stock { get; }
-        public decimal Current => _providerQueue.Sum(x => x.QuantityLeft.GetValue());
+        public decimal? Current => _providerQueue.Sum(x => x.QuantityLeft.GetValue());
         public int Id => Stock.Id;
         public string Name => Stock.Name;
         public double Price => Stock.Article.Price;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public virtual IJob DequeueFirstSatisfied(long currentTime)
+        public virtual IJob DequeueFirstSatisfied(long currentTime, M_ResourceTool equippdedResourceTool = null)
         {
             var item = this.jobs.Where(x => x.StartConditions.Satisfied).OrderBy(keySelector: x => x.Priority(currentTime)).FirstOrDefault();
             if (item != null)
@@ -34,14 +35,31 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal List<IJob> GetAllSatisfiedSameTool(long currentTime)
         {
+            
             var job = DequeueFirstSatisfied(currentTime);
             var list = this.jobs.Where(x => x.StartConditions.Satisfied && x.Tool.Id == job.Tool.Id).ToList();
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 this.jobs.Remove(item: item);
             }
             list.Add(job);
+
+            list = UpdateBucketId(list);
+
             return list;
+        }
+
+        private List<IJob> UpdateBucketId(List<IJob> list)
+        {
+            var bucketList = new List<IJob>();
+            var bucketId = Guid.NewGuid().ToString();
+
+            foreach (var item in list)
+            {
+                bucketList.Add(item.UpdateBucket(bucketId));
+            }
+
+            return bucketList;
         }
 
         public abstract bool CapacitiesLeft();

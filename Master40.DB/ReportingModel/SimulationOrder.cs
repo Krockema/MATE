@@ -1,11 +1,10 @@
 ﻿using System;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Nominal;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationOrder : BaseEntity, IOrder
+    public class SimulationOrder : ResultBaseEntity, IOrder
     {
         public string Name { get; set; }
         public int OriginId { get; set; }

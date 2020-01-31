@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Nominal;
+using Master40.DB.Interfaces;
 using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
@@ -35,6 +33,7 @@ namespace Master40.DB.DataModel
         public decimal WorkTimeWithParents { get; set; }
         public int DurationSimulation { get; set; }
         public ProducingState ProducingState { get; set; }
+        public State State { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
 
         public override string ToString()

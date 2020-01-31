@@ -12,6 +12,7 @@ using static FStartConditions;
 using static FBuckets;
 using static IJobs;
 using Master40.SimulationCore.Types;
+using static FStockProviders;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -55,7 +56,8 @@ namespace Master40.SimulationCore.Helper
                                 , productionAgent: productionAgent
                                 , operation: operation
                                 , tool: operation.ResourceTool
-                                , proposals: new List<FProposal>());
+                                , proposals: new List<FProposal>()
+                                , bucket: String.Empty);
         }
 
         /// <summary>
@@ -97,7 +99,8 @@ namespace Master40.SimulationCore.Helper
                                 , hubAgent: hubAgent
                                 , operations: new FSharpSet<FOperation>(elements: operations)
                                 , tool: operation.Tool
-                                , proposals: new List<FProposal>());
+                                , proposals: new List<FProposal>()
+                                , bucket: String.Empty);
         }
 
         public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time)
@@ -134,8 +137,10 @@ namespace Master40.SimulationCore.Helper
                 , hubAgent: hubAgent
                 , operations: new FSharpSet<FOperation>(elements: operations)
                 , tool: operation.Tool
-                , proposals: new List<FProposal>());
+                , proposals: new List<FProposal>()
+                , bucket: String.Empty);
         }
+
 
         public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart
                                             , IActorRef requester
@@ -155,7 +160,7 @@ namespace Master40.SimulationCore.Helper
                 , providedAt: 0
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<Guid>()
+                , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
         }
@@ -176,7 +181,7 @@ namespace Master40.SimulationCore.Helper
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<Guid>()
+                , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
         }

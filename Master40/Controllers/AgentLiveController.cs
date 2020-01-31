@@ -1,13 +1,14 @@
 using Master40.DB.Data.Context;
+using Master40.DB.Nominal;
+using Master40.DB.ReportingModel;
+using Master40.Simulation;
+using Master40.Simulation.CLI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Akka;
-using Master40.Simulation;
 using Master40.SimulationCore.Environment.Options;
-using Master40.DB.Enums;
 
 namespace Master40.Controllers
 {
@@ -15,10 +16,12 @@ namespace Master40.Controllers
     {
         private readonly AgentCore _agentSimulator;
         private readonly ProductionDomainContext _context;
+        private readonly ResultContext _resultCtx;
 
-        public AgentLiveController(AgentCore agentSimulator, ProductionDomainContext context)
+        public AgentLiveController(AgentCore agentSimulator, ProductionDomainContext context, ResultContext resultCtx)
         {
             _agentSimulator = agentSimulator;
+            _resultCtx = resultCtx;
             _context = context;
         }
         public async Task<IActionResult> Index()
@@ -40,36 +43,53 @@ namespace Master40.Controllers
                 case 4: simKind = SimulationType.BucketScope; break;
                 default: return;
             }
-
-
-            // using Default Test Values.
-            var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
-                                                {
-                                                    new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
-                                                    , new SimulationId(value: 1)
-                                                    , new SimulationNumber(value: simulationType)
-                                                    , new SimulationKind(value: simKind)
-                                                    , new OrderArrivalRate(value: arivalRate)
-                                                    , new OrderQuantity(value: orderAmount)
-                                                    , new EstimatedThroughPut(value: estimatedThroughputTime)
-                                                    , new DebugAgents(value: false)
-                                                    , new DebugSystem(value: false)
-                                                    , new KpiTimeSpan(value: 480)
-                                                    // , new MinDeliveryTime(value: 1160)
-                                                    // , new MaxDeliveryTime(value: 1600)
-                                                    , new MinDeliveryTime(value: 1440)
-                                                    , new MaxDeliveryTime(value: 2400)
-                                                    , new TransitionFactor(value: 3)
-                                                    , new MaxBucketSize(value: 120)
-                                                    , new TimePeriodForThrougputCalculation(value: 1920)
-                                                    , new Seed(value: 1337)
-                                                    , new SettlingStart(value: 2880)
-                                                    , new SimulationEnd(value: 20160)
-                                                    , new WorkTimeDeviation(value: 0.2)
-                                                    , new SaveToDB(value: false)
-                                                });
+            // using Default Test Values
+            var simConfig = ArgumentConverter.ConfigurationConverter(_resultCtx, 1);
+            // update customized Items
+            simConfig.ReplaceOption(new SimulationKind(value: simKind));
+            simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
+            simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
+            simConfig.ReplaceOption(new KpiTimeSpan(value: 480));
+            simConfig.ReplaceOption(new Seed(value: 1337));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 20160));
+            simConfig.ReplaceOption(new SaveToDB(value: false));
+            // simConfig.ReplaceOption(new DebugSystem(true));
+            // new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
+ 
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }
+
+        
+
+        // POST: Orders/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+
+        /// <summary>
+        /// TODO : Change from uri to json Body
+        /// </summary>
+        /// <param name="items"></param>
+        /*
+         Sample Json for Postman Body:
+         
+        [{ Id: '1', Property: 'SimNumber', PropertyValue: '1', Description: 'SimNumber' },
+         { Id: '2', Property: 'SimType', PropertyValue: 'Bucket', Description: 'SimType' }]
+
+        Header: 
+        Content-Type 'application/json'
+        */
+        [HttpPost(template: "[Controller]/StartSim")]
+        public void StartSim([FromBody] List<ConfigurationItem> items)
+        {
+            if (ModelState.IsValid)
+            {
+
+            }
+        }
+
+
 
         [HttpGet(template: "[Controller]/ReloadGantt/{orderId}/{stateId}")]
         public IActionResult ReloadGantt(int orderId, int stateId)

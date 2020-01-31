@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="~/css/site.css">
     <link rel="stylesheet" href="~/css/MenuV2.css">
-    <link rel="stylesheet" href="~/css/font-awesome.css">
+    <link rel="stylesheet" href="~/lib/font-awesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="~/lib/font-awesome/css/brands.min.css">
+    <link rel="stylesheet" href="~/lib/font-awesome/css/solid.min.css">
     <link rel="stylesheet" href="~/css/ladda-themeless.min.css">
     <script src="~/lib/popper.js/umd/popper.js"></script>
     <script src="~/lib/jquery/jquery.min.js"></script>
@@ -16,6 +18,7 @@
     <script src="~/lib/moment.js/moment.min.js"></script>
     <script src="~/lib/Chart.js/Chart.min.js"></script>
     <script src="~/js/Chart.BoxPlot.js"></script>
+    <script src="~/js/Chart.Matrix.js"></script>
     <script src="~/js/growl.js"></script>
     <script src="~/js/spin.min.js"></script>
     <script src="~/js/ladda.min.js"></script>
@@ -29,6 +32,18 @@
             top: 50px;
         }
     </style>
+    <script>
+        const processingProxy = new signalR.HubConnectionBuilder()
+            .withUrl("/MessageHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        // Processing Hub is loaded
+        processingProxy.start()
+            .then(function () { processingProxy.invoke('SystemReady') })
+            .catch(err => console.error(err.toString()));
+
+    </script>
 </head>
 
 <body>
@@ -63,7 +78,7 @@
     <!-- /#sidebar-wrapper -->
     <!-- Page Content -->
     <div style="margin: 20px 20px 20px 65px">
-        <div class="container" id="main">
+        <div class="container-fluid" id="main">
             <div class="row">
                 <div class="col-lg-12">@RenderBody()</div>
             </div>
@@ -73,7 +88,7 @@
     <!-- number validation
     fix for '.' -> ',' -->
     <footer class="footer">
-        <p>&#xA9; 2017 - Master ERP 4.0 (Martin, Krockert &amp;&amp; Sebastian Seifert)</p>
+        <p>&#xA9; 2020 - Master ERP 4.0 (Martin, Krockert &amp;&amp; Marvin Matthes)</p>
     </footer>
 </body>
 

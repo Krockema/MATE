@@ -8,6 +8,7 @@ using static FBuckets;
 using static FOperations;
 using static IJobs;
 using static FUpdateStartConditions;
+using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -179,7 +180,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             foreach (var bucket in buckets)
             {
-                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && ((IJob)bucket).Duration + operation.Operation.Duration < _maxBucketSize)
+                var maxbucket = ExceedMaxBucketSize(bucket, operation);
+
+                if (!maxbucket)
+                {
+                    //System.Diagnostics.Debug.WriteLine($"Max bucket size exceed");
+                }
+
+                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && maxbucket)
                 {
                     matchingBuckets.Add(bucket);
                 }
@@ -191,6 +199,50 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return matchingBucket;
         }
 
+        private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
+        {
+            return ((IJob) bucket).Duration + operation.Operation.Duration <
+                   GetMaximumBucketSizeForSetup(operation.Tool);
+        }
+
+        /// <summary>
+        /// TODO: FIX THIS SHIT
+        /// </summary>
+        /// <param name="tool"></param>
+        /// <returns></returns>
+        private long GetMaximumBucketSizeForSetup(M_ResourceTool tool)
+        {
+            var maxBucketSize = 0L;
+            switch (tool.Name)
+            {
+                case "Screwdriver universal":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
+                    break;
+                case "Holding":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.33 * _maxBucketSize, 0));
+                    break;
+                case "Hammer":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.17 * _maxBucketSize, 0));
+                    break;
+                case "Drill head M4":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.25 * _maxBucketSize, 0));
+                    break;
+                case "Drill head M6":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.75 * _maxBucketSize, 0));
+                    break;
+                case "Saw blade small":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
+                    break;
+                case "Saw blade big":
+                    maxBucketSize = Convert.ToInt64(Math.Round(0.40 * _maxBucketSize, 0));
+                    break;
+                default : maxBucketSize = _maxBucketSize;
+                    break;
+            }
+
+            //TODO set to maxBucketSize at least to 60 for 3 elements
+            return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
+        }
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
         {

@@ -6,6 +6,7 @@ using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
 using System;
 using System.Collections.Generic;
+using NLog;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -20,7 +21,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal SimulationNumber simulationNumber;
         internal SimulationKind simulationKind;
         internal SaveToDB saveToDB;
-       
+        internal long maxTime;
+
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -36,7 +38,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             , List<Type> streamTypes)
             : base(time: time, channels: streamTypes)
         {
-            Console.WriteLine(value: "I'm alive: " + Self.Path.ToStringWithAddress());
             collectorBehaviour.Collector = this;
             Behaviour = collectorBehaviour;
             messageHub = msgHub;
@@ -46,6 +47,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             simulationNumber = Config.GetOption<SimulationNumber>();
             simulationKind = Config.GetOption<SimulationKind>();
             saveToDB = Config.GetOption<SaveToDB>();
+            maxTime = Config.GetOption<SimulationEnd>().Value;
+            messageHub.SendToAllClients(msg: "Collector initialized: " + Self.Path.ToStringWithAddress());
         }
 
         public static Props Props(ActorPaths actorPaths
