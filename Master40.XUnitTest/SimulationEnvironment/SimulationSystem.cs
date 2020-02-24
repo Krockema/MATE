@@ -1,37 +1,42 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
-using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using SQLitePCL;
+using Master40.SimulationCore.Helper;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class SimulationSystem : TestKit
     {
-        private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+
+        // local Context
+        private const string masterCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
+        
+        // local TEST Context
+        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        
+        // remote Context
+        private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
+        private const string remoteResultCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40Result;MultipleActiveResultSets=true";
 
-        ProductionDomainContext _ctx = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                                                            .UseInMemoryDatabase(databaseName: "InMemoryDB")
-                                                            .Options);
+        private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
 
-        ProductionDomainContext _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-            .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .Options);
 
-        private ResultContext _ctxResult = ResultContext.GetContext(resultCon:
-            "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true");
+        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
+        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: remoteResultCtxString);
 
         // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
         // .UseInMemoryDatabase(databaseName: "InMemoryResults")
@@ -39,14 +44,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // 
         public SimulationSystem()
         {
-            // _masterDBContext.Database.EnsureDeleted();
-            // _masterDBContext.Database.EnsureCreated();
-            // //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            // MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
-
-            // _ctxResult.Database.EnsureDeleted();
-            // _ctxResult.Database.EnsureCreated();
-            // ResultDBInitializerBasic.DbInitialize(context: _ctxResult);
 
         }
 
@@ -57,14 +54,45 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public void ResetResultsDB(string connectionString)
         
         {
-            ResultContext masterResults = ResultContext.GetContext(resultCon: connectionString);
-            masterResults.Database.EnsureDeleted();
-            masterResults.Database.EnsureCreated();
+            ResultContext results = ResultContext.GetContext(resultCon: connectionString);
+            results.Database.EnsureDeleted();
+            results.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(results);
+        }
 
-            _masterDBContext.Database.EnsureDeleted();
-            _masterDBContext.Database.EnsureCreated();
-            //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+        // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
+        [Fact]
+        public void InitializeRemote()
+        
+        {
+            ResultContext results = ResultContext.GetContext(resultCon: remoteResultCtxString);
+            results.Database.EnsureDeleted();
+            results.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(results);
+
+            MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
+            masterCtx.Database.EnsureDeleted();
+            masterCtx.Database.EnsureCreated();
+            MasterDBInitializerTruck.DbInitialize(masterCtx);
+
+            HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
+                .UseSqlServer(connectionString: hangfireCtxString)
+                .Options);
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            HangfireDBInitializer.DbInitialize(context: dbContext);
+        }
+
+
+        [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
+        public void ClearHangfire()
+        {
+            HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
+                .UseSqlServer(connectionString: hangfireCtxString)
+                .Options);
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            HangfireDBInitializer.DbInitialize(context: dbContext);
         }
 
         [Theory]
@@ -114,7 +142,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
                                                 {
                                                     // set ResultDBString and set SaveToDB true
-                                                    new DBConnectionString(value: localresultdb)
+                                                    new DBConnectionString(value: remoteResultCtxString)
                                                     , new SimulationId(value: 1)
                                                     , new SimulationNumber(value: simNr)
                                                     , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
@@ -148,17 +176,38 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
-
-                AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
-                                            , sim: simulation
-                                            , collectors: new List<IActorRef> { simContext.StorageCollector
-                                                                    , simContext.WorkCollector
-                                                                    , simContext.ContractCollector
-                                            });
+                simContext.StateManager.ContinueExecution(simulation);
+                // AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
+                //                             , sim: simulation
+                //                             , collectors: new List<IActorRef> { simContext.StorageCollector
+                //                                                     , simContext.WorkCollector
+                //                                                     , simContext.ContractCollector
+                //                             });
                 await sim;
             }
 
             Assert.True(condition: simWasReady);
+        }
+
+        [Fact]
+        public void AggreteResults()
+        {
+            var  _resultContext = ResultContext.GetContext(remoteResultCtxString);
+
+            var aggregator = new ResultAggregator(_resultContext);
+            aggregator.BuildResults(1);
+        }
+        
+        
+        
+        
+        
+        [Fact]
+        private void ArgumentConverter()
+        {
+            var numberOfArguments = _ctxResult.ConfigurationRelations.Count(x => x.Id == 1);
+            var config = Simulation. CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 2);
+            Assert.Equal(numberOfArguments +1, config.Count());
         }
 
         private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
@@ -166,7 +215,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var _simNr = simNr;
             using (_ctxResult)
             {
-                _ctxResult.RemoveRange(entities: _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                var itemsToRemove =
+                    _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
+                _ctxResult.RemoveRange(entities: itemsToRemove);
                 _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();

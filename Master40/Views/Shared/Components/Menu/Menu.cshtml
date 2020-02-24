@@ -5,7 +5,7 @@
     if (item.Children != null && item.Children.Count > 0)
      {
          <li data-toggle="collapse" data-target="#Menu-@item.MenuId@item.MenuItemId" class="collapsed">
-             <a href="#"><i class="fa @item.Symbol fa-2x"></i> <span class="nav-text"> @item.MenuText </span>  <span class="arrow"></span></a>
+             <a href="#"><i class="@item.Symbol fa-2x fa-menue"></i> <span class="nav-text"> @item.MenuText </span>  <span class="arrow"></span></a>
          </li>
          <ul class="sub-menu collapse" id="Menu-@item.MenuId@item.MenuItemId">
              <partial name="~/Views/Shared/Components/Menu/Menu.cshtml" model=" item.Children" view-data="ViewData" />
@@ -15,7 +15,7 @@
     {
         <li>
             <a asp-area="" asp-controller=@item.LinkUrl asp-action="Index">
-                <i class="fa @item.Symbol fa-2x"></i>
+                <i class="@item.Symbol fa-2x fa-menue"></i>
                 <span class="nav-text">@Html.DisplayFor(expression: modelItem => item.MenuText)</span>
             </a>
         </li>   

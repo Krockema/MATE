@@ -3,7 +3,7 @@ using Akka.Event;
 using AkkaSim;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.CollectorAgent;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
@@ -43,8 +43,7 @@ namespace Master40.SimulationCore
         public IActorRef WorkCollector { get; private set; }
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
-        public static LogWriter Logger { get; set; }
-
+        public AgentStateManager StateManager { get; private set; }
         /// <summary>
         /// Prepare Simulation Environment
         /// </summary>
@@ -62,14 +61,14 @@ namespace Master40.SimulationCore
                 // Init Simulation
                 SimulationConfig = configuration.GetContextConfiguration();
                 _debugAgents = configuration.GetOption<DebugAgents>().Value;
-                Logger = new LogWriter(writeToFile: _debugAgents);
                 _simulationType = configuration.GetOption<SimulationKind>().Value;
                 _simulation = new Simulation(simConfig: SimulationConfig);
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext, systemMailBox: SimulationConfig.Inbox.Receiver);
 
                 // Create DataCollectors
                 CreateCollectorAgents(configuration: configuration);
-                if (_debugAgents) AddDeadLetterMonitor();
+                //if (_debugAgents) 
+                    AddDeadLetterMonitor();
                 AddTimeMonitor();
 
                 // Create Guardians and Inject Childcreators
@@ -87,6 +86,12 @@ namespace Master40.SimulationCore
                 // Create Storages
                 CreateStorageAgents();
 
+                // Finally Initialize StateManger
+                StateManager = new AgentStateManager(new List<IActorRef> { this.StorageCollector
+                                                                         , this.WorkCollector
+                                                                         , this.ContractCollector }
+                                                    , SimulationConfig.Inbox);
+
                 return _simulation;
             });
         }
@@ -96,7 +101,7 @@ namespace Master40.SimulationCore
             var products = _dBContext.GetProducts();
             var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
 
-            var estimatedThroughputs = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
+            var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
                 .ToList();
 
 
@@ -107,7 +112,7 @@ namespace Master40.SimulationCore
                         productionDomainContext: _dBContext,
                         messageHub: _messageHub,
                         configuration: configuration,
-                        estimatedThroughputTimes: estimatedThroughputs,
+                        estimatedThroughputTimes: estimatedThroughPuts,
                         principal: ActorRefs.Nobody),
                     name: "Supervisor"));
         }
@@ -218,44 +223,6 @@ namespace Master40.SimulationCore
                                                             , sender: ActorPaths.HubDirectory.Ref);
             }
         }
-
-        public static void Continuation(Inbox inbox, Simulation sim, List<IActorRef> collectors)
-        {
-
-            var something = inbox.ReceiveAsync(timeout: TimeSpan.FromHours(value: 1)).Result;
-            switch (something)
-            {
-                case SimulationMessage.SimulationState.Started:
-                    System.Diagnostics.Debug.WriteLine(message: "AKKA:START AGENT SYSTEM", category: "AKKA-System:");
-                    Continuation(inbox: inbox, sim: sim, collectors: collectors);
-                    break;
-                case SimulationMessage.SimulationState.Stopped:
-                    System.Diagnostics.Debug.WriteLine(message: "AKKA:STOP AGENT SYSTEM", category: "AKKA-System:");
-                    var tasks = new List<Task>();
-                    tasks.Add(Logger.WriteToFile());
-                    foreach (var item in collectors)
-                    {
-                        var msg = UpdateLiveFeed.Create(setup: false, target: inbox.Receiver);
-                        System.Diagnostics.Debug.WriteLine($"Ask for Update Feed {item.Path.Name}");
-                        tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 60 * 60)));
-                        
-                    }
-                    Task.WaitAll(tasks.ToArray());
-                    sim.Continue();
-                    Continuation(inbox: inbox, sim: sim, collectors: collectors);
-                    break;
-                case SimulationMessage.SimulationState.Finished:
-                    System.Diagnostics.Debug.WriteLine(message: "SHUTDOWN AGENT SYSTEM", category: "AKKA-System:");
-                    foreach (var item in collectors)
-                    {
-                        var waitFor = item.Ask(message: UpdateLiveFeed.Create(setup: true, target: inbox.Receiver), timeout: TimeSpan.FromHours(value: 1)).Result;
-                    }
-                    sim.ActorSystem.Terminate().Wait();
-                    break;
-                default:
-                    break;
-            }
-        }
-
+      
     }
 }

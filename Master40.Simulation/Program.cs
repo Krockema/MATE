@@ -1,10 +1,14 @@
-﻿using Master40.DB.Data.Context;
+﻿using AkkaSim.Logging;
+using Hangfire;
+using Hangfire.Console;
+using Master40.DB.Data.Context;
 using Master40.Simulation.CLI;
+using Master40.Simulation.CLI.Arguments.External;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
+using NLog;
 using BenchmarkDotNet.Running;
 
 namespace Master40.Simulation
@@ -14,10 +18,16 @@ namespace Master40.Simulation
         static void Main(string[] args)
         {
             Console.WriteLine(value: "Welcome to AkkaSim Cli");
-            
+
+            // has to be Installed here other wise it would attach a new log listener every time a simulation is called.
+            LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
+            // LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
             var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
-            var validCommands = new Commands();
+            var validCommands = Commands.GetAllValidCommands;
             var command = validCommands.Single(predicate: x => x.ArgLong == "Help");
             var lastArg = 0;
             var config = new SimulationCore.Environment.Configuration();
@@ -30,13 +40,12 @@ namespace Master40.Simulation
                     return;
                 }
 
-                if (IsArg(validCommands: validCommands, argument: args[lastArg], command: ref command))
+                if (ArgumentConverter.IsArg(validCommands: validCommands, argument: args[lastArg], command: ref command))
                 {
                     if (command.HasProperty)
                     {
                         lastArg++;
                         command.Action(arg1: config, arg2: args[lastArg]);
-
                     }
                     else
                     {
@@ -45,7 +54,39 @@ namespace Master40.Simulation
                 }
             }
 
-            RunSimulationTask(masterDb: masterDb, config: config).Wait();
+            if (config.TryGetValue(typeof(StartHangfire), out object startHangfire))
+            {
+                StartHangfire(((StartHangfire)startHangfire).Silent).Wait();
+
+
+            } else {
+                RunSimulationTask(masterDb: masterDb, config: config).Wait();
+                Console.WriteLine(value: "Simulation Run Finished.");
+            }
+        }
+
+
+        private static async Task StartHangfire(bool silent)
+        {
+            GlobalConfiguration.Configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseColouredConsoleLogProvider()
+                .UseConsole()
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(ConfigurationManager.AppSettings[index: 1], HangfireConfiguration.StorageOptions.Default);
+            
+            Console.WriteLine("-------- Hangfire is Ready -------");
+
+
+            if (!silent)
+            {
+                Console.WriteLine("Press any key to start processing.");
+                Console.ReadKey();
+            }
+            
+            await Task.Run(() => new BackgroundJobServer(new BackgroundJobServerOptions { WorkerCount = 1 }));
+            Console.ReadLine();
         }
 
         private static async Task RunSimulationTask(ProductionDomainContext masterDb
@@ -68,21 +109,6 @@ namespace Master40.Simulation
                 Console.WriteLine(value: "Ooops. Something went wrong!");
                 throw;
             }
-        }
-
-        private static bool IsArg(List<ICommand> validCommands, string argument, ref ICommand command)
-        {
-            if (null != (command = validCommands.SingleOrDefault(predicate: x => argument
-                                                    .Equals(value: "-" + x.ArgShort, comparisonType: StringComparison.OrdinalIgnoreCase))))
-            {
-                return true;
-            }
-            if (null != (command = validCommands.SingleOrDefault(predicate: x => argument
-                                                    .Equals(value: "--" + x.ArgLong, comparisonType: StringComparison.OrdinalIgnoreCase))))
-            {
-                return true;
-            }
-            return false;
         }
     }
 

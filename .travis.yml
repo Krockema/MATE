@@ -12,7 +12,7 @@ install:
 
 script:
   - dotnet build
-  - dotnet test Master40.XUnitTest/Master40.XUnitTest.csproj --filter FullyQualifiedName!~SimulationSystem
+  - dotnet test Master40.XUnitTest/Master40.XUnitTest.csproj --filter Master40.XUnitTest.Online
 
 
 notifications:

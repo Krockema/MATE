@@ -4,7 +4,7 @@ using System.Diagnostics.SymbolStore;
 using System.Dynamic;
 using System.Linq;
 using Akka.Actor;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Environment.Options;

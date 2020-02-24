@@ -40,12 +40,7 @@
         align-items: center; /* align vertical */
     }
 </style>
-<script>
-    const processingProxy = new signalR.HubConnectionBuilder()
-        .withUrl("/MessageHub")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-</script>
+
 <div class="row">
     <div class="col-12">
         <h2>Agent System</h2>
@@ -119,28 +114,36 @@
                             </div>
                             <div class="card-body">
                                 <div style="text-align: center">
-                                    @{ var containerSize = 150; var textPadding = 75; var fontSize = 15;
+                                    @{
+                                        var containerSize = 150;
+                                        var textPadding = 75;
+                                        var fontSize = 15;
                                         if (Model.Count() > 6)
                                         {
-                                            containerSize = 75; textPadding = 35; fontSize = 10;
-                                        } @Html.Raw(value: @"
-                            <style>
-                                .chartContainer {
-                                    position: relative;
-                                    background-color: transparent;
-                                    width:" + containerSize + @"px;
-                                    height:" + containerSize + @"px;
-                                    margin-left: 5px;
-                                    margin-right: 5px;
-                                    margin-bottom: 5px;
-                                }
-                                .machineText {
-                                    font:" + fontSize + @"px Helvetica;
-                                }
-                                .textLayer {
-                                    padding-top:" + textPadding + @"px;
-                                    font: bold" + fontSize + @"px Helvetica;
-                            </style>") } @foreach (var section in Model.OrderBy(keySelector: x => x.Id)){
+                                            containerSize = 75;
+                                            textPadding = 35;
+                                            fontSize = 10;
+                                        }
+                                        @Html.Raw(value: @"
+                                                <style>
+                                                    .chartContainer {
+                                                        position: relative;
+                                                        background-color: transparent;
+                                                        width:" + containerSize + @"px;
+                                                        height:" + containerSize + @"px;
+                                                        margin-left: 5px;
+                                                        margin-right: 5px;
+                                                        margin-bottom: 5px;
+                                                    }
+                                                    .machineText {
+                                                        font:" + fontSize + @"px Helvetica;
+                                                    }
+                                                    .textLayer {
+                                                        padding-top:" + textPadding + @"px;
+                                                        font: bold" + fontSize + @"px Helvetica;
+                                                </style>");
+                                    }
+                                @foreach (var section in Model.OrderBy(keySelector: x => x.Id)){
                                     <partial name="~/Views/AgentLive/PartialMachine.cshtml" model="section"/>
                                 }
                         </div>
@@ -263,12 +266,6 @@
         $("#oee").replaceWith("<p id='oee'><b>" + msg + " %</b></p>");
     });
 
-    // Processing Hub is loaded
-    processingProxy.start()
-        .then(function () { processingProxy.invoke('SystemReady') })
-        .catch(err => console.error(err.toString()));
-
-
     // Start Agents
     function startAgents() {
         $(".MessageDisplayRunning").html("");
@@ -284,8 +281,7 @@
             + "<h4> Status</h4>"
             + "Running"
             + "</div>");
-
-
+    
         $.get("AgentLive/RunAsync/" + simulationType + "/orderAmount/" + orderAmount + "/arivalRate/" + arivalRate + "/estimatedThroughputTime/" + estimatedThroughputTime);
     }
 

@@ -2,7 +2,7 @@
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
@@ -157,7 +157,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             // order.FinishingTime = (int)this.TimePeriod;
             // order.State = State.Finished;
             //_productionDomainContext.SaveChanges();
-            _messageHub.ProcessingUpdate(simId: _configID, finished: _orderCounter.ProvidedOrder(), simType: SimulationType.Decentral.ToString(), max: _orderCounter.Max);
+            // _messageHub.ProcessingUpdate(simId: _configID, finished: _orderCounter.ProvidedOrder(), simType: SimulationType.Decentral.ToString(), max: _orderCounter.Max);
         }
 
         private void End()

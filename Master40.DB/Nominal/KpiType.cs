@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Master40.DB.Enums
+﻿namespace Master40.DB.Nominal
 {
     public enum KpiType
     {
@@ -16,6 +12,7 @@ namespace Master40.DB.Enums
         MeanTimeToStart,
         ResourceUtilizationTotal,
         ResourceSetupTotal,
-        StockTotals
+        StockTotals,
+        AverageResult = 999
     }
 }

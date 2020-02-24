@@ -3,16 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="DistributionProvider\**" />
-    <EmbeddedResource Remove="DistributionProvider\**" />
-    <None Remove="DistributionProvider\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AkkaSim" Version="0.3.2" />
+    <PackageReference Include="AkkaSim" Version="0.4.6" />
   </ItemGroup>
 
   <ItemGroup>

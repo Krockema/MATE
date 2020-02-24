@@ -1,6 +1,6 @@
 ﻿using System;
 using Akka.Actor;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Helper;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 

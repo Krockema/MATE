@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ChartJSCore.Helpers;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.Extensions;
 
 namespace Master40.ViewComponents

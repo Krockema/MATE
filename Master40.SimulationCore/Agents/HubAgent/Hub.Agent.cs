@@ -1,6 +1,6 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 
 namespace Master40.SimulationCore.Agents.HubAgent

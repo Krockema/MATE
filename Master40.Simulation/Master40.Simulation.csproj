@@ -11,22 +11,15 @@
     <RuntimeIdentifiers>win-x64;ubuntu.16.10-x64;linux-musl-x64</RuntimeIdentifiers>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Remove="CLI\Arguments\JsonArgs.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
+    <PackageReference Include="Hangfire.Console" Version="1.4.2" />
+    <PackageReference Include="HangFire.Core" Version="1.7.9" />
+    <PackageReference Include="HangFire.SqlServer" Version="1.7.9" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="CLI\Arguments\" />
   </ItemGroup>
 
 </Project>

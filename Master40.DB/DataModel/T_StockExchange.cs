@@ -2,9 +2,8 @@
 using Master40.DB.Data.WrappersForPrimitives;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection.Metadata.Ecma335;
-using Master40.DB.Enums;
-using Master40.DB.Interfaces;
 using Master40.DB.Nominal;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB.DataModel
 {

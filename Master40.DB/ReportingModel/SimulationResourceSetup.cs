@@ -1,4 +1,4 @@
-﻿using Master40.DB.Enums;
+﻿using Master40.DB.Nominal;
 using Master40.DB.ReportingModel.Interface;
 
 namespace Master40.DB.ReportingModel
