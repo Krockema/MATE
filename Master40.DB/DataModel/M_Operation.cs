@@ -14,12 +14,12 @@ namespace Master40.DB.DataModel
         public int ArticleId { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }
-        public int ResourceSkillId { get; set; }
-        public M_ResourceSkill ResourceSkill { get; set; }
+        public int ResourceCapabilityId { get; set; }
+        public M_ResourceCapability ResourceCapability { get; set; }
         public ICollection<M_ArticleBom> ArticleBoms { get; set; }
 
         /// <summary>
-        /// TODO Probably necessary to add multiply skills to a hub
+        /// TODO Probably necessary to add multiply Capabilities to a hub
         /// </summary>
         public int ResourceToolId { get; set; }
         public M_ResourceTool ResourceTool { get; set; }

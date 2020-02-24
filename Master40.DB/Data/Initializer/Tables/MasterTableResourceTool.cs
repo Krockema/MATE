@@ -36,7 +36,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ASSEMBLY_HOLDING,
                 ASSEMBLY_HAMMER
 
-        };
+            };
             context.ResourceTools.AddRange(entities: resourceTools);
             context.SaveChanges();
             return resourceTools;

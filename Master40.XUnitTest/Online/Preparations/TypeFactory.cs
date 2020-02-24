@@ -24,7 +24,7 @@ namespace Master40.XUnitTest.Online.Preparations
                 Id = 1,
                 Name = jobName,
                 ArticleBoms = new List<M_ArticleBom> { bom },
-                ResourceSkill = new M_ResourceSkill() { Name = skillName },
+                ResourceCapability = new M_ResourceCapability() { Name = skillName },
                 ResourceTool = tool
             };
 

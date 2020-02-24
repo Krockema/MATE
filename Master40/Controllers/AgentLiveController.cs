@@ -27,7 +27,7 @@ namespace Master40.Controllers
         public async Task<IActionResult> Index()
         {
             ViewData[index: "machines"] = _context.Resources.Select(selector: x => x.Name).ToList();
-            var masterDBContext = _context.Resources.Include(navigationPropertyPath: a => a.ResourceSkills);
+            var masterDBContext = _context.Resources.Include(navigationPropertyPath: a => a.ResourceCapabilities);
             return View(model: await masterDBContext.ToListAsync());
         }
 

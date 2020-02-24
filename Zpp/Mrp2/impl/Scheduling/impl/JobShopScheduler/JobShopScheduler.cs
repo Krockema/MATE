@@ -19,11 +19,11 @@ namespace Zpp.Mrp2.impl.Scheduling.impl.JobShopScheduler
             ZppConfiguration.CacheManager.GetMasterDataCache();
 
         private void CorrectIdleStartTimesOfMachines(IEnumerable<ProductionOrderOperation> operations,
-            Dictionary<Id, List<Resource>> resourcesByResourceSkillId)
+            Dictionary<Id, List<Resource>> resourcesByResourceCapabilityId)
         {
             foreach (var operation in operations)
             {
-                foreach (var resource in resourcesByResourceSkillId[operation.GetResourceSkillId()])
+                foreach (var resource in resourcesByResourceCapabilityId[operation.GetResourceCapabilityId()])
                 {
                     if (resource.GetValue().Id.Equals(operation.GetValue().ResourceId) &&
                         resource.GetIdleStartTime().GetValue() < operation.GetEndTime())
@@ -37,13 +37,13 @@ namespace Zpp.Mrp2.impl.Scheduling.impl.JobShopScheduler
         public void ScheduleWithGifflerThompsonAsZaepfel(IPriorityRule priorityRule,
             IDirectedGraph<INode> operationGraph)
         {
-            Dictionary<Id, List<Resource>> resourcesByResourceSkillId =
+            Dictionary<Id, List<Resource>> resourcesByResourceCapabilityId =
                 new Dictionary<Id, List<Resource>>();
-            foreach (var resourceSkill in _dbMasterDataCache.M_ResourceSkillGetAll())
+            foreach (var resourceCapability in _dbMasterDataCache.M_ResourceCapabilityGetAll())
             {
-                resourcesByResourceSkillId.Add(resourceSkill.GetId(),
+                resourcesByResourceCapabilityId.Add(resourceCapability.GetId(),
                     ZppConfiguration.CacheManager.GetAggregator()
-                        .GetResourcesByResourceSkillId(resourceSkill.GetId()));
+                        .GetResourcesByResourceCapabilityId(resourceCapability.GetId()));
             }
 
             // set correct idleStartTimes in resources from operations of last cycle(s)
@@ -54,9 +54,9 @@ namespace Zpp.Mrp2.impl.Scheduling.impl.JobShopScheduler
             // TODO: This is a huge performance impact, consider having an T_Resource with new field IdleStartTime
             // so the following collection iterations can be skipped (Archive operations can be huge)
             CorrectIdleStartTimesOfMachines(dbTransactionData.ProductionOrderOperationGetAll(),
-                resourcesByResourceSkillId);
+                resourcesByResourceCapabilityId);
             CorrectIdleStartTimesOfMachines(dbTransactionDataArchive.ProductionOrderOperationGetAll(),
-                resourcesByResourceSkillId);
+                resourcesByResourceCapabilityId);
 
 
             /*
@@ -106,7 +106,7 @@ namespace Zpp.Mrp2.impl.Scheduling.impl.JobShopScheduler
                 IStackSet<ProductionOrderOperation> K = new StackSet<ProductionOrderOperation>();
                 foreach (var o in S)
                 {
-                    if (o.GetValue().ResourceSkillId.Equals(o_min.GetValue().ResourceSkillId) &&
+                    if (o.GetValue().ResourceCapabilityId.Equals(o_min.GetValue().ResourceCapabilityId) &&
                         o.GetStartTime() < d_min)
                     {
                         K.Push(o);
@@ -120,7 +120,7 @@ namespace Zpp.Mrp2.impl.Scheduling.impl.JobShopScheduler
 
                     List<ProductionOrderOperation> allO1 = new List<ProductionOrderOperation>();
 
-                    foreach (var machine in resourcesByResourceSkillId[o_min.GetResourceSkillId()]
+                    foreach (var machine in resourcesByResourceCapabilityId[o_min.GetResourceCapabilityId()]
                         .OrderBy(x => x.GetIdleStartTime().GetValue()))
                     {
                         if (K.Any() == false)

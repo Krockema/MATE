@@ -49,7 +49,7 @@ namespace Master40.ViewComponents
                 var work = endSum - startSum;
                 var wait = max - work;
                 var cc = new ChartColors();
-                data.Datasets.Add( item: new PieDataset{ Data = new List<double>{ work, wait },
+                data.Datasets.Add( item: new PieDataset{ Data = new List<double?>{ work, wait },
                     BackgroundColor = new List<ChartColor> { cc.Get(2), cc.Get(0) } } );
 
                 data.Labels = new string[] {"Work " + Math.Round(d: Convert.ToDecimal(value: work) / max*100, decimals: 2) + " %",

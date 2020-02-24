@@ -45,9 +45,11 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
                 TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, tool: tools[2]);
             var bucket = MessageFactory.ToBucketScopeItem(newJobItem, hubAgentActorRef, 0);
 
+            
+
             var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(job: bucket, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0);
 
-            Assert.Equal(expected: 5L, actual: queueableTime.EstimatedStart);
+            Assert.Equal(expected: 125L, actual: queueableTime.EstimatedStart);
         }
 
         private void PrepareModel()
@@ -82,16 +84,22 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var bucket1 = MessageFactory.ToBucketScopeItem(operation1, hubAgentActorRef, 0);
             bucket1.AddOperation(operation4);
             var prioBucket1 = ((IJob)bucket1).Priority(0);
+            bucket1.StartConditions.ArticlesProvided = true;
+            bucket1.StartConditions.PreCondition = true;
             JobQueueScopeLimited.Enqueue(bucket1);
 
             var bucket2 = MessageFactory.ToBucketScopeItem(operation2, hubAgentActorRef, 0);
-            bucket1.AddOperation(operation5);
+            bucket2.AddOperation(operation5);
             var prioBucket2 = ((IJob)bucket2).Priority(0);
+            bucket2.StartConditions.ArticlesProvided = true;
+            bucket2.StartConditions.PreCondition = true;
             JobQueueScopeLimited.Enqueue(bucket2);
 
             var bucket3 = MessageFactory.ToBucketScopeItem(operation3, hubAgentActorRef, 0);
-            bucket1.AddOperation(operation3);
+            bucket3.AddOperation(operation3);
             var prioBucket3 = ((IJob)bucket3).Priority(0);
+            bucket3.StartConditions.ArticlesProvided = true;
+            bucket3.StartConditions.PreCondition = true;
             JobQueueScopeLimited.Enqueue(bucket3);
 
         }

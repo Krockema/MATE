@@ -62,7 +62,7 @@ namespace Master40.ViewComponents
 
                 // use available hight in Chart
                 var data = new Data { Labels = GetRangeForSchedulingType(schedulingState: schedulingState, schedules: schedules) };
-                var machineGroups = _context.ResourceSkills.Select(selector: x => x.Id);
+                var machineGroups = _context.ResourceCapabilities.Select(selector: x => x.Id);
                 var yMaxScale = 0;
 
                 // create Dataset for each Lable
@@ -154,7 +154,7 @@ namespace Master40.ViewComponents
        
             var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(predicate: x => x.Resource == machineGroupId.ToString());
             
-            var data = new List<double>();
+            var data = new List<double?>();
             for (var i = minRange; i < maxRange; i++)
             {
                 int item;

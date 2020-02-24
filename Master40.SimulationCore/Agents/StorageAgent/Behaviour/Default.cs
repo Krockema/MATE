@@ -13,6 +13,7 @@ using static FStockProviders;
 using static FStockReservations;
 using static FUpdateSimulationWorkProviders;
 using static FUpdateStockValues;
+using static FStockProviders;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {

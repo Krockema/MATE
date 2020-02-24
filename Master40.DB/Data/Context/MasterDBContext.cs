@@ -24,7 +24,7 @@ namespace Master40.DB.Data.Context
         public DbSet<M_BusinessPartner> BusinessPartners { get; set; }
         public DbSet<M_Resource> Resources { get; set; }
         public DbSet<M_ResourceTool> ResourceTools { get; set; }
-        public DbSet<M_ResourceSkill> ResourceSkills { get; set; }
+        public DbSet<M_ResourceCapability> ResourceCapabilities { get; set; }
         public DbSet<M_ResourceSetup> ResourceSetups { get; set; }
         public DbSet<M_Stock> Stocks { get; set; }
         public DbSet<M_Unit> Units { get; set; }
@@ -74,7 +74,7 @@ namespace Master40.DB.Data.Context
 
             modelBuilder.Entity<M_Operation>()
                 .ToTable(name: "M_Operation")
-                .HasOne(navigationExpression: m => m.ResourceSkill);
+                .HasOne(navigationExpression: m => m.ResourceCapability);
             modelBuilder.Entity<M_Operation>()
                 .ToTable(name: "M_Operation")
                 .HasOne(navigationExpression: m => m.ResourceTool);
@@ -93,8 +93,8 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_ResourceTool>()
                 .ToTable(name: "M_ResourceTool");
 
-            modelBuilder.Entity<M_ResourceSkill>()
-                .ToTable(name: "M_ResourceSkill");
+            modelBuilder.Entity<M_ResourceCapability>()
+                .ToTable(name: "M_ResourceCapability");
 
             modelBuilder.Entity<M_ResourceSetup>()
                 .ToTable(name: "M_ResourceSetup")
@@ -108,9 +108,9 @@ namespace Master40.DB.Data.Context
                 .HasForeignKey(foreignKeyExpression: re => re.ResourceToolId);
 
             modelBuilder.Entity<M_ResourceSetup>()
-                .HasOne(navigationExpression: re => re.ResourceSkill)
+                .HasOne(navigationExpression: re => re.ResourceCapability)
                 .WithMany(navigationExpression: r => r.ResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ResourceSkillId);
+                .HasForeignKey(foreignKeyExpression: re => re.ResourceCapabilityId);
                 
             modelBuilder.Entity<M_Stock>()
                 .ToTable(name: "M_Stock");

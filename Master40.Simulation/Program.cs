@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using NLog;
+using BenchmarkDotNet.Running;
 
 namespace Master40.Simulation
 {
@@ -20,10 +21,10 @@ namespace Master40.Simulation
 
             // has to be Installed here other wise it would attach a new log listener every time a simulation is called.
             LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
-            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
-            // LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
+            //LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
             var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
             var validCommands = Commands.GetAllValidCommands;

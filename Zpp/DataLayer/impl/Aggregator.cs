@@ -34,10 +34,10 @@ namespace Zpp.DataLayer.impl
             throw new System.NotImplementedException();
         }
 
-        public List<Resource> GetResourcesByResourceSkillId(Id resourceSkillId)
+        public List<Resource> GetResourcesByResourceCapabilityId(Id resourceCapabilityId)
         {
             var setupIds = _dbMasterDataCache.M_ResourceSetupGetAll()
-                .Where(x => x.ResourceSkillId.Equals(resourceSkillId.GetValue()))
+                .Where(x => x.ResourceCapabilityId.Equals(resourceCapabilityId.GetValue()))
                 .Select(i => i.ResourceId);
             var resources = _dbMasterDataCache.ResourceGetAll()
                 .Where(x => setupIds.Contains(x.GetValue().Id)).ToList();

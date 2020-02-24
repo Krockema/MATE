@@ -18,9 +18,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     public class BucketManager
     {
         private List<FBucket> _buckets { get; set; } = new List<FBucket>();
+        
+        public Dictionary<ToolCapabilityPair, long> _toolBucketSizeDictionary { get; set; } = new Dictionary<ToolCapabilityPair, long>();
 
         private long _maxBucketSize { get; set; }
-
+        
         public BucketManager(long maxBucketSize)
         {
             _maxBucketSize = maxBucketSize;
@@ -79,6 +81,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             bucket = bucket.RemoveOperation(operation);
             _buckets.Replace(bucket);
+
             //TODO delete this one after working
             //System.Diagnostics.Debug.WriteLine($"{bucket.Name} has removed operation {operation.Operation.Name} {operation.Key} und has now {bucket.Operations.Count} operations left");
         }
@@ -122,7 +125,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <param name="hubAgent"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public FBucket AddToBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public FBucket AddToBucket(FOperation fOperation)
         {
             var matchingBuckets = FindAllWithSameTool(fOperation);
 
@@ -201,47 +204,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
         {
-            return ((IJob) bucket).Duration + operation.Operation.Duration <
-                   GetMaximumBucketSizeForSetup(operation.Tool);
-        }
+            return ((IJob) bucket).Duration + operation.Operation.Duration <=
+                   GetCalculatedBucketSize(operation.Tool);
 
-        /// <summary>
-        /// TODO: FIX THIS SHIT
-        /// </summary>
-        /// <param name="tool"></param>
-        /// <returns></returns>
-        private long GetMaximumBucketSizeForSetup(M_ResourceTool tool)
-        {
-            var maxBucketSize = 0L;
-            switch (tool.Name)
-            {
-                case "Screwdriver universal":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
-                    break;
-                case "Holding":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.33 * _maxBucketSize, 0));
-                    break;
-                case "Hammer":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.17 * _maxBucketSize, 0));
-                    break;
-                case "Drill head M4":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.25 * _maxBucketSize, 0));
-                    break;
-                case "Drill head M6":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.75 * _maxBucketSize, 0));
-                    break;
-                case "Saw blade small":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.50 * _maxBucketSize, 0));
-                    break;
-                case "Saw blade big":
-                    maxBucketSize = Convert.ToInt64(Math.Round(0.40 * _maxBucketSize, 0));
-                    break;
-                default : maxBucketSize = _maxBucketSize;
-                    break;
-            }
-
-            //TODO set to maxBucketSize at least to 60 for 3 elements
-            return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
         }
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)
@@ -319,6 +284,61 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 }
             }
             return notSatisfiedOperations;
+        }
+
+        public long AddOrUpdateBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
+        {
+            long maxBucketSize = 0L;
+            var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+            
+            if (toolCapacityEntry.Key == null)
+            {
+                 _toolBucketSizeDictionary.Add(toolCapabilityPair, 0L);
+                 toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+            }
+
+            var value = toolCapacityEntry.Value;
+            value += duration;
+            _toolBucketSizeDictionary[toolCapacityEntry.Key] = value;
+            
+            return maxBucketSize;
+
+        }
+
+        public long DecreaseBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
+        {
+            long maxBucketSize = 0L;
+            var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+            if (toolCapacityEntry.Key == null) throw new Exception("toolCapacity is broken");
+            var value = toolCapacityEntry.Value;
+            value -= duration;
+            _toolBucketSizeDictionary[toolCapacityEntry.Key] = value;
+            //System.Diagnostics.Debug.WriteLine($"{toolCapabilityPair._resourceTool.Name} of {toolCapabilityPair._resourceCapability.Name} % to Value {value}");
+            return maxBucketSize;
+
+        }
+
+        public long GetCalculatedBucketSize(M_ResourceTool tool)
+        {
+            var maxBucketSize = 0L;
+            double capabilitySize = 0;
+
+            var toolCapability = _toolBucketSizeDictionary.Single(x => x.Key._resourceTool.Name.Equals(tool.Name));
+
+            foreach (var entry in _toolBucketSizeDictionary)
+            {
+                if (entry.Key._resourceCapability.Name.Equals(toolCapability.Key._resourceCapability.Name))
+                {
+                    capabilitySize += Convert.ToDouble(entry.Value);
+                }
+            }
+
+            var toolRatioOfCapability = toolCapability.Value / capabilitySize;
+            //System.Diagnostics.Debug.WriteLine($"{toolCapability.Key._resourceTool.Name} {toolRatioOfCapability} % of {toolCapability.Key._resourceCapability.Name}");
+            maxBucketSize = Convert.ToInt64(Math.Round(toolRatioOfCapability * _maxBucketSize, 0));
+
+            //TODO Maybe add min bucket size
+            return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
         }
     }
 }

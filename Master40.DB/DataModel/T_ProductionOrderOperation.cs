@@ -11,9 +11,9 @@ namespace Master40.DB.DataModel
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
         public int Duration { get; set; }
-        public int ResourceSkillId { get; set; }
+        public int ResourceCapabilityId { get; set; }
         [JsonIgnore]
-        public M_ResourceSkill ResourceSkill { get; set; }
+        public M_ResourceCapability ResourceCapability { get; set; }
         public int? ResourceId { get; set; }
         [JsonIgnore]
         public M_Resource Resource { get; set; }

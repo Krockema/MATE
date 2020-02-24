@@ -32,14 +32,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal M_ResourceSetup GetSetupByTool(M_ResourceTool resourceTool)
         {
-            //TODO Take care if 1 Skill can be done by multiply tools
+            //TODO Take care if 1 Capability can be done by multiply tools
             var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id);
             return resourceSetup;
         }
 
         internal int GetSetupDurationByTool(M_ResourceTool resourceTool)
         {
-            //TODO Take care if 1 Skill can be done by multiply tools
+            //TODO Take care if 1 Capability can be done by multiply tools
             var setupTime = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id).SetupTime;
             return setupTime;
         }

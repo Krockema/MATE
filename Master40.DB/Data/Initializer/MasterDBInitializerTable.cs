@@ -8,9 +8,9 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDbInitializerTable
     {
-        private const string RESCOURCESKILL_CUT = "CuttingSkill";
-        private const string RESCOURCESKILL_DRILL = "DrillSkill";
-        private const string RESCOURCESKILL_ASSEBMLY_SCREW = "AssemblyUnitScrewSkill";
+        private const string RESCOURCECAPABILITY_CUT = "CuttingCapability";
+        private const string RESCOURCECAPABILITY_DRILL = "DrillCapability";
+        private const string RESCOURCECAPABILITY_ASSEBMLY_SCREW = "AssemblyUnitScrewCapability";
         
 
         private const string RESCOURCETOOL_SAWBIG = "Saw blade big";
@@ -82,15 +82,15 @@ namespace Master40.DB.Data.Initializer
             context.Resources.AddRange(entities: resources);
             context.SaveChanges();
 
-            //ResourceSkills
-            var resourceSkills = CreateResourceSkills();
-            context.ResourceSkills.AddRange(entities: resourceSkills);
+            //ResourceCapabilities
+            var resourceCapabilities = CreateResourceCapabilities();
+            context.ResourceCapabilities.AddRange(entities: resourceCapabilities);
             context.SaveChanges();
 
             //ResourceSetups
             var resourceSetups = CreateResourceSetups(resources: resources
                                                 , resourceTools: resourceTools
-                                                , resourceSkills: resourceSkills);
+                                                , resourceCapabilities: resourceCapabilities);
             context.ResourceSetups.AddRange(entities: resourceSetups);
             context.SaveChanges();
             
@@ -116,7 +116,7 @@ namespace Master40.DB.Data.Initializer
             }
 
             //Operations
-            var operations = CreateOperations(articles: articles, resourceSkills: resourceSkills, resourceTools: resourceTools);
+            var operations = CreateOperations(articles: articles, resourceCapabilities: resourceCapabilities, resourceTools: resourceTools);
             context.Operations.AddRange(entities: operations);
             context.SaveChanges();
 
@@ -241,10 +241,10 @@ namespace Master40.DB.Data.Initializer
         /// 
         /// </summary>
         /// <param name="articles"></param>
-        /// <param name="resourceSkills"></param>
+        /// <param name="resourceCapabilities"></param>
         /// <param name="resourceTools"></param>
         /// <returns></returns>
-        private static M_Operation[] CreateOperations(M_Article[] articles, M_ResourceSkill[] resourceSkills,
+        private static M_Operation[] CreateOperations(M_Article[] articles, M_ResourceCapability[] resourceCapabilities,
             M_ResourceTool[] resourceTools)
         {
             var operations = new M_Operation[]
@@ -253,7 +253,7 @@ namespace Master40.DB.Data.Initializer
                 new M_Operation
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLE).Id, Name = OPERATION_ASSEMBLY_TABLE,
-                    Duration = 5, ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_ASSEBMLY_SCREW),
+                    Duration = 5, ResourceCapability = resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_ASSEBMLY_SCREW),
                     ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SCREWDRIVERCROSS2),
                     HierarchyNumber = 10
                 },
@@ -261,7 +261,7 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLE).Id,
                     Name = OPERATION_SCREW_TOGETHER_TABLE, Duration = 20,
-                    ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_ASSEBMLY_SCREW),
+                    ResourceCapability = resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_ASSEBMLY_SCREW),
                     ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SCREWDRIVERCROSS2),
                     HierarchyNumber = 20
                 },
@@ -270,14 +270,14 @@ namespace Master40.DB.Data.Initializer
                 new M_Operation
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLE_LEG).Id, Name = OPERATION_CUT_TABLE_LEG,
-                    Duration = 10, ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT),
+                    Duration = 10, ResourceCapability = resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT),
                     ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SAWSMALL), HierarchyNumber = 10
                 },
                 new M_Operation
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLE_LEG).Id,
                     Name = OPERATION_DRILL_TABLE_LEG, Duration = 5,
-                    ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_DRILL),
+                    ResourceCapability = resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_DRILL),
                     ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_M6), HierarchyNumber = 20
                 },
 
@@ -285,13 +285,13 @@ namespace Master40.DB.Data.Initializer
                 new M_Operation
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLETOP).Id, Name = OPERATION_CUT_TABLETOP,
-                    Duration = 20, ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT),
+                    Duration = 20, ResourceCapability = resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT),
                     ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_SAWBIG), HierarchyNumber = 10
                 },
                 new M_Operation
                 {
                     ArticleId = articles.Single(predicate: a => a.Name == ARTICLE_TABLETOP).Id, Name = OPERATION_DRILL_TABLETOP,
-                    Duration = 5, ResourceSkill = resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_DRILL),
+                    Duration = 5, ResourceCapability = resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_DRILL),
                     ResourceTool = resourceTools.Single(predicate: t => t.Name == RESCOURCETOOL_M6), HierarchyNumber = 20
                 },
             };
@@ -361,36 +361,36 @@ namespace Master40.DB.Data.Initializer
         /// <summary>
         /// /
         /// </summary>
-        /// <param name="resourceSkills"></param>
+        /// <param name="resourceCapabilities"></param>
         /// <param name="resourceSetups"></param>
         /// <returns></returns>
-        private static M_ResourceSkill[] UpdateResourceSkills(M_ResourceSkill[] resourceSkills, M_ResourceSetup[] resourceSetups)
+        private static M_ResourceCapability[] UpdateResourceCapabilities(M_ResourceCapability[] resourceCapabilities, M_ResourceSetup[] resourceSetups)
         {
-            var _resourceSkills = resourceSkills;
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT).ResourceSetups
+            var _resourceCapabilities = resourceCapabilities;
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_SAW1_SAWBIG));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_SAW2_SAWSMALL));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_SAW2_SAWBIG));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_SAW2_SAWSMALL));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_SAW3_SAWBIG));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_CUT).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_CUT).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_SAW3_SAWSMALL));
 
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_DRILL).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_DRILL).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_DRILL1_M4));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_DRILL).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_DRILL).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_DRILL1_M6));
 
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_ASSEBMLY_SCREW).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_ASSEBMLY_SCREW).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_ASSEMBLY1_SCREW2));
-            _resourceSkills.Single(predicate: s => s.Name == RESCOURCESKILL_ASSEBMLY_SCREW).ResourceSetups
+            _resourceCapabilities.Single(predicate: s => s.Name == RESCOURCECAPABILITY_ASSEBMLY_SCREW).ResourceSetups
                 .Add(item: resourceSetups.Single(predicate: r => r.Name == RESCOURCESETUP_ASSEMBLY2_SCREW2));
 
-            return _resourceSkills;
+            return _resourceCapabilities;
         }
 
         /// <summary>
@@ -401,7 +401,7 @@ namespace Master40.DB.Data.Initializer
         /// <returns></returns>
         private static M_ResourceSetup[] CreateResourceSetups(M_Resource[] resources
                                                             , M_ResourceTool[] resourceTools
-                                                            , M_ResourceSkill[] resourceSkills)
+                                                            , M_ResourceCapability[] resourceCapabilities)
         {
             var resourceSetups = new M_ResourceSetup[]
             {
@@ -410,52 +410,52 @@ namespace Master40.DB.Data.Initializer
                 {
                     Name = RESCOURCESETUP_SAW1_SAWBIG, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_SAW1).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SAWBIG).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_CUT).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_CUT).Id
                 },
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_SAW1_SAWSMALL, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_SAW1).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SAWSMALL).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_CUT).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_CUT).Id
                 },
                 //SAW2
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_SAW2_SAWBIG, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_SAW2).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SAWBIG).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_CUT).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_CUT).Id
                 },
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_SAW2_SAWSMALL, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_SAW2).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SAWSMALL).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_CUT).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_CUT).Id
                 },
                 //SAW3
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_SAW3_SAWBIG, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_SAW3).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SAWBIG).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_CUT).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_CUT).Id
                 },
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_SAW3_SAWSMALL, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_SAW3).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SAWSMALL).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_CUT).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_CUT).Id
                 },
                 //Drill1
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_DRILL1_M6, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_DRILL1).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_M6).Id, SetupTime = 10
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_DRILL).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_DRILL).Id
                 },
                 new M_ResourceSetup
                 {
                     Name = RESCOURCESETUP_DRILL1_M4, ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_DRILL1).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_M4).Id, SetupTime = 10
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_DRILL).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_DRILL).Id
                 },
                 //Assembly1
                 new M_ResourceSetup
@@ -463,7 +463,7 @@ namespace Master40.DB.Data.Initializer
                     Name = RESCOURCESETUP_ASSEMBLY1_SCREW2,
                     ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_ASSEMBLY1).Id,
                     ResourceToolId = resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SCREWDRIVERCROSS2).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_ASSEBMLY_SCREW).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_ASSEBMLY_SCREW).Id
                 },
                 //Assembly2
                 new M_ResourceSetup
@@ -471,7 +471,7 @@ namespace Master40.DB.Data.Initializer
                     Name = RESCOURCESETUP_ASSEMBLY2_SCREW2,
                     ResourceId = resources.Single(predicate: s => s.Name == RESCOURCE_ASSEMBLY2).Id,
                     ResourceToolId= resourceTools.Single(predicate: s => s.Name == RESCOURCETOOL_SCREWDRIVERCROSS2).Id, SetupTime = 5
-                    , ResourceSkillId = resourceSkills.Single(x => x.Name == RESCOURCESKILL_ASSEBMLY_SCREW).Id
+                    , ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESCOURCECAPABILITY_ASSEBMLY_SCREW).Id
                 },
             };
             return resourceSetups;
@@ -510,15 +510,15 @@ namespace Master40.DB.Data.Initializer
         /// 
         /// </summary>
         /// <returns></returns>
-        private static M_ResourceSkill[] CreateResourceSkills()
+        private static M_ResourceCapability[] CreateResourceCapabilities()
         {
-            var resourceSkills = new M_ResourceSkill[]
+            var resourceCapabilities = new M_ResourceCapability[]
             {
-                new M_ResourceSkill {Name = RESCOURCESKILL_CUT},
-                new M_ResourceSkill {Name = RESCOURCESKILL_DRILL},
-                new M_ResourceSkill {Name = RESCOURCESKILL_ASSEBMLY_SCREW},
+                new M_ResourceCapability {Name = RESCOURCECAPABILITY_CUT},
+                new M_ResourceCapability {Name = RESCOURCECAPABILITY_DRILL},
+                new M_ResourceCapability {Name = RESCOURCECAPABILITY_ASSEBMLY_SCREW},
             };
-            return resourceSkills;
+            return resourceCapabilities;
         }
         /// <summary>
         /// 
