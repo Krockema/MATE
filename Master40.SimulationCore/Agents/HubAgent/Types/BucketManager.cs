@@ -204,7 +204,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
         {
-            return ((IJob) bucket).Duration + operation.Operation.Duration <
+            return ((IJob) bucket).Duration + operation.Operation.Duration <=
                    GetCalculatedBucketSize(operation.Tool);
 
         }
@@ -313,7 +313,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var value = toolCapacityEntry.Value;
             value -= duration;
             _toolBucketSizeDictionary[toolCapacityEntry.Key] = value;
-
+            //System.Diagnostics.Debug.WriteLine($"{toolCapabilityPair._resourceTool.Name} of {toolCapabilityPair._resourceCapability.Name} % to Value {value}");
             return maxBucketSize;
 
         }
