@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer.Tables;
@@ -8,7 +9,7 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerTruck
     {
-        public static void DbInitialize(MasterDBContext context)
+        public static void DbInitialize(MasterDBContext context, ModelSize modelSize)
         {
             context.Database.EnsureCreated();
 
@@ -18,16 +19,35 @@ namespace Master40.DB.Data.Initializer
             
             // Resource Definitions
             var resourceTools = new MasterTableResourceTool();
-                resourceTools.Init(context);
-            // requires Tools
-            var resource = new MasterTableResource();
-                resource.Init(context);
+            resourceTools.Init(context);
+
             // requires Tools and Resources
             var resourceCapabilities = new MasterTableResourceCapability();
             resourceCapabilities.Init(context);
+
+            // requires Tools
+
             // requires Tools, Resources, and Capabilities
-            var resourceSetups = new MasterTableResourceSetup(resource, resourceTools, resourceCapabilities);
-                resourceSetups.Init(context);
+            
+
+            switch (modelSize)
+                {
+                    case ModelSize.Small: throw  new NotImplementedException();
+                    case ModelSize.Medium:
+                        var resourceMedium = new MasterTableResource();
+                        resourceMedium.InitLarge(context);
+                        var resourceSetupsMedium = new MasterTableResourceSetup(resourceMedium, resourceTools, resourceCapabilities);
+                        resourceSetupsMedium.InitMedium(context);
+                        break;
+                    case ModelSize.Large:
+                        var resource = new MasterTableResource();
+                        resource.InitLarge(context);
+                        var resourceSetupsLarge = new MasterTableResourceSetup(resource, resourceTools, resourceCapabilities);
+                        resourceSetupsLarge.InitLarge(context);
+                        break;
+                    default: throw new ArgumentException();
+                }
+
 
             // Article Definitions
             var units = new MasterTableUnit();

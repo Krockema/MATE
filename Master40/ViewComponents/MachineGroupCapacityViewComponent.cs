@@ -154,7 +154,7 @@ namespace Master40.ViewComponents
        
             var productionOrderWorkSchedulesBy = simulationWorkschedule.Where(predicate: x => x.Resource == machineGroupId.ToString());
             
-            var data = new List<double>();
+            var data = new List<double?>();
             for (var i = minRange; i < maxRange; i++)
             {
                 int item;

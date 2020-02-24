@@ -92,9 +92,9 @@ namespace Master40.ViewComponents
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
                 foreach (var t1 in _simList.OrderBy(keySelector: x => x.Item1))
                 {
-                    var barDataSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-normal" };
-                    var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
-                    var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
+                    var barDataSet = new BarDataset { Data = new List<double?>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-normal" };
+                    var barDiversityInvisSet = new BarDataset { Data = new List<double?>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
+                    var barDiversitySet = new BarDataset { Data = new List<double?>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID = "y-diversity" };
                     barDataSet.Label = "Sim Id:" + t1.Item1 + " " + t1.Item2;
                     foreach (var machineName in data.Labels)
                     {

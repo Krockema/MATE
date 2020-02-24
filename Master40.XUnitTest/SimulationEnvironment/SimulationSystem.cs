@@ -9,8 +9,10 @@ using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.IO.Enumeration;
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Running;
 using SQLitePCL;
 using Xunit;
 
@@ -64,7 +66,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             _masterDBContext.Database.EnsureDeleted();
             _masterDBContext.Database.EnsureCreated();
             //MasterDbInitializerTable.DbInitialize(_masterDBContext);
-            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext);
+            MasterDBInitializerTruck.DbInitialize(context: _masterDBContext, ModelSize.Large);
         }
 
         [Theory]
@@ -146,6 +148,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
             }
+        }
+
+        [Fact]
+        public void RunBenchmarks()
+        {
+            var summary = BenchmarkRunner.Run<BenchmarksOrderArrivalTest>();
+            var summary2 = BenchmarkRunner.Run<BenchmarkBucketSize>();
         }
     }
 }

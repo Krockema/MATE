@@ -59,7 +59,7 @@ namespace Master40.Controllers
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TransitionFactor(value: 3)
-                                                    , new MaxBucketSize(value: int.MaxValue)
+                                                    , new MaxBucketSize(value: 240)
                                                     , new TimePeriodForThrougputCalculation(value: 3840)
                                                     , new Seed(value: 169)
                                                     , new SettlingStart(value: 4320)

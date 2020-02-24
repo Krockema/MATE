@@ -78,9 +78,9 @@ namespace Master40.ViewComponents
                 var cc = new ChartColors();
                 
                 //var max = _context.SimulationWorkschedules.Max(x => x.End) - 1440; 
-                var barDataSet = new BarDataset {Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID ="y-normal"};
-                var barDiversityInvisSet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID= "y-diversity"};
-                var barDiversitySet = new BarDataset { Data = new List<double>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID ="y-diversity"};
+                var barDataSet = new BarDataset {Data = new List<double?>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID ="y-normal"};
+                var barDiversityInvisSet = new BarDataset { Data = new List<double?>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID= "y-diversity"};
+                var barDiversitySet = new BarDataset { Data = new List<double?>(), BackgroundColor = new List<ChartColor>(), HoverBackgroundColor = new List<ChartColor>(), YAxisID ="y-diversity"};
                 foreach (var machine in machines)
                 {
                     var percent = Math.Round(value: machine.Value * 100, digits: 2);

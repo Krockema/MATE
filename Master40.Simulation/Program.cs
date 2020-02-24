@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Linq;
-using Master40.SimulationCore.Environment.Abstractions;
+using BenchmarkDotNet.Running;
 
 namespace Master40.Simulation
 {

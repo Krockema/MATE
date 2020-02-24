@@ -20,7 +20,7 @@ namespace Master40.Simulation.CLI
 
         public void SendToClient(string listener, string msg, MessageType msgType)
         {
-            Console.WriteLine(value: listener + ": " + msg);
+            // Console.Write(value: "\r" + $"{listener} : {msg}");
         }
 
         public string ReturnMsgBox(string msg, MessageType type)
