@@ -35,7 +35,7 @@ namespace Master40.DB.Data.Initializer
                     case ModelSize.Small: throw  new NotImplementedException();
                     case ModelSize.Medium:
                         var resourceMedium = new MasterTableResource();
-                        resourceMedium.InitLarge(context);
+                        resourceMedium.InitMedium(context);
                         var resourceSetupsMedium = new MasterTableResourceSetup(resourceMedium, resourceTools, resourceCapabilities);
                         resourceSetupsMedium.InitMedium(context);
                         break;

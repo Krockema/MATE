@@ -6,7 +6,7 @@ using Akka.Actor;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
+using Master40.DB.Nominal;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
@@ -55,7 +55,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 new TransitionFactor(value: 3), new EstimatedThroughPut(value: 1920), new DebugAgents(value: false),
                 new DebugSystem(value: false), new KpiTimeSpan(value: 480), new MaxBucketSize(value: MaxBucketSize),
                 new Seed(value: 1337), new MinDeliveryTime(value: 1440), new MaxDeliveryTime(value: 2880),
-                new TimePeriodForThrougputCalculation(value: 3840), new SettlingStart(value: 4320),
+                new TimePeriodForThroughputCalculation(value: 3840), new SettlingStart(value: 4320),
                 new SimulationEnd(value: 20160), new WorkTimeDeviation(value: 0.2), new SaveToDB(value: false)
             });
 
@@ -64,20 +64,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             // emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
 
 
-            var simWasReady = false;
             if (simulation.IsReady())
             {
-                // set for Assert 
-                simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
 
-                AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
-                    , sim: simulation
-                    , collectors: new List<IActorRef>
-                    {
-                        simContext.StorageCollector, simContext.WorkCollector, simContext.ContractCollector
-                    });
+                simContext.StateManager.ContinueExecution(simulation);
                 sim.Wait();
             }
         }

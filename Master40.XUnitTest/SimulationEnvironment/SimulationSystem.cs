@@ -49,8 +49,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        [InlineData(testResultCtxString)] 
-        [InlineData(masterResultCtxString)]
+        // [InlineData(testResultCtxString)] 
+        // [InlineData(masterResultCtxString)]
+        [InlineData(remoteResultCtxString)]
         public void ResetResultsDB(string connectionString)
         
         {
@@ -73,7 +74,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium);
 
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
                 .UseSqlServer(connectionString: hangfireCtxString)
@@ -157,7 +158,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new Seed(value: seed)
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
-                                                    , new TimePeriodForThrougputCalculation(value: 3840)
+                                                    , new TimePeriodForThroughputCalculation(value: 3840)
                                                     , new SettlingStart(value: 4320)
                                                     , new SimulationEnd(value: 40360)
                                                     , new WorkTimeDeviation(value: 0.2)

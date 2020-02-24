@@ -21,7 +21,7 @@ namespace Master40.DB
 
         public override bool Equals(object obj)
         {
-            BaseEntity other = (BaseEntity)obj;
+            ResultBaseEntity other = (ResultBaseEntity)obj;
             return Id.Equals(other.Id);
         }
 

@@ -32,7 +32,7 @@ namespace Master40.Controllers
                             break;
                         case "Trucks":
                             _context.Database.EnsureDeleted();
-                            MasterDBInitializerTruck.DbInitialize(context: _context, ModelSize.Large);
+                            MasterDBInitializerTruck.DbInitialize(context: _context, ModelSize.Medium);
                             break;
                         default:
                             break;
