@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using AkkaSim.Logging;
 using Hangfire.Console;
 using Hangfire.Console.Progress;
@@ -18,11 +19,12 @@ namespace Master40.Simulation.HangfireConfiguration
         private readonly Logger _logger;
     
         // update value for previously created progress bar
-        public ProcessingHub( PerformContext consoleContext)
+        public ProcessingHub(PerformContext consoleContext)
         {
             _console = consoleContext;
+            var hubConnection = ConfigurationManager.AppSettings[index: 3];
             _connection = new HubConnectionBuilder()
-                .WithUrl("http://141.56.137.26:5000/MessageHub")
+                .WithUrl(hubConnection)
                 .WithAutomaticReconnect().Build();
             _connection.StartAsync().Wait();
             _logger = LogManager.GetLogger(TargetNames.LOG_AGENTS);
