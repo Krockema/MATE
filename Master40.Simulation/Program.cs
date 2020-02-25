@@ -8,6 +8,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.SimulationCore.Agents;
 using NLog;
 
 namespace Master40.Simulation
@@ -25,7 +26,7 @@ namespace Master40.Simulation
             // LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
-            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
+            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[AgentCore.DEFAULT_CONNECTION]);
             var validCommands = Commands.GetAllValidCommands;
             var command = validCommands.Single(predicate: x => x.ArgLong == "Help");
             var lastArg = 0;
@@ -73,7 +74,7 @@ namespace Master40.Simulation
                 .UseConsole()
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(ConfigurationManager.AppSettings[index: 1], HangfireConfiguration.StorageOptions.Default);
+                .UseSqlServerStorage(ConfigurationManager.AppSettings["HangfireConnection"], HangfireConfiguration.StorageOptions.Default);
             
             Console.WriteLine("-------- Hangfire is Ready -------");
 
