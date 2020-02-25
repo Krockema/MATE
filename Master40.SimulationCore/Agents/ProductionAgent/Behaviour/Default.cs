@@ -10,6 +10,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -67,7 +68,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             {
                 nextOperation.StartConditions.PreCondition = true;
                 Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} at {_articleToProduce.Article.Name} was set true.");
-                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(),target: nextOperation.HubAgent));
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition()
+                                                                                      ,target: nextOperation.HubAgent));
                 return;
             }
             
@@ -166,11 +168,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             
         }
 
-        private void ProvideRequest(Production agent, Guid operationResult)
-        {
-
-        }
-
         /// <summary>
         /// set each material to provided and set the start condition true if all materials are provided
         /// </summary>
@@ -188,10 +185,13 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
                 articleDictionary.Operation.StartConditions.ArticlesProvided = true;
-                
+
+
+                if (articleDictionary.Operation.HubAgent.Equals(ActorRefs.NoSender)) return;
+                // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions
-                                          .Create(message: articleDictionary.Operation.GetStartCondition()
-                                                 , target: articleDictionary.Operation.HubAgent));
+                                           .Create(message: articleDictionary.Operation.GetStartCondition()
+                                                  , target: articleDictionary.Operation.HubAgent));
             }
 
         }
