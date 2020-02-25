@@ -37,7 +37,7 @@ namespace Zpp.DataLayer
         BusinessPartners M_ArticleToBusinessPartnerGetAllBusinessPartnersByArticleId(Id articleId);
 
         List<M_ArticleToBusinessPartner> M_ArticleToBusinessPartnerGetAllByArticleId(Id articleId);
-        List<Resource> ResourcesGetAllBySkillId(Id id);
+        List<Resource> ResourcesGetAllByCapabilityId(Id id);
         M_ArticleType M_ArticleTypeGetById(Id id);
 
         Resource M_ResourceGetById(Id id);
@@ -46,9 +46,9 @@ namespace Zpp.DataLayer
 
         List<Resource> ResourceGetAll();
 
-        M_ResourceSkill M_ResourceSkillById(Id id);
+        M_ResourceCapability M_ResourceCapabilityById(Id id);
 
-        List<M_ResourceSkill> M_ResourceSkillGetAll();
+        List<M_ResourceCapability> M_ResourceCapabilityGetAll();
 
         M_ResourceTool M_ResourceToolGetById(Id id);
 

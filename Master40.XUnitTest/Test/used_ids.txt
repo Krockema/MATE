@@ -16,10 +16,10 @@ M_Resource:
 10012 (MasterTableResource: .ctor)
 
 
-M_ResourceSkill:
-10013 (MasterTableResourceSkill: .ctor)
-10014 (MasterTableResourceSkill: .ctor)
-10015 (MasterTableResourceSkill: .ctor)
+M_ResourceCapability:
+10013 (MasterTableResourceCapability: .ctor)
+10014 (MasterTableResourceCapability: .ctor)
+10015 (MasterTableResourceCapability: .ctor)
 
 
 M_ResourceSetup:

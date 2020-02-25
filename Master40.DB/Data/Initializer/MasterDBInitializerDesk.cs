@@ -8,9 +8,9 @@ namespace Master40.DB.Data.Initializer
 {
     public class MasterDBInitializerDesk
     {
-        private const string RESOURCE_SKILL_WELDING = "Schweißen";
-        private const string RESOURCE_SKILL_ASSEMBLING = "Montage";
-        private const string RESOURCE_SKILL_PACKING = "Verpacken";
+        private const string RESOURCE_CAPABILITY_WELDING = "Schweißen";
+        private const string RESOURCE_CAPABILITY_ASSEMBLING = "Montage";
+        private const string RESOURCE_CAPABILITY_PACKING = "Verpacken";
         private const string RESOURCE_TOOL_WELDER = "Schweißgerät";
         private const string RESOURCE_WRAPPER = "Verpackungseinhheit 1";
         private const string RESOURCE_ASSEMBLY_1 = "Montage 1";
@@ -58,13 +58,13 @@ namespace Master40.DB.Data.Initializer
             productionDomainContext.Resources.AddRange(resources);
             productionDomainContext.SaveChanges();
 
-            var resourceSkills = CreateResourceSkills();
-            productionDomainContext.ResourceSkills.AddRange(resourceSkills);
+            var resourceCapabilities = CreateResourceCapabilities();
+            productionDomainContext.ResourceCapabilities.AddRange(resourceCapabilities);
             productionDomainContext.SaveChanges();
 
 
             // resource Setups 
-            var resourceSetups = CreateResourceSetups(resourceTools, resources, resourceSkills);
+            var resourceSetups = CreateResourceSetups(resourceTools, resources, resourceCapabilities);
             productionDomainContext.ResourceSetups.AddRange(resourceSetups);
             productionDomainContext.SaveChanges();
 
@@ -94,7 +94,7 @@ namespace Master40.DB.Data.Initializer
                 productionDomainContext.SaveChanges();
             }
 
-            var operations = CreateOperations(resourceTools, articles, resourceSkills);
+            var operations = CreateOperations(resourceTools, articles, resourceCapabilities);
             productionDomainContext.Operations.AddRange(operations);
             productionDomainContext.SaveChanges();
 
@@ -133,55 +133,55 @@ namespace Master40.DB.Data.Initializer
             };
         }
 
-        private static M_ResourceSkill[] CreateResourceSkills()
+        private static M_ResourceCapability[] CreateResourceCapabilities()
         {
-            return new M_ResourceSkill[]
+            return new M_ResourceCapability[]
             {
-                new M_ResourceSkill {Name = RESOURCE_SKILL_ASSEMBLING},
-                new M_ResourceSkill {Name = RESOURCE_SKILL_WELDING},
-                new M_ResourceSkill {Name = RESOURCE_SKILL_PACKING}
+                new M_ResourceCapability {Name = RESOURCE_CAPABILITY_ASSEMBLING},
+                new M_ResourceCapability {Name = RESOURCE_CAPABILITY_WELDING},
+                new M_ResourceCapability {Name = RESOURCE_CAPABILITY_PACKING}
             };
         }
 
         private static M_ResourceSetup[] CreateResourceSetups(M_ResourceTool[] resourceTools
             , M_Resource[] resources
-            , M_ResourceSkill[] resourceSkills)
+            , M_ResourceCapability[] resourceCapabilities)
         {
 
             var resource1 = new M_ResourceSetup
             {
-                Name = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_PACKING).Name + " Setup",
+                Name = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_PACKING).Name + " Setup",
                 ResourceId = resources.Single(x => x.Name == RESOURCE_WRAPPER).Id,
                 ResourceToolId = resourceTools.Single(x => x.Name == RESOURCE_TOOL_WELDER).Id,
-                ResourceSkillId = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_PACKING).Id
+                ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_PACKING).Id
             };
             var resource2 = new M_ResourceSetup
             {
-                Name = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_ASSEMBLING).Name + " Setup",
+                Name = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_ASSEMBLING).Name + " Setup",
                 ResourceId = resources.Single(x => x.Name == RESOURCE_ASSEMBLY_1).Id,
                 ResourceToolId = resourceTools.Single(x => x.Name == RESOURCE_TOOL_WELDER).Id,
-                ResourceSkillId = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_ASSEMBLING).Id
+                ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_ASSEMBLING).Id
             };
             var resource3 = new M_ResourceSetup
             {
-                Name = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_ASSEMBLING).Name + " Setup",
+                Name = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_ASSEMBLING).Name + " Setup",
                 ResourceId = resources.Single(x => x.Name == RESOURCE_ASSEMBLY_2).Id,
                 ResourceToolId = resourceTools.Single(x => x.Name == RESOURCE_TOOL_WELDER).Id,
-                ResourceSkillId = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_ASSEMBLING).Id
+                ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_ASSEMBLING).Id
             };
             var resource4 = new M_ResourceSetup
             {
-                Name = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_WELDING).Name + " Setup",
+                Name = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_WELDING).Name + " Setup",
                 ResourceId = resources.Single(x => x.Name == RESOURCE_WELDING_1).Id,
                 ResourceToolId = resourceTools.Single(x => x.Name == RESOURCE_TOOL_WELDER).Id,
-                ResourceSkillId = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_WELDING).Id
+                ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_WELDING).Id
             };
             var resource5 = new M_ResourceSetup
             {
-                Name = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_WELDING).Name + " Setup",
+                Name = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_WELDING).Name + " Setup",
                 ResourceId = resources.Single(x => x.Name == RESOURCE_WELDING_2).Id,
                 ResourceToolId = resourceTools.Single(x => x.Name == RESOURCE_TOOL_WELDER).Id,
-                ResourceSkillId = resourceSkills.Single(x => x.Name == RESOURCE_SKILL_WELDING).Id
+                ResourceCapabilityId = resourceCapabilities.Single(x => x.Name == RESOURCE_CAPABILITY_WELDING).Id
             };
 
             var resourceSetups = new M_ResourceSetup[] {resource1, resource2, resource3, resource4, resource5};
@@ -210,7 +210,7 @@ namespace Master40.DB.Data.Initializer
         }
 
         private static M_Operation[] CreateOperations(M_ResourceTool[] resourceTools,
-            M_Article[] articles, M_ResourceSkill[] resourceSkills)
+            M_Article[] articles, M_ResourceCapability[] resourceCapabilities)
         {
             // Tool has no meaning yet, ignore it and use always the same
             M_ResourceTool resourceTool = resourceTools.Single(a => a.Name == RESOURCE_TOOL_WELDER);
@@ -220,7 +220,7 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleId = articles.Single(a => a.Name == ARTICLE_DESK).Id,
                     Name = OPERATION_DESK, Duration = 11,
-                    ResourceSkillId = resourceSkills.Single(x => x.Name.Equals(RESOURCE_SKILL_PACKING))
+                    ResourceCapabilityId = resourceCapabilities.Single(x => x.Name.Equals(RESOURCE_CAPABILITY_PACKING))
                         .Id,
                     HierarchyNumber = 10,
                     ResourceToolId = resourceTool.Id
@@ -229,7 +229,7 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleId = articles.Single(a => a.Name == ARTICLE_DESK_LEG).Id,
                     Name = OPERATION_DESK_LEG_1, Duration = 20,
-                    ResourceSkillId = resourceSkills.Single(x => x.Name.Equals(RESOURCE_SKILL_WELDING))
+                    ResourceCapabilityId = resourceCapabilities.Single(x => x.Name.Equals(RESOURCE_CAPABILITY_WELDING))
                         .Id,
                     HierarchyNumber = 10,
                     ResourceToolId = resourceTool.Id
@@ -238,8 +238,8 @@ namespace Master40.DB.Data.Initializer
                 {
                     ArticleId = articles.Single(a => a.Name == ARTICLE_DESK_LEG).Id,
                     Name = OPERATION_DESK_LEG_2, Duration = 3,
-                    ResourceSkillId = resourceSkills
-                        .Single(x => x.Name.Equals(RESOURCE_SKILL_ASSEMBLING)).Id,
+                    ResourceCapabilityId = resourceCapabilities
+                        .Single(x => x.Name.Equals(RESOURCE_CAPABILITY_ASSEMBLING)).Id,
                     HierarchyNumber = 20,
                     ResourceToolId = resourceTool.Id
                 }

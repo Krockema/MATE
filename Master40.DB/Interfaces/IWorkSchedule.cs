@@ -6,6 +6,6 @@ namespace Master40.DB.Interfaces
         int HierarchyNumber { get; set; }
         string Name { get; set; }
         int Duration { get; set; }
-        int ResourceSkillId { get; set; }
+        int ResourceCapabilityId { get; set; }
     }
 }

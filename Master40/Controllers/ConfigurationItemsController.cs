@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hangfire;
-using Hangfire.Storage;
+﻿using Hangfire;
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
 using Master40.Simulation;
-using Master40.Simulation.CLI;
-using MathNet.Numerics.RootFinding;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Master40.Controllers
 {

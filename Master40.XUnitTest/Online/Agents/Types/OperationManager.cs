@@ -27,11 +27,11 @@ namespace Master40.XUnitTest.Online.Agents.Types
 
         [Fact]
 
-        public void GetOperationsBySkill()
+        public void GetOperationsByCapability()
         {
             var operationManager = new OperationManager();
             var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
-            var returnedJob = operationManager.GetOperationBySkill("Sewing");
+            var returnedJob = operationManager.GetOperationByCapability("Sewing");
             Assert.True(returnedJob != null);
         }
 

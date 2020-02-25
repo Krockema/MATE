@@ -49,8 +49,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        [InlineData(testResultCtxString)]
-        [InlineData(masterResultCtxString)]
+        // [InlineData(testResultCtxString)] 
+        // [InlineData(masterResultCtxString)]
+        [InlineData(remoteResultCtxString)]
         public void ResetResultsDB(string connectionString)
         
         {
@@ -73,7 +74,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium);
 
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
                 .UseSqlServer(connectionString: hangfireCtxString)
@@ -96,30 +97,45 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        //[InlineData(SimulationType.None)]
-        [InlineData(SimulationType.DefaultSetup, 0, 60)]
-        [InlineData(SimulationType.DefaultSetupStack, 1, 60)]
-        //[InlineData(SimulationType.BucketScope, 3, 120)]
-        //[InlineData(SimulationType.BucketScope, 4, 150)]
-        //[InlineData(SimulationType.BucketScope, 5, 180)]
-        //[InlineData(SimulationType.BucketScope, 6, 240)]
-        //[InlineData(SimulationType.BucketScope, 7, 300)]
-        //[InlineData(SimulationType.BucketScope, 8, 360)]
-        //[InlineData(SimulationType.BucketScope, 9, 420)]
-        //[InlineData(SimulationType.BucketScope, 10, 480)]
-        [InlineData(SimulationType.BucketScope, 2, 600)]
-        [InlineData(SimulationType.BucketScope, 3, 720)]
-        [InlineData(SimulationType.BucketScope, 4, 840)]
-        [InlineData(SimulationType.BucketScope, 5, 960)]
-        [InlineData(SimulationType.BucketScope, 6, 1080)]
-        [InlineData(SimulationType.BucketScope, 7, 1200)]
-        [InlineData(SimulationType.BucketScope, 8, 1320)]
-        [InlineData(SimulationType.BucketScope, 9, 1440)]
-        [InlineData(SimulationType.BucketScope, 10, 1920)]
-        [InlineData(SimulationType.BucketScope, 11, 2400)]
-        [InlineData(SimulationType.BucketScope, 12, 2880)]
-        [InlineData(SimulationType.BucketScope, 99, Int32.MaxValue)]
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize)
+        //[InlineData(SimulationType.DefaultSetup, 100, Int32.MaxValue, 1920, 169)]
+        //[InlineData(SimulationType.DefaultSetupStack, 1, Int32.MaxValue, 1920, 169)]
+        [InlineData(SimulationType.BucketScope, 1, 960, 1920, 169)]
+        [InlineData(SimulationType.BucketScope, 3, 960, 1960, 169)]
+        [InlineData(SimulationType.BucketScope, 4, 960, 1960, 169)]
+        [InlineData(SimulationType.BucketScope, 5, 960, 1960, 169)]
+        //[InlineData(SimulationType.BucketScope, 4, Int32.MaxValue, 480, 169)]
+        //[InlineData(SimulationType.BucketScope, 5, Int32.MaxValue, 560, 169)]
+        //[InlineData(SimulationType.BucketScope, 6, Int32.MaxValue, 640, 169)]
+        //[InlineData(SimulationType.BucketScope, 7, Int32.MaxValue, 720, 169)]
+        //[InlineData(SimulationType.BucketScope, 8, Int32.MaxValue, 800, 169)]
+        //[InlineData(SimulationType.BucketScope, 9, Int32.MaxValue, 880, 169)]
+        //[InlineData(SimulationType.BucketScope, 10, Int32.MaxValue, 960, 169)]
+        //[InlineData(SimulationType.BucketScope, 11, Int32.MaxValue, 1040, 169)]
+        //[InlineData(SimulationType.BucketScope, 12, Int32.MaxValue, 1120, 169)]
+        //[InlineData(SimulationType.BucketScope, 13, Int32.MaxValue, 1200, 169)]
+        //[InlineData(SimulationType.BucketScope, 14, Int32.MaxValue, 1280, 169)]
+        //[InlineData(SimulationType.BucketScope, 15, Int32.MaxValue, 1360, 169)]
+        //[InlineData(SimulationType.BucketScope, 16, Int32.MaxValue, 1440, 169)]
+        //[InlineData(SimulationType.BucketScope, 17, Int32.MaxValue, 1520, 169)]
+        //[InlineData(SimulationType.BucketScope, 18, Int32.MaxValue, 1600, 169)]
+        //[InlineData(SimulationType.BucketScope, 19, Int32.MaxValue, 1680, 169)]
+        //[InlineData(SimulationType.BucketScope, 20, Int32.MaxValue, 1760, 169)]
+        //[InlineData(SimulationType.BucketScope, 21, Int32.MaxValue, 1840, 169)]
+        //[InlineData(SimulationType.BucketScope, 22, Int32.MaxValue, 1920, 169)]
+        //[InlineData(SimulationType.BucketScope, 23, Int32.MaxValue, 2000, 169)]
+        //[InlineData(SimulationType.BucketScope, 24, Int32.MaxValue, 2080, 169)]
+        //[InlineData(SimulationType.BucketScope, 25, Int32.MaxValue, 2160, 169)]
+        //[InlineData(SimulationType.BucketScope, 26, Int32.MaxValue, 2240, 169)]
+        //[InlineData(SimulationType.BucketScope, 27, Int32.MaxValue, 2320, 169)]
+        //[InlineData(SimulationType.BucketScope, 28, Int32.MaxValue, 2400, 169)]
+        //[InlineData(SimulationType.BucketScope, 29, Int32.MaxValue, 2480, 169)]
+        //[InlineData(SimulationType.BucketScope, 30, Int32.MaxValue, 2560, 169)]
+        //[InlineData(SimulationType.BucketScope, 31, Int32.MaxValue, 2640, 169)]
+        //[InlineData(SimulationType.BucketScope, 32, Int32.MaxValue, 2720, 169)]
+        //[InlineData(SimulationType.BucketScope, 33, Int32.MaxValue, 2800, 169)]
+        //[InlineData(SimulationType.BucketScope, 34, Int32.MaxValue, 2880, 169)]
+
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed)
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
@@ -134,17 +150,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                                     , new OrderArrivalRate(value: 0.025)
                                                     , new OrderQuantity(value: Int32.MaxValue)
                                                     , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: 1920)
+                                                    , new EstimatedThroughPut(value: throughput)
                                                     , new DebugAgents(value: false)
                                                     , new DebugSystem(value: false)
                                                     , new KpiTimeSpan(value: 480)
                                                     , new MaxBucketSize(value: maxBucketSize)
-                                                    , new Seed(value: 1337)
+                                                    , new Seed(value: seed)
                                                     , new MinDeliveryTime(value: 1440)
                                                     , new MaxDeliveryTime(value: 2880)
                                                     , new TimePeriodForThroughputCalculation(value: 3840)
                                                     , new SettlingStart(value: 4320)
-                                                    , new SimulationEnd(value: 40320)
+                                                    , new SimulationEnd(value: 40360)
                                                     , new WorkTimeDeviation(value: 0.2)
                                                     , new SaveToDB(value: true)
                                                 });
@@ -208,5 +224,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 _ctxResult.SaveChanges();
             }
         }
+
     }
 }

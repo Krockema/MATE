@@ -114,13 +114,13 @@ namespace Master40.ViewComponents
                     Datasets = new List<Dataset>(),
                     Labels = labels,
                 };
-                var dsClear = new BarDataset { Data = new List<double>(), Label = "dsClear", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
-                var lowerStroke = new BarDataset { Data = new List<double>(), Label = "lowerStroke", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
-                var firstQuartile = new BarDataset { Data = new List<double>(), Label = "fQ", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
-                var secondQuartile = new BarDataset { Data = new List<double>(), Label = "Med", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
-                var thirdQuartile = new BarDataset { Data = new List<double>(), Label = "uQ", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
-                var fourthQuartile = new BarDataset { Data = new List<double>(), Label = "line", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
-                var upperStroke = new BarDataset { Data = new List<double>(), Label = "upperStroke", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var dsClear = new BarDataset { Data = new List<double?>(), Label = "dsClear", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var lowerStroke = new BarDataset { Data = new List<double?>(), Label = "lowerStroke", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var firstQuartile = new BarDataset { Data = new List<double?>(), Label = "fQ", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var secondQuartile = new BarDataset { Data = new List<double?>(), Label = "Med", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var thirdQuartile = new BarDataset { Data = new List<double?>(), Label = "uQ", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var fourthQuartile = new BarDataset { Data = new List<double?>(), Label = "line", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
+                var upperStroke = new BarDataset { Data = new List<double?>(), Label = "upperStroke", BackgroundColor = new List<ChartColor>(), BorderWidth = new List<int>(), BorderColor = new List<ChartColor>() };
 
 
                 var products = kpi.Select(selector: x => x.Name).Distinct().ToList();

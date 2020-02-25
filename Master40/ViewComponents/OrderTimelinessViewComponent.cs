@@ -72,7 +72,7 @@ namespace Master40.ViewComponents
 
 
                 //data.Datasets[0].Data = new List<double> { 0, (int)(min/end*100), (int)(avg /end*100), (int)(max /end*100), end };
-                data.Datasets[index: 0].Data = new List<double> { avg, 100-avg };
+                data.Datasets[index: 0].Data = new List<double?> { avg, 100-avg };
                 chart.Data = data;
                 return chart;
             });

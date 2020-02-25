@@ -10,10 +10,10 @@ namespace Master40.DB.DataModel
         public string Name { get; set; }
         public int Count { get; set; }
         /*
-         * Defines a list of Skills that can be 
+         * Defines a list of Capabilities that can be 
          */
         public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
-        public virtual ICollection<M_ResourceSkill> ResourceSkills { get; set; }
+        public virtual ICollection<M_ResourceCapability> ResourceCapabilities { get; set; }
 
         public int Capacity { get; set; }
         [JsonIgnore]

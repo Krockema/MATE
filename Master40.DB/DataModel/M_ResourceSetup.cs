@@ -11,8 +11,8 @@ namespace Master40.DB.DataModel
     public class M_ResourceSetup : BaseEntity
     {
         public string Name { get; set; }
-        public int ResourceSkillId { get; set; }
-        public M_ResourceSkill ResourceSkill { get; set; }
+        public int ResourceCapabilityId { get; set; }
+        public M_ResourceCapability ResourceCapability { get; set; }
         public int ResourceId { get; set; }
         public M_Resource Resource { get; set; }
         public int ResourceToolId { get; set; }
