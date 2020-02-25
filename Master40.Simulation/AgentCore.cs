@@ -23,6 +23,8 @@ namespace Master40.Simulation
     {
 
         private readonly ProductionDomainContext _context;
+        public const string DEFAULT_CONNECTION = "DefaultConnection";
+        public const string RESULT_CONNECTION = "ResultConnection";
         private readonly ResultContext _resultContext;
         //private readonly ResultContext _resultContext;
         private AgentSimulation _agentSimulation;
@@ -39,8 +41,8 @@ namespace Master40.Simulation
         public AgentCore()
         {
             
-            _context = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[index: 0]);
-            _resultContext = ResultContext.GetContext(ConfigurationManager.AppSettings[index: 2]);
+            _context = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[DEFAULT_CONNECTION]);
+            _resultContext = ResultContext.GetContext(ConfigurationManager.AppSettings[RESULT_CONNECTION]);
         }
 
         [KeepJobInStore]
@@ -50,7 +52,7 @@ namespace Master40.Simulation
             _messageHub = new ProcessingHub(consoleContext);
             // _messageHub.StartSimulation(simId: simulationId.ToString() , simNumber: simNumber.ToString());
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContext, simulationId);
-            simConfig.AddOption(new DBConnectionString(ConfigurationManager.AppSettings[index: 2]));
+            simConfig.AddOption(new DBConnectionString(ConfigurationManager.AppSettings[RESULT_CONNECTION]));
             simConfig.Remove(typeof(SimulationNumber));
             simConfig.AddOption(new SimulationNumber(simNumber));
 
