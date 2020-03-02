@@ -187,7 +187,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 articleDictionary.Operation.StartConditions.ArticlesProvided = true;
 
 
-                if (articleDictionary.Operation.HubAgent.Equals(ActorRefs.NoSender)) return;
+                if (articleDictionary.Operation.HubAgent == null) return;
                 // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions
                                            .Create(message: articleDictionary.Operation.GetStartCondition()
