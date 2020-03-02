@@ -10,7 +10,6 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Actor;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -188,7 +187,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
 
                 if (articleDictionary.Operation.HubAgent == null) return;
-                // else 
+                // // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions
                                            .Create(message: articleDictionary.Operation.GetStartCondition()
                                                   , target: articleDictionary.Operation.HubAgent));
