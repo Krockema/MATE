@@ -112,33 +112,21 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
 
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info);
+            // LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn);
+            // LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info);
+            var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
+            // update customized Items
+            simConfig.ReplaceOption(new SimulationKind(value: simulationType));
+            simConfig.ReplaceOption(new OrderArrivalRate(value: 0.025));
+            simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
+            simConfig.ReplaceOption(new Seed(value: seed));
+            simConfig.ReplaceOption(new SettlingStart(value: 4320));
+            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
+            simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
+            simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             
-            var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
-                                                {
-                                                    // set ResultDBString and set SaveToDB true
-                                                    new DBConnectionString(value: remoteResultCtxString)
-                                                    , new SimulationId(value: 1)
-                                                    , new SimulationNumber(value: simNr)
-                                                    , new SimulationKind(value: simulationType) // implements the used behaviour, if None --> DefaultBehaviour
-                                                    , new OrderArrivalRate(value: 0.025)
-                                                    , new OrderQuantity(value: Int32.MaxValue)
-                                                    , new TransitionFactor(value: 3)
-                                                    , new EstimatedThroughPut(value: throughput)
-                                                    , new DebugAgents(value: false)
-                                                    , new DebugSystem(value: false)
-                                                    , new KpiTimeSpan(value: 480)
-                                                    , new MaxBucketSize(value: maxBucketSize)
-                                                    , new Seed(value: seed)
-                                                    , new MinDeliveryTime(value: 1440)
-                                                    , new MaxDeliveryTime(value: 2880)
-                                                    , new TimePeriodForThroughputCalculation(value: 3840)
-                                                    , new SettlingStart(value: 4320)
-                                                    , new SimulationEnd(value: 40360)
-                                                    , new WorkTimeDeviation(value: 0.2)
-                                                    , new SaveToDB(value: true)
-                                                });
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
