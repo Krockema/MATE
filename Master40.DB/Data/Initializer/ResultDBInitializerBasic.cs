@@ -40,7 +40,7 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem {Property = "SettlingStart", PropertyValue = "2880", Description = "Default"},
                 new ConfigurationItem {Property = "SimulationEnd", PropertyValue = "40320", Description = "Default"},
                 new ConfigurationItem {Property = "WorkTimeDeviation", PropertyValue = "0.2", Description = "Default"},
-                new ConfigurationItem {Property = "SaveToDB", PropertyValue = "false", Description = "Default"}
+                new ConfigurationItem {Property = "SaveToDB", PropertyValue = "true", Description = "Default"}
             };
             context.ConfigurationItems.AddRange(entities: configurationItems);
             context.SaveChanges();
