@@ -76,7 +76,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Medium, setupModelSize: ModelSize.Large);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small);
 
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
                 .UseSqlServer(connectionString: hangfireCtxString)
@@ -99,16 +99,26 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        [InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169)]
-        [InlineData(SimulationType.DefaultSetupStack, 2, Int32.MaxValue, 1920, 169)]
-        [InlineData(SimulationType.BucketScope, 3, 960, 1920, 169)]
-        [InlineData(SimulationType.BucketScope, 4, 960, 1960, 169)]
-        [InlineData(SimulationType.BucketScope, 5, 960, 1960, 169)]
-        [InlineData(SimulationType.BucketScope, 6, 960, 1960, 169)]
-        
+        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
+        [InlineData(SimulationType.DefaultSetupStack, 2, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
+        [InlineData(SimulationType.DefaultSetupStack, 3, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Medium)]
+        [InlineData(SimulationType.DefaultSetupStack, 4, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Large)]
+        [InlineData(SimulationType.DefaultSetupStack, 5, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Small)]
+        [InlineData(SimulationType.DefaultSetupStack, 6, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Medium)]
+        [InlineData(SimulationType.DefaultSetupStack, 7, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Large)]
+        [InlineData(SimulationType.DefaultSetupStack, 8, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Small)]
+        [InlineData(SimulationType.DefaultSetupStack, 9, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Medium)]
+        [InlineData(SimulationType.DefaultSetupStack, 10, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Large)]
+        //[InlineData(SimulationType.BucketScope, 3, 960, 1920, 169)]
 
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed)
+
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize)
         {
+            MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
+            masterCtx.Database.EnsureDeleted();
+            masterCtx.Database.EnsureCreated();
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize);
+
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
 
@@ -123,10 +133,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 4320));
             simConfig.ReplaceOption(new SimulationEnd(value: 40360));
-            simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
-            
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
