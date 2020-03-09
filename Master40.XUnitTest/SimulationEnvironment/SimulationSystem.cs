@@ -114,6 +114,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize)
         {
+
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
@@ -126,13 +128,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
             // LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info);
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
             // update customized Items
+            simConfig.AddOption(new DBConnectionString(remoteResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: 0.025));
             simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 4320));
-            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
+            simConfig.ReplaceOption(new SimulationEnd(value: 20160));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
