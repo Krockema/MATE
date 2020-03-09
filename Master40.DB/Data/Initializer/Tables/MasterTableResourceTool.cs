@@ -1,45 +1,43 @@
-﻿using Master40.DB.Data.Context;
+﻿using System.Collections.Generic;
+using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
     internal class MasterTableResourceTool
     {
-        internal M_ResourceTool SAW_BLADE_BIG;
-        internal M_ResourceTool SAW_BLADE_SMALL;
-        internal M_ResourceTool DRILL_HEAD_M6;
-        internal M_ResourceTool DRILL_HEAD_M4;
-        internal M_ResourceTool ASSEMBLY_SCREWDRIVER;
-        internal M_ResourceTool ASSEMBLY_HOLDING;
-        internal M_ResourceTool ASSEMBLY_HAMMER;
+        internal Dictionary<string , List<M_ResourceTool>> ResourceTools = new Dictionary<string, List<M_ResourceTool>>();
 
-        internal MasterTableResourceTool()
+        internal MasterTableResourceTool(MasterTableResourceCapability capability, int sawTools, int drillTools, int assemblyTools)
         {
-            SAW_BLADE_BIG = new M_ResourceTool { Name = "Saw blade big" };
-            SAW_BLADE_SMALL = new M_ResourceTool { Name = "Saw blade small" };
-            DRILL_HEAD_M6 = new M_ResourceTool { Name = "Drill head M6" };
-            DRILL_HEAD_M4 = new M_ResourceTool { Name = "Drill head M4" };
-            ASSEMBLY_SCREWDRIVER = new M_ResourceTool { Name = "Screwdriver universal" };
-            ASSEMBLY_HOLDING = new M_ResourceTool { Name = "Holding" };
-            ASSEMBLY_HAMMER = new M_ResourceTool { Name = "Hammer" };
+            CreateToolGroup(sawTools, capability.CUTTING.Name);
+            CreateToolGroup(drillTools, capability.DRILLING.Name);
+            CreateToolGroup(assemblyTools, capability.ASSEMBLING.Name);
         }
 
-        internal M_ResourceTool[] Init(MasterDBContext context)
+        private void CreateToolGroup(int numberTools, string name)
         {
-            var resourceTools = new M_ResourceTool[]
+            List<M_ResourceTool> tools = new List<M_ResourceTool>();
+            for (int i = 0; i < numberTools; i++)
             {
-                SAW_BLADE_BIG,
-                SAW_BLADE_SMALL,
-                DRILL_HEAD_M6,
-                DRILL_HEAD_M4,
-                ASSEMBLY_SCREWDRIVER,
-                ASSEMBLY_HOLDING,
-                ASSEMBLY_HAMMER
+                tools.Add(CreateNewTool(name, i));
+            }
+            ResourceTools.Add(name, tools);
+        }
 
-            };
-            context.ResourceTools.AddRange(entities: resourceTools);
+        private M_ResourceTool CreateNewTool(string toolName, int number)
+        {
+            return new M_ResourceTool() { Name = toolName + " " + number};
+        }
+
+        internal void Init(MasterDBContext context)
+        {
+            foreach (var item in ResourceTools)
+            {
+                context.ResourceTools.AddRange(entities: item.Value);
+            }
             context.SaveChanges();
-            return resourceTools;
+            
         }
     }
 }

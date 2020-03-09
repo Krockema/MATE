@@ -51,9 +51,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        // [InlineData(testResultCtxString)] 
+        [InlineData(testResultCtxString)] 
         // [InlineData(masterResultCtxString)]
-        [InlineData(remoteResultCtxString)]
+        //[InlineData(remoteResultCtxString)]
         public void ResetResultsDB(string connectionString)
         
         {
@@ -76,7 +76,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Medium, setupModelSize: ModelSize.Large);
 
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
                 .UseSqlServer(connectionString: hangfireCtxString)

@@ -1,12 +1,20 @@
-﻿using Master40.DB.Data.Context;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
     internal class MasterTableOperation
     {
-         // assemble Truck
-         internal M_Operation DUMP_TRUCK_WEDDING;
+        private TEnumerator<M_ResourceTool> SawTools;
+        private TEnumerator<M_ResourceTool> DrillTools;
+        private TEnumerator<M_ResourceTool> AssemblyTools;
+
+        // assemble Truck
+        internal M_Operation DUMP_TRUCK_WEDDING;
 
          internal M_Operation GLUE_TRUCK_BED;
          
@@ -77,15 +85,25 @@ namespace Master40.DB.Data.Initializer.Tables
                                      , MasterTableResourceCapability resourceCapability
                                      , MasterTableResourceTool resourceTool)
          {
-             DUMP_TRUCK_WEDDING = new M_Operation
-             {
+             SawTools = new TEnumerator<M_ResourceTool>(resourceTool.ResourceTools
+                 .Single(x => x.Key.Equals(resourceCapability.CUTTING.Name)).Value.ToArray());
+
+            DrillTools = new TEnumerator<M_ResourceTool>(resourceTool.ResourceTools
+                .Single(x => x.Key.Equals(resourceCapability.DRILLING.Name)).Value.ToArray());
+
+            AssemblyTools = new TEnumerator<M_ResourceTool>(resourceTool.ResourceTools
+                .Single(x => x.Key.Equals(resourceCapability.ASSEMBLING.Name)).Value.ToArray());
+
+
+            DUMP_TRUCK_WEDDING = new M_Operation
+            {
                  ArticleId = articles.DUMP_TRUCK.Id,
                  Name = "Dump-Truck: Wedding",
                  Duration = 15,
                  ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                 ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
+                 ResourceToolId = AssemblyTools.GetNext().Id,
                  HierarchyNumber = 10
-             };
+            };
 
             GLUE_TRUCK_BED = new M_Operation
             {
@@ -93,7 +111,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue Truck-Bed",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -104,7 +122,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Race-Truck: Wedding",
                 Duration = 15,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -114,7 +132,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue Race Wing",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -125,7 +143,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Dump-Truck: Assemble Lamps",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -135,7 +153,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Dump-Truck: Mount Engine to Cabin",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -146,7 +164,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Race-Truck: Assemble Lamps",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -156,7 +174,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Mount Engine Extension",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_HAMMER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -166,7 +184,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Race-Truck: Mount Engine to Cabin",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 30
             };
 
@@ -177,7 +195,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "mount poles with wheels to Skeleton",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -187,7 +205,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Screw wheels onto poles",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -197,7 +215,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue Semitrailer",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 30
             };
 
@@ -208,7 +226,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Glue side walls and base plate together",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_HOLDING.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -218,7 +236,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Mount hatchback",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.ASSEMBLING.Id,
-                ResourceToolId = resourceTool.ASSEMBLY_SCREWDRIVER.Id,
+                ResourceToolId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -229,7 +247,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Race Wing: Cut shape",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -239,7 +257,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Race Wing: Drill Mount Holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
             // Engine Race Extension
@@ -249,7 +267,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Engine Race Extension: Cut shape",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -259,7 +277,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Engine Race Extension: Drill Mount Holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -270,7 +288,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Side wall long: Cut long side",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -280,7 +298,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Side wall long: Drill mount holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -290,7 +308,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Side wall short: Cut short side",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -300,7 +318,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Side wall short: Drill mount holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
 
@@ -310,7 +328,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Base plate Truck-Bed: Cut Base plate Truck-Bed",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -320,7 +338,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Base plate Truck-Bed: Drill mount holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
             // Eengin Block
@@ -330,7 +348,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Engine-Block: Cut Engine-Block",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -340,7 +358,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Engine-Block: Drill mount holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M6.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
             // cabin 
@@ -350,7 +368,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Cabin: Cut Cabin",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_SMALL.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -360,7 +378,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Cabin: Drill mount holes",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M4.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
             // Base Plate
@@ -370,7 +388,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Base plate: Cut Base plate",
                 Duration = 10,
                 ResourceCapabilityId = resourceCapability.CUTTING.Id,
-                ResourceToolId = resourceTool.SAW_BLADE_BIG.Id,
+                ResourceToolId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 
@@ -380,13 +398,12 @@ namespace Master40.DB.Data.Initializer.Tables
                 Name = "Base plate: drill holes for axis mount",
                 Duration = 5,
                 ResourceCapabilityId = resourceCapability.DRILLING.Id,
-                ResourceToolId = resourceTool.DRILL_HEAD_M4.Id,
+                ResourceToolId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
         }
 
-
-
+        
         internal M_Operation[] Init(MasterDBContext context)
         {
             var operations = new M_Operation[] {                   
