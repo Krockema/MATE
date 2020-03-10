@@ -9,7 +9,7 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerTruck
     {
-        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize)
+        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, bool distributeSetupsExponentially = false)
         {
             context.Database.EnsureCreated();
 
@@ -75,7 +75,7 @@ namespace Master40.DB.Data.Initializer
 
             MasterTableStock.Init(context, articles);
 
-            var operations = new MasterTableOperation(articleTable, resourceCapabilities, resourceTools);
+            var operations = new MasterTableOperation(articleTable, resourceCapabilities, resourceTools, distributeSetupsExponentially);
                 operations.Init(context);
 
             var boms = new MasterTableBom();

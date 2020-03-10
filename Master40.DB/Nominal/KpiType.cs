@@ -13,6 +13,8 @@
         ResourceUtilizationTotal,
         ResourceSetupTotal,
         StockTotals,
+        Ooe,
         AverageResult = 999
+        
     }
 }

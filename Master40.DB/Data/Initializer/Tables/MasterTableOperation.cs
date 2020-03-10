@@ -83,16 +83,20 @@ namespace Master40.DB.Data.Initializer.Tables
 
          internal MasterTableOperation(MasterTableArticle articles
                                      , MasterTableResourceCapability resourceCapability
-                                     , MasterTableResourceTool resourceTool)
+                                     , MasterTableResourceTool resourceTool
+                                     , bool distributeSetupsExponentially)
          {
-             SawTools = new TEnumerator<M_ResourceTool>(resourceTool.ResourceTools
-                 .Single(x => x.Key.Equals(resourceCapability.CUTTING.Name)).Value.ToArray());
+             SawTools = new TEnumerator<M_ResourceTool>(
+                    obj: resourceTool.ResourceTools.Single(x => x.Key.Equals(resourceCapability.CUTTING.Name)).Value.ToArray()
+                   ,expDistributed: distributeSetupsExponentially);
 
-            DrillTools = new TEnumerator<M_ResourceTool>(resourceTool.ResourceTools
-                .Single(x => x.Key.Equals(resourceCapability.DRILLING.Name)).Value.ToArray());
+            DrillTools = new TEnumerator<M_ResourceTool>(
+                    obj: resourceTool.ResourceTools.Single(x => x.Key.Equals(resourceCapability.DRILLING.Name)).Value.ToArray()
+                   ,expDistributed: distributeSetupsExponentially);
 
-            AssemblyTools = new TEnumerator<M_ResourceTool>(resourceTool.ResourceTools
-                .Single(x => x.Key.Equals(resourceCapability.ASSEMBLING.Name)).Value.ToArray());
+            AssemblyTools = new TEnumerator<M_ResourceTool>(
+                  obj: resourceTool.ResourceTools.Single(x => x.Key.Equals(resourceCapability.ASSEMBLING.Name)).Value.ToArray()
+                , expDistributed: distributeSetupsExponentially);
 
 
             DUMP_TRUCK_WEDDING = new M_Operation

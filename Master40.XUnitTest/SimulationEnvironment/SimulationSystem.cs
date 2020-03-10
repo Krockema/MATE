@@ -51,16 +51,22 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        [InlineData(testResultCtxString)] 
-        // [InlineData(masterResultCtxString)]
-        //[InlineData(remoteResultCtxString)]
+        //[InlineData(testResultCtxString)] 
+        //[InlineData(masterResultCtxString)]
+        [InlineData(remoteResultCtxString)]
         public void ResetResultsDB(string connectionString)
         
         {
+            /*MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
+            masterCtx.Database.EnsureDeleted();
+            masterCtx.Database.EnsureCreated();
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, true);
+            */
             ResultContext results = ResultContext.GetContext(resultCon: connectionString);
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
+  
         }
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
@@ -99,27 +105,41 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.DefaultSetupStack, 2, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.DefaultSetupStack, 3, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Medium)]
-        [InlineData(SimulationType.DefaultSetupStack, 4, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Large)]
-        [InlineData(SimulationType.DefaultSetupStack, 5, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Small)]
-        [InlineData(SimulationType.DefaultSetupStack, 6, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Medium)]
-        [InlineData(SimulationType.DefaultSetupStack, 7, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Large)]
-        [InlineData(SimulationType.DefaultSetupStack, 8, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Small)]
-        [InlineData(SimulationType.DefaultSetupStack, 9, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Medium)]
-        [InlineData(SimulationType.DefaultSetupStack, 10, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Large)]
+        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]//[InlineData(SimulationType.BucketScope, 53, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Small, 0.025, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 13, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Small, 0.025, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 14, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.025, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 15, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Large, 0.025, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 16, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Small, 0.05, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 17, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.05, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 18, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Large, 0.05, true)]
+        [InlineData(SimulationType.DefaultSetupStack, 23, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Small, 0.025, false)]
+        [InlineData(SimulationType.DefaultSetupStack, 24, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.025, false)]
+        [InlineData(SimulationType.DefaultSetupStack, 25, Int32.MaxValue, 1920, 169, ModelSize.Medium, ModelSize.Large, 0.025, false)]
+        [InlineData(SimulationType.DefaultSetupStack, 26, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Small, 0.05, false)]
+        [InlineData(SimulationType.DefaultSetupStack, 27, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.05, false)]
+        [InlineData(SimulationType.DefaultSetupStack, 28, Int32.MaxValue, 1920, 169, ModelSize.Large, ModelSize.Large, 0.05, false)]
+        [InlineData(SimulationType.BucketScope, 53, 960, 1920, 169, ModelSize.Medium, ModelSize.Small, 0.025, true)]
+        [InlineData(SimulationType.BucketScope, 54, 960, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.025, true)]
+        [InlineData(SimulationType.BucketScope, 55, 960, 1920, 169, ModelSize.Medium, ModelSize.Large, 0.025, true)]
+        [InlineData(SimulationType.BucketScope, 56, 960, 1920, 169, ModelSize.Large, ModelSize.Small, 0.05, true)]
+        [InlineData(SimulationType.BucketScope, 57, 960, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.05, true)]
+        [InlineData(SimulationType.BucketScope, 58, 960, 1920, 169, ModelSize.Large, ModelSize.Large, 0.05, true)]
+        [InlineData(SimulationType.BucketScope, 63, 960, 1920, 169, ModelSize.Medium, ModelSize.Small, 0.025, false)]
+        [InlineData(SimulationType.BucketScope, 64, 960, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.025, false)]
+        [InlineData(SimulationType.BucketScope, 65, 960, 1920, 169, ModelSize.Medium, ModelSize.Large, 0.025, false)]
+        [InlineData(SimulationType.BucketScope, 66, 960, 1920, 169, ModelSize.Large, ModelSize.Small, 0.05, false)]
+        [InlineData(SimulationType.BucketScope, 67, 960, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.05, false)]
+        [InlineData(SimulationType.BucketScope, 68, 960, 1920, 169, ModelSize.Large, ModelSize.Large, 0.05, false)]
         //[InlineData(SimulationType.BucketScope, 3, 960, 1920, 169)]
 
 
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize)
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially)
         {
-
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, distributeSetupsExponentially: true);
 
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
@@ -130,7 +150,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             // update customized Items
             simConfig.AddOption(new DBConnectionString(remoteResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
-            simConfig.ReplaceOption(new OrderArrivalRate(value: 0.025));
+            simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new Seed(value: seed));

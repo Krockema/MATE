@@ -40,6 +40,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private KpiManager kpiManager { get; } = new KpiManager();
 
         private long lastIntervalStart { get; set; } = 0;
+
         private List<FUpdateSimulationJob> _updatedSimulationJob { get; } = new List<FUpdateSimulationJob>();
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
         private ResourceList _resources { get; set; } = new ResourceList();
@@ -137,8 +138,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (lastIntervalStart != Collector.Time)
             {
                 ResourceUtilization();
-                OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
-
+                var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+                
                 lastIntervalStart = Collector.Time;
             }
             ThroughPut(finalCall);
@@ -178,6 +179,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     SetupTime = resourcesDatas.Sum(x => x._totalSetupTime),
                     SetupTimePercent = Math.Round((resourcesDatas.Sum(x => Convert.ToDouble(x._setupTime.Replace(".", ","))) / resourcesDatas.Count * 100), 4).ToString(_cultureInfo)
                 };
+
+                // Einschwingzeit - Ende der Simulation
+                var OEE = OverallEquipmentEffectiveness(resources: _resources, 0 + Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value, Collector.Time);
+                CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, true);
 
                 Collector.messageHub.SendToClient(listener: "totalUtilizationListener", msg: JsonConvert.SerializeObject(value: toSend ));
             }
@@ -245,7 +250,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <summary>
         /// OEE for dashboard
         /// </summary>
-        private void OverallEquipmentEffectiveness(ResourceList resources, long startInterval, long endInterval)
+        private string OverallEquipmentEffectiveness(ResourceList resources, long startInterval, long endInterval)
         {
             /* ------------- Total Production Time --------------------*/
             var totalInterval = endInterval - startInterval;
@@ -307,7 +312,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             Collector.messageHub.SendToClient(listener: "oeeListener", msg: totalOEEString);
 
+            return totalOEEString;
+
             //TODO Implement View for GUI
+
         }
 
         //TODO solution = KpiManager
