@@ -9,6 +9,7 @@ namespace Master40.DB.Data.Helper.Types
 {
     public class TEnumerator<T> : IEnumerator
     {
+        //TODO replace bool with double -> = 1 normal distribution ; 2 = expo ; usw
         public TEnumerator(T[] obj, bool expDistributed = false)
         {
             _internal = obj;

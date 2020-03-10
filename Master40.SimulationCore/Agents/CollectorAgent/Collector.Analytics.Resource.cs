@@ -264,8 +264,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             /* ------------- WorkTime --------------------*/
             var breakDown = 0L;
 
+            //TODO Selstame Konstante - muss geklärt werden
+
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
-            allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval+50).ToList());
+            allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval + 50).ToList());
             allSimulationResourceSetups.AddRange(simulationResourceSetupsForDb.Where(x => x.Start >= startInterval + 50).ToList());
 
             var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
@@ -288,7 +290,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             /* ------------- zeroToleranceTime --------------------*/
 
-            //TODO add goods
+            //TODO Max Quality Goods
             var goodGoods = 35L;
             var badGoods = 0L;
             var totalGoods = goodGoods + badGoods;
