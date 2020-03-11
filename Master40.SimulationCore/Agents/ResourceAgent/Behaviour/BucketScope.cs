@@ -25,8 +25,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
+        private const int SCOPELIMIT = 960;
+
         //TODO PlaningQueueLenght as parameter
-        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 2160);
+        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: SCOPELIMIT);
 
         public override bool Action(object message)
         {
@@ -78,11 +80,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
             }
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : queuePosition.EstimatedWorkload);
+            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(SCOPELIMIT * 0.8) );
 
             if (fPostponed.IsPostponed)
             {
-                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset} ");
+                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset } ");
             }
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
