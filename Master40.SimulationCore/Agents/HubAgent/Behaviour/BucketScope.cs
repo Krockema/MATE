@@ -97,29 +97,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
              * Implements the Self-Organizing Bucket Method
              */
 
-            var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
-
-            if (bucketsToModify.Count > 0)
-            {
-                Agent.DebugMessage($"{bucketsToModify.Count} buckets to modify");
-                foreach (var modBucket in bucketsToModify)
-                {
-                    Agent.DebugMessage($"Modify Bucket: {operation.Operation.Name} {operation.Key} modifies {modBucket.Name}");
-                    if (!modBucket.ResourceAgent.IsNobody())
-                    {
-                        Agent.Send(Resource.Instruction.BucketScope.RequeueBucket.Create(modBucket.Key, modBucket.ResourceAgent));
-                    }
-                    else
-                    {
-                        ResetBucket(modBucket.Key);
-                    }
-
-                    //System.Diagnostics.Debug.WriteLine($"{operation.Key} reset {modBucket.Name}");
-                }
-                
-            }
-
-            //if no bucket has to be modified try to add
             var bucket = _bucketManager.AddToBucket(operation);
 
             if (bucket != null)
@@ -133,11 +110,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 {
                     //TODO Maybe update bucket on Resource! But pay attention to possible inconsitency
                 }
+                
                 return;
             }
 
             //if no bucket to add exists create a new one
-            
             bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
             Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             
@@ -147,6 +124,34 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             EnqueueBucket(bucket);
 
+            //after creating new bucket, modify subsequent buckets
+            ModifyBucket(operation);
+
+        }
+
+        private void ModifyBucket(FOperation operation)
+        {
+            var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
+
+            if (bucketsToModify.Count > 0)
+            {
+                Agent.DebugMessage($"{bucketsToModify.Count} buckets to modify");
+                foreach (var modBucket in bucketsToModify)
+                {
+                    Agent.DebugMessage($"Modify Bucket: {operation.Operation.Name} {operation.Key} modifies {modBucket.Name}");
+                    if (!modBucket.ResourceAgent.IsNobody())
+                    {
+                        Agent.Send(
+                            Resource.Instruction.BucketScope.RequeueBucket.Create(modBucket.Key, modBucket.ResourceAgent));
+                    }
+                    else
+                    {
+                        ResetBucket(modBucket.Key);
+                    }
+
+                    //System.Diagnostics.Debug.WriteLine($"{operation.Key} reset {modBucket.Name}");
+                }
+            }
         }
 
         internal void EnqueueBucket(FBucket bucket)
@@ -228,6 +233,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             //refuse bucket if not exits anymore
             if (bucket != null)
             {
+
                 var notSatisfiedOperations = _bucketManager.GetAllNotSatifsiedOperation(bucket);
                 
                 if (notSatisfiedOperations.Count > 0)
@@ -246,14 +252,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 
                 _operationList.AddRange(notSatisfiedOperations); 
                 RequeueOperations(notSatisfiedOperations);
-                
             }
             else
             {
                 Agent.DebugMessage(msg: $"{bucket.Name} does not exits anymore");
             }
             //Send fix/refuse bucket
-            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(bucket, bucket.ResourceAgent));
+            var jobAcknowledgement = new JobAcknowledgement(bucketKey, bucket);
+            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobAcknowledgement, bucket.ResourceAgent));
             //Requeue all unsatisfied operations
             
         }

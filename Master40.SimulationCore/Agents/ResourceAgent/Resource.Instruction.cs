@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FAgentInformations;
 using static FBuckets;
 using static FBucketScopes;
@@ -100,7 +101,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class AcknowledgeJob : SimulationMessage
                 {
-                    public static AcknowledgeJob Create(IJob message, IActorRef target)
+                    public static AcknowledgeJob Create(JobAcknowledgement message, IActorRef target)
                     {
                         return new AcknowledgeJob(message: message, target: target);
                     }
@@ -108,7 +109,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
 
                     }
-                    public IJob GetObjectFromMessage { get => Message as IJob; }
+                    public JobAcknowledgement GetObjectFromMessage { get => Message as JobAcknowledgement; }
                 }
                 public class EnqueueBucket : SimulationMessage
                 {

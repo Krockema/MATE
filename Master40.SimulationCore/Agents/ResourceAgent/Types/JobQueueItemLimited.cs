@@ -35,14 +35,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public long SumDurations => this.jobs.Sum(x => x.Duration);
 
-        internal void Replace(IJob job)
+        internal bool Replace(IJob job)
         {
             var jobToReplace = jobs.FirstOrDefault(x => x.Key == job.Key);
-            if (jobToReplace == null) return;
+            if (jobToReplace == null) return false; 
 
             jobs.Remove(jobToReplace);
-            Enqueue(job);
-            
+            return Enqueue(job);
+
         }
 
         internal IJob DequeueFirstSatisfiedFix(long currentTime)
@@ -55,9 +55,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return item;
         }
 
-        internal void Remove(IJob job)
+        internal bool Remove(IJob job)
         {
-            this.jobs.Remove(item: job);
+            return this.jobs.Remove(item: job);
+        }
+
+        internal bool Remove(Guid jobKey)
+        {
+            var job = this.jobs.Single(x => x.Key.Equals(jobKey));
+            return this.Remove(job);
         }
     }
 }

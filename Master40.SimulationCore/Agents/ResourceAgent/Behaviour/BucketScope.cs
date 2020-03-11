@@ -4,7 +4,9 @@ using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
+using System.Data;
 using System.Linq;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobResults;
@@ -171,7 +173,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 
                 Agent.DebugMessage(msg: $"Ask for fix {job.Name} {job.Key} at {Agent.Context.Self.Path.Name}");
                 Agent.Send(instruction: Hub.Instruction.BucketScope.SetBucketFix.Create(key: job.Key, target: job.HubAgent));
-
             }
 
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
@@ -181,20 +182,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// After new Job has been put into the ProcessingQueue
         /// </summary>
         /// <param name="job"></param>
-        internal void AcknowledgeJob(IJob job)
+        internal void AcknowledgeJob(JobAcknowledgement jobAcknowledgement)
         {
-            var bucket = (FBucket)job;
-
-            if (bucket == null)
+            if (!jobAcknowledgement.ToReplace)
             {
-                Agent.DebugMessage($"{job.Name} doesn't exits and couldn't be acknowledged");
-                _processingQueue.Remove(job);
+                Agent.DebugMessage($"{jobAcknowledgement.Bucket.Name} doesn't exits and couldn't be acknowledged");
+                _processingQueue.Remove(jobAcknowledgement.JobKey);
+                UpdateProcessingQueue();
                 return;
             }
 
-            _processingQueue.Replace(job);
+
+            if (!_processingQueue.Replace(jobAcknowledgement.Bucket)) 
+                throw new Exception("Could not find Job in Processing Queue");
            
-            Agent.DebugMessage($"{bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations has now been acknowledged");
+            Agent.DebugMessage($"{jobAcknowledgement.Bucket.Name} {jobAcknowledgement.Bucket.Key} with {jobAcknowledgement.Bucket.Operations.Count} operations has now been acknowledged");
             
             TryToWork();
         }
