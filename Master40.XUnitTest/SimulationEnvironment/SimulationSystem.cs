@@ -1,14 +1,10 @@
-﻿using Akka.Actor;
-using Akka.TestKit.Xunit;
+﻿using Akka.TestKit.Xunit;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Nominal;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using AkkaSim.Logging;
@@ -140,7 +136,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [InlineData(SimulationType.BucketScope, 84, 480, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.025, false)]
         [InlineData(SimulationType.BucketScope, 85, 480, 1920, 169, ModelSize.Medium, ModelSize.Large, 0.025, false)]
         [InlineData(SimulationType.BucketScope, 86, 480, 1920, 169, ModelSize.Large, ModelSize.Small, 0.05, false)]
-        [InlineData(SimulationType.BucketScope, 87, 480, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.05, false)]
+        [InlineData(SimulationType.BucketScope, 87, 480, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.04, false)]
         [InlineData(SimulationType.BucketScope, 88, 480, 1920, 169, ModelSize.Large, ModelSize.Large, 0.05, false)]
         //[InlineData(SimulationType.BucketScope, 3, 960, 1920, 169)]
 
@@ -148,13 +144,18 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially)
         {
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
+            //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
+            
+
+            var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, distributeSetupsExponentially: true);
 
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-            var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
 
             // LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn);
             // LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info);
@@ -185,12 +186,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 // Start simulation
                 var sim = simulation.RunAsync();
                 simContext.StateManager.ContinueExecution(simulation);
-                // AgentSimulation.Continuation(inbox: simContext.SimulationConfig.Inbox
-                //                             , sim: simulation
-                //                             , collectors: new List<IActorRef> { simContext.StorageCollector
-                //                                                     , simContext.WorkCollector
-                //                                                     , simContext.ContractCollector
-                //                             });
                 await sim;
             }
 

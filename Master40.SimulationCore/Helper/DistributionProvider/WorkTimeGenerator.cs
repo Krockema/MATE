@@ -38,7 +38,7 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
                 newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
                 if (newDuration <= 3 * duration) break;
             }
-            return newDuration > 0 ? newDuration : 0;
+            return newDuration > 1 ? newDuration : 1;
         }
     }
 }

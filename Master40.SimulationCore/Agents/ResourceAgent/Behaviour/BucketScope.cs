@@ -298,7 +298,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.HubAgent));
 
             var nextOperation = ((FBucket)_jobInProgress.Current).Operations.OrderByDescending(prio => prio.DueTime)
-                .FirstOrDefault(op => op.StartConditions.Satisfied);
+                                                                            .FirstOrDefault(op => op.StartConditions.Satisfied); // Obsolete ?
             //if there arent any operations - finish bucket
             if (nextOperation == null)
             {
@@ -329,7 +329,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             // then requeue processing queue if the item was delayed 
             if (jobResult.OriginalDuration != Agent.CurrentTime - jobResult.Start)
-                //RequeueAllRemainingJobs();
+                RequeueAllRemainingJobs();
 
             TryToWork();
         }
