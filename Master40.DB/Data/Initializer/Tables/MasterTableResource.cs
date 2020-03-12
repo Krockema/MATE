@@ -55,6 +55,13 @@ namespace Master40.DB.Data.Initializer.Tables
             CreateModel(4, 2, 4);
             SaveToDB(context);
         }
+
+        internal void InitXLarge(MasterDBContext context)
+        {
+            CreateModel(5, 3, 5);
+            SaveToDB(context);
+        }
+
         private void SaveToDB(MasterDBContext context)
         {
             foreach (var item in Resources)

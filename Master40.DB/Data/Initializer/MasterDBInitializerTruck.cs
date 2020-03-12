@@ -57,6 +57,9 @@ namespace Master40.DB.Data.Initializer
                     case ModelSize.Large:
                         resource.InitLarge(context);
                         break;
+                    case ModelSize.XLarge:
+                        resource.InitXLarge(context);
+                        break;
                     default: throw new ArgumentException();
                 }
 

@@ -4,6 +4,7 @@
     {
         Small,
         Medium,
-        Large
+        Large,
+        XLarge
     }
 }
