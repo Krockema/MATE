@@ -209,13 +209,21 @@ namespace Master40.SimulationCore
                                                                  .Include(navigationPropertyPath: t => t.ResourceTool)
                                                                  .ToListAsync().Result;
 
-            var resourceList = _dBContext.Resources.ToList();
+            var resourceList = _dBContext.Resources.Include(x => x.ResourceCapabilities).ToList();
+            var capability = _dBContext.ResourceCapabilities
+                                        .Include(x => x.ResourceSetups)
+                                        .ThenInclude(x => x.Resource);
 
             foreach (var resource in resourceList)
             {
                 var resourceSetups = setups.Where(predicate: x => x.ResourceId == resource.Id).ToList();
+                var capabilitiesOfResourceId = resourceSetups.First().ResourceCapabilityId;
 
-                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: maxBucketSize, debug: _debugAgents);
+                double numberOfSetups = resourceSetups.Count();
+                var numberOfResources = setups.Where(x  => x.ResourceCapabilityId == capabilitiesOfResourceId).Select(x => x.Resource.Name).Distinct().Count();
+                var localMaxBucketSize = Convert.ToInt32(Math.Round((numberOfSetups / numberOfResources) * maxBucketSize, 0, MidpointRounding.AwayFromZero));
+
+                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: localMaxBucketSize, debug: _debugAgents);
 
                 _simulation.SimulationContext.Tell(message: Directory.Instruction
                                                             .CreateMachineAgents
