@@ -83,6 +83,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                  , debug: Agent.DebugThis
                                                                  , principal: Agent.Context.Self)
                                                         , name: "Hub(" + resourceSetup.ResourceCapability.Name + ")");
+
+                    System.Diagnostics.Debug.WriteLine($"Created Hub {resourceSetup.ResourceCapability.Name} with {resourceSetupDefinition.MaxBucketSize} !");
                     //Agent.Send(BasicInstruction.Initialize.Create(Agent.Context.Self, HubBehaviour.Get(machine.MachineGroup.Name)));
                     hub = new FRequestResource(discriminator: resourceSetup.ResourceCapability.Name, resourceType: FResourceType.Hub, actorRef: hubAgent);
                     fRequestResources.Add(item: hub);
@@ -111,7 +113,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         private void RequestAgent(string discriminator)
         {
-            Agent.DebugMessage(msg: $" got called for Agent by:  {Agent.Sender.Path.Name} for: {discriminator}");
+            Agent.DebugMessage(msg: $" got called for Agent by:  {Agent.Sender.Path.Name} for: {discriminator} MaxBucketSize!");
 
             // find the related Hub/Storage Agent
             var agentToProvide = fRequestResources.First(predicate: x => x.Discriminator == discriminator);

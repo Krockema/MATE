@@ -4,7 +4,9 @@ using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
+using System.Data;
 using System.Linq;
+using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobResults;
@@ -23,8 +25,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
+        private const int SCOPELIMIT = 960;
+
         //TODO PlaningQueueLenght as parameter
-        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: 2160);
+        private JobQueueScopeLimited _scopeQueue = new JobQueueScopeLimited(limit: SCOPELIMIT);
 
         public override bool Action(object message)
         {
@@ -76,11 +80,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
             }
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : queuePosition.EstimatedWorkload);
+            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(SCOPELIMIT * 0.8) );
 
             if (fPostponed.IsPostponed)
             {
-                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset} ");
+                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset } ");
             }
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
@@ -171,7 +175,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 
                 Agent.DebugMessage(msg: $"Ask for fix {job.Name} {job.Key} at {Agent.Context.Self.Path.Name}");
                 Agent.Send(instruction: Hub.Instruction.BucketScope.SetBucketFix.Create(key: job.Key, target: job.HubAgent));
-
             }
 
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
@@ -181,20 +184,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// After new Job has been put into the ProcessingQueue
         /// </summary>
         /// <param name="job"></param>
-        internal void AcknowledgeJob(IJob job)
+        internal void AcknowledgeJob(JobAcknowledgement jobAcknowledgement)
         {
-            var bucket = (FBucket)job;
-
-            if (bucket == null)
+            if (!jobAcknowledgement.ToReplace)
             {
-                Agent.DebugMessage($"{job.Name} doesn't exits and couldn't be acknowledged");
-                _processingQueue.Remove(job);
+                Agent.DebugMessage($"{jobAcknowledgement.Bucket.Name} doesn't exits and couldn't be acknowledged");
+                _processingQueue.Remove(jobAcknowledgement.JobKey);
+                UpdateProcessingQueue();
                 return;
             }
 
-            _processingQueue.Replace(job);
+
+            if (!_processingQueue.Replace(jobAcknowledgement.Bucket)) 
+                throw new Exception("Could not find Job in Processing Queue");
            
-            Agent.DebugMessage($"{bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations has now been acknowledged");
+            Agent.DebugMessage($"{jobAcknowledgement.Bucket.Name} {jobAcknowledgement.Bucket.Key} with {jobAcknowledgement.Bucket.Operations.Count} operations has now been acknowledged");
             
             TryToWork();
         }
@@ -296,7 +300,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.HubAgent));
 
             var nextOperation = ((FBucket)_jobInProgress.Current).Operations.OrderByDescending(prio => prio.DueTime)
-                .FirstOrDefault(op => op.StartConditions.Satisfied);
+                                                                            .FirstOrDefault(op => op.StartConditions.Satisfied); // Obsolete ?
             //if there arent any operations - finish bucket
             if (nextOperation == null)
             {
@@ -327,7 +331,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             // then requeue processing queue if the item was delayed 
             if (jobResult.OriginalDuration != Agent.CurrentTime - jobResult.Start)
-                //RequeueAllRemainingJobs();
+                RequeueAllRemainingJobs();
 
             TryToWork();
         }

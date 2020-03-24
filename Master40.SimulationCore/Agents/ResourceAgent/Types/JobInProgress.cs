@@ -29,6 +29,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             Current = null;
             ResourceIsBusyUntil = 0;
+            
         }
 
         internal void RemoveOperation(FOperation operation)

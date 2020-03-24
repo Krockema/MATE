@@ -9,7 +9,7 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerTruck
     {
-        public static void DbInitialize(MasterDBContext context, ModelSize modelSize)
+        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, bool distributeSetupsExponentially = false)
         {
             context.Database.EnsureCreated();
 
@@ -17,37 +17,54 @@ namespace Master40.DB.Data.Initializer
             if (context.Articles.Any())
                 return;   // DB has been seeded
             
-            // Resource Definitions
-            var resourceTools = new MasterTableResourceTool();
-            resourceTools.Init(context);
-
             // requires Tools and Resources
             var resourceCapabilities = new MasterTableResourceCapability();
             resourceCapabilities.Init(context);
 
+            // Resource Definitions
+            MasterTableResourceTool resourceTools;
+
+            switch (setupModelSize)
+            {
+                case ModelSize.Small:
+                    resourceTools = new MasterTableResourceTool(resourceCapabilities, 2,2,2);
+                    resourceTools.Init(context);
+                    break;
+                case ModelSize.Medium:
+                    resourceTools = new MasterTableResourceTool(resourceCapabilities, 4,4,7);
+                    resourceTools.Init(context);
+                    break;
+                case ModelSize.Large:
+                    resourceTools = new MasterTableResourceTool(resourceCapabilities, 8,8,14);
+                    resourceTools.Init(context);
+                    break;
+                default: throw new ArgumentException();
+            }
+
             // requires Tools
 
             // requires Tools, Resources, and Capabilities
-            
+            var resource = new MasterTableResource(resourceCapabilities);
 
-            switch (modelSize)
+            switch (resourceModelSize)
                 {
-                    case ModelSize.Small: throw  new NotImplementedException();
-                    case ModelSize.Medium:
-                        var resourceMedium = new MasterTableResource();
-                        resourceMedium.InitMedium(context);
-                        var resourceSetupsMedium = new MasterTableResourceSetup(resourceMedium, resourceTools, resourceCapabilities);
-                        resourceSetupsMedium.InitMedium(context);
+                    case ModelSize.Small: 
+                        resource.InitSmall(context);
+                        break;
+                case ModelSize.Medium:
+                        resource.InitMedium(context);
                         break;
                     case ModelSize.Large:
-                        var resource = new MasterTableResource();
                         resource.InitLarge(context);
-                        var resourceSetupsLarge = new MasterTableResourceSetup(resource, resourceTools, resourceCapabilities);
-                        resourceSetupsLarge.InitLarge(context);
+                        break;
+                    case ModelSize.XLarge:
+                        resource.InitXLarge(context);
                         break;
                     default: throw new ArgumentException();
                 }
 
+            var resourceSetupsMedium = new MasterTableResourceSetup();
+            resourceSetupsMedium.InitCustom(context, resource, resourceTools, resourceCapabilities);
 
             // Article Definitions
             var units = new MasterTableUnit();
@@ -61,7 +78,7 @@ namespace Master40.DB.Data.Initializer
 
             MasterTableStock.Init(context, articles);
 
-            var operations = new MasterTableOperation(articleTable, resourceCapabilities, resourceTools);
+            var operations = new MasterTableOperation(articleTable, resourceCapabilities, resourceTools, distributeSetupsExponentially);
                 operations.Init(context);
 
             var boms = new MasterTableBom();
