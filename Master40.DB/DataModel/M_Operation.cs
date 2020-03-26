@@ -17,11 +17,5 @@ namespace Master40.DB.DataModel
         public int ResourceCapabilityId { get; set; }
         public M_ResourceCapability ResourceCapability { get; set; }
         public ICollection<M_ArticleBom> ArticleBoms { get; set; }
-
-        /// <summary>
-        /// TODO Probably necessary to add multiply Capabilities to a hub
-        /// </summary>
-        public int ResourceToolId { get; set; }
-        public M_ResourceTool ResourceTool { get; set; }
     }
 }

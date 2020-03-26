@@ -18,6 +18,8 @@ namespace Master40.DB.DataModel
         [JsonIgnore]
         public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
 
-
+        public int? ParentResourceCapabilityId { get; set; }
+        public M_ResourceCapability ParentResourceCapability { get; set; }
+        public ICollection<M_ResourceCapability> ChildResourceCapabilities { get; set; }
     }
 }

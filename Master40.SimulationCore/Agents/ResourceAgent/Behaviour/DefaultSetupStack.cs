@@ -42,7 +42,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 var jobs = _planingQueue.GetAllSatisfiedSameTool(currentTime: Agent.CurrentTime);
 
-                Agent.DebugMessage(msg: $"{jobs.Count} jobs for {jobs.FirstOrDefault().Tool.Name} have been placed in processing queue");
+                Agent.DebugMessage(msg: $"{jobs.Count} jobs for {jobs.FirstOrDefault().RequiredCapability.Name} have been placed in processing queue");
 
                 if (!_processingQueue.EnqueueAll(jobs))
                 {

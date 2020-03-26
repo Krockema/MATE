@@ -11,7 +11,7 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
     public class DefaultSetupStack : TestKit
     {
         private JobQueueTimeLimited jobQueueTimeLimited { get; }= new JobQueueTimeLimited(limit: 45);
-        private List<M_ResourceTool> tools { get; set; } = new List<M_ResourceTool>();
+        private List<M_Resource> tools { get; set; } = new List<M_Resource>();
 
         [Fact]
         public void UpdateAndRequeuePlanedJobs()
@@ -48,9 +48,9 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
 
         private void CreateTools()
         {
-            tools.Add(new M_ResourceTool() { Id = 0, Name = "BladeBig" });
-            tools.Add(new M_ResourceTool() { Id = 1, Name = "BladeMedium" });
-            tools.Add(new M_ResourceTool() { Id = 2, Name = "BladeSmall" });
+            tools.Add(new M_Resource() { Id = 0, Name = "BladeBig" });
+            tools.Add(new M_Resource() { Id = 1, Name = "BladeMedium" });
+            tools.Add(new M_Resource() { Id = 2, Name = "BladeSmall" });
         }
 
 

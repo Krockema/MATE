@@ -50,8 +50,6 @@ namespace Zpp.DataLayer
 
         List<M_ResourceCapability> M_ResourceCapabilityGetAll();
 
-        M_ResourceTool M_ResourceToolGetById(Id id);
-
         M_Operation M_OperationGetById(Id id);
 
         M_Stock M_StockGetById(Id id);

@@ -149,7 +149,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public List<FBucket> FindAllWithSameTool(FOperation fOperation)
         {
-            return _buckets.Where(x => x.Tool.Name == fOperation.Tool.Name && !x.IsFixPlanned).ToList();
+            return _buckets.Where(x => x.RequiredCapability.Name == fOperation.RequiredCapability.Name && !x.IsFixPlanned).ToList();
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
         {
             return ((IJob) bucket).Duration + operation.Operation.Duration <=
-                   GetCalculatedBucketSize(operation.Tool);
+                   GetCalculatedBucketSize(operation.RequiredCapability);
 
         }
 
@@ -318,12 +318,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public long GetCalculatedBucketSize(M_ResourceTool tool)
+        public long GetCalculatedBucketSize(M_ResourceCapability resoourceCapability)
         {
             var maxBucketSize = 0L;
             double capabilitySize = 0;
 
-            var toolCapability = _toolBucketSizeDictionary.Single(x => x.Key._resourceTool.Name.Equals(tool.Name));
+            var toolCapability = _toolBucketSizeDictionary.Single(x => x.Key._resourceTool.Name.Equals(resoourceCapability.Name));
 
             foreach (var entry in _toolBucketSizeDictionary)
             {

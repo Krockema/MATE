@@ -25,7 +25,7 @@ open FUpdateStartConditions
           ResourceAgent : IActorRef
           mutable HubAgent : IActorRef
           Operation : M_Operation
-          Tool : M_ResourceTool
+          RequiredCapability : M_ResourceCapability
           Proposals : System.Collections.Generic.List<FProposal>
           Bucket : string
           } interface IKey with
@@ -46,7 +46,7 @@ open FUpdateStartConditions
                 member this.Priority time = this.Priority time 
                 member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
-                member this.Tool with get() = this.Tool
+                member this.RequiredCapability with get() = this.RequiredCapability
                 member this.Duration = (int64)this.Operation.Duration // Theoretisch muss hier die Slacktime noch rein also , +3*duration bzw aus dem operationElement
                 member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  (int64)this.Operation.Duration;
                                                                                          Start = (int64)estimatedStart;

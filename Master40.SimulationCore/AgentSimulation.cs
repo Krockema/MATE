@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Akka.Configuration;
 using Master40.SimulationCore.Helper.DistributionProvider;
+using NLog.LayoutRenderers.Wrappers;
 using static FResourceSetupDefinitions;
 using static FSetEstimatedThroughputTimes;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
@@ -203,24 +204,25 @@ namespace Master40.SimulationCore
 
             var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
 
-            var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.Resource)
-                                                                 .Include(navigationPropertyPath: r => r.ResourceCapability)
-                                                                    .ThenInclude(s => s.ResourceSetups)
-                                                                 .Include(navigationPropertyPath: t => t.ResourceTool)
+            var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.ChildResource)
+                                                                 .Include(navigationPropertyPath: r => r.ChildResource)
+                                                                    .ThenInclude(s => s.RequiresResourceSetups)
+                                                                        .ThenInclude(x => x.ChildResource)
+                                                                 .Where(x => x.ParentResourceId == null)
                                                                  .ToListAsync().Result;
 
-            var resourceList = _dBContext.Resources.Include(x => x.ResourceCapabilities).ToList();
+            var resourceList = _dBContext.Resources.Include(x => x.UsedInResourceSetups.Any()).ToList();
             var capability = _dBContext.ResourceCapabilities
                                         .Include(x => x.ResourceSetups)
-                                        .ThenInclude(x => x.Resource);
+                                            .ThenInclude(x => x.ChildResource);
 
             foreach (var resource in resourceList)
             {
-                var resourceSetups = setups.Where(predicate: x => x.ResourceId == resource.Id).ToList();
+                var resourceSetups = setups.Where(predicate: x => x.ChildResourceId == resource.Id).ToList();
                 var capabilitiesOfResourceId = resourceSetups.First().ResourceCapabilityId;
 
                 double numberOfSetups = resourceSetups.Count();
-                var numberOfResources = setups.Where(x  => x.ResourceCapabilityId == capabilitiesOfResourceId).Select(x => x.Resource.Name).Distinct().Count();
+                var numberOfResources = setups.Where(x  => x.ResourceCapabilityId == capabilitiesOfResourceId).Select(x => x.ChildResource.Name).Distinct().Count();
                 var localMaxBucketSize = Convert.ToInt32(Math.Round((numberOfSetups / numberOfResources) * maxBucketSize, 0, MidpointRounding.AwayFromZero));
 
                 var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: localMaxBucketSize, debug: _debugAgents);

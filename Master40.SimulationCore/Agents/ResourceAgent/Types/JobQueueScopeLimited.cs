@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         }
 
-        public override IJob DequeueFirstSatisfied(long currentTime, M_ResourceTool resourceTool = null)
+        public override IJob DequeueFirstSatisfied(long currentTime, M_Resource resourceTool = null)
         {
             var bucket = GetFirstSatisfied(currentTime, resourceTool);
             if (bucket != null)
@@ -32,16 +32,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return bucket;
         }
 
-        public IJob GetFirstSatisfied(long currentTime, M_ResourceTool resourceTool)
+        public IJob GetFirstSatisfied(long currentTime, M_Resource resourceTool)
         {
             var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList().Cast<IJob>();
 
-            var avgResourceSetupTime = resourceTool != null ? resourceTool.ResourceSetups.Average(x => x.SetupTime): 0;
+            var avgResourceSetupTime = resourceTool != null ? resourceTool.UsedInResourceSetups.Average(x => x.SetupTime): 0;
             var toolname = "";
             if (resourceTool != null)
                 toolname = resourceTool.Name;
             
-            var bucket = buckets.OrderBy(x => x.Priority(currentTime) + x.Tool.Name != toolname ? avgResourceSetupTime : 0).FirstOrDefault();
+            var bucket = buckets.OrderBy(x => x.Priority(currentTime) + x.RequiredCapability.Name != toolname ? avgResourceSetupTime : 0).FirstOrDefault();
             
             return bucket;
         }

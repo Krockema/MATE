@@ -22,7 +22,7 @@ type public IJob =
     abstract member HubAgent : IActorRef
     abstract member DueTime : int64 with get
     abstract member Duration : int64 with get
-    abstract member Tool : M_ResourceTool with get
+    abstract member RequiredCapability : M_ResourceCapability with get
     abstract member UpdateEstimations : int64 -> IActorRef -> IJob
     abstract member Bucket : string
     abstract member UpdateBucket : string -> IJob 

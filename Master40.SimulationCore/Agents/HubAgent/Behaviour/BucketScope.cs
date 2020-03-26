@@ -91,7 +91,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            _bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
+            _bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
                 operation.Operation.Duration);
             /*
              * Implements the Self-Organizing Bucket Method
@@ -166,7 +166,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
             
-            var resourceToRequest = _resourceManager.GetResourceByTool(bucket.Tool);
+            var resourceToRequest = _resourceManager.GetResourceByTool(bucket.RequiredCapability);
 
             foreach (var actorRef in resourceToRequest)
             {
@@ -190,7 +190,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
 
             // if all Machines Answered
-            if (bucket.Proposals.Count == _resourceManager.GetResourceByTool(bucket.Tool).Count)
+            if (bucket.Proposals.Count == _resourceManager.GetResourceByTool(bucket.RequiredCapability).Count)
             {
 
                 // item Postponed by All Machines ? -> requeue after given amount of time.
@@ -306,7 +306,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
                 EnqueueOperation(operation);
-                _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
+                _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
                     operation.Operation.Duration);
             }
 
@@ -322,7 +322,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
             _bucketManager.RemoveOperation(operation.Key);
 
-            _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.Tool),
+            _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
                 operation.Operation.Duration);
 
             Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");

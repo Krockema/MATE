@@ -13,13 +13,13 @@ namespace Master40.DB.DataModel
         public string Name { get; set; }
         public int ResourceCapabilityId { get; set; }
         public M_ResourceCapability ResourceCapability { get; set; }
-        public int ResourceId { get; set; }
-        public M_Resource Resource { get; set; }
-        public int ResourceToolId { get; set; }
-        public M_ResourceTool ResourceTool { get; set; }
+        public int ChildResourceId { get; set; }
+        public M_Resource ChildResource { get; set; }
+        public int? ParentResourceId { get; set; }
+        public M_Resource ParentResource { get; set; }
         /* Specific SetupTime for the ResourceTool to the Resource
          */
-        public int SetupTime { get; set; }
+        public long SetupTime { get; set; }
 
     }
 }

@@ -17,30 +17,30 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             _resourceSetups = resourceSetups;
         }
 
-        internal void Mount(M_ResourceTool requiredResourceTool)
+        internal void Mount(M_ResourceCapability resourceCapability)
         {
-            if (!AlreadyEquipped(requiredResourceTool))
+            if (!AlreadyEquipped(resourceCapability))
             {
-                _equippedResourceTool.Mount(requiredResourceTool);
+                _equippedResourceTool.Mount(resourceCapability.ResourceSetups.First().ChildResource);
             }
         }
 
-        internal bool AlreadyEquipped(M_ResourceTool requiredResourceTool)
+        internal bool AlreadyEquipped(M_ResourceCapability requiredResourceTool)
         {
             return _equippedResourceTool.IsSet(resourceTool: requiredResourceTool);
         }
 
-        internal M_ResourceSetup GetSetupByTool(M_ResourceTool resourceTool)
+        internal M_ResourceSetup GetSetupByTool(M_ResourceCapability resourceCapability)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id);
+            var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityId == resourceCapability.Id);
             return resourceSetup;
         }
 
-        internal int GetSetupDurationByTool(M_ResourceTool resourceTool)
+        internal long GetSetupDurationByTool(M_ResourceCapability resourceCapability)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var setupTime = _resourceSetups.SingleOrDefault(x => x.ResourceToolId == resourceTool.Id).SetupTime;
+            var setupTime = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityId == resourceCapability.Id).SetupTime;
             return setupTime;
         }
 

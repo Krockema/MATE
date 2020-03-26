@@ -9,7 +9,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class EquippedResourceTool
     {
-        public M_ResourceTool ResourceTool { get; private set; }
+        public M_Resource ResourceTool { get; private set; }
         private bool SetupPhase { get; set; }
 
         public bool IsSetupPhase => SetupPhase;
@@ -24,14 +24,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="resourceTool"></param>
         /// <returns></returns>
-        public bool Mount(M_ResourceTool resourceTool)
+        public bool Mount(M_Resource resourceTool)
         {
             if (SetupPhase != false) return false;
             ResourceTool = resourceTool;
             return true;
         }
 
-        public bool IsSet(M_ResourceTool resourceTool)
+        public bool IsSet(M_ResourceCapability resourceTool)
         {
             if (ResourceTool == null || ResourceTool.Id != resourceTool.Id ) return false;
             return true;

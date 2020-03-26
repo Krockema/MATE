@@ -16,7 +16,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
             var bucketManager = CreateTestSetForBuckets();
 
             //Add operation to Bucket(0)
-            M_ResourceTool tool1 = new M_ResourceTool() { Name = "SawBig" };
+            M_Resource tool1 = new M_Resource() { Name = "SawBig" };
             var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 25, averageTransitionDuration: 10, dueTime: 50, tool: tool1);
             var bucket = bucketManager.AddToBucket(operation1);
             Assert.Equal(3, bucket.Operations.Count);
@@ -45,7 +45,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         void CreateBucket()
         {
             var bucketManager = new BucketManager(240);
-            var tool = new M_ResourceTool(){Name = "SawBig"};
+            var tool = new M_Resource(){Name = "SawBig"};
             var operationJob = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 35, averageTransitionDuration: 10, tool: tool);
 
             var bucket = bucketManager.CreateBucket(operationJob, hubAgent: ActorRefs.Nobody, currentTime: 0);
@@ -58,7 +58,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         void BackwardAndForwardTestForBucket()
         {
             var bucketManager = new BucketManager(240);
-            var tool = new M_ResourceTool() { Name = "SawBig" };
+            var tool = new M_Resource() { Name = "SawBig" };
             var operationJob = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 5, averageTransitionDuration: 10, tool: tool);
 
             var bucket = bucketManager.CreateBucket(operationJob, hubAgent: ActorRefs.Nobody, currentTime: 0);
@@ -76,7 +76,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         void BackwardAndForwardTestForModifiedBucket()
         {
             var bucketManager = new BucketManager(240);
-            var tool = new M_ResourceTool() { Name = "SawBig" };
+            var tool = new M_Resource() { Name = "SawBig" };
             var operationJob = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 5, averageTransitionDuration: 10, dueTime: 50, tool: tool);
 
             var bucket = bucketManager.CreateBucket(operationJob, hubAgent: ActorRefs.Nobody, currentTime: 0);
@@ -109,8 +109,8 @@ namespace Master40.XUnitTest.Online.Agents.Types
         BucketManager CreateTestSetForBuckets()
         {
             var bucketManager = new BucketManager(240);
-            var tool1 = new M_ResourceTool() { Name = "SawBig" };
-            var tool2 = new M_ResourceTool() { Name = "SawSmall" };
+            var tool1 = new M_Resource() { Name = "SawBig" };
+            var tool2 = new M_Resource() { Name = "SawSmall" };
             var cap = new M_ResourceCapability() {Name = "Sawing"};
             var toolcap1 = new ToolCapabilityPair(tool1, cap);
             var toolcap2 = new ToolCapabilityPair(tool2, cap);

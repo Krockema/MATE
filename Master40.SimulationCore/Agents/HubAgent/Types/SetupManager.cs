@@ -22,9 +22,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             this._resourceName = resourceName;
         }
 
-        public bool HasTool(M_ResourceTool resourceTool)
+        public bool HasTool(M_ResourceCapability resourceTool)
         {
-            var value = _resourceSetups.Any(x => x.ResourceTool.Id == resourceTool.Id);
+            var value = _resourceSetups.Any(x => x.ChildResourceId == resourceTool.Id);
             return value;
         }
 

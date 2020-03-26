@@ -29,7 +29,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <param name="processingQueueLength"></param>
         /// <param name="setupDuration">optional parameter which adds the setupDuration to queable time</param>
         /// <returns></returns>
-        public QueueingPosition GetQueueAbleTime(IJob job,long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
+        public QueueingPosition GetQueueAbleTime(IJob job,long currentTime, long resourceIsBlockedUntil, long processingQueueLength, long setupDuration = 0)
         {
             var queuePosition = new QueueingPosition {EstimatedStart = currentTime + processingQueueLength + setupDuration};
             var totalWorkLoad = 0L;
@@ -49,7 +49,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         }
 
 
-        public QueueingPosition GetQueueAbleTimeByStack(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, int setupDuration = 0)
+        public QueueingPosition GetQueueAbleTimeByStack(IJob job, long currentTime, long resourceIsBlockedUntil, long processingQueueLength, long setupDuration = 0)
         {
             var queuePosition = new QueueingPosition { EstimatedStart = currentTime + processingQueueLength + setupDuration };
             var totalWorkLoad = 0L;
@@ -59,13 +59,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
             {
                 var allPreviousJobs = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime)).ToList();
-                var resourceTools = allPreviousJobs.Select(x => x.Tool.Id).Distinct().ToList();
-                var sumAllJobsWithToolId = jobs.Where(x => resourceTools.Contains(x.Tool.Id)
-                                                     && x.Tool.Id != job.Tool.Id)
+                var resourceTools = allPreviousJobs.Select(x => x.RequiredCapability.Id).Distinct().ToList();
+                var sumAllJobsWithToolId = jobs.Where(x => resourceTools.Contains(x.RequiredCapability.Id)
+                                                     && x.RequiredCapability.Id != job.RequiredCapability.Id)
                                                .Sum(x => x.Duration);
 
                 var sumAllJobsWithSameToolId =
-                    allPreviousJobs.Where(x => x.Tool.Id == job.Tool.Id).Sum(x => x.Duration);
+                    allPreviousJobs.Where(x => x.RequiredCapability.Id == job.RequiredCapability.Id).Sum(x => x.Duration);
                 
                 totalWorkLoad = sumAllJobsWithSameToolId + sumAllJobsWithToolId;
                 queuePosition.EstimatedStart += totalWorkLoad;
@@ -104,11 +104,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public List<IJob> CutTailByStack(long currentTime, IJob job)
         {
             var allPreviousJobs = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime)).ToList();
-            var resourceTools = allPreviousJobs.Select(x => x.Tool.Id).Distinct().ToList();
+            var resourceTools = allPreviousJobs.Select(x => x.RequiredCapability.Id).Distinct().ToList();
 
             var toRequeue = this.jobs.Where(e => e.Priority(currentTime) > job.Priority(currentTime)
-                                                        && (!resourceTools.Contains(e.Tool.Id) 
-                                                        || e.Tool.Id == job.Tool.Id))
+                                                        && (!resourceTools.Contains(e.RequiredCapability.Id) 
+                                                        || e.RequiredCapability.Id == job.RequiredCapability.Id))
                                                             .ToList();
 
 

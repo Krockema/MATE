@@ -20,7 +20,7 @@ namespace Master40.Controllers
         // GET: Resources
         public async Task<IActionResult> Index()
         {
-            var Resources = _context.Resources.Include(navigationPropertyPath: m => m.ResourceCapabilities);
+            var Resources = _context.Resources.Include(navigationPropertyPath: m => m.RequiresResourceSetups);
             
             var mermaid = @"graph LR;
                 p>Production Line]
@@ -33,7 +33,7 @@ namespace Master40.Controllers
             for (int g = 0; g < machineGroups.Count; g++)
             {
                 var start = (g == 0) ? "Start-->" : "\r\n";
-                var machine = Resources.Where(predicate: x => machineGroups[g].Name == x.ResourceCapabilities.SingleOrDefault().Name);
+                var machine = Resources.Where(predicate: x => machineGroups[g].Name == x.RequiresResourceSetups.SingleOrDefault().Name);
                 var i = 1;
                 var thisGroup = machineGroups[index: g].Name;
                 var nextGroup = (g+1 < machineGroups.Count)? machineGroups[index: g+1].Name : "Finish";
@@ -65,7 +65,7 @@ namespace Master40.Controllers
             }
 
             var machine = await _context.Resources
-                .Include(navigationPropertyPath: m => m.ResourceCapabilities)
+                .Include(navigationPropertyPath: m => m.RequiresResourceSetups)
                 .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (machine == null)
             {
@@ -161,7 +161,7 @@ namespace Master40.Controllers
             }
 
             var machine = await _context.Resources
-                .Include(navigationPropertyPath: m => m.ResourceCapabilities)
+                .Include(navigationPropertyPath: m => m.RequiresResourceSetups)
                 .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (machine == null)
             {

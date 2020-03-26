@@ -67,7 +67,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 _operationList.Replace(val: localItem);
             }
 
-            var resourceToRequest = _resourceManager.GetResourceByTool(fOperation.Operation.ResourceTool);
+            var resourceToRequest = _resourceManager.GetResourceByTool(fOperation.Operation.ResourceCapability);
             
             foreach (var actorRef in resourceToRequest)
             {
@@ -92,7 +92,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
             // if all Machines Answered
-            if (fOperation.Proposals.Count == _resourceManager.GetResourceByTool(fOperation.Operation.ResourceTool).Count)
+            if (fOperation.Proposals.Count == _resourceManager.GetResourceByTool(fOperation.Operation.ResourceCapability).Count)
             {
 
                 // item Postponed by All Machines ? -> requeue after given amount of time.

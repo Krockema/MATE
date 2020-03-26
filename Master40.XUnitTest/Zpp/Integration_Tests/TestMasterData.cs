@@ -43,7 +43,6 @@ namespace Master40.XUnitTest.Zpp.Integration_Tests
             counts.Add(ProductionDomainContext.Resources.Count());
             counts.Add(ProductionDomainContext.ResourceSetups.Count());
             counts.Add(ProductionDomainContext.ResourceCapabilities.Count());
-            counts.Add(ProductionDomainContext.ResourceTools.Count());
             counts.Add(ProductionDomainContext.Stocks.Count());
             counts.Add(ProductionDomainContext.Units.Count());
             counts.Add(ProductionDomainContext.Operations.Count());

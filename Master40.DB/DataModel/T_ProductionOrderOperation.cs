@@ -19,7 +19,6 @@ namespace Master40.DB.DataModel
         public M_Resource Resource { get; set; }
         public int? ResourceToolId { get; set; }
         [JsonIgnore]
-        public M_ResourceTool ResourceTool { get; set; }
         public int ProductionOrderId { get; set; }
         [JsonIgnore]
         public T_ProductionOrder ProductionOrder { get; set; }

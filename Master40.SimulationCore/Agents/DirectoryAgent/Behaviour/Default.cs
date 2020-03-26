@@ -91,14 +91,14 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 }
             }
 
-            var resource = resourceSetups.FirstOrDefault().Resource as M_Resource;
+            var resource = resourceSetups.FirstOrDefault().ChildResource as M_Resource;
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
                                                                     // TODO : Handle 1 resource in multiply hub agents
-                                                                    , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.ResourceSetups.First().ResourceCapability.Name
+                                                                    , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.UsedInResourceSetups .First().ResourceCapability.Name
                                                                                                  && x.ResourceType == FResourceType.Hub).actorRef)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 

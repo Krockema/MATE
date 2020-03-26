@@ -72,7 +72,7 @@ namespace Zpp.DataLayer.impl
             _articles = _productionDomainContext.Articles.Include(m => m.ArticleBoms)
                 .ThenInclude(m => m.ArticleChild).Include(m => m.ArticleBoms)
                 .ThenInclude(x => x.Operation).ThenInclude(x => x.ResourceCapability)
-                .ThenInclude(s => s.ResourceSetups).ThenInclude(r => r.Resource)
+                .ThenInclude(s => s.ResourceSetups).ThenInclude(r => r.ChildResource)
                 .Include(x => x.ArticleToBusinessPartners).ThenInclude(x => x.BusinessPartner)
                 .ToList();
 

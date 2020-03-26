@@ -489,7 +489,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Time = (int)(Collector.Time),
                 ExpectedDuration = fOperation.Operation.Duration,
                 ArticleType = simJob.ArticleType,
-                ResourceTool = fOperation.Tool.Name
+                ResourceTool = fOperation.RequiredCapability.Name
             };
 
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fOperation.Key));

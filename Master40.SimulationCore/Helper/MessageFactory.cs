@@ -55,7 +55,7 @@ namespace Master40.SimulationCore.Helper
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , operation: operation
-                                , tool: operation.ResourceTool
+                                , requiredCapability: operation.ResourceCapability
                                 , proposals: new List<FProposal>()
                                 , bucket: String.Empty);
         }
@@ -82,7 +82,7 @@ namespace Master40.SimulationCore.Helper
             return new FBucket(key: Guid.NewGuid()
                                 //, prioRule: prioRule.ToFSharpFunc()
                                 , priority: prioRule.ToFSharpFunc()
-                                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
+                                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceCapability.Name}"
                                 , isFixPlanned: false
                                 , creationTime: time
                                 , forwardStart: operation.ForwardStart
@@ -98,7 +98,7 @@ namespace Master40.SimulationCore.Helper
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: hubAgent
                                 , operations: new FSharpSet<FOperation>(elements: operations)
-                                , tool: operation.Tool
+                                , requiredCapability: operation.RequiredCapability
                                 , proposals: new List<FProposal>()
                                 , bucket: String.Empty);
         }
@@ -120,7 +120,7 @@ namespace Master40.SimulationCore.Helper
             return new FBucket(key: Guid.NewGuid()
                 //, prioRule: prioRule.ToFSharpFunc()
                 , priority: prioRule.ToFSharpFunc()
-                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
+                , name: $"(Bucket({BucketNumber++})){operation.RequiredCapability.Name}"
                 , isFixPlanned: false
                 , creationTime: time
                 , forwardStart: operation.ForwardStart
@@ -136,7 +136,7 @@ namespace Master40.SimulationCore.Helper
                 , resourceAgent: ActorRefs.NoSender
                 , hubAgent: hubAgent
                 , operations: new FSharpSet<FOperation>(elements: operations)
-                , tool: operation.Tool
+                , requiredCapability: operation.RequiredCapability
                 , proposals: new List<FProposal>()
                 , bucket: String.Empty);
         }

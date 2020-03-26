@@ -23,7 +23,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public virtual IJob DequeueFirstSatisfied(long currentTime, M_ResourceTool equippdedResourceTool = null)
+        public virtual IJob DequeueFirstSatisfied(long currentTime, M_Resource equippdedResourceTool = null)
         {
             var item = this.jobs.Where(x => x.StartConditions.Satisfied).OrderBy(keySelector: x => x.Priority(currentTime)).FirstOrDefault();
             if (item != null)
@@ -37,7 +37,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             
             var job = DequeueFirstSatisfied(currentTime);
-            var list = this.jobs.Where(x => x.StartConditions.Satisfied && x.Tool.Id == job.Tool.Id).ToList();
+            var list = this.jobs.Where(x => x.StartConditions.Satisfied && x.RequiredCapability.Id == job.RequiredCapability.Id).ToList();
             foreach (var item in list)
             {
                 this.jobs.Remove(item: item);

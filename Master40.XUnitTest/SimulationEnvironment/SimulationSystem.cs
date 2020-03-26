@@ -54,16 +54,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public void ResetResultsDB(string connectionString)
         
         {
-            /*MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
+            MasterDBContext masterCtx = MasterDBContext.GetContext(masterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, true);
-            */
+            /*
             ResultContext results = ResultContext.GetContext(resultCon: connectionString);
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
-  
+            */
         }
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]

@@ -234,7 +234,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
-                _toolManager.Mount(requiredResourceTool: _jobInProgress.Current.Tool);
+                _toolManager.Mount(_jobInProgress.Current.RequiredCapability);
                 var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration, duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, resourceTool: _toolManager._equippedResourceTool.ResourceTool.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
@@ -282,16 +282,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal int GetSetupTime(IJob jobItem)
+        internal long GetSetupTime(IJob jobItem)
         {
-            var setupTime = 0;
-            if (!_toolManager.AlreadyEquipped(jobItem.Tool))
+            var setupTime = 0L;
+            if (!_toolManager.AlreadyEquipped(jobItem.RequiredCapability))
             {
-                setupTime = _toolManager.GetSetupDurationByTool(jobItem.Tool);
+                setupTime = _toolManager.GetSetupDurationByTool(jobItem.RequiredCapability);
             }
 
             Agent.DebugMessage(
-                msg: $"Has Tool: {_toolManager.GetToolName()} | require Tool: {jobItem.Tool.Name} with setupDuration {setupTime}");
+                msg: $"Has Tool: {_toolManager.GetToolName()} | require Tool: {jobItem.RequiredCapability.Name} with setupDuration {setupTime}");
             return setupTime;
         }
 

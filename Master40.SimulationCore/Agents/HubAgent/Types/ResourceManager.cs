@@ -27,7 +27,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             foreach (var setup in setupManager._resourceSetups)
             {
-                var toolCapabilityPair = new ToolCapabilityPair(setup.ResourceTool, setup.ResourceCapability);
+                var toolCapabilityPair = new ToolCapabilityPair(setup.ChildResource, setup.ResourceCapability);
                 if (!_toolCapabilityPairs.Exists(x => x._resourceCapability.Name.Equals(toolCapabilityPair._resourceCapability.Name) && x._resourceTool.Name.Equals(toolCapabilityPair._resourceTool.Name)))
                 {
                     _toolCapabilityPairs.Add(toolCapabilityPair);
@@ -35,7 +35,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             }
         }
 
-        public List<IActorRef> GetResourceByTool(M_ResourceTool resourceTool)
+        public List<IActorRef> GetResourceByTool(M_ResourceCapability resourceTool)
         {
             var resourceAgents = new List<IActorRef>();
             foreach (var resource in _resources)
@@ -47,9 +47,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return resourceAgents;
         }
 
-        public ToolCapabilityPair GetToolCapabilityPair(M_ResourceTool tool)
+        public ToolCapabilityPair GetToolCapabilityPair(M_ResourceCapability capability)
         { 
-            return _toolCapabilityPairs.Single(x => x._resourceTool.Name.Equals(tool.Name));
+            return _toolCapabilityPairs.Single(x => x._resourceTool.Name.Equals(capability.Name));
         }
 
     }
