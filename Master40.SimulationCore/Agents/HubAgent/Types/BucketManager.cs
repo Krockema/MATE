@@ -323,7 +323,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var maxBucketSize = 0L;
             double capabilitySize = 0;
 
-            var toolCapability = _toolBucketSizeDictionary.Single(x => x.Key._resourceTool.Name.Equals(resoourceCapability.Name));
+            var toolCapability = _toolBucketSizeDictionary.Single(x => x.Key._resourceCapability.Name.Equals(resoourceCapability.Name));
 
             foreach (var entry in _toolBucketSizeDictionary)
             {

@@ -14,7 +14,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
     public class BucketScope : TestKit
     {
         private JobQueueScopeLimited JobQueueScopeLimited { get; } = new JobQueueScopeLimited(limit: 1000);
-        private List<M_Resource> tools { get; set; } = new List<M_Resource>();
+        private List<M_ResourceCapability> tools { get; set; } = new List<M_ResourceCapability>();
         private IActorRef hubAgentActorRef { get; }
 
         public BucketScope()
@@ -27,7 +27,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         {
             PrepareModel();
             var newJobItem =
-                TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15, dueTime: 45, tool: tools[2]);
+                TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15, dueTime: 45, capability: tools[2]);
             JobQueueScopeLimited.Enqueue(newJobItem);
 
             var jobsToRequeue = JobQueueScopeLimited.CutTail(0, newJobItem);
@@ -42,7 +42,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         {
             PrepareModel();
             var newJobItem =
-                TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, tool: tools[2]);
+                TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
             var bucket = MessageFactory.ToBucketScopeItem(newJobItem, hubAgentActorRef, 0);
 
             
@@ -60,26 +60,26 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
 
         private void CreateTools()
         {
-            tools.Add(new M_Resource() { Id = 0, Name = "BladeBig" });
-            tools.Add(new M_Resource() { Id = 1, Name = "BladeMedium" });
-            tools.Add(new M_Resource() { Id = 2, Name = "BladeSmall" });
+            tools.Add(new M_ResourceCapability() { Id = 0, Name = "BladeBig" });
+            tools.Add(new M_ResourceCapability() { Id = 1, Name = "BladeMedium" });
+            tools.Add(new M_ResourceCapability() { Id = 2, Name = "BladeSmall" });
         }
 
 
         private void CreateBucketItems()
         {
             var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10,
-                dueTime: 100, tool: tools[0]);
+                dueTime: 100, capability: tools[0]);
             var operation2 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5,
-                dueTime: 150, tool: tools[1]);
+                dueTime: 150, capability: tools[1]);
             var operation3 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 3", jobDuration: 20,
-                dueTime: 120, tool: tools[2]);
+                dueTime: 120, capability: tools[2]);
             var operation4 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 4", jobDuration: 5,
-                dueTime: 180, tool: tools[0]);
+                dueTime: 180, capability: tools[0]);
             var operation5 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 5", jobDuration: 5,
-                dueTime: 180, tool: tools[1]);
+                dueTime: 180, capability: tools[1]);
             var operation6 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 6", jobDuration: 20,
-                dueTime: 180, tool: tools[2]);
+                dueTime: 180, capability: tools[2]);
 
             var bucket1 = MessageFactory.ToBucketScopeItem(operation1, hubAgentActorRef, 0);
             bucket1.AddOperation(operation4);

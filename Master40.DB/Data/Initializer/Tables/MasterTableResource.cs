@@ -36,7 +36,6 @@ namespace Master40.DB.Data.Initializer.Tables
         {
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
-            int i = 1;
             // foreach resource of a given type
             foreach (var resource in Resources.Single(x => x.Key == capability.Name).Value)
             {
