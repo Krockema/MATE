@@ -211,7 +211,10 @@ namespace Master40.SimulationCore
                                                                  .Where(x => x.ParentResourceId == null)
                                                                  .ToListAsync().Result;
 
-            var resourceList = _dBContext.Resources.Include(x => x.UsedInResourceSetups.Any()).ToList();
+            var resourceList = _dBContext.Resources
+                                            .Include(x => x.UsedInResourceSetups)
+                                            .Include(x => x.RequiresResourceSetups)
+                                            .Where(x => x.Count == 1).ToList();
             var capability = _dBContext.ResourceCapabilities
                                         .Include(x => x.ResourceSetups)
                                             .ThenInclude(x => x.ChildResource);

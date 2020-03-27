@@ -1,4 +1,5 @@
-﻿using Master40.DB.DataModel;
+﻿using System;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
@@ -6,6 +7,7 @@ using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.DirectoryAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
@@ -23,7 +25,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                        : base(childMaker: null, simulationType: simulationType) { }
 
 
-        internal List<FRequestResource> fRequestResources { get; set; } = new List<FRequestResource>();
+        internal HubManager hubManager { get; set; } = new HubManager();
+        internal HubManager storageManager { get; set; } = new HubManager();
         /// <summary>
         /// Returns the Default Behaviour Set for Contract Agent.
         /// </summary>
@@ -45,8 +48,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         private void ResourceBrakeDown(FBreakDown breakDown)
         {
-            var hub = fRequestResources.Single(predicate: x => x.Discriminator == breakDown.ResourceCapability && x.ResourceType == FResourceType.Hub);
-            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: hub.actorRef));
+            var hub = hubManager.GetHubActorRefBy(breakDown.ResourceCapability);
+            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: hub));
             System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Directory");
         }
 
@@ -58,9 +61,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                             , principal: Agent.Context.Self)
                                             , name: ("Storage(" + stock.Name + ")").ToActorName());
 
-            var resourceCollection = fRequestResources;
-            resourceCollection.Add(item: new FRequestResource(discriminator: stock.Article.Name, resourceType: FResourceType.Storage, actorRef: storage));
-
+            storageManager.AddOrCreateRelation(storage, stock.Article.Name);
             Agent.Send(instruction: BasicInstruction.Initialize.Create(target: storage, message: StorageAgent.Behaviour.Factory.Get(stockElement: stock, simType: SimulationType)));
         }
 
@@ -73,7 +74,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             // TODO Currently Resource can only have one Capability and discriminator between subCapabilities are made by resourceTool
             foreach (var resourceSetup in resourceSetups)
             {
-                var hub = fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resourceSetup.ResourceCapability.Name && x.ResourceType == FResourceType.Hub);
+                var hub = hubManager.GetHubActorRefBy(resourceSetup.ResourceCapability.Name);
                 if (hub == null)
                 {
                     var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
@@ -85,9 +86,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                         , name: "Hub(" + resourceSetup.ResourceCapability.Name + ")");
 
                     System.Diagnostics.Debug.WriteLine($"Created Hub {resourceSetup.ResourceCapability.Name} with {resourceSetupDefinition.MaxBucketSize} !");
-                    //Agent.Send(BasicInstruction.Initialize.Create(Agent.Context.Self, HubBehaviour.Get(machine.MachineGroup.Name)));
-                    hub = new FRequestResource(discriminator: resourceSetup.ResourceCapability.Name, resourceType: FResourceType.Hub, actorRef: hubAgent);
-                    fRequestResources.Add(item: hub);
+
+                    hubManager.AddOrCreateRelation(hubAgent, resourceSetup.ResourceCapability);
                 }
             }
 
@@ -97,9 +97,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
-                                                                    // TODO : Handle 1 resource in multiply hub agents
-                                                                    , principal: fRequestResources.FirstOrDefault(predicate: x => x.Discriminator == resource.UsedInResourceSetups .First().ResourceCapability.Name
-                                                                                                 && x.ResourceType == FResourceType.Hub).actorRef)
+                                                                    , principal: hubManager.GetHubActorRefBy(resource.RequiresResourceSetups.First().ResourceCapability.Name))
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 
 
@@ -111,17 +109,25 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                                  , toolManager: new ToolManager(resourceSetups: resourceSetups))));
         }
 
+        /// <summary>
+        /// TODO: ResourceType usage is not the best solution, and Resource Type might not be required.
+        /// </summary>
+        /// <param name="discriminator"></param>
         private void RequestAgent(string discriminator)
         {
-            Agent.DebugMessage(msg: $" got called for Agent by:  {Agent.Sender.Path.Name} for: {discriminator} MaxBucketSize!");
-
+            FResourceType type = FResourceType.Hub;
             // find the related Hub/Storage Agent
-            var agentToProvide = fRequestResources.First(predicate: x => x.Discriminator == discriminator);
+            var agentToProvide = hubManager.GetHubActorRefBy(discriminator);
+            if (agentToProvide == null) { 
+                type = FResourceType.Storage;
+                agentToProvide = storageManager.GetHubActorRefBy(discriminator);
+            } 
 
-            var hubInfo = new FAgentInformation(fromType: agentToProvide.ResourceType
-                                                , requiredFor: discriminator
-                                                , @ref: agentToProvide.actorRef);
+            if(agentToProvide == null) throw new Exception("no Resource found!");
 
+            var hubInfo = new FAgentInformation(fromType: type
+                , requiredFor: discriminator
+                , @ref: agentToProvide);
             // Tell the Requester the corresponding Agent
             Agent.Send(instruction: BasicInstruction.ResponseFromDirectory
                                        .Create(message: hubInfo, target: Agent.Sender));

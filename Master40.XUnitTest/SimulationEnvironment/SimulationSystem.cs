@@ -35,7 +35,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
 
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
-        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: remoteResultCtxString);
+        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
 
         // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
         // .UseInMemoryDatabase(databaseName: "InMemoryResults")
@@ -54,16 +54,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public void ResetResultsDB(string connectionString)
         
         {
-            MasterDBContext masterCtx = MasterDBContext.GetContext(masterCtxString);
+            MasterDBContext masterCtx = MasterDBContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, true);
-            /*
-            ResultContext results = ResultContext.GetContext(resultCon: connectionString);
+            
+            ResultContext results = ResultContext.GetContext(resultCon: testResultCtxString);
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
-            */
+            
         }
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
@@ -157,16 +157,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.BucketScope, 375, 120, 1920, 169, ModelSize.Medium, ModelSize.Large, 0.025, false)]
         //[InlineData(SimulationType.BucketScope, 376, 120, 1920, 169, ModelSize.Large, ModelSize.Small, 0.04, false)]
         //[InlineData(SimulationType.BucketScope, 377, 120, 1920, 169, ModelSize.Large, ModelSize.Medium, 0.04, false)]
-        [InlineData(SimulationType.BucketScope, 1100, 480, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1101, 720, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1102, 960, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1103, 1200, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1104, 1440, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1105, 480, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1106, 720, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1107, 960, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1108, 1200, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
-        [InlineData(SimulationType.BucketScope, 1109, 1440, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
+        [InlineData(SimulationType.BucketScope, 1100, 480, 1920, 169, ModelSize.Medium, ModelSize.Small, 0.025, false)]
+        // <[InlineData(SimulationType.BucketScope, 1101, 720, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1102, 960, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1103, 1200, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1104, 1440, 1920, 169, ModelSize.XLarge, ModelSize.Large, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1105, 480, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1106, 720, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1107, 960, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1108, 1200, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
+        // <[InlineData(SimulationType.BucketScope, 1109, 1440, 1920, 169, ModelSize.XLarge, ModelSize.Medium, 0.06, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially)
         {
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -186,7 +186,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             // LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info);
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
             // update customized Items
-            simConfig.AddOption(new DBConnectionString(remoteResultCtxString));
+            simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue));

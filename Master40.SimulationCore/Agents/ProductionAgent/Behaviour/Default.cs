@@ -136,7 +136,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             Agent.DebugMessage(msg: $"Received Agent from Directory: {Agent.Sender.Path.Name}");
 
             // add agent to current Scope.
-            _hubAgents.Add(key: hub.Ref, value: hub.RequiredFor);
+            _hubAgents.TryAdd(key: hub.Ref, value: hub.RequiredFor);
             // foreach fitting operation
             foreach (var operation in OperationManager.GetOperationByCapability(hub.RequiredFor))
             {

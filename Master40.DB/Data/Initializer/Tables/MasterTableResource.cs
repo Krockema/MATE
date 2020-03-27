@@ -42,7 +42,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 // erstelle die
                 foreach (var subCapability in _capability.Capabilities.Single(x => x.Name == capability.Name).ChildResourceCapabilities)
                 {
-                    var tool = CreateNewResource($"{resource.Name} {subCapability.Name}");
+                    var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", 0);
                     tools.Add(tool);
                     setups.Add(new M_ResourceSetup {ChildResourceId = tool.Id
                                                   , ParentResourceId = resource.Id
@@ -62,7 +62,7 @@ namespace Master40.DB.Data.Initializer.Tables
             List<M_ResourceSetup> resoruceSetups = new List<M_ResourceSetup>();
             for (int i = 1; i <= numberOfResources; i++)
             {
-                var resource = CreateNewResource(capability.Name, i);
+                var resource = CreateNewResource(capability.Name, 1, i);
                 resourceGroup.Add(resource);
                 resoruceSetups.Add(CreateNewSetup(resource, capability));
             }
@@ -79,9 +79,9 @@ namespace Master40.DB.Data.Initializer.Tables
             };
         }
 
-        private M_Resource CreateNewResource(string resourceName, int? number = null)
+        private M_Resource CreateNewResource(string resourceName,int isLimited , int? number = null)
         {
-            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1 };
+            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, Count = isLimited};
         }
         
         internal void InitSmall(MasterDBContext context)
