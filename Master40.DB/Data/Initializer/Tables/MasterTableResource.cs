@@ -138,7 +138,7 @@ namespace Master40.DB.Data.Initializer.Tables
 
         internal void InitMediumTest(MasterDBContext context)
         {
-            CreateModel(5, 3, 5, true);
+            CreateModel(2, 1, 2, true);
             //SaveToDB(context);
         }
 
