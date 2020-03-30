@@ -31,6 +31,9 @@ namespace Master40.DB.Data.Initializer
                 case ModelSize.Large:
                     resourceCapabilities.CreateToolingCapabilities(context, 8, 8, 14);
                     break;
+                case ModelSize.TestModel:
+                    resourceCapabilities.CreateToolingCapabilities(context, 4, 4, 7);
+                    break;
                 default: throw new ArgumentException();
             }
             
@@ -49,6 +52,9 @@ namespace Master40.DB.Data.Initializer
                     break;
                 case ModelSize.XLarge:
                     resources.InitXLarge(context);
+                    break;
+                case ModelSize.TestModel:
+                    resources.InitMediumTest(context);
                     break;
                 default: throw new ArgumentException();
             }

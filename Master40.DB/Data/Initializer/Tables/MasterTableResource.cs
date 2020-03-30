@@ -18,11 +18,40 @@ namespace Master40.DB.Data.Initializer.Tables
             _capability = capability;
         }
 
-        internal void CreateModel(int sawResource, int drillResource, int assemblyResource)
+        internal void CreateModel(int sawResource, int drillResource, int assemblyResource, bool createTestModel = false)
         {
            CreateResourceGroup(sawResource, _capability.CUTTING);
            CreateResourceGroup(drillResource, _capability.DRILLING);
            CreateResourceGroup(assemblyResource, _capability.ASSEMBLING);
+           // For Testing Purpose
+           if (createTestModel)
+           {
+               var waterJet = CreateNewResource("WaterJetCutter", 1);
+               List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
+               foreach (var subCapability in _capability.Capabilities
+                   .Single(x => x.Name == _capability.CUTTING.Name).ChildResourceCapabilities)
+               {
+                   setups.Add(new M_ResourceSetup  {
+                           ChildResourceId = waterJet.Id,
+                           Name = "Setup " + waterJet.Name,
+                           SetupTime = 5,
+                           ResourceCapabilityId = subCapability.Id
+                   });
+               }
+               foreach (var subCapability in _capability.Capabilities
+                   .Single(x => x.Name == _capability.DRILLING.Name).ChildResourceCapabilities)
+               {
+                   setups.Add(new M_ResourceSetup
+                   {
+                       ChildResourceId = waterJet.Id,
+                       Name = "Setup " + waterJet.Name,
+                       SetupTime = 5,
+                       ResourceCapabilityId = subCapability.Id
+                   });
+               }
+               ResourceSetups.Add($"{waterJet.Name} Tooling", setups);
+               Resources.Add($"{waterJet.Name} Tooling", new List<M_Resource>{ waterJet});
+           }
         }
 
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling)
@@ -104,6 +133,12 @@ namespace Master40.DB.Data.Initializer.Tables
         internal void InitXLarge(MasterDBContext context)
         {
             CreateModel(5, 3, 5);
+            //SaveToDB(context);
+        }
+
+        internal void InitMediumTest(MasterDBContext context)
+        {
+            CreateModel(5, 3, 5, true);
             //SaveToDB(context);
         }
 

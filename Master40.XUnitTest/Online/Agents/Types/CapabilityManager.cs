@@ -20,7 +20,20 @@ namespace Master40.XUnitTest.Online.Agents.Types
             
         }
 
+        /*
 
+           SELECT RC.Id, RC.Name
+           , RS.Name, RS.SetupTime
+           , CR.Name,CR.Id
+           , PR.Name,PR.Id
+           FROM [TestContext].[dbo].[M_ResourceCapability] as RC
+           JOIN dbo.M_ResourceSetup RS on RS.ResourceCapabilityId = RC.Id
+           left JOIN dbo.M_Resource PR on PR.Id = RS.ParentResourceId
+           left JOIN dbo.M_Resource CR on CR.Id = RS.ChildResourceId
+           --WHERE RC.Id = 10005 --cutting
+           WHERE RC.Id = 10008 --drilling
+
+         */
 
 
         //Methode: Input Capability-Hierachy from "Cutting" with Sub-Capabilities

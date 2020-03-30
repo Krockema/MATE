@@ -57,7 +57,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, true);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.TestModel, ModelSize.Medium, true);
             
             ResultContext results = ResultContext.GetContext(resultCon: testResultCtxString);
             results.Database.EnsureDeleted();
