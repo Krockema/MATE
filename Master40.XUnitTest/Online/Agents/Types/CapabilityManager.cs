@@ -8,6 +8,21 @@ namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class CapabilityManager
     {
+        [Fact]
+        public void TestSetCapabilies()
+        {
+
+        }
+
+        [Fact]
+        public void TestCapabilityRetrieval()
+        {
+            
+        }
+
+
+
+
         //Methode: Input Capability-Hierachy from "Cutting" with Sub-Capabilities
 
         //Methode:
