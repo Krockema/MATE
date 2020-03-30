@@ -92,7 +92,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             // TODO Dynamic Lot Sizing
-            _bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
+            /*_bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
                 operation.Operation.Duration);
             /*
              * Implements the Self-Organizing Bucket Method
@@ -166,9 +166,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _bucketManager.Replace(bucket);
 
             Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
-            
-            // TODO Dynamic Lot Sizing
-            var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
+
+            // TODO 
+
+            var resourceToRequest = _
+            //var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
 
             foreach (var actorRef in resourceToRequest)
             {
@@ -308,8 +310,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
                 EnqueueOperation(operation);
-                _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
-                    operation.Operation.Duration);
+                // TODO Dynamic Lot Sizing
+                /*_bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
+                    operation.Operation.Duration);*/
             }
 
         }
@@ -323,9 +326,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var operation = _bucketManager.GetOperationByKey(jobResult.Key);
             var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
             _bucketManager.RemoveOperation(operation.Key);
-
-            _bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
-                operation.Operation.Duration);
+            
+            // TODO Dynamic Lot Sizing
+            /*_bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
+                operation.Operation.Duration);*/
 
             Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
 

@@ -27,6 +27,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
         internal ResourceManager _resourceManager { get; set; } = new ResourceManager();
+        internal CapabilityManager _capabilityManager { get; set; } = new CapabilityManager();
 
         public override bool Action(object message)
         {
