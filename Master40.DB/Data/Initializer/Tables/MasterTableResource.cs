@@ -46,7 +46,7 @@ namespace Master40.DB.Data.Initializer.Tables
                     tools.Add(tool);
                     setups.Add(new M_ResourceSetup {ChildResourceId = tool.Id
                                                   , ParentResourceId = resource.Id
-                                                  , Name = tool.Name
+                                                  , Name = "Setup " + tool.Name
                                                   , SetupTime = setupTime
                                                   , ResourceCapabilityId = subCapability.Id
                     });
@@ -74,14 +74,14 @@ namespace Master40.DB.Data.Initializer.Tables
         {
             return new M_ResourceSetup {ChildResourceId = resource.Id
                                       , ParentResourceId = null
-                                      , Name = resource.Name
+                                      , Name = "Setup " + resource.Name
                                       , ResourceCapabilityId = capability.Id
             };
         }
 
         private M_Resource CreateNewResource(string resourceName,int isLimited , int? number = null)
         {
-            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, Count = isLimited};
+            return new M_Resource() { Name = "Resource " + resourceName + " " + number?.ToString(), Capacity = 1, Count = isLimited};
         }
         
         internal void InitSmall(MasterDBContext context)

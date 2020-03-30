@@ -91,6 +91,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
+            // TODO Dynamic Lot Sizing
             _bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
                 operation.Operation.Duration);
             /*
@@ -166,7 +167,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
             
-            var resourceToRequest = _resourceManager.GetResourceByTool(bucket.RequiredCapability);
+            // TODO Dynamic Lot Sizing
+            var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
 
             foreach (var actorRef in resourceToRequest)
             {
@@ -190,7 +192,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
 
             // if all Machines Answered
-            if (bucket.Proposals.Count == _resourceManager.GetResourceByTool(bucket.RequiredCapability).Count)
+            if (bucket.Proposals.Count == _resourceManager.GetResourceByCapability(bucket.RequiredCapability).Count)
             {
 
                 // item Postponed by All Machines ? -> requeue after given amount of time.

@@ -7,6 +7,10 @@ using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
+
+    /*  
+     * TODO Later work 
+     */
     public class ResourceManager
     {
         private List<SetupManager> _resources = new List<SetupManager>();
@@ -35,12 +39,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             }
         }
 
-        public List<IActorRef> GetResourceByTool(M_ResourceCapability resourceTool)
+        public List<IActorRef> GetResourceByCapability(M_ResourceCapability resourceCapability)
         {
             var resourceAgents = new List<IActorRef>();
             foreach (var resource in _resources)
             {
-                if (resource.HasTool(resourceTool: resourceTool)) { 
+                if (resource.HasTool(resourceTool: resourceCapability)) { 
                     resourceAgents.Add(resource.GetActorRef());
                 }
             }
