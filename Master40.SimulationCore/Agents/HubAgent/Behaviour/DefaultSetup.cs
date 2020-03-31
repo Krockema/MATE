@@ -6,9 +6,6 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Resources;
-using static FAgentInformations;
-using static FBreakDowns;
 using static FOperations;
 using static FProposals;
 using static FResourceInformations;
@@ -68,12 +65,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 _operationList.Replace(val: localItem);
             }
 
-            var resourceToRequest = _resourceManager.GetResourceByCapability(fOperation.Operation.ResourceCapability);
+            var resourceToRequest = _capabilityManager.GetRequiredResourcesFor(fOperation.RequiredCapability);
+            
+            //var resourceToRequest = _resourceManager.GetResourceByCapability(fOperation.Operation.ResourceCapability);
             
             foreach (var actorRef in resourceToRequest)
             {
-                Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
+                //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
+                //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
             }
         }
 

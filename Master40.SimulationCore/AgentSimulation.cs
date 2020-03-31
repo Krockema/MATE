@@ -27,6 +27,7 @@ using NLog.LayoutRenderers.Wrappers;
 using static FResourceSetupDefinitions;
 using static FSetEstimatedThroughputTimes;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
+using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore
 {
@@ -222,11 +223,13 @@ namespace Master40.SimulationCore
             foreach (var resource in resourceList)
             {
                 var resourceSetups = setups.Where(predicate: x => x.ChildResourceId == resource.Id).ToList();
-                var capabilitiesOfResourceId = resourceSetups.First().ResourceCapabilityId;
 
+                //TODO foreach capability, resource can have multiple capabilities
+                var capabilitiesOfResourceId = resourceSetups.First().ResourceCapabilityId;
                 double numberOfSetups = resourceSetups.Count();
                 var numberOfResources = setups.Where(x  => x.ResourceCapabilityId == capabilitiesOfResourceId).Select(x => x.ChildResource.Name).Distinct().Count();
                 var localMaxBucketSize = Convert.ToInt32(Math.Round((numberOfSetups / numberOfResources) * maxBucketSize, 0, MidpointRounding.AwayFromZero));
+
 
                 var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: localMaxBucketSize, debug: _debugAgents);
 
@@ -234,6 +237,8 @@ namespace Master40.SimulationCore
                                                             .CreateMachineAgents
                                                             .Create(message: resourceSetupDefinition, target: ActorPaths.HubDirectory.Ref)
                                                             , sender: ActorPaths.HubDirectory.Ref);
+
+                
             }
         }
       

@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
+using System.Collections.Generic;
 using static FAgentInformations;
 using static FResourceSetupDefinitions;
 
@@ -67,6 +68,18 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
                 {
                 }
                 public M_Stock GetObjectFromMessage { get => Message as M_Stock; }
+            }
+
+            public class ForwardRegistrationToHub : SimulationMessage
+            {
+                public static ForwardRegistrationToHub Create(List<M_ResourceSetup> message, IActorRef target)
+                {
+                    return new ForwardRegistrationToHub(message: message, target: target);
+                }
+                private ForwardRegistrationToHub(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public List<M_ResourceSetup> GetObjectFromMessage { get => Message as List<M_ResourceSetup>; }
             }
         }
     }

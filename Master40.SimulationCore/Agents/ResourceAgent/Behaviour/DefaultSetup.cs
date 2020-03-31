@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
@@ -54,8 +55,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Hub.Instruction.Default.AddResourceToHub.Create(message: new FResourceInformation(resourceSetups: _toolManager.GetAllSetups()
-                , requiredFor: Agent.Name, @ref: Agent.Context.Self), target: Agent.VirtualParent));
+            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(_toolManager.GetAllSetups()
+                , target: Agent.VirtualParent));
             return true;
         }
 

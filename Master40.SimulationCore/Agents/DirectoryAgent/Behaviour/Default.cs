@@ -41,9 +41,20 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(resourceSetupDefinition: msg.GetObjectFromMessage); break;
                 case Directory.Instruction.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(breakDown: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.ForwardRegistrationToHub msg: ForwardRegistrationToHub(setupList: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void ForwardRegistrationToHub(List<M_ResourceSetup> setupList)
+        {
+            var capabilites = setupList.Select(x => x.ResourceCapability).Distinct();
+
+            foreach(M_ResourceCapability capability in capabilites)
+            {
+                hubManager.GetHubActorRefBy(capability.Name);
+            }
         }
 
         private void ResourceBrakeDown(FBreakDown breakDown)
@@ -97,7 +108,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
-                                                                    , principal: hubManager.GetHubActorRefBy(resource.RequiresResourceSetups.First().ResourceCapability.Name))
+                                                                    , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 
 

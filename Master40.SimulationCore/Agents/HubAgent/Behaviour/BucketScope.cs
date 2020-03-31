@@ -169,13 +169,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             // TODO 
 
-            var resourceToRequest = _
+            var resourceToRequest = _capabilityManager.GetRequiredResourcesFor(bucket.RequiredCapability);
             //var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
 
             foreach (var actorRef in resourceToRequest)
             {
-                Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: bucket, target: actorRef));
+                //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
+                //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: bucket, target: actorRef));
             }
 
         }

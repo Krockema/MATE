@@ -6,10 +6,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     public class CapabilityManager : ICapabilityManager
     {
         public List<M_ResourceSetup> SetupHierarchy { get; private set; }
-        //Setup Wasserstrahler
-        //Setup Sägen
-
-        private CapabilityManager()
+        
+        public CapabilityManager()
         {
 
         }
@@ -20,9 +18,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             // Get a concrete capability like saw 10mm
             foreach (M_ResourceSetup setup in SetupHierarchy)
             {
-
+                
             }
             // return all subtrees of the 1st level resources
+
 
             throw new System.NotImplementedException();
         }

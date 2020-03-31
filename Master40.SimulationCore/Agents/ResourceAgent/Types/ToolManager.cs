@@ -48,6 +48,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return _resourceSetups;
         }
+        internal List<M_ResourceCapability> GetAllCapabilities()
+        {
+            return _resourceSetups.Select(x => x.ResourceCapability).ToList();
+        }
 
         internal object GetToolName()
         {
