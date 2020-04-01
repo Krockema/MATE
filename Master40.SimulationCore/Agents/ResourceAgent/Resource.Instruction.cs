@@ -9,6 +9,7 @@ using static FRequestToRequeues;
 using static FUpdateBucketScopes;
 using static IJobResults;
 using static IJobs;
+using static FRequestProposalForSetups;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -32,14 +33,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class RequestProposal : SimulationMessage
                 {
-                    public static RequestProposal Create(IJob message, IActorRef target)
+                    public static RequestProposal Create(FRequestProposalForSetup message, IActorRef target)
                     {
                         return new RequestProposal(message: message, target: target);
                     }
                     private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public IJob GetObjectFromMessage { get => Message as IJob; }
+                    public FRequestProposalForSetup GetObjectFromMessage { get => Message as FRequestProposalForSetup; }
                 }
 
                 public class AcknowledgeProposal : SimulationMessage

@@ -39,6 +39,7 @@
     <Compile Include="Message\FCreateSimulationJobs.fs" />
     <Compile Include="Message\FResourceSetupDefinition.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
+    <Compile Include="Message\FRequestProposalForSetups.fs" />
   </ItemGroup>
 
   <ItemGroup>

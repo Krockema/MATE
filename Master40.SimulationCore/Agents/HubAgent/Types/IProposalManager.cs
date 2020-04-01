@@ -4,11 +4,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     internal interface IProposalManager
     {
-        
-
-        bool AddProposal(FProposal proposal);
-
-        bool RemoveProposal(FProposal proposal);
+        void Add(FProposal proposal);
+        void Remove(long setupId);
 
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using static FPostponeds;
 using static FProposals;
+using static FRequestProposalForSetups;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -58,11 +59,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
-        internal override void SendProposalTo(IJobs.IJob jobItem)
+        internal override void SendProposalTo(FRequestProposalForSetup requestProposal)
         {
-            var setupDuration = GetSetupTime(jobItem: jobItem);
+            //Get SetupDuration depending on ??? 
+            var setupDuration = GetSetupTime(jobItem: requestProposal.Job);
 
-            var queuePosition = _planingQueue.GetQueueAbleTimeByStack(job: jobItem
+            var queuePosition = _planingQueue.GetQueueAbleTimeByStack(job: requestProposal.Job
                 , currentTime: Agent.CurrentTime
                 , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
                 , processingQueueLength: _processingQueue.SumDurations
@@ -81,8 +83,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
+                , setupId: requestProposal.SetupId
                 , resourceAgent: Agent.Context.Self
-                , jobKey: jobItem.Key);
+                , jobKey: requestProposal.Job.Key);
 
             Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }

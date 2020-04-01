@@ -16,6 +16,7 @@ using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FRequestProposalForSetups;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -42,7 +43,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             switch (message)
             {
                 case Resource.Instruction.Default.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
-                case Resource.Instruction.Default.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.Default.RequestProposal msg: RequestProposal(requestProposal: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(startCondition: msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.DoWork msg: DoWork(); break;
@@ -75,22 +76,22 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void RequestProposal(IJob jobItem)
+        internal void RequestProposal(FRequestProposalForSetup requestProposal)
         {
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + jobItem.Name + " with Id: " + jobItem.Key + ")");
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.SetupId);
 
-            SendProposalTo(jobItem: jobItem);
+            SendProposalTo(requestProposal);
         }
 
         /// <summary>
         /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
-        internal virtual void SendProposalTo(IJob jobItem)
+        internal virtual void SendProposalTo(FRequestProposalForSetup requestProposal)
         {
-            var setupDuration = GetSetupTime(jobItem: jobItem);
+            var setupDuration = GetSetupTime(jobItem: requestProposal.Job);
 
-            var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
+            var queuePosition = _planingQueue.GetQueueAbleTime(job: requestProposal.Job
                                                      , currentTime: Agent.CurrentTime
                                           , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
                                            , processingQueueLength: _processingQueue.SumDurations
@@ -107,8 +108,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
+                , setupId: requestProposal.SetupId
                 , resourceAgent: Agent.Context.Self
-                , jobKey: jobItem.Key);
+                , jobKey: requestProposal.Job.Key);
 
             Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }

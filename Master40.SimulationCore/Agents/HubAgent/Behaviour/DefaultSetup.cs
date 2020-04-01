@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static FOperations;
 using static FProposals;
+using static FRequestProposalForSetups;
 using static FResourceInformations;
 using static FUpdateStartConditions;
 using static IJobResults;
@@ -66,14 +67,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(fOperation.RequiredCapability);
             
-            //var resourceToRequest = _resourceManager.GetResourceByCapability(fOperation.Operation.ResourceCapability);
-            
             foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
             {
-                foreach (var resources in setupDefinition.RequiredResources)
+                foreach (var actorRef in setupDefinition.RequiredResources)
                 {
-                    //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                    //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
+                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: new FRequestProposalForSetup(localItem, setupDefinition.ResourceSetup.Id), target: actorRef));
                 }
             }
         }
@@ -166,17 +165,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _operationList.Remove(item: operation);
         }
 
-
         internal virtual void AddResourceToHub(FResourceInformation resourceInformation)
         {
-            foreach (var capability in resourceInformation.ResourceCapabilities)
+            foreach (var setup in resourceInformation.ResourceSetups)
             {
-                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capability);
-                foreach (var setup in capability.ResourceSetups)
-                {
-                    var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
-                    setupDefinition.RequiredResources.Add(resourceInformation.Ref);
-                }
+                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(setup.ResourceCapability);
+               
+                var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
+                setupDefinition.RequiredResources.Add(resourceInformation.Ref);
+        
             }
             // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Machine Agent " + resourceInformation.Ref.Path.Name + " to Machine Pool: " + resourceInformation.RequiredFor);

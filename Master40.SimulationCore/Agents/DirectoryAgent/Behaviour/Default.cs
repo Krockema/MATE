@@ -81,8 +81,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             {
                 var hub = hubManager.GetHubActorRefBy(capability.Name);
                 // it is probably neccesary to do this for each sub capability.
-                var resourceInfo = new FResourceInformation(new List<M_ResourceCapability> { capability }
-                                                            , capability.Name
+                var resourceInfo = new FResourceInformation(  resourceSetups: setupList.Where(x => x.ResourceCapability.Id == capability.Id).ToList()
+                                                            , requiredFor: capability.Name
                                                             , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
                 

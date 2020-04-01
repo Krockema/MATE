@@ -1,25 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using static FProposals;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    class ProposalManager : IProposalManager
+    public class ProposalManager : IProposalManager
     {
-        List<SetupProposals> setupProposals = new List<SetupProposals>();
+        private List<Proposal> _proposals { get; set; } = new List<Proposal>();
 
-        ProposalManager()
+        public ProposalManager()
         {
 
         }
-        public bool AddProposal(FProposals.FProposal proposal)
+        public void Add(FProposal proposal)
         {
-            throw new NotImplementedException();
+            var proposalForSetup = _proposals.SingleOrDefault(x => x._setupId == proposal.SetupId);
+
+            if (proposalForSetup == null)
+            {
+                proposalForSetup = new Proposal(proposal.SetupId);
+                _proposals.Add(proposalForSetup);
+            }
+
+            proposalForSetup.Add(proposal);
+
         }
 
-        public bool RemoveProposal(FProposals.FProposal proposal)
+        public void Remove(long setupId)
         {
-            throw new NotImplementedException();
+            var proposalForSetup = _proposals.SingleOrDefault(x => x._setupId == setupId);
+
+            if (proposalForSetup == null)
+                return;
+
+            _proposals.Remove(proposalForSetup);
         }
     }
 }

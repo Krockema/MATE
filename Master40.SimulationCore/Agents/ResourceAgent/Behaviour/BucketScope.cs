@@ -11,6 +11,7 @@ using static FBuckets;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FRequestProposalForSetups;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -35,7 +36,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var success = true;
             switch (message)
             {
-                case Resource.Instruction.Default.RequestProposal msg: RequestProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.Default.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.RequeueBucket msg: RequeueBucket(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
@@ -65,11 +66,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        internal override void SendProposalTo(IJob jobItem)
+        internal override void SendProposalTo(FRequestProposalForSetup requestProposal)
         {
-            var setupDuration = GetSetupTime(jobItem: jobItem);
+            var setupDuration = GetSetupTime(jobItem: requestProposal.Job);
 
-            var queuePosition = _scopeQueue.GetQueueAbleTime(job: jobItem
+            var queuePosition = _scopeQueue.GetQueueAbleTime(job: requestProposal.Job
                 , currentTime: Agent.CurrentTime
                 , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
                 , processingQueueLength: _processingQueue.SumDurations
@@ -89,8 +90,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
+                , requestProposal.SetupId
                 , resourceAgent: Agent.Context.Self
-                , jobKey: jobItem.Key);
+                , jobKey: requestProposal.Job.Key);
 
             Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
