@@ -4,15 +4,18 @@ using static FProposals;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class Proposal
+    public class ProposalForSetupDefinition
     {
-        private List<FProposal> _proposals = new List<FProposal>();
-        public long _setupId { get; private set;} // allways setup that have been Requested. (No parent.)
+        private SetupDefinition _setupDefinition { get; set; } // allways setup that have been Requested. (No parent.)
 
-        public Proposal(long setupId)
+        private List<FProposal> _proposals = new List<FProposal>();
+
+
+        public ProposalForSetupDefinition(SetupDefinition setupDefinition)
         {
-            _setupId = setupId;
+            _setupDefinition = setupDefinition;
         }
+
 
         public void Add(FProposal proposal)
         {

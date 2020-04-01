@@ -34,5 +34,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             }
             return capabilityDefinition;
         }
+
+        public List<SetupDefinition> GetAllSetupDefintions(M_ResourceCapability capability)
+        {
+            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == capability.Id).GetAllSetupDefinitions;
+
+        }
+        
+
     }
 }

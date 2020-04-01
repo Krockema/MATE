@@ -1,41 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using static FOperations;
 using static FProposals;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class ProposalManager : IProposalManager
+    public class ProposalManager
     {
-        private List<Proposal> _proposals { get; set; } = new List<Proposal>();
-
+        private Dictionary<FOperation, List<ProposalForSetupDefinition>> _proposalDictionary { get; set; } = new Dictionary<FOperation, List<ProposalForSetupDefinition>>();
+ 
         public ProposalManager()
         {
 
         }
-        public void Add(FProposal proposal)
+
+        public bool Add(FOperation fOperation, List<SetupDefinition> setupDefinitions)
         {
-            var proposalForSetup = _proposals.SingleOrDefault(x => x._setupId == proposal.SetupId);
-
-            if (proposalForSetup == null)
-            {
-                proposalForSetup = new Proposal(proposal.SetupId);
-                _proposals.Add(proposalForSetup);
-            }
-
-            proposalForSetup.Add(proposal);
-
+            var defs = new List<ProposalForSetupDefinition>();
+            setupDefinitions.ForEach(x => defs.Add(new ProposalForSetupDefinition(x)));
+            return _proposalDictionary.TryAdd(fOperation, defs);
         }
 
-        public void Remove(long setupId)
+        public FOperation GetOperationBy(Guid operationKey)
         {
-            var proposalForSetup = _proposals.SingleOrDefault(x => x._setupId == setupId);
-
-            if (proposalForSetup == null)
-                return;
-
-            _proposals.Remove(proposalForSetup);
+            return _proposalDictionary.SingleOrDefault(x => x.Key.Key == operationKey).Key;
         }
+
     }
 }

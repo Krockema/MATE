@@ -38,5 +38,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             }
             return setupDefinition;
         }
+        internal SetupDefinition GetSetupDefinitionBy(int setupId)
+        {
+            return _setupDefinitions.SingleOrDefault(x => x.ResourceSetup.Id == setupId);
+        }
     }
 }

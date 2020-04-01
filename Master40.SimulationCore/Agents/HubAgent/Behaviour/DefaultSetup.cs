@@ -23,8 +23,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                         : base(childMaker: null, simulationType: simulationType) { }
 
 
-        internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
+        //internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
         internal CapabilityManager _capabilityManager { get; set; } = new CapabilityManager();
+        internal ProposalManager _proposalManager { get; set; } = new ProposalManager();
 
         public override bool Action(object message)
         {
@@ -44,14 +45,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void EnqueueJob(FOperation fOperation)
         {
-            var localItem = _operationList.FirstOrDefault(x => x.Key == fOperation.Key);
+            var localItem = _proposalManager.GetOperationBy(fOperation.Key);
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
             if (localItem == null)
             {
                 localItem = fOperation;
                 localItem.UpdateHubAgent(hub: Agent.Context.Self);
-                _operationList.Add(item: localItem);
+                _proposalManager.Add(localItem, _capabilityManager.GetAllSetupDefintions(localItem.RequiredCapability));
 
                 Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
             }
@@ -85,6 +86,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             // get related operation and add proposal.
             var fOperation = _operationList.Single(predicate: x => x.Key == fProposal.JobKey);
+
+            _proposalManager.Add(fProposal);
+
             fOperation.Proposals.RemoveAll(x => x.ResourceAgent.Equals(fProposal.ResourceAgent));
             // add New Proposal
             fOperation.Proposals.Add(item: fProposal);
