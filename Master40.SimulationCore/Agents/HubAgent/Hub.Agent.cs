@@ -18,7 +18,6 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
         public Hub(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
-            DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Get(simType: simtype, maxBucketSize: maxBucketSize)));
         }
     }

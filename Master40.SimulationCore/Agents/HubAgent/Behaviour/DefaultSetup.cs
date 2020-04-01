@@ -34,7 +34,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
-                case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(hubInformation: msg.GetObjectFromMessage); break;
+                case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(resourceInformation: msg.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -167,19 +167,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        internal virtual void AddResourceToHub(FResourceInformation hubInformation)
+        internal virtual void AddResourceToHub(FResourceInformation resourceInformation)
         {
-            foreach (var capability in hubInformation.ResourceCapabilities)
+            foreach (var capability in resourceInformation.ResourceCapabilities)
             {
                 var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capability);
                 foreach (var setup in capability.ResourceSetups)
                 {
                     var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
-                    setupDefinition.RequiredResources.Add(hubInformation.Ref);
+                    setupDefinition.RequiredResources.Add(resourceInformation.Ref);
                 }
             }
             // Added Machine Agent To Machine Pool
-            Agent.DebugMessage(msg: "Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);
+            Agent.DebugMessage(msg: "Added Machine Agent " + resourceInformation.Ref.Path.Name + " to Machine Pool: " + resourceInformation.RequiredFor);
         }
 
         /*

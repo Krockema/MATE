@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Configuration;
+using Akka.Util.Internal;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using NLog.LayoutRenderers.Wrappers;
 using static FResourceSetupDefinitions;
@@ -80,7 +81,7 @@ namespace Master40.SimulationCore
                 CreateSupervisor(configuration: configuration);
 
                 // Create DirectoryAgents
-                CreateDirectoryAgents();
+                CreateDirectoryAgents(configuration: configuration);
 
                 // Create Resources
                 CreateResourceAgents(configuration: configuration);
@@ -119,13 +120,36 @@ namespace Master40.SimulationCore
                     name: "Supervisor"));
         }
 
-        private void CreateDirectoryAgents()
+        private void CreateDirectoryAgents(Configuration configuration)
         {
+            // Resource Directory
             ActorPaths.SetHubDirectoryAgent(hubAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "HubDirectory"));
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.HubDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
+            CreateHubAgents(ActorPaths.HubDirectory.Ref, configuration);
 
+            // Storage Directory
             ActorPaths.SetStorageDirectory(storageAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "StorageDirectory"));
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.StorageDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
+        }
+
+        private void CreateHubAgents(IActorRef directory, Configuration configuration)
+        {
+            var capabilities = _dBContext.ResourceCapabilities.Where(x => x.ParentResourceCapabilityId == null).ToList();
+            foreach (var capability in capabilities)
+            {
+                GetCapabilitiesRecursive(capability);
+                var hubInfo = new FResourceHubInformations.FResourceHubInformation(capability: capability, configuration.GetOption<MaxBucketSize>().Value);
+                _simulation.SimulationContext.Tell(
+                    message: Directory.Instruction.CreateResourceHubAgents.Create(hubInfo, directory),
+                    sender: ActorRefs.NoSender);
+            }
+            
+        }
+
+        private void GetCapabilitiesRecursive(M_ResourceCapability capability)
+        {
+            capability.ChildResourceCapabilities = _dBContext.ResourceCapabilities.Where(x => x.ParentResourceCapabilityId == capability.Id).ToList();
+            capability.ChildResourceCapabilities.ForEach(GetCapabilitiesRecursive);
         }
 
         private void CreateCollectorAgents(Configuration configuration)
@@ -205,56 +229,37 @@ namespace Master40.SimulationCore
             var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
 
             // Get All Resources that have an Agent (that are limited)
-            var resources = _dBContext.Resources
-                                                    // .Include(x => x.RequiresResourceSetups)
-                                                    //     .ThenInclude(x => x.ChildResource)
-                                                    // .Include(x => x.UsedInResourceSetups)
-                                                    //     .ThenInclude(x => x.ResourceCapability)
-                                                    .ToList(); // all Resources
-            var limitedResources = resources
-                                        //.Include(x => x.UsedInResourceSetups)
-                                        .Where(x => x.Count == 1).ToList(); // all Limited Resources
-
-
-
+            //var resources = _dBContext.Resources.ToList(); // all Resources
+            var limitedResources = _dBContext.Resources.Where(x => x.Count == 1).ToList(); // all Limited Resources
 
             foreach (var resource in limitedResources)
             {
-                // get Capabilities for Resource
-                
+                var setups = GetSetups(resource);
+                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with {setups.Count} setups");
+                //TODO: !IMPORTANT Max bucket size dynamic by Setup Count? 
 
-                // get top level setups for this resource
-                var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.ChildResource)
-                                                                 .Include(navigationPropertyPath: r => r.ChildResource)
-                                                                    .ThenInclude(s => s.RequiresResourceSetups)
-                                                                        .ThenInclude(x => x.ChildResource)
-                                                                 .Where(x => x.ParentResourceId == null)
-                                                                 .ToListAsync().Result;
-
-            
-                var capability = _dBContext.ResourceCapabilities
-                                        .Include(x => x.ResourceSetups)
-                                            .ThenInclude(x => x.ChildResource);
-
-          
-                var resourceSetups = setups.Where(predicate: x => x.ChildResourceId == resource.Id).ToList();
-
-                //TODO foreach capability, resource can have multiple capabilities
-                var capabilitiesOfResourceId = resourceSetups.First().ResourceCapabilityId;
-                double numberOfSetups = resourceSetups.Count();
-                var numberOfResources = setups.Where(x  => x.ResourceCapabilityId == capabilitiesOfResourceId).Select(x => x.ChildResource.Name).Distinct().Count();
-                var localMaxBucketSize = Convert.ToInt32(Math.Round((numberOfSetups / numberOfResources) * maxBucketSize, 0, MidpointRounding.AwayFromZero));
-
-
-                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime, resourceSetup: resourceSetups, maxBucketSize: localMaxBucketSize, debug: _debugAgents);
-
-                _simulation.SimulationContext.Tell(message: Directory.Instruction
-                                                            .CreateMachineAgents
-                                                            .Create(message: resourceSetupDefinition, target: ActorPaths.HubDirectory.Ref)
-                                                            , sender: ActorPaths.HubDirectory.Ref);
-
-                
+                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime
+                    , resource: resource
+                    , resourceSetup: setups
+                    , maxBucketSize: maxBucketSize
+                    , debug: _debugAgents);
+                        _simulation.SimulationContext
+                    .Tell(message: Directory.Instruction
+                                            .CreateMachineAgents
+                                            .Create(message: resourceSetupDefinition, target: ActorPaths.HubDirectory.Ref)
+                        , sender: ActorPaths.HubDirectory.Ref);
             }
+        }
+
+        public List<M_ResourceSetup> GetSetups(M_Resource resource)
+        {
+            var setups = _dBContext.ResourceSetups
+                .Include(x => x.ResourceCapability)
+                    .ThenInclude(x => x.ParentResourceCapability)
+                .Include(x => x.ParentResource)
+                .Include(x => x.ChildResource)
+                .Where(x => x.ParentResourceId == resource.Id).ToList();
+            return setups;
         }
     }
 }

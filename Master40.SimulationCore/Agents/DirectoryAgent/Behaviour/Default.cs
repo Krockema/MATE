@@ -19,6 +19,7 @@ using static FRequestResources;
 using static FResourceSetupDefinitions;
 using static FResourceTypes;
 using static FResourceInformations;
+using static FResourceHubInformations;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 {
@@ -45,9 +46,30 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 case Directory.Instruction.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(breakDown: msg.GetObjectFromMessage); break;
                 case Directory.Instruction.ForwardRegistrationToHub msg: ForwardRegistrationToHub(setupList: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateResourceHubAgents msg: CreateResourceHubAgents(capabilityDefinition: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void CreateResourceHubAgents(FResourceHubInformation capabilityDefinition)
+        {
+            // Create Capability based Hub Agent for each Capability of resource
+            var capability = capabilityDefinition.Capability as M_ResourceCapability;
+            var hub = hubManager.GetHubActorRefBy(capability.Name);
+            if (hub == null)
+            {
+                var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
+                        , time: Agent.CurrentTime
+                        , simtype: SimulationType
+                        , maxBucketSize: capabilityDefinition.MaxBucketSize
+                        , debug: Agent.DebugThis
+                        , principal: Agent.Context.Self)
+                    , name: "Hub(" + capability.Name + ")");
+
+                System.Diagnostics.Debug.WriteLine($"Created Hub {capability.Name} with {capabilityDefinition.MaxBucketSize} !");
+                hubManager.AddOrCreateRelation(hubAgent, capability);
+            }
         }
 
         private void ForwardRegistrationToHub(List<M_ResourceSetup> setupList)
@@ -61,7 +83,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 // it is probably neccesary to do this for each sub capability.
                 var resourceInfo = new FResourceInformation(new List<M_ResourceCapability> { capability }
                                                             , capability.Name
-                                                            , this.Agent.Context.Self);
+                                                            , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
                 
             }
@@ -90,29 +112,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         public void CreateMachineAgents(FResourceSetupDefinition resourceSetupDefinition)
         {
             var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
-
-            // Create Capability based Hub Agent for each Capability of resource
-            // TODO Currently Resource can only have one Capability and discriminator between subCapabilities are made by resourceTool
-            foreach (var resourceSetup in resourceSetups)
-            {
-                var hub = hubManager.GetHubActorRefBy(resourceSetup.ResourceCapability.Name);
-                if (hub == null)
-                {
-                    var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
-                                                                 , time: Agent.CurrentTime
-                                                                 , simtype: SimulationType
-                                                                 , maxBucketSize: resourceSetupDefinition.MaxBucketSize
-                                                                 , debug: Agent.DebugThis
-                                                                 , principal: Agent.Context.Self)
-                                                        , name: "Hub(" + resourceSetup.ResourceCapability.Name + ")");
-
-                    System.Diagnostics.Debug.WriteLine($"Created Hub {resourceSetup.ResourceCapability.Name} with {resourceSetupDefinition.MaxBucketSize} !");
-
-                    hubManager.AddOrCreateRelation(hubAgent, resourceSetup.ResourceCapability);
-                }
-            }
-
-            var resource = resourceSetups.FirstOrDefault().ChildResource as M_Resource;
+            var resource = resourceSetupDefinition.Resource as M_Resource;
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , resource: resource
@@ -121,8 +121,6 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 
-            resourceSetups.Where(x => x.ChildResource.Id == resource.Id)
-                          .ForEach(x => x.ChildResource.IResourceRef = resourceAgent);
             Agent.Send(instruction: BasicInstruction.Initialize
                                                     .Create(target: resourceAgent
                                                          , message: ResourceAgent.Behaviour

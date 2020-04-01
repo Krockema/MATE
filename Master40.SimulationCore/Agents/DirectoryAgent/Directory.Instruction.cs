@@ -3,6 +3,7 @@ using AkkaSim.Definitions;
 using Master40.DB.DataModel;
 using System.Collections.Generic;
 using static FAgentInformations;
+using static FResourceHubInformations;
 using static FResourceSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
@@ -11,18 +12,6 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
     {
         public class Instruction
         {
-            public class CreateHubAgent : SimulationMessage
-            {
-                public static CreateHubAgent Create(FAgentInformation message, IActorRef target)
-                {
-                    return new CreateHubAgent(message: message, target: target);
-                }
-                private CreateHubAgent(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
-            }
-
             public class RequestAgent : SimulationMessage
             {
                 public static RequestAgent Create(string discriminator, IActorRef target)
@@ -80,6 +69,18 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
                 {
                 }
                 public List<M_ResourceSetup> GetObjectFromMessage { get => Message as List<M_ResourceSetup>; }
+            }
+
+            public class CreateResourceHubAgents : SimulationMessage
+            {
+                public static CreateResourceHubAgents Create(FResourceHubInformation message, IActorRef target)
+                {
+                    return new CreateResourceHubAgents(message: message, target: target);
+                }
+                private CreateResourceHubAgents(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
             }
         }
     }
