@@ -19,7 +19,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         private List<FBucket> _buckets { get; set; } = new List<FBucket>();
         
-        public Dictionary<ToolCapabilityPair, long> _toolBucketSizeDictionary { get; set; } = new Dictionary<ToolCapabilityPair, long>();
+        public Dictionary<ResourceCapabilityPair, long> _toolBucketSizeDictionary { get; set; } = new Dictionary<ResourceCapabilityPair, long>();
 
         private long _maxBucketSize { get; set; }
         
@@ -286,7 +286,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return notSatisfiedOperations;
         }
 
-        public long AddOrUpdateBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
+        public long AddOrUpdateBucketSize(ResourceCapabilityPair toolCapabilityPair, int duration)
         {
             long maxBucketSize = 0L;
             var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
@@ -305,7 +305,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public long DecreaseBucketSize(ToolCapabilityPair toolCapabilityPair, int duration)
+        public long DecreaseBucketSize(ResourceCapabilityPair toolCapabilityPair, int duration)
         {
             long maxBucketSize = 0L;
             var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));

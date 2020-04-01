@@ -7,6 +7,8 @@ using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
+using Akka.Util.Internal;
 using Master40.SimulationCore.Agents.DirectoryAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
@@ -16,6 +18,7 @@ using static FAgentInformations;
 using static FRequestResources;
 using static FResourceSetupDefinitions;
 using static FResourceTypes;
+using static FResourceInformations;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 {
@@ -51,9 +54,16 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         {
             var capabilites = setupList.Select(x => x.ResourceCapability).Distinct();
 
+            List<IActorRef> hubRefs = new List<IActorRef>();
             foreach(M_ResourceCapability capability in capabilites)
             {
-                hubManager.GetHubActorRefBy(capability.Name);
+                var hub = hubManager.GetHubActorRefBy(capability.Name);
+                // it is probably neccesary to do this for each sub capability.
+                var resourceInfo = new FResourceInformation(new List<M_ResourceCapability> { capability }
+                                                            , capability.Name
+                                                            , this.Agent.Context.Self);
+                Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
+                
             }
         }
 
@@ -111,7 +121,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 
-
+            resourceSetups.Where(x => x.ChildResource.Id == resource.Id)
+                          .ForEach(x => x.ChildResource.IResourceRef = resourceAgent);
             Agent.Send(instruction: BasicInstruction.Initialize
                                                     .Create(target: resourceAgent
                                                          , message: ResourceAgent.Behaviour

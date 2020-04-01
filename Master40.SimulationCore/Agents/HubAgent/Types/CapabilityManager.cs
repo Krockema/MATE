@@ -1,45 +1,38 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class CapabilityManager : ICapabilityManager
+    public class CapabilityManager
     {
-        public List<M_ResourceSetup> SetupHierarchy { get; private set; }
-        
-        public CapabilityManager()
+        private List<CapabilityDefinition> _capabilityDefinitions = new List<CapabilityDefinition>();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="resourceSetups"></param>
+        public void Add(CapabilityDefinition capabilityDefinition)
         {
-
+            _capabilityDefinitions.Add(capabilityDefinition);
         }
 
-        //theoretisch müssen wir eine Liste in einer Liste zurückgeben
-        public List<ResourcesRequired> GetRequiredResourcesFor(M_ResourceCapability capability)
+        public CapabilityDefinition GetResourcesByCapability(M_ResourceCapability resourceCapability)
         {
-            // Get a concrete capability like saw 10mm
-            foreach (M_ResourceSetup setup in SetupHierarchy)
+            return _capabilityDefinitions.Single(x => x.HasCapability(resourceCapability));
+        }
+
+        internal CapabilityDefinition GetCapabilityDefinition(M_ResourceCapability capability)
+        {
+            var capabilityDefinition =
+                _capabilityDefinitions.SingleOrDefault(x => x.ResourceCapability.Id == capability.Id);
+            if (capabilityDefinition == null)
             {
-                
+                capabilityDefinition = new CapabilityDefinition(capability);
+                _capabilityDefinitions.Add(capabilityDefinition);
             }
-            // return all subtrees of the 1st level resources
-
-
-            throw new System.NotImplementedException();
-        }
-
-
-        public bool AddSetup(M_ResourceSetup setup)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool Replace(M_ResourceSetup setup)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool RemoveSetup(M_ResourceSetup setup)
-        {
-            throw new System.NotImplementedException();
+            return capabilityDefinition;
         }
     }
 }

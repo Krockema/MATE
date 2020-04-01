@@ -12,7 +12,7 @@ using static FResourceInformations;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
-using ResourceManager = Master40.SimulationCore.Agents.HubAgent.Types.ResourceManager;
+using ResourceManager = Master40.SimulationCore.Agents.HubAgent.Types.CapabilityManager;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -23,7 +23,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
         internal List<FOperation> _operationList { get; set; } = new List<FOperation>();
-        internal ResourceManager _resourceManager { get; set; } = new ResourceManager();
         internal CapabilityManager _capabilityManager { get; set; } = new CapabilityManager();
 
         public override bool Action(object message)
@@ -65,14 +64,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 _operationList.Replace(val: localItem);
             }
 
-            var resourceToRequest = _capabilityManager.GetRequiredResourcesFor(fOperation.RequiredCapability);
+            var capabilityDefinition = _capabilityManager.GetResourcesByCapability(fOperation.RequiredCapability);
             
             //var resourceToRequest = _resourceManager.GetResourceByCapability(fOperation.Operation.ResourceCapability);
             
-            foreach (var actorRef in resourceToRequest)
+            foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
             {
-                //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
+                foreach (var resources in setupDefinition.RequiredResources)
+                {
+                    //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
+                    //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
+                }
             }
         }
 
@@ -92,7 +94,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
             // if all Machines Answered
-            if (fOperation.Proposals.Count == _resourceManager.GetResourceByCapability(fOperation.Operation.ResourceCapability).Count)
+            if (fOperation.Proposals.Count == _capabilityManager.GetResourcesByCapability(fOperation.Operation.ResourceCapability).GetAllSetupDefinitions.Count)
             {
 
                 // item Postponed by All Machines ? -> requeue after given amount of time.
@@ -167,8 +169,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void AddResourceToHub(FResourceInformation hubInformation)
         {
-            var resourceSetup = new SetupManager(hubInformation.ResourceSetups, hubInformation.Ref, hubInformation.RequiredFor);
-            _resourceManager.Add(resourceSetup);
+            foreach (var capability in hubInformation.ResourceCapabilities)
+            {
+                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capability);
+                foreach (var setup in capability.ResourceSetups)
+                {
+                    var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
+                    setupDefinition.RequiredResources.Add(hubInformation.Ref);
+                }
+            }
             // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Machine Agent " + hubInformation.Ref.Path.Name + " to Machine Pool: " + hubInformation.RequiredFor);
         }

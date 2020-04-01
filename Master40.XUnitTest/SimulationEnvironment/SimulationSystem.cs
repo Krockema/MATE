@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
 using System;
+using System.Collections.Generic;
+using Master40.DB.DataModel;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -57,7 +59,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.TestModel, ModelSize.Medium, true);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.TestModel, ModelSize.Small, true);
             
             ResultContext results = ResultContext.GetContext(resultCon: testResultCtxString);
             results.Database.EnsureDeleted();
@@ -100,6 +102,42 @@ namespace Master40.XUnitTest.SimulationEnvironment
             dbContext.Database.EnsureCreated();
             HangfireDBInitializer.DbInitialize(context: dbContext);
         }
+        [Fact]
+        public void SomethingToPlayWith()
+        {
+            var masterCtx = ProductionDomainContext.GetContext(testCtxString);
+            var resources = masterCtx.Resources
+                //.Where(x => x.Count == 1)
+                // .Include(x => x.RequiresResourceSetups)
+                //     .ThenInclude(x => x.ChildResource)
+                // .Include(x => x.UsedInResourceSetups)
+                //     .ThenInclude(x => x.ResourceCapability)
+                .ToList(); // all Resources
+
+            foreach (var resource in resources)
+            {
+                GetSetups(resource, masterCtx);
+            }
+
+        }
+
+        public void GetSetups(M_Resource resource, ProductionDomainContext masterCtx)
+        {
+            if (resource.Count == 0)
+                return;
+            var setups = masterCtx.ResourceSetups
+                .Include(x => x.ResourceCapability)
+                .Include(x => x.ParentResource)
+                .Where(x => x.ParentResourceId == resource.Id).ToList();
+            
+            System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with following setups...");
+            foreach (var setup in setups)
+            {
+                System.Diagnostics.Debug.WriteLine($"{setup.Name} : {setup.ResourceCapability.Name} : {setup.ResourceCapability.Id}");
+            }
+        }
+
+
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
@@ -107,7 +145,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed, ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially)
         {
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
             

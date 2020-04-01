@@ -202,26 +202,41 @@ namespace Master40.SimulationCore
         private void CreateResourceAgents(Configuration configuration)
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
-
             var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
 
-            var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.ChildResource)
+            // Get All Resources that have an Agent (that are limited)
+            var resources = _dBContext.Resources
+                                                    // .Include(x => x.RequiresResourceSetups)
+                                                    //     .ThenInclude(x => x.ChildResource)
+                                                    // .Include(x => x.UsedInResourceSetups)
+                                                    //     .ThenInclude(x => x.ResourceCapability)
+                                                    .ToList(); // all Resources
+            var limitedResources = resources
+                                        //.Include(x => x.UsedInResourceSetups)
+                                        .Where(x => x.Count == 1).ToList(); // all Limited Resources
+
+
+
+
+            foreach (var resource in limitedResources)
+            {
+                // get Capabilities for Resource
+                
+
+                // get top level setups for this resource
+                var setups = _dBContext.ResourceSetups.Include(navigationPropertyPath: m => m.ChildResource)
                                                                  .Include(navigationPropertyPath: r => r.ChildResource)
                                                                     .ThenInclude(s => s.RequiresResourceSetups)
                                                                         .ThenInclude(x => x.ChildResource)
                                                                  .Where(x => x.ParentResourceId == null)
                                                                  .ToListAsync().Result;
 
-            var resourceList = _dBContext.Resources
-                                            .Include(x => x.UsedInResourceSetups)
-                                            .Include(x => x.RequiresResourceSetups)
-                                            .Where(x => x.Count == 1).ToList();
-            var capability = _dBContext.ResourceCapabilities
+            
+                var capability = _dBContext.ResourceCapabilities
                                         .Include(x => x.ResourceSetups)
                                             .ThenInclude(x => x.ChildResource);
 
-            foreach (var resource in resourceList)
-            {
+          
                 var resourceSetups = setups.Where(predicate: x => x.ChildResourceId == resource.Id).ToList();
 
                 //TODO foreach capability, resource can have multiple capabilities
@@ -241,6 +256,6 @@ namespace Master40.SimulationCore
                 
             }
         }
-      
     }
 }
+

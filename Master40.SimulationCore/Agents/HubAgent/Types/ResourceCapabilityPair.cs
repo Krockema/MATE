@@ -5,14 +5,14 @@ using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class ToolCapabilityPair
+    public class ResourceCapabilityPair
     {
         public M_Resource _resourceTool { get; private set; }
         public M_ResourceCapability _resourceCapability { get; private set; }
 
-        public ToolCapabilityPair(M_Resource resourceTool, M_ResourceCapability resourceCapability)
+        public ResourceCapabilityPair(M_Resource resource, M_ResourceCapability resourceCapability)
         {
-            this._resourceTool = resourceTool;
+            this._resourceTool = resource;
             this._resourceCapability = resourceCapability;
         }
     }

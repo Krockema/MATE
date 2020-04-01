@@ -52,8 +52,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Hub.Instruction.Default.AddResourceToHub.Create(message: new FResourceInformation(resourceSetups: _toolManager.GetAllSetups()
-                , requiredFor: Agent.Name, @ref: Agent.Context.Self), target: Agent.VirtualParent));
+            Agent.Send(instruction: Hub.Instruction.Default.AddResourceToHub.Create(message: 
+                new FResourceInformation(
+                    _toolManager.GetAllCapabilities()
+                , requiredFor: Agent.Name
+                , @ref: Agent.Context.Self)
+                , target: Agent.VirtualParent));
             return true;
         }
 

@@ -6,7 +6,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     class ProposalManager : IProposalManager
     {
-
+        List<SetupProposals> setupProposals = new List<SetupProposals>();
 
         ProposalManager()
         {

@@ -32,7 +32,7 @@ namespace Master40.DB.Data.Initializer.Tables
                    .Single(x => x.Name == _capability.CUTTING.Name).ChildResourceCapabilities)
                {
                    setups.Add(new M_ResourceSetup  {
-                           ChildResourceId = waterJet.Id,
+                           ParentResourceId = waterJet.Id,
                            Name = "Setup " + waterJet.Name,
                            SetupTime = 5,
                            ResourceCapabilityId = subCapability.Id
@@ -43,7 +43,7 @@ namespace Master40.DB.Data.Initializer.Tables
                {
                    setups.Add(new M_ResourceSetup
                    {
-                       ChildResourceId = waterJet.Id,
+                       ParentResourceId = waterJet.Id,
                        Name = "Setup " + waterJet.Name,
                        SetupTime = 5,
                        ResourceCapabilityId = subCapability.Id

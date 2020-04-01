@@ -141,8 +141,8 @@ namespace Master40.XUnitTest.Online.Agents.Types
         {
             var bucketManager = new BucketManager(240);
 
-            var toolCap1 = new ToolCapabilityPair(toolBig, capBig);
-            var toolCap2 = new ToolCapabilityPair(toolSmall, capSmall);
+            var toolCap1 = new ResourceCapabilityPair(toolBig, capBig);
+            var toolCap2 = new ResourceCapabilityPair(toolSmall, capSmall);
             bucketManager.AddOrUpdateBucketSize(toolCap1, 0);
             
 

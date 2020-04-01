@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
@@ -15,6 +16,8 @@ namespace Master40.DB.DataModel
 
         public int Capacity { get; set; }
 
+        [NotMapped]
+        public object IResourceRef { get; set; }
         public override string ToString()
         {
             return Name;

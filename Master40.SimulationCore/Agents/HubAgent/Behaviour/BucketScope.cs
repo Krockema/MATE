@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
-using System.Dynamic;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
-using Master40.SimulationCore.Environment.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FBuckets;
 using static FOperations;
-using static IJobs;
-using static FUpdateStartConditions;
 using static FProposals;
+using static FUpdateStartConditions;
 using static IJobResults;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -169,13 +166,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             // TODO 
 
-            var resourceToRequest = _capabilityManager.GetRequiredResourcesFor(bucket.RequiredCapability);
+            var capabilityDefinition = _capabilityManager.GetResourcesByCapability(bucket.RequiredCapability);
             //var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
-
-            foreach (var actorRef in resourceToRequest)
+            foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
             {
-                //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: bucket, target: actorRef));
+                foreach (var resources in setupDefinition.RequiredResources)
+                {
+                    //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
+                    //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
+                }
             }
 
         }
@@ -194,9 +193,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
 
             // if all Machines Answered
-            if (bucket.Proposals.Count == _resourceManager.GetResourceByCapability(bucket.RequiredCapability).Count)
+            if (bucket.Proposals.Count == _capabilityManager.GetResourcesByCapability(bucket.RequiredCapability).GetAllSetupDefinitions.Count)
             {
-
                 // item Postponed by All Machines ? -> requeue after given amount of time.
                 if (bucket.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
                 {
