@@ -6,6 +6,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.DataModel;
 using static FOperations;
 using static FProposals;
 using static FRequestProposalForSetups;
@@ -60,10 +61,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 // reset Item.
                 Agent.DebugMessage(msg: $"Got Item to Requeue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
-                fOperation.Proposals.Clear();
-                localItem = fOperation;
-                //localItem = fOperation.UpdateHubAgent(hub: Agent.Context.Self);
-                _operationList.Replace(val: localItem);
+                _proposalManager.RemoveAllProposalsFor(fOperation);
+
             }
 
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(fOperation.RequiredCapability);
@@ -85,33 +84,28 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal virtual void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
-            var fOperation = _operationList.Single(predicate: x => x.Key == fProposal.JobKey);
-
-            _proposalManager.Add(fProposal);
-
-            fOperation.Proposals.RemoveAll(x => x.ResourceAgent.Equals(fProposal.ResourceAgent));
-            // add New Proposal
-            fOperation.Proposals.Add(item: fProposal);
+            var fOperation = _proposalManager.GetOperationBy(fProposal.JobKey);
 
             Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
+            
+            _proposalManager.AddProposal(fProposal);
 
-
-            // if all Machines Answered
-            if (fOperation.Proposals.Count == _capabilityManager.GetResourcesByCapability(fOperation.Operation.ResourceCapability).GetAllSetupDefinitions.Count)
+            // if all resources answered
+            if (_proposalManager.AllProposalForSetupDefinitionReceived(fOperation))
             {
-
                 // item Postponed by All Machines ? -> requeue after given amount of time.
-                if (fOperation.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
+                if (_proposalManager.AllSetupDefintionsPostponed(fOperation))
                 {
-                    var postPonedFor = fOperation.Proposals.Min(x => x.Postponed.Offset);
+                    var postPonedFor = _proposalManager.PostponedUntil(fOperation);
                     Agent.DebugMessage(msg: $"{fOperation.Operation.Name} {fOperation.Key} postponed to {postPonedFor}");
-                    // Call Hub Agent to Requeue
-                    fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
-                    _operationList.Replace(val: fOperation);
+                    // TODO How to handle ActorRef for Resources --> List<ActorRefs> ? 
+                    // decide where comumunication works
+                    //fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
+                    //_operationList.Replace(val: fOperation);
+
                     Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postPonedFor);
                     return;
                 }
-
 
                 // acknowledge Machine -> therefore get Machine -> send acknowledgement
                 var earliestPossibleStart = fOperation.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
@@ -132,7 +126,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
-            var operation = _operationList.Single(predicate: x => x.Key == startCondition.OperationKey);
+            var operation = _proposalManager.GetOperationBy(startCondition.OperationKey);
             operation.SetStartConditions(startCondition: startCondition);
             // if Agent has no ResourceAgent the operation is not queued so here is nothing to do
             if (operation.ResourceAgent.IsNobody())
@@ -153,7 +147,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// <param name="key"></param>
         internal virtual void WithdrawRequiredArticles(Guid operationKey)
         {
-            var operation = _operationList.Single(predicate: x => x.Key == operationKey);
+            var operation = _proposalManager.GetOperationBy(operationKey);
 
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
                                                     .Create(message: operation.Key
@@ -162,11 +156,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void FinishJob(IJobResult jobResult)
         {
-            var operation = _operationList.Find(match: x => x.Key == jobResult.Key);
+            var operation = _proposalManager.GetOperationBy(jobResult.Key);
 
             Agent.DebugMessage(msg: $"Resource called Item {operation.Operation.Name} {jobResult.Key} finished.");
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
-            _operationList.Remove(item: operation);
+            _proposalManager.Remove(operation);
         }
 
         internal virtual void AddResourceToHub(FResourceInformation resourceInformation)
