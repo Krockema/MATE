@@ -22,11 +22,10 @@ open FUpdateStartConditions
           StartConditions : FStartCondition
           Priority : int64 -> double
           ProductionAgent : IActorRef
-          ResourceAgent : IActorRef
           mutable HubAgent : IActorRef
           Operation : M_Operation
           RequiredCapability : M_ResourceCapability
-          Proposals : System.Collections.Generic.List<FProposal>
+          SetupKey : int64
           Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key
@@ -40,17 +39,16 @@ open FUpdateStartConditions
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
                 member this.ForwardStart with get() = this.ForwardStart
-                member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
                 member this.Priority time = this.Priority time 
-                member this.ResourceAgent with get() = this.ResourceAgent
+                member this.SetupKey with get() = this.SetupKey
                 member this.HubAgent with get() = this.HubAgent
                 member this.RequiredCapability with get() = this.RequiredCapability
                 member this.Duration = (int64)this.Operation.Duration // Theoretisch muss hier die Slacktime noch rein also , +3*duration bzw aus dem operationElement
-                member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  (int64)this.Operation.Duration;
+                member this.UpdateEstimations estimatedStart setupKey = { this with End = estimatedStart +  (int64)this.Operation.Duration;
                                                                                          Start = (int64)estimatedStart;
-                                                                                         ResourceAgent = resourceAgent } :> IJob
+                                                                                         SetupKey = setupKey } :> IJob
                 member this.Bucket with get() = this.Bucket
                 member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
             interface IComparable with 
@@ -66,7 +64,6 @@ open FUpdateStartConditions
         override this.GetHashCode() = this.Key.GetHashCode()
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.AsIjob = this :> IJob
-        member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
                                                                                  this.StartConditions.PreCondition <- startCondition.PreCondition

@@ -10,6 +10,7 @@ using static FUpdateBucketScopes;
 using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
+using static FAcknowledgeProposals;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -45,14 +46,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class AcknowledgeProposal : SimulationMessage
                 {
-                    public static AcknowledgeProposal Create(IJob message, IActorRef target)
+                    public static AcknowledgeProposal Create(FAcknowledgeProposal message, IActorRef target)
                     {
                         return new AcknowledgeProposal(message: message, target: target);
                     }
                     private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public IJob GetObjectFromMessage { get => Message as IJob; }
+                    public FAcknowledgeProposal GetObjectFromMessage { get => Message as FAcknowledgeProposal; }
                 }
 
 

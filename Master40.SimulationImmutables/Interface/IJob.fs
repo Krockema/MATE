@@ -16,13 +16,12 @@ type public IJob =
     abstract member Start : int64 with get
     abstract member End : int64 with get
     abstract member StartConditions : FStartCondition with get
-    abstract member Priority : int64 -> double 
-    abstract member Proposals : System.Collections.Generic.List<FProposal> 
-    abstract member ResourceAgent : IActorRef
+    abstract member Priority : int64 -> double
     abstract member HubAgent : IActorRef
     abstract member DueTime : int64 with get
     abstract member Duration : int64 with get
+    abstract member SetupKey : int64 with get
     abstract member RequiredCapability : M_ResourceCapability with get
-    abstract member UpdateEstimations : int64 -> IActorRef -> IJob
+    abstract member UpdateEstimations : int64 -> int64 -> IJob
     abstract member Bucket : string
     abstract member UpdateBucket : string -> IJob 

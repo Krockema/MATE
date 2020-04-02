@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public SetupDefinition _setupDefinition { get; private set; } // allways setup that have been Requested. (No parent.)
 
         private List<FProposal> _proposals = new List<FProposal>();
-
+        public int SetupKey => _setupDefinition.ResourceSetup.Id;
 
         public ProposalForSetupDefinition(SetupDefinition setupDefinition)
         {
@@ -23,14 +23,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _setupDefinition.RequiredResources.Count == _proposals.Count;
         }
 
-        public bool AllPostponed()
+        public bool AnyPostponed()
         {
-            return _proposals.TrueForAll(x => x.Postponed.IsPostponed);
+            return _proposals.Any(x => x.Postponed.IsPostponed);
         }
 
         public long PostponedUntil()
         {
-            return _proposals.Min(x => x.Postponed.Offset);
+            return _proposals.Max(x => x.Postponed.Offset);
         }
 
         public void Add(FProposal proposal)

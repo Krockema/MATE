@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Message\FSetupDefinition.fs" />
     <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />
@@ -40,6 +41,7 @@
     <Compile Include="Message\FResourceSetupDefinition.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
     <Compile Include="Message\FRequestProposalForSetups.fs" />
+    <Compile Include="Message\FAcknowledgeProposals.fs" />
   </ItemGroup>
 
   <ItemGroup>

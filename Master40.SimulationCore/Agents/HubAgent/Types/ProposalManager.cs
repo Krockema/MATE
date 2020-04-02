@@ -10,35 +10,42 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalManager
     {
-        private Dictionary<FOperation, List<ProposalForSetupDefinition>> _proposalDictionary { get; set; } = new Dictionary<FOperation, List<ProposalForSetupDefinition>>();
- 
+        private Dictionary<FOperation, ProposalForSetupDefinitionSet> _proposalDictionary { get; set; } = new Dictionary<FOperation, ProposalForSetupDefinitionSet>();
+
         public ProposalManager()
         {
 
         }
-        
+
+        public void ResetAssignedSetupDefinition(FOperation fOperation)
+        {
+            _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet);
+
+            proposalForSetupDefinitionSet.ResetAssignedSetupDefinition();
+        }
+
         public bool AllProposalForSetupDefinitionReceived(FOperation fOperation)
         {
-            return _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitions) 
-                   && proposalForSetupDefinitions.TrueForAll(x => x.AllProposalsReceived());
+            return _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet) 
+                   && proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().TrueForAll(x => x.AllProposalsReceived());
         }
 
         public bool AllSetupDefintionsPostponed(FOperation fOperation)
         {
-            return _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitions)
-                   && proposalForSetupDefinitions.TrueForAll(x => x.AllPostponed());
+            return _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet)
+                   && proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().TrueForAll(x => x.AnyPostponed());
         }
 
         public long PostponedUntil(FOperation fOperation)
         {
-            _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitions);
+            _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet);
 
-            return proposalForSetupDefinitions.Min(x => x.PostponedUntil());
+            return proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().Min(x => x.PostponedUntil());
         }
 
         public bool Add(FOperation fOperation, List<SetupDefinition> setupDefinitions)
         {
-            var defs = new List<ProposalForSetupDefinition>();
+            var defs = new ProposalForSetupDefinitionSet();
             setupDefinitions.ForEach(x => defs.Add(new ProposalForSetupDefinition(x)));
             return _proposalDictionary.TryAdd(fOperation, defs);
         }
@@ -47,10 +54,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             var fOperation = GetOperationBy(fProposal.JobKey);
 
-            if (!_proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitions))
+            if (!_proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet))
                 return false;
 
-            var proposalForSetupDefinition = proposalForSetupDefinitions.Single(x => x._setupDefinition.ResourceSetup.Id == fProposal.SetupId);
+            var proposalForSetupDefinition = proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().Single(x => x._setupDefinition.ResourceSetup.Id == fProposal.SetupId);
 
             proposalForSetupDefinition.Add(fProposal);
                 return true;
@@ -63,16 +70,28 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         internal bool RemoveAllProposalsFor(FOperation fOperation)
         {
-            if (!_proposalDictionary.TryGetValue(fOperation, out var proposals))
+            if (!_proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet))
                 return false;
 
-            proposals.ForEach(x => x.RemoveAll());
+            proposalForSetupDefinitionSet.ResetAssignedSetupDefinition();
+            proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().ForEach(x => x.RemoveAll());
             return true;
         }
 
         public bool Remove(FOperation fOperation)
         {
             return _proposalDictionary.Remove(fOperation);
+        }
+
+        internal SetupDefinition GetAssignedSetupDefinition(FOperation fOperation)
+        {
+            _proposalDictionary.TryGetValue(fOperation, out var proposalForSetupDefinitionSet);
+            return proposalForSetupDefinitionSet?.AssignedSetupDefinition;
+        }
+
+        internal FProposal GetProposalToAcknwoledge()
+        {
+            throw new NotImplementedException();
         }
     }
 }

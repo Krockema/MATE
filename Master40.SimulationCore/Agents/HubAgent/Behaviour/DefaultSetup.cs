@@ -15,6 +15,7 @@ using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
 using ResourceManager = Master40.SimulationCore.Agents.HubAgent.Types.CapabilityManager;
+using static FAcknowledgeProposals;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -98,29 +99,39 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 {
                     var postPonedFor = _proposalManager.PostponedUntil(fOperation);
                     Agent.DebugMessage(msg: $"{fOperation.Operation.Name} {fOperation.Key} postponed to {postPonedFor}");
-                    // TODO How to handle ActorRef for Resources --> List<ActorRefs> ? 
-                    // decide where comumunication works
-                    //fOperation = fOperation.UpdateResourceAgent(r: ActorRefs.NoSender);
-                    //_operationList.Replace(val: fOperation);
+
+                    _proposalManager.RemoveAllProposalsFor(fOperation);
 
                     Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postPonedFor);
                     return;
                 }
 
-                // acknowledge Machine -> therefore get Machine -> send acknowledgement
+                // acknowledge resources -> therefore get Machine -> send acknowledgement
+
                 var earliestPossibleStart = fOperation.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
                                                                .Min(selector: p => p.PossibleSchedule);
 
-                var acknowledgement = fOperation.Proposals.First(predicate: x => x.PossibleSchedule == earliestPossibleStart
+                var acknowledgedProposal = _proposalManager.GetProposalToAcknwoledge();
+                
+                fOperation.Proposals.First(predicate: x => x.PossibleSchedule == earliestPossibleStart
                                                                         && x.Postponed.IsPostponed == false);
 
-                fOperation = ((IJob)fOperation).UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent) as FOperation;
+                fOperation = ((IJob)fOperation).UpdateEstimations(acknowledgedProposal.PossibleSchedule, acknowledgedProposal.ResourceAgent) as FOperation;
 
-                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {acknowledgement.ResourceAgent}");
+                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {acknowledgedProposal.ResourceAgent}");
 
                 // set Proposal Start for Machine to Requeue if time slot is closed.
-                _operationList.Replace(fOperation);
-                Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal.Create(message: fOperation, target: acknowledgement.ResourceAgent));
+                var assignedSetupDefintion = _proposalManager.GetAssignedSetupDefinition(fOperation);
+
+                foreach(IActorRef resource in assignedSetupDefintion.RequiredResources) {
+
+                    Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
+                        .Create(new FAcknowledgeProposal(fOperation
+                                , acknowledgedProposal.PossibleSchedule
+                                , assignedSetupDefintion.RequiredResources)
+                            , target: resource));
+                }
+
             }
         }
 
