@@ -1,7 +1,9 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -9,7 +11,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         public M_ResourceCapability ResourceCapability { get; private set; } = new M_ResourceCapability();
 
-        private List<SetupDefinition> _setupDefinitions { get; } = new List<SetupDefinition>();
+        private List<FSetupDefinition> _setupDefinitions { get; } = new List<FSetupDefinition>();
         
         public CapabilityDefinition(M_ResourceCapability resourceCapabilities)
         {
@@ -21,26 +23,26 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return ResourceCapability.Id == resourceCapability.Id;
         }
 
-        public bool AddDefinition(SetupDefinition setupDefinition)
+        public bool AddDefinition(FSetupDefinition setupDefinition)
         {
             this._setupDefinitions.Add(setupDefinition);
             return true;
         }
-        public List<SetupDefinition> GetAllSetupDefinitions => _setupDefinitions;
+        public List<FSetupDefinition> GetAllSetupDefinitions => _setupDefinitions;
 
-        internal SetupDefinition GetSetupDefinitionBy(M_ResourceSetup setup)
+        internal FSetupDefinition GetSetupDefinitionBy(M_ResourceSetup setup)
         {
-            var setupDefinition = _setupDefinitions.SingleOrDefault(x => x.ResourceSetup.Id == setup.Id);
+            var setupDefinition = _setupDefinitions.SingleOrDefault(x => x.SetupKey == setup.Id);
             if (setupDefinition == null)
             {
-                setupDefinition = new SetupDefinition(setup);
+                setupDefinition = new FSetupDefinition(setup.Id, new List<IActorRef>());
                 _setupDefinitions.Add(setupDefinition);
             }
             return setupDefinition;
         }
-        internal SetupDefinition GetSetupDefinitionBy(int setupId)
+        internal FSetupDefinition GetSetupDefinitionBy(int setupId)
         {
-            return _setupDefinitions.SingleOrDefault(x => x.ResourceSetup.Id == setupId);
+            return _setupDefinitions.SingleOrDefault(x => x.SetupKey == setupId);
         }
     }
 }

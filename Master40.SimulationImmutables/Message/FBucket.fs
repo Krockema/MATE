@@ -26,13 +26,12 @@ open FUpdateStartConditions
           End : int64 
           StartConditions : FStartCondition
           Priority : FBucket -> int64 -> double
-          ResourceAgent : IActorRef
           mutable HubAgent : IActorRef
           Operations : Set<FOperation>
           RequiredCapability : M_ResourceCapability
+          SetupKey : int64
           MaxBucketSize : double
           MinBucketSize : double
-          Proposals : System.Collections.Generic.List<FProposal> 
           Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key
@@ -46,22 +45,19 @@ open FUpdateStartConditions
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
                 member this.ForwardStart with get() = this.ForwardStart
-                member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
                 member this.Priority time = this.Priority this time 
-                member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
                 member this.RequiredCapability with get() = this.RequiredCapability
                 member this.Duration = this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
-                member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
-                                                                                         Start = (int64)estimatedStart;
-                                                                                         ResourceAgent = resourceAgent } :> IJob
+                member this.SetupKey with get() = this.SetupKey
+                member this.UpdateEstimations estimatedStart = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
+                                                                                         Start = (int64)estimatedStart; } :> IJob
                 member this.Bucket with get() = this.Bucket
                 member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
 
          // Returns new Object with Updated Due
-        member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}

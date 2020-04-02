@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalForSetupDefinitionSet
     {
-        private List<ProposalForSetupDefinition> _listOfProposalForSetupDefinitions { get; set; } = new List<ProposalForSetupDefinition>();
+        public List<ProposalForSetupDefinition> _listOfProposalForSetupDefinitions { get; private set; } = new List<ProposalForSetupDefinition>();
 
-        public SetupDefinition AssignedSetupDefinition { get; private set; }
+        public FSetupDefinition AssignedSetupDefinition { get; private set; }
 
         public ProposalForSetupDefinitionSet()
         {
@@ -25,12 +27,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _listOfProposalForSetupDefinitions;
         }
 
+        public ProposalForSetupDefinition GetValidProposal()
+        {
+            return _listOfProposalForSetupDefinitions.First(x => _listOfProposalForSetupDefinitions.Min(y => y.EarliestStart()) == x.EarliestStart());
+        }
+
+
         internal void ResetAssignedSetupDefinition()
         {
             AssignedSetupDefinition = null;
         }
 
-        internal void SetAssignedSetupDefintion(SetupDefinition setupDefinition)
+        internal void SetAssignedSetupDefintion(FSetupDefinition setupDefinition)
         {
             AssignedSetupDefinition = setupDefinition;
         }

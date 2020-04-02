@@ -56,7 +56,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     public FAcknowledgeProposal GetObjectFromMessage { get => Message as FAcknowledgeProposal; }
                 }
 
-
                 public class DoWork : SimulationMessage
                 {
                     public static DoWork Create(object message, IActorRef target)

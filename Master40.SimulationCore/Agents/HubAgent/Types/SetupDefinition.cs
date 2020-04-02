@@ -4,6 +4,7 @@ using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
+    /*
     public class SetupDefinition
     {
         public M_ResourceSetup ResourceSetup { get; set; }
@@ -15,4 +16,5 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             RequiredResources = new List<IActorRef>();
         }
     }
+    */
 }

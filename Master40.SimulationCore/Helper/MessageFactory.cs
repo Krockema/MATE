@@ -13,6 +13,7 @@ using static FBuckets;
 using static IJobs;
 using Master40.SimulationCore.Types;
 using static FStockProviders;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -51,12 +52,11 @@ namespace Master40.SimulationCore.Helper
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
                                 , priority: prioRule.ToFSharpFunc()
-                                , resourceAgent: ActorRefs.NoSender
+                                , setupKey: -1 // unset
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , operation: operation
                                 , requiredCapability: operation.ResourceCapability
-                                , proposals: new List<FProposal>()
                                 , bucket: String.Empty);
         }
 
@@ -95,11 +95,10 @@ namespace Master40.SimulationCore.Helper
                                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
                                 , maxBucketSize: 1
                                 , minBucketSize: 1000
-                                , resourceAgent: ActorRefs.NoSender
+                                , setupKey: -1
                                 , hubAgent: hubAgent
                                 , operations: new FSharpSet<FOperation>(elements: operations)
                                 , requiredCapability: operation.RequiredCapability
-                                , proposals: new List<FProposal>()
                                 , bucket: String.Empty);
         }
 
@@ -133,11 +132,10 @@ namespace Master40.SimulationCore.Helper
                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
                 , maxBucketSize: 1
                 , minBucketSize: 1000
-                , resourceAgent: ActorRefs.NoSender
+                , setupKey: -1 //unset
                 , hubAgent: hubAgent
                 , operations: new FSharpSet<FOperation>(elements: operations)
                 , requiredCapability: operation.RequiredCapability
-                , proposals: new List<FProposal>()
                 , bucket: String.Empty);
         }
 

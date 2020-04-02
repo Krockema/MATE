@@ -16,6 +16,7 @@ using static IJobResults;
 using static IJobs;
 using ResourceManager = Master40.SimulationCore.Agents.HubAgent.Types.CapabilityManager;
 using static FAcknowledgeProposals;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -47,7 +48,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void EnqueueJob(FOperation fOperation)
         {
-            var localItem = _proposalManager.GetOperationBy(fOperation.Key);
+            var localItem = _proposalManager.GetJobBy(fOperation.Key) as FOperation;
             // If item is not Already in Queue Add item to Queue
             // // happens i.e. Machine calls to Requeue item.
             if (localItem == null)
@@ -62,7 +63,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 // reset Item.
                 Agent.DebugMessage(msg: $"Got Item to Requeue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
-                _proposalManager.RemoveAllProposalsFor(fOperation);
+                _proposalManager.RemoveAllProposalsFor(localItem);
+                localItem.UpdateSetupDefinition();
 
             }
 
@@ -73,7 +75,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 foreach (var actorRef in setupDefinition.RequiredResources)
                 {
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: new FRequestProposalForSetup(localItem, setupDefinition.ResourceSetup.Id), target: actorRef));
+                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: new FRequestProposalForSetup(localItem, setupDefinition.SetupKey), target: actorRef));
                 }
             }
         }
@@ -85,7 +87,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal virtual void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
-            var fOperation = _proposalManager.GetOperationBy(fProposal.JobKey);
+            var fOperation = _proposalManager.GetJobBy(fProposal.JobKey) as FOperation;
 
             Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
             
@@ -107,27 +109,23 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
 
                 // acknowledge resources -> therefore get Machine -> send acknowledgement
+                var acknowledgedProposal = _proposalManager.GetValidProposalForSetupDefinitionFor(fOperation);
+                var possibleSchedule = acknowledgedProposal.EarliestStart();
 
-                var earliestPossibleStart = fOperation.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
-                                                               .Min(selector: p => p.PossibleSchedule);
+                fOperation = ((IJob)fOperation).UpdateEstimations(possibleSchedule, acknowledgedProposal.GetFSetupDefinition) as FOperation;
 
-                var acknowledgedProposal = _proposalManager.GetProposalToAcknwoledge();
+                _proposalManager.Update(fOperation);
                 
-                fOperation.Proposals.First(predicate: x => x.PossibleSchedule == earliestPossibleStart
-                                                                        && x.Postponed.IsPostponed == false);
-
-                fOperation = ((IJob)fOperation).UpdateEstimations(acknowledgedProposal.PossibleSchedule, acknowledgedProposal.ResourceAgent) as FOperation;
-
-                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {acknowledgedProposal.ResourceAgent}");
-
-                // set Proposal Start for Machine to Requeue if time slot is closed.
+                // TODO maybe not required
                 var assignedSetupDefintion = _proposalManager.GetAssignedSetupDefinition(fOperation);
 
                 foreach(IActorRef resource in assignedSetupDefintion.RequiredResources) {
 
+                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {resource}");
+
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(new FAcknowledgeProposal(fOperation
-                                , acknowledgedProposal.PossibleSchedule
+                                , possibleSchedule
                                 , assignedSetupDefintion.RequiredResources)
                             , target: resource));
                 }
@@ -137,18 +135,24 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
-            var operation = _proposalManager.GetOperationBy(startCondition.OperationKey);
+            var operation = _proposalManager.GetJobBy(startCondition.OperationKey) as FOperation;
             operation.SetStartConditions(startCondition: startCondition);
             // if Agent has no ResourceAgent the operation is not queued so here is nothing to do
-            if (operation.ResourceAgent.IsNobody())
+            if (operation.SetupKey == -1)
                 return;
 
-            Agent.DebugMessage(msg: $"Update and forward start condition: {operation.Operation.Name} {operation.Key}" +
-                                    $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {operation.StartConditions.PreCondition} " +
-                                    $"to resource {operation.ResourceAgent}");
+            
 
-            Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: operation.ResourceAgent));
+            foreach (var resource in operation.SetupDefinition.RequiredResources)
+            {
+                Agent.DebugMessage(msg: $"Update and forward start condition: {operation.Operation.Name} {operation.Key}" +
+                                        $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
+                                        $"| PreCondition: {operation.StartConditions.PreCondition} " +
+                                        $"to resource {resource}");
+
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resource));
+            }
+            
         }
 
         /// <summary>
@@ -158,7 +162,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// <param name="key"></param>
         internal virtual void WithdrawRequiredArticles(Guid operationKey)
         {
-            var operation = _proposalManager.GetOperationBy(operationKey);
+            var operation = _proposalManager.GetJobBy(operationKey) as FOperation;
 
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
                                                     .Create(message: operation.Key
@@ -167,7 +171,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void FinishJob(IJobResult jobResult)
         {
-            var operation = _proposalManager.GetOperationBy(jobResult.Key);
+            var operation = _proposalManager.GetJobBy(jobResult.Key) as FOperation;
 
             Agent.DebugMessage(msg: $"Resource called Item {operation.Operation.Name} {jobResult.Key} finished.");
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));

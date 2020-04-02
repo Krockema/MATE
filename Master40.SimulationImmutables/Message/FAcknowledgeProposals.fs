@@ -2,9 +2,9 @@
 
 open Akka.Actor
 open IJobs
+open FSetupDefinitions
 
 type public FAcknowledgeProposal = {
     Job : IJob
-    Schedule : int64
-    Resources : System.Collections.Generic.List<IActorRef>
+    SetupDefinition : FSetupDefinition
 }

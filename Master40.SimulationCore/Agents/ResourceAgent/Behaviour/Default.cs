@@ -15,6 +15,7 @@ using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
+using static FAcknowledgeProposals;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -42,7 +43,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 case Resource.Instruction.Default.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
                 case Resource.Instruction.Default.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
-                case Resource.Instruction.Default.AcknowledgeProposal msg: AcknowledgeProposal(jobItem: msg.GetObjectFromMessage); break;
+                case Resource.Instruction.Default.AcknowledgeProposal msg: AcknowledgeProposal(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(startCondition: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 // case BasicInstruction.ResourceBrakeDown msg: BreakDown((Resource)agent, msg.GetObjectFromMessage); break;
@@ -113,28 +114,26 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        public void AcknowledgeProposal(IJob jobItem)
+        public void AcknowledgeProposal(FAcknowledgeProposal acknowledgeProposal)
         {
-            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {acknowledgeProposal.Job.Name} {acknowledgeProposal.Job.Key}");
 
-            var queuePosition = _planingQueue.GetQueueAbleTime(job: jobItem
+            var queuePosition = _planingQueue.GetQueueAbleTime(job: acknowledgeProposal.Job
                                                      , currentTime: Agent.CurrentTime
                                           , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
                                            , processingQueueLength: _processingQueue.SumDurations);
             // if not QueueAble
             if (!queuePosition.IsQueueAble)
             {
-                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
-                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: jobItem, target: jobItem.HubAgent));
+                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {acknowledgeProposal.Job.Name} {acknowledgeProposal.Job.Key} and start requeue");
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: acknowledgeProposal.Job, target: acknowledgeProposal.Job.HubAgent));
                 return;
             }
 
+            _planingQueue.Enqueue(item: acknowledgeProposal.Job);
 
-            jobItem = jobItem.UpdateEstimations(queuePosition.EstimatedStart, Agent.Context.Self);
-            _planingQueue.Enqueue(item: jobItem);
-
-            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
-            UpdateAndRequeuePlanedJobs(jobItem: jobItem);
+            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + acknowledgeProposal.Job.Name + " with Id: " + acknowledgeProposal.Job.Key);
+            UpdateAndRequeuePlanedJobs(jobItem: acknowledgeProposal.Job);
             UpdateProcessingQueue();
             DoWork();
         }

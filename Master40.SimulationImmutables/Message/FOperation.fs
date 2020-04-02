@@ -46,9 +46,8 @@ open FUpdateStartConditions
                 member this.HubAgent with get() = this.HubAgent
                 member this.RequiredCapability with get() = this.RequiredCapability
                 member this.Duration = (int64)this.Operation.Duration // Theoretisch muss hier die Slacktime noch rein also , +3*duration bzw aus dem operationElement
-                member this.UpdateEstimations estimatedStart setupKey = { this with End = estimatedStart +  (int64)this.Operation.Duration;
-                                                                                         Start = (int64)estimatedStart;
-                                                                                         SetupKey = setupKey } :> IJob
+                member this.UpdateEstimations estimatedStart = { this with End = estimatedStart +  (int64)this.Operation.Duration;
+                                                                                         Start = (int64)estimatedStart; } :> IJob
                 member this.Bucket with get() = this.Bucket
                 member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
             interface IComparable with 

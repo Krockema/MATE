@@ -3,24 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.DataModel;
 using static FProposals;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalForSetupDefinition
     {
-        public SetupDefinition _setupDefinition { get; private set; } // allways setup that have been Requested. (No parent.)
+        private FSetupDefinition _fSetupDefinition { get; set; } // allways setup that have been Requested. (No parent.)
+
+        public FSetupDefinition GetFSetupDefinition => _fSetupDefinition;
 
         private List<FProposal> _proposals = new List<FProposal>();
-        public int SetupKey => _setupDefinition.ResourceSetup.Id;
+        public long SetupKey => _fSetupDefinition.SetupKey;
 
-        public ProposalForSetupDefinition(SetupDefinition setupDefinition)
+        public ProposalForSetupDefinition(FSetupDefinition fSetupDefinition)
         {
-            _setupDefinition = setupDefinition;
+            _fSetupDefinition = fSetupDefinition;
         }
 
         public bool AllProposalsReceived()
         {
-            return _setupDefinition.RequiredResources.Count == _proposals.Count;
+            return _fSetupDefinition.RequiredResources.Count == _proposals.Count;
         }
 
         public bool AnyPostponed()
@@ -32,6 +35,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             return _proposals.Max(x => x.Postponed.Offset);
         }
+
+        public long EarliestStart()
+        {
+            return _proposals.Max(x => x.PossibleSchedule);
+        }
+
 
         public void Add(FProposal proposal)
         {

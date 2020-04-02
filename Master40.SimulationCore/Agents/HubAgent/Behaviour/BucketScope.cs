@@ -8,6 +8,7 @@ using System.Linq;
 using static FBuckets;
 using static FOperations;
 using static FProposals;
+using static FRequestProposalForSetups;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
@@ -24,6 +25,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private static long _maxBucketSize { get; set; }
 
+        private List<FOperation> _operationList { get; } = new List<FOperation>();
         private BucketManager _bucketManager { get; } = new BucketManager(maxBucketSize: _maxBucketSize);
 
         public override bool Action(object message)
@@ -154,26 +156,34 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void EnqueueBucket(FBucket bucket)
         {
-            bucket = _bucketManager.GetBucketById(bucket.Key);
+            //delete all proposals if exits
+            var fBucket = _bucketManager.GetBucketById(bucket.Key);
 
-            if (bucket == null) return;
+            _proposalManager.RemoveAllProposalsFor(bucket);
 
-            bucket.Proposals.Clear();
-            bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
+            if (fBucket == null)
+            {
+                //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
+                _proposalManager.Remove(bucket);
+                return;
+            }
+
+            _proposalManager.Update(fBucket);
+            //else create
+            var localitem = _proposalManager.Add(bucket, _capabilityManager.GetAllSetupDefintions(bucket.RequiredCapability));
+
             _bucketManager.Replace(bucket);
 
             Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
-
-            // TODO 
-
+            
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(bucket.RequiredCapability);
             //var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
             foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
             {
-                foreach (var resources in setupDefinition.RequiredResources)
+                foreach (var resource in setupDefinition.RequiredResources)
                 {
-                    //Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
-                    //Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(message: localItem, target: actorRef));
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name}");
+                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(new FRequestProposalForSetup(localitem, setupDefinition), target: resource));
                 }
             }
 
