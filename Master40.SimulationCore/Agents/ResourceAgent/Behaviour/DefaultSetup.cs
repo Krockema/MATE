@@ -287,13 +287,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal long GetSetupTime(IJob jobItem)
         {
             var setupTime = 0L;
-            if (!_setupManager.AlreadyEquipped(jobItem.RequiredCapability))
+            if (!_setupManager.AlreadyEquipped(_setupManager.GetSetupByCapability(jobItem.RequiredCapability)))
             {
                 setupTime = _setupManager.GetSetupDurationByTool(jobItem.RequiredCapability);
             }
 
             Agent.DebugMessage(
-                msg: $"Has Tool: {_setupManager.GetToolName()} | require Tool: {jobItem.RequiredCapability.Name} with setupDuration {setupTime}");
+                msg: $"Has Tool: {_setupManager.GetSetupName()} | require Tool: {jobItem.RequiredCapability.Name} with setupDuration {setupTime}");
             return setupTime;
         }
 

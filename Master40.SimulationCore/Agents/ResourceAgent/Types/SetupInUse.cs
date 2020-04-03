@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Master40.DB.DataModel;
+using System;
 using System.Resources;
-using System.Text;
-using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.ContractAgent;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class SetupInUse
     {
-        public M_Resource Resource { get; private set; }
+        public M_ResourceSetup ResourceSetup { get; private set; }
+        private FSetupDefinition currentSetupDefinition { get; set; }
         private bool SetupPhase { get; set; }
-
         public bool IsSetupPhase => SetupPhase;
 
         public SetupInUse()
         {
-            Resource = null;
+            ResourceSetup = null;
             SetupPhase = false;
         }
         /// <summary>
@@ -24,16 +22,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="resourceTool"></param>
         /// <returns></returns>
-        public bool Mount(M_Resource resource)
+        public bool Mount(M_ResourceSetup resourceSetup)
         {
             if (SetupPhase != false) return false;
-            Resource = resource;
+            ResourceSetup = resourceSetup;
             return true;
         }
 
-        public bool IsSet(M_ResourceCapability resourceTool)
+        public bool IsSet(M_ResourceCapability resourceCapability)
         {
-            if (Resource == null || Resource.Id != resourceTool.Id ) return false;
+            if (ResourceSetup == null || ResourceSetup.Id != resourceCapability.Id ) return false;
             return true;
         }
 

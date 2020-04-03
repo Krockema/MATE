@@ -24,7 +24,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public virtual FJobConfirmation DequeueFirstSatisfied(long currentTime, M_Resource equippdedResourceTool = null)
+        public virtual FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var item = this.JobConfirmations.Where(x => x.Job.StartConditions.Satisfied).OrderBy(keySelector: x => x.Job.Priority(currentTime)).FirstOrDefault();
             if (item != null)

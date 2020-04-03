@@ -24,9 +24,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         }
 
-        public override FJobConfirmation DequeueFirstSatisfied(long currentTime, M_Resource resourceTool = null)
+        public override FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
-            var bucket = GetFirstSatisfied(currentTime, resourceTool);
+            var bucket = GetFirstSatisfied(currentTime, resourceCapability);
             if (bucket != null)
             {
                 JobConfirmations.Remove(bucket);
@@ -34,16 +34,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return bucket;
         }
 
-        public FJobConfirmation GetFirstSatisfied(long currentTime, M_Resource resourceTool)
+        public FJobConfirmation GetFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability)
         {
             var buckets = JobConfirmations.Where(x => ((FBucket)x.Job).HasSatisfiedJob.Equals(true)).ToList();
 
-            var avgResourceSetupTime = resourceTool != null ? resourceTool.UsedInResourceSetups.Average(x => x.SetupTime): 0;
-            var toolname = "";
-            if (resourceTool != null)
-                toolname = resourceTool.Name;
+            var avgResourceSetupTime = resourceCapability != null ? resourceCapability.ResourceSetups.Sum(x => x.SetupTime) : 0;
+            var capabilityName = "";
+            if (resourceCapability != null)
+                capabilityName = resourceCapability.Name;
             
-            var bucket = buckets.OrderBy(x => x.Job.Priority(currentTime) + x.Job.RequiredCapability.Name != toolname ? avgResourceSetupTime : 0).FirstOrDefault();
+            var bucket = buckets.OrderBy(x => x.Job.Priority(currentTime) + x.Job.RequiredCapability.Name != capabilityName ? avgResourceSetupTime : 0).FirstOrDefault();
             
             return bucket;
         }

@@ -174,7 +174,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // take the next scope and make it fix 
             while (_processingQueue.CapacitiesLeft() && _scopeQueue.HasQueueAbleJobs())
             {
-                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime, resourceTool: _setupManager.CurrentCapability);
+                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime, _setupManager.GetCurrentUsedCapability());
 
                 var ok = _processingQueue.Enqueue(job);
                 if (!ok)

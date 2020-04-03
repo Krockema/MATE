@@ -19,10 +19,10 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void AddToTimeLimitedQueue()
         {
             var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
-            jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10));
+            jobQueueTimeLimited.Enqueue(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10));
             Assert.True(condition: jobQueueTimeLimited.Count == 1);
             
-            jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5));
+            jobQueueTimeLimited.Enqueue(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5));
             Assert.True(jobQueueTimeLimited.Count == 2);
 
             //addItemStatus = jobQueueTimeLimited.Enqueue(item: TypeFactory.CreateJobItem(jobName: "Sample Operation 3", jobDuration: 10));

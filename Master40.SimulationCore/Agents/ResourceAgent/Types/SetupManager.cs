@@ -1,18 +1,15 @@
-﻿using System;
+﻿using Master40.DB.DataModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Master40.DB.DataModel;
-using Master40.SimulationCore.Types;
+using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class SetupManager
     {
         private List<M_ResourceSetup> _resourceSetups { get; set; } = new List<M_ResourceSetup>();
-        public List<SetupInUse> _equippedResourceSetups { get; private set; }  = new List<SetupInUse>();
-        public M_Resource CurrentCapability { get; internal set; }
-
+        private SetupInUse _setupInUse { get; set; }
+        
         public SetupManager(List<M_ResourceSetup> resourceSetups)
         {
             _resourceSetups = resourceSetups;
@@ -20,22 +17,26 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal void Mount(M_ResourceCapability resourceCapability)
         {
-            if (!AlreadyEquipped(resourceCapability))
-            {
-                foreach (var setup in _resourceSetups)
-                    {
-                         _equippedResource.Mount(resourceCapability.ResourceSetups.First().ChildResource);
-                    }
+            var setup = _resourceSetups.Single(x => x.ResourceCapability == resourceCapability);
+
+            if (!AlreadyEquipped(setup))
+            { 
+                _setupInUse.Mount(setup);
             }
 
         }
 
-        internal bool AlreadyEquipped(M_ResourceCapability requiredResourceTool)
+        public M_ResourceCapability GetCurrentUsedCapability()
         {
-            return _equippedResourceTool.IsSet(resourceTool: requiredResourceTool);
+            return _setupInUse.ResourceSetup.ResourceCapability;
         }
 
-        internal M_ResourceSetup GetSetupByTool(M_ResourceCapability resourceCapability)
+        internal bool AlreadyEquipped(M_ResourceSetup setup)
+        {
+            return _setupInUse.ResourceSetup.Id == setup.Id;
+        }
+
+        internal M_ResourceSetup GetSetupByCapability(M_ResourceCapability resourceCapability)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
             var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityId == resourceCapability.Id);
@@ -58,12 +59,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return _resourceSetups.Select(x => x.ResourceCapability).ToList();
         }
 
-        internal object GetToolName()
+        internal object GetSetupName()
         {
-            string toolName = "was not set";
-            if (_equippedResourceTool.ResourceTool != null)
-                toolName = _equippedResourceTool.ResourceTool.Name;
-            return toolName;
+            string setupName = "was not set";
+            if (_setupInUse.ResourceSetup != null)
+                setupName = _setupInUse.ResourceSetup.Name;
+            return setupName;
         }
     }
 }
