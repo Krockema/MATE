@@ -10,7 +10,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public abstract class LimitedQueue
     {
-        private HashSet<FJobConfirmation> _jobConfirmations = new HashSet<FJobConfirmation>();
+        public HashSet<FJobConfirmation> _jobConfirmations { get; } = new HashSet<FJobConfirmation>();
         public int Limit { get; set; }
         public int Count => _jobConfirmations.Count;
 
@@ -46,7 +46,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
             return list;
         }
-
 
         public abstract bool CapacitiesLeft();
 

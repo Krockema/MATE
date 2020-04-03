@@ -150,13 +150,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 
-        private void UpdateAndRequeuePlanedJobs(IJob jobItem)
+        private void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
         {
             Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
-            var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, job: jobItem);
+            var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, jobConfirmation);
             foreach (var job in toRequeue)
             {
-                _planingQueue.RemoveJob(job: job);
+                _planingQueue.RemoveJob(jobConfirmation);
                 Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: job, target: job.HubAgent));
             }
             Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);

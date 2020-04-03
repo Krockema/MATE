@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using static FJobConfirmations;
 using static FUpdateStartConditions;
 using static IJobs;
 
@@ -14,10 +15,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// To Be Testet
         /// </summary>
         /// <param name="item"></param>
-        public void Enqueue(IJob item)
+        public void Enqueue(FJobConfirmation fJobConfirmations)
         {
-           this.jobs.Add(item: item);
-            return;
+           _jobConfirmations.Add(fJobConfirmations);
         }
 
         /// <summary>
@@ -38,10 +38,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
             //TODO time scope for operation, not only priority based
 
-            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
+            if (_jobConfirmations.Any(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                totalWorkLoad = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
-                    .Sum(e => e.Duration);
+                totalWorkLoad = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime))
+                    .Sum(e => e.Job.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
             }
 
@@ -58,16 +58,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (resourceIsBlockedUntil != 0)
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
-            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
+            if (_jobConfirmations.Any(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                var allPreviousJobs = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime)).ToList();
-                var resourceTools = allPreviousJobs.Select(x => x.RequiredCapability.Id).Distinct().ToList();
-                var sumAllJobsWithToolId = jobs.Where(x => resourceTools.Contains(x.RequiredCapability.Id)
-                                                     && x.RequiredCapability.Id != job.RequiredCapability.Id)
-                                               .Sum(x => x.Duration);
+                var allPreviousJobs = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)).ToList();
+                var resourceTools = allPreviousJobs.Select(x => x.Job.RequiredCapability.Id).Distinct().ToList();
+                var sumAllJobsWithToolId = _jobConfirmations.Where(x => resourceTools.Contains(x.Job.RequiredCapability.Id)
+                                                     && x.Job.RequiredCapability.Id != job.RequiredCapability.Id)
+                                               .Sum(x => x.Job.Duration);
 
                 var sumAllJobsWithSameToolId =
-                    allPreviousJobs.Where(x => x.RequiredCapability.Id == job.RequiredCapability.Id).Sum(x => x.Duration);
+                    allPreviousJobs.Where(x => x.Job.RequiredCapability.Id == job.RequiredCapability.Id).Sum(x => x.Job.Duration);
                 
                 totalWorkLoad = sumAllJobsWithSameToolId + sumAllJobsWithToolId;
                 queuePosition.EstimatedStart += totalWorkLoad;
@@ -84,49 +84,49 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <returns></returns>
         public override bool CapacitiesLeft()
         {
-            return Limit > this.jobs.Sum(selector: x => x.Duration);
+            return Limit > _jobConfirmations.Sum(selector: x => x.Job.Duration);
         }
 
-        public List<IJob> CutTail(long currentTime, IJob job)
+        public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
             var toRequeue = new List<IJob>();
-            var position = jobs.OrderBy(x => x.Priority(currentTime)).ToList().IndexOf(job);
+            var position = _jobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList().IndexOf(jobConfirmation);
 
             // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < jobs.Count)
+            if (position + 1 < _jobConfirmations.Count)
             {
-                toRequeue = jobs.OrderBy(x => x.Priority(currentTime)).ToList()
-                    .GetRange(position + 1, jobs.Count() - position - 1);
+                toRequeue = _jobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList()
+                    .GetRange(position + 1, _jobConfirmations.Count() - position - 1);
             }
 
-            return toRequeue;
+            return toRequeue.ToHashSet();
         }
 
-        public List<IJob> CutTailByStack(long currentTime, IJob job)
+        public HashSet<FJobConfirmation> CutTailByStack(long currentTime, FJobConfirmation jobConfirmation)
         {
-            var allPreviousJobs = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime)).ToList();
-            var resourceTools = allPreviousJobs.Select(x => x.RequiredCapability.Id).Distinct().ToList();
+            var allPreviousJobs = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= jobConfirmation.Job.Priority(currentTime)).ToList();
+            var resourceTools = allPreviousJobs.Select(x => x.Job.RequiredCapability.Id).Distinct().ToList();
 
-            var toRequeue = this.jobs.Where(e => e.Priority(currentTime) > job.Priority(currentTime)
-                                                        && (!resourceTools.Contains(e.RequiredCapability.Id) 
-                                                        || e.RequiredCapability.Id == job.RequiredCapability.Id))
+            var toRequeue = _jobConfirmations.Where(e => e.Job.Priority(currentTime) > jobConfirmation.Job.Priority(currentTime)
+                                                        && (!resourceTools.Contains(e.Job.RequiredCapability.Id) 
+                                                        || e.Job.RequiredCapability.Id == jobConfirmation.Job.RequiredCapability.Id))
                                                             .ToList();
 
 
             return toRequeue;
         }
 
-        internal bool RemoveJob(IJob job)
+        internal bool RemoveJob(FJobConfirmation jobConfirmation)
         {
-            return jobs.Remove(item: job);
+            return _jobConfirmations.Remove(item: jobConfirmation);
         }
 
         internal bool UpdatePreCondition(FUpdateStartCondition startCondition)
         {
-            var job = this.jobs.SingleOrDefault(x => x.Key == startCondition.OperationKey);
-            if (job == null) return false;
-            job.StartConditions.ArticlesProvided = startCondition.ArticlesProvided;
+            var jobConfirmation = _jobConfirmations.SingleOrDefault(x => x.Job.Key == startCondition.OperationKey);
+            if (jobConfirmation.Job == null) return false;
+            jobConfirmation.Job.StartConditions.ArticlesProvided = startCondition.ArticlesProvided;
             job.StartConditions.PreCondition = startCondition.PreCondition;
             return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
         }
