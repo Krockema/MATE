@@ -10,7 +10,6 @@ using static FUpdateBucketScopes;
 using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
-using static FAcknowledgeProposals;
 using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent

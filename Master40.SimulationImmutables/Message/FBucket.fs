@@ -55,7 +55,7 @@ open FUpdateStartConditions
                 member this.UpdateEstimations estimatedStart = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
                                                                                          Start = (int64)estimatedStart; } :> IJob
                 member this.Bucket with get() = this.Bucket
-                member this.ResetSetup = this.SetupKey <- -1
+                member this.ResetSetup() = this.SetupKey <- -1
                 member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
 
          // Returns new Object with Updated Due

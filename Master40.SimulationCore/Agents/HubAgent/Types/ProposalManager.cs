@@ -12,97 +12,74 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalManager
     {
-        private Dictionary<IJob, ProposalForSetupDefinitionSet> _proposalDictionary { get; set; } = new Dictionary<IJob, ProposalForSetupDefinitionSet>();
+        private Dictionary<Guid, ProposalForSetupDefinitionSet> _proposalDictionary { get; set; } = new Dictionary<Guid, ProposalForSetupDefinitionSet>();
 
         public ProposalManager()
         {
 
         }
 
-        public void ResetAssignedSetupDefinition(IJob job)
+        public bool AllProposalForSetupDefinitionReceived(Guid jobKey)
+        {
+            return _proposalDictionary.TryGetValue(jobKey, out var proposalForSetupDefinitionSet) 
+                   && proposalForSetupDefinitionSet.TrueForAll(x => x.AllProposalsReceived());
+        }
+
+        public bool AllSetupDefintionsPostponed(Guid jobKey)
+        {
+            return _proposalDictionary.TryGetValue(jobKey, out var proposalForSetupDefinitionSet)
+                   && proposalForSetupDefinitionSet.TrueForAll(x => x.AnyPostponed());
+        }
+
+        public long PostponedUntil(Guid job)
         {
             _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet);
 
-            proposalForSetupDefinitionSet.ResetAssignedSetupDefinition();
+            return proposalForSetupDefinitionSet.Min(x => x.PostponedUntil());
         }
 
-        public bool AllProposalForSetupDefinitionReceived(IJob job)
-        {
-            return _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet) 
-                   && proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().TrueForAll(x => x.AllProposalsReceived());
-        }
-
-        public bool AllSetupDefintionsPostponed(IJob job)
-        {
-            return _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet)
-                   && proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().TrueForAll(x => x.AnyPostponed());
-        }
-
-        public long PostponedUntil(IJob job)
-        {
-            _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet);
-
-            return proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().Min(x => x.PostponedUntil());
-        }
-
-        public bool Add(IJob job, List<FSetupDefinition> fSetupDefinitions)
+        public bool Add(Guid jobKey, List<FSetupDefinition> fSetupDefinitions)
         {
             var defs = new ProposalForSetupDefinitionSet();
             fSetupDefinitions.ForEach(x => defs.Add(new ProposalForSetupDefinition(x)));
-            return _proposalDictionary.TryAdd(job, defs);
+            return _proposalDictionary.TryAdd(jobKey, defs);
         }
 
         public bool AddProposal(FProposal fProposal)
         {
-            var job = GetJobBy(fProposal.JobKey).Key;
-
-            if (!_proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet))
+            
+            if (!_proposalDictionary.TryGetValue(fProposal.JobKey, out var proposalForSetupDefinitionSet))
                 return false;
 
-            var proposalForSetupDefinition = proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().Single(x => x.GetFSetupDefinition.SetupKey == fProposal.SetupId);
+            var proposalForSetupDefinition = proposalForSetupDefinitionSet.Single(x => x.GetFSetupDefinition.SetupKey == fProposal.SetupId);
 
             proposalForSetupDefinition.Add(fProposal);
                 return true;
         }
 
-        public KeyValuePair<IJob, ProposalForSetupDefinitionSet> GetJobBy(Guid jobKey)
+        public ProposalForSetupDefinitionSet GetProposalForSetupDefinitionSet(Guid jobKey)
         {
-            return _proposalDictionary.SingleOrDefault(x => x.Key.Key == jobKey);
+            return _proposalDictionary.SingleOrDefault(x => x.Key == jobKey).Value;
         }
 
-        internal bool RemoveAllProposalsFor(IJob job)
+        internal bool RemoveAllProposalsFor(Guid job)
         {
             if (!_proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet))
                 return false;
 
-            job;
-            proposalForSetupDefinitionSet.ResetAssignedSetupDefinition();
-            proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().ForEach(x => x.RemoveAll());
+            proposalForSetupDefinitionSet.ForEach(x => x.RemoveAll());
             return true;
         }
 
-        public bool Remove(IJob job)
+        public bool Remove(Guid jobKey)
         {
-            return _proposalDictionary.Remove(job);
+            return _proposalDictionary.Remove(jobKey);
         }
 
-        internal FSetupDefinition GetAssignedSetupDefinition(IJob job)
+        internal ProposalForSetupDefinition GetValidProposalForSetupDefinitionFor(Guid jobKey)
         {
-            _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet);
-            return proposalForSetupDefinitionSet?.AssignedSetupDefinition;
-        }
-
-        internal ProposalForSetupDefinition GetValidProposalForSetupDefinitionFor(IJob job)
-        {
-            _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet);
-            return proposalForSetupDefinitionSet.GetValidProposal();
-        }
-
-        internal void Update(IJob job)
-        {
-            var value = _proposalDictionary.Single(x => x.Key.Key == job.Key);
-            _proposalDictionary.Remove(value.Key);
-            _proposalDictionary.Add(job, value.Value);
+            _proposalDictionary.TryGetValue(jobKey, out var proposalForSetupDefinitionSet);
+            return proposalForSetupDefinitionSet?.GetValidProposal();
         }
     }
 }

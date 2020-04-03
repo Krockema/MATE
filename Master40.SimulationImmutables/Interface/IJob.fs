@@ -1,6 +1,5 @@
 ﻿module IJobs
 open FStartConditions
-open FProposals
 open Akka.Actor
 open System
 open Master40.DB.DataModel
@@ -24,4 +23,4 @@ type public IJob =
     abstract member UpdateEstimations : int64 -> IJob
     abstract member Bucket : string
     abstract member UpdateBucket : string -> IJob 
-    abstract member ResetSetup : unit 
+    abstract member ResetSetup : unit -> unit

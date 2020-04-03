@@ -17,32 +17,31 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     /// </summary>
     public class BucketManager
     {
-        private List<FBucket> _buckets { get; set; } = new List<FBucket>();
-        
-        public Dictionary<ResourceCapabilityPair, long> _toolBucketSizeDictionary { get; set; } = new Dictionary<ResourceCapabilityPair, long>();
+        private List<JobConfirmation>  _jobConfirmations { get; set; } = new List<JobConfirmation>();
+        public Dictionary<ResourceCapabilityPair, long> ToolBucketSizeDictionary { get; set; } = new Dictionary<ResourceCapabilityPair, long>();
 
-        private long _maxBucketSize { get; set; }
+        private long MaxBucketSize { get; set; }
         
         public BucketManager(long maxBucketSize)
         {
-            _maxBucketSize = maxBucketSize;
+            MaxBucketSize = maxBucketSize;
         }
 
         public FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime);
-            _buckets.Add(bucket);
+            _jobConfirmations.Add(new JobConfirmation(bucket));
             return bucket;
         }
 
         public FBucket GetBucketById(Guid key)
         {
-            return _buckets.SingleOrDefault(x => x.Key == key);
+            return _jobConfirmations.SingleOrDefault(x => x.Job.Key == key)?.Job as FBucket;
         }
 
         public void Replace(FBucket bucket)
         {
-            _buckets.Replace(bucket);
+            _jobConfirmations.SingleOrDefault(x => x.Job.Key == bucket.Key).Job = bucket;
         }
 
         /// <summary>
@@ -52,38 +51,26 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <returns></returns>
         public FOperation GetOperationByKey(Guid operationKey)
         {
-            FOperation operation = null;
-            foreach (var bucket in _buckets)
-            {
-                var op = bucket.Operations.SingleOrDefault(x => x.Key == operationKey);
-                if (op != null)
-                {
-                    operation = op;
-                }
-            }
-            return operation;
+            var bucket = GetBucketByOperationKey(operationKey);
+            return bucket?.Operations.Single(x => x.Key == operationKey);
         }
 
         public FBucket GetBucketByOperationKey(Guid operationKey)
         {
-            return _buckets.SingleOrDefault(x => x.Operations.Any(y => y.Key == operationKey));
+            return _jobConfirmations.SingleOrDefault(x => ((FBucket)x.Job).Operations.Any(y => y.Key == operationKey))?.Job as FBucket;
         }
 
-        public bool Remove(FBucket bucket)
+        public bool Remove(Guid bucketKey)
         {
-            return _buckets.Remove(bucket);
+            return 1 == _jobConfirmations.RemoveAll(x => x.Job.Key == bucketKey);
         }
 
         public void RemoveOperation(Guid operationKey)
         {
-            var operation = GetOperationByKey(operationKey);
             var bucket = GetBucketByOperationKey(operationKey);
-
+            var operation = GetOperationByKey(operationKey);
             bucket = bucket.RemoveOperation(operation);
-            _buckets.Replace(bucket);
-
-            //TODO delete this one after working
-            //System.Diagnostics.Debug.WriteLine($"{bucket.Name} has removed operation {operation.Operation.Name} {operation.Key} und has now {bucket.Operations.Count} operations left");
+            Replace(bucket);
         }
 
         public FBucket Add(FBucket bucket, FOperation fOperation)
@@ -91,32 +78,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             if (bucket == null) throw new Exception($"Bucket {bucket.Name} does not exits");
 
             bucket = bucket.AddOperation(fOperation);
-            _buckets.Replace(bucket);
+            Replace(bucket);
 
             return bucket;
         }
-
-        public List<FOperation> ModifyBucket(FOperation fOperation)
-        {
-            List<FOperation> operationsToModify = new List<FOperation>();
-
-            var bucketsToModify = FindAllBucketsLaterForwardStart(fOperation);
-
-            if (bucketsToModify != null)
-            {
-                //Remove Start to requeue the buckets order by FS?
-                foreach (var bucket in bucketsToModify)
-                {
-                    operationsToModify.AddRange(bucket.Operations);
-                    _buckets.Remove(bucket);
-                }
-
-            }
-
-            return operationsToModify;
-        }
-
-
 
         /// <summary>
         /// Add the operation to an existing matching bucket or otherwise creates a new one
@@ -127,7 +92,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <returns></returns>
         public FBucket AddToBucket(FOperation fOperation)
         {
-            var matchingBuckets = FindAllWithSameTool(fOperation);
+            var matchingBuckets = FindAllWithEqualCapability(fOperation);
 
             FBucket bucket = null;
 
@@ -147,9 +112,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public List<FBucket> FindAllWithSameTool(FOperation fOperation)
+        public List<FBucket> FindAllWithEqualCapability(FOperation fOperation)
         {
-            return _buckets.Where(x => x.RequiredCapability.Name == fOperation.RequiredCapability.Name && !x.IsFixPlanned).ToList();
+            return _jobConfirmations.Where(x => x.RequiresCapability == fOperation.RequiredCapability.Name 
+                                                         && !x.IsFixPlanned)
+                                .Select(x => x.Job)
+                                .Cast<FBucket>().ToList();
         }
 
         /// <summary>
@@ -167,7 +135,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public List<FBucket> FindAllBucketsLaterForwardStart(FOperation operation)
         {
-            var matchingBuckets = FindAllWithSameTool(operation);
+            var matchingBuckets = FindAllWithEqualCapability(operation);
             return matchingBuckets.Where(x => x.ForwardStart > operation.ForwardStart).ToList();
         }
 
@@ -236,16 +204,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         internal FBucket RemoveOperations(FBucket bucket, List<FOperation> operationsToRemove)
         {
-            var _bucket = bucket;
-
             foreach (var operation in operationsToRemove)
             {
-                _bucket = _bucket.RemoveOperation(operation);
+                bucket = bucket.RemoveOperation(operation);
             }
 
-            _buckets.Replace(_bucket);
+            Replace(bucket);
 
-            return _bucket;
+            return bucket;
         }
 
         public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)
@@ -256,7 +222,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             {
                 var operation = bucket.Operations.Single(x => x.Key == operationKey);
                 operation.SetStartConditions(startCondition);
-                _buckets.Replace(bucket);
+                Replace(bucket);
             }
 
             return bucket;
@@ -268,7 +234,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             bool articlesProvided = bucket.Operations.All(x => x.StartConditions.ArticlesProvided);
 
             bucket.SetStartConditions(startCondition: new FUpdateStartCondition(operationKey: bucket.Key, preCondition: preConditons, articlesProvided: articlesProvided));
-            _buckets.Replace(bucket);
+            Replace(bucket);
             return preConditons && articlesProvided;
         }
 
@@ -289,17 +255,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public long AddOrUpdateBucketSize(ResourceCapabilityPair toolCapabilityPair, int duration)
         {
             long maxBucketSize = 0L;
-            var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+            var toolCapacityEntry = ToolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
             
             if (toolCapacityEntry.Key == null)
             {
-                 _toolBucketSizeDictionary.Add(toolCapabilityPair, 0L);
-                 toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+                 ToolBucketSizeDictionary.Add(toolCapabilityPair, 0L);
+                 toolCapacityEntry = ToolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
             }
 
             var value = toolCapacityEntry.Value;
             value += duration;
-            _toolBucketSizeDictionary[toolCapacityEntry.Key] = value;
+            ToolBucketSizeDictionary[toolCapacityEntry.Key] = value;
             
             return maxBucketSize;
 
@@ -308,11 +274,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public long DecreaseBucketSize(ResourceCapabilityPair toolCapabilityPair, int duration)
         {
             long maxBucketSize = 0L;
-            var toolCapacityEntry = _toolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+            var toolCapacityEntry = ToolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
             if (toolCapacityEntry.Key == null) throw new Exception("toolCapacity is broken");
             var value = toolCapacityEntry.Value;
             value -= duration;
-            _toolBucketSizeDictionary[toolCapacityEntry.Key] = value;
+            ToolBucketSizeDictionary[toolCapacityEntry.Key] = value;
             //System.Diagnostics.Debug.WriteLine($"{toolCapabilityPair._resourceTool.Name} of {toolCapabilityPair._resourceCapability.Name} % to Value {value}");
             return maxBucketSize;
 
@@ -323,9 +289,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var maxBucketSize = 0L;
             double capabilitySize = 0;
 
-            var toolCapability = _toolBucketSizeDictionary.Single(x => x.Key._resourceCapability.Name.Equals(resoourceCapability.Name));
+            var toolCapability = ToolBucketSizeDictionary.Single(x => x.Key._resourceCapability.Name.Equals(resoourceCapability.Name));
 
-            foreach (var entry in _toolBucketSizeDictionary)
+            foreach (var entry in ToolBucketSizeDictionary)
             {
                 if (entry.Key._resourceCapability.Name.Equals(toolCapability.Key._resourceCapability.Name))
                 {
@@ -335,7 +301,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             var toolRatioOfCapability = toolCapability.Value / capabilitySize;
             //System.Diagnostics.Debug.WriteLine($"{toolCapability.Key._resourceTool.Name} {toolRatioOfCapability} % of {toolCapability.Key._resourceCapability.Name}");
-            maxBucketSize = Convert.ToInt64(Math.Round(toolRatioOfCapability * _maxBucketSize, 0));
+            maxBucketSize = Convert.ToInt64(Math.Round(toolRatioOfCapability * MaxBucketSize, 0));
 
             //TODO Maybe add min bucket size
             return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;

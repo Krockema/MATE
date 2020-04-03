@@ -15,6 +15,8 @@ using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
+using static FJobConfirmations;
+using static FOperations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -113,7 +115,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        public void AcknowledgeProposal(FJobConfirmations acknowledgeProposal)
+        public void AcknowledgeProposal(FJobConfirmation acknowledgeProposal)
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {acknowledgeProposal.Job.Name} {acknowledgeProposal.Job.Key}");
 
@@ -227,7 +229,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                     , start: Agent.CurrentTime
                                                       , end: Agent.CurrentTime + randomizedDuration
                                          , originalDuration: nextJobInProgress.Duration
-                                          , productionAgent: ActorRefs.Nobody
+                                          , productionAgent: ((FOperation)nextJobInProgress).ProductionAgent
                                             , resourceAgent: Agent.Context.Self);
 
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedDuration);

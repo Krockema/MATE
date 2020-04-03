@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FBuckets;
+using static FOperationResults;
 using static FOperations;
 using static FProposals;
 using static FRequestProposalForSetups;
@@ -52,13 +53,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var bucket = _bucketManager.GetBucketById(bucketKey);
 
-            var successRemove = _bucketManager.Remove(bucket);
+            var successRemove = _bucketManager.Remove(bucket.Key);
 
             if (successRemove)
             {
                 _operationList.AddRange(bucket.Operations);
                 RequeueOperations(bucket.Operations.ToList());
             }
+            //TODO multiple reset from one setupdefinition?
             else
             {
                 new Exception($"something went wrong with reset Bucket");
@@ -120,7 +122,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             operation = _operationList.Single(x => x.Key == operation.Key);
             _operationList.Remove(operation);
-            //System.Diagnostics.Debug.WriteLine($"{operation.Key} to new bucket {bucket.Name}");
+            
+            _operations.
             
             EnqueueBucket(bucket);
 
@@ -159,18 +162,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             //delete all proposals if exits
             var fBucket = _bucketManager.GetBucketById(bucket.Key);
 
-            _proposalManager.RemoveAllProposalsFor(bucket);
+            _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
             if (fBucket == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
-                _proposalManager.Remove(bucket);
+                _proposalManager.Remove(bucket.Key);
                 return;
             }
 
-            _proposalManager.Update(fBucket);
-            //else create
-            var localitem = _proposalManager.Add(bucket, _capabilityManager.GetAllSetupDefintions(bucket.RequiredCapability));
+            
 
             _bucketManager.Replace(bucket);
 
@@ -183,7 +184,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 foreach (var resource in setupDefinition.RequiredResources)
                 {
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name}");
-                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(new FRequestProposalForSetup(localitem, setupDefinition), target: resource));
+                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(new FRequestProposalForSetup(localitem, setupDefinition.SetupKey), target: resource));
                 }
             }
 
@@ -331,25 +332,26 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// <param name="jobResult"></param>
         internal override void FinishJob(IJobResult jobResult)
         {
-            var operation = _bucketManager.GetOperationByKey(jobResult.Key);
-            var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
-            _bucketManager.RemoveOperation(operation.Key);
             
+            _bucketManager.RemoveOperation(jobResult.Key);
+
             // TODO Dynamic Lot Sizing
             /*_bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
                 operation.Operation.Duration);*/
-
-            Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
-
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
+            if (Agent.DebugThis)
+            {
+                var operation = _bucketManager.GetOperationByKey(jobResult.Key);
+                var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
+                Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
+            }
+            
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: ((FOperationResult)jobResult).ProductionAgent));
             
         }
 
         internal void FinishBucket(IJobResult jobResult)
         {
-            var bucket = _bucketManager.GetBucketById(jobResult.Key);
-
-            _bucketManager.Remove(bucket);
+            _bucketManager.Remove(jobResult.Key);
         }
 
     }
