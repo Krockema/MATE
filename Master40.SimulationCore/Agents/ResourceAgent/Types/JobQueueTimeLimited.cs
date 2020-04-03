@@ -37,10 +37,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
             //TODO time scope for operation, not only priority based
-
-            if (_jobConfirmations.Any(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)))
+            var estimatedWork = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime));
+            if (estimatedWork.Any())
             {
-                totalWorkLoad = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime))
+                totalWorkLoad = estimatedWork
                     .Sum(e => e.Job.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
             }
@@ -90,17 +90,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = new List<IJob>();
-            var position = _jobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList().IndexOf(jobConfirmation);
+            var toRequeue = new HashSet<FJobConfirmation>();
+            var orderedList = _jobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList();
+            var position = orderedList.IndexOf(jobConfirmation);
 
             // reorganize Queue if an Element has ben Queued which is More Important.
             if (position + 1 < _jobConfirmations.Count)
             {
-                toRequeue = _jobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList()
-                    .GetRange(position + 1, _jobConfirmations.Count() - position - 1);
+                toRequeue = orderedList.GetRange(index: position + 1, 
+                                                 count: _jobConfirmations.Count() - position - 1).ToHashSet();
             }
 
-            return toRequeue.ToHashSet();
+            return toRequeue;
         }
 
         public HashSet<FJobConfirmation> CutTailByStack(long currentTime, FJobConfirmation jobConfirmation)
@@ -111,7 +112,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             var toRequeue = _jobConfirmations.Where(e => e.Job.Priority(currentTime) > jobConfirmation.Job.Priority(currentTime)
                                                         && (!resourceTools.Contains(e.Job.RequiredCapability.Id) 
                                                         || e.Job.RequiredCapability.Id == jobConfirmation.Job.RequiredCapability.Id))
-                                                            .ToList();
+                                                            .ToHashSet();
 
 
             return toRequeue;
@@ -125,11 +126,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         internal bool UpdatePreCondition(FUpdateStartCondition startCondition)
         {
             var jobConfirmation = _jobConfirmations.SingleOrDefault(x => x.Job.Key == startCondition.OperationKey);
-            if (jobConfirmation.Job == null) return false;
+            if (jobConfirmation == null) return false;
             jobConfirmation.Job.StartConditions.ArticlesProvided = startCondition.ArticlesProvided;
-            job.StartConditions.PreCondition = startCondition.PreCondition;
-            return job.StartConditions.ArticlesProvided && job.StartConditions.PreCondition;
+            jobConfirmation.Job.StartConditions.PreCondition = startCondition.PreCondition;
+            return jobConfirmation.Job.StartConditions.ArticlesProvided && jobConfirmation.Job.StartConditions.PreCondition;
         }
-
     }
 }
