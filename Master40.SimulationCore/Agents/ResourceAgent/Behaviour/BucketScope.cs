@@ -4,7 +4,6 @@ using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
-using System.Data;
 using System.Linq;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FBuckets;
@@ -18,7 +17,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class BucketScope : DefaultSetup
     {
-        public BucketScope(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, ToolManager toolManager, SimulationType simulationType = SimulationType.None)
+        public BucketScope(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SetupManager toolManager, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType
         , planingJobQueueLength: planingJobQueueLength
         , fixedJobQueueSize: fixedJobQueueSize

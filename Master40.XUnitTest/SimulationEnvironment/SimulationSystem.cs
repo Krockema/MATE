@@ -12,8 +12,6 @@ using Master40.SimulationCore.Helper;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
-using System;
-using System.Collections.Generic;
 using Master40.DB.DataModel;
 
 namespace Master40.XUnitTest.SimulationEnvironment

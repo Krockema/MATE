@@ -126,7 +126,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                          , message: ResourceAgent.Behaviour
                                                                                 .Factory.Get(simType: SimulationType
                                                                                  , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
-                                                                                 , toolManager: new ToolManager(resourceSetups: resourceSetups))));
+                                                                                 , toolManager: new SetupManager(resourceSetups: resourceSetups))));
         }
 
         /// <summary>

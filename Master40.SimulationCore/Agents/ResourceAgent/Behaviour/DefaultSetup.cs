@@ -23,19 +23,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class DefaultSetup : SimulationCore.Types.Behaviour
     {
-        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SetupManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
-            _toolManager = toolManager;
+            _setupManager = toolManager;
         }
         // TODO Implement a JobManager
         internal JobQueueTimeLimited _planingQueue { get; set; }
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
-        internal ToolManager _toolManager { get; }
+        internal SetupManager _setupManager { get; }
         internal WorkTimeGenerator _workTimeGenerator { get; }
         internal AgentDictionary _agentDictionary { get; }
 
@@ -57,7 +57,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(_toolManager.GetAllSetups()
+            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(_setupManager.GetAllSetups()
                 , target: Agent.VirtualParent));
             return true;
         }
@@ -236,8 +236,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage(
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Name}  Key: {_jobInProgress.Current.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
-                _toolManager.Mount(_jobInProgress.Current.RequiredCapability);
-                var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration, duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, resourceTool: _toolManager._equippedResourceTool.ResourceTool.Name);
+                _setupManager.Mount(_jobInProgress.Current.RequiredCapability);
+                var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration, duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, capabilityName: _jobInProgress.Current.RequiredCapability.Name);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
@@ -287,13 +287,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal long GetSetupTime(IJob jobItem)
         {
             var setupTime = 0L;
-            if (!_toolManager.AlreadyEquipped(jobItem.RequiredCapability))
+            if (!_setupManager.AlreadyEquipped(jobItem.RequiredCapability))
             {
-                setupTime = _toolManager.GetSetupDurationByTool(jobItem.RequiredCapability);
+                setupTime = _setupManager.GetSetupDurationByTool(jobItem.RequiredCapability);
             }
 
             Agent.DebugMessage(
-                msg: $"Has Tool: {_toolManager.GetToolName()} | require Tool: {jobItem.RequiredCapability.Name} with setupDuration {setupTime}");
+                msg: $"Has Tool: {_setupManager.GetToolName()} | require Tool: {jobItem.RequiredCapability.Name} with setupDuration {setupTime}");
             return setupTime;
         }
 

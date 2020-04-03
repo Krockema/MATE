@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         public DefaultSetupStack(int planingJobQueueLength
             , int fixedJobQueueSize
             , WorkTimeGenerator workTimeGenerator
-            , ToolManager toolManager
+            , SetupManager toolManager
             , SimulationType simulationType = SimulationType.None) 
             : base(simulationType: simulationType
                 , planingJobQueueLength: planingJobQueueLength
@@ -41,7 +41,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             while (_processingQueue.CapacitiesLeft() && _planingQueue.HasQueueAbleJobs())
             {
-                var jobs = _planingQueue.GetAllSatisfiedSameTool(currentTime: Agent.CurrentTime);
+                var jobs = _planingQueue.GetAllSatisfiedSameCapability(currentTime: Agent.CurrentTime);
 
                 Agent.DebugMessage(msg: $"{jobs.Count} jobs for {jobs.FirstOrDefault().RequiredCapability.Name} have been placed in processing queue");
 

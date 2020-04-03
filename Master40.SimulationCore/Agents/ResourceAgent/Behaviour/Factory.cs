@@ -7,7 +7,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType, WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
+        public static IBehaviour Get(SimulationType simType, WorkTimeGenerator workTimeGenerator, SetupManager toolManager)
         {
             IBehaviour behaviour;
             switch (simType)
@@ -29,7 +29,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return behaviour;
         }
 
-        private static IBehaviour Default(WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
+        private static IBehaviour Default(WorkTimeGenerator workTimeGenerator, SetupManager toolManager)
         {
             //TODO - create config item.
             return new Default(planingJobQueueLength: 45
@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
-        private static IBehaviour DefaultSetup(WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
+        private static IBehaviour DefaultSetup(WorkTimeGenerator workTimeGenerator, SetupManager toolManager)
         {
             //TODO - create config item.
             return new DefaultSetup(planingJobQueueLength: 45
@@ -49,7 +49,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
         
-        private static IBehaviour BucketScope(WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
+        private static IBehaviour BucketScope(WorkTimeGenerator workTimeGenerator, SetupManager toolManager)
         {
             //TODO - create config item.
             return new BucketScope(planingJobQueueLength: 45
@@ -58,7 +58,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , toolManager: toolManager);
         }
 
-        private static IBehaviour DefaultSetupStack(WorkTimeGenerator workTimeGenerator, ToolManager toolManager)
+        private static IBehaviour DefaultSetupStack(WorkTimeGenerator workTimeGenerator, SetupManager toolManager)
         {
             //TODO - create config item.
             return new DefaultSetupStack(planingJobQueueLength: 45

@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, ToolManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SetupManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
@@ -35,7 +35,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
-        internal ToolManager _toolManager { get; }
+        internal SetupManager _toolManager { get; }
         internal AgentDictionary _agentDictionary { get; }
 
         public override bool Action(object message)

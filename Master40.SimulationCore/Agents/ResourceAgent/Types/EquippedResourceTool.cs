@@ -7,16 +7,16 @@ using Master40.SimulationCore.Agents.ContractAgent;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
-    public class EquippedResourceTool
+    public class SetupInUse
     {
-        public M_Resource ResourceTool { get; private set; }
+        public M_Resource Resource { get; private set; }
         private bool SetupPhase { get; set; }
 
         public bool IsSetupPhase => SetupPhase;
 
-        public EquippedResourceTool()
+        public SetupInUse()
         {
-            ResourceTool = null;
+            Resource = null;
             SetupPhase = false;
         }
         /// <summary>
@@ -24,16 +24,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="resourceTool"></param>
         /// <returns></returns>
-        public bool Mount(M_Resource resourceTool)
+        public bool Mount(M_Resource resource)
         {
             if (SetupPhase != false) return false;
-            ResourceTool = resourceTool;
+            Resource = resource;
             return true;
         }
 
         public bool IsSet(M_ResourceCapability resourceTool)
         {
-            if (ResourceTool == null || ResourceTool.Id != resourceTool.Id ) return false;
+            if (Resource == null || Resource.Id != resourceTool.Id ) return false;
             return true;
         }
 

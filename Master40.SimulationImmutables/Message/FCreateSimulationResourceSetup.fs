@@ -4,6 +4,6 @@
         Start : int64
         Duration : int64
         Resource : string
-        ResourceTool : string
+        CapabilityName : string
         ExpectedDuration : int64
     } 

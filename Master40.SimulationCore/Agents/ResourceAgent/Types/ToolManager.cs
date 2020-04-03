@@ -7,12 +7,13 @@ using Master40.SimulationCore.Types;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
-    public class ToolManager
+    public class SetupManager
     {
         private List<M_ResourceSetup> _resourceSetups { get; set; } = new List<M_ResourceSetup>();
-        public EquippedResourceTool _equippedResourceTool { get; private set; }  = new EquippedResourceTool();
+        public List<SetupInUse> _equippedResourceSetups { get; private set; }  = new SetupInUse();
 
-        public ToolManager(List<M_ResourceSetup> resourceSetups)
+
+        public SetupManager(List<M_ResourceSetup> resourceSetups)
         {
             _resourceSetups = resourceSetups;
         }
@@ -21,8 +22,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             if (!AlreadyEquipped(resourceCapability))
             {
-                _equippedResourceTool.Mount(resourceCapability.ResourceSetups.First().ChildResource);
+                foreach (var setup in _resourceSetups)
+                    {
+                        
+                            _equippedResource.Mount(resourceCapability.ResourceSetups.First().ChildResource);
+                       
+                    }
             }
+
         }
 
         internal bool AlreadyEquipped(M_ResourceCapability requiredResourceTool)

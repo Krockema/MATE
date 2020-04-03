@@ -36,6 +36,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (resourceIsBlockedUntil != 0)
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
+            //TODO time scope for operation, not only priority based
+
             if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
             {
                 totalWorkLoad = this.jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))
