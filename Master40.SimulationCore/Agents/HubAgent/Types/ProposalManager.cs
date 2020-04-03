@@ -54,7 +54,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public bool AddProposal(FProposal fProposal)
         {
-            var job = GetJobBy(fProposal.JobKey);
+            var job = GetJobBy(fProposal.JobKey).Key;
 
             if (!_proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet))
                 return false;
@@ -65,9 +65,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 return true;
         }
 
-        public IJob GetJobBy(Guid jobKey)
+        public KeyValuePair<IJob, ProposalForSetupDefinitionSet> GetJobBy(Guid jobKey)
         {
-            return _proposalDictionary.SingleOrDefault(x => x.Key.Key == jobKey).Key;
+            return _proposalDictionary.SingleOrDefault(x => x.Key.Key == jobKey);
         }
 
         internal bool RemoveAllProposalsFor(IJob job)
@@ -75,6 +75,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             if (!_proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet))
                 return false;
 
+            job;
             proposalForSetupDefinitionSet.ResetAssignedSetupDefinition();
             proposalForSetupDefinitionSet.getAllProposalForSetupDefinitions().ForEach(x => x.RemoveAll());
             return true;

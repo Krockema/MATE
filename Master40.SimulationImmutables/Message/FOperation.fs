@@ -25,7 +25,7 @@ open FUpdateStartConditions
           mutable HubAgent : IActorRef
           Operation : M_Operation
           RequiredCapability : M_ResourceCapability
-          SetupKey : int64
+          mutable SetupKey : int32
           Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key
@@ -49,6 +49,7 @@ open FUpdateStartConditions
                 member this.UpdateEstimations estimatedStart = { this with End = estimatedStart +  (int64)this.Operation.Duration;
                                                                                          Start = (int64)estimatedStart; } :> IJob
                 member this.Bucket with get() = this.Bucket
+                member this.ResetSetup = this.SetupKey <- -1
                 member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
             interface IComparable with 
                 member this.CompareTo fWorkItem = 
@@ -69,3 +70,4 @@ open FUpdateStartConditions
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }
         member this.UpdateBucket bucketId = { this with Bucket = bucketId}
+        

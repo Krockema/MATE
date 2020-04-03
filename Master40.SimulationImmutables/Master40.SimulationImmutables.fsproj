@@ -42,7 +42,7 @@
     <Compile Include="Message\FResourceSetupDefinition.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
     <Compile Include="Message\FRequestProposalForSetups.fs" />
-    <Compile Include="Message\FAcknowledgeProposals.fs" />
+    <Compile Include="Message\FJobConfirmations.fs" />
       
   </ItemGroup>
 

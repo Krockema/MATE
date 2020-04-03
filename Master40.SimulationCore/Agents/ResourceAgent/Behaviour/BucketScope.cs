@@ -12,6 +12,7 @@ using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
+using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -119,8 +120,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal override void AcknowledgeProposal(IJob jobItem)
+        internal override void AcknowledgeProposal(FJobConfirmation fAcknowledgeProposal)
         {
+            var jobItem = fAcknowledgeProposal.Job;
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
             var setupDuration = GetSetupTime(jobItem: jobItem);
@@ -137,9 +139,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create((FBucket)jobItem, target: jobItem.HubAgent));
                 return;
             }
-
-
-            jobItem = jobItem.UpdateEstimations(queuePosition.EstimatedStart, Agent.Context.Self);
             _scopeQueue.Enqueue(jobItem);
 
             Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);

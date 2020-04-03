@@ -15,7 +15,7 @@ using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
 using ResourceManager = Master40.SimulationCore.Agents.HubAgent.Types.CapabilityManager;
-using static FAcknowledgeProposals;
+using static FJobConfirmations;
 using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
@@ -64,8 +64,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // reset Item.
                 Agent.DebugMessage(msg: $"Got Item to Requeue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
                 _proposalManager.RemoveAllProposalsFor(localItem);
-                localItem.UpdateSetupDefinition();
-
             }
 
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(fOperation.RequiredCapability);
@@ -111,10 +109,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // acknowledge resources -> therefore get Machine -> send acknowledgement
                 var acknowledgedProposal = _proposalManager.GetValidProposalForSetupDefinitionFor(fOperation);
                 var possibleSchedule = acknowledgedProposal.EarliestStart();
-
-                fOperation = ((IJob)fOperation).UpdateEstimations(possibleSchedule, acknowledgedProposal.GetFSetupDefinition) as FOperation;
-
-                _proposalManager.Update(fOperation);
                 
                 // TODO maybe not required
                 var assignedSetupDefintion = _proposalManager.GetAssignedSetupDefinition(fOperation);
@@ -124,9 +118,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {resource}");
 
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
-                        .Create(new FAcknowledgeProposal(fOperation
+                        .Create(new FJobConfirmation(fOperation
                                 , possibleSchedule
-                                , assignedSetupDefintion.RequiredResources)
+                                , assignedSetupDefintion)
                             , target: resource));
                 }
 
@@ -141,7 +135,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (operation.SetupKey == -1)
                 return;
 
-            
 
             foreach (var resource in operation.SetupDefinition.RequiredResources)
             {

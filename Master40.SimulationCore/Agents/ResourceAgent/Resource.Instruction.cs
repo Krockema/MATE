@@ -11,6 +11,7 @@ using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
 using static FAcknowledgeProposals;
+using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -46,14 +47,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class AcknowledgeProposal : SimulationMessage
                 {
-                    public static AcknowledgeProposal Create(FAcknowledgeProposal message, IActorRef target)
+                    public static AcknowledgeProposal Create(FJobConfirmation message, IActorRef target)
                     {
                         return new AcknowledgeProposal(message: message, target: target);
                     }
                     private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FAcknowledgeProposal GetObjectFromMessage { get => Message as FAcknowledgeProposal; }
+                    public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
                 }
 
                 public class DoWork : SimulationMessage

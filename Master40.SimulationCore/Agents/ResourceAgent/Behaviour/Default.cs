@@ -15,7 +15,6 @@ using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
 using static FRequestProposalForSetups;
-using static FAcknowledgeProposals;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -114,7 +113,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        public void AcknowledgeProposal(FAcknowledgeProposal acknowledgeProposal)
+        public void AcknowledgeProposal(FJobConfirmations acknowledgeProposal)
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {acknowledgeProposal.Job.Name} {acknowledgeProposal.Job.Key}");
 
