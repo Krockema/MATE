@@ -57,15 +57,26 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             if (bucket == null) return; 
 
+
+            // send to all other resources
+            // response to AcknowledgeReset
+           
+        }
+
+        internal void AcknowledgeReset(Guid bucketKey)
+        {
+            //receive all acknowledge resets and send reset to hub / Bucket manager
+            var bucket = _scopeQueue.GetBucket(bucketKey);
+
             var success = _scopeQueue.RemoveJob(bucket);
-            
+
             if (success)
             {
                 Agent.DebugMessage($"{bucket.Name} has been send to requeue");
                 Agent.Send(Hub.Instruction.BucketScope.ResetBucket.Create(bucketKey, bucket.HubAgent));
             }
-
         }
+
 
         internal override void SendProposalTo(FRequestProposalForSetup requestProposal)
         {

@@ -5,6 +5,7 @@ using Master40.SimulationCore.Agents.ResourceAgent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.DataModel;
 using static FBuckets;
 using static FOperationResults;
 using static FOperations;
@@ -51,12 +52,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void ResetBucket(Guid bucketKey)
         {
-            var bucket = _bucketManager.GetBucketById(bucketKey);
+            var bucket = _bucketManager.GetBucketByBucketKey(bucketKey);
 
             var successRemove = _bucketManager.Remove(bucket.Key);
-
+            
             if (successRemove)
             {
+                _proposalManager.Remove(bucket.Key);
                 _operationList.AddRange(bucket.Operations);
                 RequeueOperations(bucket.Operations.ToList());
             }
@@ -103,16 +105,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (bucket != null)
             {
-                operation = _operationList.Single(x => x.Key == operation.Key);
                 _operationList.Remove(operation);
-                //System.Diagnostics.Debug.WriteLine($"{operation.Key} to existing bucket {bucket.Name}");
-                Agent.DebugMessage($"Extend Bucket: {operation.Operation.Name} {operation.Key} to {bucket.Name}");
-                _bucketManager.Replace(bucket);
-                if (!bucket.ResourceAgent.IsNobody())
-                {
-                    //TODO Maybe update bucket on Resource! But pay attention to possible inconsitency
-                }
-                
                 return;
             }
 
@@ -120,10 +113,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
             Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             
-            operation = _operationList.Single(x => x.Key == operation.Key);
             _operationList.Remove(operation);
-            
-            _operations.
             
             EnqueueBucket(bucket);
 
@@ -138,21 +128,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (bucketsToModify.Count > 0)
             {
-                Agent.DebugMessage($"{bucketsToModify.Count} buckets to modify");
                 foreach (var modBucket in bucketsToModify)
                 {
-                    Agent.DebugMessage($"Modify Bucket: {operation.Operation.Name} {operation.Key} modifies {modBucket.Name}");
-                    if (!modBucket.ResourceAgent.IsNobody())
+                    if (modBucket.IsConfirmed)
                     {
+                        //Send to first resource
                         Agent.Send(
-                            Resource.Instruction.BucketScope.RequeueBucket.Create(modBucket.Key, modBucket.ResourceAgent));
+                            Resource.Instruction.BucketScope.RequeueBucket
+                                .Create(modBucket.Job.Key, modBucket.SetupDefinition.RequiredResources.First()));
                     }
                     else
                     {
-                        ResetBucket(modBucket.Key);
+                        ResetBucket(modBucket.Job.Key);
                     }
 
-                    //System.Diagnostics.Debug.WriteLine($"{operation.Key} reset {modBucket.Name}");
                 }
             }
         }
@@ -160,31 +149,28 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal void EnqueueBucket(FBucket bucket)
         {
             //delete all proposals if exits
-            var fBucket = _bucketManager.GetBucketById(bucket.Key);
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucket.Key);
 
-            _proposalManager.RemoveAllProposalsFor(bucket.Key);
-
-            if (fBucket == null)
+            if (jobConfirmation == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
                 _proposalManager.Remove(bucket.Key);
                 return;
             }
 
-            
-
-            _bucketManager.Replace(bucket);
+            _proposalManager.RemoveAllProposalsFor(bucket.Key);
+            jobConfirmation.ResetConfirmation();
 
             Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
             
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(bucket.RequiredCapability);
-            //var resourceToRequest = _resourceManager.GetResourceByCapability(bucket.RequiredCapability);
+
             foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
             {
                 foreach (var resource in setupDefinition.RequiredResources)
                 {
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name}");
-                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(new FRequestProposalForSetup(localitem, setupDefinition.SetupKey), target: resource));
+                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(new FRequestProposalForSetup(jobConfirmation.Job, setupDefinition.SetupKey), target: resource));
                 }
             }
 
@@ -193,45 +179,47 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal override void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
-            var bucket = _bucketManager.GetBucketById(fProposal.JobKey);
-            
-            if (bucket == null) return;
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(fProposal.JobKey);
 
-            bucket.Proposals.RemoveAll(x => x.ResourceAgent.Equals(fProposal.ResourceAgent));
-            // add New Proposal
-            bucket.Proposals.Add(item: fProposal);
+            if (jobConfirmation == null) return;
+
+            var bucket = jobConfirmation.Job as FBucket;
+            _proposalManager.AddProposal(fProposal);
 
             Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
 
-            // if all Machines Answered
-            if (bucket.Proposals.Count == _capabilityManager.GetResourcesByCapability(bucket.RequiredCapability).GetAllSetupDefinitions.Count)
+            // if all resources replied 
+            if (_proposalManager.AllProposalForSetupDefinitionReceived(bucket.Key))
             {
-                // item Postponed by All Machines ? -> requeue after given amount of time.
-                if (bucket.Proposals.TrueForAll(match: x => x.Postponed.IsPostponed))
+                // item Postponed by All resources ? -> requeue after given amount of time.
+                if (_proposalManager.AllSetupDefintionsPostponed(bucket.Key))
                 {
-                    var postPonedFor = bucket.Proposals.Min(x => x.Postponed.Offset);
+                    var postPonedFor = _proposalManager.PostponedUntil(bucket.Key);
                     Agent.DebugMessage(msg: $"{bucket.Name} {bucket.Key} postponed to {postPonedFor}");
-                    // Call Hub Agent to Requeue
-                    bucket = bucket.UpdateResourceAgent(r: ActorRefs.NoSender);
-                    _bucketManager.Replace(bucket);
-                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket: bucket, target: Agent.Context.Self), waitFor: postPonedFor);
+
+                    _proposalManager.RemoveAllProposalsFor(bucket.Key);
+
+                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: bucket, target: Agent.Context.Self), waitFor: postPonedFor);
                     return;
+
                 }
 
-                // acknowledge Machine -> therefore get Machine -> send acknowledgement
-                var earliestPossibleStart = bucket.Proposals.Where(predicate: y => y.Postponed.IsPostponed == false)
-                                                               .Min(selector: p => p.PossibleSchedule);
+                var acknowledgedProposal = _proposalManager.GetValidProposalForSetupDefinitionFor(bucket.Key);
+                jobConfirmation.Schedule = acknowledgedProposal.EarliestStart();
+                jobConfirmation.SetupDefinition = acknowledgedProposal.GetFSetupDefinition;
 
-                var acknowledgement = bucket.Proposals.First(predicate: x => x.PossibleSchedule == earliestPossibleStart
-                                                                        && x.Postponed.IsPostponed == false);
+                foreach (IActorRef resource in acknowledgedProposal.GetFSetupDefinition.RequiredResources)
+                {
 
-                bucket = ((IJob)bucket).UpdateEstimations(acknowledgement.PossibleSchedule, acknowledgement.ResourceAgent) as FBucket;
+                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {resource}");
 
-                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {acknowledgement.ResourceAgent}");
+                    Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
+                        .Create(jobConfirmation.ToImutable()
+                            , target: resource));
+                }
 
-                // set Proposal Start for Machine to Requeue if time slot is closed.
-                _bucketManager.Replace(bucket);
-                Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal.Create(message: bucket, target: acknowledgement.ResourceAgent));
+                _proposalManager.Remove(bucket.Key);
+
             }
         }
 
@@ -241,12 +229,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// <param name="bucketKey"></param>
         internal void SetBucketFix(Guid bucketKey)
         {
-            var bucket = _bucketManager.GetBucketById(bucketKey);
-            
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
+            var bucket = jobConfirmation.Job as FBucket;
             //refuse bucket if not exits anymore
             if (bucket != null)
             {
-
                 var notSatisfiedOperations = _bucketManager.GetAllNotSatifsiedOperation(bucket);
                 
                 if (notSatisfiedOperations.Count > 0)
@@ -254,15 +241,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     bucket = _bucketManager.RemoveOperations(bucket, notSatisfiedOperations);
                 }
 
-
                 bucket = bucket.SetFixPlanned;
-
                 _bucketManager.SetBucketSatisfied(bucket);
-
-                Agent.DebugMessage(msg: $"{bucket.Name} with {bucket.Operations.Count} operations has been set fix: {bucket.IsFixPlanned} and has set satisfied: {bucket.StartConditions.Satisfied}");
-               
-                Agent.DebugMessage(msg: $"{bucket.Name} has {notSatisfiedOperations.Count} operations to requeue");
-                
                 _operationList.AddRange(notSatisfiedOperations); 
                 RequeueOperations(notSatisfiedOperations);
             }
@@ -272,9 +252,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
             //Send fix/refuse bucket
             var jobAcknowledgement = new JobAcknowledgement(bucketKey, bucket);
-            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobAcknowledgement, bucket.ResourceAgent));
+
+            //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)
+            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobAcknowledgement, jobConfirmation.SetupDefinition.RequiredResources.First()));
             //Requeue all unsatisfied operations
-            
         }
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
@@ -287,25 +268,29 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
+            var bucket = _bucketManager.GetBucketByOperationKey(startCondition.OperationKey);
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey: bucket.Key);
 
-            if (bucket.ResourceAgent.IsNobody())
+            _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
+
+            if (!jobConfirmation.IsConfirmed || !bucket.Operations.Any(x => x.StartConditions.Satisfied))
                 return;
 
-            if (bucket.Operations.Any(x => x.StartConditions.Satisfied))
+            foreach (var resource in jobConfirmation.SetupDefinition.RequiredResources)
             {
                 Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
-                                    $"| ArticleProvided: {startCondition.ArticlesProvided} " +
-                                    $"| PreCondition: {startCondition.PreCondition} " +
-                                    $"to resource {bucket.ResourceAgent}");
+                                        $"| ArticleProvided: {startCondition.ArticlesProvided} " +
+                                        $"| PreCondition: {startCondition.PreCondition} " +
+                                        $"to resource {resource.Path.Name}");
 
-                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: bucket.ResourceAgent));
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resource));
             }
+            
         }
 
         internal override void WithdrawRequiredArticles(Guid operationKey)
         {
-            var operation = _bucketManager.GetOperationByKey(operationKey);
+            var operation = _bucketManager.GetOperationByOperationKey(operationKey);
             Agent.DebugMessage($"WithdrawRequiredArticles for operation {operation.Operation.Name} {operationKey} on {Agent.Context.Self.Path.Name}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
             .Create(message: operation.Key
@@ -340,7 +325,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 operation.Operation.Duration);*/
             if (Agent.DebugThis)
             {
-                var operation = _bucketManager.GetOperationByKey(jobResult.Key);
+                var operation = _bucketManager.GetOperationByOperationKey(jobResult.Key);
                 var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
                 Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
             }

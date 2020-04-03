@@ -34,9 +34,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
-        public FBucket GetBucketById(Guid key)
+        public FBucket GetBucketByBucketKey(Guid bucketKey)
         {
-            return _jobConfirmations.SingleOrDefault(x => x.Job.Key == key)?.Job as FBucket;
+            return _jobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey)?.Job as FBucket;
+        }
+        public JobConfirmation GetConfirmationByBucketKey(Guid bucketKey)
+        {
+            return _jobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey);
         }
 
         public void Replace(FBucket bucket)
@@ -49,7 +53,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// </summary>
         /// <param name="operationKey"></param>
         /// <returns></returns>
-        public FOperation GetOperationByKey(Guid operationKey)
+        public FOperation GetOperationByOperationKey(Guid operationKey)
         {
             var bucket = GetBucketByOperationKey(operationKey);
             return bucket?.Operations.Single(x => x.Key == operationKey);
@@ -68,7 +72,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public void RemoveOperation(Guid operationKey)
         {
             var bucket = GetBucketByOperationKey(operationKey);
-            var operation = GetOperationByKey(operationKey);
+            var operation = GetOperationByOperationKey(operationKey);
             bucket = bucket.RemoveOperation(operation);
             Replace(bucket);
         }
@@ -92,7 +96,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <returns></returns>
         public FBucket AddToBucket(FOperation fOperation)
         {
-            var matchingBuckets = FindAllWithEqualCapability(fOperation);
+            var matchingBuckets = FindAllWithEqualCapability(fOperation).Select(x => x.Job).Cast<FBucket>().ToList();
 
             FBucket bucket = null;
 
@@ -103,6 +107,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 if (bucket != null)
                 {
                     bucket = Add(bucket: bucket, fOperation: fOperation);
+                    Replace(bucket);
                     return bucket;
                 }
 
@@ -112,12 +117,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public List<FBucket> FindAllWithEqualCapability(FOperation fOperation)
+        public List<JobConfirmation> FindAllWithEqualCapability(FOperation fOperation)
         {
-            return _jobConfirmations.Where(x => x.RequiresCapability == fOperation.RequiredCapability.Name 
+            return _jobConfirmations.Where(x => x.Job.RequiredCapability.Name == fOperation.RequiredCapability.Name 
                                                          && !x.IsFixPlanned)
                                 .Select(x => x.Job)
-                                .Cast<FBucket>().ToList();
+                                .Cast<JobConfirmation>().ToList();
         }
 
         /// <summary>
@@ -133,10 +138,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public List<FBucket> FindAllBucketsLaterForwardStart(FOperation operation)
+        public List<JobConfirmation> FindAllBucketsLaterForwardStart(FOperation operation)
         {
             var matchingBuckets = FindAllWithEqualCapability(operation);
-            return matchingBuckets.Where(x => x.ForwardStart > operation.ForwardStart).ToList();
+            return matchingBuckets.Where(x => x.Job.ForwardStart > operation.ForwardStart).ToList();
         }
 
         /// <summary>
@@ -214,7 +219,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
-        public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)
+        public bool SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)
         {
             var bucket = GetBucketByOperationKey(operationKey);
 
@@ -223,9 +228,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 var operation = bucket.Operations.Single(x => x.Key == operationKey);
                 operation.SetStartConditions(startCondition);
                 Replace(bucket);
+                return true;
             }
 
-            return bucket;
+            return false;
         }
 
         public bool SetBucketSatisfied(FBucket bucket)
