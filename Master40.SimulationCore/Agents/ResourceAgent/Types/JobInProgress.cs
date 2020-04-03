@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using static FBuckets;
+using static FJobConfirmations;
 using static FOperations;
 using static IJobs;
 
@@ -9,18 +11,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class JobInProgress
     {
-        public IJob Current { get; private set; }
+        public FJobConfirmation Current { get; private set; }
         public long StartTime { get; private set; }
         public long ResourceIsBusyUntil { get; set; } = 0;
         public bool IsSet => Current != null;
         public void SetStartTime(long time) => StartTime = time;
 
-        public bool Set(IJob job, long currentTime)
+        public bool Set(FJobConfirmation jobConfirmation, long currentTime)
         {
             if (IsSet)
                 return false;
-            Current = job;
-            ResourceIsBusyUntil = currentTime + job.Duration;
+            Current = jobConfirmation;
+            ResourceIsBusyUntil = currentTime + jobConfirmation.Job.Duration;
             StartTime = currentTime;
             return true;
         }
@@ -30,13 +32,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             Current = null;
             ResourceIsBusyUntil = 0;
             
-        }
-
-        internal void RemoveOperation(FOperation operation)
-        {
-            var bucket = (FBucket) Current;
-            Current = bucket.RemoveOperation(operation);
-
         }
     }
 }

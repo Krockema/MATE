@@ -15,6 +15,6 @@ namespace Master40.DB.ReportingModel.Interface
         long Start { get; set; }
         long End { get; set; }
         string Resource { get; set; }
-        string ResourceTool { get; set; }
+        string CapabilityName { get; set; }
     }
 }

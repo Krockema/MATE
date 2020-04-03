@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static IJobs;
 using static FBuckets;
+using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
@@ -14,55 +15,58 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             
         }
 
-        public bool Enqueue(IJob item)
+        public bool Enqueue(FJobConfirmation jobConfirmation)
         {
-            if (Limit <= this.jobs.Count) return false;
-            this.jobs.Add(item: item);
+            if (Limit <= JobConfirmations.Count) return false;
+            JobConfirmations.Add(jobConfirmation);
             return true;
         }
 
-        public bool EnqueueAll(List<IJob> jobs)
+        public bool EnqueueAll(List<FJobConfirmation> jobConfirmations)
         {
-            if (Limit <= this.jobs.Count) return false;
-            this.jobs.AddRange(jobs);
+            if (Limit <= JobConfirmations.Count) return false;
+            foreach (var job in jobConfirmations)
+            {
+                JobConfirmations.Add(job);
+            }
             return true;
         }
 
         public override bool CapacitiesLeft()
         {
-            return jobs.Count < Limit;
+            return JobConfirmations.Count < Limit;
         }
 
-        public long SumDurations => this.jobs.Sum(x => x.Duration);
+        public long SumDurations => this.JobConfirmations.Sum(x => x.Job.Duration);
 
-        internal bool Replace(IJob job)
+        internal bool Replace(FJobConfirmation jobConfirmation)
         {
-            var jobToReplace = jobs.FirstOrDefault(x => x.Key == job.Key);
+            var jobToReplace = JobConfirmations.FirstOrDefault(x => x.Job.Key == jobConfirmation.Job.Key);
             if (jobToReplace == null) return false; 
 
-            jobs.Remove(jobToReplace);
-            return Enqueue(job);
+            JobConfirmations.Remove(jobToReplace);
+            return Enqueue(jobConfirmation);
 
         }
 
-        internal IJob DequeueFirstSatisfiedFix(long currentTime)
+        internal FJobConfirmation DequeueFirstSatisfiedFix(long currentTime)
         {
-            var item = this.jobs.Cast<FBucket>().Where(x => x.StartConditions.Satisfied && x.IsFixPlanned).Cast<IJob>().OrderBy(keySelector: x => x.Priority(currentTime)).FirstOrDefault();
+            var item = this.JobConfirmations.Cast<FBucket>().Where(x => x.StartConditions.Satisfied && x.IsFixPlanned).Cast<FJobConfirmation>().OrderBy(keySelector: x => x.Job.Priority(currentTime)).FirstOrDefault();
             if (item != null)
             {
-                this.jobs.Remove(item: item);
+                JobConfirmations.Remove(item: item);
             }
             return item;
         }
 
-        internal bool Remove(IJob job)
+        internal bool Remove(FJobConfirmation jobConfirmation)
         {
-            return this.jobs.Remove(item: job);
+            return this.JobConfirmations.Remove(item: jobConfirmation);
         }
 
         internal bool Remove(Guid jobKey)
         {
-            var job = this.jobs.Single(x => x.Key.Equals(jobKey));
+            var job = JobConfirmations.Single(x => x.Job.Key.Equals(jobKey));
             return this.Remove(job);
         }
     }

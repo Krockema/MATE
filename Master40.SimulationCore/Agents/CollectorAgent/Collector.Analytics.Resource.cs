@@ -103,7 +103,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationType = Collector.simulationKind.Value,
                 Time = (int)(Collector.Time),
                 Resource = simulationResourceSetup.Resource,
-                ResourceTool = simulationResourceSetup.ResourceTool,
+                CapabilityName = simulationResourceSetup.CapabilityName,
                 Start = (int)simulationResourceSetup.Start,
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration,
                 ExpectedDuration = simulationResourceSetup.ExpectedDuration
@@ -489,7 +489,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Time = (int)(Collector.Time),
                 ExpectedDuration = fOperation.Operation.Duration,
                 ArticleType = simJob.ArticleType,
-                ResourceTool = fOperation.RequiredCapability.Name
+                CapabilityName = fOperation.RequiredCapability.Name
             };
 
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fOperation.Key));

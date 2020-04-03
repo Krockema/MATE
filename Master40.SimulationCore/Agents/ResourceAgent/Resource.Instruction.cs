@@ -102,7 +102,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class AcknowledgeJob : SimulationMessage
                 {
-                    public static AcknowledgeJob Create(JobAcknowledgement message, IActorRef target)
+                    public static AcknowledgeJob Create(FJobConfirmation message, IActorRef target)
                     {
                         return new AcknowledgeJob(message: message, target: target);
                     }
@@ -110,7 +110,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
 
                     }
-                    public JobAcknowledgement GetObjectFromMessage { get => Message as JobAcknowledgement; }
+                    public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
                 }
                 public class EnqueueBucket : SimulationMessage
                 {

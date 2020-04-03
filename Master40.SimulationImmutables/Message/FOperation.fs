@@ -23,6 +23,7 @@ open FUpdateStartConditions
           Priority : int64 -> double
           ProductionAgent : IActorRef
           mutable HubAgent : IActorRef
+          mutable IsFinished : bool 
           Operation : M_Operation
           RequiredCapability : M_ResourceCapability
           mutable SetupKey : int32
@@ -62,6 +63,7 @@ open FUpdateStartConditions
             | :? FOperation as operation -> this.Key.Equals(operation.Key)
             | _ -> invalidArg "Operation" "cannot compare value of different types" 
         override this.GetHashCode() = this.Key.GetHashCode()
+        member this.SetFinished() = this.IsFinished <- true
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
         member this.AsIjob = this :> IJob
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 

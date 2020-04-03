@@ -1,18 +1,15 @@
-﻿using System;
-using static FBuckets;
+﻿using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class JobAcknowledgement
     {
-        public JobAcknowledgement(Guid bucketKey, FBucket bucket)
+        public JobAcknowledgement(FJobConfirmation jobConfirmation)
         {
-            Bucket = bucket;
-            JobKey = bucketKey;
+            JobConfirmation = jobConfirmation;
         }
 
-        public FBucket Bucket { get;  }
-        public Guid JobKey { get;  }
-        public bool ToReplace => Bucket != null;
+        public FJobConfirmation JobConfirmation { get;  }
+        public bool ToReplace => JobConfirmation != null;
     }
 }

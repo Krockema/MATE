@@ -7,12 +7,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using static FBuckets;
 using static FBucketScopes;
+using static FJobConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     /// <summary>
     /// Queue for Planing the Scopes
+    /// TODO implement / deviate from JobQueueTimeLimted 
     /// </summary>
     public class JobQueueScopeLimited : LimitedQueue
     {
@@ -22,46 +24,46 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         }
 
-        public override IJob DequeueFirstSatisfied(long currentTime, M_Resource resourceTool = null)
+        public override FJobConfirmation DequeueFirstSatisfied(long currentTime, M_Resource resourceTool = null)
         {
             var bucket = GetFirstSatisfied(currentTime, resourceTool);
             if (bucket != null)
             {
-                this.jobs.Remove(bucket);
+                JobConfirmations.Remove(bucket);
             }
             return bucket;
         }
 
-        public IJob GetFirstSatisfied(long currentTime, M_Resource resourceTool)
+        public FJobConfirmation GetFirstSatisfied(long currentTime, M_Resource resourceTool)
         {
-            var buckets = this.jobs.Cast<FBucket>().Where(x => x.HasSatisfiedJob.Equals(true)).ToList().Cast<IJob>();
+            var buckets = JobConfirmations.Where(x => ((FBucket)x.Job).HasSatisfiedJob.Equals(true)).ToList();
 
             var avgResourceSetupTime = resourceTool != null ? resourceTool.UsedInResourceSetups.Average(x => x.SetupTime): 0;
             var toolname = "";
             if (resourceTool != null)
                 toolname = resourceTool.Name;
             
-            var bucket = buckets.OrderBy(x => x.Priority(currentTime) + x.RequiredCapability.Name != toolname ? avgResourceSetupTime : 0).FirstOrDefault();
+            var bucket = buckets.OrderBy(x => x.Job.Priority(currentTime) + x.Job.RequiredCapability.Name != toolname ? avgResourceSetupTime : 0).FirstOrDefault();
             
             return bucket;
         }
 
-        public void Enqueue(IJob job)
+        public void Enqueue(FJobConfirmation jobConfirmation)
         {
-            jobs.Add(item: job);
+            JobConfirmations.Add(item: jobConfirmation);
         }
 
-        internal bool RemoveJob(IJob job)
+        internal bool RemoveJob(FJobConfirmation jobConfirmation)
         {
-            return jobs.Remove(item: job);
+            return JobConfirmations.Remove(item: jobConfirmation);
         }
 
         public override bool HasQueueAbleJobs()
         {
             var hasSatisfiedJob = false;
-            foreach (var job in jobs)
+            foreach (var job in JobConfirmations)
             {
-                if (((FBucket) job).HasSatisfiedJob)
+                if (((FBucket)job.Job).HasSatisfiedJob)
                 {
                     hasSatisfiedJob = true;
                 }
@@ -78,17 +80,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
             //System.Diagnostics.Debug.WriteLine($"{job.Name} with priority {job.Priority(currentTime)}");
-            if (this.jobs.Any(e => e.Priority(currentTime) <= job.Priority(currentTime)))
+            if (JobConfirmations.Any(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                var higherPrioBuckets = jobs.Where(e => e.Priority(currentTime) <= job.Priority(currentTime))   
-                    .Cast<FBucket>().ToList();
+                var higherPrioBuckets = JobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime))   
+                    .ToList();
                 /*TODO just debugging
                 foreach (var bucket in higherPrioBuckets)
                 {
                     System.Diagnostics.Debug.WriteLine($"{bucket.Name} has higher priority with {((IJob)bucket).Priority(currentTime)}");
                 }*/
                 //totalWorkLoad = higherPrioBuckets.Cast<IJob>().ToList().Where(x => x.StartConditions.Satisfied.Equals(true)).Sum(x => x.Duration);
-                totalWorkLoad = higherPrioBuckets.Where(x => x.StartConditions.Satisfied.Equals(true)).Sum(x => x.Scope);
+                totalWorkLoad = higherPrioBuckets.Where(x => x.Job.StartConditions.Satisfied.Equals(true)).Sum(x => ((FBucket)x.Job).Scope);
                 var totalEstimatedWorkload = higherPrioBuckets.Cast<IJob>().ToList().Sum(x => x.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
                 queuePosition.EstimatedWorkload = totalEstimatedWorkload;
@@ -101,17 +103,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return queuePosition;
         }
 
-        public List<IJob> CutTail(long currentTime, IJob job)
+        public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = new List<IJob>();
-            var position = jobs.OrderBy(x => x.Priority(currentTime)).ToList().IndexOf(job);
+            var toRequeue = new HashSet<FJobConfirmation>();
+            var orderedList = JobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList();
+            var position = orderedList.IndexOf(jobConfirmation);
 
             // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < jobs.Count)
+            if (position + 1 < JobConfirmations.Count)
             {
-                toRequeue = jobs.OrderBy(x => x.Priority(currentTime)).ToList()
-                    .GetRange(position + 1, jobs.Count() - position - 1);
+                toRequeue = orderedList.GetRange(index: position + 1,
+                    count: JobConfirmations.Count() - position - 1).ToHashSet();
             }
 
             return toRequeue;
@@ -119,12 +122,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public override bool CapacitiesLeft()
         {
-            return Limit > this.jobs.Cast<FBucket>().ToList().Sum(selector: x => x.Scope);
+            return Limit > JobConfirmations.Cast<FBucket>().ToList().Sum(selector: x => x.Scope);
         }
 
         public FBucket GetBucket(Guid bucketKey)
         {
-            return jobs.SingleOrDefault(x => x.Key == bucketKey) as FBucket;
+            return JobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey).Job as FBucket;
         }
 
 

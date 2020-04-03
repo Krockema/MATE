@@ -7,6 +7,7 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using static FPostponeds;
 using static FProposals;
 using static FRequestProposalForSetups;
+using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -41,19 +42,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             while (_processingQueue.CapacitiesLeft() && _planingQueue.HasQueueAbleJobs())
             {
-                var jobs = _planingQueue.GetAllSatisfiedSameCapability(currentTime: Agent.CurrentTime);
+                var jobConfirmations = _planingQueue.GetAllSatisfiedSameCapability(currentTime: Agent.CurrentTime);
 
-                Agent.DebugMessage(msg: $"{jobs.Count} jobs for {jobs.FirstOrDefault().RequiredCapability.Name} have been placed in processing queue");
+                Agent.DebugMessage(msg: $"{jobConfirmations.Count} jobs for {jobConfirmations.FirstOrDefault().Job.RequiredCapability.Name} have been placed in processing queue");
 
-                if (!_processingQueue.EnqueueAll(jobs))
+                if (!_processingQueue.EnqueueAll(jobConfirmations.ToList()))
                 {
                     throw new Exception(message: "Something went wrong with Queueing!");
                 }
 
-                foreach (var job in jobs)
+                foreach (var jobConfirmation in jobConfirmations)
                 {
-                    Agent.DebugMessage(msg: $"WithdrawRequiredArticles for {job.Name} {job.Key}");
-                    Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: job.Key, target: job.HubAgent));
+                    Agent.DebugMessage(msg: $"WithdrawRequiredArticles for {jobConfirmation.Job.Name} {jobConfirmation.Job.Key}");
+                    Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: jobConfirmation.Job.Key, target: jobConfirmation.Job.HubAgent));
                 }
             }
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
@@ -90,14 +91,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
-        internal override void UpdateAndRequeuePlanedJobs(IJobs.IJob jobItem)
+        internal override void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
         {
             Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
-            var toRequeue = _planingQueue.CutTailByStack(currentTime: Agent.CurrentTime, job: jobItem);
+            var toRequeue = _planingQueue.CutTailByStack(currentTime: Agent.CurrentTime, jobConfirmation);
             foreach (var job in toRequeue)
             {
-                _planingQueue.RemoveJob(job: job);
-                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: job, target: job.HubAgent));
+                _planingQueue.RemoveJob(jobConfirmation);
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: job.Job, target: jobConfirmation.Job.HubAgent));
             }
             Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }

@@ -9,3 +9,4 @@ open FSetupDefinitions
         Schedule : int64
         SetupDefinition : FSetupDefinition
     } with member this.UpdateJob job = { this with Job = job }
+           member this.IsReset = this.Schedule.Equals(-1)

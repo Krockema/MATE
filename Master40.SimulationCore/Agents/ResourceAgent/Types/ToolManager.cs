@@ -10,8 +10,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class SetupManager
     {
         private List<M_ResourceSetup> _resourceSetups { get; set; } = new List<M_ResourceSetup>();
-        public List<SetupInUse> _equippedResourceSetups { get; private set; }  = new SetupInUse();
-
+        public List<SetupInUse> _equippedResourceSetups { get; private set; }  = new List<SetupInUse>();
+        public M_Resource CurrentCapability { get; internal set; }
 
         public SetupManager(List<M_ResourceSetup> resourceSetups)
         {
@@ -24,9 +24,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             {
                 foreach (var setup in _resourceSetups)
                     {
-                        
-                            _equippedResource.Mount(resourceCapability.ResourceSetups.First().ChildResource);
-                       
+                         _equippedResource.Mount(resourceCapability.ResourceSetups.First().ChildResource);
                     }
             }
 

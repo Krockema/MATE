@@ -53,6 +53,7 @@ namespace Master40.SimulationCore.Helper
                                 , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
                                 , priority: prioRule.ToFSharpFunc()
                                 , setupKey: -1 // unset
+                                , isFinished: false
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
                                 , operation: operation

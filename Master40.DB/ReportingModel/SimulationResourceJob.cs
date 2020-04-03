@@ -18,7 +18,7 @@ namespace Master40.DB.ReportingModel
         public long Start { get; set; }
         public long End { get; set; }
         public string Resource { get; set; }
-        public string ResourceTool { get; set; }
+        public string CapabilityName { get; set; }
         public string JobId { get; set; }
         public string ProductionOrderId { get; set; }
         public int DueTime { get; set; }

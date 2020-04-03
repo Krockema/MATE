@@ -14,6 +14,7 @@ using static FRequestProposalForSetups;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -249,12 +250,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             else
             {
                 Agent.DebugMessage(msg: $"{bucket.Name} does not exits anymore");
+                jobConfirmation.Schedule = -1;
             }
-            //Send fix/refuse bucket
-            var jobAcknowledgement = new JobAcknowledgement(bucketKey, bucket);
 
             //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)
-            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobAcknowledgement, jobConfirmation.SetupDefinition.RequiredResources.First()));
+            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation.ToImutable(), jobConfirmation.SetupDefinition.RequiredResources.First()));
             //Requeue all unsatisfied operations
         }
 

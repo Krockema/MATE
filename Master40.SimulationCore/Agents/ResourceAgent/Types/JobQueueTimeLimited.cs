@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <param name="item"></param>
         public void Enqueue(FJobConfirmation fJobConfirmations)
         {
-           _jobConfirmations.Add(fJobConfirmations);
+           JobConfirmations.Add(fJobConfirmations);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
             //TODO time scope for operation, not only priority based
-            var estimatedWork = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime));
+            var estimatedWork = JobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime));
             if (estimatedWork.Any())
             {
                 totalWorkLoad = estimatedWork
@@ -58,11 +58,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (resourceIsBlockedUntil != 0)
                 queuePosition.EstimatedStart = resourceIsBlockedUntil;
 
-            if (_jobConfirmations.Any(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)))
+            if (JobConfirmations.Any(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)))
             {
-                var allPreviousJobs = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)).ToList();
+                var allPreviousJobs = JobConfirmations.Where(e => e.Job.Priority(currentTime) <= job.Priority(currentTime)).ToList();
                 var resourceTools = allPreviousJobs.Select(x => x.Job.RequiredCapability.Id).Distinct().ToList();
-                var sumAllJobsWithToolId = _jobConfirmations.Where(x => resourceTools.Contains(x.Job.RequiredCapability.Id)
+                var sumAllJobsWithToolId = JobConfirmations.Where(x => resourceTools.Contains(x.Job.RequiredCapability.Id)
                                                      && x.Job.RequiredCapability.Id != job.RequiredCapability.Id)
                                                .Sum(x => x.Job.Duration);
 
@@ -84,21 +84,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <returns></returns>
         public override bool CapacitiesLeft()
         {
-            return Limit > _jobConfirmations.Sum(selector: x => x.Job.Duration);
+            return Limit > JobConfirmations.Sum(selector: x => x.Job.Duration);
         }
 
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
             var toRequeue = new HashSet<FJobConfirmation>();
-            var orderedList = _jobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList();
+            var orderedList = JobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList();
             var position = orderedList.IndexOf(jobConfirmation);
 
             // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < _jobConfirmations.Count)
+            if (position + 1 < JobConfirmations.Count)
             {
                 toRequeue = orderedList.GetRange(index: position + 1, 
-                                                 count: _jobConfirmations.Count() - position - 1).ToHashSet();
+                                                 count: JobConfirmations.Count() - position - 1).ToHashSet();
             }
 
             return toRequeue;
@@ -106,10 +106,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public HashSet<FJobConfirmation> CutTailByStack(long currentTime, FJobConfirmation jobConfirmation)
         {
-            var allPreviousJobs = _jobConfirmations.Where(e => e.Job.Priority(currentTime) <= jobConfirmation.Job.Priority(currentTime)).ToList();
+            var allPreviousJobs = JobConfirmations.Where(e => e.Job.Priority(currentTime) <= jobConfirmation.Job.Priority(currentTime)).ToList();
             var resourceTools = allPreviousJobs.Select(x => x.Job.RequiredCapability.Id).Distinct().ToList();
 
-            var toRequeue = _jobConfirmations.Where(e => e.Job.Priority(currentTime) > jobConfirmation.Job.Priority(currentTime)
+            var toRequeue = JobConfirmations.Where(e => e.Job.Priority(currentTime) > jobConfirmation.Job.Priority(currentTime)
                                                         && (!resourceTools.Contains(e.Job.RequiredCapability.Id) 
                                                         || e.Job.RequiredCapability.Id == jobConfirmation.Job.RequiredCapability.Id))
                                                             .ToHashSet();
@@ -120,12 +120,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal bool RemoveJob(FJobConfirmation jobConfirmation)
         {
-            return _jobConfirmations.Remove(item: jobConfirmation);
+            return JobConfirmations.Remove(item: jobConfirmation);
         }
 
         internal bool UpdatePreCondition(FUpdateStartCondition startCondition)
         {
-            var jobConfirmation = _jobConfirmations.SingleOrDefault(x => x.Job.Key == startCondition.OperationKey);
+            var jobConfirmation = JobConfirmations.SingleOrDefault(x => x.Job.Key == startCondition.OperationKey);
             if (jobConfirmation == null) return false;
             jobConfirmation.Job.StartConditions.ArticlesProvided = startCondition.ArticlesProvided;
             jobConfirmation.Job.StartConditions.PreCondition = startCondition.PreCondition;
