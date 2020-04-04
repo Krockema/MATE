@@ -91,7 +91,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 }*/
                 //totalWorkLoad = higherPrioBuckets.Cast<IJob>().ToList().Where(x => x.StartConditions.Satisfied.Equals(true)).Sum(x => x.Duration);
                 totalWorkLoad = higherPrioBuckets.Where(x => x.Job.StartConditions.Satisfied.Equals(true)).Sum(x => ((FBucket)x.Job).Scope);
-                var totalEstimatedWorkload = higherPrioBuckets.Cast<IJob>().ToList().Sum(x => x.Duration);
+                var totalEstimatedWorkload = higherPrioBuckets.ToList().Sum(x => x.Job.Duration);
                 queuePosition.EstimatedStart += totalWorkLoad;
                 queuePosition.EstimatedWorkload = totalEstimatedWorkload;
             }

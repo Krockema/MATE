@@ -121,8 +121,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             return _jobConfirmations.Where(x => x.Job.RequiredCapability.Name == fOperation.RequiredCapability.Name 
                                                          && !x.IsFixPlanned)
-                                .Select(x => x.Job)
-                                .Cast<JobConfirmation>().ToList();
+                                    .ToList();
         }
 
         /// <summary>

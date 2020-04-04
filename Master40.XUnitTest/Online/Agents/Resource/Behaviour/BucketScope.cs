@@ -7,6 +7,7 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.Online.Preparations;
 using Xunit;
+using static FJobConfirmations;
 using static IJobs;
 
 namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
@@ -26,14 +27,15 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         public void UpdateAndRequeuePlanedJobs()
         {
             PrepareModel();
-            var newJobItem =
-                TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15, dueTime: 45, capability: tools[2]);
+            var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
+                    dueTime: 45, capability: tools[2]), 20,
+                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(newJobItem);
 
             var jobsToRequeue = JobQueueScopeLimited.CutTail(0, newJobItem);
 
             Assert.True(jobsToRequeue.Count.Equals(1));
-            Assert.True(jobsToRequeue.Where(x => x.Name.Equals("Sample Operation 6")).ToList().Count.Equals(1));
+            Assert.True(jobsToRequeue.Where(x => x.Job.Name.Equals("Sample Operation 6")).ToList().Count.Equals(1));
 
         }
 
@@ -43,7 +45,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             PrepareModel();
             var newJobItem =
                 TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
-            var bucket = MessageFactory.ToBucketScopeItem(newJobItem, hubAgentActorRef, 0);
+            var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0);
 
             
 
@@ -81,26 +83,33 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var operation6 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 6", jobDuration: 20,
                 dueTime: 180, capability: tools[2]);
 
-            var bucket1 = MessageFactory.ToBucketScopeItem(operation1, hubAgentActorRef, 0);
+            var bucket1 = operation1.ToBucketScopeItem(hubAgentActorRef, 0);
             bucket1.AddOperation(operation4);
             var prioBucket1 = ((IJob)bucket1).Priority(0);
             bucket1.StartConditions.ArticlesProvided = true;
             bucket1.StartConditions.PreCondition = true;
-            JobQueueScopeLimited.Enqueue(bucket1);
 
-            var bucket2 = MessageFactory.ToBucketScopeItem(operation2, hubAgentActorRef, 0);
+            var bucketConfirmation1 = new FJobConfirmation(bucket1, 20,
+                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            JobQueueScopeLimited.Enqueue(bucketConfirmation1);
+
+            var bucket2 = operation2.ToBucketScopeItem(hubAgentActorRef, 0);
             bucket2.AddOperation(operation5);
             var prioBucket2 = ((IJob)bucket2).Priority(0);
             bucket2.StartConditions.ArticlesProvided = true;
             bucket2.StartConditions.PreCondition = true;
-            JobQueueScopeLimited.Enqueue(bucket2);
+            var bucketConfirmation2 = new FJobConfirmation(bucket2, 20,
+                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            JobQueueScopeLimited.Enqueue(bucketConfirmation2);
 
-            var bucket3 = MessageFactory.ToBucketScopeItem(operation3, hubAgentActorRef, 0);
+            var bucket3 = operation3.ToBucketScopeItem(hubAgentActorRef, 0);
             bucket3.AddOperation(operation3);
             var prioBucket3 = ((IJob)bucket3).Priority(0);
             bucket3.StartConditions.ArticlesProvided = true;
             bucket3.StartConditions.PreCondition = true;
-            JobQueueScopeLimited.Enqueue(bucket3);
+            var bucketConfirmation3 = new FJobConfirmation(bucket3, 20,
+                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            JobQueueScopeLimited.Enqueue(bucketConfirmation3);
 
         }
     }
