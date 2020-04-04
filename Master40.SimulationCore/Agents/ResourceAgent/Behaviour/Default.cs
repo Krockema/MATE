@@ -70,7 +70,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void SetHubAgent(IActorRef hubAgent)
         {
             // Save to Value Store
-            _agentDictionary.Add(key: hubAgent, value: "Default");
+            _agentDictionary.Add(key: "Default", value: hubAgent);
             // Debug Message
             Agent.DebugMessage(msg: "Successfully registered resource at : " + hubAgent.Path.Name);
         }

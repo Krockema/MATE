@@ -51,21 +51,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void RequeueBucket(Guid bucketKey)
         {
+            //TODO not working with multiresource  fix
+            var bucket = _scopeQueue.JobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey);
 
-            var bucket = _scopeQueue.GetBucket(bucketKey);
+            if (bucket == null) return;
 
-            if (bucket == null) return; 
-
-
-            // send to all other resources
-            // response to AcknowledgeReset
-           
-        }
-
-        internal void AcknowledgeReset(Guid bucketKey)
-        {
             //receive all acknowledge resets and send reset to hub / Bucket manager
-            var bucket = _scopeQueue.JobConfirmations.Single(x => x.Job.Key == bucketKey);
 
             var success = _scopeQueue.RemoveJob(bucket);
 
@@ -74,6 +65,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage($"{bucket.Job.Name} has been send to requeue");
                 Agent.Send(Hub.Instruction.BucketScope.ResetBucket.Create(bucketKey, bucket.Job.HubAgent));
             }
+            // send to all other resources
+            // response to AcknowledgeReset
+
+        }
+
+        internal void AcknowledgeReset(Guid bucketKey)
+        {
         }
 
 

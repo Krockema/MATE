@@ -16,9 +16,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Types
 
         public IActorRef GetHubActorRefBy(string capability)
         {
-            var entry = _hubRelations.FirstOrDefault(x => x.Value.Contains(capability));
-            if (entry.Equals(null))
-                return null;
+            var entry = _hubRelations.SingleOrDefault(x => x.Value.Contains(capability));
             return entry.Key;
         }
         /// <summary>

@@ -22,9 +22,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             return provider;
         }
 
-        public List<FOperation> GetOperationByCapability(string skillName)
+        public List<FOperation> GetOperationByCapability(string capabilityName)
         {
-            var operations = _articleProvider.Where(x => x.Operation.Operation.ResourceCapability.Name == skillName)
+            var operations = _articleProvider.Where(x => x.Operation.RequiredCapability.Name == capabilityName)
                                              .Select(x => x.Operation)
                                              .ToList();
             return operations;

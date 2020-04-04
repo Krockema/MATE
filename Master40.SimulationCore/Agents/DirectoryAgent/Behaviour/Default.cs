@@ -74,18 +74,18 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         private void ForwardRegistrationToHub(List<M_ResourceSetup> setupList)
         {
-            var capabilites = setupList.Select(x => x.ResourceCapability).Distinct();
 
-            List<IActorRef> hubRefs = new List<IActorRef>();
-            foreach(M_ResourceCapability capability in capabilites)
+            var capabilites = setupList.Select(x => x.ResourceCapability).Distinct();
+            foreach (M_ResourceCapability capability in capabilites)
             {
                 var hub = hubManager.GetHubActorRefBy(capability.Name);
                 // it is probably neccesary to do this for each sub capability.
-                var resourceInfo = new FResourceInformation(  resourceSetups: setupList.Where(x => x.ResourceCapability.Id == capability.Id).ToList()
+                var filtered = setupList.Where(x => x.ResourceCapability.Id == capability.Id).ToList();
+                var resourceInfo = new FResourceInformation(  resourceSetups: filtered
                                                             , requiredFor: capability.Name
                                                             , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
-                
+
             }
         }
 

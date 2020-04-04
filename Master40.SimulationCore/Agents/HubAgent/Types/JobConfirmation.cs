@@ -1,4 +1,6 @@
-﻿using static FBuckets;
+﻿using System.Collections.Generic;
+using Akka.Actor;
+using static FBuckets;
 using static FJobConfirmations;
 using static FSetupDefinitions;
 using static IJobs;
@@ -15,7 +17,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public JobConfirmation(IJob job)
         {
             Job = job;
-            SetupDefinition = null;
+            SetupDefinition = new FSetupDefinition(-1, new List<IActorRef>());
             Schedule = -1;
         }
 
@@ -30,7 +32,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public void ResetConfirmation()
         {
-            SetupDefinition = null;
+            SetupDefinition = new FSetupDefinition(-1, new List<IActorRef>()); 
             Schedule = -1;
         }
     }

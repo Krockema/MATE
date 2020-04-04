@@ -136,12 +136,13 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             Agent.DebugMessage(msg: $"Received Agent from Directory: {Agent.Sender.Path.Name}");
 
             // add agent to current Scope.
-            _hubAgents.TryAdd(key: hub.Ref, value: hub.RequiredFor);
+            _hubAgents.TryAdd(key: hub.RequiredFor, value: hub.Ref);
             // foreach fitting operation
             foreach (var operation in OperationManager.GetOperationByCapability(hub.RequiredFor))
             {
                 operation.UpdateHubAgent(hub.Ref);
                 Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: operation, target: hub.Ref));
+                System.Diagnostics.Debug.WriteLine("Operation " + operation.Operation.Name + "with capability " + operation.Operation.ResourceCapability.Name + " sent to " + hub.RequiredFor);
             }
 
         }

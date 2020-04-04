@@ -47,19 +47,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // // happens i.e. Machine calls to Requeue item.
             if (jobConfirmation == null)
             {
-                var operation = jobConfirmation.Job as FOperation;
-                operation = fOperation;
-                operation.UpdateHubAgent(hub: Agent.Context.Self);
-                _operations.Add(new JobConfirmation(fOperation));
-                _proposalManager.Add(operation.Key, _capabilityManager.GetAllSetupDefintions(operation.RequiredCapability));
-                Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
+                fOperation.UpdateHubAgent(hub: Agent.Context.Self);
+                jobConfirmation = new JobConfirmation(fOperation);
+                _operations.Add(jobConfirmation);
+                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation.RequiredCapability));
+                Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} " +
+                                        $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
+
             }
             else
             {
                 // reset Item.
-                var operation = jobConfirmation.Job as FOperation;
+                fOperation = jobConfirmation.Job as FOperation;
                 Agent.DebugMessage(msg: $"Got Item to Requeue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
-                _proposalManager.RemoveAllProposalsFor(operation.Key);
+                _proposalManager.RemoveAllProposalsFor(fOperation.Key);
                 jobConfirmation.ResetConfirmation();
             }
 
@@ -179,7 +180,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                
                 var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
                 setupDefinition.RequiredResources.Add(resourceInformation.Ref);
-        
+
+                System.Diagnostics.Debug.WriteLine($"Create Capability Definition at {Agent.Name}" +
+                                                   $" with setup {setup.Name} " +
+                                                   $" from {Agent.Context.Sender.Path.Name}" +
+                                                   $" with capability {capabilityDefinition.ResourceCapability.Name}");
+
             }
             // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Machine Agent " + resourceInformation.Ref.Path.Name + " to Machine Pool: " + resourceInformation.RequiredFor);

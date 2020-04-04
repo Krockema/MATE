@@ -1,5 +1,6 @@
 ﻿using Master40.DB.DataModel;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using static FSetupDefinitions;
 
@@ -8,19 +9,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class SetupManager
     {
         private List<M_ResourceSetup> _resourceSetups { get; set; } = new List<M_ResourceSetup>();
-        private SetupInUse _setupInUse { get; set; }
-        
+        private SetupInUse _setupInUse { get; set; } 
         public SetupManager(List<M_ResourceSetup> resourceSetups)
         {
             _resourceSetups = resourceSetups;
+            _setupInUse = new SetupInUse();
         }
 
         internal void Mount(M_ResourceCapability resourceCapability)
         {
-            var setup = _resourceSetups.Single(x => x.ResourceCapability == resourceCapability);
+            var setup = _resourceSetups.Single(x => x.ResourceCapability.Id == resourceCapability.Id);
 
             if (!AlreadyEquipped(setup))
-            { 
+            {  
                 _setupInUse.Mount(setup);
             }
 
@@ -33,6 +34,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal bool AlreadyEquipped(M_ResourceSetup setup)
         {
+            if(_setupInUse.ResourceSetup == null)
+                return false;
             return _setupInUse.ResourceSetup.Id == setup.Id;
         }
 

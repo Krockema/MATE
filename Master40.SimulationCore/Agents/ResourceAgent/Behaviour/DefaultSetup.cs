@@ -57,7 +57,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(_setupManager.GetAllSetups()
+            var setups = _setupManager.GetAllSetups();
+            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(setups
                 , target: Agent.VirtualParent));
             return true;
         }
@@ -68,7 +69,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void SetHubAgent(IActorRef hubAgent)
         {
             // Save to Value Store
-            _agentDictionary.Add(key: hubAgent, value: "Default");
+            _agentDictionary.Add(key: "Default", value: hubAgent);
             // Debug Message
             Agent.DebugMessage(msg: "Successfully registered resource at : " + hubAgent.Path.Name);
         }

@@ -28,15 +28,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             var capabilityDefinition =
                 _capabilityDefinitions.SingleOrDefault(x => x.ResourceCapability.Id == capability.Id);
-            if (capabilityDefinition == null)
-            {
-                capabilityDefinition = new CapabilityDefinition(capability);
-                _capabilityDefinitions.Add(capabilityDefinition);
-            }
+            if (capabilityDefinition != null) 
+                return capabilityDefinition;
+            // else create a new one
+            capabilityDefinition = new CapabilityDefinition(capability);
+            _capabilityDefinitions.Add(capabilityDefinition);
             return capabilityDefinition;
         }
 
-        public List<FSetupDefinition> GetAllSetupDefintions(M_ResourceCapability capability)
+        public List<FSetupDefinition> GetAllSetupDefinitions(M_ResourceCapability capability)
         {
             return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == capability.Id).GetAllSetupDefinitions;
 
