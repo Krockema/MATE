@@ -3,8 +3,6 @@ using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using System;
-using System.Collections.Generic;
-using static FJobConfirmations;
 using static FOperations;
 using static FProposals;
 using static FRequestProposalForSetups;
@@ -47,10 +45,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // // happens i.e. Machine calls to Requeue item.
             if (jobConfirmation == null)
             {
-                fOperation.UpdateHubAgent(hub: Agent.Context.Self);
+                fOperation.HubAgent = Agent.Context.Self;
                 jobConfirmation = new JobConfirmation(fOperation);
                 _operations.Add(jobConfirmation);
-                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation.RequiredCapability));
+                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation, Agent));
                 Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} " +
                                         $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
 
@@ -59,7 +57,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 // reset Item.
                 fOperation = jobConfirmation.Job as FOperation;
-                Agent.DebugMessage(msg: $"Got Item to Requeue: {fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
+                Agent.DebugMessage(msg: $"Got Item to Requeue: { fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied } with Id: { fOperation.Key }");
                 _proposalManager.RemoveAllProposalsFor(fOperation.Key);
                 jobConfirmation.ResetConfirmation();
             }
@@ -70,7 +68,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 foreach (var actorRef in setupDefinition.RequiredResources)
                 {
-                    Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name}");
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name} | for {jobConfirmation.Job.Name } with { setupDefinition.SetupKey }");
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
                                             .Create(message: new FRequestProposalForSetup(jobConfirmation.Job, setupDefinition.SetupKey)
                                                    , target: actorRef));
@@ -88,7 +86,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // get related operation and add proposal.
             var fOperation = _operations.GetJobBy(fProposal.JobKey) as FOperation;
 
-            Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
+            Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}");
             
             _proposalManager.AddProposal(fProposal);
 

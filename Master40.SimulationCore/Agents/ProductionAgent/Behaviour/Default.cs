@@ -142,9 +142,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             {
                 operation.UpdateHubAgent(hub.Ref);
                 Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: operation, target: hub.Ref));
-                System.Diagnostics.Debug.WriteLine("Operation " + operation.Operation.Name + "with capability " + operation.Operation.ResourceCapability.Name + " sent to " + hub.RequiredFor);
             }
-
         }
 
         /// <summary>

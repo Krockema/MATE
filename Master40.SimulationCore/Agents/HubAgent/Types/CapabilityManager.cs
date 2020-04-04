@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static FOperations;
 using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
@@ -36,9 +37,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return capabilityDefinition;
         }
 
-        public List<FSetupDefinition> GetAllSetupDefinitions(M_ResourceCapability capability)
+        public List<FSetupDefinition> GetAllSetupDefinitions(FOperation operation, Agent agent)
         {
-            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == capability.Id).GetAllSetupDefinitions;
+            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == operation.RequiredCapability.Id).GetAllSetupDefinitions;
 
         }
         

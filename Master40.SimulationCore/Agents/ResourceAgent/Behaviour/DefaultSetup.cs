@@ -165,8 +165,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, jobConfirmation);
             foreach (var job in toRequeue)
             {
-                _planingQueue.RemoveJob(jobConfirmation);
-                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(jobConfirmation.Job, target: jobConfirmation.Job.HubAgent));
+                _planingQueue.RemoveJob(job);
+                Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(job.Job, target: job.Job.HubAgent));
             }
             Agent.DebugMessage(msg: "New planning queue length = " + _planingQueue.Count);
         }
