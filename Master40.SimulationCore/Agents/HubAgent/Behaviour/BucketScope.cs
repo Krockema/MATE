@@ -85,41 +85,40 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         }
 
-        internal void EnqueueOperation(FOperation operation)
+        internal void EnqueueOperation(FOperation fOperation)
         {
-            var operationInBucket = _bucketManager.GetBucketByOperationKey(operation.Key);
+            var operationInBucket = _bucketManager.GetBucketByOperationKey(fOperation.Key);
 
             if (operationInBucket != null)
             {
-                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} is already in bucket");
+                Agent.DebugMessage($"{fOperation.Operation.Name} {fOperation.Key} is already in bucket");
                 return;
             }
 
             // TODO Dynamic Lot Sizing
-            /*_bucketManager.AddOrUpdateBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
-                operation.Operation.Duration);
+            _bucketManager.AddOrUpdateBucketSize(fOperation.RequiredCapability, fOperation.Operation.Duration);
             /*
              * Implements the Self-Organizing Bucket Method
              */
 
-            var bucket = _bucketManager.AddToBucket(operation);
+            var bucket = _bucketManager.AddToBucket(fOperation);
 
-            if (bucket != null)
+            if (bucket == null)//if no bucket to add exists create a new one
             {
-                _operationList.Remove(operation);
-                return;
+                bucket = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
             }
 
-            //if no bucket to add exists create a new one
-            bucket = _bucketManager.CreateBucket(fOperation: operation, Agent.Context.Self, Agent.CurrentTime);
+            _proposalManager.Add(bucket.Key, _capabilityManager.GetAllSetupDefinitions(fOperation, Agent));
+
+
             Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             
-            _operationList.Remove(operation);
+            _operationList.Remove(fOperation);
             
             EnqueueBucket(bucket);
 
             //after creating new bucket, modify subsequent buckets
-            ModifyBucket(operation);
+            ModifyBucket(fOperation);
 
         }
 
@@ -157,7 +156,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
                 _proposalManager.Remove(bucket.Key);
                 return;
-            }
+            } 
 
             _proposalManager.RemoveAllProposalsFor(bucket.Key);
             jobConfirmation.ResetConfirmation();
@@ -171,7 +170,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 foreach (var resource in setupDefinition.RequiredResources)
                 {
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name}");
-                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal.Create(new FRequestProposalForSetup(jobConfirmation.Job, setupDefinition.SetupKey), target: resource));
+                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
+                        .Create(new FRequestProposalForSetup(jobConfirmation.Job
+                                                                  , setupDefinition.SetupKey)
+                              , target: resource));
                 }
             }
 
@@ -305,8 +307,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
                 EnqueueOperation(operation);
                 // TODO Dynamic Lot Sizing
-                /*_bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
-                    operation.Operation.Duration);*/
+                _bucketManager.DecreaseBucketSize(operation.RequiredCapability,
+                    operation.Operation.Duration);
             }
 
         }
@@ -318,14 +320,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal override void FinishJob(IJobResult jobResult)
         {
             
-            _bucketManager.RemoveOperation(jobResult.Key);
+            var operation =_bucketManager.RemoveOperation(jobResult.Key);
 
             // TODO Dynamic Lot Sizing
-            /*_bucketManager.DecreaseBucketSize(_resourceManager.GetToolCapabilityPair(operation.RequiredCapability),
-                operation.Operation.Duration);*/
+            _bucketManager.DecreaseBucketSize(operation.RequiredCapability,
+                operation.Operation.Duration);
             if (Agent.DebugThis)
             {
-                var operation = _bucketManager.GetOperationByOperationKey(jobResult.Key);
                 var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
                 Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
             }

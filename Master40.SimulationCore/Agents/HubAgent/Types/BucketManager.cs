@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     public class BucketManager
     {
         private List<JobConfirmation>  _jobConfirmations { get; set; } = new List<JobConfirmation>();
-        public Dictionary<ResourceCapabilityPair, long> ToolBucketSizeDictionary { get; set; } = new Dictionary<ResourceCapabilityPair, long>();
+        public Dictionary<M_ResourceCapability, long> SetupBucketSizeDictionary { get; set; } = new Dictionary<M_ResourceCapability, long>();
 
         private long MaxBucketSize { get; set; }
         
@@ -69,12 +69,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return 1 == _jobConfirmations.RemoveAll(x => x.Job.Key == bucketKey);
         }
 
-        public void RemoveOperation(Guid operationKey)
+        /// <summary>
+        /// Returns the removed operation
+        /// </summary>
+        /// <param name="operationKey"></param>
+        /// <returns></returns>
+        public FOperation RemoveOperation(Guid operationKey)
         {
             var bucket = GetBucketByOperationKey(operationKey);
             var operation = GetOperationByOperationKey(operationKey);
             bucket = bucket.RemoveOperation(operation);
             Replace(bucket);
+            return operation;
         }
 
         public FBucket Add(FBucket bucket, FOperation fOperation)
@@ -177,7 +183,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
         {
             return ((IJob) bucket).Duration + operation.Operation.Duration <=
-                   GetCalculatedBucketSize(operation.RequiredCapability);
+                   GetCalculatedBucketSize(bucket.RequiredCapability);
 
         }
 
@@ -257,58 +263,57 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return notSatisfiedOperations;
         }
 
-        public long AddOrUpdateBucketSize(ResourceCapabilityPair toolCapabilityPair, int duration)
+        public long AddOrUpdateBucketSize(M_ResourceCapability capability, int duration)
         {
-            long maxBucketSize = 0L;
-            var toolCapacityEntry = ToolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
-            
-            if (toolCapacityEntry.Key == null)
+            var maxBucketSize = MaxBucketSize;
+            try // update
             {
-                 ToolBucketSizeDictionary.Add(toolCapabilityPair, 0L);
-                 toolCapacityEntry = ToolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
+                var (key, value) = SetupBucketSizeDictionary.SingleOrDefault(x => x.Key.Id == capability.Id);
+                maxBucketSize = value + duration;
+                SetupBucketSizeDictionary[key] = maxBucketSize;
+                return maxBucketSize;
             }
-
-            var value = toolCapacityEntry.Value;
-            value += duration;
-            ToolBucketSizeDictionary[toolCapacityEntry.Key] = value;
-            
-            return maxBucketSize;
-
+            catch (Exception e) // create
+            {
+                SetupBucketSizeDictionary.Add(capability, maxBucketSize);
+                return maxBucketSize;
+            }
         }
 
-        public long DecreaseBucketSize(ResourceCapabilityPair toolCapabilityPair, int duration)
+        public long DecreaseBucketSize(M_ResourceCapability capability, int duration)
         {
-            long maxBucketSize = 0L;
-            var toolCapacityEntry = ToolBucketSizeDictionary.SingleOrDefault(x => x.Key.Equals(toolCapabilityPair));
-            if (toolCapacityEntry.Key == null) throw new Exception("toolCapacity is broken");
+            //var maxBucketSize = 0L;
+            var toolCapacityEntry = SetupBucketSizeDictionary.SingleOrDefault(x => x.Key.Id == capability.Id);
             var value = toolCapacityEntry.Value;
             value -= duration;
-            ToolBucketSizeDictionary[toolCapacityEntry.Key] = value;
+            SetupBucketSizeDictionary[toolCapacityEntry.Key] = value;
             //System.Diagnostics.Debug.WriteLine($"{toolCapabilityPair._resourceTool.Name} of {toolCapabilityPair._resourceCapability.Name} % to Value {value}");
-            return maxBucketSize;
+            return value;
 
         }
 
-        public long GetCalculatedBucketSize(M_ResourceCapability resoourceCapability)
+        public long GetCalculatedBucketSize(M_ResourceCapability capability)
         {
-            var maxBucketSize = 0L;
+
             double capabilitySize = 0;
+            var setupTuple = SetupBucketSizeDictionary.Single(x => x.Key.Id == capability.Id);
+            var maxBucketSize = setupTuple.Value;
 
-            var toolCapability = ToolBucketSizeDictionary.Single(x => x.Key._resourceCapability.Name.Equals(resoourceCapability.Name));
-
-            foreach (var entry in ToolBucketSizeDictionary)
+            /*
+            foreach (var entry in SetupBucketSizeDictionary)
             {
-                if (entry.Key._resourceCapability.Name.Equals(toolCapability.Key._resourceCapability.Name))
+                if (entry.Key == .ResourceCapability.Name.Equals(setupTuple.Key.ResourceCapability.Name))
                 {
                     capabilitySize += Convert.ToDouble(entry.Value);
                 }
             }
 
-            var toolRatioOfCapability = toolCapability.Value / capabilitySize;
+            var toolRatioOfCapability = setupTuple.Value / capabilitySize;
+            
             //System.Diagnostics.Debug.WriteLine($"{toolCapability.Key._resourceTool.Name} {toolRatioOfCapability} % of {toolCapability.Key._resourceCapability.Name}");
             maxBucketSize = Convert.ToInt64(Math.Round(toolRatioOfCapability * MaxBucketSize, 0));
-
             //TODO Maybe add min bucket size
+            */
             return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
         }
     }

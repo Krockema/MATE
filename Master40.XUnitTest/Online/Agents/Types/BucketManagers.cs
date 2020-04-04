@@ -141,8 +141,8 @@ namespace Master40.XUnitTest.Online.Agents.Types
         {
             var bucketManager = new BucketManager(240);
 
-            var toolCap1 = new ResourceCapabilityPair(toolBig, capBig);
-            var toolCap2 = new ResourceCapabilityPair(toolSmall, capSmall);
+            var toolCap1 = new M_ResourceCapability() { Name = "Cutting Small" , ResourceSetups = new List<M_ResourceSetup>() { new M_ResourceSetup() {Name = "Small Saw"}}};
+            var toolCap2 = new M_ResourceCapability() { Name = "Cutting Big", ResourceSetups = new List<M_ResourceSetup>() { new M_ResourceSetup() { Name = "Big Saw" } } };
             bucketManager.AddOrUpdateBucketSize(toolCap1, 0);
             
 
