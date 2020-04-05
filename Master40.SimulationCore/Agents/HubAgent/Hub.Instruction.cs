@@ -121,6 +121,20 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
+
+                public class RequeueBucket : SimulationMessage
+                {
+                    public static RequeueBucket Create(Guid bucketKey, IActorRef target)
+                    {
+                        return new RequeueBucket(message: bucketKey, target: target);
+                    }
+                    private RequeueBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
                 public class ResponseRequeueBucket : SimulationMessage
                 {
                     public static ResponseRequeueBucket Create(FRequestToRequeue message, IActorRef target)

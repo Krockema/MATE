@@ -61,7 +61,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (success)
             {
                 Agent.DebugMessage($"{bucket.Job.Name} has been send to requeue");
-                Agent.Send(Hub.Instruction.BucketScope.ResetBucket.Create(bucketKey, bucket.Job.HubAgent));
+                Agent.Send(Hub.Instruction.BucketScope.EnqueueBucket.Create(bucketKey, bucket.Job.HubAgent));
             }
             // send to all other resources
             // response to AcknowledgeReset

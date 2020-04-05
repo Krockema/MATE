@@ -69,7 +69,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public bool Remove(Guid bucketKey)
         {
             var toremove = _jobConfirmations.RemoveAll(x => x.Job.Key == bucketKey);
-            System.Diagnostics.Debug.WriteLine( toremove + " jobs have been removed for bucketkey " + bucketKey);
             return 1 == toremove;
         }
 

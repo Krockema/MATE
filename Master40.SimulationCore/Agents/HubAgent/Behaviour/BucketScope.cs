@@ -38,6 +38,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.Default.EnqueueJob msg: AssignJob(msg.GetObjectFromMessage); break;
                 //case Hub.Instruction.BucketScope.EnqueueOperation msg: EnqueueOperation(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.BucketScope.RequeueBucket msg: RequeueBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.ResetBucket msg: ResetBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
@@ -50,9 +51,24 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return success;
         }
 
+        private void RequeueBucket(Guid bucketKey)
+        {
+            var bucket = _bucketManager.GetBucketByBucketKey(bucketKey);
+
+            if (bucket == null)
+                return;
+
+            _proposalManager.Remove(bucket.Key);
+
+            EnqueueBucket(bucket.Key);
+        }
+
         private void ResetBucket(Guid bucketKey)
         {
             var bucket = _bucketManager.GetBucketByBucketKey(bucketKey);
+
+            if (bucket == null)
+                return;
 
             var successRemove = _bucketManager.Remove(bucket.Key);
             
@@ -261,16 +277,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
-            var operation = _unassigendOperations.SingleOrDefault(x => x.Key == startCondition.OperationKey);
+            var operations = _unassigendOperations.Where(x => x.Key == startCondition.OperationKey);
 
-            if (operation != null)
+            if (operations.Count() > 0)
             {
-                operation.SetStartConditions(startCondition);
+                operations.First().SetStartConditions(startCondition);
                 return;
             }
 
             var bucket = _bucketManager.GetBucketByOperationKey(startCondition.OperationKey);
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey: bucket.Key);
+            bucket = jobConfirmation.Job as FBucket;
 
             _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
 
@@ -331,7 +348,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {jobResult.Key} in bucket: {bucket.Name} {bucket.Key}");
             }
             
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: ((FOperationResult)jobResult).ProductionAgent));
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
             
         }
 
