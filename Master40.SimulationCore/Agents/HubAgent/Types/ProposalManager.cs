@@ -12,30 +12,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalManager
     {
-        private Dictionary<Guid, ProposalForSetupDefinitionSet> _proposalDictionary { get; set; } = new Dictionary<Guid, ProposalForSetupDefinitionSet>();
+        private Dictionary<Guid, ProposalForSetupDefinitionSet> _proposalDictionary { get; set; } 
 
         public ProposalManager()
         {
-
-        }
-
-        public bool AllProposalForSetupDefinitionReceived(Guid jobKey)
-        {
-            return _proposalDictionary.TryGetValue(jobKey, out var proposalForSetupDefinitionSet) 
-                   && proposalForSetupDefinitionSet.TrueForAll(x => x.AllProposalsReceived());
-        }
-
-        public bool AllSetupDefintionsPostponed(Guid jobKey)
-        {
-            return _proposalDictionary.TryGetValue(jobKey, out var proposalForSetupDefinitionSet)
-                   && proposalForSetupDefinitionSet.TrueForAll(x => x.AnyPostponed());
-        }
-
-        public long PostponedUntil(Guid job)
-        {
-            _proposalDictionary.TryGetValue(job, out var proposalForSetupDefinitionSet);
-
-            return proposalForSetupDefinitionSet.Min(x => x.PostponedUntil());
+            _proposalDictionary = new Dictionary<Guid, ProposalForSetupDefinitionSet>();
         }
 
         public bool Add(Guid jobKey, List<FSetupDefinition> fSetupDefinitions)
@@ -45,15 +26,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _proposalDictionary.TryAdd(jobKey, defs);
         }
 
-        public int AddProposal(FProposal fProposal)
+        public ProposalForSetupDefinitionSet AddProposal(FProposal fProposal)
         {
             if (!_proposalDictionary.TryGetValue(fProposal.JobKey, out var proposalForSetupDefinitionSet))
-                return -1;
+                return null;
 
             var proposalForSetupDefinition = proposalForSetupDefinitionSet.Single(x => x.GetFSetupDefinition.SetupKey == fProposal.SetupId);
 
             proposalForSetupDefinition.Add(fProposal);
-                return proposalForSetupDefinition.RequiredProposals;
+                return proposalForSetupDefinitionSet;
         }
 
         public ProposalForSetupDefinitionSet GetProposalForSetupDefinitionSet(Guid jobKey)

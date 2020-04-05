@@ -84,17 +84,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , processingQueueLength: _processingQueue.SumDurations
                 , setupDuration: setupDuration);
 
-            if (queuePosition.IsQueueAble)
-            {
-                Agent.DebugMessage(msg: $"IsQueueable: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}");
-            }
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(SCOPELIMIT * 0.8) );
+            var fPostponed = new FPostponeds.FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(SCOPELIMIT * 0.8));
 
-            if (fPostponed.IsPostponed)
-            {
-                Agent.DebugMessage(msg: $"Postponed: { fPostponed.IsPostponed } with Offset: { fPostponed.Offset } ");
-            }
+            Agent.DebugMessage(msg: queuePosition.IsQueueAble
+                ? $"Bucket: {requestProposal.Job.Key} IsQueueAble: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}"
+                : $"Bucket: {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} ");
+
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
@@ -241,9 +237,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             if (setupDuration > 0)
             {
-                Agent.DebugMessage(
-                    msg:
-                    $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
+                Agent.DebugMessage(msg:
+                    $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
+                    $"Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
+                
                 _setupManager.Mount(_jobInProgress.Current.Job.RequiredCapability);
                 //TODO ExpectedDuration might be different by randomize setupDuration (see WorktimeGenerator at JobDuration)
                 var pubSetup = new FCreateSimulationResourceSetups.FCreateSimulationResourceSetup(
@@ -269,9 +266,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             //TODO for each operation in bucket try to work
             var bucket = (FBucket)_jobInProgress.Current.Job;
 
-            Agent.DebugMessage(
-                msg:
-                $"Do Work(): {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations at resource {Agent.Context.Self.Path.Name}");
             //get first satisfied item with lowest priority in bucket
             var operation = bucket.Operations.OrderByDescending(prio => prio.DueTime)
                 .FirstOrDefault(op => op.StartConditions.Satisfied);
@@ -281,7 +275,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: operation.Key, target: _jobInProgress.Current.Job.HubAgent));
 
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: operation.Operation.Duration);
-            Agent.DebugMessage(msg: $"Starting Job {operation.Operation.Name}  Key: {operation.Key} new Duration is {randomizedWorkDuration}");
+            Agent.DebugMessage(msg: $"Starting Job {operation.Operation.Name}  Key: {operation.Key} new Duration is {randomizedWorkDuration} " +
+                                    $"from bucket {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations " +
+                                    $"at resource {Agent.Context.Self.Path.Name}");
 
             var pub = new FUpdateSimulationJobs.FUpdateSimulationJob(job: operation, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name, bucket: bucket.Name);
             Agent.Context.System.EventStream.Publish(@event: pub);
@@ -304,7 +300,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var bucket = (FBucket)_jobInProgress.Current.Job;
             var operation = bucket.Operations.Single(x => x.Key == jobResult.Key);
             operation.SetFinished();
-            Agent.DebugMessage($"Resource {Agent.Context.Self.Path.Name} called operation {operation.Operation.Name} {operation.Key} from bucket {bucket.Name} finished");
+            Agent.DebugMessage($"Resource {Agent.Context.Self.Path.Name} called operation {operation.Operation.Name} {operation.Key} from bucket {bucket.Name} {bucket.Key} finished");
 
             Agent.Send(BasicInstruction.FinishJob.Create(message: jobResult, target: bucket.HubAgent));
 

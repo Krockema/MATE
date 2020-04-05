@@ -170,7 +170,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 foreach (var resource in setupDefinition.RequiredResources)
                 {
-                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name}");
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name} with {jobConfirmation.Job.Key}");
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
                         .Create(new FRequestProposalForSetup(jobConfirmation.Job
                                                                   , setupDefinition.SetupKey)
@@ -189,38 +189,34 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var bucket = jobConfirmation.Job as FBucket;
             var required = _proposalManager.AddProposal(fProposal);
-            if (required == -1) return;
-            Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
-
+            if (required == null) return;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
-            System.Diagnostics.Debug.WriteLine($" Number proposals for {propSet.Count}  of {required} !");
-
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {fProposal.PossibleSchedule} " +
+                                    $"JobKey: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}!");
 
             // if all resources replied 
-            if (_proposalManager.AllProposalForSetupDefinitionReceived(bucket.Key))
+            if (propSet.AllProposalsReceived)
             {
                 // item Postponed by All resources ? -> requeue after given amount of time.
-                if (_proposalManager.AllSetupDefintionsPostponed(bucket.Key))
+                var proposalForSetupDefinition = propSet.GetValidProposal();
+                if (proposalForSetupDefinition == null)
                 {
-                    var postPonedFor = _proposalManager.PostponedUntil(bucket.Key);
-                    Agent.DebugMessage(msg: $"{bucket.Name} {bucket.Key} postponed to {postPonedFor}");
+                    var postponedFor = propSet.PostponedUntil; // TODO: Naming Until != For
+                    Agent.DebugMessage(msg: $"{bucket.Name} {bucket.Key} postponed to {postponedFor}");
 
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
-                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: bucket, target: Agent.Context.Self), waitFor: postPonedFor);
+                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: bucket, target: Agent.Context.Self), waitFor: postponedFor);
                     return;
 
                 }
 
-                var acknowledgedProposal = _proposalManager.GetValidProposalForSetupDefinitionFor(bucket.Key);
-                jobConfirmation.Schedule = acknowledgedProposal.EarliestStart();
-                jobConfirmation.SetupDefinition = acknowledgedProposal.GetFSetupDefinition;
+                jobConfirmation.Schedule = proposalForSetupDefinition.EarliestStart();
+                jobConfirmation.SetupDefinition = proposalForSetupDefinition.GetFSetupDefinition;
 
-                foreach (IActorRef resource in acknowledgedProposal.GetFSetupDefinition.RequiredResources)
+                foreach (IActorRef resource in proposalForSetupDefinition.GetFSetupDefinition.RequiredResources)
                 {
-
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {resource}");
-
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(jobConfirmation.ToImutable()
                             , target: resource));

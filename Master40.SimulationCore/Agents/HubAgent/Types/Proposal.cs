@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.DataModel;
 using static FProposals;
 using static FSetupDefinitions;
 
@@ -15,7 +14,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         private List<FProposal> _proposals = new List<FProposal>();
         public long SetupKey => _fSetupDefinition.SetupKey;
-
+        public int RequiredProposals => _fSetupDefinition.RequiredResources.Count();
+        public int ReceivedProposals => _proposals.Count();
         public ProposalForSetupDefinition(FSetupDefinition fSetupDefinition)
         {
             _fSetupDefinition = fSetupDefinition;
@@ -26,9 +26,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _fSetupDefinition.RequiredResources.Count == _proposals.Count;
         }
 
-        public bool AnyPostponed()
+        public bool NoPostponed()
         {
-            return _proposals.Any(x => x.Postponed.IsPostponed);
+            return _proposals.TrueForAll(x => !x.Postponed.IsPostponed);
         }
 
         public long PostponedUntil()
@@ -48,12 +48,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 throw new Exception("proposal for resourceAgent already exits");
             }
             // check if proposal for same resource already exits --> override ??
-
             _proposals.Add(proposal);
         }
-
-        public int RequiredProposals => _fSetupDefinition.RequiredResources.Count();
-
         public void RemoveAll()
         {
             _proposals.Clear();

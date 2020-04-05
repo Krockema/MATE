@@ -265,16 +265,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public void AddOrUpdateBucketSize(M_ResourceCapability capability, int duration)
         {
-            try // update
+            var (key, value) = CapabilityBucketSizeDictionary.SingleOrDefault(x => x.Key.Id == capability.Id);
+            if (key != null) // update
             {
-                var (key, value) = CapabilityBucketSizeDictionary.SingleOrDefault(x => x.Key.Id == capability.Id);
                 value += duration;
                 CapabilityBucketSizeDictionary[key] = value;
-            }
-            catch (Exception e) // create
-            {
-                CapabilityBucketSizeDictionary.Add(capability, duration);
-            }
+                return;
+            }    
+            // Create    
+            CapabilityBucketSizeDictionary.Add(capability, duration);
         }
 
         public void DecreaseBucketSize(M_ResourceCapability capability, int duration)

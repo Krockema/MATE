@@ -88,30 +88,31 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}");
             
-            _proposalManager.AddProposal(fProposal);
-
+            var propSet = _proposalManager.AddProposal(fProposal);
+            
             // if all resources answered
-            if (_proposalManager.AllProposalForSetupDefinitionReceived(fOperation.Key))
+            if (propSet.AllProposalsReceived)
             {
                 // item Postponed by All Machines ? -> requeue after given amount of time.
-                if (_proposalManager.AllSetupDefintionsPostponed(fOperation.Key))
+                var proposalForSetupDefinition = _proposalManager.GetValidProposalForSetupDefinitionFor(fOperation.Key);
+                if (proposalForSetupDefinition == null)
                 {
-                    var postPonedFor = _proposalManager.PostponedUntil(fOperation.Key);
-                    Agent.DebugMessage(msg: $"{fOperation.Operation.Name} {fOperation.Key} postponed to {postPonedFor}");
+                    var postponedFor = propSet.PostponedUntil;
+                    Agent.DebugMessage(msg: $"{fOperation.Operation.Name} {fOperation.Key} postponed to {postponedFor}");
 
                     _proposalManager.RemoveAllProposalsFor(fOperation.Key);
 
-                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postPonedFor);
+                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postponedFor);
                     return;
                 }
 
                 // acknowledge resources -> therefore get Machine -> send acknowledgement
-                var acknowledgedProposal = _proposalManager.GetValidProposalForSetupDefinitionFor(fOperation.Key);
+                
                 var jobConfirmation = _operations.GetJobConfirmation(fOperation.Key);
-                jobConfirmation.Schedule = acknowledgedProposal.EarliestStart();
-                jobConfirmation.SetupDefinition = acknowledgedProposal.GetFSetupDefinition;
+                jobConfirmation.Schedule = proposalForSetupDefinition.EarliestStart();
+                jobConfirmation.SetupDefinition = proposalForSetupDefinition.GetFSetupDefinition;
 
-                foreach (IActorRef resource in acknowledgedProposal.GetFSetupDefinition.RequiredResources) {
+                foreach (IActorRef resource in proposalForSetupDefinition.GetFSetupDefinition.RequiredResources) {
 
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {resource}");
 
