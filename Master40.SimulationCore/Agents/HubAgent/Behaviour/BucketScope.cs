@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FBuckets;
-using static FJobConfirmations;
-using static FOperationResults;
 using static FOperations;
 using static FProposals;
 using static FRequestProposalForSetups;
@@ -22,13 +20,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         public BucketScope(long maxBucketSize, SimulationType simulationType = SimulationType.BucketScope)
             : base(simulationType: simulationType)
         {
-            _maxBucketSize = maxBucketSize;
+            _bucketManager = new BucketManager(maxBucketSize: maxBucketSize);
         }
-
-        private static long _maxBucketSize { get; set; }
-
         private List<FOperation> _unassigendOperations { get; } = new List<FOperation>();
-        private BucketManager _bucketManager { get; } = new BucketManager(maxBucketSize: _maxBucketSize);
+        private BucketManager _bucketManager { get; } 
 
         public override bool Action(object message)
         {
@@ -38,7 +33,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.Default.EnqueueJob msg: AssignJob(msg.GetObjectFromMessage); break;
                 //case Hub.Instruction.BucketScope.EnqueueOperation msg: EnqueueOperation(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.BucketScope.RequeueBucket msg: RequeueBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.ResetBucket msg: ResetBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
@@ -49,18 +43,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     break;
             }
             return success;
-        }
-
-        private void RequeueBucket(Guid bucketKey)
-        {
-            var bucket = _bucketManager.GetBucketByBucketKey(bucketKey);
-
-            if (bucket == null)
-                return;
-
-            _proposalManager.Remove(bucket.Key);
-
-            EnqueueBucket(bucket.Key);
         }
 
         private void ResetBucket(Guid bucketKey)

@@ -294,10 +294,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var capabilityTuple = CapabilityBucketSizeDictionary.Single(x => x.Key.Id == capability.Id);
 
             var sumCapability = CapabilityBucketSizeDictionary.Sum(x => x.Value);
-            double capabilitySize = capabilityTuple.Value / sumCapability;
+            double capabilitySize = (double)capabilityTuple.Value / sumCapability;
             
-            //System.Diagnostics.Debug.WriteLine($"{toolCapability.Key._resourceTool.Name} {toolRatioOfCapability} % of {toolCapability.Key._resourceCapability.Name}");
+            
             var maxBucketSize = Convert.ToInt64(Math.Round(capabilitySize * MaxBucketSize, 0));
+            //System.Diagnostics.Debug.WriteLine($"{capabilityTuple.Key.Name} used capacity {capabilitySize} %  set BucketSize to {maxBucketSize}");
             //TODO Maybe add min bucket size
             return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
         }
