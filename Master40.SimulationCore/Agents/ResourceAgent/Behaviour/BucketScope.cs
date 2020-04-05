@@ -5,13 +5,11 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
 using System.Linq;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FBuckets;
+using static FJobConfirmations;
+using static FRequestProposalForSetups;
 using static FUpdateStartConditions;
 using static IJobResults;
-using static IJobs;
-using static FRequestProposalForSetups;
-using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -136,7 +134,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (!queuePosition.IsQueueAble)
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
-                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create((FBucket)jobItem, target: jobItem.HubAgent));
+                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));
                 return;
             }
             _scopeQueue.Enqueue(fJobConfirmation);
@@ -147,14 +145,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal override void UpdateAndRequeuePlanedJobs(FJobConfirmation jobItem)
+        internal override void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
         {
             Agent.DebugMessage(msg: "Old scope queue length = " + _scopeQueue.Count);
-            var toRequeue = _scopeQueue.CutTail(currentTime: Agent.CurrentTime, jobItem);
-            foreach (var jobConfirmation in toRequeue)
+            var toRequeue = _scopeQueue.CutTail(currentTime: Agent.CurrentTime, jobConfirmation);
+            foreach (var job in toRequeue)
             {
-                _scopeQueue.RemoveJob(jobConfirmation);
-                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create((FBucket)jobConfirmation.Job, target: jobConfirmation.Job.HubAgent));
+                _scopeQueue.RemoveJob(job);
+                Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(job.Job.Key, target: job.Job.HubAgent));
             }
             Agent.DebugMessage(msg: "New scope queue length = " + _scopeQueue.Count);
         }
@@ -189,7 +187,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             if (jobConfirmation.IsReset)
             {
-                Agent.DebugMessage($"{jobConfirmation.Job.Name} doesn't exits and couldn't be acknowledged");
+                Agent.DebugMessage($"Bucket {jobConfirmation.Job.Key} doesn't exits and couldn't be acknowledged");
                 _processingQueue.Remove(jobConfirmation);
                 UpdateProcessingQueue();
                 return;
@@ -268,7 +266,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             //get first satisfied item with lowest priority in bucket
             var operation = bucket.Operations.OrderByDescending(prio => prio.DueTime)
-                .FirstOrDefault(op => op.StartConditions.Satisfied);
+                .FirstOrDefault(op => op.StartConditions.Satisfied && !op.IsFinished);
             
             //else - finish operation
             Agent.DebugMessage(msg: $"Start withdraw for article {operation.Operation.Name} {operation.Key}");
@@ -348,7 +346,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var item = _scopeQueue.JobConfirmations.FirstOrDefault();
             if (item != null)
             {
-                UpdateAndRequeuePlanedJobs(jobItem: item);
+                UpdateAndRequeuePlanedJobs(item);
             }
         }
     }

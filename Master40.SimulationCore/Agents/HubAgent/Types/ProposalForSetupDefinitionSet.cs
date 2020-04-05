@@ -1,10 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Microsoft.EntityFrameworkCore.Internal;
-using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -12,8 +8,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         public ProposalForSetupDefinition GetValidProposal()
         {
-            return this.FirstOrDefault(x => this.Min(y => y.EarliestStart()) == x.EarliestStart()
-                             && x.NoPostponed());
+            var allNotPostponed = this.Where(x => x.NoPostponed()).ToList();
+            var firstValidProposal = allNotPostponed.OrderBy(x => x.EarliestStart()).FirstOrDefault();
+            return firstValidProposal;
         }
 
         public int RequiredProposals => this.Sum(x => x.RequiredProposals);

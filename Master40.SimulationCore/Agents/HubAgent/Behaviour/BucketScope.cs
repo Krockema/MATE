@@ -5,8 +5,8 @@ using Master40.SimulationCore.Agents.ResourceAgent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.DataModel;
 using static FBuckets;
+using static FJobConfirmations;
 using static FOperationResults;
 using static FOperations;
 using static FProposals;
@@ -14,7 +14,6 @@ using static FRequestProposalForSetups;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
-using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -108,15 +107,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            bucket = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
+            var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
 
-            _proposalManager.Add(bucket.Key, _capabilityManager.GetAllSetupDefinitions(fOperation, Agent));
-
-            Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
+            //Agent.DebugMessage($"Create new Bucket {jobConfirmation.Job.Name} with scope of {((FBucket)jobConfirmation.Job).Scope} from {jobConfirmation.Job.ForwardStart} to {bucket.BackwardStart}");
             
             _unassigendOperations.Remove(fOperation);
             
-            EnqueueBucket(bucket);
+            EnqueueBucket(jobConfirmation.Job.Key);
 
             //after creating new bucket, modify subsequent buckets
             ModifyBucket(fOperation);
@@ -147,24 +144,26 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
         }
 
-        internal void EnqueueBucket(FBucket bucket)
+        internal void EnqueueBucket(Guid bucketKey)
         {
+            //TODO maybe ID
+
             //delete all proposals if exits
-            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucket.Key);
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
 
             if (jobConfirmation == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
-                _proposalManager.Remove(bucket.Key);
+                _proposalManager.Remove(jobConfirmation.Job.Key);
                 return;
-            } 
+            }
 
-            _proposalManager.RemoveAllProposalsFor(bucket.Key);
+            _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllSetupDefinitions(jobConfirmation.Job.RequiredCapability, Agent));
             jobConfirmation.ResetConfirmation();
 
-            Agent.DebugMessage($"Enqueue {bucket.Name} with {bucket.Operations.Count} operations");
+            Agent.DebugMessage($"Enqueue {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count} operations");
             
-            var capabilityDefinition = _capabilityManager.GetResourcesByCapability(bucket.RequiredCapability);
+            var capabilityDefinition = _capabilityManager.GetResourcesByCapability(jobConfirmation.Job.RequiredCapability);
 
             foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
             {
@@ -202,11 +201,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 if (proposalForSetupDefinition == null)
                 {
                     var postponedFor = propSet.PostponedUntil; // TODO: Naming Until != For
-                    Agent.DebugMessage(msg: $"{bucket.Name} {bucket.Key} postponed to {postponedFor}");
 
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
-                    Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: bucket, target: Agent.Context.Self), waitFor: postponedFor);
+                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
                     return;
 
                 }
@@ -294,11 +292,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal override void WithdrawRequiredArticles(Guid operationKey)
         {
             var operation = _bucketManager.GetOperationByOperationKey(operationKey);
+            if (operation == null)
+                throw new Exception("operation was not found in bucketManager ");
             Agent.DebugMessage($"WithdrawRequiredArticles for operation {operation.Operation.Name} {operationKey} on {Agent.Context.Self.Path.Name}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
             .Create(message: operation.Key
                 , target: operation.ProductionAgent));
-
         }
 
         internal void RequeueOperations(List<FOperation> operations)

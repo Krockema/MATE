@@ -37,9 +37,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return capabilityDefinition;
         }
 
-        public List<FSetupDefinition> GetAllSetupDefinitions(FOperation operation, Agent agent)
+        public List<FSetupDefinition> GetAllSetupDefinitions(M_ResourceCapability capability, Agent agent)
         {
-            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == operation.RequiredCapability.Id).GetAllSetupDefinitions;
+            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == capability.Id).GetAllSetupDefinitions;
 
         }
         

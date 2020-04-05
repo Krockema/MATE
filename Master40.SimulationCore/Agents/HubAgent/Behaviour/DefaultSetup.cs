@@ -48,7 +48,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 fOperation.HubAgent = Agent.Context.Self;
                 jobConfirmation = new JobConfirmation(fOperation);
                 _operations.Add(jobConfirmation);
-                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation, Agent));
+                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation.RequiredCapability, Agent));
                 Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} " +
                                         $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
 
@@ -58,7 +58,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // reset Item.
                 fOperation = jobConfirmation.Job as FOperation;
                 Agent.DebugMessage(msg: $"Got Item to Requeue: { fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied } with Id: { fOperation.Key }");
-                _proposalManager.RemoveAllProposalsFor(fOperation.Key);
+                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation.RequiredCapability, Agent));
                 jobConfirmation.ResetConfirmation();
             }
 
@@ -86,20 +86,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // get related operation and add proposal.
             var fOperation = _operations.GetJobBy(fProposal.JobKey) as FOperation;
 
-            Agent.DebugMessage(msg: $"Proposal for {fOperation.Operation.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}");
-            
             var propSet = _proposalManager.AddProposal(fProposal);
-            
+
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {fOperation.Key} with Schedule: {fProposal.PossibleSchedule} " +
+                                   $"JobKey: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}!");
+
             // if all resources answered
             if (propSet.AllProposalsReceived)
             {
                 // item Postponed by All Machines ? -> requeue after given amount of time.
-                var proposalForSetupDefinition = _proposalManager.GetValidProposalForSetupDefinitionFor(fOperation.Key);
+                var proposalForSetupDefinition = propSet.GetValidProposal();
                 if (proposalForSetupDefinition == null)
                 {
                     var postponedFor = propSet.PostponedUntil;
-                    Agent.DebugMessage(msg: $"{fOperation.Operation.Name} {fOperation.Key} postponed to {postponedFor}");
-
                     _proposalManager.RemoveAllProposalsFor(fOperation.Key);
 
                     Agent.Send(instruction: Hub.Instruction.Default.EnqueueJob.Create(message: fOperation, target: Agent.Context.Self), waitFor: postponedFor);

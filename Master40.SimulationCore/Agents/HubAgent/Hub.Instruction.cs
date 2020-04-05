@@ -111,15 +111,15 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                 public class EnqueueBucket : SimulationMessage
                 {
-                    public static EnqueueBucket Create(FBucket bucket, IActorRef target)
+                    public static EnqueueBucket Create(Guid bucketKey, IActorRef target)
                     {
-                        return new EnqueueBucket(message: bucket, target: target);
+                        return new EnqueueBucket(message: bucketKey, target: target);
                     }
                     private EnqueueBucket(object message, IActorRef target) : base(message: message, target: target)
                     {
 
                     }
-                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
                 public class ResponseRequeueBucket : SimulationMessage
                 {

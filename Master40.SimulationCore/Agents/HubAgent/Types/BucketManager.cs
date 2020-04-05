@@ -9,6 +9,7 @@ using static FOperations;
 using static IJobs;
 using static FUpdateStartConditions;
 using Master40.DB.DataModel;
+using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -27,11 +28,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             MaxBucketSize = maxBucketSize;
         }
 
-        public FBucket CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public JobConfirmation CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
             var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime);
-            _jobConfirmations.Add(new JobConfirmation(bucket));
-            return bucket;
+            var jobConfirmation = new JobConfirmation(bucket);
+            _jobConfirmations.Add(jobConfirmation);
+            return jobConfirmation;
         }
 
         public FBucket GetBucketByBucketKey(Guid bucketKey)
@@ -66,7 +68,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public bool Remove(Guid bucketKey)
         {
-            return 1 == _jobConfirmations.RemoveAll(x => x.Job.Key == bucketKey);
+            var toremove = _jobConfirmations.RemoveAll(x => x.Job.Key == bucketKey);
+            System.Diagnostics.Debug.WriteLine( toremove + " jobs have been removed for bucketkey " + bucketKey);
+            return 1 == toremove;
         }
 
         /// <summary>
