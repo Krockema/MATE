@@ -28,7 +28,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private static long _maxBucketSize { get; set; }
 
-        private List<FOperation> _operationList { get; } = new List<FOperation>();
+        private List<FOperation> _unassigendOperations { get; } = new List<FOperation>();
         private BucketManager _bucketManager { get; } = new BucketManager(maxBucketSize: _maxBucketSize);
 
         public override bool Action(object message)
@@ -60,7 +60,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (successRemove)
             {
                 _proposalManager.Remove(bucket.Key);
-                _operationList.AddRange(bucket.Operations);
+                _unassigendOperations.AddRange(bucket.Operations);
                 RequeueOperations(bucket.Operations.ToList());
             }
             //TODO multiple reset from one setupdefinition?
@@ -79,7 +79,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
-            _operationList.Add(operation);
+            _unassigendOperations.Add(operation);
             
             EnqueueOperation(operation);
 
@@ -103,17 +103,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var bucket = _bucketManager.AddToBucket(fOperation);
 
-            if (bucket == null)//if no bucket to add exists create a new one
+            if (bucket != null)//if no bucket to add exists create a new one
             {
-                bucket = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
+                return;
             }
+
+            bucket = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
 
             _proposalManager.Add(bucket.Key, _capabilityManager.GetAllSetupDefinitions(fOperation, Agent));
 
-
             Agent.DebugMessage($"Create new Bucket {bucket.Name} with scope of {bucket.Scope} from {bucket.ForwardStart} to {bucket.BackwardStart}");
             
-            _operationList.Remove(fOperation);
+            _unassigendOperations.Remove(fOperation);
             
             EnqueueBucket(bucket);
 
@@ -187,9 +188,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (jobConfirmation == null) return;
 
             var bucket = jobConfirmation.Job as FBucket;
-            _proposalManager.AddProposal(fProposal);
-
+            var required = _proposalManager.AddProposal(fProposal);
+            if (required == -1) return;
             Agent.DebugMessage(msg: $"Proposal for {bucket.Name} with Schedule: {fProposal.PossibleSchedule} Id: {fProposal.JobKey} from: {fProposal.ResourceAgent}!");
+
+            var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
+            System.Diagnostics.Debug.WriteLine($" Number proposals for {propSet.Count}  of {required} !");
+
 
             // if all resources replied 
             if (_proposalManager.AllProposalForSetupDefinitionReceived(bucket.Key))
@@ -246,7 +251,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 bucket = bucket.SetFixPlanned;
                 _bucketManager.SetBucketSatisfied(bucket);
-                _operationList.AddRange(notSatisfiedOperations); 
+                _unassigendOperations.AddRange(notSatisfiedOperations); 
                 RequeueOperations(notSatisfiedOperations);
             }
             else
@@ -262,7 +267,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
-            var operation = _operationList.SingleOrDefault(x => x.Key == startCondition.OperationKey);
+            var operation = _unassigendOperations.SingleOrDefault(x => x.Key == startCondition.OperationKey);
 
             if (operation != null)
             {

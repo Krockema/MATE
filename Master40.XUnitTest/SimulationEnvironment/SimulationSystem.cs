@@ -69,7 +69,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
         [Fact]
         public void InitializeRemote()
-        
         {
             ResultContext results = ResultContext.GetContext(resultCon: remoteResultCtxString);
             results.Database.EnsureDeleted();
@@ -134,8 +133,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
                 System.Diagnostics.Debug.WriteLine($"{setup.Name} : {setup.ResourceCapability.Name} : {setup.ResourceCapability.Id}");
             }
         }
-
-
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]

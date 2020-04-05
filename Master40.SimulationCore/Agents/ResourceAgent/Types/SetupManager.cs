@@ -29,7 +29,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public M_ResourceCapability GetCurrentUsedCapability()
         {
-            return _setupInUse.ResourceSetup.ResourceCapability;
+            return _setupInUse.ResourceSetup?.ResourceCapability;
         }
 
         internal bool AlreadyEquipped(M_ResourceSetup setup)

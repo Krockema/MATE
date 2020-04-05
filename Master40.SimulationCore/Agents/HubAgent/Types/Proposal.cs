@@ -41,7 +41,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _proposals.Max(x => x.PossibleSchedule);
         }
 
-
         public void Add(FProposal proposal)
         {
             if (_proposals.Any(x => x.ResourceAgent == proposal.ResourceAgent))
@@ -52,6 +51,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             _proposals.Add(proposal);
         }
+
+        public int RequiredProposals => _fSetupDefinition.RequiredResources.Count();
 
         public void RemoveAll()
         {

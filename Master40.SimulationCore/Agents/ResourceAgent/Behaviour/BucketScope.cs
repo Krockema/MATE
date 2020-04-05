@@ -74,7 +74,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
-
         internal override void SendProposalTo(FRequestProposalForSetup requestProposal)
         {
             var setupDuration = GetSetupTime(jobItem: requestProposal.Job);
@@ -108,20 +107,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void UpdateStartCondition(FUpdateStartCondition startCondition)
         {
-            var bucket = _scopeQueue.JobConfirmations
-                .SingleOrDefault(x => ((FBucket)x.Job).Operations.Any(x => x.Key == startCondition.OperationKey)).Job as FBucket;
-
-            if (bucket == null)
-            {
-                Agent.DebugMessage($"Bucket is not in Queue anymore");
-            }
-            else
+            var buckets = _scopeQueue.JobConfirmations.Select(x => x.Job).Cast<FBucket>();
+            var bucket = buckets?.SingleOrDefault(x => x.Operations.Any(x => x.Key == startCondition.OperationKey));
+            if (bucket != null)
             {
                 var operation = bucket.Operations.Single(x => x.Key == startCondition.OperationKey);
                 operation.SetStartConditions(startCondition: startCondition);
-
                 Agent.DebugMessage($"Operation {operation.Operation.Name} {operation.Key} in {bucket.Name} has been startCondition set to: {operation.StartConditions.Satisfied} with preCondition: {operation.StartConditions.PreCondition} and articlesProvided {operation.StartConditions.ArticlesProvided}");
-
+            }
+            else
+            {
+                Agent.DebugMessage($"Bucket is not in Queue anymore");
             }
             
             UpdateProcessingQueue();

@@ -51,7 +51,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal FJobConfirmation DequeueFirstSatisfiedFix(long currentTime)
         {
-            var item = this.JobConfirmations.Cast<FBucket>().Where(x => x.StartConditions.Satisfied && x.IsFixPlanned).Cast<FJobConfirmation>().OrderBy(keySelector: x => x.Job.Priority(currentTime)).FirstOrDefault();
+            var item = this.JobConfirmations.Where(x => x.Job.StartConditions.Satisfied && ((FBucket)x.Job).IsFixPlanned)
+                                                .OrderBy(keySelector: x => x.Job.Priority(currentTime))
+                                                .FirstOrDefault();
             if (item != null)
             {
                 JobConfirmations.Remove(item: item);
