@@ -34,18 +34,23 @@ namespace Master40.XUnitTest.Online.Agents.Types
         [Fact]
         public void QueueIsValid()
         {
-            var nextItem = _queue.GetEnumerator();
-            var (key, value) = nextItem.Current;
+            var enumerator = _queue.GetEnumerator();
+            if (!enumerator.MoveNext())
+            {
+                Assert.True(false);
+                return;
+            }
 
-            while (nextItem.MoveNext())
+            var (key, value) = enumerator.Current;
+            while (enumerator.MoveNext())
             {
                 var end = key + value.Duration;
-                var startNext = nextItem.Current;
+                var startNext = enumerator.Current;
 
                 Assert.True(end <= startNext.Key);
-                (key, value) = nextItem.Current;
+                (key, value) = enumerator.Current;
             }
-            nextItem.Dispose();
+            enumerator.Dispose();
         }
 
         [Theory]
