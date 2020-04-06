@@ -28,7 +28,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         {
             PrepareModel();
             var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
-                    dueTime: 45, capability: tools[2]), 20,
+                    dueTime: 45, capability: tools[2]), 20, 15,
                 new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(newJobItem);
 
@@ -89,7 +89,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             bucket1.StartConditions.ArticlesProvided = true;
             bucket1.StartConditions.PreCondition = true;
 
-            var bucketConfirmation1 = new FJobConfirmation(bucket1, 20,
+            var bucketConfirmation1 = new FJobConfirmation(bucket1, 20, 20,
                 new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(bucketConfirmation1);
 
@@ -98,7 +98,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var prioBucket2 = ((IJob)bucket2).Priority(0);
             bucket2.StartConditions.ArticlesProvided = true;
             bucket2.StartConditions.PreCondition = true;
-            var bucketConfirmation2 = new FJobConfirmation(bucket2, 20,
+            var bucketConfirmation2 = new FJobConfirmation(bucket2, 20, 10,
                 new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(bucketConfirmation2);
 
@@ -107,7 +107,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var prioBucket3 = ((IJob)bucket3).Priority(0);
             bucket3.StartConditions.ArticlesProvided = true;
             bucket3.StartConditions.PreCondition = true;
-            var bucketConfirmation3 = new FJobConfirmation(bucket3, 20,
+            var bucketConfirmation3 = new FJobConfirmation(bucket3, 20, 10,
                 new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(bucketConfirmation3);
 
