@@ -6,4 +6,5 @@
         Resource : string
         CapabilityName : string
         ExpectedDuration : int64
+        SetupId: int32
     } 

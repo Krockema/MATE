@@ -16,5 +16,6 @@ namespace Master40.DB.ReportingModel.Interface
         long End { get; set; }
         string Resource { get; set; }
         string CapabilityName { get; set; }
+        int SetupId { get; set; }
     }
 }

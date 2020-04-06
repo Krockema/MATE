@@ -9,5 +9,6 @@ open IJobs
         Start : int64
         Resource : string
         Bucket : string
+        SetupId : int32
     } 
 

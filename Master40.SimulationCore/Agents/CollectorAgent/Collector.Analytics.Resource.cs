@@ -106,7 +106,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 CapabilityName = simulationResourceSetup.CapabilityName,
                 Start = (int)simulationResourceSetup.Start,
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration,
-                ExpectedDuration = simulationResourceSetup.ExpectedDuration
+                ExpectedDuration = simulationResourceSetup.ExpectedDuration,
+                SetupId = simulationResourceSetup.SetupId
             };
             simulationResourceSetups.Add(item: _SimulationResourceSetup);
 
@@ -513,6 +514,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
                 edit.Resource = simJob.Resource;
                 edit.Bucket = simJob.Bucket;
+                edit.SetupId = simJob.SetupId;
 
                 return;
             }

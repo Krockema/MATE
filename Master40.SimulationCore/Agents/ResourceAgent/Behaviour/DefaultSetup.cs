@@ -238,7 +238,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
                 _setupManager.Mount(_jobInProgress.Current.Job.RequiredCapability);
-                var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration, duration: setupDuration, start: Agent.CurrentTime, resource: Agent.Name, capabilityName: _jobInProgress.Current.Job.RequiredCapability.Name);
+                var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration
+                                                                        , duration: setupDuration
+                                                                           , start: Agent.CurrentTime
+                                                                        , resource: Agent.Name
+                                                                  , capabilityName: _jobInProgress.RequiredCapabilityName
+                                                                         , setupId: _jobInProgress.SetupId);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
@@ -254,7 +259,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Job.Duration);
             Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} new Duration is {randomizedWorkDuration}");
 
-            var pub = new FUpdateSimulationJob(job: _jobInProgress.Current.Job, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name, bucket: _jobInProgress.Current.Job.Bucket);
+            var pub = new FUpdateSimulationJob(job: _jobInProgress.Current.Job
+                                         , jobType: JobType.OPERATION
+                                        , duration: randomizedWorkDuration
+                                           , start: Agent.CurrentTime
+                                        , resource: Agent.Name
+                                          , bucket: _jobInProgress.Current.Job.Bucket
+                                         , setupId: _jobInProgress.SetupId);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Job.Key

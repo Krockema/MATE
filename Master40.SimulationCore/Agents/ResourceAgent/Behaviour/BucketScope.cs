@@ -246,7 +246,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                                                 duration: setupDuration,
                                                                                 start: Agent.CurrentTime,
                                                                                 resource: Agent.Name,
-                                                                                capabilityName: _jobInProgress.Current.Job.RequiredCapability.Name); 
+                                                                                capabilityName: _jobInProgress.RequiredCapabilityName,
+                                                                                setupId: _jobInProgress.SetupId); 
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);
             }
 
@@ -277,7 +278,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                     $"from bucket {bucket.Name} {bucket.Key} with {bucket.Operations.Count} operations " +
                                     $"at resource {Agent.Context.Self.Path.Name}");
 
-            var pub = new FUpdateSimulationJobs.FUpdateSimulationJob(job: operation, jobType: JobType.OPERATION, duration: randomizedWorkDuration, start: Agent.CurrentTime, resource: Agent.Name, bucket: bucket.Name);
+            var pub = new FUpdateSimulationJobs.FUpdateSimulationJob(job: operation
+                                                                    , jobType: JobType.OPERATION
+                                                                    , duration: randomizedWorkDuration
+                                                                    , start: Agent.CurrentTime
+                                                                    , resource: Agent.Name
+                                                                    , bucket: bucket.Name
+                                                                    , setupId: _jobInProgress.SetupId);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResults.FOperationResult(key: operation.Key
