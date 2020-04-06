@@ -50,22 +50,21 @@ namespace Master40.XUnitTest.Online.Agents.Types
             var bucketManager = CreateTestSetForBuckets();
 
             //Add operation to Bucket(0)
-            var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 25, averageTransitionDuration: 10, dueTime: 50, capability: capBig);
+            var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Job3", jobDuration: 25, averageTransitionDuration: 10, dueTime: 50, capability: capBig);
             var bucket = bucketManager.AddToBucket(operation1);
             Assert.Equal(3, bucket.Operations.Count);
 
             //Adds operation to Bucket(1) because first one is over capacity
-            var operation2 = TypeFactory.CreateDummyJobItem(jobName: "Job2", jobDuration: 70, averageTransitionDuration: 10, dueTime: 50, capability: capBig);
+            var operation2 = TypeFactory.CreateDummyJobItem(jobName: "Job4", jobDuration: 70, averageTransitionDuration: 10, dueTime: 50, capability: capBig);
             bucket = bucketManager.AddToBucket(operation2);
             Assert.Equal(2, bucket.Operations.Count);
 
             //Create new bucket because ForwardTime is earlier / see currentTime
-            var operation3 = TypeFactory.CreateDummyJobItem(jobName: "Job3", currentTime: -10, jobDuration: 70, averageTransitionDuration: 10, dueTime: 50, capability: capBig);
+            var operation3 = TypeFactory.CreateDummyJobItem(jobName: "Job5", currentTime: -10, jobDuration: 70, averageTransitionDuration: 10, dueTime: 50, capability: capBig);
             bucket = bucketManager.AddToBucket(operation3);
             Assert.Null(bucket);
 
         }
-
 
         [Fact]
         void ModifyBucket()
@@ -142,30 +141,24 @@ namespace Master40.XUnitTest.Online.Agents.Types
         {
             var bucketManager = new BucketManager(240);
 
-            var toolCap1 = new M_ResourceCapability() { Name = "Cutting Small" , ResourceSetups = new List<M_ResourceSetup>() { new M_ResourceSetup() {Name = "Small Saw"}}};
-            var toolCap2 = new M_ResourceCapability() { Name = "Cutting Big", ResourceSetups = new List<M_ResourceSetup>() { new M_ResourceSetup() { Name = "Big Saw" } } };
-            bucketManager.AddOrUpdateBucketSize(toolCap1, 0);
+            bucketManager.AddOrUpdateBucketSize(capBig, 15);
             
 
             //Bucket1 Saw Big
             var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Job1", jobDuration: 25, averageTransitionDuration: 10, dueTime: 150, capability: capBig);
             var operation2 = TypeFactory.CreateDummyJobItem(jobName: "Job2", jobDuration: 25, averageTransitionDuration: 10, dueTime: 150, capability: capBig);
-            var bucket = bucketManager.CreateBucket(operation1, hubAgent: ActorRefs.Nobody, currentTime: 0);
-            //TODO  FIX!
-            //bucket = ((FBucket)bucket.Job).AddOperation(operation2);
-            //bucketManager.Replace(bucket);
-            bucketManager.AddOrUpdateBucketSize(toolCap1, operation1.Operation.Duration);
-            bucketManager.AddOrUpdateBucketSize(toolCap1, operation2.Operation.Duration);
+            var jobConfirmation = bucketManager.CreateBucket(operation1, hubAgent: ActorRefs.Nobody, currentTime: 0);
+            var bucket = (FBucket)jobConfirmation.Job;
+            bucket = bucket.AddOperation(operation2);
+            bucketManager.Replace(bucket);
 
             //Bucket2 Saw Big
             var operation3 = TypeFactory.CreateDummyJobItem(jobName: "Job3", jobDuration: 15, averageTransitionDuration: 10, dueTime: 150, capability: capBig);
             bucketManager.CreateBucket(operation3, hubAgent: ActorRefs.Nobody, currentTime: 0);
-            bucketManager.AddOrUpdateBucketSize(toolCap1, operation3.Operation.Duration);
 
             //Bucket3 Saw Small
             var operation4 = TypeFactory.CreateDummyJobItem(jobName: "Job4", jobDuration: 15, averageTransitionDuration: 10, dueTime: 150, capability: capSmall);
             bucketManager.CreateBucket(operation4, hubAgent: ActorRefs.Nobody, currentTime: 0);
-            bucketManager.AddOrUpdateBucketSize(toolCap2, operation4.Operation.Duration);
 
             return bucketManager; 
         }
