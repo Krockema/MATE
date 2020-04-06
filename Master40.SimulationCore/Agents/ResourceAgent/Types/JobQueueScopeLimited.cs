@@ -16,7 +16,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     /// Queue for Planing the Scopes
     /// TODO implement / deviate from JobQueueTimeLimted 
     /// </summary>
-    public class JobQueueScopeLimited : LimitedQueue
+    public class JobQueueScopeLimited : LimitedQueue, IJobQueueScopeLimited
     {
 
         public JobQueueScopeLimited(int limit) : base(limit: limit)
