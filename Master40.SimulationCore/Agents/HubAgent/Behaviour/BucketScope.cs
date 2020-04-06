@@ -77,7 +77,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
             _unassigendOperations.Add(operation);
-            
+
+            _bucketManager.AddOrUpdateBucketSize(job.RequiredCapability, job.Duration);
+
             EnqueueOperation(operation);
 
         }
@@ -92,25 +94,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            // TODO Dynamic Lot Sizing
-            _bucketManager.AddOrUpdateBucketSize(fOperation.RequiredCapability, fOperation.Operation.Duration);
-            /*
-             * Implements the Self-Organizing Bucket Method
-             */
-
             var bucket = _bucketManager.AddToBucket(fOperation);
-
-            if (bucket != null)//if no bucket to add exists create a new one
-            {
-                return;
-            }
+            if (bucket != null) return;//if no bucket to add exists create a new one
 
             var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
-
-            //Agent.DebugMessage($"Create new Bucket {jobConfirmation.Job.Name} with scope of {((FBucket)jobConfirmation.Job).Scope} from {jobConfirmation.Job.ForwardStart} to {bucket.BackwardStart}");
-            
             _unassigendOperations.Remove(fOperation);
-            
             EnqueueBucket(jobConfirmation.Job.Key);
 
             //after creating new bucket, modify subsequent buckets
@@ -305,9 +293,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
                 EnqueueOperation(operation);
-                // TODO Dynamic Lot Sizing
-                _bucketManager.DecreaseBucketSize(operation.RequiredCapability,
-                    operation.Operation.Duration);
+               
             }
 
         }
@@ -322,7 +308,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var operation =_bucketManager.RemoveOperation(jobResult.Key);
 
             // TODO Dynamic Lot Sizing
-            _bucketManager.DecreaseBucketSize(operation.RequiredCapability,
+            _bucketManager.DecreaseBucketSize(operation.RequiredCapability.Id,
                 operation.Operation.Duration);
             if (Agent.DebugThis)
             {

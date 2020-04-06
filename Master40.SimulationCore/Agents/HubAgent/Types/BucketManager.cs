@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Akka.Actor;
 using Master40.SimulationCore.Helper;
@@ -19,7 +20,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     public class BucketManager
     {
         private List<JobConfirmation>  _jobConfirmations { get; set; } = new List<JobConfirmation>();
-        public Dictionary<M_ResourceCapability, long> CapabilityBucketSizeDictionary { get; set; } = new Dictionary<M_ResourceCapability, long>();
+        public Dictionary<int, BucketSize> CapabilityBucketSizeDictionary { get; set; } = new Dictionary<int, BucketSize>();
 
         private long MaxBucketSize { get; set; }
         
@@ -186,7 +187,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
         {
             return ((IJob) bucket).Duration + operation.Operation.Duration <=
-                   GetCalculatedBucketSize(bucket.RequiredCapability);
+                   GetBucketSize(bucket.RequiredCapability.Id);
 
         }
 
@@ -266,41 +267,54 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return notSatisfiedOperations;
         }
 
-        public void AddOrUpdateBucketSize(M_ResourceCapability capability, int duration)
+        public void AddOrUpdateBucketSize(M_ResourceCapability capability, long duration)
         {
-            var (key, value) = CapabilityBucketSizeDictionary.SingleOrDefault(x => x.Key.Id == capability.Id);
-            if (key != null) // update
+            if (CapabilityBucketSizeDictionary.TryGetValue(capability.Id, out var value)) // update
             {
-                value += duration;
-                CapabilityBucketSizeDictionary[key] = value;
+                value.Duration += duration;
+                CalculateBucketSize();
                 return;
-            }    
+            }
             // Create    
-            CapabilityBucketSizeDictionary.Add(capability, duration);
+            var bucketSize = new BucketSize {Duration = duration, Size = duration, Capability = capability};
+            CapabilityBucketSizeDictionary.Add(capability.Id, bucketSize);
+            CalculateBucketSize();
         }
 
-        public void DecreaseBucketSize(M_ResourceCapability capability, int duration)
+        public void DecreaseBucketSize(int capabilityId, long duration)
         {
-            var capabilityCapacity = CapabilityBucketSizeDictionary.Single(x => x.Key.Id == capability.Id);
-            var value = capabilityCapacity.Value;
-            value -= duration;
-            if (value < 0)
-                throw new Exception("Capability capacity for " + capabilityCapacity.Key + " negativ");
-            CapabilityBucketSizeDictionary[capabilityCapacity.Key] = value;
+            if (CapabilityBucketSizeDictionary.TryGetValue(capabilityId, out var value)) // update
+            {
+                value.Duration -= duration;
+                if (value.Duration < 0)
+                    throw new Exception("Capability capacity for " + value.Capability.Id + " negativ");
+                CalculateBucketSize();
+            }
+
+        }
+        
+        private void CalculateBucketSize()
+        {
+            var sumCapability = CapabilityBucketSizeDictionary.Sum(x => x.Value.Duration);
+            if (sumCapability == 0) return; // no work left to calculate bucket size.
+            foreach (var bucketSizeTuple in CapabilityBucketSizeDictionary)
+            {
+
+                bucketSizeTuple.Value.Ratio = (double)bucketSizeTuple.Value.Duration / sumCapability;
+                bucketSizeTuple.Value.Size = Convert.ToInt64(Math.Round(bucketSizeTuple.Value.Ratio * MaxBucketSize, 0));
+                if (bucketSizeTuple.Value.Size < 60) // to ensure a minimal bucket size. // TODO May Obsolet
+                {
+                    bucketSizeTuple.Value.Size = 60;
+                }
+            }
         }
 
-        public long GetCalculatedBucketSize(M_ResourceCapability capability)
+        public long GetBucketSize(int capabilityId)
         {
-            var capabilityTuple = CapabilityBucketSizeDictionary.Single(x => x.Key.Id == capability.Id);
-
-            var sumCapability = CapabilityBucketSizeDictionary.Sum(x => x.Value);
-            double capabilitySize = (double)capabilityTuple.Value / sumCapability;
-            
-            
-            var maxBucketSize = Convert.ToInt64(Math.Round(capabilitySize * MaxBucketSize, 0));
-            //System.Diagnostics.Debug.WriteLine($"{capabilityTuple.Key.Name} used capacity {capabilitySize} %  set BucketSize to {maxBucketSize}");
-            //TODO Maybe add min bucket size
-            return maxBucketSize < 60 ? maxBucketSize = 60 : maxBucketSize;
+            if (CapabilityBucketSizeDictionary.TryGetValue(capabilityId, out var value))
+                return value.Size;
+            // else
+            throw new Exception("No bucket size Found!");
         }
     }
 }
