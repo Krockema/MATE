@@ -54,26 +54,30 @@ namespace Master40.XUnitTest.Online.Agents.Types
         [InlineData(4, 1)]
         public void FindFirstValidSlot(long tDuration, int tExpectedLength)
         {
-            var enumerator = _queue.GetEnumerator();
-            var current = enumerator.Current;
             var validSlots = new SortedList<long, long>();
-            var slotFound = false;
-            while (enumerator.MoveNext())
+            var enumerator = _queue.GetEnumerator();
+            if (!enumerator.MoveNext())
             {
-                var endPre = current.Key + current.Value.Schedule;
-                var startPost = enumerator.Current.Key;
-
-                if (endPre <= startPost - tDuration)
+                validSlots.Add(0, tDuration);
+            } else { 
+                var current = enumerator.Current;
+                var slotFound = false;
+                while (enumerator.MoveNext())
                 {
-                    slotFound = validSlots.TryAdd(endPre, startPost - endPre);
-                    break;
+                    var endPre = current.Key + current.Value.Schedule;
+                    var startPost = enumerator.Current.Key;
+
+                    if (endPre <= startPost - tDuration)
+                    {
+                        slotFound = validSlots.TryAdd(endPre, startPost - endPre);
+                        break;
+                    }
+                    current = enumerator.Current;
                 }
-                current = enumerator.Current;
+
+                if (!slotFound)
+                    validSlots.Add(current.Key + current.Value.Schedule, long.MaxValue);
             }
-
-            if (!slotFound)
-                validSlots.Add(current.Key + current.Value.Schedule, long.MaxValue);
-
             enumerator.Dispose();
 
             Assert.Equal(tExpectedLength, validSlots.Count);
