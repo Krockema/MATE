@@ -16,9 +16,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, long setupDuration = 0);
         HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation);
         bool CapacitiesLeft();
-        FBucket GetBucket(Guid bucketKey);
-        HashSet<FJobConfirmation> JobConfirmations { get; }
+        T GetJobAs<T>(Guid key);
+        IEnumerable<T> GetJobsAs<T>();
         int Limit { get; set; }
         int Count { get; }
+        FJobConfirmation GetConfirmation(Guid key);
     }
 }

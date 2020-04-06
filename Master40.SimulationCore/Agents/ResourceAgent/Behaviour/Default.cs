@@ -142,7 +142,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void RequeueAllRemainingJobs()
         {
             Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
-            var item = _planingQueue.JobConfirmations.FirstOrDefault();
+            var item = _planingQueue.FirstOrNull();
             if (item != null)
             {
                 UpdateAndRequeuePlanedJobs(item);

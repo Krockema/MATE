@@ -1,20 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using static FBuckets;
 using static FJobConfirmations;
 using static IJobs;
 
-namespace Master40.Tools.TimeScopedQueue
-{
-    public class Queue : LimitedQueue, IJobQueueScopeLimited
+namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue { 
+    public class TimeConstraintQueue : SortedList<long, FJobConfirmation>, IJobQueueScopeLimited
     {
-
-        public Queue(int limit) : base(limit)
+        public int Limit { get; set; }
+        public FJobConfirmation GetConfirmation(Guid key)
         {
+            throw new NotImplementedException();
+        }
+
+        public TimeConstraintQueue(int limit)
+        {
+            Limit = limit;
         }
 
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
@@ -32,11 +36,6 @@ namespace Master40.Tools.TimeScopedQueue
             throw new NotImplementedException();
         }
 
-        public FBucket GetBucket(Guid bucketKey)
-        {
-            throw new NotImplementedException();
-        }
-
         public FJobConfirmation GetFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability)
         {
             throw new NotImplementedException();
@@ -47,12 +46,22 @@ namespace Master40.Tools.TimeScopedQueue
             throw new NotImplementedException();
         }
 
-        public bool HasQueueAbleJobs()
+        public bool CapacitiesLeft()
         {
-            return this.JobConfirmations.Any(x => x.Job.StartConditions.Satisfied);
+            throw new NotImplementedException();
         }
 
-        public override bool CapacitiesLeft()
+        public bool HasQueueAbleJobs()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<T> GetJobsAs<T>()
+        {
+            return this.Values.Cast<T>();
+        }
+
+        public T GetJobAs<T>(Guid key)
         {
             throw new NotImplementedException();
         }

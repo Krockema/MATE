@@ -50,7 +50,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void RequeueBucket(Guid bucketKey)
         {
             //TODO not working with multiresource  fix
-            var bucket = _scopeQueue.JobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey);
+            var bucket = _scopeQueue.GetConfirmation(bucketKey);
 
             if (bucket == null) return;
 
@@ -101,7 +101,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void UpdateStartCondition(FUpdateStartCondition startCondition)
         {
-            var buckets = _scopeQueue.JobConfirmations.Select(x => x.Job).Cast<FBucket>();
+            var buckets = _scopeQueue.GetJobsAs<FBucket>();
             var bucket = buckets?.SingleOrDefault(x => x.Operations.Any(x => x.Key == startCondition.OperationKey));
             if (bucket != null)
             {
@@ -350,7 +350,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal override void RequeueAllRemainingJobs()
         {
             Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
-            var item = _scopeQueue.JobConfirmations.FirstOrDefault();
+            var item = _scopeQueue.FirstOrNull();
             if (item != null)
             {
                 UpdateAndRequeuePlanedJobs(item);

@@ -116,7 +116,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {resource}");
 
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
-                        .Create(jobConfirmation.ToImutable()
+                        .Create(jobConfirmation.ToImmutable()
                             , target: resource));
                 }
 

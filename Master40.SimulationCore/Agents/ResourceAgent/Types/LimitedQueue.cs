@@ -10,7 +10,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public abstract class LimitedQueue
     {
-        public HashSet<FJobConfirmation> JobConfirmations { get; } = new HashSet<FJobConfirmation>();
+        protected HashSet<FJobConfirmation> JobConfirmations { get; } = new HashSet<FJobConfirmation>();
         public int Limit { get; set; }
         public int Count => JobConfirmations.Count;
 
@@ -53,7 +53,26 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return this.JobConfirmations.Any(x => x.Job.StartConditions.Satisfied);
         }
+        public IEnumerable<T> GetJobsAs<T>()
+        {
+            return JobConfirmations.Select(x => x.Job).Cast<T>();
+        }
 
+        public T GetJobAs<T>(Guid key)
+        {
+            var job = JobConfirmations.SingleOrDefault(x => x.Job.Key == key);
+            return (T)Convert.ChangeType(job?.Job, typeof(T));
+        }
+
+        public FJobConfirmation FirstOrNull()
+        {
+            return JobConfirmations.FirstOrDefault();
+        }
+
+        public FJobConfirmation GetConfirmation(Guid jobKey)
+        {
+            return JobConfirmations.Single(x => x.Job.Key == jobKey);
+        }
     }
 
 }

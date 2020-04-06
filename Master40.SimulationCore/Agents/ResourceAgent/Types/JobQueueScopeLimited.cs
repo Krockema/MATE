@@ -124,12 +124,5 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return Limit > JobConfirmations.Cast<FBucket>().ToList().Sum(selector: x => x.Scope);
         }
-
-        public FBucket GetBucket(Guid bucketKey)
-        {
-            return JobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey).Job as FBucket;
-        }
-
-
     }
 }

@@ -25,9 +25,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public bool IsFixPlanned => ((FBucket) Job).IsFixPlanned;
 
-        public FJobConfirmation ToImutable()
+        public FJobConfirmation ToImmutable()
         {
-            return new FJobConfirmation(Job, Schedule, SetupDefinition);
+            return new FJobConfirmation(Job, Schedule, Job.Duration ,SetupDefinition);
         }
 
         public void ResetConfirmation()

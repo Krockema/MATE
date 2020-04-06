@@ -202,7 +202,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 {
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {resource}");
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
-                        .Create(jobConfirmation.ToImutable()
+                        .Create(jobConfirmation.ToImmutable()
                             , target: resource));
                 }
 
@@ -241,7 +241,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)
-            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation.ToImutable(), jobConfirmation.SetupDefinition.RequiredResources.First()));
+            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation.ToImmutable(), jobConfirmation.SetupDefinition.RequiredResources.First()));
             //Requeue all unsatisfied operations
         }
 
