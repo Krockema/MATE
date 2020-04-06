@@ -80,6 +80,5 @@ namespace Master40.XUnitTest.Online.Agents.Types
 
             validSlots.ToList().ForEach(x => _output.WriteLine($"start: {x.Key}, slotSize {x.Value} "));
         }
-
     }
 }

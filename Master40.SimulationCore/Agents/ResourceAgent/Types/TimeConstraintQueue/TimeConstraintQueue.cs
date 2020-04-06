@@ -8,7 +8,7 @@ using static FJobConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue { 
-    public class TimeConstraintQueue : SortedList<long, FJobConfirmation>, IJobQueueScopeLimited
+    public class TimeConstraintQueue : SortedList<long, FJobConfirmation>, IJobQueue
     {
         public int Limit { get; set; }
         public FJobConfirmation GetConfirmation(Guid key)

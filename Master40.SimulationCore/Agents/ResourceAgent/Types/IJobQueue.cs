@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
-using Master40.DB.DataModel;
-using static FBuckets;
 using static FJobConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
-    public interface IJobQueueScopeLimited
+    public interface IJobQueue
     {
         FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
         FJobConfirmation GetFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability);
