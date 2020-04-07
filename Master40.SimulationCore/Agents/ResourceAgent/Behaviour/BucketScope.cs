@@ -130,7 +130,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                                                 , processingQueueLength: _processingQueue.SumDurations
                                                                                 , currentSetupId: _setupManager.CurrentSetupId).First();
             // if not QueueAble
-            if (!queuePosition.IsQueueAble)
+            if (!queuePosition.IsQueueAble || (fJobConfirmation.Schedule != queuePosition.EstimatedStart))
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));
@@ -141,7 +141,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             UpdateAndRequeuePlanedJobs(fJobConfirmation);
             
             var compPrio = _scopeQueue.FirstOrNull()?.Job.Priority(Agent.CurrentTime);
-            _scopeQueue.Enqueue(fJobConfirmation);
+            try
+            {
+                _scopeQueue.Enqueue(fJobConfirmation);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
 
             Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
             

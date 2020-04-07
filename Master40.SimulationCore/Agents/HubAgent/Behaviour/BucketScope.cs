@@ -139,7 +139,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (jobConfirmation == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
-                _proposalManager.Remove(jobConfirmation.Job.Key);
+                _proposalManager.Remove(bucketKey);
                 return;
             }
 

@@ -56,17 +56,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public IEnumerable<T> GetJobsAs<T>()
         {
-            return this.Values.Cast<T>();
+            return this.Values.Select(x => x.Job).Cast<T>();
         }
 
         public T GetJobAs<T>(Guid key)
         {
-            throw new NotImplementedException();
+            var jobConfirmation = this.SingleOrDefault(x => x.Value.Job.Key == key).Value;
+            return (T)Convert.ChangeType(jobConfirmation.Job, typeof(T));
         }
 
         public FJobConfirmation GetConfirmation(Guid key)
         {
-            return this.Values.Single(x => x.Job.Key == key);
+            return this.Values.SingleOrDefault(x => x.Job.Key == key);
         }
 
         public bool RemoveJob(FJobConfirmation job)
@@ -77,7 +78,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = this.Where(x => x.Key > jobConfirmation.Schedule
+            var toRequeue = this.Where(x => x.Key >= jobConfirmation.Schedule
                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
                 .Select(x => x.Value).ToHashSet();
             return toRequeue;
@@ -86,9 +87,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public List<QueueingPosition> GetQueueAbleTime(FRequestProposalForSetup jobProposal, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, int currentSetupId = -1)
         {
             
-            List<QueueingPosition> positions = new List<QueueingPosition>();
+            var positions = new List<QueueingPosition>();
             var job = jobProposal.Job;
-            var totalWorkLoad = 0L;
             var jobPriority = jobProposal.Job.Priority(currentTime);
             var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
             var enumerator = allWithLowerPriority.GetEnumerator();
@@ -101,12 +101,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             else
             {
                 var current = enumerator.Current;
+                var totalWorkLoad = current.Key 
+                                            + ((FBucket) current.Value.Job).Scope
+                                            + GetRequiredSetupTime(current.Value.SetupDefinition.SetupKey, jobProposal.SetupId);
                 while (enumerator.MoveNext())
                 {
-                    var endPre = current.Key + current.Value.Schedule;
+                    var endPre = current.Key + job.Duration;
                     var startPost = enumerator.Current.Key;
                     var requiredSetupTime = GetRequiredSetupTime(current.Value.SetupDefinition.SetupKey, jobProposal.SetupId);
-                    if (endPre <= startPost - job.Duration - requiredSetupTime)
+                    if (endPre <= startPost - ((FBucket)current.Value.Job).Scope - requiredSetupTime)
                     {
                         // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
                         positions.Add(new QueueingPosition(isQueueAble: true,
@@ -117,11 +120,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     current = enumerator.Current;
                 }
 
-                if ((totalWorkLoad < Limit || ((FBucket) job).HasSatisfiedJob)) // TODO: Maybe not required. 
-                {
-                    positions.Add(new QueueingPosition(isQueueAble: true,
-                                                        estimatedStart: currentTime + totalWorkLoad));
-                }
+                positions.Add(new QueueingPosition(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
+                                                    estimatedStart: currentTime + totalWorkLoad));
+                
             }
             enumerator.Dispose();
             return positions;
