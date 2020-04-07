@@ -77,21 +77,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = new HashSet<FJobConfirmation>();
-            var position = this.IndexOfKey(jobConfirmation.Schedule);
-
-            // Filter nach allem was danach liegt UND höher priorisiert ist? 
-
-
-            // reorganize Queue if an Element has ben Queued which is More Important.
-            if (position + 1 < this.Count)
-            {
-                toRequeue =  this.Values.ToList() // to Test if this keeps the order.
-                                        .GetRange(index: position + 1,
-                                                  count: this.Count - position - 1)
-                                        .Where(x => x.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
-                                        .ToHashSet();
-            }
+            var toRequeue = this.Where(x => x.Key > jobConfirmation.Schedule
+                                           && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
+                .Select(x => x.Value).ToHashSet();
             return toRequeue;
         }
 
