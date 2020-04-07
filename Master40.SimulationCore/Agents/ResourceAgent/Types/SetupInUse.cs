@@ -35,6 +35,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return true;
         }
 
+        public int SetupId()
+        {
+            if (ResourceSetup == null) return -1;
+            return ResourceSetup.Id;
+        }
+
         /// <summary>
         ///  TODO can be enhanced to make reset times possible, i.e. cooling down phases after working with tool
         /// </summary>

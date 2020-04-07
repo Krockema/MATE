@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using static FJobConfirmations;
+using static FRequestProposalForSetups;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -9,10 +10,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public interface IJobQueue
     {
         FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
-        FJobConfirmation GetFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability);
         void Enqueue(FJobConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
-        QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, long setupDuration = 0);
+        List<QueueingPosition> GetQueueAbleTime(FRequestProposalForSetup jobProposal, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, int currentSetupId);
         HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation);
         bool CapacitiesLeft();
         T GetJobAs<T>(Guid key);
@@ -20,5 +20,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         int Limit { get; set; }
         int Count { get; }
         FJobConfirmation GetConfirmation(Guid key);
+        FJobConfirmation FirstOrNull();
+        bool RemoveJob(FJobConfirmation job);
+
     }
 }

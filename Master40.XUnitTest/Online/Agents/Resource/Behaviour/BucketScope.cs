@@ -4,6 +4,7 @@ using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
+using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.Online.Preparations;
 using Xunit;
@@ -14,7 +15,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
 {
     public class BucketScope : TestKit
     {
-        private JobQueueScopeLimited JobQueueScopeLimited { get; } = new JobQueueScopeLimited(limit: 1000);
+        private TimeConstraintQueue JobQueueScopeLimited { get; } = new TimeConstraintQueue(limit: 1000);
         private List<M_ResourceCapability> tools { get; set; } = new List<M_ResourceCapability>();
         private IActorRef hubAgentActorRef { get; }
 
@@ -43,13 +44,13 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         public void GetQueueAbleTime()
         {
             PrepareModel();
+            
             var newJobItem =
                 TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
-            var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0);
-
             
-
-            var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(job: bucket, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0);
+            var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0);
+            var jobProposalRequest = new FRequestProposalForSetups.FRequestProposalForSetup(bucket, newJobItem.SetupKey);
+            var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0).First();
 
             Assert.Equal(expected: 125L, actual: queueableTime.EstimatedStart);
         }

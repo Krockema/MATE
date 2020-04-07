@@ -103,7 +103,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             //after creating new bucket, modify subsequent buckets
             ModifyBucket(fOperation);
-
         }
 
         private void ModifyBucket(FOperation operation)

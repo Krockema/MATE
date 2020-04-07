@@ -5,55 +5,53 @@ using System.Linq;
 using Master40.DB.DataModel;
 using static FBuckets;
 using static FJobConfirmations;
+using static FRequestProposalForSetups;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue { 
     public class TimeConstraintQueue : SortedList<long, FJobConfirmation>, IJobQueue
     {
         public int Limit { get; set; }
-        public FJobConfirmation GetConfirmation(Guid key)
-        {
-            throw new NotImplementedException();
-        }
 
         public TimeConstraintQueue(int limit)
         {
             Limit = limit;
         }
 
-        public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
-        {
-            throw new NotImplementedException();
-        }
-
         public FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
-            throw new NotImplementedException();
+            var bucket = GetFirstSatisfied(currentTime);
+            this.Remove(bucket.Key);
+            return bucket.Value;
         }
 
         public void Enqueue(FJobConfirmation jobConfirmation)
         {
-            throw new NotImplementedException();
+            this.Add(jobConfirmation.Schedule, jobConfirmation);
         }
 
-        public FJobConfirmation GetFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability)
+        public KeyValuePair<long, FJobConfirmation> GetFirstSatisfied(long currentTime)
         {
-            throw new NotImplementedException();
-        }
-
-        public QueueingPosition GetQueueAbleTime(IJob job, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, long setupDuration = 0)
-        {
-            throw new NotImplementedException();
+            var bucket = this.First(x => ((FBucket)x.Value.Job).HasSatisfiedJob);
+            return bucket;
         }
 
         public bool CapacitiesLeft()
         {
-            throw new NotImplementedException();
+            return Limit > GetJobsAs<FBucket>().Sum(selector: x => x.Scope);
         }
 
         public bool HasQueueAbleJobs()
         {
-            throw new NotImplementedException();
+            var hasSatisfiedJob = false;
+            foreach (var job in this.Values)
+            {
+                if (((FBucket)job.Job).HasSatisfiedJob)
+                {
+                    hasSatisfiedJob = true;
+                }
+            }
+            return hasSatisfiedJob;
         }
 
         public IEnumerable<T> GetJobsAs<T>()
@@ -64,6 +62,91 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public T GetJobAs<T>(Guid key)
         {
             throw new NotImplementedException();
+        }
+
+        public FJobConfirmation GetConfirmation(Guid key)
+        {
+            return this.Values.Single(x => x.Job.Key == key);
+        }
+
+        public bool RemoveJob(FJobConfirmation job)
+        {
+            return this.Remove(job.Schedule);
+        }
+
+        public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
+        {
+            // queued before another item?
+            var toRequeue = new HashSet<FJobConfirmation>();
+            var position = this.IndexOfKey(jobConfirmation.Schedule);
+
+            // Filter nach allem was danach liegt UND höher priorisiert ist? 
+
+
+            // reorganize Queue if an Element has ben Queued which is More Important.
+            if (position + 1 < this.Count)
+            {
+                toRequeue =  this.Values.ToList() // to Test if this keeps the order.
+                                        .GetRange(index: position + 1,
+                                                  count: this.Count - position - 1)
+                                        .Where(x => x.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
+                                        .ToHashSet();
+            }
+            return toRequeue;
+        }
+
+        public List<QueueingPosition> GetQueueAbleTime(FRequestProposalForSetup jobProposal, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, int currentSetupId = -1)
+        {
+            
+            List<QueueingPosition> positions = new List<QueueingPosition>();
+            var job = jobProposal.Job;
+            var totalWorkLoad = 0L;
+            var jobPriority = jobProposal.Job.Priority(currentTime);
+            var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
+            var enumerator = allWithLowerPriority.GetEnumerator();
+            if (!enumerator.MoveNext())
+            {
+                // Queue contains no job --> Add queable item.
+                positions.Add(new QueueingPosition(isQueueAble: true,
+                                                    estimatedStart: currentTime + GetRequiredSetupTime(currentSetupId, jobProposal.SetupId)));
+            }
+            else
+            {
+                var current = enumerator.Current;
+                while (enumerator.MoveNext())
+                {
+                    var endPre = current.Key + current.Value.Schedule;
+                    var startPost = enumerator.Current.Key;
+                    var requiredSetupTime = GetRequiredSetupTime(current.Value.SetupDefinition.SetupKey, jobProposal.SetupId);
+                    if (endPre <= startPost - job.Duration - requiredSetupTime)
+                    {
+                        // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
+                        positions.Add(new QueueingPosition(isQueueAble: true,
+                                                            estimatedStart: endPre));
+                    }
+
+                    totalWorkLoad = endPre + ((FBucket) current.Value.Job).Scope + requiredSetupTime;
+                    current = enumerator.Current;
+                }
+
+                if ((totalWorkLoad < Limit || ((FBucket) job).HasSatisfiedJob)) // TODO: Maybe not required. 
+                {
+                    positions.Add(new QueueingPosition(isQueueAble: true,
+                                                        estimatedStart: currentTime + totalWorkLoad));
+                }
+            }
+            enumerator.Dispose();
+            return positions;
+        }
+
+        private long GetRequiredSetupTime(int currentSetup, int requiredSetupId)
+        {
+            return 0L; // TODO
+        }
+
+        public FJobConfirmation FirstOrNull()
+        {
+            return this.Count > 0 ? this.Values.First() : null;
         }
     }
 }

@@ -69,5 +69,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 setupName = _setupInUse.ResourceSetup.Name;
             return setupName;
         }
+
+        internal int CurrentSetupId => _setupInUse.SetupId();
+        
+
     }
 }
