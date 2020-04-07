@@ -22,6 +22,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         FJobConfirmation GetConfirmation(Guid key);
         FJobConfirmation FirstOrNull();
         bool RemoveJob(FJobConfirmation job);
-
+        long Workload { get; }
     }
 }

@@ -48,7 +48,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var newJobItem =
                 TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
             
-            var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0);
+            var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0, 480);
             var jobProposalRequest = new FRequestProposalForSetups.FRequestProposalForSetup(bucket, newJobItem.SetupKey);
             var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0).First();
 
@@ -84,7 +84,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var operation6 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 6", jobDuration: 20,
                 dueTime: 180, capability: tools[2]);
 
-            var bucket1 = operation1.ToBucketScopeItem(hubAgentActorRef, 0);
+            var bucket1 = operation1.ToBucketScopeItem(hubAgentActorRef, 0, 480);
             bucket1.AddOperation(operation4);
             var prioBucket1 = ((IJob)bucket1).Priority(0);
             bucket1.StartConditions.ArticlesProvided = true;
@@ -94,7 +94,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
                 new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(bucketConfirmation1);
 
-            var bucket2 = operation2.ToBucketScopeItem(hubAgentActorRef, 0);
+            var bucket2 = operation2.ToBucketScopeItem(hubAgentActorRef, 0, 480);
             bucket2.AddOperation(operation5);
             var prioBucket2 = ((IJob)bucket2).Priority(0);
             bucket2.StartConditions.ArticlesProvided = true;
@@ -103,7 +103,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
                 new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
             JobQueueScopeLimited.Enqueue(bucketConfirmation2);
 
-            var bucket3 = operation3.ToBucketScopeItem(hubAgentActorRef, 0);
+            var bucket3 = operation3.ToBucketScopeItem(hubAgentActorRef, 0, 480);
             bucket3.AddOperation(operation3);
             var prioBucket3 = ((IJob)bucket3).Priority(0);
             bucket3.StartConditions.ArticlesProvided = true;

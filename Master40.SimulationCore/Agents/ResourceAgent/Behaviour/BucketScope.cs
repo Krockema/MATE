@@ -4,6 +4,7 @@ using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using static FBuckets;
@@ -83,7 +84,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                                 , currentSetupId: _setupManager.CurrentSetupId).First();
 
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(SCOPELIMIT * 0.8));
+            var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
 
             Agent.DebugMessage(msg: queuePosition.IsQueueAble
                 ? $"Bucket: {requestProposal.Job.Key} IsQueueAble: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}"

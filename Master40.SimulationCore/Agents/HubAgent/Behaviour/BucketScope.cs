@@ -190,6 +190,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
                     Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
+                    System.Diagnostics.Debug.WriteLine($"Bucket {bucket.Key} has been postponed for {postponedFor}");
                     return;
 
                 }

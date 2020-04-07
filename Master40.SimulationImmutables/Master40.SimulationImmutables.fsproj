@@ -47,6 +47,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="libman.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Akka" Version="1.4.4" />
   </ItemGroup>
 

@@ -73,6 +73,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return JobConfirmations.Single(x => x.Job.Key == jobKey);
         }
+        public long Workload => this.JobConfirmations.Sum(x => x.Duration);
     }
 
 }

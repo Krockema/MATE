@@ -68,7 +68,7 @@ namespace Master40.SimulationCore.Helper
         /// <param name="hubAgent"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        public static FBucket ToBucketItem(this FOperation operation, IActorRef hubAgent, long time)
+        public static FBucket ToBucketItem(this FOperation operation, IActorRef hubAgent, long time, long maxBucketSize)
         {
             // TO BE TESTET
             var prioRule = Extension.CreateFunc(
@@ -94,8 +94,8 @@ namespace Master40.SimulationCore.Helper
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
-                                , maxBucketSize: 1
-                                , minBucketSize: 1000
+                                , maxBucketSize: maxBucketSize
+                                , minBucketSize: 60 // not used 
                                 , setupKey: -1
                                 , hubAgent: hubAgent
                                 , operations: new FSharpSet<FOperation>(elements: operations)
@@ -103,7 +103,7 @@ namespace Master40.SimulationCore.Helper
                                 , bucket: String.Empty);
         }
 
-        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time)
+        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time, long maxBucketSize)
         {
             //scope
             var scope = (operation.BackwardStart - operation.ForwardStart);

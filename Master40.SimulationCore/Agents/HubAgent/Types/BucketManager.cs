@@ -31,7 +31,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public JobConfirmation CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
         {
-            var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime);
+            var bucketSize = GetBucketSize(fOperation.RequiredCapability.Id);
+            var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime, bucketSize);
             var jobConfirmation = new JobConfirmation(bucket);
             _jobConfirmations.Add(jobConfirmation);
             return jobConfirmation;

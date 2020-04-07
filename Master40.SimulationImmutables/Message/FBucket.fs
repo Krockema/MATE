@@ -30,8 +30,8 @@ open FUpdateStartConditions
           Operations : Set<FOperation>
           RequiredCapability : M_ResourceCapability
           mutable SetupKey : int32
-          MaxBucketSize : double
-          MinBucketSize : double
+          MaxBucketSize : int64
+          MinBucketSize : int64
           Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key

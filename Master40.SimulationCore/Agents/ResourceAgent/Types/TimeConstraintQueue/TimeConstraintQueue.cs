@@ -102,21 +102,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             {
                 var current = enumerator.Current;
                 var totalWorkLoad = current.Key 
-                                            + ((FBucket) current.Value.Job).Scope
+                                            + ((FBucket) current.Value.Job).MaxBucketSize
                                             + GetRequiredSetupTime(current.Value.SetupDefinition.SetupKey, jobProposal.SetupId);
                 while (enumerator.MoveNext())
                 {
-                    var endPre = current.Key + job.Duration;
+                    var endPre = current.Key + ((FBucket) current.Value.Job).MaxBucketSize;
                     var startPost = enumerator.Current.Key;
                     var requiredSetupTime = GetRequiredSetupTime(current.Value.SetupDefinition.SetupKey, jobProposal.SetupId);
-                    if (endPre <= startPost - ((FBucket)current.Value.Job).Scope - requiredSetupTime)
+                    if (endPre <= startPost - ((FBucket)current.Value.Job).MaxBucketSize - requiredSetupTime)
                     {
                         // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
                         positions.Add(new QueueingPosition(isQueueAble: true,
                                                             estimatedStart: endPre));
                     }
 
-                    totalWorkLoad = endPre + ((FBucket) current.Value.Job).Scope + requiredSetupTime;
+                    totalWorkLoad = endPre + ((FBucket) current.Value.Job).MaxBucketSize + requiredSetupTime;
                     current = enumerator.Current;
                 }
 
@@ -137,5 +137,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         {
             return this.Count > 0 ? this.Values.First() : null;
         }
+
+        public long Workload => this.Values.Sum(x => x.Job.Duration);
     }
 }
