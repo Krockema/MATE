@@ -12,6 +12,8 @@ namespace Master40.DB.DataModel
     {
         public string Name { get; set; }
         public int ResourceCapabilityId { get; set; }
+        public bool UsedInSetup { get; set; }
+        public bool UsedInProcess { get; set; }
         public M_ResourceCapability ResourceCapability { get; set; }
         public int? ChildResourceId { get; set; }
         public M_Resource ChildResource { get; set; }

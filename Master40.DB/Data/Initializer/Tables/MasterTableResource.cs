@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
     internal class MasterTableResource
     {
 
-        internal Dictionary<string, List<M_Resource>> Resources = new Dictionary<string, List<M_Resource>>();
-        internal Dictionary<string, List<M_ResourceSetup>> ResourceSetups = new Dictionary<string, List<M_ResourceSetup>>();
+        internal Dictionary<string, List<M_Resource>> CapabilityToResourceDict = new Dictionary<string, List<M_Resource>>();
+        internal Dictionary<string, List<M_ResourceSetup>> CapabilityToSetupDict = new Dictionary<string, List<M_ResourceSetup>>();
         private readonly MasterTableResourceCapability _capability;
 
         public MasterTableResource(MasterTableResourceCapability capability)
@@ -26,32 +27,74 @@ namespace Master40.DB.Data.Initializer.Tables
            // For Testing Purpose
            if (createTestModel)
            {
-               var waterJet = CreateNewResource("WaterJetCutter", 1);
-               List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
-               foreach (var subCapability in _capability.Capabilities
-                   .Single(x => x.Name == _capability.CUTTING.Name).ChildResourceCapabilities)
-               {
-                   setups.Add(new M_ResourceSetup  {
-                           ParentResourceId = waterJet.Id,
-                           Name = "Setup " + waterJet.Name,
-                           SetupTime = 5,
-                           ResourceCapabilityId = subCapability.Id
-                   });
-               }
-               foreach (var subCapability in _capability.Capabilities
-                   .Single(x => x.Name == _capability.DRILLING.Name).ChildResourceCapabilities)
-               {
-                   setups.Add(new M_ResourceSetup
-                   {
-                       ParentResourceId = waterJet.Id,
-                       Name = "Setup " + waterJet.Name,
-                       SetupTime = 5,
-                       ResourceCapabilityId = subCapability.Id
-                   });
-               }
-               ResourceSetups.Add($"{waterJet.Name} Tooling", setups);
-               Resources.Add($"{waterJet.Name} Tooling", new List<M_Resource>{ waterJet});
+               WaterJet();
+               Operators();
            }
+        }
+
+        private void Operators()
+        {
+            var capability = _capability.CUTTING;
+            var m_operator = CreateNewResource("Operator", 1);
+            List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
+            // foreach resource of a given type
+            foreach (var resource in CapabilityToResourceDict.Single(x => x.Key == capability.Name).Value)
+            {
+                // erstelle die
+                foreach (var subCapability in _capability.Capabilities
+                                                         .Single(x => x.Name == capability.Name)
+                                                         .ChildResourceCapabilities)
+                {
+                    setups.Add(new M_ResourceSetup
+                    {
+                        ChildResourceId = m_operator.Id,
+                        ParentResourceId = resource.Id,
+                        Name = "Setup " + m_operator.Name,
+                        UsedInProcess = false,
+                        UsedInSetup = true,
+                        SetupTime = 0,
+                        ResourceCapabilityId = subCapability.Id
+                    });
+                }
+                CapabilityToSetupDict.Add($"{resource.Name} Operator", setups);
+            }
+            CapabilityToResourceDict.Add($"{m_operator.Name} Operator", new List<M_Resource> { m_operator });
+        }
+
+        private void WaterJet()
+        {
+            var waterJet = CreateNewResource("WaterJetCutter", 1);
+            List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
+            foreach (var subCapability in _capability.Capabilities
+                .Single(x => x.Name == _capability.CUTTING.Name).ChildResourceCapabilities)
+            {
+                setups.Add(new M_ResourceSetup
+                {
+                    ParentResourceId = waterJet.Id,
+                    Name = "Setup " + waterJet.Name,
+                    UsedInProcess = true,
+                    UsedInSetup = true,
+                    SetupTime = 5,
+                    ResourceCapabilityId = subCapability.Id
+                });
+            }
+
+            foreach (var subCapability in _capability.Capabilities
+                .Single(x => x.Name == _capability.DRILLING.Name).ChildResourceCapabilities)
+            {
+                setups.Add(new M_ResourceSetup
+                {
+                    ParentResourceId = waterJet.Id,
+                    Name = "Setup " + waterJet.Name,
+                    UsedInProcess = true,
+                    UsedInSetup = true,
+                    SetupTime = 5,
+                    ResourceCapabilityId = subCapability.Id
+                });
+            }
+
+            CapabilityToSetupDict.Add($"{waterJet.Name} Tooling", setups);
+            CapabilityToResourceDict.Add($"{waterJet.Name} Tooling", new List<M_Resource> {waterJet});
         }
 
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling)
@@ -66,22 +109,26 @@ namespace Master40.DB.Data.Initializer.Tables
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
             // foreach resource of a given type
-            foreach (var resource in Resources.Single(x => x.Key == capability.Name).Value)
+            foreach (var resource in CapabilityToResourceDict.Single(x => x.Key == capability.Name).Value)
             {
                 // erstelle die
-                foreach (var subCapability in _capability.Capabilities.Single(x => x.Name == capability.Name).ChildResourceCapabilities)
+                foreach (var subCapability in _capability.Capabilities
+                                                         .Single(x => x.Name == capability.Name)
+                                                         .ChildResourceCapabilities)
                 {
                     var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", 0);
                     tools.Add(tool);
                     setups.Add(new M_ResourceSetup {ChildResourceId = tool.Id
                                                   , ParentResourceId = resource.Id
                                                   , Name = "Setup " + tool.Name
+                                                  , UsedInProcess = true
+                                                  , UsedInSetup = true
                                                   , SetupTime = setupTime
                                                   , ResourceCapabilityId = subCapability.Id
                     });
                 }
-                ResourceSetups.Add($"{resource.Name} Tooling", setups);
-                Resources.Add($"{resource.Name} Tooling", tools);
+                CapabilityToSetupDict.Add($"{resource.Name} Tooling", setups);
+                CapabilityToResourceDict.Add($"{resource.Name} Tooling", tools);
             }
         }
 
@@ -95,14 +142,16 @@ namespace Master40.DB.Data.Initializer.Tables
                 resourceGroup.Add(resource);
                 resoruceSetups.Add(CreateNewSetup(resource, capability));
             }
-            ResourceSetups.Add(capability.Name, resoruceSetups);
-            Resources.Add(capability.Name, resourceGroup);
+            CapabilityToSetupDict.Add(capability.Name, resoruceSetups);
+            CapabilityToResourceDict.Add(capability.Name, resourceGroup);
         }
 
         private M_ResourceSetup CreateNewSetup(M_Resource resource, M_ResourceCapability capability)
         {
             return new M_ResourceSetup {ChildResourceId = resource.Id
                                       , ParentResourceId = null
+                                      , UsedInProcess = true
+                                      , UsedInSetup = true
                                       , Name = "Setup " + resource.Name
                                       , ResourceCapabilityId = capability.Id
             };
@@ -144,12 +193,12 @@ namespace Master40.DB.Data.Initializer.Tables
 
         internal void SaveToDB(MasterDBContext context)
         {
-            foreach (var item in Resources)
+            foreach (var item in CapabilityToResourceDict)
             {
                 context.Resources.AddRange(entities: item.Value);
             }
             context.SaveChanges();
-            foreach (var item in ResourceSetups)
+            foreach (var item in CapabilityToSetupDict)
             {
                 context.ResourceSetups.AddRange(entities: item.Value);
             }
