@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
 
 namespace Master40.DB.DataModel
 {
@@ -8,14 +7,8 @@ namespace Master40.DB.DataModel
     {
         public string Name { get; set; }
         public int Count { get; set; }
-        /*
-         * Defines a list of Capabilities that can be 
-         */
-        public virtual ICollection<M_ResourceSetup> UsedInResourceSetups { get; set; }
-        public virtual ICollection<M_ResourceSetup> RequiresResourceSetups { get; set; }
-
+        public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
         public int Capacity { get; set; }
-
         [NotMapped]
         public object IResourceRef { get; set; }
         public override string ToString()

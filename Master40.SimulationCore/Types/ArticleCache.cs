@@ -27,10 +27,9 @@ namespace Master40.SimulationCore.Types
                                       .Include(navigationPropertyPath: x => x.Unit)
                                       .Include(navigationPropertyPath: x => x.Operations)
                                         .ThenInclude(navigationPropertyPath: x => x.ResourceCapability)
-                                            .ThenInclude(x => x.ResourceSetups)
-                                                .ThenInclude(x => x.ChildResource)
-                                                    .ThenInclude(x => x.RequiresResourceSetups)
-                                                        .ThenInclude(x => x.ChildResource) // TODO: to fix to support multi level hirachies.
+                                            .ThenInclude(x => x.ResourceCapabilityProvider)
+                                                .ThenInclude(x => x.ResourceSetups)
+                                                    .ThenInclude(x => x.Resource)
                                       .Include(navigationPropertyPath: x => x.Operations)
                                         .ThenInclude(navigationPropertyPath: x => x.ArticleBoms)
                                             .ThenInclude(navigationPropertyPath: x => x.ArticleChild)

@@ -129,7 +129,7 @@ namespace Zpp.DataLayer.impl
         public List<Resource> ResourcesGetAllByCapabilityId(Id id)
         {
             var skill = _resourceCapabilities.GetById(id);
-            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceCapabilityId == skill.Id)
+            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceCapabilityProviderId == skill.Id)
                 .Select(x => x.Id).ToList();
             var resourceList = new List<Resource>();
             _resources.GetAll().Where(x => resourceIds.Contains(x.Id)).ToList()

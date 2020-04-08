@@ -24,6 +24,7 @@ namespace Master40.DB.Data.Context
         public DbSet<M_BusinessPartner> BusinessPartners { get; set; }
         public DbSet<M_Resource> Resources { get; set; }
         public DbSet<M_ResourceCapability> ResourceCapabilities { get; set; }
+        public DbSet<M_ResourceCapabilityProvider> ResourceCapabilityProviders { get; set; }
         public DbSet<M_ResourceSetup> ResourceSetups { get; set; }
         public DbSet<M_Stock> Stocks { get; set; }
         public DbSet<M_Unit> Units { get; set; }
@@ -97,23 +98,6 @@ namespace Master40.DB.Data.Context
            //'FK_M_ResourceCapability_M_ResourceCapability_ParentResourceCapabilityId' on table 'M_ResourceCapability'
            //may cause cycles or multiple cascade paths.Specify ON DELETE NO ACTION or ON UPDATE NO ACTION, or modify other FOREIGN KEY constraints.
 
-
-           modelBuilder.Entity<M_ResourceSetup>()
-                .ToTable(name: "M_ResourceSetup")
-                .HasOne(navigationExpression: re => re.ParentResource)
-                .WithMany(navigationExpression: r => r.UsedInResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ParentResourceId);
-
-            modelBuilder.Entity<M_ResourceSetup>()
-                .HasOne(navigationExpression: re => re.ChildResource)
-                .WithMany(navigationExpression: r => r.RequiresResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ChildResourceId);
-
-            modelBuilder.Entity<M_ResourceSetup>()
-                .HasOne(navigationExpression: re => re.ResourceCapability)
-                .WithMany(navigationExpression: r => r.ResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ResourceCapabilityId);
-                
             modelBuilder.Entity<M_Stock>()
                 .ToTable(name: "M_Stock");
 
@@ -140,6 +124,16 @@ namespace Master40.DB.Data.Context
 
             modelBuilder.Entity<T_StockExchange>()
                 .ToTable(name: "T_StockExchange");
+
+            modelBuilder.Entity<M_ResourceCapability>()
+                .ToTable(name: "M_ResourceCapability");
+
+            modelBuilder.Entity<M_ResourceCapabilityProvider>()
+                .ToTable(name: "M_ResourceCapabilityProvider");
+
+            modelBuilder.Entity<M_ResourceSetup>()
+                .ToTable(name: "M_ResourceSetup");
+
 
             modelBuilder.Entity<T_ProductionOrderBom>()
                 .ToTable(name: "T_ProductionOrderBom")

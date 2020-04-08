@@ -123,14 +123,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
             if (resource.Count == 0)
                 return;
             var setups = masterCtx.ResourceSetups
-                .Include(x => x.ResourceCapability)
-                .Include(x => x.ParentResource)
-                .Where(x => x.ParentResourceId == resource.Id).ToList();
+                .Include(x => x.ResourceCapabilityProvider)
+                    .ThenInclude(x => x.ResourceCapability)
+                .Include(x => x.Resource)
+                .Where(x => x.ResourceId == resource.Id).ToList();
             
             System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with following setups...");
             foreach (var setup in setups)
             {
-                System.Diagnostics.Debug.WriteLine($"{setup.Name} : {setup.ResourceCapability.Name} : {setup.ResourceCapability.Id}");
+                System.Diagnostics.Debug.WriteLine($"{setup.Name} : {setup.ResourceCapabilityProvider.Name} : {setup.ResourceCapabilityProviderId}");
             }
         }
 

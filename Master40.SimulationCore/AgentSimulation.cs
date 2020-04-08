@@ -252,15 +252,27 @@ namespace Master40.SimulationCore
             }
         }
 
-        public List<M_ResourceSetup> GetSetups(M_Resource resource)
+        public List<M_ResourceCapability> GetSetups(M_Resource resource)
         {
             var setups = _dBContext.ResourceSetups
-                .Include(x => x.ResourceCapability)
-                    .ThenInclude(x => x.ParentResourceCapability)
-                .Include(x => x.ParentResource)
-                .Include(x => x.ChildResource)
-                .Where(x => x.ParentResourceId == resource.Id).ToList();
-            return setups;
+                .Include(x => x.ResourceCapabilityProvider)
+                .Where(x => x.Id == resource.Id).ToList();
+
+            var capabilities = new List<M_ResourceCapability>();
+            foreach (var setup in setups)
+            {
+                capabilities.AddRange(GetSubCapabilties(setup.ResourceCapabilityProviderId));
+            }
+            return capabilities;
+        }
+
+        public List<M_ResourceCapability> GetSubCapabilties(int capabilityProviderId)
+        {
+            return _dBContext.ResourceCapabilityProviders
+                .Include(x => x.ResourceSetups)
+                    .ThenInclude(x => x.Resource)
+                .Where(x => x.Id == capabilityProviderId).Select(x => x.ResourceCapability)
+                .ToList();
         }
     }
 }

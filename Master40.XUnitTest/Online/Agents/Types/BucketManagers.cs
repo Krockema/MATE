@@ -11,6 +11,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class BucketManagers : TestKit
     {
+        /*
             // Create Resources
             private static M_Resource resource = new M_Resource {Name = "Saw", UsedInResourceSetups = new List<M_ResourceSetup>() , RequiresResourceSetups = new List<M_ResourceSetup>()};
             private static M_Resource toolBig = new M_Resource() { Name = "SawBig", UsedInResourceSetups = new List<M_ResourceSetup>(), RequiresResourceSetups = new List<M_ResourceSetup>() };
@@ -162,6 +163,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
 
             return bucketManager; 
         }
+        */
     }
 }
 

@@ -174,7 +174,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             foreach (var setup in resourceInformation.ResourceSetups)
             {
-                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(setup.ResourceCapability);
+                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(setup.ResourceCapabilityProvider.ResourceCapability);
                
                 var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
                 setupDefinition.RequiredResources.Add(resourceInformation.Ref);

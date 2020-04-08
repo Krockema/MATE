@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal void Mount(M_ResourceCapability resourceCapability)
         {
-            var setup = _resourceSetups.Single(x => x.ResourceCapability.Id == resourceCapability.Id);
+            var setup = _resourceSetups.Single(x => x.ResourceCapabilityProvider.ResourceCapabilityId == resourceCapability.Id);
 
             if (!AlreadyEquipped(setup))
             {  
@@ -29,7 +29,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public M_ResourceCapability GetCurrentUsedCapability()
         {
-            return _setupInUse.ResourceSetup?.ResourceCapability;
+            return _setupInUse.ResourceSetup?.ResourceCapabilityProvider.ResourceCapability;
         }
 
         internal bool AlreadyEquipped(M_ResourceSetup setup)
@@ -42,14 +42,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         internal M_ResourceSetup GetSetupByCapability(M_ResourceCapability resourceCapability)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityId == resourceCapability.Id);
+            var resourceSetup = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityProvider.ResourceCapabilityId == resourceCapability.Id);
             return resourceSetup;
         }
 
         internal long GetSetupDurationByTool(M_ResourceCapability resourceCapability)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var setupTime = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityId == resourceCapability.Id).SetupTime;
+            var setupTime = _resourceSetups.SingleOrDefault(x => x.ResourceCapabilityProvider.ResourceCapabilityId == resourceCapability.Id).SetupTime;
             return setupTime;
         }
 
@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         }
         internal List<M_ResourceCapability> GetAllCapabilities()
         {
-            return _resourceSetups.Select(x => x.ResourceCapability).ToList();
+            return _resourceSetups.Select(x => x.ResourceCapabilityProvider.ResourceCapability).ToList();
         }
 
         internal object GetSetupName()
