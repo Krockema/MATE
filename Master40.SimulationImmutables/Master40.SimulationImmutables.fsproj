@@ -18,7 +18,6 @@
     <Compile Include="Message\FProposal.fs" />
     <Compile Include="Message\FResourceType.fs" />
     <Compile Include="Message\FStartConditions.fs" />
-    <Compile Include="Message\FSetupDefinition.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
     <Compile Include="Interface\IJobResults.fs" />
@@ -39,9 +38,9 @@
     <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
     <Compile Include="Message\FUpdateSimulationJobs.fs" />
     <Compile Include="Message\FCreateSimulationJobs.fs" />
-    <Compile Include="Message\FResourceSetupDefinition.fs" />
+    <Compile Include="Message\FCapabilityProviderDefinitions.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
-    <Compile Include="Message\FRequestProposalForSetups.fs" />
+    <Compile Include="Message\FRequestProposalForCapabilityProviders.fs" />
     <Compile Include="Message\FJobConfirmations.fs" />
       
   </ItemGroup>

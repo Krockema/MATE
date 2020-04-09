@@ -1,16 +1,12 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FAgentInformations;
 using static FBuckets;
-using static FBucketScopes;
-using static FRequestToRequeues;
-using static FUpdateBucketScopes;
-using static IJobResults;
-using static IJobs;
-using static FRequestProposalForSetups;
 using static FJobConfirmations;
+using static FRequestProposalForCapabilityProviders;
+using static FRequestToRequeues;
+using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -34,14 +30,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class RequestProposal : SimulationMessage
                 {
-                    public static RequestProposal Create(FRequestProposalForSetup message, IActorRef target)
+                    public static RequestProposal Create(FRequestProposalForCapabilityProvider message, IActorRef target)
                     {
                         return new RequestProposal(message: message, target: target);
                     }
                     private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FRequestProposalForSetup GetObjectFromMessage { get => Message as FRequestProposalForSetup; }
+                    public FRequestProposalForCapabilityProvider GetObjectFromMessage { get => Message as FRequestProposalForCapabilityProvider; }
                 }
 
                 public class AcknowledgeProposal : SimulationMessage

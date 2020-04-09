@@ -1,43 +1,39 @@
-﻿using System;
+﻿using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using static FOperations;
 using static FProposals;
-using static FSetupDefinitions;
-using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalManager
     {
-        private Dictionary<Guid, ProposalForSetupDefinitionSet> _proposalDictionary { get; set; } 
+        private Dictionary<Guid, ProposalForCapabilityProviderSet> _proposalDictionary { get; set; } 
 
         public ProposalManager()
         {
-            _proposalDictionary = new Dictionary<Guid, ProposalForSetupDefinitionSet>();
+            _proposalDictionary = new Dictionary<Guid, ProposalForCapabilityProviderSet>();
         }
 
-        public bool Add(Guid jobKey, List<FSetupDefinition> fSetupDefinitions)
+        public bool Add(Guid jobKey, List<M_ResourceCapabilityProvider> resourceCapabilityProvider)
         {
-            var defs = new ProposalForSetupDefinitionSet();
-            fSetupDefinitions.ForEach(x => defs.Add(new ProposalForSetupDefinition(x)));
+            var defs = new ProposalForCapabilityProviderSet();
+            resourceCapabilityProvider.ForEach(x => defs.Add(new ProposalForCapabilityProvider(x)));
             return _proposalDictionary.TryAdd(jobKey, defs);
         }
 
-        public ProposalForSetupDefinitionSet AddProposal(FProposal fProposal)
+        public ProposalForCapabilityProviderSet AddProposal(FProposal fProposal)
         {
             if (!_proposalDictionary.TryGetValue(fProposal.JobKey, out var proposalForSetupDefinitionSet))
                 return null;
 
-            var proposalForSetupDefinition = proposalForSetupDefinitionSet.Single(x => x.GetFSetupDefinition.SetupKey == fProposal.SetupId);
+            var proposalForCapabilityProvider = proposalForSetupDefinitionSet.Single(x => x.CapabilityProviderId == fProposal.CapabilityProviderId);
 
-            proposalForSetupDefinition.Add(fProposal);
+            proposalForCapabilityProvider.Add(fProposal);
                 return proposalForSetupDefinitionSet;
         }
 
-        public ProposalForSetupDefinitionSet GetProposalForSetupDefinitionSet(Guid jobKey)
+        public ProposalForCapabilityProviderSet GetProposalForSetupDefinitionSet(Guid jobKey)
         {
             return _proposalDictionary.SingleOrDefault(x => x.Key == jobKey).Value;
         }
@@ -56,7 +52,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _proposalDictionary.Remove(jobKey);
         }
 
-        internal ProposalForSetupDefinition GetValidProposalForSetupDefinitionFor(Guid jobKey)
+        internal ProposalForCapabilityProvider GetValidProposalForSetupDefinitionFor(Guid jobKey)
         {
             _proposalDictionary.TryGetValue(jobKey, out var proposalForSetupDefinitionSet);
             return proposalForSetupDefinitionSet?.GetValidProposal();

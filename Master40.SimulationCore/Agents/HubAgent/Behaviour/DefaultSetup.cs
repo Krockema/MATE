@@ -5,7 +5,7 @@ using Master40.SimulationCore.Agents.ResourceAgent;
 using System;
 using static FOperations;
 using static FProposals;
-using static FRequestProposalForSetups;
+using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static FUpdateStartConditions;
 using static IJobResults;
@@ -48,7 +48,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 fOperation.HubAgent = Agent.Context.Self;
                 jobConfirmation = new JobConfirmation(fOperation);
                 _operations.Add(jobConfirmation);
-                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation.RequiredCapability, Agent));
+                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllCapabilityProvider(fOperation.RequiredCapability));
                 Agent.DebugMessage(msg: $"Got New Item to Enqueue: {fOperation.Operation.Name} " +
                                         $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}");
 
@@ -58,20 +58,26 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // reset Item.
                 fOperation = jobConfirmation.Job as FOperation;
                 Agent.DebugMessage(msg: $"Got Item to Requeue: { fOperation.Operation.Name} | with start condition: {fOperation.StartConditions.Satisfied } with Id: { fOperation.Key }");
-                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllSetupDefinitions(fOperation.RequiredCapability, Agent));
+                _proposalManager.Add(fOperation.Key, _capabilityManager.GetAllCapabilityProvider(fOperation.RequiredCapability));
                 jobConfirmation.ResetConfirmation();
             }
 
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(fOperation.RequiredCapability);
             
-            foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
+            foreach (var capabilityProvider in capabilityDefinition.GetAllCapabilityProvider())
             {
-                foreach (var actorRef in setupDefinition.RequiredResources)
+                foreach (var setup in capabilityProvider.ResourceSetups)
                 {
-                    Agent.DebugMessage(msg: $"Ask for proposal at resource {actorRef.Path.Name} | for {jobConfirmation.Job.Name } with { setupDefinition.SetupKey }");
+
+                    var resource = setup.Resource;
+                    if (setup.Resource.Count == 0) continue;
+
+                    var resourceRef = resource.IResourceRef as IActorRef;
+                    
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} | for {jobConfirmation.Job.Name } with { capabilityProvider.Id}");
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
-                                            .Create(message: new FRequestProposalForSetup(jobConfirmation.Job, setupDefinition.SetupKey)
-                                                   , target: actorRef));
+                                            .Create(message: new FRequestProposalForCapabilityProvider(jobConfirmation.Job, capabilityProvider.Id)
+                                                   , target: resourceRef));
 
                 }
             }
@@ -95,8 +101,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (propSet.AllProposalsReceived)
             {
                 // item Postponed by All Machines ? -> requeue after given amount of time.
-                var proposalForSetupDefinition = propSet.GetValidProposal();
-                if (proposalForSetupDefinition == null)
+                var proposalForCapabilityProvider = propSet.GetValidProposal();
+                if (proposalForCapabilityProvider == null)
                 {
                     var postponedFor = propSet.PostponedUntil;
                     _proposalManager.RemoveAllProposalsFor(fOperation.Key);
@@ -108,16 +114,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // acknowledge resources -> therefore get Machine -> send acknowledgement
                 
                 var jobConfirmation = _operations.GetJobConfirmation(fOperation.Key);
-                jobConfirmation.Schedule = proposalForSetupDefinition.EarliestStart();
-                jobConfirmation.SetupDefinition = proposalForSetupDefinition.GetFSetupDefinition;
+                jobConfirmation.Schedule = proposalForCapabilityProvider.EarliestStart();
+                jobConfirmation.CapabilityProvider = proposalForCapabilityProvider.GetCapabilityProvider;
 
-                foreach (IActorRef resource in proposalForSetupDefinition.GetFSetupDefinition.RequiredResources) {
+                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups){
 
-                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {resource}");
+                    if (setup.Resource.Count == 0) continue;
+                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {setup.Resource.Name}");
 
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(jobConfirmation.ToImmutable()
-                            , target: resource));
+                            , target: (IActorRef)setup.Resource.IResourceRef));
                 }
 
                 _proposalManager.Remove(fOperation.Key);
@@ -131,18 +138,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var jobConfirmation = _operations.UpdateOperationStartConfirmation(startCondition);
             var operation = jobConfirmation.Job as FOperation;
             // if Agent has no ResourceAgent the operation is not queued so here is nothing to do
-            if (jobConfirmation.SetupDefinition.SetupKey == -1)
+            if (jobConfirmation.CapabilityProvider == null)
                 return;
 
 
-            foreach (var resource in jobConfirmation.SetupDefinition.RequiredResources)
+            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
             {
+                if (setup.Resource.Count == 0) continue;
                 Agent.DebugMessage(msg: $"Update and forward start condition: {operation.Operation.Name} {operation.Key}" +
                                         $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
                                         $"| PreCondition: {operation.StartConditions.PreCondition} " +
-                                        $"to resource {resource}");
+                                        $"to resource {setup.Resource.Name}");
 
-                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resource));
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: (IActorRef)setup.Resource.IResourceRef));
             }
             
         }
@@ -172,15 +180,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal virtual void AddResourceToHub(FResourceInformation resourceInformation)
         {
-            foreach (var setup in resourceInformation.ResourceSetups)
+            foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {
-                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(setup.ResourceCapabilityProvider.ResourceCapability);
-               
-                var setupDefinition = capabilityDefinition.GetSetupDefinitionBy(setup);
-                setupDefinition.RequiredResources.Add(resourceInformation.Ref);
+                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capabilityProvider.ResourceCapability);
 
-                System.Diagnostics.Debug.WriteLine($"Create Capability Definition at {Agent.Name}" +
-                                                   $" with setup {setup.Name} " +
+                capabilityDefinition.AddResourceRef(resourceId: resourceInformation.ResourceId, resourceRef: resourceInformation.Ref);
+
+                System.Diagnostics.Debug.WriteLine($"Create capability provider at {Agent.Name}" +
+                                                   $" with capability provider {capabilityProvider.Name} " +
                                                    $" from {Agent.Context.Sender.Path.Name}" +
                                                    $" with capability {capabilityDefinition.ResourceCapability.Name}");
 

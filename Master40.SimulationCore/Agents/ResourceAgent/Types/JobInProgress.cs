@@ -16,7 +16,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public long ResourceIsBusyUntil { get; set; } = 0;
         public bool IsSet => Current != null;
         public void SetStartTime(long time) => StartTime = time;
-        public int SetupId => Current.SetupDefinition.SetupKey;
+        public int SetupId => Current.CapabilityProvider.Id;
         public string RequiredCapabilityName => Current.Job.RequiredCapability.Name;
 
         public bool Set(FJobConfirmation jobConfirmation, long currentTime)

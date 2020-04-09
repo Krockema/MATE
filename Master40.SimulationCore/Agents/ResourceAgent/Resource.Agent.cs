@@ -12,6 +12,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 {
     public partial class Resource : Agent
     {
+        internal M_Resource _resource;
         // public Constructor
         public static Props Props(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal)
         {
@@ -20,6 +21,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
         public Resource(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
+            _resource = resource;
         }
 
         protected override void OnInit(IBehaviour o)

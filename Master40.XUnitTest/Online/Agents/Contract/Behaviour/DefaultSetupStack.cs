@@ -23,7 +23,7 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
 
             var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
                     dueTime: 45, capability: tools[2]), 20, 15,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+               null);
 
             jobQueueTimeLimited.Enqueue(newJobItem);
 
@@ -65,22 +65,22 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
         {
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 5,
                     dueTime: 10, capability: tools[0]), 0, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                 null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5,
                     dueTime: 20, capability: tools[1]), 5, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+               null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 3", jobDuration: 5,
                     dueTime: 30, capability: tools[2]), 10, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 4", jobDuration: 5,
                     dueTime: 40, capability: tools[0]), 15, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 5", jobDuration: 5,
                     dueTime: 50, capability: tools[1]), 20, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 6", jobDuration: 20,
                     dueTime: 80, capability: tools[2]), 25, 20,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
         }
     }
 }

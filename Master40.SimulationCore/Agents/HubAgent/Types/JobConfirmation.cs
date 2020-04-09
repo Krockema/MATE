@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Akka.Actor;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
+using System.Collections.Generic;
 using static FBuckets;
 using static FJobConfirmations;
-using static FSetupDefinitions;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
@@ -10,14 +10,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     public class JobConfirmation
     {
         public IJob Job { get; set; }
-        public FSetupDefinition SetupDefinition { get; set; }
+        public M_ResourceCapabilityProvider CapabilityProvider { get; set; }
         public long Schedule { get; set; }
-        public bool IsConfirmed => SetupDefinition.SetupKey != -1;
+        public bool IsConfirmed => CapabilityProvider != null;
 
         public JobConfirmation(IJob job)
         {
             Job = job;
-            SetupDefinition = new FSetupDefinition(-1, new List<IActorRef>());
+            CapabilityProvider = null;
             Schedule = -1;
         }
 
@@ -27,12 +27,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FJobConfirmation ToImmutable()
         {
-            return new FJobConfirmation(Job, Schedule, Job.Duration ,SetupDefinition);
+            return new FJobConfirmation(Job, Schedule, Job.Duration , CapabilityProvider);
         }
 
         public void ResetConfirmation()
         {
-            SetupDefinition = new FSetupDefinition(-1, new List<IActorRef>()); 
+            CapabilityProvider = null; 
             Schedule = -1;
         }
     }

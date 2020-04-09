@@ -8,7 +8,7 @@ open FPostponeds
         {
             PossibleSchedule : int64 
             Postponed : FPostponed
-            SetupId : int64
+            CapabilityProviderId : int32
             ResourceAgent : IActorRef
             JobKey: Guid
         }

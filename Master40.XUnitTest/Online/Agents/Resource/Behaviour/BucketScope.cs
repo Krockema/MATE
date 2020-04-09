@@ -30,7 +30,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             PrepareModel();
             var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
                     dueTime: 45, capability: tools[2]), 20, 15,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+                null);
             JobQueueScopeLimited.Enqueue(newJobItem);
 
             var jobsToRequeue = JobQueueScopeLimited.CutTail(0, newJobItem);
@@ -49,7 +49,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
                 TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
             
             var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0, 480);
-            var jobProposalRequest = new FRequestProposalForSetups.FRequestProposalForSetup(bucket, newJobItem.SetupKey);
+            var jobProposalRequest = new FRequestProposalForCapabilityProviders.FRequestProposalForCapabilityProvider(bucket, newJobItem.SetupKey);
             var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0).First();
 
             Assert.Equal(expected: 125L, actual: queueableTime.EstimatedStart);
@@ -91,7 +91,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             bucket1.StartConditions.PreCondition = true;
 
             var bucketConfirmation1 = new FJobConfirmation(bucket1, 20, 20,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+                 null);
             JobQueueScopeLimited.Enqueue(bucketConfirmation1);
 
             var bucket2 = operation2.ToBucketScopeItem(hubAgentActorRef, 0, 480);
@@ -100,7 +100,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             bucket2.StartConditions.ArticlesProvided = true;
             bucket2.StartConditions.PreCondition = true;
             var bucketConfirmation2 = new FJobConfirmation(bucket2, 20, 10,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+                null);
             JobQueueScopeLimited.Enqueue(bucketConfirmation2);
 
             var bucket3 = operation3.ToBucketScopeItem(hubAgentActorRef, 0, 480);
@@ -109,7 +109,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             bucket3.StartConditions.ArticlesProvided = true;
             bucket3.StartConditions.PreCondition = true;
             var bucketConfirmation3 = new FJobConfirmation(bucket3, 20, 10,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+                null);
             JobQueueScopeLimited.Enqueue(bucketConfirmation3);
 
         }

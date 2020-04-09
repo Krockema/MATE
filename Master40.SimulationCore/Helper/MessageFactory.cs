@@ -1,19 +1,17 @@
-﻿using System;
-using Master40.FunctionConverter;
-using Akka.Actor;
-using System.Collections.Generic;
+﻿using Akka.Actor;
 using Master40.DB.DataModel;
+using Master40.FunctionConverter;
+using Master40.SimulationCore.Types;
 using Microsoft.FSharp.Collections;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using static FArticles;
-using static FOperations;
-using static FProposals;
-using static FStartConditions;
 using static FBuckets;
-using static IJobs;
-using Master40.SimulationCore.Types;
+using static FOperations;
+using static FStartConditions;
 using static FStockProviders;
-using static FSetupDefinitions;
+using static IJobs;
 
 namespace Master40.SimulationCore.Helper
 {

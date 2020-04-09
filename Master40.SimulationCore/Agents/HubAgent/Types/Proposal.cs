@@ -1,29 +1,29 @@
-﻿using System;
+﻿using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FProposals;
-using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class ProposalForSetupDefinition
+    public class ProposalForCapabilityProvider
     {
-        private FSetupDefinition _fSetupDefinition { get; set; } // allways setup that have been Requested. (No parent.)
+        private M_ResourceCapabilityProvider _capabilityProvider { get; set; } // allways setup that have been Requested. (No parent.)
 
-        public FSetupDefinition GetFSetupDefinition => _fSetupDefinition;
+        public M_ResourceCapabilityProvider GetCapabilityProvider => _capabilityProvider;
 
         private List<FProposal> _proposals = new List<FProposal>();
-        public long SetupKey => _fSetupDefinition.SetupKey;
-        public int RequiredProposals => _fSetupDefinition.RequiredResources.Count();
+        public long CapabilityProviderId => _capabilityProvider.Id;
+        public int RequiredProposals => _capabilityProvider.ResourceSetups.Count();
         public int ReceivedProposals => _proposals.Count();
-        public ProposalForSetupDefinition(FSetupDefinition fSetupDefinition)
+        public ProposalForCapabilityProvider(M_ResourceCapabilityProvider capabilityProvider)
         {
-            _fSetupDefinition = fSetupDefinition;
+            _capabilityProvider = capabilityProvider;
         }
 
         public bool AllProposalsReceived()
         {
-            return _fSetupDefinition.RequiredResources.Count == _proposals.Count;
+            return _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count) == _proposals.Count;
         }
 
         public bool NoPostponed()
