@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
         void Enqueue(FJobConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
-        List<QueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, int currentSetupId);
+        List<QueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal, long currentTime, CapabilityProviderManager cpm);
         HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation);
         bool CapacitiesLeft();
         T GetJobAs<T>(Guid key);

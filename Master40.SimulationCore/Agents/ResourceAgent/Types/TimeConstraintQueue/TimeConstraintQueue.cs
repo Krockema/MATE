@@ -83,7 +83,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return toRequeue;
         }
 
-        public List<QueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal, long currentTime, long processingQueueLength, long resourceIsBlockedUntil, int currentSetupId = -1)
+        public List<QueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
+                                , long currentTime, CapabilityProviderManager cpm)
         {
             
             var positions = new List<QueueingPosition>();
@@ -95,19 +96,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             {
                 // Queue contains no job --> Add queable item.
                 positions.Add(new QueueingPosition(isQueueAble: true,
-                                                    estimatedStart: currentTime + GetRequiredSetupTime(currentSetupId, jobProposal.CapabilityProviderId)));
+                                                    estimatedStart: currentTime + GetRequiredSetupTime(cpm, jobProposal.CapabilityProviderId)));
             }
             else
             {
                 var current = enumerator.Current;
                 var totalWorkLoad = current.Key 
                                             + ((FBucket) current.Value.Job).MaxBucketSize
-                                            + GetRequiredSetupTime(current.Value.CapabilityProvider.Id, jobProposal.CapabilityProviderId);
+                                            + GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.Id, jobProposal);
                 while (enumerator.MoveNext())
                 {
                     var endPre = current.Key + ((FBucket) current.Value.Job).MaxBucketSize;
                     var startPost = enumerator.Current.Key;
-                    var requiredSetupTime = GetRequiredSetupTime(current.Value.CapabilityProvider.Id, jobProposal.CapabilityProviderId);
+                    var requiredSetupTime = GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.ResourceCapabilityId, jobProposal);
                     if (endPre <= startPost - ((FBucket)current.Value.Job).MaxBucketSize - requiredSetupTime)
                     {
                         // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
@@ -127,9 +128,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return positions;
         }
 
-        private long GetRequiredSetupTime(int currentSetup, int requiredSetupId)
+        private long GetRequiredSetupTime(CapabilityProviderManager cpm, int capabilityProviderId)
         {
-            return 0L; // TODO
+            if (cpm.AlreadyEquipped(capabilityProviderId)) return 0L;
+            return cpm.GetSetupDurationByCapabilityProvider(capabilityProviderId);
+        }
+
+        private long GetRequiredSetupTime(CapabilityProviderManager cpm, int currentId, FRequestProposalForCapabilityProvider requestProposalForCapabilityProvider)
+        {
+            if (currentId == requestProposalForCapabilityProvider.Job.RequiredCapability.Id) return 0L;
+            return cpm.GetSetupDurationByCapabilityProvider(requestProposalForCapabilityProvider.CapabilityProviderId);
         }
 
         public FJobConfirmation FirstOrNull()

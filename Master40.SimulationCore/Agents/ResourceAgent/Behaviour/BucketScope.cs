@@ -80,9 +80,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
              var queuePosition = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
-                                                                , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                                                , processingQueueLength: _processingQueue.SumDurations
-                                                                , currentSetupId: _capabilityProviderManager.CurrentSetupId).First();
+                                                                , cpm: _capabilityProviderManager).First();
 
             //TODO Sets Postponed to calculated Duration of Bucket
             var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
@@ -128,9 +126,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             var queuePosition = _scopeQueue.GetQueueAbleTime(new FRequestProposalForCapabilityProvider(jobItem, fJobConfirmation.CapabilityProvider.Id)
                                                                                 , currentTime: Agent.CurrentTime
-                                                                                , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                                                                , processingQueueLength: _processingQueue.SumDurations
-                                                                                , currentSetupId: _capabilityProviderManager.CurrentSetupId).First();
+                                                                                , cpm: _capabilityProviderManager).First();
             // if not QueueAble
             if (!queuePosition.IsQueueAble || (fJobConfirmation.Schedule != queuePosition.EstimatedStart))
             {

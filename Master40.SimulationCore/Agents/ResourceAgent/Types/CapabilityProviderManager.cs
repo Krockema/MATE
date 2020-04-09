@@ -43,10 +43,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return resourceCapabilityProvider;
         }
 
-        internal long GetSetupDurationByCapabilityProvider(M_ResourceCapabilityProvider capabilityProvider)
+        internal long GetSetupDurationByCapabilityProvider(int resourceCapabilityProviderId)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var setupTime = _resourceCapabilityProviders.Single(x => x.Id == capabilityProvider.Id).ResourceSetups.Sum(x => x.SetupTime);
+
+            var setupTime = _resourceCapabilityProviders.Single(x => x.Id == resourceCapabilityProviderId).ResourceSetups.Sum(x => x.SetupTime);
             return setupTime;
         }
 

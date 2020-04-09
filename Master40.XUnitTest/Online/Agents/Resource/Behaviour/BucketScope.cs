@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.Online.Preparations;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using static FJobConfirmations;
 using static IJobs;
@@ -50,7 +49,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             
             var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0, 480);
             var jobProposalRequest = new FRequestProposalForCapabilityProviders.FRequestProposalForCapabilityProvider(bucket, newJobItem.SetupKey);
-            var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, resourceIsBlockedUntil: 0, processingQueueLength: 0).First();
+            var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, cpm: null).First();
 
             Assert.Equal(expected: 125L, actual: queueableTime.EstimatedStart);
         }

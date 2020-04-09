@@ -304,8 +304,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var setupTime = 0L;
             if (!_capabilityProviderManager.AlreadyEquipped(capabilityProviderId))
             {
-                var capabilityProvider = _capabilityProviderManager.GetCapabilityProviderByCapability(capabilityProviderId);
-                setupTime = _capabilityProviderManager.GetSetupDurationByCapabilityProvider(capabilityProvider);
+                setupTime = _capabilityProviderManager.GetSetupDurationByCapabilityProvider(capabilityProviderId);
             }
 
             Agent.DebugMessage(
