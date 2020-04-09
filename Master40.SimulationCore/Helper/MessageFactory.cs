@@ -33,7 +33,8 @@ namespace Master40.SimulationCore.Helper
                                             , long dueTime
                                             , IActorRef productionAgent
                                             , bool firstOperation
-                                            , long currentTime)
+                                            , long currentTime
+                                            , Guid articleKey)
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
@@ -55,6 +56,7 @@ namespace Master40.SimulationCore.Helper
                                 , resourceAgent: ActorRefs.NoSender
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
+                                , articleKey: articleKey
                                 , operation: operation
                                 , tool: operation.ResourceTool
                                 , proposals: new List<FProposal>()
@@ -192,6 +194,7 @@ namespace Master40.SimulationCore.Helper
             return new SimulationMeasurement
             {
                 JobId = job.Key,
+                ArticleKey = job.ArticleKey,
                 JobName = job.Operation.Name,
                 ArticleName = job.Operation.Article.Name,
                 CharacteristicName = characteristic.Name,

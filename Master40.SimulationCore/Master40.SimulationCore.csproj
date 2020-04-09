@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Master40.SimulationImmutables\Master40.SimulationImmutables.fsproj" />
     <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
+    <ProjectReference Include="..\Mater40.PiWebApi\Mater40.PiWebApi.csproj" />
   </ItemGroup>
 
 </Project>

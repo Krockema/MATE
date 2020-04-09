@@ -8,6 +8,7 @@ namespace Master40.DB.ReportingModel
     public class SimulationMeasurement : ResultBaseEntity
     {
         public Guid JobId { get; set; }
+        public Guid ArticleKey { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationConfigurationId { get; set; }
         public int SimulationNumber { get; set; }

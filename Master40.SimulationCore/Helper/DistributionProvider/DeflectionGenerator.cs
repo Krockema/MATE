@@ -22,7 +22,8 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
         public ResourceUsage AddUsage(int setupId)
         {
            var usage = GetUsageFor(setupId);
-           usage.NumberOfUses++;
+           if (usage.NumberOfUses >= 75) usage.NumberOfUses = 0; //machine fixed
+           else usage.NumberOfUses++;
            return usage;
         }
         private ResourceUsage GetUsageFor(int resourceId)

@@ -220,7 +220,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 var fJob = operation.ToOperationItem(dueTime: lastDue
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)
-                    , currentTime: Agent.CurrentTime);
+                    , currentTime: Agent.CurrentTime
+                    , articleKey: fArticle.Key);
 
                 Agent.DebugMessage(
                     msg:

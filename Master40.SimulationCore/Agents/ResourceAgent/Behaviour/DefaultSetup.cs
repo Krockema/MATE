@@ -131,6 +131,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                            , processingQueueLength: _processingQueue.SumDurations
                                                    , setupDuration: setupDuration);
             // if not QueueAble
+
             if (!queuePosition.IsQueueAble)
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");

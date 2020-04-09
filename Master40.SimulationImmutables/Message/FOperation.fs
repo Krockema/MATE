@@ -22,6 +22,7 @@ open FUpdateStartConditions
           StartConditions : FStartCondition
           Priority : int64 -> double
           ProductionAgent : IActorRef
+          ArticleKey : Guid
           ResourceAgent : IActorRef
           mutable HubAgent : IActorRef
           Operation : M_Operation

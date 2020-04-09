@@ -51,17 +51,17 @@ namespace Master40.ViewComponents
 
                 var min = new BarDataset {
                     Type = Enums.ChartType.HorizontalBar,
-                    Data = new List<double>(),
+                    Data = new List<double?>(),
                     BackgroundColor = new List<ChartColor>() // { cc.Color[8], cc.Color[4], cc.Color[1] } 
                 };
                 var avg = new BarDataset {
                     Type = Enums.ChartType.HorizontalBar,
-                    Data = new List<double>(),
+                    Data = new List<double?>(),
                     BackgroundColor = new List<ChartColor>() // { cc.Color[8], , cc.Color[1] }
                 };
                 var max = new BarDataset {
                     Type = Enums.ChartType.HorizontalBar,
-                    Data = new List<double>(),
+                    Data = new List<double?>(),
                     BackgroundColor = new List<ChartColor>() // { cc.Color[8], cc.Color[4], cc.Color[1] }
                 };
 

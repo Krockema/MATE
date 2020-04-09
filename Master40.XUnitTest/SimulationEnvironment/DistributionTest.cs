@@ -14,7 +14,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var generator = new MeasurementValuesGenerator(1000);
             var deflectionGenerator = new DeflectionGenerator(1000);
             var numberOfUses = deflectionGenerator.AddUsage(1);
-            var angle = 10;
+            //var angle = 10;
 
             using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(@"D:\\DistributionTest.txt"))

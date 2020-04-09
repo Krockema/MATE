@@ -12,7 +12,7 @@ namespace Mater40.PiWebApi
         public ZeissApiClient()
         {
             // TODO: Configurierbar machen!
-            ApiClient = new DataServiceRestClient(new Uri("http://desktop-84bcfmh:8080/"));
+            ApiClient = new DataServiceRestClient(new Uri("http://desktop-3bejpcl:8080/"));
             
         }
 

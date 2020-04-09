@@ -29,7 +29,7 @@ namespace Master40.XUnitTest.Preparations
                 ResourceTool = tool
             };
 
-            return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: currentTime);
+            return operation.ToOperationItem(dueTime: dueTime, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: currentTime, articleKey: Guid.NewGuid());
         }
 
         public static FArticle CreateDummyArticle(int dueTime, int currentTime, M_Article article, int quantity)

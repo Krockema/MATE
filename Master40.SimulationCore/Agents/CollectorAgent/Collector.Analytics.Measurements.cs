@@ -6,7 +6,14 @@ using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
+using Mater40.PiWebApi;
+using Zeiss.IMT.PiWeb.Api.Common.Data;
+using System.Threading.Tasks;
+using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.ResourceAgent;
+using static FJobInformations;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -28,6 +35,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             return new List<Type>
             {
                 typeof(Measurements),
+                typeof(Resource.Instruction.BucketScope.CreateMeasurements),
                 typeof(UpdateLiveFeed),
             };
         }
@@ -39,7 +47,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             switch (message)
             {
                 case Measurements m: CreateEntry(measurements: m); break;
-                case UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
+                case UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break; 
+                //case Resource.Instruction.BucketScope.CreateMeasurements msg: Test(fJobInformation: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -53,6 +62,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 measure.SimulationNumber = Collector.simulationNumber.Value;
                 measure.SimulationType = Collector.simulationKind.Value;
                 simulationMeasurement.Add(measure);
+                
+                ZeissConnector.TransferMeasurementsToPiWeb(measure);
             }
         }
 

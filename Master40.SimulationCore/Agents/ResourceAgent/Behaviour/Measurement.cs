@@ -1,4 +1,6 @@
-﻿using Master40.DB.Enums;
+﻿using System;
+using Master40.DB.Enums;
+using Master40.SimulationCore.Agents.CollectorAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
@@ -44,8 +46,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var job = ((FOperations.FOperation)fJobInformation.Job);
             var measurements = new Measurements();
             var resourceUsage = _deflectionGenerator.AddUsage(setupId: fJobInformation.Setup.Id);
+            
             foreach (var characteristic in job.Operation.Characteristics)
-            { 
+            {
                 foreach (var attribute in characteristic.Attributes)
                 {
                     var deflectionValue = attribute.Value -
@@ -58,10 +61,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                         , attribute.Tolerance_Min
                         , attribute.Tolerance_Max
                         , quantil.Z);
+                    attr.ArticleName = job.Operation.Article.Name;
+                    attr.Resource = fJobInformation.Setup.Resource.Name + "(" + fJobInformation.Setup.ResourceId + ")";
+                    attr.ArticleKey = job.ArticleKey;
                     measurements.Add(attr);
                 }
             }
-
+            
             Agent.Context.System.EventStream.Publish(@event: measurements);
         }
     }
