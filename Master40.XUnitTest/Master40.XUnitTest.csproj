@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Online\Agents\Hub\**" />
-    <EmbeddedResource Remove="Online\Agents\Hub\**" />
-    <None Remove="Online\Agents\Hub\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.4" />
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.3" />

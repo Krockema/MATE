@@ -10,6 +10,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         private Dictionary<Guid, ProposalForCapabilityProviderSet> _proposalDictionary { get; set; } 
 
+        /// <summary>
+        /// Contains a Dictionary with a JobKey and a ProposalForCapabilityProviderSet
+        /// </summary>
         public ProposalManager()
         {
             _proposalDictionary = new Dictionary<Guid, ProposalForCapabilityProviderSet>();
@@ -27,7 +30,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             if (!_proposalDictionary.TryGetValue(fProposal.JobKey, out var proposalForSetupDefinitionSet))
                 return null;
 
-            var proposalForCapabilityProvider = proposalForSetupDefinitionSet.Single(x => x.CapabilityProviderId == fProposal.CapabilityProviderId);
+            var proposalForCapabilityProvider = proposalForSetupDefinitionSet.Single(x => x.ProviderId == fProposal.CapabilityProviderId);
 
             proposalForCapabilityProvider.Add(fProposal);
                 return proposalForSetupDefinitionSet;

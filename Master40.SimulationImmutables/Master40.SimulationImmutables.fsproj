@@ -6,6 +6,8 @@
 
   <ItemGroup>
 
+    <Compile Include="Message\FQueueingPosition.fs" />
+
     <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />

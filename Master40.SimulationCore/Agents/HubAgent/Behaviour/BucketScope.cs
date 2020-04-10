@@ -183,11 +183,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (jobConfirmation == null) return;
 
             var bucket = jobConfirmation.Job as FBucket;
+            var resourceAgent = fProposal.ResourceAgent as IActorRef;
             var required = _proposalManager.AddProposal(fProposal);
             if (required == null) return;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
             Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {fProposal.PossibleSchedule} " +
-                                    $"JobKey: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}!");
+                                    $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!");
 
             // if all resources replied 
             if (propSet.AllProposalsReceived)

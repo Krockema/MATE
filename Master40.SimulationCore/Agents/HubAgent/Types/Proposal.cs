@@ -13,7 +13,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public M_ResourceCapabilityProvider GetCapabilityProvider => _capabilityProvider;
 
         private List<FProposal> _proposals = new List<FProposal>();
-        public long CapabilityProviderId => _capabilityProvider.Id;
+        public int ProviderId => _capabilityProvider.Id;
         public int RequiredProposals => _capabilityProvider.ResourceSetups.Count();
         public int ReceivedProposals => _proposals.Count();
         public ProposalForCapabilityProvider(M_ResourceCapabilityProvider capabilityProvider)
@@ -38,7 +38,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public long EarliestStart()
         {
-            return _proposals.Max(x => x.PossibleSchedule);
+            return _proposals.Max(x => (int)x.PossibleSchedule);
         }
 
         public void Add(FProposal proposal)

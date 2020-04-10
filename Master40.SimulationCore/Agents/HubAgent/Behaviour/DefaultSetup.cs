@@ -91,11 +91,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             // get related operation and add proposal.
             var fOperation = _operations.GetJobBy(fProposal.JobKey) as FOperation;
-
+            var resourceAgent = fProposal.ResourceAgent as IActorRef;
             var propSet = _proposalManager.AddProposal(fProposal);
 
             Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {fOperation.Key} with Schedule: {fProposal.PossibleSchedule} " +
-                                   $"JobKey: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}!");
+                                   $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!");
 
             // if all resources answered
             if (propSet.AllProposalsReceived)
