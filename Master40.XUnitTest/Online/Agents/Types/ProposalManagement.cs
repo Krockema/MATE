@@ -82,7 +82,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
                             , new FPostponeds.FPostponed(0)
                             , _proposalForCapabilityProvider.ProviderId
                             , WorkerResource.IResourceRef, jobKey)
-            },/* Operator Start = */ 4L, /* Machine Start = */ 4L,/* Worker Start = */ 0, "#2 fit without setup"};
+            },/* Operator Start = */ 0L, /* Machine Start = */ 4L,/* Worker Start = */ 4, "#2 fit without setup"};
             yield return new object[] { // Test Three NoFit
                     new List<FProposal>() {
                         new FProposal(new List<FQueueingPosition> { // operator
@@ -174,7 +174,8 @@ namespace Master40.XUnitTest.Online.Agents.Types
         [MemberData(nameof(GetProposalTestData))]
         public void TestMe(List<FProposal> acknowledgedProposals, long estimatedOperatorStart, long estimatedMachineStart, long estimatedWorkerStart, string description)
         {
-            Dictionary<string, FQueueingPosition> finalPositions = new Dictionary<string, FQueueingPosition>();
+            // this should be an own object but for now...it represents a possible schedule for this SetupCombination. 
+            List<Tuple<long, Dictionary<string, FQueueingPosition>>> finalPositions = new List<Tuple<long, Dictionary<string, FQueueingPosition>>>();
 
             // Get All Proposals that are InSetup and InProcess
             var mainResources = _proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups
@@ -202,23 +203,15 @@ namespace Master40.XUnitTest.Online.Agents.Types
             processingResources.ForEach(x => processingResourceProposals.AddRange(acknowledgedProposals.Where(y => y.ResourceAgent.Equals(x.IResourceRef))));
 
             // Check for possible Slots
-
-            // For Each Slot
-            // Check Required Worker + Possible Working Slot -> Return reduced Scope
-            // Check Required Setup + Possible SetupSlot
-
-
             var proposalEnumerator = mainResourceProposals.GetEnumerator();
             while (proposalEnumerator.MoveNext())
             {
                 var currentMainProposal = proposalEnumerator.Current;
                 var possibleSchedules = currentMainProposal.PossibleSchedule as List<FQueueingPosition>;
-                // check for worker here to reduce search scope
-                
                 // check for setup requirement and slots.
                 foreach (var queueSlot in possibleSchedules)
                 {
-                    if (queueSlot.IsRequieringSetup)
+                    if (queueSlot.IsRequieringSetup) // determine implicit ? setupResoruce.Count ?
                     {
                         foreach (var setupSlot in setupResourceProposals)
                         {
@@ -241,50 +234,53 @@ namespace Master40.XUnitTest.Online.Agents.Types
                             var workingQueueSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
                                                                         start: earliestProcessingStart, end: queueSlot.End,
                                                                         estimatedWork: queueSlot.EstimatedWork);
-                            // create empty worker pos.
-                            FQueueingPosition workerPosition = new FQueueingPosition(false, false, 0, 0, 0);
-
 
                             // seek for worker to process operation
-                            foreach (var processingProposal in processingResourceProposals)
-                            {
-                                var processingPositions = processingProposal.PossibleSchedule as List<FQueueingPosition>;
-                                var processingIsPossible = processingPositions.FirstOrDefault(processing =>
-                                    SlotComparer(workingQueueSlot, processing, 0));
-
-                                if(processingIsPossible == null)
-                                    continue;
-
-                                earliestProcessingStart = (new[] { processingIsPossible.Start, workingQueueSlot.Start }).Max();
-                                
-                                workerPosition = new FQueueingPosition(true, false, earliestProcessingStart,
-                                    earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
-                                    setupIsPossible.EstimatedWork);
-
-                                // posible schedule found;
-                                break;
-                            }
-
-                            // no worker found;
+                            var workerPosition = FindProcessingPosition(processingResourceProposals, workingQueueSlot);
+                            // set if a new is found 
                             if (!workerPosition.IsQueueAble)
                                 continue;
 
-                            finalPositions.Add("Operator", operatorSlot);
-                            finalPositions.Add("Worker", workerPosition);
                             workingQueueSlot = new FQueueingPosition(true, true,
                                 operatorSlot.Start,
                                 workerPosition.End, queueSlot.EstimatedWork + operatorSlot.EstimatedWork);
-                            finalPositions.Add("Machine", workingQueueSlot);
+
+                            var possibleCombination = new Dictionary<string, FQueueingPosition>
+                            {
+                                {"Operator", operatorSlot},
+                                {"Worker", workerPosition},
+                                {"Machine", workingQueueSlot}
+                            };
+                            finalPositions.Add(new Tuple<long, Dictionary<string, FQueueingPosition>>(operatorSlot.Start, possibleCombination));
                             break;
                         }
+                    }  else  {// if no Setup is Required
+
+                        var processingPosition = FindProcessingPosition(processingResourceProposals, queueSlot);
+                        // set if a new is found 
+                        if (!processingPosition.IsQueueAble)
+                            continue;
+
+                        var mainQueueingPosition = new FQueueingPosition(true, true,
+                            processingPosition.Start,
+                            processingPosition.End, queueSlot.EstimatedWork);
+
+                        var combination = new Dictionary<string, FQueueingPosition>
+                        {
+                            {"Worker", mainQueueingPosition}, 
+                            {"Machine", mainQueueingPosition}
+                        };
+                        finalPositions.Add(new Tuple<long, Dictionary<string, FQueueingPosition>>(mainQueueingPosition.Start, combination));
+                        break;
                     }
-                    break;
                 }
             }
             proposalEnumerator.Dispose();
 
             // assert for all
-            finalPositions.ForEach(pair =>
+            System.Diagnostics.Debug.WriteLine("Evaluating: " + description);
+            var toAssert = finalPositions.OrderBy(x => x.Item1).First();
+            toAssert.Item2.ForEach(pair =>
             {
                 switch (pair.Key)
                 {
@@ -301,7 +297,31 @@ namespace Master40.XUnitTest.Online.Agents.Types
             });
         }
 
+        private FQueueingPosition FindProcessingPosition(List<FProposal> processingResourceProposals, FQueueingPosition workingQueueSlot)
+        {
+            FQueueingPosition workerPosition = new FQueueingPosition(false, false, long.MaxValue, 0, 0);
+            foreach (var processingProposal in processingResourceProposals)
+            {
+                var processingPositions = processingProposal.PossibleSchedule as List<FQueueingPosition>;
+                var processingIsPossible = processingPositions.FirstOrDefault(processing =>
+                    SlotComparer(workingQueueSlot, processing, 0));
 
+                if (processingIsPossible == null)
+                    continue; // can this happen ? should return at least one value
+                              // maybe in postponed case ? 
+
+                var earliestProcessingStart = (new[] {processingIsPossible.Start, workingQueueSlot.Start}).Max();
+
+                if (earliestProcessingStart < workerPosition.Start)
+                {
+                    workerPosition = new FQueueingPosition(true, false, earliestProcessingStart,
+                                                        earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
+                                                        processingIsPossible.EstimatedWork);
+                }
+            }
+
+            return workerPosition;
+        }
 
 
         private bool SlotComparer(FQueueingPosition mainResourcePos, FQueueingPosition toCompare, long setupOffset)
