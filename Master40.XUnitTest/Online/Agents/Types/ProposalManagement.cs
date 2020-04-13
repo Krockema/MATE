@@ -1,16 +1,10 @@
-﻿using System;
+﻿using Akka.TestKit.Xunit;
+using Akka.Util.Internal;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent.Types;
-using Resource = Master40.SimulationCore.Agents.ResourceAgent.Resource;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Actor;
-using Akka.TestKit;
-using Akka.TestKit.Internal;
-using Akka.TestKit.Xunit;
-using Akka.Util.Internal;
-using Master40.SimulationCore.Agents.HubAgent;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using static FProposals;
 using static FQueueingPositions;
@@ -48,74 +42,137 @@ namespace Master40.XUnitTest.Online.Agents.Types
             yield return new object[] { // Test One with Setup
                     new List<FProposal>() { 
                         new FProposal(new List<FQueueingPosition> { // operator
-                                                                                new FQueueingPosition(true, false, 2, 6, 1),
-                                                                                new FQueueingPosition(true, false, 9, long.MaxValue, 1) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , OperatorResource.IResourceRef, jobKey),
-                                            new FProposal(new List<FQueueingPosition> { // machine
-                                                                                new FQueueingPosition(true, true, 3, 7, 3),
-                                                                                new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , MachineResource.IResourceRef, jobKey),
-                                            new FProposal(new List<FQueueingPosition> { // worker
-                                                                                new FQueueingPosition(true, false, 1, 1, 3),
-                                                                                new FQueueingPosition(true, false, 4, 6, 3),
-                                                                                new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , WorkerResource.IResourceRef, jobKey)
-            }, /* Estimated Start = */ 3L};
+                                new FQueueingPosition(true, false, 2, 6, 1),
+                                new FQueueingPosition(true, false, 9, long.MaxValue, 1) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , OperatorResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // machine
+                                new FQueueingPosition(true, true, 3, 7, 3),
+                                new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , MachineResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // worker
+                                new FQueueingPosition(true, false, 1, 1, 3),
+                                new FQueueingPosition(true, false, 4, 6, 3),
+                                new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , WorkerResource.IResourceRef, jobKey)
+            }, /* Operator Start = */ 3L, /* Machine Start = */ 3L,/* Worker Start = */ 4L,"#1 Fit with setup"};
             yield return new object[] { // Test Two without setup
                     new List<FProposal>() {
                         new FProposal(new List<FQueueingPosition> { // operator
-                                                                                new FQueueingPosition(true, false, 4, 7, 1),
-                                                                                new FQueueingPosition(true, false, 10, long.MaxValue, 1) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , OperatorResource.IResourceRef, jobKey),
-                                            new FProposal(new List<FQueueingPosition> { // machine
-                                                                                new FQueueingPosition(true, false, 4, 6, 3),
-                                                                                new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , MachineResource.IResourceRef, jobKey),
-                                            new FProposal(new List<FQueueingPosition> { // worker
-                                                                                new FQueueingPosition(true, false, 1, 1, 3),
-                                                                                new FQueueingPosition(true, false, 4, 6, 3),
-                                                                                new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , WorkerResource.IResourceRef, jobKey)
-            }, /* Estimated Start = */ 4L};
+                                new FQueueingPosition(true, false, 4, 7, 1),
+                                new FQueueingPosition(true, false, 10, long.MaxValue, 1) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , OperatorResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // machine
+                                new FQueueingPosition(true, false, 4, 6, 3),
+                                new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , MachineResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // worker
+                                new FQueueingPosition(true, false, 1, 1, 3),
+                                new FQueueingPosition(true, false, 4, 6, 3),
+                                new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , WorkerResource.IResourceRef, jobKey)
+            },/* Operator Start = */ 4L, /* Machine Start = */ 4L,/* Worker Start = */ 0, "#2 fit without setup"};
             yield return new object[] { // Test Three NoFit
                     new List<FProposal>() {
                         new FProposal(new List<FQueueingPosition> { // operator
-                                                                                new FQueueingPosition(true, false, 5, 7, 1),
-                                                                                new FQueueingPosition(true, false, 10, long.MaxValue, 1) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , OperatorResource.IResourceRef, jobKey),
-                                            new FProposal(new List<FQueueingPosition> { // machine
-                                                                                new FQueueingPosition(true, true, 3, 6, 3),
-                                                                                new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , MachineResource.IResourceRef, jobKey),
-                                            new FProposal(new List<FQueueingPosition> { // worker
-                                                                                new FQueueingPosition(true, false, 1, 1, 3),
-                                                                                new FQueueingPosition(true, false, 4, 6, 3),
-                                                                                new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
-                                                            , new FPostponeds.FPostponed(0)
-                                                            , _proposalForCapabilityProvider.ProviderId
-                                                            , WorkerResource.IResourceRef, jobKey)
-            }, /* Estimated Start = */ 10};
+                                new FQueueingPosition(true, false, 5, 7, 1),
+                                new FQueueingPosition(true, false, 10, long.MaxValue, 1) }
+                                , new FPostponeds.FPostponed(0)
+                                , _proposalForCapabilityProvider.ProviderId
+                                , OperatorResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // machine
+                                new FQueueingPosition(true, true, 3, 6, 3),
+                                new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , MachineResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // worker
+                                new FQueueingPosition(true, false, 1, 1, 3),
+                                new FQueueingPosition(true, false, 4, 6, 3),
+                                new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , WorkerResource.IResourceRef, jobKey)
+            },/* Operator Start = */ 10L, /* Machine Start = */ 10L,/* Worker Start = */ 11, "#3 No fit"};
+            yield return new object[] { // Fits with Setup but setup pushes scope
+                new List<FProposal>() {
+                    new FProposal(new List<FQueueingPosition> { // operator
+                            new FQueueingPosition(true, false, 4, 7, 1),
+                            new FQueueingPosition(true, false, 10, long.MaxValue, 1) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , OperatorResource.IResourceRef, jobKey),
+                    new FProposal(new List<FQueueingPosition> { // machine
+                            new FQueueingPosition(true, true, 3, 8, 3),
+                            new FQueueingPosition(true, true, 11, long.MaxValue, 3) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , MachineResource.IResourceRef, jobKey),
+                    new FProposal(new List<FQueueingPosition> { // worker
+                            new FQueueingPosition(true, false, 2, 8, 3),
+                            new FQueueingPosition(true, false, 11, long.MaxValue, 3) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , WorkerResource.IResourceRef, jobKey)
+                },/* Operator Start = */ 4L, /* Machine Start = */ 4L,/* Worker Start = */ 5, "#4 Fit with Setup but setup pushes scope"};
+            yield return new object[] { // Exact Fit    
+                new List<FProposal>() {
+                    new FProposal(new List<FQueueingPosition> { // operator
+                            new FQueueingPosition(true, false, 2, 3, 1),
+                            new FQueueingPosition(true, false, 9, long.MaxValue, 1) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , OperatorResource.IResourceRef, jobKey),
+                    new FProposal(new List<FQueueingPosition> { // machine
+                            new FQueueingPosition(true, true, 3, 7, 3),
+                            new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , MachineResource.IResourceRef, jobKey),
+                    new FProposal(new List<FQueueingPosition> { // worker
+                            new FQueueingPosition(true, false, 4, 6, 3),
+                            new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , WorkerResource.IResourceRef, jobKey)
+                },/* Operator Start = */ 3L, /* Machine Start = */ 3L,/* Worker Start = */ 4, "#5 Exact Fit"};
+            yield return new object[] { // Detached Setup
+                new List<FProposal>() {
+                    new FProposal(new List<FQueueingPosition> { // operator
+                            new FQueueingPosition(true, false, 2, 3, 1),
+                            new FQueueingPosition(true, false, 10, long.MaxValue, 1) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , OperatorResource.IResourceRef, jobKey),
+                    new FProposal(new List<FQueueingPosition> { // machine
+                            new FQueueingPosition(true, true, 3, 8, 3),
+                            new FQueueingPosition(true, true, 11, long.MaxValue, 3) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , MachineResource.IResourceRef, jobKey),
+                    new FProposal(new List<FQueueingPosition> { // worker
+                            new FQueueingPosition(true, false, 5, 7, 3),
+                            new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
+                        , new FPostponeds.FPostponed(0)
+                        , _proposalForCapabilityProvider.ProviderId
+                        , WorkerResource.IResourceRef, jobKey)
+                },/* Operator Start = */ 3L, /* Machine Start = */ 3L,/* Worker Start = */ 5, "#6 Detached Setup"};
         }
 
         [Theory]
         [MemberData(nameof(GetProposalTestData))]
-        public void TestMe(List<FProposal> acknowledgedProposals, long estimatedStart)
+        public void TestMe(List<FProposal> acknowledgedProposals, long estimatedOperatorStart, long estimatedMachineStart, long estimatedWorkerStart, string description)
         {
             Dictionary<string, FQueueingPosition> finalPositions = new Dictionary<string, FQueueingPosition>();
 
@@ -158,43 +215,106 @@ namespace Master40.XUnitTest.Online.Agents.Types
                 var possibleSchedules = currentMainProposal.PossibleSchedule as List<FQueueingPosition>;
                 // check for worker here to reduce search scope
                 
-                
-                // ToDo
-                
-                
                 // check for setup requirement and slots.
                 foreach (var queueSlot in possibleSchedules)
                 {
                     if (queueSlot.IsRequieringSetup)
                     {
-                        var setupQueueingPositions = setupResourceProposals.First().PossibleSchedule as List<FQueueingPosition>;
-                        // Machine includes Setup time in the Queuing Position if required.
-                        var setupIsPossible = setupQueueingPositions
-                            .FirstOrDefault(setup => (setup.Start >= queueSlot.Start
-                                                       || setup.Start <= queueSlot.End - queueSlot.EstimatedWork + 1)
-                                                       && setup.End >= queueSlot.End - queueSlot.EstimatedWork + setup.EstimatedWork + 1
-                                                       && setup.Start <= queueSlot.End - queueSlot.EstimatedWork + 1);
-                        if (setupIsPossible == null)
-                            continue;
+                        foreach (var setupSlot in setupResourceProposals)
+                        {
+                            var setupQueueingPositions = setupSlot.PossibleSchedule as List<FQueueingPosition>;
+                            // Machine includes Setup time in the Queuing Position if required.
+                            var setupIsPossible = setupQueueingPositions.FirstOrDefault(setup 
+                                                                                    => SlotComparer(queueSlot, setup, setup.EstimatedWork));
+                            if (setupIsPossible == null)
+                                continue;
 
-                        long earliestStart = (new [] {setupIsPossible.Start, queueSlot.Start}).Max();
+                            long earliestSetupStart = (new[] { setupIsPossible.Start, queueSlot.Start }).Max();
+                            long earliestProcessingStart = earliestSetupStart + setupIsPossible.EstimatedWork;
 
-                        finalPositions.Add("Operator" ,new FQueueingPosition(true, true, earliestStart, earliestStart + setupIsPossible.EstimatedWork - 1, setupIsPossible.EstimatedWork ));
-                        finalPositions.Add("Machine", new FQueueingPosition(true, true, earliestStart, earliestStart + queueSlot.EstimatedWork -1, queueSlot.EstimatedWork ));
+                            // create possible operation slot
+                            var operatorSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true, 
+                                                                    start: earliestSetupStart, end: earliestProcessingStart - 1,
+                                                                    estimatedWork: setupIsPossible.EstimatedWork);
 
-                        break;
-                    } else { 
-                        finalPositions.Add("Machine", new FQueueingPosition(true, true, queueSlot.Start, queueSlot.Start + queueSlot.EstimatedWork - 1, queueSlot.EstimatedWork));
-                        break;
+                            // Reduced Position for processing comparison
+                            var workingQueueSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
+                                                                        start: earliestProcessingStart, end: queueSlot.End,
+                                                                        estimatedWork: queueSlot.EstimatedWork);
+                            // create empty worker pos.
+                            FQueueingPosition workerPosition = new FQueueingPosition(false, false, 0, 0, 0);
+
+
+                            // seek for worker to process operation
+                            foreach (var processingProposal in processingResourceProposals)
+                            {
+                                var processingPositions = processingProposal.PossibleSchedule as List<FQueueingPosition>;
+                                var processingIsPossible = processingPositions.FirstOrDefault(processing =>
+                                    SlotComparer(workingQueueSlot, processing, 0));
+
+                                if(processingIsPossible == null)
+                                    continue;
+
+                                earliestProcessingStart = (new[] { processingIsPossible.Start, workingQueueSlot.Start }).Max();
+                                
+                                workerPosition = new FQueueingPosition(true, false, earliestProcessingStart,
+                                    earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
+                                    setupIsPossible.EstimatedWork);
+
+                                // posible schedule found;
+                                break;
+                            }
+
+                            // no worker found;
+                            if (!workerPosition.IsQueueAble)
+                                continue;
+
+                            finalPositions.Add("Operator", operatorSlot);
+                            finalPositions.Add("Worker", workerPosition);
+                            workingQueueSlot = new FQueueingPosition(true, true,
+                                operatorSlot.Start,
+                                workerPosition.End, queueSlot.EstimatedWork + operatorSlot.EstimatedWork);
+                            finalPositions.Add("Machine", workingQueueSlot);
+                            break;
+                        }
                     }
+                    break;
                 }
             }
             proposalEnumerator.Dispose();
 
             // assert for all
-            finalPositions.ForEach(pair => Assert.Equal(estimatedStart, pair.Value.Start));
+            finalPositions.ForEach(pair =>
+            {
+                switch (pair.Key)
+                {
+                    case "Operator":
+                        Assert.Equal(estimatedOperatorStart, pair.Value.Start);
+                        break;
+                    case "Worker":
+                        Assert.Equal(estimatedWorkerStart, pair.Value.Start);
+                        break;
+                    default:
+                        Assert.Equal(estimatedMachineStart, pair.Value.Start);
+                        break;
+                }
+            });
         }
 
+
+
+
+        private bool SlotComparer(FQueueingPosition mainResourcePos, FQueueingPosition toCompare, long setupOffset)
+        {
+            // calculate posible earliest start
+            long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
+            // check setup scope 
+            var setupFit = (earliestStart + setupOffset - 1 <= toCompare.End);
+            // check Queue scope
+            var queueFit = (earliestStart + setupOffset + mainResourcePos.EstimatedWork - 1 <= mainResourcePos.End);
+
+            return (setupFit && queueFit);
+        }
     }
 }
 
