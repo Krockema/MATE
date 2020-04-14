@@ -29,6 +29,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return proposals;
         }
 
+        public List<IActorRef> GetResources(bool usedInSetup, bool usedInProcess)
+        {
+            return _capabilityProvider.ResourceSetups.Where(
+                            x => x.UsedInSetup == usedInSetup
+                            && x.UsedInProcess  == usedInProcess
+                            && x.Resource.IResourceRef != null)
+                .Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
+        }
+
         public bool AllProposalsReceived()
         {
             return _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count) == _proposals.Count;

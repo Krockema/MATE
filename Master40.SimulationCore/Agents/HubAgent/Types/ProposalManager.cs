@@ -74,105 +74,139 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public PossibleProcessingPosition GetSuitableQueueingPositionFromProposals(ProposalForCapabilityProvider proposalForCapabilityProvider)
         {
 
-            var possbileProcessingPosition = new PossibleProcessingPosition(proposalForCapabilityProvider.GetCapabilityProvider);
+            var possibleProcessingPosition = new PossibleProcessingPosition(proposalForCapabilityProvider.GetCapabilityProvider);
 
-            var mainResources = proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups
-                .Where(x => x.UsedInSetup && x.UsedInProcess).Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
+            var mainResources = proposalForCapabilityProvider.GetResources(usedInSetup:true, usedInProcess: true);
+            var possibleMainQueuingPositions = GetQueueingPositions(proposalForCapabilityProvider, mainResources);
 
-            var setupResources = proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups
-                .Where(x => x.UsedInSetup && !x.UsedInProcess).Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
+            var setupResources = proposalForCapabilityProvider.GetResources(usedInSetup: true, usedInProcess: false);
+            var possibleSetupQueuingPositions = GetQueueingPositions(proposalForCapabilityProvider, setupResources);
+            
+            var processingResources = proposalForCapabilityProvider.GetResources(usedInSetup: false, usedInProcess: true);
+            var possibleProcessingQueuingPositions = GetQueueingPositions(proposalForCapabilityProvider, processingResources);
+            
 
-            var processingResources = proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups
-                .Where(x => !x.UsedInSetup && x.UsedInProcess).Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
-
-            // Get Proposals for all main resources grouped by Resource 
-            // Todo: maybe Dictionary<resource, Proposal>
-            List<FProposal> mainResourceProposals = proposalForCapabilityProvider.GetProposalsFor(mainResources);
-            // Find overlapping timeSlots 
-            var possibleMainQueuingPositions = ProposalReducer(mainResourceProposals.ToArray()
-                                                                 , mainResourceProposals[0].PossibleSchedule as List<FQueueingPosition>
-                                                                 , 1);
-
-            // ToDo: mainResourceTimeslots List<FProposal>
-            // ToDo: for setup
-            // ToDo: for processing
-
-            List<FProposal> setupResourceProposals = proposalForCapabilityProvider.GetProposalsFor(setupResources);
-            var possibleSetupQueuingPositions = setupResourceProposals.First().PossibleSchedule as List<FQueueingPosition>;
-            // ToDo: do the same as for main resource when more then one resource is required for setup only.
-
-            List<FProposal> processingResourceProposals = proposalForCapabilityProvider.GetProposalsFor(processingResources);
-            var possibleProcessingQueuingPositions = setupResourceProposals.First().PossibleSchedule as List<FQueueingPosition>;
-            // ToDo: do the same as for main resource when more then one resource is required for processing only.
-
-
-            foreach (var queueSlot in possibleMainQueuingPositions)
+            foreach (var mainScope in possibleMainQueuingPositions)
             {
-                if (queueSlot.IsRequieringSetup) // determine implicit ? setupResoruce.Count ?
+                if (mainScope.IsRequieringSetup) // determine implicit ? setupResoruce.Count ?
                 {
-                    // Machine includes Setup time in the Queuing Position if required.
-                    var setupIsPossible = possibleSetupQueuingPositions.FirstOrDefault(setup
-                                                                            => SlotComparerSetup(queueSlot, setup));
-                    if (setupIsPossible == null)
-                        continue;
+                    long earliestProcessingStart = mainScope.Start;
+                    long earliestSetupStart = mainScope.Start;
+                    FQueueingPosition setupSlot = null;
+                    FQueueingPosition mainSlot = null;
+                    if (setupResources.Count != 0)
+                    {
+                        // Machine includes Setup time in the Queuing Position if required.
+                        var setupIsPossible = possibleSetupQueuingPositions.FirstOrDefault(setup
+                                                                                       => SlotComparerSetup(mainScope, setup));
+                        if (setupIsPossible == null)
+                            continue;
 
-                    long earliestSetupStart = (new[] { setupIsPossible.Start, queueSlot.Start }).Max();
-                    long earliestProcessingStart = earliestSetupStart + setupIsPossible.EstimatedWork;
+                        earliestSetupStart = (new[] { setupIsPossible.Start, mainScope.Start }).Max();
+                        earliestProcessingStart = earliestSetupStart + setupIsPossible.EstimatedWork;
 
-                    // create possible operation slot
-                    var operatorSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
-                                                            start: earliestSetupStart, end: earliestProcessingStart - 1,
-                                                            estimatedWork: setupIsPossible.EstimatedWork);
+                        // create possible operation slot
+                        setupSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: false,
+                                                                start: earliestSetupStart, end: earliestProcessingStart - 1,
+                                                                estimatedWork: setupIsPossible.EstimatedWork);
+                        
+                        // Reduced Position for processing comparison
+                        mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
+                                                                start: earliestProcessingStart, end: earliestProcessingStart + mainScope.EstimatedWork -1,
+                                                                estimatedWork: mainScope.EstimatedWork);
 
-                    // Reduced Position for processing comparison
-                    var workingQueueSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
-                                                                start: earliestProcessingStart, end: queueSlot.End,
-                                                                estimatedWork: queueSlot.EstimatedWork);
+
+                        if (processingResources.Count == 0)
+                        {
+                            mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                            setupResources.ForEach(x => possibleProcessingPosition.Add(x, setupSlot));
+                            break;
+                        }
+                    }
+
+
+                    var processingScope = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
+                                                                    start: /* ToDo : SetupTime + */ earliestProcessingStart, 
+                                                                    end: mainScope.End,
+                                                                    estimatedWork: mainScope.EstimatedWork);
 
                     // seek for worker to process operation
-                    var workerPosition = FindProcessingPosition(processingResourceProposals, workingQueueSlot);
+                    var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions, processingScope);
                     // set if a new is found 
-                    if (!workerPosition.IsQueueAble)
+                    if (!processingPosition.IsQueueAble)
                         continue;
 
-                    workingQueueSlot = new FQueueingPosition(true, true,
-                        operatorSlot.Start,
-                        workerPosition.End, queueSlot.EstimatedWork + operatorSlot.EstimatedWork);
+                    var processingSlot = new FQueueingPosition(true, true,
+                                                                start: processingPosition.Start,
+                                                                end: processingPosition.Start + mainScope.EstimatedWork - 1,
+                                                                estimatedWork: processingPosition.EstimatedWork);
 
-                    mainResources.ForEach(x => possbileProcessingPosition.Add(x, workingQueueSlot));
-                    setupResources.ForEach(x => possbileProcessingPosition.Add(x, operatorSlot));
-                    processingResources.ForEach(x => possbileProcessingPosition.Add(x, workerPosition, workerPosition.Start));
+                    mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
+                                                            start: mainSlot.Start, end: processingSlot.End - 1,
+                                                            estimatedWork: mainSlot.EstimatedWork + processingSlot.EstimatedWork);
+
+                    mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                    processingResources.ForEach(x => possibleProcessingPosition.Add(x, processingSlot, processingSlot.Start));
+                    if (setupResources.Count > 0)
+                    {
+                        setupResources.ForEach(x => possibleProcessingPosition.Add(x, setupSlot));
+                    }
+
                     break;
 
                 }
                 else
                 {// if no Setup is Required
-
-                    var processingPosition = FindProcessingPosition(processingResourceProposals, queueSlot);
+                    FQueueingPosition mainSlot = null;
+                    if (processingResources.Count == 0)
+                    {
+                        mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
+                            start: mainScope.Start, end: mainScope.Start + mainScope.EstimatedWork -1,
+                            estimatedWork: mainScope.EstimatedWork);
+                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                        break;
+                    }
+                    var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions, mainScope);
                     // set if a new is found 
                     if (!processingPosition.IsQueueAble)
                         continue;
 
-                    var mainQueueingPosition = new FQueueingPosition(true, true,
-                        processingPosition.Start,
-                        processingPosition.End, queueSlot.EstimatedWork);
-
-                    mainResources.ForEach(x => possbileProcessingPosition.Add(x, mainQueueingPosition));
-                    processingResources.ForEach(x => possbileProcessingPosition.Add(x, processingPosition, processingPosition.Start));
+                    mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: false,
+                                                    start: mainScope.Start, end: mainScope.Start + mainScope.EstimatedWork - 1,
+                                                    estimatedWork: mainScope.EstimatedWork);
+                    
+                    mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                    processingResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, mainSlot.Start));
                     break;
                 }
 
             }
 
-            return possbileProcessingPosition;
+            return possibleProcessingPosition;
+        }
+
+        private List<FQueueingPosition> GetQueueingPositions(ProposalForCapabilityProvider proposalForCapabilityProvider, List<IActorRef> resources)
+        {
+            List<FProposal> setupResourceProposals = proposalForCapabilityProvider.GetProposalsFor(resources);
+            var possibleSetupQueuingPositions = new List<FQueueingPosition>();
+            if (setupResourceProposals.Count > 0)
+            {
+                possibleSetupQueuingPositions.AddRange(
+                    ProposalReducer(setupResourceProposals.ToArray()
+                        , setupResourceProposals[0].PossibleSchedule as List<FQueueingPosition>
+                        , 1));
+            }
+
+            return possibleSetupQueuingPositions;
         }
 
         private List<FQueueingPosition> ProposalReducer(FProposal[] proposalArray, List<FQueueingPosition> possibleFQueueingPositions, int stage)
         {
+            var reducedSlots = new List<FQueueingPosition>();
             if (stage == proposalArray.Length)
                 return possibleFQueueingPositions;
 
-            var reducedSlots = new List<FQueueingPosition>();
+
             foreach (var position in possibleFQueueingPositions)
             {
                 var positionsToCompare = proposalArray[stage].PossibleSchedule as List<FQueueingPosition>;
@@ -195,30 +229,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return reducedSlots;
         }
 
-        private FQueueingPosition FindProcessingPosition(List<FProposal> processingResourceProposals, FQueueingPosition workingQueueSlot)
+        private FQueueingPosition FindProcessingPosition(List<FQueueingPosition> processingPositions, FQueueingPosition workingQueueSlot)
         {
-            FQueueingPosition workerPosition = new FQueueingPosition(false, false, long.MaxValue, 0, 0);
-            foreach (var processingProposal in processingResourceProposals)
-            {
-                var processingPositions = processingProposal.PossibleSchedule as List<FQueueingPosition>;
-                var processingIsPossible = processingPositions.FirstOrDefault(processing =>
-                    SlotComparerBasic(workingQueueSlot, processing));
+            var processingIsPossible = processingPositions.FirstOrDefault(processing =>
+                SlotComparerBasic(workingQueueSlot, processing));
 
-                if (processingIsPossible == null)
-                    continue; // can this happen ? should return at least one value
-                              // maybe in postponed case ? 
-
-                var earliestProcessingStart = (new[] { processingIsPossible.Start, workingQueueSlot.Start }).Max();
-
-                if (earliestProcessingStart < workerPosition.Start)
-                {
-                    workerPosition = new FQueueingPosition(true, false, earliestProcessingStart,
-                                                        earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
-                                                        workingQueueSlot.EstimatedWork);
-                }
-            }
-
-            return workerPosition;
+            var earliestProcessingStart = (new[] { processingIsPossible.Start, workingQueueSlot.Start }).Max();
+            
+            return new FQueueingPosition(true, false, earliestProcessingStart,
+                                                    earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
+                                                    workingQueueSlot.EstimatedWork);
         }
 
 
