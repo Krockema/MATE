@@ -1,4 +1,5 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             _capabilityProvider = capabilityProvider;
         }
 
+        public List<FProposal> GetProposalsFor(List<IActorRef> actorRefs)
+        {
+            var proposals = new List<FProposal>();
+            actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x))));
+            return proposals;
+        }
+
         public bool AllProposalsReceived()
         {
             return _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count) == _proposals.Count;
@@ -38,6 +46,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public long EarliestStart()
         {
+            // 1.  
+
+
             return _proposals.Max(x => (int)x.PossibleSchedule);
         }
 

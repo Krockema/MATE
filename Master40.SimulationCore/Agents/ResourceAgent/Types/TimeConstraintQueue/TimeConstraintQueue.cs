@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static FBuckets;
 using static FJobConfirmations;
+using static FQueueingPositions;
 using static FRequestProposalForCapabilityProviders;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
@@ -26,7 +27,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public void Enqueue(FJobConfirmation jobConfirmation)
         {
-            this.Add(jobConfirmation.Schedule, jobConfirmation);
+            this.Add(jobConfirmation.QueueingPosition.Start, jobConfirmation);
         }
 
         public KeyValuePair<long, FJobConfirmation> GetFirstSatisfied(long currentTime)
@@ -71,32 +72,37 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public bool RemoveJob(FJobConfirmation job)
         {
-            return this.Remove(job.Schedule);
+            return this.Remove(job.QueueingPosition.Start);
         }
 
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = this.Where(x => x.Key >= jobConfirmation.Schedule
+            var toRequeue = this.Where(x => x.Key >= jobConfirmation.QueueingPosition.Start
                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
                 .Select(x => x.Value).ToHashSet();
             return toRequeue;
         }
 
-        public List<QueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
+        public List<FQueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
                                 , long currentTime, CapabilityProviderManager cpm)
         {
             
-            var positions = new List<QueueingPosition>();
+            var positions = new List<FQueueingPosition>();
             var job = jobProposal.Job;
             var jobPriority = jobProposal.Job.Priority(currentTime);
             var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
             var enumerator = allWithLowerPriority.GetEnumerator();
             if (!enumerator.MoveNext())
             {
+                var requiredSetupTime = GetRequiredSetupTime(cpm, jobProposal.CapabilityProviderId);
                 // Queue contains no job --> Add queable item.
-                positions.Add(new QueueingPosition(isQueueAble: true,
-                                                    estimatedStart: currentTime + GetRequiredSetupTime(cpm, jobProposal.CapabilityProviderId)));
+                positions.Add(new FQueueingPosition(isQueueAble: true,
+                                                    isRequieringSetup: (requiredSetupTime>0)?true:false,
+                                                    start: currentTime,
+                                                    end: long.MaxValue,
+                                                    estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
+                                                    ));
             }
             else
             {
@@ -104,25 +110,34 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 var totalWorkLoad = current.Key 
                                             + ((FBucket) current.Value.Job).MaxBucketSize
                                             + GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.Id, jobProposal);
+                long requiredSetupTime = 0;
                 while (enumerator.MoveNext())
                 {
                     var endPre = current.Key + ((FBucket) current.Value.Job).MaxBucketSize;
                     var startPost = enumerator.Current.Key;
-                    var requiredSetupTime = GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.ResourceCapabilityId, jobProposal);
-                    if (endPre <= startPost - ((FBucket)current.Value.Job).MaxBucketSize - requiredSetupTime)
+                    requiredSetupTime = GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.ResourceCapabilityId, jobProposal);
+                    if (endPre <= startPost - ((FBucket)jobProposal.Job).MaxBucketSize - requiredSetupTime)
                     {
                         // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
-                        positions.Add(new QueueingPosition(isQueueAble: true,
-                                                            estimatedStart: endPre));
+                        positions.Add(new FQueueingPosition(isQueueAble: true,
+                                                    isRequieringSetup: (requiredSetupTime > 0) ? true : false,
+                                                    start: endPre,
+                                                    end: startPost,
+                                                    estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
+                                                    ));
                     }
 
                     totalWorkLoad = endPre + ((FBucket) current.Value.Job).MaxBucketSize + requiredSetupTime;
                     current = enumerator.Current;
                 }
 
-                positions.Add(new QueueingPosition(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
-                                                    estimatedStart: currentTime + totalWorkLoad));
-                
+                positions.Add(new FQueueingPosition(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
+                                                    isRequieringSetup: (requiredSetupTime > 0) ? true : false,
+                                                    start: totalWorkLoad,
+                                                    end: long.MaxValue,
+                                                    estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
+                                                    ));
+
             }
             enumerator.Dispose();
             return positions;

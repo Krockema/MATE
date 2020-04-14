@@ -3,6 +3,8 @@ using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FOperations;
 using static FProposals;
 using static FRequestProposalForCapabilityProviders;
@@ -114,8 +116,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 // acknowledge resources -> therefore get Machine -> send acknowledgement
                 
                 var jobConfirmation = _operations.GetJobConfirmation(fOperation.Key);
-                jobConfirmation.Schedule = proposalForCapabilityProvider.EarliestStart();
-                jobConfirmation.CapabilityProvider = proposalForCapabilityProvider.GetCapabilityProvider;
+
+                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider);
+
+                var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
+
+                jobConfirmation.CapabilityProvider = possiblePosition._resourceCapabilityProvider;
 
                 foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups){
 

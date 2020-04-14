@@ -195,7 +195,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 // item Postponed by All resources ? -> requeue after given amount of time.
                 var proposalForCapabilityProvider = propSet.GetValidProposal();
-                if (proposalForCapabilityProvider == null)
+                if (proposalForCapabilityProvider.Count() == 0)
                 {
                     var postponedFor = propSet.PostponedUntil; // TODO: Naming Until != For
 
@@ -207,12 +207,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 }
 
-                jobConfirmation.Schedule = proposalForCapabilityProvider.EarliestStart();
-                jobConfirmation.CapabilityProvider = proposalForCapabilityProvider.GetCapabilityProvider;
+                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider);
 
-                foreach (var setup in proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups)
+                var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
+
+                jobConfirmation.CapabilityProvider = possiblePosition._resourceCapabilityProvider;
+
+                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
                 {
                     if (setup.Resource.Count == 0) continue;
+
+                    jobConfirmation.QueuingPosition = possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value;
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {setup.Resource.Name}");
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(jobConfirmation.ToImmutable()
@@ -250,7 +255,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             else
             {
                 Agent.DebugMessage(msg: $"{bucket.Name} does not exits anymore");
-                jobConfirmation.Schedule = -1;
+                jobConfirmation.QueuingPosition = null;
             }
 
             //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)

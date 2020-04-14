@@ -6,11 +6,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class ProposalForCapabilityProviderSet : List<ProposalForCapabilityProvider>
     {
-        public ProposalForCapabilityProvider GetValidProposal()
+        public List<ProposalForCapabilityProvider> GetValidProposal()
         {
-            var allNotPostponed = this.Where(x => x.NoPostponed()).ToList();
-            var firstValidProposal = allNotPostponed.OrderBy(x => x.EarliestStart()).FirstOrDefault();
-            return firstValidProposal;
+            return this.Where(x => x.NoPostponed()).ToList();
         }
 
         public int RequiredProposals => this.Sum(x => x.RequiredProposals);

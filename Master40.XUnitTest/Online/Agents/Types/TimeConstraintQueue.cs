@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
+using static FQueueingPositions;
 
 namespace Master40.XUnitTest.Online.Agents.Types
 {
@@ -25,10 +26,10 @@ namespace Master40.XUnitTest.Online.Agents.Types
             _output = output;
             // T0 1 2 3 4 5 6 7 8 9 10 11 12 13 
             // I0 1 1 - - - 2 2 - 3  4  4  -  -   
-            _queue.Add(1, new FJobConfirmations.FJobConfirmation(null, 1, 2, null));
-            _queue.Add(6, new FJobConfirmations.FJobConfirmation(null, 6, 2, null));
-            _queue.Add(9, new FJobConfirmations.FJobConfirmation(null, 9, 1, null));
-            _queue.Add(10, new FJobConfirmations.FJobConfirmation(null, 10, 2, null));
+            _queue.Add(1, new FJobConfirmations.FJobConfirmation(null, new FQueueingPosition(true, true, 1, 3, 2), 2, null));
+            _queue.Add(6, new FJobConfirmations.FJobConfirmation(null, new FQueueingPosition(true, true, 6, 8, 2), 2, null));
+            _queue.Add(9, new FJobConfirmations.FJobConfirmation(null, new FQueueingPosition(true, true, 9, 10, 1), 1, null));
+            _queue.Add(10, new FJobConfirmations.FJobConfirmation(null, new FQueueingPosition(true, true, 10, 12, 2), 2, null));
         }
 
         [Fact]
@@ -69,7 +70,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
                 var slotFound = false;
                 while (enumerator.MoveNext())
                 {
-                    var endPre = current.Key + current.Value.Schedule;
+                    var endPre = current.Key + current.Value.QueueingPosition.Start;
                     var startPost = enumerator.Current.Key;
 
                     if (endPre <= startPost - tDuration)
@@ -81,7 +82,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
                 }
 
                 if (!slotFound)
-                    validSlots.Add(current.Key + current.Value.Schedule, long.MaxValue);
+                    validSlots.Add(current.Key + current.Value.QueueingPosition.Start, long.MaxValue);
             }
             enumerator.Dispose();
 

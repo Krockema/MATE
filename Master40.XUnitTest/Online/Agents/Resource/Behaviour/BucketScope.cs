@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using static FJobConfirmations;
+using static FQueueingPositions;
 using static IJobs;
 
 namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
@@ -28,7 +29,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         {
             PrepareModel();
             var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
-                    dueTime: 45, capability: tools[2]), 20, 15,
+                    dueTime: 45, capability: tools[2]), new FQueueingPosition(true, true, 20, 35, 15), 15,
                 null);
             JobQueueScopeLimited.Enqueue(newJobItem);
 
@@ -51,13 +52,13 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             var jobProposalRequest = new FRequestProposalForCapabilityProviders.FRequestProposalForCapabilityProvider(bucket, newJobItem.SetupKey);
             var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, cpm: null).First();
 
-            Assert.Equal(expected: 125L, actual: queueableTime.EstimatedStart);
+            Assert.Equal(expected: 125L, actual: queueableTime.Start);
         }
 
         private void PrepareModel()
         {
             CreateTools();
-            CreateBucketItems();
+            //CreateBucketItems();
         }
 
         private void CreateTools()
@@ -67,7 +68,7 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             tools.Add(new M_ResourceCapability() { Id = 2, Name = "BladeSmall" });
         }
 
-
+        /*
         private void CreateBucketItems()
         {
             var operation1 = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10,
@@ -111,6 +112,6 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
                 null);
             JobQueueScopeLimited.Enqueue(bucketConfirmation3);
 
-        }
+        }*/
     }
 }

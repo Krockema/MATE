@@ -78,19 +78,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
-             var queuePosition = _scopeQueue.GetQueueAbleTime(requestProposal
+             var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
-                                                                , cpm: _capabilityProviderManager).First();
+                                                                , cpm: _capabilityProviderManager);
 
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
+            var fPostponed = new FPostponed(offset: queuePositions.First().IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
 
-            Agent.DebugMessage(msg: queuePosition.IsQueueAble
-                ? $"Bucket: {requestProposal.Job.Key} IsQueueAble: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}"
+            Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
+                ? $"Bucket: {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Start}"
                 : $"Bucket: {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} ");
 
             // calculate proposal
-            var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
+            var proposal = new FProposals.FProposal(possibleSchedule: queuePositions
                 , postponed: fPostponed
                 , requestProposal.CapabilityProviderId
                 , resourceAgent: Agent.Context.Self
@@ -127,8 +127,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var queuePosition = _scopeQueue.GetQueueAbleTime(new FRequestProposalForCapabilityProvider(jobItem, fJobConfirmation.CapabilityProvider.Id)
                                                                                 , currentTime: Agent.CurrentTime
                                                                                 , cpm: _capabilityProviderManager).First();
+            
             // if not QueueAble
-            if (!queuePosition.IsQueueAble || (fJobConfirmation.Schedule != queuePosition.EstimatedStart))
+            if (!queuePosition.IsQueueAble || (fJobConfirmation.QueueingPosition.Start != queuePosition.Start))
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));

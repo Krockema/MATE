@@ -19,6 +19,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         private static M_Resource OperatorResource = new M_Resource { Name = "Operator", IResourceRef = "Operator" };
         private static M_Resource MachineResource = new M_Resource { Name = "Machine", IResourceRef = "Machine" };
         private static M_Resource WorkerResource = new M_Resource { Name = "Worker", IResourceRef = "Worker" };
+        private static M_Resource MachineResource2 = new M_Resource { Name = "Machine2", IResourceRef = "Machine2" };
 
         private static readonly ProposalForCapabilityProvider _proposalForCapabilityProvider 
             =  new ProposalForCapabilityProvider(
@@ -30,6 +31,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
                             new M_ResourceSetup {Name = "Operator", UsedInSetup = true, UsedInProcess = false, Resource = OperatorResource },
                             new M_ResourceSetup {Name = "Machine", UsedInSetup = true, UsedInProcess = true , Resource = MachineResource},
                             new M_ResourceSetup {Name = "Worker", UsedInSetup = false, UsedInProcess = true, Resource = WorkerResource },
+                            new M_ResourceSetup {Name = "Machine2", UsedInSetup = true, UsedInProcess = true , Resource = MachineResource2},
                         }
                     });
 
@@ -44,19 +46,25 @@ namespace Master40.XUnitTest.Online.Agents.Types
                             , _proposalForCapabilityProvider.ProviderId
                             , OperatorResource.IResourceRef, jobKey),
                         new FProposal(new List<FQueueingPosition> { // machine
-                                new FQueueingPosition(true, true, 3, 7, 3),
+                                new FQueueingPosition(true, true, 3, 7, 2),
                                 new FQueueingPosition(true, true, 10, long.MaxValue, 3) }
                             , new FPostponeds.FPostponed(0)
                             , _proposalForCapabilityProvider.ProviderId
                             , MachineResource.IResourceRef, jobKey),
                         new FProposal(new List<FQueueingPosition> { // worker
-                                new FQueueingPosition(true, false, 1, 1, 3),
-                                new FQueueingPosition(true, false, 4, 6, 3),
+                                new FQueueingPosition(true, false, 1, 1, 2),
+                                new FQueueingPosition(true, false, 4, 7, 2),
                                 new FQueueingPosition(true, false, 10, long.MaxValue, 3) }
                             , new FPostponeds.FPostponed(0)
                             , _proposalForCapabilityProvider.ProviderId
-                            , WorkerResource.IResourceRef, jobKey)
-            }, /* Operator Start = */ 3L, /* Machine Start = */ 3L,/* Worker Start = */ 4L,"#1 Fit with setup"};
+                            , WorkerResource.IResourceRef, jobKey),
+                        new FProposal(new List<FQueueingPosition> { // machine2
+                                new FQueueingPosition(true, true, 4, 8, 2),
+                                new FQueueingPosition(true, true, 10, long.MaxValue, 4) }
+                            , new FPostponeds.FPostponed(0)
+                            , _proposalForCapabilityProvider.ProviderId
+                            , MachineResource.IResourceRef, jobKey),
+            }, /* Operator Start = */ 4L, /* Machine Starne Start = */ 4L,/* Worker Start = */ 5L,"#1 Fit with setup"};
             yield return new object[] { // Test Two without setup
                     new List<FProposal>() {
                         new FProposal(new List<FQueueingPosition> { // operator
@@ -179,7 +187,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
             // Get All Proposals that are InSetup and InProcess --> Group by Resource --> reduce SearchScope 
             var mainResources = _proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups
                 .Where(x => x.UsedInSetup && x.UsedInProcess).Select(x => x.Resource.IResourceRef);
-            Assert.Collection(mainResources, resource => Assert.Equal("Machine", resource));
+            //Assert.Collection(mainResources, resource => Assert.Equal("Machine", resource));
 
             var setupResources = _proposalForCapabilityProvider.GetCapabilityProvider.ResourceSetups
                 .Where(x => x.UsedInSetup && !x.UsedInProcess).Select(x => x.Resource);
@@ -201,7 +209,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
                                                                  , 1);
 
             // ToDo: mainResourceTimeslots List<FProposal>
-            // ToDo: for setup 
+            // ToDo: for setup
             // ToDo: for processing
 
             List<FProposal> setupResourceProposals = new List<FProposal>();
