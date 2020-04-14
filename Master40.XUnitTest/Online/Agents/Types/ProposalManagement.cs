@@ -33,11 +33,6 @@ namespace Master40.XUnitTest.Online.Agents.Types
                         }
                     });
 
-        public ProposalManagement()
-        {
-
-        }
-
         public static IEnumerable<object[]> GetProposalTestData()
         {
             yield return new object[] { // Test One with Setup
@@ -199,7 +194,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
             // Get Proposals for all main resources grouped by Resource 
             // Todo: maybe Dictionary<resource, Proposal>
             List<FProposal> mainResourceProposals = new List<FProposal>(); // should contain two proposals by now.
-            mainResources.ForEach(x => mainResourceProposals.AddRange(acknowledgedProposals.Where(y => mainResources.Contains(x))));
+            mainResources.ForEach(x => mainResourceProposals.AddRange(acknowledgedProposals.Where(y => x == y.ResourceAgent)));
             // Find overlapping timeSlots 
             var possibleMainQueuingPositions = ProposalReducer(mainResourceProposals.ToArray()
                                                                  , mainResourceProposals[0].PossibleSchedule as List<FQueueingPosition>
@@ -305,6 +300,9 @@ namespace Master40.XUnitTest.Online.Agents.Types
 
         private List<FQueueingPosition> ProposalReducer(FProposal[] proposalArray, List<FQueueingPosition> possibleFQueueingPositions, int stage)
         {
+            if (stage == proposalArray.Length)
+                return possibleFQueueingPositions;
+            
             var reducedSlots = new List<FQueueingPosition>();
             foreach (var position in possibleFQueueingPositions)
             {
@@ -347,7 +345,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
                 {
                     workerPosition = new FQueueingPosition(true, false, earliestProcessingStart,
                                                         earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
-                                                        processingIsPossible.EstimatedWork);
+                                                        workingQueueSlot.EstimatedWork);
                 }
             }
 
