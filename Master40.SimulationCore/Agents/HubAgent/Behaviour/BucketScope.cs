@@ -8,6 +8,7 @@ using System.Linq;
 using static FBuckets;
 using static FOperations;
 using static FProposals;
+using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 using static FUpdateStartConditions;
 using static IJobResults;
@@ -150,8 +151,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
             jobConfirmation.ResetConfirmation();
+            _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
+            
 
             Agent.DebugMessage($"Enqueue {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count} operations");
             
@@ -186,8 +188,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var resourceAgent = fProposal.ResourceAgent as IActorRef;
             var required = _proposalManager.AddProposal(fProposal);
             if (required == null) return;
+            var schedules = fProposal.PossibleSchedule as List<FQueueingScope>;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
-            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {fProposal.PossibleSchedule} " +
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().Start} " +
                                     $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!");
 
             // if all resources replied 

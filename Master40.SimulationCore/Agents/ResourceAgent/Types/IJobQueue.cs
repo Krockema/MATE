@@ -23,7 +23,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         FJobConfirmation FirstOrNull();
         bool RemoveJob(FJobConfirmation job);
         long Workload { get; }
-
         bool CheckScope(FJobConfirmation fJobConfirmation, long time);
     }
 }

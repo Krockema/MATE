@@ -108,9 +108,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             else
             {
                 var current = enumerator.Current;
-                var totalWorkLoad = current.Key 
-                                            + ((FBucket) current.Value.Job).MaxBucketSize
-                                            + GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.Id, jobProposal);
+                var totalWorkLoad = current.Value.ScopeConfirmation.End;
                 long requiredSetupTime = 0;
                 while (enumerator.MoveNext())
                 {
@@ -129,8 +127,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                                                     ));
                     }
 
-                    totalWorkLoad = endPre + ((FBucket) current.Value.Job).MaxBucketSize + requiredSetupTime;
+
+                    // totalWorkLoad = endPre + ((FBucket) current.Value.Job).MaxBucketSize + requiredSetupTime;
                     current = enumerator.Current;
+                    totalWorkLoad = current.Value.ScopeConfirmation.End;
+                    
                 }
 
                 positions.Add(new FQueueingScope(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
@@ -165,22 +166,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public bool CheckScope(FJobConfirmation fJobConfirmation, long time)
         {
+            var jobPriority = fJobConfirmation.Job.Priority(time);
+            var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(time) <= jobPriority);
             var scopeConfirmation = fJobConfirmation.ScopeConfirmation;
             var fitEnd = true;
             var fitStart = true;
-            var pre = this.OrderByDescending(x => x.Key).FirstOrDefault(x => x.Key <= scopeConfirmation.Start);
-            var post = this.FirstOrDefault(x => x.Key > scopeConfirmation.Start);
+            var pre = allWithLowerPriority.OrderByDescending(x => x.Key)
+                                                                      .FirstOrDefault(x => x.Key <= scopeConfirmation.Start);
+            var post = allWithLowerPriority.FirstOrDefault(x => x.Key > scopeConfirmation.Start);
 
             if (pre.Value == null)
                 return true;
 
-            if (pre.Key == scopeConfirmation.Start &&
-                pre.Value.Job.Priority(time) > fJobConfirmation.Job.Priority(time))
-            {
-                return true;
-            }
-
-            fitStart = pre.Value.ScopeConfirmation.End < scopeConfirmation.Start;
+            fitStart = pre.Value.ScopeConfirmation.End <= scopeConfirmation.Start;
             if (post.Value != null)
                   fitEnd = post.Key > scopeConfirmation.End;
 

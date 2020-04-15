@@ -22,8 +22,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             ScopeConfirmation = null;
         }
 
-        public string RequiresCapability => Job.RequiredCapability.Name;
-
         public bool IsFixPlanned => ((FBucket) Job).IsFixPlanned;
 
         public FJobConfirmation ToImmutable()
