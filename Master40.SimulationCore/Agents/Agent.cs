@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Akka.Event;
 using LogLevel = NLog.LogLevel;
+using NLog;
+using Akka.Logger.NLog;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -32,7 +34,7 @@ namespace Master40.SimulationCore.Agents
         // internal LogWriter LogWriter { get; set; }
         // Diagnostic Tools
         public bool DebugThis { get; private set; }
-        
+
         /// <summary>
         /// Basic Agent
         /// </summary>
@@ -107,6 +109,23 @@ namespace Master40.SimulationCore.Agents
                 logLevel = LogLevel.Debug;
             //Debug.WriteLine(message: logItem, category: "AgentMessage");
             Logger.Log(logLevel
+                        , "Time({TimePeriod}).Agent({Name}): {msg}"
+                        , new object[] { TimePeriod, Name, msg });
+        }
+
+        /// <summary>
+        /// Logging the debug Message to Systems.Diagnosics.Debug.WriteLine
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="LogLevel" optional="true">Nlog.LogLevel</para>
+        internal void DebugMessage(string msg, string customLogger, LogLevel logLevel = null)
+        {
+            Logger CustomLogger = LogManager.GetLogger(customLogger);
+            //if (!DebugThis) return;
+            if (logLevel == null)
+                logLevel = LogLevel.Debug;
+            //Debug.WriteLine(message: logItem, category: "AgentMessage");
+            CustomLogger.Log(logLevel
                         , "Time({TimePeriod}).Agent({Name}): {msg}"
                         , new object[] { TimePeriod, Name, msg });
         }

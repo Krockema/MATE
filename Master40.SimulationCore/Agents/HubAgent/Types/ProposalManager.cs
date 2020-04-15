@@ -120,7 +120,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
                         if (processingResources.Count == 0)
                         {
-                            mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                            mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, mainSlot.Start));
                             setupResources.ForEach(x => possibleProcessingPosition.Add(x, setupSlot));
                             break;
                         }
@@ -131,7 +131,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                         mainSlot = new FScopeConfirmation(start: /* ToDo : SetupTime + */ earliestProcessingStart,
                                                                     end: earliestProcessingStart + mainScope.EstimatedWork - 1,
                                                                     estimatedWork: mainScope.EstimatedWork);
-                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, mainSlot.Start));
                         break;
                     }
 
@@ -150,7 +150,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                                                                 estimatedWork: processingPosition.EstimatedWork);
 
                     mainSlot = new FScopeConfirmation(start: mainSlot.Start, end: processingSlot.End - 1,
-                                                            estimatedWork: mainSlot.EstimatedWork + processingSlot.EstimatedWork);
+                                                            estimatedWork: processingSlot.EstimatedWork);
 
                     mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
                     processingResources.ForEach(x => possibleProcessingPosition.Add(x, processingSlot, processingSlot.Start));
@@ -170,7 +170,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                         mainSlot = new FScopeConfirmation(
                             start: mainScope.Start, end: mainScope.Start + mainScope.EstimatedWork -1,
                             estimatedWork: mainScope.EstimatedWork);
-                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, mainSlot.Start));
                         break;
                     }
                     var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions.Cast<IScope>().ToList(), mainScope);

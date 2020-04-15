@@ -57,7 +57,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.TestModel, ModelSize.Small, true);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, true);
             
             ResultContext results = ResultContext.GetContext(resultCon: testResultCtxString);
             results.Database.EnsureDeleted();
@@ -137,13 +137,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.BucketScope, 1100, 480, 1920, 1337, ModelSize.Medium, ModelSize.Small, 0.025, false)]
+        [InlineData(SimulationType.BucketScope, 1100, 240, 1920, 1337, ModelSize.Medium, ModelSize.Small, 0.025, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed
                                         , ModelSize resourceModelSize, ModelSize setupModelSize
                                         , double arrivalRate, bool distributeSetupsExponentially)
         {
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
             
@@ -158,11 +159,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 200)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 4320));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SettlingStart(value: 0));
+            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

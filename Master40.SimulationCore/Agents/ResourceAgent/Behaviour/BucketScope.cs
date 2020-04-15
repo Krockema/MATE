@@ -4,7 +4,9 @@ using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
+using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,8 +88,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var fPostponed = new FPostponed(offset: queuePositions.First().IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
             var jobPrio = requestProposal.Job.Priority(Agent.CurrentTime);
             Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
-                ? $"Bucket: {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Start} and Prio: {jobPrio}"
-                : $"Bucket: {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ");
+                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Start} and Prio: {jobPrio}"
+                : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePositions
@@ -122,33 +124,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var jobItem = fJobConfirmation.Job;
             var jobPrio = jobItem.Priority(Agent.CurrentTime);
-            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with scope from {fJobConfirmation.ScopeConfirmation.Start} to {fJobConfirmation.ScopeConfirmation.Start} and priority {jobPrio}", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             var isQueueable = _scopeQueue.CheckScope(fJobConfirmation, Agent.CurrentTime);
 
             if (!isQueueable)
             {
-                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with jobPrio: {jobPrio} and start requeue");
+                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with jobPrio: {jobPrio} and start requeue", CustomLogger.PROPOSAL, LogLevel.Warn);
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));
                 return;
             }
 
+            Agent.DebugMessage(msg: $"Accepted proposal on resource {Agent.Context.Self.Path.Name} and start enqueue {jobItem.Name} {jobItem.Key} ", CustomLogger.PROPOSAL, LogLevel.Warn);
+
             // cut Tail before Enque
             UpdateAndRequeuePlanedJobs(fJobConfirmation);
             
-            var compPrio = _scopeQueue.FirstOrNull()?.Job.Priority(Agent.CurrentTime);
-            try
-            {
-                _scopeQueue.Enqueue(fJobConfirmation);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            
+            _scopeQueue.Enqueue(fJobConfirmation);
 
-            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
+            Agent.DebugMessage(msg: $"AcknowledgeProposal finished: {jobItem.Name} {jobItem.Key} {_scopeQueue.Count}", CustomLogger.PROPOSAL, LogLevel.Warn);
             
             UpdateProcessingQueue();
             TryToWork();
@@ -156,14 +150,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
         {
-            Agent.DebugMessage(msg: "Old scope queue length = " + _scopeQueue.Count);
+            Agent.DebugMessage(msg: $"Old scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
             var toRequeue = _scopeQueue.CutTail(currentTime: Agent.CurrentTime, jobConfirmation);
             foreach (var job in toRequeue)
             {
                 _scopeQueue.RemoveJob(job);
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(job.Job.Key, target: job.Job.HubAgent));
             }
-            Agent.DebugMessage(msg: "New scope queue length = " + _scopeQueue.Count);
+            Agent.DebugMessage(msg: $"New scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
         }
 
         internal override void UpdateProcessingQueue()
