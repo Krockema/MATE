@@ -217,7 +217,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 {
                     if (setup.Resource.Count == 0) continue;
 
-                    jobConfirmation.QueuingPosition = possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value;
+                    jobConfirmation.ScopeConfirmation = possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value;
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {setup.Resource.Name}");
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(jobConfirmation.ToImmutable()
@@ -255,7 +255,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             else
             {
                 Agent.DebugMessage(msg: $"{bucket.Name} does not exits anymore");
-                jobConfirmation.QueuingPosition = null;
+                jobConfirmation.ScopeConfirmation = null;
             }
 
             //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)

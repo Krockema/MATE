@@ -129,7 +129,7 @@ namespace Master40.SimulationCore.Helper
                 , end: 0
                 , start: 0
                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
-                , maxBucketSize: 1
+                , maxBucketSize: maxBucketSize
                 , minBucketSize: 1000
                 , setupKey: -1 //unset
                 , hubAgent: hubAgent

@@ -124,12 +124,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var jobPrio = jobItem.Priority(Agent.CurrentTime);
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
 
-            var queuePosition = _scopeQueue.GetQueueAbleTime(new FRequestProposalForCapabilityProvider(jobItem, fJobConfirmation.CapabilityProvider.Id)
-                                                                                , currentTime: Agent.CurrentTime
-                                                                                , cpm: _capabilityProviderManager).First();
-            
-            // if not QueueAble
-            if (!queuePosition.IsQueueAble || (fJobConfirmation.QueueingPosition.Start != queuePosition.Start))
+            var isQueueable = _scopeQueue.CheckScope(fJobConfirmation, Agent.CurrentTime);
+
+            if (!isQueueable)
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));

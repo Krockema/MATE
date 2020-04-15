@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FProposals;
-using static FQueueingPositions;
+using static FQueueingScopes;
+using static FScopeConfirmations;
+using static IScopes;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -92,8 +94,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 {
                     long earliestProcessingStart = mainScope.Start;
                     long earliestSetupStart = mainScope.Start;
-                    FQueueingPosition setupSlot = null;
-                    FQueueingPosition mainSlot = null;
+                    FScopeConfirmation setupSlot = null;
+                    FScopeConfirmation mainSlot = null;
                     if (setupResources.Count != 0)
                     {
                         // Machine includes Setup time in the Queuing Position if required.
@@ -106,14 +108,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                         earliestProcessingStart = earliestSetupStart + setupIsPossible.EstimatedWork;
 
                         // create possible operation slot
-                        setupSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: false,
-                                                                start: earliestSetupStart, end: earliestProcessingStart - 1,
-                                                                estimatedWork: setupIsPossible.EstimatedWork);
+                        setupSlot = new FScopeConfirmation( start: earliestSetupStart, 
+                                                            end: earliestProcessingStart - 1,
+                                                            estimatedWork: setupIsPossible.EstimatedWork);
                         
                         // Reduced Position for processing comparison
-                        mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
-                                                                start: earliestProcessingStart, end: earliestProcessingStart + mainScope.EstimatedWork -1,
-                                                                estimatedWork: mainScope.EstimatedWork);
+                        mainSlot = new FScopeConfirmation(  start: earliestProcessingStart, 
+                                                            end: earliestProcessingStart + mainScope.EstimatedWork -1,
+                                                            estimatedWork: mainScope.EstimatedWork);
 
 
                         if (processingResources.Count == 0)
@@ -124,25 +126,30 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                         }
                     }
 
+                    if(processingResources.Count == 0)
+                    {
+                        mainSlot = new FScopeConfirmation(start: /* ToDo : SetupTime + */ earliestProcessingStart,
+                                                                    end: earliestProcessingStart + mainScope.EstimatedWork - 1,
+                                                                    estimatedWork: mainScope.EstimatedWork);
+                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
+                        break;
+                    }
 
-                    var processingScope = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
-                                                                    start: /* ToDo : SetupTime + */ earliestProcessingStart, 
+
+                    var processingScope = new FScopeConfirmation(start: /* ToDo : SetupTime + */ earliestProcessingStart,
                                                                     end: mainScope.End,
                                                                     estimatedWork: mainScope.EstimatedWork);
-
                     // seek for worker to process operation
-                    var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions, processingScope);
+                    var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions.Cast<IScope>().ToList(), processingScope);
                     // set if a new is found 
-                    if (!processingPosition.IsQueueAble)
+                    if (processingPosition == null)
                         continue;
 
-                    var processingSlot = new FQueueingPosition(true, true,
-                                                                start: processingPosition.Start,
+                    var processingSlot = new FScopeConfirmation(start: processingPosition.Start,
                                                                 end: processingPosition.Start + mainScope.EstimatedWork - 1,
                                                                 estimatedWork: processingPosition.EstimatedWork);
 
-                    mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
-                                                            start: mainSlot.Start, end: processingSlot.End - 1,
+                    mainSlot = new FScopeConfirmation(start: mainSlot.Start, end: processingSlot.End - 1,
                                                             estimatedWork: mainSlot.EstimatedWork + processingSlot.EstimatedWork);
 
                     mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
@@ -157,23 +164,23 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 }
                 else
                 {// if no Setup is Required
-                    FQueueingPosition mainSlot = null;
+                    FScopeConfirmation mainSlot = null;
                     if (processingResources.Count == 0)
                     {
-                        mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: true,
+                        mainSlot = new FScopeConfirmation(
                             start: mainScope.Start, end: mainScope.Start + mainScope.EstimatedWork -1,
                             estimatedWork: mainScope.EstimatedWork);
                         mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
                         break;
                     }
-                    var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions, mainScope);
+                    var processingPosition = FindProcessingPosition(possibleProcessingQueuingPositions.Cast<IScope>().ToList(), mainScope);
                     // set if a new is found 
-                    if (!processingPosition.IsQueueAble)
+                    if (processingPosition == null)
                         continue;
 
-                    mainSlot = new FQueueingPosition(isQueueAble: true, isRequieringSetup: false,
-                                                    start: mainScope.Start, end: mainScope.Start + mainScope.EstimatedWork - 1,
-                                                    estimatedWork: mainScope.EstimatedWork);
+                    mainSlot = new FScopeConfirmation(start: mainScope.Start, 
+                                                        end: mainScope.Start + mainScope.EstimatedWork - 1,
+                                                        estimatedWork: mainScope.EstimatedWork);
                     
                     mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot));
                     processingResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, mainSlot.Start));
@@ -185,41 +192,42 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return possibleProcessingPosition;
         }
 
-        private List<FQueueingPosition> GetQueueingPositions(ProposalForCapabilityProvider proposalForCapabilityProvider, List<IActorRef> resources)
+        private List<FQueueingScope> GetQueueingPositions(ProposalForCapabilityProvider proposalForCapabilityProvider, List<IActorRef> resources)
         {
             List<FProposal> setupResourceProposals = proposalForCapabilityProvider.GetProposalsFor(resources);
-            var possibleSetupQueuingPositions = new List<FQueueingPosition>();
+            var possibleSetupQueuingPositions = new List<FQueueingScope>();
             if (setupResourceProposals.Count > 0)
             {
                 possibleSetupQueuingPositions.AddRange(
                     ProposalReducer(setupResourceProposals.ToArray()
-                        , setupResourceProposals[0].PossibleSchedule as List<FQueueingPosition>
+                        , setupResourceProposals[0].PossibleSchedule as List<FQueueingScope>
                         , 1));
             }
 
             return possibleSetupQueuingPositions;
         }
 
-        private List<FQueueingPosition> ProposalReducer(FProposal[] proposalArray, List<FQueueingPosition> possibleFQueueingPositions, int stage)
+        private List<FQueueingScope> ProposalReducer(FProposal[] proposalArray, List<FQueueingScope> possibleFQueueingPositions, int stage)
         {
-            var reducedSlots = new List<FQueueingPosition>();
+            var reducedSlots = new List<FQueueingScope>();
             if (stage == proposalArray.Length)
                 return possibleFQueueingPositions;
 
 
             foreach (var position in possibleFQueueingPositions)
             {
-                var positionsToCompare = proposalArray[stage].PossibleSchedule as List<FQueueingPosition>;
+                var positionsToCompare = proposalArray[stage].PossibleSchedule as List<FQueueingScope>;
                 var found = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position, x));
                 if (null == found)
                     continue;
                 var min = (new[] { position.Start, found.Start }).Max();
                 var max = (new[] { position.End, found.End }).Min();
 
-                reducedSlots.Add(new FQueueingPosition(isQueueAble: position.IsQueueAble && found.IsQueueAble,
-                                                           isRequieringSetup: position.IsRequieringSetup || found.IsRequieringSetup,
-                                                           start: min, end: max,
-                                                           estimatedWork: max - min));
+                reducedSlots.Add(new FQueueingScope(isQueueAble: true, isRequieringSetup: found.IsRequieringSetup,
+                                                    start: min, 
+                                                    end: max,
+                                                    estimatedSetup: found.EstimatedSetup,
+                                                    estimatedWork: max - min));
             }
 
             if (proposalArray.Length >= stage) return reducedSlots;
@@ -229,20 +237,22 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return reducedSlots;
         }
 
-        private FQueueingPosition FindProcessingPosition(List<FQueueingPosition> processingPositions, FQueueingPosition workingQueueSlot)
+        private FScopeConfirmation FindProcessingPosition(List<IScope> processingPositions, IScope workingQueueSlot)
         {
             var processingIsPossible = processingPositions.FirstOrDefault(processing =>
                 SlotComparerBasic(workingQueueSlot, processing));
 
+            if (processingIsPossible == null) return null;
+
             var earliestProcessingStart = (new[] { processingIsPossible.Start, workingQueueSlot.Start }).Max();
-            
-            return new FQueueingPosition(true, false, earliestProcessingStart,
-                                                    earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
-                                                    workingQueueSlot.EstimatedWork);
+
+            return new FScopeConfirmation( earliestProcessingStart,
+                                           earliestProcessingStart + workingQueueSlot.EstimatedWork - 1,
+                                           workingQueueSlot.EstimatedWork);
         }
 
 
-        private bool SlotComparerSetup(FQueueingPosition mainResourcePos, FQueueingPosition toCompare) // doesnt work with worker
+        private bool SlotComparerSetup(IScope mainResourcePos, IScope toCompare) // doesnt work with worker
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
@@ -255,7 +265,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         }
 
 
-        private bool SlotComparerBasic(FQueueingPosition mainResourcePos, FQueueingPosition toCompare) // doesnt work with worker
+        private bool SlotComparerBasic(IScope mainResourcePos, IScope toCompare) // doesnt work with worker
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();

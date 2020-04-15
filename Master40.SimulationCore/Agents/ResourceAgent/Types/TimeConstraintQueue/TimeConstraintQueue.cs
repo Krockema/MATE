@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static FBuckets;
 using static FJobConfirmations;
-using static FQueueingPositions;
+using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
@@ -27,7 +27,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public void Enqueue(FJobConfirmation jobConfirmation)
         {
-            this.Add(jobConfirmation.QueueingPosition.Start, jobConfirmation);
+            this.Add(jobConfirmation.ScopeConfirmation.Start, jobConfirmation);
         }
 
         public KeyValuePair<long, FJobConfirmation> GetFirstSatisfied(long currentTime)
@@ -72,23 +72,23 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public bool RemoveJob(FJobConfirmation job)
         {
-            return this.Remove(job.QueueingPosition.Start);
+            return this.Remove(job.ScopeConfirmation.Start);
         }
 
         public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = this.Where(x => x.Key >= jobConfirmation.QueueingPosition.Start
+            var toRequeue = this.Where(x => x.Key >= jobConfirmation.ScopeConfirmation.Start
                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
                 .Select(x => x.Value).ToHashSet();
             return toRequeue;
         }
 
-        public List<FQueueingPosition> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
+        public List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
                                 , long currentTime, CapabilityProviderManager cpm)
         {
             
-            var positions = new List<FQueueingPosition>();
+            var positions = new List<FQueueingScope>();
             var job = jobProposal.Job;
             var jobPriority = jobProposal.Job.Priority(currentTime);
             var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
@@ -97,10 +97,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             {
                 var requiredSetupTime = GetRequiredSetupTime(cpm, jobProposal.CapabilityProviderId);
                 // Queue contains no job --> Add queable item.
-                positions.Add(new FQueueingPosition(isQueueAble: true,
+                positions.Add(new FQueueingScope(isQueueAble: true,
                                                     isRequieringSetup: (requiredSetupTime>0)?true:false,
                                                     start: currentTime,
                                                     end: long.MaxValue,
+                                                    estimatedSetup: requiredSetupTime,
                                                     estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
                                                     ));
             }
@@ -119,10 +120,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     if (endPre <= startPost - ((FBucket)jobProposal.Job).MaxBucketSize - requiredSetupTime)
                     {
                         // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
-                        positions.Add(new FQueueingPosition(isQueueAble: true,
+                        positions.Add(new FQueueingScope(isQueueAble: true,
                                                     isRequieringSetup: (requiredSetupTime > 0) ? true : false,
                                                     start: endPre,
                                                     end: startPost,
+                                                    estimatedSetup: requiredSetupTime,
                                                     estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
                                                     ));
                     }
@@ -131,12 +133,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     current = enumerator.Current;
                 }
 
-                positions.Add(new FQueueingPosition(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
+                positions.Add(new FQueueingScope(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
                                                     isRequieringSetup: (requiredSetupTime > 0) ? true : false,
                                                     start: totalWorkLoad,
                                                     end: long.MaxValue,
+                                                    estimatedSetup: requiredSetupTime,
                                                     estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
-                                                    ));
+                                                    )) ;
 
             }
             enumerator.Dispose();
@@ -158,6 +161,30 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public FJobConfirmation FirstOrNull()
         {
             return this.Count > 0 ? this.Values.First() : null;
+        }
+
+        public bool CheckScope(FJobConfirmation fJobConfirmation, long time)
+        {
+            var scopeConfirmation = fJobConfirmation.ScopeConfirmation;
+            var fitEnd = true;
+            var fitStart = true;
+            var pre = this.OrderByDescending(x => x.Key).FirstOrDefault(x => x.Key <= scopeConfirmation.Start);
+            var post = this.FirstOrDefault(x => x.Key > scopeConfirmation.Start);
+
+            if (pre.Value == null)
+                return true;
+
+            if (pre.Key == scopeConfirmation.Start &&
+                pre.Value.Job.Priority(time) > fJobConfirmation.Job.Priority(time))
+            {
+                return true;
+            }
+
+            fitStart = pre.Value.ScopeConfirmation.End < scopeConfirmation.Start;
+            if (post.Value != null)
+                  fitEnd = post.Key > scopeConfirmation.End;
+
+            return fitStart && fitEnd;
         }
 
         public long Workload => this.Values.Sum(x => x.Job.Duration);

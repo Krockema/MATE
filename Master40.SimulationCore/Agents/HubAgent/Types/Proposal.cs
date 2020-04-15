@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         private List<FProposal> _proposals = new List<FProposal>();
         public int ProviderId => _capabilityProvider.Id;
-        public int RequiredProposals => _capabilityProvider.ResourceSetups.Count();
+        public int RequiredProposals => _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count);
         public int ReceivedProposals => _proposals.Count();
         public ProposalForCapabilityProvider(M_ResourceCapabilityProvider capabilityProvider)
         {

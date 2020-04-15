@@ -6,8 +6,6 @@
 
   <ItemGroup>
 
-    <Compile Include="Message\FQueueingPosition.fs" />
-
     <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />
@@ -20,6 +18,7 @@
     <Compile Include="Message\FProposal.fs" />
     <Compile Include="Message\FResourceType.fs" />
     <Compile Include="Message\FStartConditions.fs" />
+    <Compile Include="Interface\IScopes.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
     <Compile Include="Interface\IJobResults.fs" />
@@ -43,8 +42,12 @@
     <Compile Include="Message\FCapabilityProviderDefinitions.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
     <Compile Include="Message\FRequestProposalForCapabilityProviders.fs" />
+
+    <Compile Include="Message\FScopeConfirmations.fs" />
+    <Compile Include="Message\FQueueingScope.fs" />
+
     <Compile Include="Message\FJobConfirmations.fs" />
-      
+
   </ItemGroup>
 
   <ItemGroup>

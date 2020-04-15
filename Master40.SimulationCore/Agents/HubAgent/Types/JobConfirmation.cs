@@ -3,7 +3,7 @@ using Master40.DB.DataModel;
 using System.Collections.Generic;
 using static FBuckets;
 using static FJobConfirmations;
-using static FQueueingPositions;
+using static FScopeConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
@@ -12,14 +12,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     {
         public IJob Job { get; set; }
         public M_ResourceCapabilityProvider CapabilityProvider { get; set; }
-        public FQueueingPosition QueuingPosition { get; set; }
+        public FScopeConfirmation ScopeConfirmation { get; set; }
         public bool IsConfirmed => CapabilityProvider != null;
 
         public JobConfirmation(IJob job)
         {
             Job = job;
             CapabilityProvider = null;
-            QueuingPosition = null;
+            ScopeConfirmation = null;
         }
 
         public string RequiresCapability => Job.RequiredCapability.Name;
@@ -28,13 +28,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FJobConfirmation ToImmutable()
         {
-            return new FJobConfirmation(Job, QueuingPosition, Job.Duration , CapabilityProvider);
+            return new FJobConfirmation(Job, ScopeConfirmation, Job.Duration , CapabilityProvider);
         }
 
         public void ResetConfirmation()
         {
             CapabilityProvider = null;
-            QueuingPosition = null;
+            ScopeConfirmation = null;
         }
     }
 }
