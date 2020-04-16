@@ -10,6 +10,7 @@ using static FOperations;
 using static IJobs;
 using static FUpdateStartConditions;
 using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.JobAgent;
 using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
@@ -29,11 +30,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             MaxBucketSize = maxBucketSize;
         }
 
-        public JobConfirmation CreateBucket(FOperation fOperation, IActorRef hubAgent, long currentTime)
+        public JobConfirmation CreateBucket(FOperation fOperation, Agent agent)
         {
+
             var bucketSize = GetBucketSize(fOperation.RequiredCapability.Id);
-            var bucket = MessageFactory.ToBucketScopeItem(fOperation, hubAgent, currentTime, bucketSize);
+            var bucket = MessageFactory.ToBucketScopeItem(fOperation, agent.Context.Self, agent.CurrentTime, bucketSize);
             var jobConfirmation = new JobConfirmation(bucket);
+            jobConfirmation.SetJobAgent(agent.Context.ActorOf(Job.Props(agent.ActorPaths, jobConfirmation, agent.CurrentTime, agent.DebugThis, agent.Context.Self)
+                                       , $"JobAgent({bucket.Key})"));
             _jobConfirmations.Add(jobConfirmation);
             return jobConfirmation;
         }
@@ -68,10 +72,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _jobConfirmations.SingleOrDefault(x => ((FBucket)x.Job).Operations.Any(y => y.Key == operationKey))?.Job as FBucket;
         }
 
-        public bool Remove(Guid bucketKey)
+        public bool Remove(Guid bucketKey, Agent agent)
         {
-            var toremove = _jobConfirmations.RemoveAll(x => x.Job.Key == bucketKey);
-            return 1 == toremove;
+            var jobConfirmation = GetConfirmationByBucketKey(bucketKey);
+            var removed = _jobConfirmations.Remove(jobConfirmation);
+            if (removed)
+                agent.Send(Job.Instruction.TerminateJob.Create(jobConfirmation.JobAgentRef));
+            return removed;
         }
 
         /// <summary>
@@ -133,19 +140,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _jobConfirmations.Where(x => x.Job.RequiredCapability.Name == fOperation.RequiredCapability.Name 
                                                          && !x.IsFixPlanned)
                                     .ToList();
-        }
-
-        /// <summary>
-        /// Return null if no matching bucket exists
-        /// </summary>
-        /// <param name="buckets"></param>
-        /// <param name="operation"></param>
-        /// <returns></returns>
-        public FBucket FindSimpleRuleMatching(List<FBucket> buckets, FOperation operation)
-        {
-            // Simple Rule
-            return buckets.FirstOrDefault(x => ((IJob)x).Duration + operation.Operation.Duration + operation.Operation.AverageTransitionDuration <= 30);
-
         }
 
         public List<JobConfirmation> FindAllBucketsLaterForwardStart(FOperation operation)
@@ -210,12 +204,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             return operation.ForwardStart >= bucket.ForwardStart;
         }
-
-        public bool HasEarlierBackwardStart(FBucket bucket, FOperation operation)
-        {
-            return operation.BackwardStart <= bucket.BackwardStart;
-        }
-
 
         internal FBucket RemoveOperations(FBucket bucket, List<FOperation> operationsToRemove)
         {

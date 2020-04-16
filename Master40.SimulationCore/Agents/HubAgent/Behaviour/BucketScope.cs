@@ -7,6 +7,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Agents.JobAgent;
 using static FBuckets;
 using static FOperations;
 using static FProposals;
@@ -55,7 +56,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (bucket == null)
                 return;
 
-            var successRemove = _bucketManager.Remove(bucket.Key);
+            var successRemove = _bucketManager.Remove(bucket.Key, Agent);
             
             if (successRemove)
             {
@@ -99,15 +100,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var bucket = _bucketManager.AddToBucket(fOperation);
             if (bucket != null) return;//if no bucket to add exists create a new one
-
-            var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent.Context.Self, Agent.CurrentTime);
+            
+            var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent);
             _unassigendOperations.Remove(fOperation);
             EnqueueBucket(jobConfirmation.Job.Key);
 
             //after creating new bucket, modify subsequent buckets
             ModifyBucket(fOperation);
         }
-
+        
         private void ModifyBucket(FOperation operation)
         {
             var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
@@ -348,7 +349,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void FinishBucket(IJobResult jobResult)
         {
-            _bucketManager.Remove(jobResult.Key);
+            _bucketManager.Remove(jobResult.Key, Agent);
         }
 
     }

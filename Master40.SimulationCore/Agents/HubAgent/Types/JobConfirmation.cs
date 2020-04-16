@@ -14,7 +14,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public M_ResourceCapabilityProvider CapabilityProvider { get; set; }
         public FScopeConfirmation ScopeConfirmation { get; set; }
         public bool IsConfirmed => CapabilityProvider != null;
-
+        public IActorRef JobAgentRef { get; private set; }
         public JobConfirmation(IJob job)
         {
             Job = job;
@@ -27,6 +27,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public FJobConfirmation ToImmutable()
         {
             return new FJobConfirmation(Job, ScopeConfirmation, Job.Duration , CapabilityProvider);
+        }
+        
+        public void SetJobAgent(IActorRef agentRef)
+        {
+            JobAgentRef = agentRef;
         }
 
         public void ResetConfirmation()

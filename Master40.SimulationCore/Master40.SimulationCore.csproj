@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Agents\JobAgent\Types\" />
+  </ItemGroup>
+
 </Project>
