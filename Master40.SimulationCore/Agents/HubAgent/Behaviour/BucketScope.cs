@@ -37,7 +37,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.Default.EnqueueJob msg: AssignJob(msg.GetObjectFromMessage); break;
                 //case Hub.Instruction.BucketScope.EnqueueOperation msg: EnqueueOperation(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.BucketScope.ResetBucket msg: ResetBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
@@ -146,6 +145,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             //delete all proposals if exits
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
+            if (jobConfirmation.IsFixPlanned)
+            {
+                return;
+            }
 
             if (jobConfirmation == null)
             {
@@ -220,6 +223,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 jobConfirmation.CapabilityProvider = possiblePosition._resourceCapabilityProvider;
 
+                Agent.Send(Job.Instruction.UpdateJob.Create(jobConfirmation.CapabilityProvider, jobConfirmation.JobAgentRef));
+
                 foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
                 {
                     if (setup.Resource.Count == 0) continue;
@@ -230,6 +235,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                         .Create(jobConfirmation.ToImmutable()
                             , target: setup.Resource.IResourceRef as IActorRef));
                 }
+
+
+
 
                 _proposalManager.Remove(bucket.Key);
 
@@ -265,8 +273,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 jobConfirmation.ScopeConfirmation = null;
             }
 
+            Agent.Send(Job.Instruction.LockJob.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
             //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)
-            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation.ToImmutable(), Agent.Sender));
+            
             //Requeue all unsatisfied operations
         }
 

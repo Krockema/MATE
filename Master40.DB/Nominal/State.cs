@@ -13,6 +13,14 @@
         InProgress
     }
 
+    public enum JobState
+    {
+        InQueue,
+        InProcessingQueue,
+        InSetup,
+        InProcess
+    }
+
     public enum ProducingState
     {
         Created,

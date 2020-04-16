@@ -116,6 +116,30 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
+                public class ForceJob : SimulationMessage
+                {
+                    public static ForceJob Create(Guid jobKey, IActorRef target)
+                    {
+                        return new ForceJob(message: jobKey, target: target);
+                    }
+                    private ForceJob(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
+                public class DoSetup : SimulationMessage
+                {
+                    public static DoSetup Create(Guid jobKey, IActorRef target)
+                    {
+                        return new DoSetup(message: jobKey, target: target);
+                    }
+                    private DoSetup(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
             }
         }
 

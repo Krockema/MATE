@@ -4,6 +4,8 @@ using System.Linq;
 using static IJobs;
 using static FBuckets;
 using static FJobConfirmations;
+using Master40.SimulationCore.Agents.JobAgent;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
@@ -49,6 +51,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         }
 
+        internal bool Contains(Guid jobKey)
+        {
+            var jobToReplace = JobConfirmations.FirstOrDefault(x => x.Job.Key == jobKey);
+            if (jobToReplace == null) return false;
+            return true;
+        }
+
         internal FJobConfirmation DequeueFirstSatisfiedFix(long currentTime)
         {
             var item = this.JobConfirmations.Where(x => x.Job.StartConditions.Satisfied && ((FBucket)x.Job).IsFixPlanned)
@@ -70,6 +79,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             var job = JobConfirmations.Single(x => x.Job.Key.Equals(jobKey));
             return this.Remove(job);
+        }
+
+        internal void ForceAdd(FJobConfirmation jobConfirmation)
+        {
+            this.JobConfirmations.Add(jobConfirmation);
         }
     }
 }

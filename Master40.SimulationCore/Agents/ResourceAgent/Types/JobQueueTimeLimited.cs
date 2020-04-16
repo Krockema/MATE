@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using static FJobConfirmations;
 using static FUpdateStartConditions;
@@ -121,6 +122,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         internal bool RemoveJob(FJobConfirmation jobConfirmation)
         {
             return JobConfirmations.Remove(item: jobConfirmation);
+        }
+
+        internal bool RemoveJob(Guid jobKey)
+        {
+            return 1 == JobConfirmations.RemoveWhere(x => x.Job.Key == jobKey);
         }
 
         internal bool UpdatePreCondition(FUpdateStartCondition startCondition)

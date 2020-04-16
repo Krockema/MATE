@@ -65,9 +65,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return (T)Convert.ChangeType(jobConfirmation.Job, typeof(T));
         }
 
-        public FJobConfirmation GetConfirmation(Guid key)
+        public FJobConfirmation GetConfirmation(Guid jobKey)
         {
-            return this.Values.SingleOrDefault(x => x.Job.Key == key);
+            return this.Values.SingleOrDefault(x => x.Job.Key == jobKey);
         }
 
         public bool RemoveJob(FJobConfirmation job)

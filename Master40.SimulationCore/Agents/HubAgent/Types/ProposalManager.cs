@@ -92,6 +92,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             {
                 if (mainScope.IsRequieringSetup) // determine implicit ? setupResoruce.Count ?
                 {
+                    possibleProcessingPosition.RequireSetup = true;
                     long earliestProcessingStart = mainScope.Start;
                     long earliestSetupStart = mainScope.Start;
                     FScopeConfirmation setupSlot = null;
@@ -113,14 +114,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                                                             estimatedWork: setupIsPossible.EstimatedWork);
                         
                         // Reduced Position for processing comparison
-                        mainSlot = new FScopeConfirmation(  start: earliestProcessingStart, 
+                        mainSlot = new FScopeConfirmation(  start: earliestSetupStart,
                                                             end: earliestProcessingStart + mainScope.EstimatedWork -1,
                                                             estimatedWork: mainScope.EstimatedWork);
 
-
                         if (processingResources.Count == 0)
                         {
-                            mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, mainSlot.Start));
+                            mainResources.ForEach(x => possibleProcessingPosition.Add(x, mainSlot, earliestProcessingStart));
                             setupResources.ForEach(x => possibleProcessingPosition.Add(x, setupSlot));
                             break;
                         }

@@ -12,6 +12,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public long _processingPosition { get; set; }
         public Dictionary<IActorRef, FScopeConfirmation> _queuingDictionary { get; set; } = new Dictionary<IActorRef, FScopeConfirmation>();
 
+        public bool RequireSetup { get; set; } = false;
+
         public PossibleProcessingPosition(M_ResourceCapabilityProvider resourceCapabilityProvider)
         {
             _resourceCapabilityProvider = resourceCapabilityProvider;

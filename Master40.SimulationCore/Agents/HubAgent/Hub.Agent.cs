@@ -20,5 +20,10 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Get(simType: simtype, maxBucketSize: maxBucketSize)));
         }
+
+        protected override void Finish()
+        {
+            // Do not Close agent by Finishmessage from Job
+        }
     }
 }

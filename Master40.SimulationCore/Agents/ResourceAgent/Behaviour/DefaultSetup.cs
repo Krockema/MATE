@@ -81,9 +81,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
+        internal virtual void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
         {
             Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityProviderId);
+
+            if (_processingQueue.Contains(requestProposal.Job.Key))
+                return;
 
             SendProposalTo(requestProposal);
         }

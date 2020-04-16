@@ -2,6 +2,7 @@
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Master40.SimulationCore.Helper;
@@ -45,12 +46,36 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(msg.GetObjectFromMessage); break;
+                case Resource.Instruction.BucketScope.ForceJob msg: ForceJobProcessingNext(msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
                     break;
             }
             return success;
+        }
+
+        private void ForceJobProcessingNext(Guid jobId)
+        {
+            _processingQueue.GetConfirmation(jobKey: jobId);
+        }
+
+
+        /// <summary>
+        /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
+        /// </summary>
+        /// <param name="jobItem"></param>
+        internal override void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
+        {
+            var jobConfirmation = _scopeQueue.GetConfirmation(requestProposal.Job.Key);
+            _scopeQueue.RemoveJob(jobConfirmation);
+
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityProviderId);
+
+            if (_processingQueue.Contains(requestProposal.Job.Key))
+                return; // Has ben set Fix or is Requesting Fix
+
+            SendProposalTo(requestProposal);
         }
 
         private void RequeueBucket(Guid bucketKey)
@@ -72,16 +97,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // send to all other resources
             // response to AcknowledgeReset
 
-        }
-
-        internal void AcknowledgeReset(Guid bucketKey)
-        {
-        }
+        } 
 
         internal override void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
-
-             var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
+            var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
                                                                 , cpm: _capabilityProviderManager
                                                                 , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil + _processingQueue.SumDurations);
@@ -190,18 +210,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <param name="job"></param>
         internal void AcknowledgeJob(FJobConfirmation jobConfirmation)
         {
+            _planingQueue.RemoveJob(jobConfirmation.Job.Key);
+            _processingQueue.Remove(jobConfirmation);
+
+
             if (jobConfirmation.IsReset)
             {
                 Agent.DebugMessage($"Bucket {jobConfirmation.Job.Key} doesn't exits and couldn't be acknowledged");
-                _processingQueue.Remove(jobConfirmation);
                 UpdateProcessingQueue();
                 return;
             }
-
-
-            if (!_processingQueue.Replace(jobConfirmation)) 
-                throw new Exception("Could not find Job in Processing Queue");
-           
+            _processingQueue.ForceAdd(jobConfirmation);
             Agent.DebugMessage($"{jobConfirmation.Job.Name} {jobConfirmation.Job.Key} with {((FBucket)jobConfirmation.Job).Operations.Count} operations has now been acknowledged");
             
             TryToWork();
@@ -227,19 +246,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             UpdateProcessingQueue();
 
+            Agent.Send(Job.Instruction.RequestJobStart.Create(nextJobInProgress.JobAgentRef));
+
             _jobInProgress.Set(nextJobInProgress, Agent.CurrentTime);
 
             Agent.DebugMessage($"Bucket start {_jobInProgress.Current.Job.Name} was set on {Agent.Context.Self.Path.Name}");
-            DoSetup();
+           
         }
 
+        /// <summary>
+        ///  DoSetup();
+        /// </summary>
         internal override void DoSetup()
         {
-            
             var setupDuration = GetSetupTime(_jobInProgress.Current.CapabilityProvider.Id);
-            
             //Start setup if necessary 
-            
             if (setupDuration > 0)
             {
                 Agent.DebugMessage(msg:
@@ -261,7 +282,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _jobInProgress.SetStartTime(Agent.CurrentTime);
 
             Agent.Send(instruction: Resource.Instruction.Default.DoWork.Create(message: null, target: Agent.Context.Self), waitFor: setupDuration);
-            
         }
 
         /// <summary>
