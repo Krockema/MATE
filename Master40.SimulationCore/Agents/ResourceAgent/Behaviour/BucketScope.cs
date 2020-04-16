@@ -80,9 +80,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
+
              var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
-                                                                , cpm: _capabilityProviderManager);
+                                                                , cpm: _capabilityProviderManager
+                                                                , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil + _processingQueue.SumDurations);
 
             //TODO Sets Postponed to calculated Duration of Bucket
             var fPostponed = new FPostponed(offset: queuePositions.First().IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));

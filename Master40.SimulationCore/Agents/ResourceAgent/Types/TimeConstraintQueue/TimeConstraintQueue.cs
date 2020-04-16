@@ -85,9 +85,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         }
 
         public List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
-                                , long currentTime, CapabilityProviderManager cpm)
+                                , long currentTime, CapabilityProviderManager cpm, long resourceBlockedUntil)
         {
-            
+            var totalWorkLoad = resourceBlockedUntil;
             var positions = new List<FQueueingScope>();
             var job = jobProposal.Job;
             var jobPriority = jobProposal.Job.Priority(currentTime);
@@ -99,7 +99,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 // Queue contains no job --> Add queable item.
                 positions.Add(new FQueueingScope(isQueueAble: true,
                                                     isRequieringSetup: (requiredSetupTime>0)?true:false,
-                                                    start: currentTime,
+                                                    start: totalWorkLoad,
                                                     end: long.MaxValue,
                                                     estimatedSetup: requiredSetupTime,
                                                     estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
@@ -108,7 +108,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             else
             {
                 var current = enumerator.Current;
-                var totalWorkLoad = current.Value.ScopeConfirmation.End;
+                totalWorkLoad = current.Value.ScopeConfirmation.End;
                 long requiredSetupTime = 0;
                 while (enumerator.MoveNext())
                 {
