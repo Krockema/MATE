@@ -1,10 +1,6 @@
-﻿using Akka.Actor;
-using Master40.DB.DataModel;
-using System;
+﻿using Master40.DB.DataModel;
 using System.Collections.Generic;
 using System.Linq;
-using static FOperations;
-using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -37,9 +33,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return capabilityDefinition;
         }
 
-        public List<FSetupDefinition> GetAllSetupDefinitions(M_ResourceCapability capability, Agent agent)
+        public List<M_ResourceCapabilityProvider> GetAllCapabilityProvider(M_ResourceCapability capability)
         {
-            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == capability.Id).GetAllSetupDefinitions;
+            return _capabilityDefinitions.Single(x => x.ResourceCapability.Id == capability.Id).GetAllCapabilityProvider();
 
         }
         

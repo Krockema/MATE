@@ -1,41 +1,42 @@
 ﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.DirectoryAgent;
+using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using static FCreateSimulationResourceSetups;
+using static FJobConfirmations;
 using static FOperationResults;
 using static FPostponeds;
 using static FProposals;
+using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
-using static FRequestProposalForSetups;
-using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class DefaultSetup : SimulationCore.Types.Behaviour
     {
-        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SetupManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public DefaultSetup(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
-            _setupManager = toolManager;
+            _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
         }
         // TODO Implement a JobManager
         internal JobQueueTimeLimited _planingQueue { get; set; }
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
-        internal SetupManager _setupManager { get; }
+        internal CapabilityProviderManager _capabilityProviderManager { get; }
         internal WorkTimeGenerator _workTimeGenerator { get; }
         internal AgentDictionary _agentDictionary { get; }
 
@@ -57,8 +58,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            var setups = _setupManager.GetAllSetups();
-            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(setups
+            var resourceAgent = Agent as Resource;
+            var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
+            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(
+                new FResourceInformation(resourceAgent._resource.Id, capabilityProviders , String.Empty, Agent.Context.Self)
                 , target: Agent.VirtualParent));
             return true;
         }
@@ -78,9 +81,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void RequestProposal(FRequestProposalForSetup requestProposal)
+        internal void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
         {
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.SetupId);
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityProviderId);
 
             SendProposalTo(requestProposal);
         }
@@ -89,9 +92,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
-        internal virtual void SendProposalTo(FRequestProposalForSetup requestProposal)
+        internal virtual void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
-            var setupDuration = GetSetupTime(jobItem: requestProposal.Job);
+            var setupDuration = GetSetupTime(requestProposal.CapabilityProviderId);
 
             var queuePosition = _planingQueue.GetQueueAbleTime(job: requestProposal.Job
                                                      , currentTime: Agent.CurrentTime
@@ -110,7 +113,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
-                , setupId: requestProposal.SetupId
+                , capabilityProviderId: requestProposal.CapabilityProviderId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 
@@ -125,7 +128,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {acknowledgeProposal.Job.Name} {acknowledgeProposal.Job.Key}");
 
-            var setupDuration = GetSetupTime(jobItem: acknowledgeProposal.Job);
+            var setupDuration = GetSetupTime(acknowledgeProposal.CapabilityProvider.Id);
 
             var queuePosition = _planingQueue.GetQueueAbleTime(job: acknowledgeProposal.Job
                                                      , currentTime: Agent.CurrentTime
@@ -230,14 +233,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal virtual void DoSetup()
         {
             //Start setup if necessary 
-            var setupDuration = GetSetupTime(_jobInProgress.Current.Job);
+            var setupDuration = GetSetupTime(_jobInProgress.Current.CapabilityProvider.Id);
 
             if (setupDuration > 0)
             {
                 Agent.DebugMessage(
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
-                _setupManager.Mount(_jobInProgress.Current.Job.RequiredCapability);
+                _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
                 var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration
                                                                         , duration: setupDuration
                                                                            , start: Agent.CurrentTime
@@ -296,16 +299,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             TryToWork();
         }
 
-        internal long GetSetupTime(IJob jobItem)
+        internal long GetSetupTime(int capabilityProviderId)
         {
             var setupTime = 0L;
-            if (!_setupManager.AlreadyEquipped(_setupManager.GetSetupByCapability(jobItem.RequiredCapability)))
+            if (!_capabilityProviderManager.AlreadyEquipped(capabilityProviderId))
             {
-                setupTime = _setupManager.GetSetupDurationByTool(jobItem.RequiredCapability);
+                setupTime = _capabilityProviderManager.GetSetupDurationByCapabilityProvider(capabilityProviderId);
             }
 
             Agent.DebugMessage(
-                msg: $"Has Tool: {_setupManager.GetSetupName()} | require Tool: {jobItem.RequiredCapability.Name} with setupDuration {setupTime}");
+                msg: $"Has Tool: {_capabilityProviderManager.GetCapabilityProviderName()} | require Tool: {capabilityProviderId} with setupDuration {setupTime}");
             return setupTime;
         }
 

@@ -1,29 +1,46 @@
-﻿using System;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FProposals;
-using static FSetupDefinitions;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
-    public class ProposalForSetupDefinition
+    public class ProposalForCapabilityProvider
     {
-        private FSetupDefinition _fSetupDefinition { get; set; } // allways setup that have been Requested. (No parent.)
+        private M_ResourceCapabilityProvider _capabilityProvider { get; set; } // allways setup that have been Requested. (No parent.)
 
-        public FSetupDefinition GetFSetupDefinition => _fSetupDefinition;
+        public M_ResourceCapabilityProvider GetCapabilityProvider => _capabilityProvider;
 
         private List<FProposal> _proposals = new List<FProposal>();
-        public long SetupKey => _fSetupDefinition.SetupKey;
-        public int RequiredProposals => _fSetupDefinition.RequiredResources.Count();
+        public int ProviderId => _capabilityProvider.Id;
+        public int RequiredProposals => _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count);
         public int ReceivedProposals => _proposals.Count();
-        public ProposalForSetupDefinition(FSetupDefinition fSetupDefinition)
+        public ProposalForCapabilityProvider(M_ResourceCapabilityProvider capabilityProvider)
         {
-            _fSetupDefinition = fSetupDefinition;
+            _capabilityProvider = capabilityProvider;
+        }
+
+        public List<FProposal> GetProposalsFor(List<IActorRef> actorRefs)
+        {
+            var proposals = new List<FProposal>();
+            actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x))));
+            return proposals;
+        }
+
+        public List<IActorRef> GetResources(bool usedInSetup, bool usedInProcess)
+        {
+            return _capabilityProvider.ResourceSetups.Where(
+                            x => x.UsedInSetup == usedInSetup
+                            && x.UsedInProcess  == usedInProcess
+                            && x.Resource.IResourceRef != null)
+                .Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
         }
 
         public bool AllProposalsReceived()
         {
-            return _fSetupDefinition.RequiredResources.Count == _proposals.Count;
+            return _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count) == _proposals.Count;
         }
 
         public bool NoPostponed()
@@ -38,7 +55,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public long EarliestStart()
         {
-            return _proposals.Max(x => x.PossibleSchedule);
+            // 1.  
+
+
+            return _proposals.Max(x => (int)x.PossibleSchedule);
         }
 
         public void Add(FProposal proposal)

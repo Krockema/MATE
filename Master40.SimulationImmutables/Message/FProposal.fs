@@ -6,10 +6,10 @@ open FPostponeds
 
     type public FProposal =
         {
-            PossibleSchedule : int64 
+            PossibleSchedule : obj 
             Postponed : FPostponed
-            SetupId : int64
-            ResourceAgent : IActorRef
+            CapabilityProviderId : int32
+            ResourceAgent : obj
             JobKey: Guid
         }
 

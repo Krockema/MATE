@@ -1,25 +1,20 @@
-﻿using System;
-using Master40.DB.DataModel;
+﻿using Master40.DB.DataModel;
 using Master40.DB.Nominal;
+using Master40.SimulationCore.Agents.DirectoryAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Helper.DistributionProvider;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Actor;
-using Akka.Util.Internal;
-using Master40.SimulationCore.Agents.DirectoryAgent.Types;
-using Master40.SimulationCore.Agents.HubAgent.Types;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.Helper.DistributionProvider;
-using static FBreakDowns;
 using static FAgentInformations;
-using static FRequestResources;
-using static FResourceSetupDefinitions;
-using static FResourceTypes;
-using static FResourceInformations;
+using static FBreakDowns;
+using static FCapabilityProviderDefinitions;
 using static FResourceHubInformations;
+using static FResourceInformations;
+using static FResourceTypes;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 {
@@ -42,10 +37,10 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             switch (message)
             {
                 case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents(stock: msg.GetObjectFromMessage); break;
-                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(resourceSetupDefinition: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(msg.GetObjectFromMessage); break;
                 case Directory.Instruction.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(breakDown: msg.GetObjectFromMessage); break;
-                case Directory.Instruction.ForwardRegistrationToHub msg: ForwardRegistrationToHub(setupList: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.ForwardRegistrationToHub msg: ForwardRegistrationToHub(msg.GetObjectFromMessage); break;
                 case Directory.Instruction.CreateResourceHubAgents msg: CreateResourceHubAgents(capabilityDefinition: msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -72,16 +67,16 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             }
         }
 
-        private void ForwardRegistrationToHub(List<M_ResourceSetup> setupList)
+        private void ForwardRegistrationToHub(FResourceInformation resourceInformation)
         {
-
-            var capabilites = setupList.Select(x => x.ResourceCapability).Distinct();
+            var capabilites = resourceInformation.ResourceCapabilityProvider.Select(x => x.ResourceCapability.ParentResourceCapability).Distinct();
             foreach (M_ResourceCapability capability in capabilites)
             {
                 var hub = hubManager.GetHubActorRefBy(capability.Name);
                 // it is probably neccesary to do this for each sub capability.
-                var filtered = setupList.Where(x => x.ResourceCapability.Id == capability.Id).ToList();
-                var resourceInfo = new FResourceInformation(  resourceSetups: filtered
+                var filtered = resourceInformation.ResourceCapabilityProvider.Where(x => x.ResourceCapability.ParentResourceCapabilityId == capability.Id).ToList();
+                var resourceInfo = new FResourceInformation( resourceId: resourceInformation.ResourceId
+                                                            , filtered
                                                             , requiredFor: capability.Name
                                                             , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
@@ -109,10 +104,10 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         }
 
 
-        public void CreateMachineAgents(FResourceSetupDefinition resourceSetupDefinition)
+        public void CreateMachineAgents(FCapabilityProviderDefinition resourceCapabilityProviderDefinition)
         {
-            var resourceSetups = resourceSetupDefinition.ResourceSetup as List<M_ResourceSetup>;
-            var resource = resourceSetupDefinition.Resource as M_Resource;
+            var resourceCapabilityProvider = resourceCapabilityProviderDefinition.CapabilityProvider as List<M_ResourceCapabilityProvider>;
+            var resource = resourceCapabilityProviderDefinition.Resource as M_Resource;
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , resource: resource
@@ -125,8 +120,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                     .Create(target: resourceAgent
                                                          , message: ResourceAgent.Behaviour
                                                                                 .Factory.Get(simType: SimulationType
-                                                                                 , workTimeGenerator: resourceSetupDefinition.WorkTimeGenerator as WorkTimeGenerator
-                                                                                 , toolManager: new SetupManager(resourceSetups: resourceSetups))));
+                                                                                 , workTimeGenerator: resourceCapabilityProviderDefinition.WorkTimeGenerator as WorkTimeGenerator
+                                                                                 , resourceCapabilityProvider)));
         }
 
         /// <summary>

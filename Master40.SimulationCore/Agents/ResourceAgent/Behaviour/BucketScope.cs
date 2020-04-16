@@ -1,16 +1,19 @@
 ﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using Master40.SimulationCore.Helper.DistributionProvider;
-using System;
-using System.Data.HashFunction.xxHash;
-using System.Linq;
 using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
+using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Helper.DistributionProvider;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FBuckets;
 using static FJobConfirmations;
 using static FPostponeds;
-using static FRequestProposalForSetups;
+using static FRequestProposalForCapabilityProviders;
 using static FUpdateStartConditions;
 using static IJobResults;
 
@@ -18,12 +21,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class BucketScope : DefaultSetup
     {
-        public BucketScope(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SetupManager toolManager, SimulationType simulationType = SimulationType.None)
+        public BucketScope(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType
         , planingJobQueueLength: planingJobQueueLength
         , fixedJobQueueSize: fixedJobQueueSize
         , workTimeGenerator: workTimeGenerator
-        , toolManager: toolManager)
+        , capabilityProvider: capabilityProvider)
         {
         }
 
@@ -75,25 +78,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
         }
 
-        internal override void SendProposalTo(FRequestProposalForSetup requestProposal)
+        internal override void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
-                var queuePosition = _scopeQueue.GetQueueAbleTime(requestProposal
+
+             var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
-                                                                , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                                                , processingQueueLength: _processingQueue.SumDurations
-                                                                , currentSetupId: _setupManager.CurrentSetupId).First();
+                                                                , cpm: _capabilityProviderManager
+                                                                , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil + _processingQueue.SumDurations);
 
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponed(offset: queuePosition.IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
-
-            Agent.DebugMessage(msg: queuePosition.IsQueueAble
-                ? $"Bucket: {requestProposal.Job.Key} IsQueueAble: {queuePosition.IsQueueAble} with EstimatedStart: {queuePosition.EstimatedStart}"
-                : $"Bucket: {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} ");
+            var fPostponed = new FPostponed(offset: queuePositions.First().IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
+            var jobPrio = requestProposal.Job.Priority(Agent.CurrentTime);
+            Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
+                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Start} and Prio: {jobPrio}"
+                : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             // calculate proposal
-            var proposal = new FProposals.FProposal(possibleSchedule: queuePosition.EstimatedStart
+            var proposal = new FProposals.FProposal(possibleSchedule: queuePositions
                 , postponed: fPostponed
-                , requestProposal.SetupId
+                , requestProposal.CapabilityProviderId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 
@@ -123,37 +126,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var jobItem = fJobConfirmation.Job;
             var jobPrio = jobItem.Priority(Agent.CurrentTime);
-            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key}");
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with scope from {fJobConfirmation.ScopeConfirmation.Start} to {fJobConfirmation.ScopeConfirmation.Start} and priority {jobPrio}", CustomLogger.PROPOSAL, LogLevel.Warn);
 
-            var queuePosition = _scopeQueue.GetQueueAbleTime(new FRequestProposalForSetup(jobItem, fJobConfirmation.SetupDefinition.SetupKey)
-                                                                                , currentTime: Agent.CurrentTime
-                                                                                , resourceIsBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                                                                , processingQueueLength: _processingQueue.SumDurations
-                                                                                , currentSetupId: _setupManager.CurrentSetupId).First();
-            // if not QueueAble
-            if (!queuePosition.IsQueueAble || (fJobConfirmation.Schedule != queuePosition.EstimatedStart))
+            var isQueueable = _scopeQueue.CheckScope(fJobConfirmation, Agent.CurrentTime);
+
+            if (!isQueueable)
             {
-                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} and start requeue");
+                Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with jobPrio: {jobPrio} and start requeue", CustomLogger.PROPOSAL, LogLevel.Warn);
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));
                 return;
             }
 
+            Agent.DebugMessage(msg: $"Accepted proposal on resource {Agent.Context.Self.Path.Name} and start enqueue {jobItem.Name} {jobItem.Key} ", CustomLogger.PROPOSAL, LogLevel.Warn);
+
             // cut Tail before Enque
             UpdateAndRequeuePlanedJobs(fJobConfirmation);
             
-            var compPrio = _scopeQueue.FirstOrNull()?.Job.Priority(Agent.CurrentTime);
-            try
-            {
-                _scopeQueue.Enqueue(fJobConfirmation);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            
+            _scopeQueue.Enqueue(fJobConfirmation);
 
-            Agent.DebugMessage(msg: "AcknowledgeProposal Accepted Item: " + jobItem.Name + " with Id: " + jobItem.Key);
+            Agent.DebugMessage(msg: $"AcknowledgeProposal finished: {jobItem.Name} {jobItem.Key} {_scopeQueue.Count}", CustomLogger.PROPOSAL, LogLevel.Warn);
             
             UpdateProcessingQueue();
             TryToWork();
@@ -161,14 +152,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
         {
-            Agent.DebugMessage(msg: "Old scope queue length = " + _scopeQueue.Count);
+            Agent.DebugMessage(msg: $"Old scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
             var toRequeue = _scopeQueue.CutTail(currentTime: Agent.CurrentTime, jobConfirmation);
             foreach (var job in toRequeue)
             {
                 _scopeQueue.RemoveJob(job);
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(job.Job.Key, target: job.Job.HubAgent));
             }
-            Agent.DebugMessage(msg: "New scope queue length = " + _scopeQueue.Count);
+            Agent.DebugMessage(msg: $"New scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
         }
 
         internal override void UpdateProcessingQueue()
@@ -176,7 +167,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // take the next scope and make it fix 
             while (_processingQueue.CapacitiesLeft() && _scopeQueue.HasQueueAbleJobs())
             {
-                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime, _setupManager.GetCurrentUsedCapability());
+                var job = _scopeQueue.DequeueFirstSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
 
                 var ok = _processingQueue.Enqueue(job);
                 if (!ok)
@@ -244,16 +235,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal override void DoSetup()
         {
+            
+            var setupDuration = GetSetupTime(_jobInProgress.Current.CapabilityProvider.Id);
+            
             //Start setup if necessary 
-            var setupDuration = GetSetupTime(_jobInProgress.Current.Job);
-
+            
             if (setupDuration > 0)
             {
                 Agent.DebugMessage(msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
                     $"Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
                 
-                _setupManager.Mount(_jobInProgress.Current.Job.RequiredCapability);
+                _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
                 //TODO ExpectedDuration might be different by randomize setupDuration (see WorktimeGenerator at JobDuration)
                 var pubSetup = new FCreateSimulationResourceSetups.FCreateSimulationResourceSetup(
                                                                                 expectedDuration: setupDuration,
@@ -268,6 +261,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _jobInProgress.SetStartTime(Agent.CurrentTime);
 
             Agent.Send(instruction: Resource.Instruction.Default.DoWork.Create(message: null, target: Agent.Context.Self), waitFor: setupDuration);
+            
         }
 
         /// <summary>

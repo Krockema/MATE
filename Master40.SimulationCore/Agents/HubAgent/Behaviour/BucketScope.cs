@@ -2,13 +2,16 @@
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
+using Master40.SimulationCore.Helper;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FBuckets;
 using static FOperations;
 using static FProposals;
-using static FRequestProposalForSetups;
+using static FQueueingScopes;
+using static FRequestProposalForCapabilityProviders;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
@@ -116,9 +119,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     if (modBucket.IsConfirmed)
                     {
                         //Send to first resource
-                        Agent.Send(
+                        foreach(var setup in modBucket.CapabilityProvider.ResourceSetups)
+                        {
+                            if (setup.Resource.IResourceRef == null) continue;
+                            
+                            Agent.Send(
                             Resource.Instruction.BucketScope.RequeueBucket
-                                .Create(modBucket.Job.Key, modBucket.SetupDefinition.RequiredResources.First()));
+                                .Create(modBucket.Job.Key, setup.Resource.IResourceRef as IActorRef));
+
+                        }
+                        
                     }
                     else
                     {
@@ -143,22 +153,27 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllSetupDefinitions(jobConfirmation.Job.RequiredCapability, Agent));
             jobConfirmation.ResetConfirmation();
+            _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
+            
 
-            Agent.DebugMessage($"Enqueue {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count} operations");
+            Agent.DebugMessage($"Enqueue {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count} operations", CustomLogger.PROPOSAL, LogLevel.Warn);
             
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(jobConfirmation.Job.RequiredCapability);
 
-            foreach (var setupDefinition in capabilityDefinition.GetAllSetupDefinitions)
+            foreach (var capabilityProvider in capabilityDefinition.GetAllCapabilityProvider())
             {
-                foreach (var resource in setupDefinition.RequiredResources)
+                foreach (var setup in capabilityProvider.ResourceSetups)
                 {
-                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resource.Path.Name} with {jobConfirmation.Job.Key}");
+                    var resource = setup.Resource;
+                    if (setup.Resource.Count == 0) continue;
+
+                    var resourceRef = resource.IResourceRef as IActorRef;
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Key}", CustomLogger.PROPOSAL, LogLevel.Warn);
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
-                        .Create(new FRequestProposalForSetup(jobConfirmation.Job
-                                                                  , setupDefinition.SetupKey)
-                              , target: resource));
+                        .Create(new FRequestProposalForCapabilityProvider(jobConfirmation.Job
+                                                                  , capabilityProviderId : capabilityProvider.Id)
+                              , target: resourceRef));
                 }
             }
 
@@ -172,38 +187,47 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (jobConfirmation == null) return;
 
             var bucket = jobConfirmation.Job as FBucket;
+            var resourceAgent = fProposal.ResourceAgent as IActorRef;
             var required = _proposalManager.AddProposal(fProposal);
             if (required == null) return;
+            var schedules = fProposal.PossibleSchedule as List<FQueueingScope>;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
-            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {fProposal.PossibleSchedule} " +
-                                    $"JobKey: {fProposal.JobKey} from: {fProposal.ResourceAgent.Path.Name}!");
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().Start} " +
+                                    $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             // if all resources replied 
             if (propSet.AllProposalsReceived)
             {
                 // item Postponed by All resources ? -> requeue after given amount of time.
-                var proposalForSetupDefinition = propSet.GetValidProposal();
-                if (proposalForSetupDefinition == null)
+                var proposalForCapabilityProvider = propSet.GetValidProposal();
+                if (proposalForCapabilityProvider.Count() == 0)
                 {
                     var postponedFor = propSet.PostponedUntil; // TODO: Naming Until != For
 
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
                     Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
-                    System.Diagnostics.Debug.WriteLine($"Bucket {bucket.Key} has been postponed for {postponedFor}");
+                    Agent.DebugMessage($"{bucket.Name} {bucket.Key} has been postponed for {postponedFor}", CustomLogger.PROPOSAL, LogLevel.Warn);
                     return;
 
                 }
 
-                jobConfirmation.Schedule = proposalForSetupDefinition.EarliestStart();
-                jobConfirmation.SetupDefinition = proposalForSetupDefinition.GetFSetupDefinition;
 
-                foreach (IActorRef resource in proposalForSetupDefinition.GetFSetupDefinition.RequiredResources)
+                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider);
+
+                var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
+
+                jobConfirmation.CapabilityProvider = possiblePosition._resourceCapabilityProvider;
+
+                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
                 {
-                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {resource}");
+                    if (setup.Resource.Count == 0) continue;
+
+                    jobConfirmation.ScopeConfirmation = possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value;
+                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {setup.Resource.Name} with scope confirmation for {jobConfirmation.ScopeConfirmation.Start} to {jobConfirmation.ScopeConfirmation.End}", CustomLogger.PROPOSAL, LogLevel.Warn);
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(jobConfirmation.ToImmutable()
-                            , target: resource));
+                            , target: setup.Resource.IResourceRef as IActorRef));
                 }
 
                 _proposalManager.Remove(bucket.Key);
@@ -237,11 +261,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             else
             {
                 Agent.DebugMessage(msg: $"{bucket.Name} does not exits anymore");
-                jobConfirmation.Schedule = -1;
+                jobConfirmation.ScopeConfirmation = null;
             }
 
             //TODO Send only to one resource and let the resource handle all the other resources? or send to all? --> For now send to first (like requeue bucket)
-            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation.ToImmutable(), jobConfirmation.SetupDefinition.RequiredResources.First()));
+            Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation.ToImmutable(), Agent.Sender));
             //Requeue all unsatisfied operations
         }
 
@@ -264,14 +288,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (!jobConfirmation.IsConfirmed || !bucket.Operations.Any(x => x.StartConditions.Satisfied))
                 return;
 
-            foreach (var resource in jobConfirmation.SetupDefinition.RequiredResources)
+            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
             {
+                if (setup.Resource.Count == 0) continue;
+                var resourceRef = setup.Resource.IResourceRef as IActorRef;
                 Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
                                         $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                         $"| PreCondition: {startCondition.PreCondition} " +
-                                        $"to resource {resource.Path.Name}");
+                                        $"to resource {resourceRef.Path.Name}");
 
-                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resource));
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resourceRef));
             }
             
         }

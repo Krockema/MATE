@@ -8,6 +8,7 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.XUnitTest.Online.Preparations;
 using Xunit;
 using static FJobConfirmations;
+using static FQueueingPositions;
 
 namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
 {
@@ -22,8 +23,8 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
             PrepareModel();
 
             var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
-                    dueTime: 45, capability: tools[2]), 20, 15,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+                    dueTime: 45, capability: tools[2]), new FQueueingPosition(true, true,20, 35, 15), 15,
+               null);
 
             jobQueueTimeLimited.Enqueue(newJobItem);
 
@@ -49,7 +50,7 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
         private void PrepareModel()
         {
             CreateTools();
-            CreateJobItems();
+            //CreateJobItems();
         }
 
         private void CreateTools()
@@ -61,26 +62,26 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
 
 
 
-        private void CreateJobItems()
+        /*private void CreateJobItems()
         {
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 5,
-                    dueTime: 10, capability: tools[0]), 0, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                    dueTime: 10, capability: tools[0]), new FQueueingPosition(true, true, 20, 35, 5), 5,
+                 null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5,
                     dueTime: 20, capability: tools[1]), 5, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+               null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 3", jobDuration: 5,
                     dueTime: 30, capability: tools[2]), 10, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 4", jobDuration: 5,
                     dueTime: 40, capability: tools[0]), 15, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 5", jobDuration: 5,
                     dueTime: 50, capability: tools[1]), 20, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
+                null));
             jobQueueTimeLimited.Enqueue(new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 6", jobDuration: 20,
                     dueTime: 80, capability: tools[2]), 25, 20,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>())));
-        }
+                null));
+        }*/
     }
 }

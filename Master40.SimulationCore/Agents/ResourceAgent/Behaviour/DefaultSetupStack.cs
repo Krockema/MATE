@@ -1,13 +1,14 @@
-﻿using Master40.DB.Nominal;
+﻿using Master40.DB.DataModel;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using System;
-using System.Linq;
 using Master40.SimulationCore.Helper.DistributionProvider;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using static FJobConfirmations;
 using static FPostponeds;
 using static FProposals;
-using static FRequestProposalForSetups;
-using static FJobConfirmations;
+using static FRequestProposalForCapabilityProviders;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -16,13 +17,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         public DefaultSetupStack(int planingJobQueueLength
             , int fixedJobQueueSize
             , WorkTimeGenerator workTimeGenerator
-            , SetupManager toolManager
+            , List<M_ResourceCapabilityProvider> capabilityProvider
             , SimulationType simulationType = SimulationType.None) 
             : base(simulationType: simulationType
                 , planingJobQueueLength: planingJobQueueLength
                 , fixedJobQueueSize: fixedJobQueueSize
                 , workTimeGenerator: workTimeGenerator
-                , toolManager: toolManager)
+                , capabilityProvider: capabilityProvider)
         {
 
         }
@@ -60,10 +61,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
-        internal override void SendProposalTo(FRequestProposalForSetup requestProposal)
+        internal override void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
             //Get SetupDuration depending on ??? 
-            var setupDuration = GetSetupTime(jobItem: requestProposal.Job);
+            var setupDuration = GetSetupTime(requestProposal.CapabilityProviderId);
 
             var queuePosition = _planingQueue.GetQueueAbleTimeByStack(job: requestProposal.Job
                 , currentTime: Agent.CurrentTime
@@ -84,7 +85,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
-                , setupId: requestProposal.SetupId
+                , capabilityProviderId: requestProposal.CapabilityProviderId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 

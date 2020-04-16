@@ -62,7 +62,6 @@ namespace Master40.DB.Data.Initializer
             resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20);
             resources.SaveToDB(context);
 
-
             // Article Definitions
             var units = new MasterTableUnit();
                 units.Init(context);

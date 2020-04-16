@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Xunit;
 using static FJobConfirmations;
 using static FOperations;
+using static FQueueingPositions;
 
 namespace Master40.XUnitTest.Online.Agents.Types
 {
@@ -23,14 +24,14 @@ namespace Master40.XUnitTest.Online.Agents.Types
         {
             var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
 
-            var jobConfirmation = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10), 0, 10,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            var jobConfirmation = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10), new FQueueingPosition(true, true, 20, 30, 10), 10,
+                null);
 
             jobQueueTimeLimited.Enqueue(jobConfirmation);
             Assert.True(condition: jobQueueTimeLimited.Count == 1);
 
-            var jobConfirmation2 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5), 10, 5,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            var jobConfirmation2 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 2", jobDuration: 5), new FQueueingPosition(true, true, 20, 30, 10), 5,
+                null);
             
             jobQueueTimeLimited.Enqueue(jobConfirmation2);
             Assert.True(jobQueueTimeLimited.Count == 2);
@@ -44,13 +45,13 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void AddToItemLimitedQueue()
         {
             var jobQueueItemLimited = new JobQueueItemLimited(limit: 1);
-            var jobConfirmation1 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10), 0, 10,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            var jobConfirmation1 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10), new FQueueingPosition(true, true, 10, 20, 10), 10,
+                null);
             var addItemStatus = jobQueueItemLimited.Enqueue(jobConfirmation1);
             Assert.True(condition: addItemStatus);
 
-            var jobConfirmation2 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 20), 10, 20,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            var jobConfirmation2 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 20), new FQueueingPosition(true, true, 20, 30, 10), 20,
+                null);
             addItemStatus = jobQueueItemLimited.Enqueue(jobConfirmation2);
             Assert.False(condition: addItemStatus);
 
@@ -62,14 +63,14 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void DequeueFromTimeLimitedQueue(int durationItemOne , int dueTimeItemOne, int durationItemTwo, int dueTimeItemTwo, int currentTime, string expected)
         {
             var jobQueueTimeLimited = new JobQueueTimeLimited(limit: 15);
-            var jobConfirmation1 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "SampleOne", jobDuration: durationItemOne, dueTime: dueTimeItemOne), 0, durationItemOne,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            var jobConfirmation1 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "SampleOne", jobDuration: durationItemOne, dueTime: dueTimeItemOne), new FQueueingPosition(true, true, 0, 10, 10), durationItemOne,
+                null);
             jobConfirmation1.Job.StartConditions.ArticlesProvided = true;
 
             jobQueueTimeLimited.Enqueue(jobConfirmation1);
 
-            var jobConfirmation2 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "SampleTwo", jobDuration: durationItemTwo, dueTime: dueTimeItemTwo), 10, durationItemOne,
-                new FSetupDefinitions.FSetupDefinition(0, new List<IActorRef>()));
+            var jobConfirmation2 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "SampleTwo", jobDuration: durationItemTwo, dueTime: dueTimeItemTwo), new FQueueingPosition(true, true, 10, 20, 10), durationItemOne,
+               null);
             jobQueueTimeLimited.Enqueue(jobConfirmation2);
 
             Assert.Equal(expected: 2, actual: jobQueueTimeLimited.Count);

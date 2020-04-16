@@ -1,41 +1,41 @@
 ﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
-using System.Linq;
-using Master40.SimulationCore.Helper.DistributionProvider;
+using System.Collections.Generic;
+using static FJobConfirmations;
 using static FOperationResults;
+using static FOperations;
 using static FPostponeds;
 using static FProposals;
+using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
 using static IJobResults;
-using static IJobs;
-using static FRequestProposalForSetups;
-using static FJobConfirmations;
-using static FOperations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, SetupManager toolManager, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             this._processingQueue = new JobQueueItemLimited(limit: fixedJobQueueSize);
             this._planingQueue = new JobQueueTimeLimited(limit: planingJobQueueLength);
             this._agentDictionary = new AgentDictionary();
             _workTimeGenerator = workTimeGenerator;
-            _toolManager = toolManager;
+            _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
         }
         // TODO Implement a JobManager
         internal JobQueueTimeLimited _planingQueue { get; set; }
         internal JobQueueItemLimited _processingQueue { get; set; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
-        internal SetupManager _toolManager { get; }
+        internal CapabilityProviderManager _capabilityProviderManager { get; }
         internal AgentDictionary _agentDictionary { get; }
 
         public override bool Action(object message)
@@ -55,12 +55,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Hub.Instruction.Default.AddResourceToHub.Create(message: 
-                new FResourceInformation(
-                    _toolManager.GetAllSetups()
-                , requiredFor: Agent.Name
-                , @ref: Agent.Context.Self)
-                , target: Agent.VirtualParent));
+            var resourceAgent = Agent as Resource;
+            Agent.Send(instruction: Hub.Instruction.Default.AddResourceToHub.Create(message:
+                new FResourceInformation(resourceId: resourceAgent._resource.Id
+                       , resourceCapabilityProvider: _capabilityProviderManager.GetAllCapabilityProvider()
+                                      , requiredFor: Agent.Name
+                                             , @ref: Agent.Context.Self)
+                                           , target: Agent.VirtualParent)); ;
             return true;
         }
 
@@ -79,9 +80,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        private void RequestProposal(FRequestProposalForSetup requestProposal)
+        private void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
         {
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for SetupId " + requestProposal.SetupId);
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for SetupId " + requestProposal.CapabilityProviderId);
 
             SendProposalTo(requestProposal);
         }
@@ -90,7 +91,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void SendProposalTo(FRequestProposalForSetup requestProposal)
+        internal void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
             var queuePosition = _planingQueue.GetQueueAbleTime(job: requestProposal.Job
                                                      , currentTime: Agent.CurrentTime
@@ -105,7 +106,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
-                , requestProposal.SetupId
+                , requestProposal.CapabilityProviderId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 
@@ -227,7 +228,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                 , resource: Agent.Name
                                                 , jobType: JobType.OPERATION
                                                 , bucket: String.Empty
-                                                , setupId: nextJobInProgress.SetupDefinition.SetupKey);
+                                                , setupId: nextJobInProgress.CapabilityProvider.Id);
             Agent.Context.System.EventStream.Publish(@event: pub);
 
             var fOperationResult = new FOperationResult(key: nextJobInProgress.Job.Key

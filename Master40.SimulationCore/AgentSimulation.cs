@@ -1,8 +1,10 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using Akka.Util.Internal;
 using AkkaSim;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.CollectorAgent;
@@ -14,6 +16,7 @@ using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Reporting;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,14 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Akka.Configuration;
-using Akka.Util.Internal;
-using Master40.SimulationCore.Helper.DistributionProvider;
-using NLog.LayoutRenderers.Wrappers;
-using static FResourceSetupDefinitions;
+using static FCapabilityProviderDefinitions;
 using static FSetEstimatedThroughputTimes;
-using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
-using Master40.DB.DataModel;
 
 namespace Master40.SimulationCore
 {
@@ -233,34 +230,42 @@ namespace Master40.SimulationCore
             //var resources = _dBContext.Resources.ToList(); // all Resources
             var limitedResources = _dBContext.Resources.Where(x => x.Count == 1).ToList(); // all Limited Resources
 
+
             foreach (var resource in limitedResources)
             {
-                var setups = GetSetups(resource);
-                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with {setups.Count} setups");
+                var capabilityProviders = GetCapabilityProviders(resource);
+                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with {capabilityProviders.Count} capabilities");
                 //TODO: !IMPORTANT Max bucket size dynamic by Setup Count? 
 
-                var resourceSetupDefinition = new FResourceSetupDefinition(workTimeGenerator: randomWorkTime
+                var capabilityProviderDefinition = new FCapabilityProviderDefinition(workTimeGenerator: randomWorkTime
                     , resource: resource
-                    , resourceSetup: setups
+                    , capabilityProvider: capabilityProviders
                     , maxBucketSize: maxBucketSize
                     , debug: _debugAgents);
                         _simulation.SimulationContext
                     .Tell(message: Directory.Instruction
                                             .CreateMachineAgents
-                                            .Create(message: resourceSetupDefinition, target: ActorPaths.HubDirectory.Ref)
+                                            .Create(message: capabilityProviderDefinition, target: ActorPaths.HubDirectory.Ref)
                         , sender: ActorPaths.HubDirectory.Ref);
             }
         }
 
-        public List<M_ResourceSetup> GetSetups(M_Resource resource)
+        public List<M_ResourceCapabilityProvider> GetCapabilityProviders(M_Resource resource)
         {
-            var setups = _dBContext.ResourceSetups
-                .Include(x => x.ResourceCapability)
-                    .ThenInclude(x => x.ParentResourceCapability)
-                .Include(x => x.ParentResource)
-                .Include(x => x.ChildResource)
-                .Where(x => x.ParentResourceId == resource.Id).ToList();
-            return setups;
+            var capabilityForResource = _dBContext.ResourceSetups
+                .Include(x => x.ResourceCapabilityProvider)
+                    .ThenInclude(x => x.ResourceCapability)
+                .Where(x => x.ResourceId == resource.Id).ToList();
+
+            var capabilityProviderIds = capabilityForResource.Select(x => x.ResourceCapabilityProviderId);
+            var capabilitesForResource = _dBContext.ResourceCapabilityProviders
+                                                   .Include(x => x.ResourceCapability)
+                                                        .ThenInclude(x => x.ParentResourceCapability)
+                                                   .Include(x => x.ResourceSetups)
+                                                        .ThenInclude(x => x.Resource)
+                                                            .Where(x => capabilityProviderIds.Contains(x.Id));
+            
+            return capabilitesForResource.ToList();
         }
     }
 }

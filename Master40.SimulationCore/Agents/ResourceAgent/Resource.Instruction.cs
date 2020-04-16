@@ -1,16 +1,12 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FAgentInformations;
 using static FBuckets;
-using static FBucketScopes;
-using static FRequestToRequeues;
-using static FUpdateBucketScopes;
-using static IJobResults;
-using static IJobs;
-using static FRequestProposalForSetups;
 using static FJobConfirmations;
+using static FRequestProposalForCapabilityProviders;
+using static FRequestToRequeues;
+using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -34,14 +30,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class RequestProposal : SimulationMessage
                 {
-                    public static RequestProposal Create(FRequestProposalForSetup message, IActorRef target)
+                    public static RequestProposal Create(FRequestProposalForCapabilityProvider message, IActorRef target)
                     {
                         return new RequestProposal(message: message, target: target);
                     }
                     private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FRequestProposalForSetup GetObjectFromMessage { get => Message as FRequestProposalForSetup; }
+                    public FRequestProposalForCapabilityProvider GetObjectFromMessage { get => Message as FRequestProposalForCapabilityProvider; }
                 }
 
                 public class AcknowledgeProposal : SimulationMessage
@@ -66,27 +62,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
                     }
                 }
-
-
-
-                public class RequestToRequeue : SimulationMessage
-                {
-                    public static RequestToRequeue Create(FRequestToRequeue message, IActorRef target)
-                    {
-                        return new RequestToRequeue(message: message, target: target);
-                    }
-                    private RequestToRequeue(object message, IActorRef target) : base(message: message, target: target)
-                    {
-                    }
-                    public FRequestToRequeue GetObjectFromMessage { get => Message as FRequestToRequeue; }
-                }
-
             }
 
             public class BucketScope
             {
-
-                
                 public class RequeueBucket : SimulationMessage
                 {
                     public static RequeueBucket Create(Guid message, IActorRef target)
@@ -112,68 +91,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     }
                     public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
                 }
-                public class EnqueueBucket : SimulationMessage
-                {
-                    public static EnqueueBucket Create(FBucket message, IActorRef target)
-                    {
-                        return new EnqueueBucket(message: message, target: target);
-                    }
-                    private EnqueueBucket(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
-                }
-                public class UpdateBucket : SimulationMessage
-                {
-                    public static UpdateBucket Create(FBucket message, IActorRef target)
-                    {
-                        return new UpdateBucket(message: message, target: target);
-                    }
-                    private UpdateBucket(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
-                }
-
-                public class RequestProposalForBucketScope : SimulationMessage
-                {
-                    public static RequestProposalForBucketScope Create(FBucket message, IActorRef target)
-                    {
-                        return new RequestProposalForBucketScope(message: message, target: target);
-                    }
-                    private RequestProposalForBucketScope(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
-                }
-
-                public class AcknowledgeBucketScope : SimulationMessage
-                {
-                    public static AcknowledgeBucketScope Create(Guid message, IActorRef target)
-                    {
-                        return new AcknowledgeBucketScope(message: message, target: target);
-                    }
-                    private AcknowledgeBucketScope(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public Guid GetObjectFromMessage { get => (Guid)Message; }
-                }
-                public class ScopeHasSatisfiedJob : SimulationMessage
-                {
-                    public static ScopeHasSatisfiedJob Create(Guid message, IActorRef target)
-                    {
-                        return new ScopeHasSatisfiedJob(message: message, target: target);
-                    }
-                    private ScopeHasSatisfiedJob(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-                    public Guid GetObjectFromMessage { get => (Guid)Message; }
-                }
 
                 public class FinishBucket : SimulationMessage
                 {
@@ -187,25 +104,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
                 }
 
-                public class EnqueueProcessingQueue : SimulationMessage
+                public class AskToRequeue : SimulationMessage
                 {
-                    public static EnqueueProcessingQueue Create(FBucket message, IActorRef target)
+                    public static AskToRequeue Create(Guid jobKey, IActorRef target)
                     {
-                        return new EnqueueProcessingQueue(message: message, target: target);
+                        return new AskToRequeue(message: jobKey, target: target);
                     }
-                    private EnqueueProcessingQueue(object message, IActorRef target) : base(message: message, target: target)
-                    {
-                    }
-                    public FBucket GetObjectFromMessage { get => Message as FBucket; }
-                }
-
-                public class BucketReady : SimulationMessage
-                {
-                    public static BucketReady Create(Guid message, IActorRef target)
-                    {
-                        return new BucketReady(message: message, target: target);
-                    }
-                    private BucketReady(object message, IActorRef target) : base(message: message, target: target)
+                    private AskToRequeue(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
