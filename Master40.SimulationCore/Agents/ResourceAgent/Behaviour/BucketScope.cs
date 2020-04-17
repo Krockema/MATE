@@ -104,13 +104,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
                                                                 , cpm: _capabilityProviderManager
-                                                                , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil + _processingQueue.SumDurations);
+                                                                , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil + _processingQueue.SumDurations
+                                                                , Agent.Context.Self );
 
             //TODO Sets Postponed to calculated Duration of Bucket
             var fPostponed = new FPostponed(offset: queuePositions.First().IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
             var jobPrio = requestProposal.Job.Priority(Agent.CurrentTime);
             Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
-                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Start} and Prio: {jobPrio}"
+                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Scope.Start} and Prio: {jobPrio}"
                 : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             // calculate proposal
@@ -146,11 +147,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var jobItem = fJobConfirmation.Job;
             var jobPrio = jobItem.Priority(Agent.CurrentTime);
-            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with scope from {fJobConfirmation.ScopeConfirmation.Start} to {fJobConfirmation.ScopeConfirmation.Start} and priority {jobPrio}", CustomLogger.PROPOSAL, LogLevel.Warn);
+            Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with scope from {fJobConfirmation.ScopeConfirmation.GetScopeStart()} to {fJobConfirmation.ScopeConfirmation.GetScopeEnd()} and priority {jobPrio}", CustomLogger.PROPOSAL, LogLevel.Warn);
 
-            var isQueueable = _scopeQueue.CheckScope(fJobConfirmation, Agent.CurrentTime);
+            var isQueueAble = _scopeQueue.CheckScope(fJobConfirmation, Agent.CurrentTime);
 
-            if (!isQueueable)
+            if (!isQueueAble)
             {
                 Agent.DebugMessage(msg: $"Stop Acknowledge proposal for: {jobItem.Name} {jobItem.Key} with jobPrio: {jobPrio} and start requeue", CustomLogger.PROPOSAL, LogLevel.Warn);
                 Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(jobItem.Key, target: jobItem.HubAgent));

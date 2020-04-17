@@ -117,7 +117,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 
                 var jobConfirmation = _operations.GetJobConfirmation(fOperation.Key);
 
-                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider);
+                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider, jobConfirmation.Job);
 
                 var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
 

@@ -145,17 +145,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             //delete all proposals if exits
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
-            if (jobConfirmation.IsFixPlanned)
-            {
-                return;
-            }
-
             if (jobConfirmation == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
                 _proposalManager.Remove(bucketKey);
                 return;
             }
+            if (jobConfirmation.IsFixPlanned)
+            {
+                return;
+            }
+
 
             jobConfirmation.ResetConfirmation();
             _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
@@ -196,7 +196,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (required == null) return;
             var schedules = fProposal.PossibleSchedule as List<FQueueingScope>;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
-            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().GetScopeStart()} " +
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) " +
+                                    $"for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().Scope.Start} " +
                                     $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             // if all resources replied 
@@ -217,7 +218,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
 
 
-                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider);
+                List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider, bucket);
 
                 var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
 
@@ -230,7 +231,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     if (setup.Resource.Count == 0) continue;
 
                     jobConfirmation.ScopeConfirmation = possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value;
-                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {setup.Resource.Name} with scope confirmation for {jobConfirmation.ScopeConfirmation.Start} to {jobConfirmation.ScopeConfirmation.End}", CustomLogger.PROPOSAL, LogLevel.Warn);
+                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {setup.Resource.Name}" +
+                                            $" with scope confirmation for {jobConfirmation.ScopeConfirmation.GetScopeStart()} to {jobConfirmation.ScopeConfirmation.GetScopeEnd()}"
+                                            , CustomLogger.PROPOSAL, LogLevel.Warn);
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
                         .Create(jobConfirmation.ToImmutable()
                             , target: setup.Resource.IResourceRef as IActorRef));

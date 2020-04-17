@@ -17,7 +17,7 @@
     <Compile Include="Message\FProposal.fs" />
     <Compile Include="Message\FResourceType.fs" />
     <Compile Include="Message\FStartConditions.fs" />
-    <Compile Include="Interface\IScopes.fs" />
+    <Compile Include="Interface\ITimeRanges.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
     <Compile Include="Interface\IJobResults.fs" />
@@ -41,11 +41,12 @@
     <Compile Include="Message\FCapabilityProviderDefinitions.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
     <Compile Include="Message\FRequestProposalForCapabilityProviders.fs" />
-    <Compile Include="Scopes\FProcessingScopes.fs" />
-    <Compile Include="Scopes\FSetupScopes.fs" />
+    <Compile Include="TimeRanges\FProcessingSlots.fs" />
+    <Compile Include="TimeRanges\FScopes.fs" />
+    <Compile Include="TimeRanges\FSetupScopes.fs" />
+    <Compile Include="Message\FConfirmationSlots.fs" />
     <Compile Include="Message\FScopeConfirmations.fs" />
     <Compile Include="Message\FQueueingScope.fs" />
-
     <Compile Include="Message\FJobConfirmations.fs" />
 
   </ItemGroup>
