@@ -93,15 +93,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 if (mainScope.IsRequieringSetup) // determine implicit ? setupResoruce.Count ?
                 {
                     possibleProcessingPosition.RequireSetup = true;
-                    long earliestProcessingStart = mainScope.Start;
-                    long earliestSetupStart = mainScope.Start;
+                    long earliestProcessingStart = mainScope.GetProcessing().Start;
+                    long earliestSetupStart = mainScope.GetSetup().Start;
                     FScopeConfirmation setupSlot = null;
                     FScopeConfirmation mainSlot = null;
                     if (setupResources.Count != 0)
                     {
                         // Machine includes Setup time in the Queuing Position if required.
                         var setupIsPossible = possibleSetupQueuingPositions.FirstOrDefault(setup
-                                                                                       => SlotComparerSetup(mainScope, setup));
+                                                                                       => SlotComparerSetup(mainScope, setup, mainScope.GetProcessingDuration(), ));
                         if (setupIsPossible == null)
                             continue;
 
@@ -207,7 +207,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return possibleSetupQueuingPositions;
         }
 
-        private List<FQueueingScope> ProposalReducer(FProposal[] proposalArray, List<FQueueingScope> possibleFQueueingPositions, int stage)
+        private List<FQueueingScope> ProposalReducer(FProposal[] proposalArray, List<FQueueingScope> possibleFQueueingPositions, int stage, long requiredDuration)
         {
             var reducedSlots = new List<FQueueingScope>();
             if (stage == proposalArray.Length)
@@ -216,8 +216,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             foreach (var position in possibleFQueueingPositions)
             {
-                var positionsToCompare = proposalArray[stage].PossibleSchedule as List<FQueueingScope>;
-                var found = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position, x));
+                var positionsToCompare = proposalArray[stage].PossibleSchedule as List<IScope>;
+                                                                        // sind ja nun 2
+                var found = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position, x, requiredDuration));
                 if (null == found)
                     continue;
                 var min = (new[] { position.Start, found.Start }).Max();
@@ -252,27 +253,27 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         }
 
 
-        private bool SlotComparerSetup(IScope mainResourcePos, IScope toCompare) // doesnt work with worker
+        private bool SlotComparerSetup(IScope mainResourcePos, IScope toCompare, long processingTime, long setupTime) // doesnt work with worker
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
             // check setup scope 
-            var setupFit = (earliestStart + toCompare.EstimatedWork - 1 <= toCompare.End);
+            var setupFit = (earliestStart + setupTime - 1 <= toCompare.End);
             // check Queue scope
-            var queueFit = (earliestStart + toCompare.EstimatedWork + mainResourcePos.EstimatedWork - 1 <= mainResourcePos.End);
+            var queueFit = (earliestStart + setupTime + processingTime - 1 <= mainResourcePos.End);
 
             return (setupFit && queueFit);
         }
 
 
-        private bool SlotComparerBasic(IScope mainResourcePos, IScope toCompare) // doesnt work with worker
+        private bool SlotComparerBasic(IScope mainResourcePos, IScope toCompare, long estimatedDuration) // doesnt work with worker
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
             // check setup scope 
-            var fitToCompare = (earliestStart + mainResourcePos.EstimatedWork - 1 <= toCompare.End);
+            var fitToCompare = (earliestStart + estimatedDuration - 1 <= toCompare.End);
             // check Queue scope
-            var fitMainResource = (earliestStart + mainResourcePos.EstimatedWork - 1 <= mainResourcePos.End);
+            var fitMainResource = (earliestStart + estimatedDuration - 1 <= mainResourcePos.End);
 
             return (fitToCompare && fitMainResource);
         }

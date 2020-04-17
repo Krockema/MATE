@@ -83,7 +83,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
 
             //dictionary als type mit methode allin Process --> send to all start --> unterscheidung setup und process?
-
             //Vielleicht nur doProcess? eigentlich müssen für das setup erstmal nur die setupresourcen zur Verfügung stehen
             // zum do process dann nur die operations resources
 
@@ -95,7 +94,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 }
             }
         }
-
 
         private void LockJob(FJobConfirmations.FJobConfirmation jobConfirmation)
         {

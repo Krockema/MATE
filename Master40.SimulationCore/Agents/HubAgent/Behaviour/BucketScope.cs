@@ -196,7 +196,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (required == null) return;
             var schedules = fProposal.PossibleSchedule as List<FQueueingScope>;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
-            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().Start} " +
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().GetScopeStart()} " +
                                     $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             // if all resources replied 

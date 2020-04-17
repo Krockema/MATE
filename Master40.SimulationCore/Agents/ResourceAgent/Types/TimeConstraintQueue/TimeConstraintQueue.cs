@@ -1,11 +1,19 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
+using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Net.Sockets;
 using static FBuckets;
 using static FJobConfirmations;
+using static FProcessingScopes;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
+using static FSetupScopes;
+using static IJobs;
+using static IScopes;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 {
@@ -85,72 +93,117 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         }
 
         public List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
-                                , long currentTime, CapabilityProviderManager cpm, long resourceBlockedUntil)
+                                , long currentTime, CapabilityProviderManager cpm, long resourceBlockedUntil, IActorRef resourceRef)
         {
+            // 1. Für welche Prozessschritte werde ich gebraucht
+            // 2. Errechne meine benötigte Dauer
+            // 3. Gib mögliche Zeiträume zurück
+
+            // 1. Zu Erstens
+            var capabilityProvider = cpm.GetCapabilityProviderByCapability(jobProposal.CapabilityProviderId);
+            var setup = capabilityProvider.ResourceSetups.Single(x => x.Resource.IResourceRef.Equals(resourceRef));
+
+            // 1 Methode für Resource setup, Processing
+
+            // Methode für Resource Setup + Processing
+            var requiredDuration = 0L;
+            if (setup.UsedInProcess)
+                requiredDuration += ((FBucket)jobProposal.Job).MaxBucketSize;
+
+            if (setup.UsedInSetup)
+                requiredDuration += setup.SetupTime;
+
+            var usedForSetupAndProcess = setup.UsedInProcess && setup.UsedInSetup;
+
+            var queuingScopes = GetScopesFor(requiredTime: requiredDuration, 
+                                                jobProposal.Job, 
+                                                jobProposal.CapabilityProviderId,
+                                                usedForSetupAndProcess, 
+                                                currentTime, 
+                                                resourceBlockedUntil, 
+                                                cpm);
+
+
             var totalWorkLoad = resourceBlockedUntil;
+
+            return queuingScopes;
+        }
+
+        private List<FQueueingScope> GetScopesFor(long requiredTime, IJob job, int capabilityProviderId, bool usedForSetupAndProcess,  long currentTime, long totalWorkLoad, CapabilityProviderManager capabilityProviderManager)
+        {
+            var scopes = new List<IScope>();
             var positions = new List<FQueueingScope>();
-            var job = jobProposal.Job;
-            var jobPriority = jobProposal.Job.Priority(currentTime);
+
+            var jobPriority = job.Priority(currentTime);
             var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
             var enumerator = allWithLowerPriority.GetEnumerator();
+            var isQueueable = false;
             if (!enumerator.MoveNext())
             {
-                var requiredSetupTime = GetRequiredSetupTime(cpm, jobProposal.CapabilityProviderId);
-                // Queue contains no job --> Add queable item.
-                positions.Add(new FQueueingScope(isQueueAble: true,
-                                                    isRequieringSetup: (requiredSetupTime>0)?true:false,
-                                                    start: totalWorkLoad,
-                                                    end: long.MaxValue,
-                                                    estimatedSetup: requiredSetupTime,
-                                                    estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
-                                                    ));
+                isQueueable = true;
+                // ignore first round
+                // totalwork bis max
             }
             else
             {
                 var current = enumerator.Current;
-                totalWorkLoad = current.Value.ScopeConfirmation.End;
-                long requiredSetupTime = 0;
+                var preScopeEnd = current.Value.ScopeConfirmation.GetScopeEnd();
+                totalWorkLoad = preScopeEnd;
                 while (enumerator.MoveNext())
                 {
-                    var endPre = current.Key + ((FBucket) current.Value.Job).MaxBucketSize;
-                    var startPost = enumerator.Current.Key;
-                    requiredSetupTime = GetRequiredSetupTime(cpm, current.Value.CapabilityProvider.ResourceCapabilityId, jobProposal);
-                    if (endPre <= startPost - ((FBucket)jobProposal.Job).MaxBucketSize - requiredSetupTime)
-                    {
-                        // slotFound = validSlots.TryAdd(endPre, startPost - endPre);
-                        positions.Add(new FQueueingScope(isQueueAble: true,
-                                                    isRequieringSetup: (requiredSetupTime > 0) ? true : false,
-                                                    start: endPre,
-                                                    end: startPost,
-                                                    estimatedSetup: requiredSetupTime,
-                                                    estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
-                                                    ));
+                    // Limit? Job satisfied?
+                    isQueueable = Limit > totalWorkLoad || ((FBucket)job).StartConditions.Satisfied;
+                    if(!isQueueable)          
+                        break;
+
+                    var post = enumerator.Current;
+                    var postScopeStart = post.Value.ScopeConfirmation.GetScopeStart();
+
+                    if(usedForSetupAndProcess)
+                    { 
+                        var requiredSetupTime = GetSetupTimeIfEquipped(capabilityProviderManager, capabilityProviderId);
+                        requiredTime -= requiredSetupTime;
                     }
 
+                    if (requiredTime <= postScopeStart - preScopeEnd)
+                    { 
+                        scopes.Add(new FProcessingScope(start: totalWorkLoad, end: postScopeStart));
+                        positions.Add(new FQueueingScope(isQueueAble: true,
+                                                        isRequieringSetup: false,
+                                                        scopes: ListModule.OfSeq(scopes)
+                                                        ));
 
-                    // totalWorkLoad = endPre + ((FBucket) current.Value.Job).MaxBucketSize + requiredSetupTime;
-                    current = enumerator.Current;
-                    totalWorkLoad = current.Value.ScopeConfirmation.End;
-                    
+                    }
+                    current = post;
+                    totalWorkLoad = current.Value.ScopeConfirmation.GetScopeEnd();
                 }
-
-                positions.Add(new FQueueingScope(isQueueAble: (totalWorkLoad < Limit || ((FBucket)job).HasSatisfiedJob),
-                                                    isRequieringSetup: (requiredSetupTime > 0) ? true : false,
-                                                    start: totalWorkLoad,
-                                                    end: long.MaxValue,
-                                                    estimatedSetup: requiredSetupTime,
-                                                    estimatedWork: ((FBucket)jobProposal.Job).MaxBucketSize
-                                                    )) ;
-
             }
-            enumerator.Dispose();
+
+            //
+
+            scopes.Add(new FProcessingScope(start: totalWorkLoad, end: long.MaxValue));
+
+            // Queue contains no job --> Add queable item
+            positions.Add(new FQueueingScope(isQueueAble: isQueueable,
+                                                isRequieringSetup: false,
+                                                scopes: ListModule.OfSeq(scopes)
+                                                ));
             return positions;
         }
+
+
+
 
         private long GetRequiredSetupTime(CapabilityProviderManager cpm, int capabilityProviderId)
         {
             if (cpm.AlreadyEquipped(capabilityProviderId)) return 0L;
             return cpm.GetSetupDurationByCapabilityProvider(capabilityProviderId);
+        }
+
+        private long GetSetupTimeIfEquipped(CapabilityProviderManager cpm, int capabilityProviderId)
+        {
+            if (cpm.AlreadyEquipped(capabilityProviderId)) return cpm.GetSetupDurationByCapabilityProvider(capabilityProviderId);
+            return 0L;
         }
 
         private long GetRequiredSetupTime(CapabilityProviderManager cpm, int currentId, FRequestProposalForCapabilityProvider requestProposalForCapabilityProvider)

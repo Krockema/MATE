@@ -1,12 +1,15 @@
 ﻿module FScopeConfirmations
 
 open IScopes
+open System.Linq
+open FSetupScopes
+open FProcessingScopes
 
     type public FScopeConfirmation =         
-        {   Start : int64
-            End : int64
-            EstimatedWork : int64 } 
-            interface IScope with
-                member this.Start with get() = this.Start
-                member this.End with get() = this.End
-                member this.EstimatedWork with get() = this.EstimatedWork
+        {   
+            Scopes : List<IScope>
+        } 
+            member this.GetScopeStart() = this.Scopes.Min(fun y -> y.Start)
+            member this.GetScopeEnd() = this.Scopes.Max(fun y -> y.End)
+            member this.GetSetup() = this.Scopes.SingleOrDefault(fun y -> y.GetType().Equals(typeof<FSetupScope>))
+            member this.GetProcessing() = this.Scopes.SingleOrDefault(fun y -> y.GetType().Equals(typeof<FProcessingScope>))

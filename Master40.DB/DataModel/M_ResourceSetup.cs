@@ -1,4 +1,6 @@
-﻿namespace Master40.DB.DataModel
+﻿using System.Collections.Generic;
+
+namespace Master40.DB.DataModel
 {
     /*
      * JOINTABLE Describes a combination of Resource and ResourceTool to provide a skill

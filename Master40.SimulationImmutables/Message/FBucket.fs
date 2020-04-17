@@ -3,12 +3,10 @@
 open System
 open Akka.Actor
 open FOperations
-open FProposals
 open System.Linq
 open FStartConditions
 open IKeys
 open IJobs
-open System.Linq
 open Master40.DB.DataModel
 open FUpdateStartConditions
 
