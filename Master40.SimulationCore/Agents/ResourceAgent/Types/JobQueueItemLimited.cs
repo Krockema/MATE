@@ -6,6 +6,7 @@ using static FBuckets;
 using static FJobConfirmations;
 using Master40.SimulationCore.Agents.JobAgent;
 using System.Runtime.InteropServices.WindowsRuntime;
+using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
@@ -17,14 +18,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             
         }
 
-        public bool Enqueue(FJobConfirmation jobConfirmation)
+        public bool Enqueue(IConfirmation jobConfirmation)
         {
             if (Limit <= JobConfirmations.Count) return false;
             JobConfirmations.Add(jobConfirmation);
             return true;
         }
 
-        public bool EnqueueAll(List<FJobConfirmation> jobConfirmations)
+        public bool EnqueueAll(List<IConfirmation> jobConfirmations)
         {
             if (Limit <= JobConfirmations.Count) return false;
             foreach (var job in jobConfirmations)
@@ -58,7 +59,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return true;
         }
 
-        internal FJobConfirmation DequeueFirstSatisfiedFix(long currentTime)
+        internal IConfirmation DequeueFirstSatisfiedFix(long currentTime)
         {
             var item = this.JobConfirmations.Where(x => x.Job.StartConditions.Satisfied && ((FBucket)x.Job).IsFixPlanned)
                                                 .OrderBy(keySelector: x => x.Job.Priority(currentTime))
@@ -70,7 +71,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return item;
         }
 
-        internal bool Remove(FJobConfirmation jobConfirmation)
+        internal bool Remove(IConfirmation jobConfirmation)
         {
             return this.JobConfirmations.Remove(item: jobConfirmation);
         }
@@ -81,7 +82,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return this.Remove(job);
         }
 
-        internal void ForceAdd(FJobConfirmation jobConfirmation)
+        internal void ForceAdd(IConfirmation jobConfirmation)
         {
             this.JobConfirmations.Add(jobConfirmation);
         }

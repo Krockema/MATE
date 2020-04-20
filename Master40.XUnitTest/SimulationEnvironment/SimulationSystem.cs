@@ -120,7 +120,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         
         private void GetSetups(M_Resource resource, ProductionDomainContext masterCtx)
         {
-            if (resource.Count == 0)
+            if (!resource.IsPhysical)
                 return;
             var setups = masterCtx.ResourceSetups
                 .Include(x => x.ResourceCapabilityProvider)

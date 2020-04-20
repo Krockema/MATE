@@ -4,6 +4,7 @@ using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FArticles;
 using static FJobConfirmations;
+using static FJobResourceConfirmations;
 using static FStockReservations;
 
 namespace Master40.SimulationCore.Agents.JobAgent
@@ -25,15 +26,15 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
-            public class UpdateJob : SimulationMessage
+            public class AcknowledgeJob : SimulationMessage
             {
-                public static UpdateJob Create(M_ResourceCapabilityProvider message,IActorRef target)
+                public static AcknowledgeJob Create(FJobResourceConfirmation message,IActorRef target)
                 {
-                    return new UpdateJob(message: message, target: target);
+                    return new AcknowledgeJob(message: message, target: target);
                 }
-                private UpdateJob(object message, IActorRef target) : base(message: null, target: target)
+                private AcknowledgeJob(object message, IActorRef target) : base(message: message, target: target)
                 { }
-                public M_ResourceCapabilityProvider GetObjectFromMessage { get => Message as M_ResourceCapabilityProvider; }
+                public FJobResourceConfirmation GetObjectFromMessage { get => Message as FJobResourceConfirmation; }
             }
 
             public class LockJob : SimulationMessage
@@ -42,7 +43,7 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 {
                     return new LockJob(message: message, target: target);
                 }
-                private LockJob(object message, IActorRef target) : base(message: null, target: target)
+                private LockJob(object message, IActorRef target) : base(message: message, target: target)
                 { }
                 public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
             }
@@ -56,6 +57,17 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 private RequestJobStart(IActorRef target) : base(message: null, target: target)
                 { }
             }
+
+            public class StartProcessing : SimulationMessage
+            {
+                public static StartProcessing Create(IActorRef target)
+                {
+                    return new StartProcessing(target: target);
+                }
+                private StartProcessing(IActorRef target) : base(message: null, target: target)
+                { }
+            }
+
             public class RequestSetupStart : SimulationMessage
             {
                 public static RequestSetupStart Create(IActorRef target)
@@ -79,6 +91,43 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
 
             }
+
+            public class AcceptAcknowledgeResponseFromResource : SimulationMessage
+            {
+                public static AcceptAcknowledgeResponseFromResource Create(IActorRef target)
+                {
+                    return new AcceptAcknowledgeResponseFromResource(target: target);
+                }
+                private AcceptAcknowledgeResponseFromResource(IActorRef target) : base(message: null, target: target)
+                {
+
+                }
+
+            }
+
+            public class RejectAcknowledgeResponseFromResource : SimulationMessage
+            {
+                public static RejectAcknowledgeResponseFromResource Create(IActorRef target)
+                {
+                    return new RejectAcknowledgeResponseFromResource(target: target);
+                }
+                private RejectAcknowledgeResponseFromResource(IActorRef target) : base(message: null, target: target)
+                {
+                }
+            }
+
+            public class StartRequeue : SimulationMessage
+            {
+                public static StartRequeue Create(IActorRef target)
+                {
+                    return new StartRequeue(target: target);
+                }
+                private StartRequeue(IActorRef target) : base(message: null, target: target)
+                {
+                }
+            }
+            
+
         }
     }
 }

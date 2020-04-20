@@ -16,6 +16,9 @@ using static FRequestProposalForCapabilityProviders;
 using static FUpdateStartConditions;
 using static IJobResults;
 using static IJobs;
+using static FScopeConfirmations;
+using Microsoft.FSharp.Collections;
+using static FJobResourceConfirmations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -167,12 +170,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             foreach (var capabilityProvider in capabilityDefinition.GetAllCapabilityProvider())
             {
-                foreach (var setup in capabilityProvider.ResourceSetups)
+                foreach (var setup in capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
                 {
-                    var resource = setup.Resource;
-                    if (setup.Resource.Count == 0) continue;
-
-                    var resourceRef = resource.IResourceRef as IActorRef;
+                    var resourceRef = setup.Resource.IResourceRef as IActorRef;
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Key}", CustomLogger.PROPOSAL, LogLevel.Warn);
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
                         .Create(new FRequestProposalForCapabilityProvider(jobConfirmation.Job
@@ -222,28 +222,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
 
-                jobConfirmation.CapabilityProvider = possiblePosition._resourceCapabilityProvider;
+                jobConfirmation.CapabilityProvider = possiblePosition.ResourceCapabilityProvider;
 
-                Agent.Send(Job.Instruction.UpdateJob.Create(jobConfirmation.CapabilityProvider, jobConfirmation.JobAgentRef));
-
-                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
+                var jobResourceConfirmation = new FJobResourceConfirmation(jobConfirmation.ToImmutable(), new Dictionary<IActorRef, FScopeConfirmation>());
+                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
                 {
-                    if (setup.Resource.Count == 0) continue;
+                    var resourceRef = setup.Resource.IResourceRef as IActorRef;
+                    jobResourceConfirmation.ScopeConfirmations.Add(resourceRef,
+                        possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value);
 
-                    jobConfirmation.ScopeConfirmation = possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value;
-                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {bucket.Name} {bucket.Key} on resource {setup.Resource.Name}" +
-                                            $" with scope confirmation for {jobConfirmation.ScopeConfirmation.GetScopeStart()} to {jobConfirmation.ScopeConfirmation.GetScopeEnd()}"
-                                            , CustomLogger.PROPOSAL, LogLevel.Warn);
-                    Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
-                        .Create(jobConfirmation.ToImmutable()
-                            , target: setup.Resource.IResourceRef as IActorRef));
                 }
-
-
-
-
+                Agent.Send(Job.Instruction.AcknowledgeJob.Create(jobResourceConfirmation, jobConfirmation.JobAgentRef));
                 _proposalManager.Remove(bucket.Key);
-
             }
         }
 
@@ -301,9 +291,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (!jobConfirmation.IsConfirmed || !bucket.Operations.Any(x => x.StartConditions.Satisfied))
                 return;
 
-            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
+            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
             {
-                if (setup.Resource.Count == 0) continue;
                 var resourceRef = setup.Resource.IResourceRef as IActorRef;
                 Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
                                         $"| ArticleProvided: {startCondition.ArticlesProvided} " +

@@ -5,6 +5,7 @@ using System.Text;
 using static FBuckets;
 using static FJobConfirmations;
 using static FOperations;
+using static IConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -19,7 +20,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public int SetupId => Current.CapabilityProvider.Id;
         public string RequiredCapabilityName => Current.Job.RequiredCapability.Name;
 
-        public bool Set(FJobConfirmation jobConfirmation, long currentTime)
+        public bool Set(IConfirmation jobConfirmation, long currentTime)
         {
             if (IsSet)
                 return false;

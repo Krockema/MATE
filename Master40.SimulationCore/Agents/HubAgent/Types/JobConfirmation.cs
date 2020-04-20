@@ -26,7 +26,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public FJobConfirmation ToImmutable()
         {
-            return new FJobConfirmation(Job, ScopeConfirmation, Job.Duration , CapabilityProvider, JobAgentRef);
+            return new FJobConfirmation(Job, ScopeConfirmation, Job.Key, Job.Duration , CapabilityProvider, JobAgentRef);
         }
         
         public void SetJobAgent(IActorRef agentRef)

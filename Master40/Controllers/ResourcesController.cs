@@ -196,16 +196,16 @@ namespace Master40.Controllers
             if (setup == "Large")
             {
                 var Resources = new M_Resource[] {
-                    new M_Resource{Capacity=0, Name="Saw 3", Count = 1},
-                    new M_Resource{Capacity=0, Name="Saw 4", Count = 1},
-                    new M_Resource{Capacity=0, Name="Saw 5", Count = 1},
-                    new M_Resource{Capacity=0, Name="Saw 6", Count = 1},
-                    new M_Resource{Capacity=0, Name="Drill 2", Count = 1},
-                    new M_Resource{Capacity=0, Name="Drill 3", Count = 1},
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 3", Count=1},
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 4", Count=1},
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 5", Count=1},
-                    new M_Resource{Capacity=0, Name="AssemblyUnit 6", Count=1}
+                    new M_Resource{Capacity=0, Name="Saw 3", IsPhysical = true},
+                    new M_Resource{Capacity=0, Name="Saw 4", IsPhysical = true},
+                    new M_Resource{Capacity=0, Name="Saw 5", IsPhysical = true},
+                    new M_Resource{Capacity=0, Name="Saw 6", IsPhysical = true},
+                    new M_Resource{Capacity=0, Name="Drill 2", IsPhysical = true},
+                    new M_Resource{Capacity=0, Name="Drill 3", IsPhysical = true},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 3", IsPhysical=true},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 4", IsPhysical=true},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 5", IsPhysical=true},
+                    new M_Resource{Capacity=0, Name="AssemblyUnit 6", IsPhysical=true}
                 };
                 _context.Resources.AddRange(entities: Resources);
 

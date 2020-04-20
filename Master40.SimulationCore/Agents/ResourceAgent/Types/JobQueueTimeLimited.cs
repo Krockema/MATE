@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static FJobConfirmations;
 using static FUpdateStartConditions;
+using static IConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -16,7 +17,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// To Be Testet
         /// </summary>
         /// <param name="item"></param>
-        public void Enqueue(FJobConfirmation fJobConfirmations)
+        public void Enqueue(IConfirmation fJobConfirmations)
         {
            JobConfirmations.Add(fJobConfirmations);
         }
@@ -88,10 +89,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return Limit > JobConfirmations.Sum(selector: x => x.Job.Duration);
         }
 
-        public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
+        public HashSet<IConfirmation> CutTail(long currentTime, IConfirmation jobConfirmation)
         {
             // queued before another item?
-            var toRequeue = new HashSet<FJobConfirmation>();
+            var toRequeue = new HashSet<IConfirmation>();
             var orderedList = JobConfirmations.OrderBy(x => x.Job.Priority(currentTime)).ToList();
             var position = orderedList.IndexOf(jobConfirmation);
 
@@ -105,7 +106,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return toRequeue;
         }
 
-        public HashSet<FJobConfirmation> CutTailByStack(long currentTime, FJobConfirmation jobConfirmation)
+        public HashSet<IConfirmation> CutTailByStack(long currentTime, FJobConfirmation jobConfirmation)
         {
             var allPreviousJobs = JobConfirmations.Where(e => e.Job.Priority(currentTime) <= jobConfirmation.Job.Priority(currentTime)).ToList();
             var resourceTools = allPreviousJobs.Select(x => x.Job.RequiredCapability.Id).Distinct().ToList();
@@ -119,7 +120,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return toRequeue;
         }
 
-        internal bool RemoveJob(FJobConfirmation jobConfirmation)
+        internal bool RemoveJob(IConfirmation jobConfirmation)
         {
             return JobConfirmations.Remove(item: jobConfirmation);
         }

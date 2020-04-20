@@ -8,7 +8,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
     public class PossibleProcessingPosition
     {
-        public M_ResourceCapabilityProvider _resourceCapabilityProvider { get; set; }
+        public M_ResourceCapabilityProvider ResourceCapabilityProvider { get; }
         public long _processingPosition { get; set; }
         public Dictionary<IActorRef, FScopeConfirmation> _queuingDictionary { get; set; } = new Dictionary<IActorRef, FScopeConfirmation>();
 
@@ -16,7 +16,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public PossibleProcessingPosition(M_ResourceCapabilityProvider resourceCapabilityProvider)
         {
-            _resourceCapabilityProvider = resourceCapabilityProvider;
+            ResourceCapabilityProvider = resourceCapabilityProvider;
 
         }
 

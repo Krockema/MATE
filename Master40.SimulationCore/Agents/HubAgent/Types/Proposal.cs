@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         private List<FProposal> _proposals = new List<FProposal>();
         public int ProviderId => _capabilityProvider.Id;
-        public int RequiredProposals => _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count);
+        public int RequiredProposals => _capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical).Count();
         public int ReceivedProposals => _proposals.Count();
         public ProposalForCapabilityProvider(M_ResourceCapabilityProvider capabilityProvider)
         {
@@ -40,7 +40,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public bool AllProposalsReceived()
         {
-            return _capabilityProvider.ResourceSetups.Sum(x => x.Resource.Count) == _proposals.Count;
+            return _capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical).Count() == _proposals.Count;
         }
 
         public bool NoPostponed()

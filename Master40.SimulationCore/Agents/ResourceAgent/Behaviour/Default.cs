@@ -16,6 +16,7 @@ using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static FUpdateSimulationJobs;
 using static FUpdateStartConditions;
+using static IConfirmations;
 using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
@@ -116,7 +117,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Is called after RequestProposal if the proposal is accepted by HubAgent
         /// </summary>
-        public void AcknowledgeProposal(FJobConfirmation acknowledgeProposal)
+        public void AcknowledgeProposal(IConfirmation acknowledgeProposal)
         {
             Agent.DebugMessage(msg: $"Start Acknowledge proposal for: {acknowledgeProposal.Job.Name} {acknowledgeProposal.Job.Key}");
 
@@ -151,7 +152,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 
-        private void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
+        private void UpdateAndRequeuePlanedJobs(IConfirmation jobConfirmation)
         {
             Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
             var toRequeue = _planingQueue.CutTail(currentTime: Agent.CurrentTime, jobConfirmation);

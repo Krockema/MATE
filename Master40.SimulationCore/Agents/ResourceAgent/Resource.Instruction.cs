@@ -6,6 +6,7 @@ using static FBuckets;
 using static FJobConfirmations;
 using static FRequestProposalForCapabilityProviders;
 using static FRequestToRequeues;
+using static IConfirmations;
 using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
@@ -42,14 +43,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class AcknowledgeProposal : SimulationMessage
                 {
-                    public static AcknowledgeProposal Create(FJobConfirmation message, IActorRef target)
+                    public static AcknowledgeProposal Create(IConfirmation message, IActorRef target)
                     {
                         return new AcknowledgeProposal(message: message, target: target);
                     }
                     private AcknowledgeProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
+                    public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
                 }
 
                 public class DoWork : SimulationMessage
@@ -62,6 +63,32 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
                     }
                 }
+
+                public class RevokeJob : SimulationMessage
+                {
+                    public static RevokeJob Create(Guid message, IActorRef target)
+                    {
+                        return new RevokeJob(message: message, target: target);
+                    }
+                    private RevokeJob(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
+                public class TryToSetInProcessing : SimulationMessage
+                {
+                    public static TryToSetInProcessing Create(Guid message, IActorRef target)
+                    {
+                        return new TryToSetInProcessing(message: message, target: target);
+                    }
+                    private TryToSetInProcessing(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
+
             }
 
             public class BucketScope
@@ -111,18 +138,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                         return new AskToRequeue(message: jobKey, target: target);
                     }
                     private AskToRequeue(object message, IActorRef target) : base(message: message, target: target)
-                    {
-                    }
-                    public Guid GetObjectFromMessage { get => (Guid)Message; }
-                }
-
-                public class ForceJob : SimulationMessage
-                {
-                    public static ForceJob Create(Guid jobKey, IActorRef target)
-                    {
-                        return new ForceJob(message: jobKey, target: target);
-                    }
-                    private ForceJob(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }

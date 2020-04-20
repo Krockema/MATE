@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static FJobConfirmations;
+using static IConfirmations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public abstract class LimitedQueue
     {
-        protected HashSet<FJobConfirmation> JobConfirmations { get; } = new HashSet<FJobConfirmation>();
+        protected HashSet<IConfirmation> JobConfirmations { get; } = new HashSet<IConfirmation>();
         public int Limit { get; set; }
         public int Count => JobConfirmations.Count;
 
@@ -24,7 +25,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// </summary>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public virtual FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        public virtual IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var item = this.JobConfirmations.Where(x => x.Job.StartConditions.Satisfied).OrderBy(keySelector: x => x.Job.Priority(currentTime)).FirstOrDefault();
             if (item != null)
@@ -34,7 +35,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return item;
         }
 
-        internal HashSet<FJobConfirmation> GetAllSatisfiedSameCapability(long currentTime)
+        internal HashSet<IConfirmation> GetAllSatisfiedSameCapability(long currentTime)
         {
             var jobConfirmation = DequeueFirstSatisfied(currentTime);
             var list = this.JobConfirmations.Where(x => x.Job.StartConditions.Satisfied && x.Job.RequiredCapability.Id == jobConfirmation.Job.RequiredCapability.Id).ToHashSet();
@@ -64,12 +65,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return (T)Convert.ChangeType(job?.Job, typeof(T));
         }
 
-        public FJobConfirmation FirstOrNull()
+        public IConfirmation FirstOrNull()
         {
             return JobConfirmations.FirstOrDefault();
         }
 
-        public FJobConfirmation GetConfirmation(Guid jobKey)
+        public IConfirmation GetConfirmation(Guid jobKey)
         {
             return JobConfirmations.Single(x => x.Job.Key == jobKey);
         }

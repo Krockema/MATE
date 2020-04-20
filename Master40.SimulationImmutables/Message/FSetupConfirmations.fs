@@ -1,14 +1,13 @@
-﻿module FJobConfirmations
+﻿module FSetupConfirmations
 
-open IJobs
-open Master40.DB.DataModel
 open FScopeConfirmations
+open Master40.DB.DataModel
 open Akka.Actor
+open IJobs
 open IConfirmations
-open FSetupConfirmations
 open System
 
-    type public FJobConfirmation = 
+    type public FSetupConfirmation = 
         { Job : IJob
           ScopeConfirmation : FScopeConfirmation
           Key : Guid
@@ -22,8 +21,6 @@ open System
                 member this.ScopeConfirmation with get() = this.ScopeConfirmation
                 member this.JobAgentRef with get() = this.JobAgentRef
                 member this.CapabilityProvider with get() = this.CapabilityProvider
-                member this.IsReset = this.ScopeConfirmation.Equals(null)
-        member this.UpdateJob job = { this with Job = job } 
-        member this.UpdateScopeConfirmation scopeConfirmations = {this with ScopeConfirmation = scopeConfirmations }
-        member this.UpdateScopeConfirmationAndKey scopeConfirmations setupKey = { this with ScopeConfirmation = scopeConfirmations;
-                                                                                            Key = setupKey; }
+                member this.IsReset = this.ScopeConfirmation.Equals(null)        
+        member this.UpdateJob job = { this with Job = job }
+        

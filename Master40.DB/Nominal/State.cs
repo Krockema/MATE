@@ -16,8 +16,8 @@
     public enum JobState
     {
         InQueue,
-        InProcessingQueue,
-        InSetup,
+        Requeue,
+        ReadyForProcessing,
         InProcess
     }
 

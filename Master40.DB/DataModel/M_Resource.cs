@@ -6,7 +6,7 @@ namespace Master40.DB.DataModel
     public class M_Resource : BaseEntity
     {
         public string Name { get; set; }
-        public int Count { get; set; }
+        public bool IsPhysical { get; set; }
         public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
         public int Capacity { get; set; }
         [NotMapped]

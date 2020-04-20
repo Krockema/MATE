@@ -1,14 +1,22 @@
 ﻿using Akka.Actor;
-using Master40.DB.DataModel;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.HubAgent.Types;
+using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.JobAgent.Types;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Helper;
+using Microsoft.FSharp.Collections;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static FJobConfirmations;
+using static FJobResourceConfirmations;
+using static FProcessingSlots;
+using static FScopeConfirmations;
+using static FSetupConfirmations;
+using static FSetupSlots;
+using static IConfirmations;
+using static ITimeRanges;
 
 namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 {
@@ -24,26 +32,34 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         // Job: Send / Create Measurements
         // Job: - Dispose
 
-        internal Default(JobConfirmation jobConfirmation, SimulationType simulationType = SimulationType.None)
+        internal Default(FJobConfirmation jobConfirmation, SimulationType simulationType = SimulationType.None)
             : base(childMaker: null, simulationType: simulationType)
         {
             _jobConfirmation = jobConfirmation;
+            _resourceProcessingStates = new Dictionary<IActorRef, StateHandle>();
+            _resourceSetupStates = new Dictionary<IActorRef, StateHandle>();
         }
 
-        private JobConfirmation _jobConfirmation { get; set; }
+        private FJobConfirmation _jobConfirmation { get; set; }
         private Guid GetJobKey() => _jobConfirmation.Job.Key;
 
-        private Dictionary<IActorRef, StateHandle> _resourceStates { get; set; }
+        private Dictionary<IActorRef, StateHandle> _resourceProcessingStates { get; set; }
+        private Dictionary<IActorRef, StateHandle> _resourceSetupStates { get; set; }
+
 
         public override bool Action(object message)
         {
             switch (message)
             {
                 case Job.Instruction.TerminateJob msg: Terminate(); break;
-                case Job.Instruction.UpdateJob msg: UpdateJob(msg.GetObjectFromMessage); break;
+                case Job.Instruction.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.LockJob msg: LockJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.RequestSetupStart msg: RequestSetupStart(); break;
                 case Job.Instruction.RequestJobStart msg: RequestJobStart(); break;
+                // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
+                // case Job.Instruction.AcceptAcknowledgeResponseFromResource msg: AcceptAcknowledgeResponseFromResource(); break;
+                // case Job.Instruction.RejectAcknowledgeResponseFromResource msg: RejectAcknowledgeResponseFromResource(); break;
+                // case Job.Instruction.StartRequeue msg: StartRequeue(); break;
                 default: return false;
             }
             return true;
@@ -54,6 +70,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void RequestSetupStart()
         {
+            // FOr Setup or for Processing ? 
+
             var requestingResource = _resourceStates.Single(x => x.Key == Agent.Sender);
             requestingResource.Value.CurrentState = JobState.InSetup;
 
@@ -95,7 +113,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
         }
 
-        private void LockJob(FJobConfirmations.FJobConfirmation jobConfirmation)
+        private void LockJob(FJobConfirmation jobConfirmation)
         {
             foreach (var setups in _jobConfirmation.CapabilityProvider.ResourceSetups)
             {
@@ -110,14 +128,47 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
         }
 
-        private void UpdateJob(M_ResourceCapabilityProvider capabilityProvider)
+        private void AcknowledgeJob(FJobResourceConfirmation fJobResourceConfirmation)
         {
-            _jobConfirmation.CapabilityProvider = capabilityProvider;
-            _resourceStates.Clear();
-            foreach (var setup in capabilityProvider.ResourceSetups)
+            _jobConfirmation = fJobResourceConfirmation.JobConfirmation;
+            _resourceProcessingStates.Clear();
+
+            Agent.DebugMessage($"Acknowledge Proposal {GetJobKey()}");
+            var setupKey = Guid.NewGuid();
+            foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
-                var resourceRef = setup.Resource.IResourceRef as IActorRef;
-                _resourceStates.Add(resourceRef, new StateHandle(JobState.InQueue));
+                foreach( var scope in resourceScope.Value.Scopes)
+                {
+                    var resourceRef = resourceScope.Key;
+                    switch (scope)
+                    {
+                        case FProcessingSlot ps: 
+                            _resourceProcessingStates.Add(resourceRef, new StateHandle(JobState.InQueue));
+                            var pscopelist = new List<ITimeRange>() { ps };
+                            var pscopeConfirmation = new FScopeConfirmation(ListModule.OfSeq(pscopelist));
+                            //FJobConfirmation
+                            var jobConfirmation= _jobConfirmation.UpdateScopeConfirmation(pscopeConfirmation);
+                            Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
+                                        .Create(jobConfirmation // DANGER - TO TEST
+                                            , target: resourceRef));
+                            break;
+                        case FSetupSlot fs: 
+                            _resourceSetupStates.Add(resourceRef, new StateHandle(JobState.InQueue));
+                            var scopelist = new List<ITimeRange>() { fs };
+                            var scopeConfirmation = new FScopeConfirmation(ListModule.OfSeq(scopelist));
+                            var setupConfirmation = Convert.ChangeType(value: _jobConfirmation.UpdateScopeConfirmationAndKey(scopeConfirmation, setupKey)
+                                                                       ,conversionType: typeof(FSetupConfirmation));
+                            Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
+                                        .Create((IConfirmation)setupConfirmation // DANGER - TO TEST
+                                            , target: resourceRef));
+                            break; 
+                        default:
+                            throw new Exception("Typemismatch on FScopeSlot");
+                    }
+                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} on resource {resourceRef.Path.Name}" +
+                                            $" with scope confirmation for {resourceScope.Value.GetScopeStart()} to {resourceScope.Value.GetScopeEnd()}"
+                                            , CustomLogger.PROPOSAL, LogLevel.Warn);
+                }
             }
         }
 

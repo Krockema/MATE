@@ -1,23 +1,20 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
-using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Net.Sockets;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using static FBuckets;
 using static FJobConfirmations;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
+using static FScopes;
+using static IConfirmations;
 using static IJobs;
 using static ITimeRanges;
-using static FScopes;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 {
-    public class TimeConstraintQueue : SortedList<long, FJobConfirmation>, IJobQueue
+    public class TimeConstraintQueue : SortedList<long, IConfirmation>, IJobQueue
     {
         public int Limit { get; set; }
 
@@ -26,19 +23,22 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             Limit = limit;
         }
 
-        public FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        public IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var bucket = GetFirstSatisfied(currentTime);
             this.Remove(bucket.Key);
             return bucket.Value;
         }
 
-        public void Enqueue(FJobConfirmation jobConfirmation)
+        public void Enqueue(IConfirmation jobConfirmation)
         {
-            this.Add(jobConfirmation.ScopeConfirmation.GetScopeStart(), jobConfirmation);
+            foreach(var scope in jobConfirmation.ScopeConfirmation.Scopes)
+            {
+                this.Add(scope.Start, jobConfirmation);
+            }
         }
 
-        public KeyValuePair<long, FJobConfirmation> GetFirstSatisfied(long currentTime)
+        public KeyValuePair<long, IConfirmation> GetFirstSatisfied(long currentTime)
         {
             var bucket = this.First(x => ((FBucket)x.Value.Job).HasSatisfiedJob);
             return bucket;
@@ -73,23 +73,33 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return (T)Convert.ChangeType(jobConfirmation.Job, typeof(T));
         }
 
-        public FJobConfirmation GetConfirmation(Guid jobKey)
+        public IConfirmation GetConfirmation(Guid jobKey)
         {
-            return this.Values.SingleOrDefault(x => x.Job.Key == jobKey);
+            return this.Values.Single(x => x.Job.Key == jobKey);
         }
 
-        public bool RemoveJob(FJobConfirmation job)
+        public bool RemoveJob(IConfirmation job)
         {
             return this.Remove(job.ScopeConfirmation.GetScopeStart());
         }
 
-        public HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation)
+        public HashSet<IConfirmation> GetTail(long currentTime, IConfirmation jobConfirmation)
         {
             // queued before another item?
             var toRequeue = this.Where(x => x.Key >= jobConfirmation.ScopeConfirmation.GetScopeStart()
                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
                 .Select(x => x.Value).ToHashSet();
             return toRequeue;
+        }
+
+        public HashSet<IConfirmation> GetAllSubsequentJobs(long jobStart)
+        {
+            return this.Where(x => x.Key >= jobStart).Select(x => x.Value).ToHashSet();
+        }
+
+        public HashSet<IConfirmation> GetAllJobs()
+        {
+            return this.Select(x => x.Value).ToHashSet();
         }
 
         public List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
@@ -101,7 +111,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
             // 1. Zu Erstens
             var capabilityProvider = cpm.GetCapabilityProviderByCapability(jobProposal.CapabilityProviderId);
-            var setup = capabilityProvider.ResourceSetups.Single(x => x.Resource.IResourceRef.Equals(resourceRef));
+            var setup = capabilityProvider.ResourceSetups.Single(x => resourceRef.Equals(x.Resource.IResourceRef));
 
             // 1 Methode für Resource setup, Processing
 
@@ -151,7 +161,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 {
                     // Limit? Job satisfied?
                     isQueueAble = Limit > totalWorkLoad || ((FBucket)job).StartConditions.Satisfied;
-                    if(!isQueueAble)          
+                    if(!isQueueAble)           
                         break;
 
                     var post = enumerator.Current;
@@ -207,12 +217,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return cpm.GetSetupDurationByCapabilityProvider(requestProposalForCapabilityProvider.CapabilityProviderId);
         }
 
-        public FJobConfirmation FirstOrNull()
+        public IConfirmation FirstOrNull()
         {
             return this.Count > 0 ? this.Values.First() : null;
         }
 
-        public bool CheckScope(FJobConfirmation fJobConfirmation, long time)
+        public bool CheckScope(IConfirmation fJobConfirmation, long time)
         {
             var jobPriority = fJobConfirmation.Job.Priority(time);
             var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(time) <= jobPriority);

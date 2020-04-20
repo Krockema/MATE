@@ -47,8 +47,10 @@
     <Compile Include="Message\FConfirmationSlots.fs" />
     <Compile Include="Message\FScopeConfirmations.fs" />
     <Compile Include="Message\FQueueingScope.fs" />
+    <Compile Include="Interface\IConfirmations.fs" />
+    <Compile Include="Message\FSetupConfirmations.fs" />
     <Compile Include="Message\FJobConfirmations.fs" />
-
+    <Compile Include="Message\FJobResourceConfirmations.fs" />
   </ItemGroup>
 
   <ItemGroup>

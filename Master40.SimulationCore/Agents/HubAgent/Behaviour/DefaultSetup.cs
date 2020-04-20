@@ -68,13 +68,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             foreach (var capabilityProvider in capabilityDefinition.GetAllCapabilityProvider())
             {
-                foreach (var setup in capabilityProvider.ResourceSetups)
+                foreach (var setup in capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
                 {
-
-                    var resource = setup.Resource;
-                    if (setup.Resource.Count == 0) continue;
-
-                    var resourceRef = resource.IResourceRef as IActorRef;
+                    var resourceRef = setup.Resource.IResourceRef as IActorRef;
                     
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} | for {jobConfirmation.Job.Name } with { capabilityProvider.Id}");
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
@@ -121,11 +117,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
 
-                jobConfirmation.CapabilityProvider = possiblePosition._resourceCapabilityProvider;
+                jobConfirmation.CapabilityProvider = possiblePosition.ResourceCapabilityProvider;
 
-                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups){
-
-                    if (setup.Resource.Count == 0) continue;
+                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
+                {
                     Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {fOperation.Operation.Name} {fOperation.Key} on resource {setup.Resource.Name}");
 
                     Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
@@ -148,9 +143,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
 
 
-            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups)
+            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
             {
-                if (setup.Resource.Count == 0) continue;
                 Agent.DebugMessage(msg: $"Update and forward start condition: {operation.Operation.Name} {operation.Key}" +
                                         $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
                                         $"| PreCondition: {operation.StartConditions.PreCondition} " +

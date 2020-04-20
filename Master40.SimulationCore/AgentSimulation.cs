@@ -152,7 +152,7 @@ namespace Master40.SimulationCore
         private void CreateCollectorAgents(Configuration configuration)
         {
             var resourcelist = new ResourceList();
-            resourcelist.AddRange(collection: _dBContext.Resources.Where(x => x.Count == 1)
+            resourcelist.AddRange(collection: _dBContext.Resources.Where(x => x.IsPhysical)
                                                         .Select(selector: x => "Resource(" + x.Name.Replace(" ", "") + ")"));
 
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
@@ -228,7 +228,7 @@ namespace Master40.SimulationCore
 
             // Get All Resources that have an Agent (that are limited)
             //var resources = _dBContext.Resources.ToList(); // all Resources
-            var limitedResources = _dBContext.Resources.Where(x => x.Count == 1).ToList(); // all Limited Resources
+            var limitedResources = _dBContext.Resources.Where(x => x.IsPhysical).ToList(); // all Limited Resources
 
 
             foreach (var resource in limitedResources)

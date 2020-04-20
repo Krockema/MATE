@@ -5,13 +5,14 @@ using Akka.Actor;
 using static FJobConfirmations;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
+using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public interface IJobQueue
     {
-        FJobConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
-        void Enqueue(FJobConfirmation jobConfirmation);
+        IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
+        void Enqueue(IConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
 
         List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
@@ -19,16 +20,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                                                 , CapabilityProviderManager cpm
                                                 , long resourceBlockedUntil
                                                 , IActorRef resourceRef);
-        HashSet<FJobConfirmation> CutTail(long currentTime, FJobConfirmation jobConfirmation);
+        HashSet<IConfirmation> GetTail(long currentTime, IConfirmation jobConfirmation);
         bool CapacitiesLeft();
         T GetJobAs<T>(Guid key);
         IEnumerable<T> GetJobsAs<T>();
         int Limit { get; set; }
         int Count { get; }
-        FJobConfirmation GetConfirmation(Guid key);
-        FJobConfirmation FirstOrNull();
-        bool RemoveJob(FJobConfirmation job);
+        IConfirmation GetConfirmation(Guid key);
+        IConfirmation FirstOrNull();
+        bool RemoveJob(IConfirmation job);
         long Workload { get; }
-        bool CheckScope(FJobConfirmation fJobConfirmation, long time);
+        bool CheckScope(IConfirmation fJobConfirmation, long time);
+        HashSet<IConfirmation> GetAllSubsequentJobs(long getScopeStart);
+        HashSet<IConfirmation> GetAllJobs();
+
     }
 }
