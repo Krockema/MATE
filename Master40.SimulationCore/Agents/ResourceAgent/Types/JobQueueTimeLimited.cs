@@ -106,7 +106,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return toRequeue;
         }
 
-        public HashSet<IConfirmation> CutTailByStack(long currentTime, FJobConfirmation jobConfirmation)
+        public HashSet<IConfirmation> CutTailByStack(long currentTime, IConfirmation jobConfirmation)
         {
             var allPreviousJobs = JobConfirmations.Where(e => e.Job.Priority(currentTime) <= jobConfirmation.Job.Priority(currentTime)).ToList();
             var resourceTools = allPreviousJobs.Select(x => x.Job.RequiredCapability.Id).Distinct().ToList();

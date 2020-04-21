@@ -17,8 +17,9 @@
     {
         InQueue,
         Requeue,
-        ReadyForProcessing,
-        InProcess
+        Ready,
+        InProcess,
+        Finish
     }
 
     public enum ProducingState

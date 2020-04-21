@@ -8,7 +8,9 @@ using Microsoft.FSharp.Collections;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
+using Akka.Util.Internal;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
 using static FProcessingSlots;
@@ -17,6 +19,8 @@ using static FSetupConfirmations;
 using static FSetupSlots;
 using static IConfirmations;
 using static ITimeRanges;
+using static IJobs;
+using static FCreateSimulationResourceSetups;
 
 namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 {
@@ -53,9 +57,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 case Job.Instruction.TerminateJob msg: Terminate(); break;
                 case Job.Instruction.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
-                case Job.Instruction.LockJob msg: LockJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.RequestSetupStart msg: RequestSetupStart(); break;
-                case Job.Instruction.RequestJobStart msg: RequestJobStart(); break;
+                case Job.Instruction.RequestProcessingStart msg: RequestProcessingStart(); break;
+                case Job.Instruction.FinishSetup msg: FinishSetup(); break;
+                case Job.Instruction.FinalBucket msg: DoWork(msg.GetObjectFromMessage); break;
                 // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
                 // case Job.Instruction.AcceptAcknowledgeResponseFromResource msg: AcceptAcknowledgeResponseFromResource(); break;
                 // case Job.Instruction.RejectAcknowledgeResponseFromResource msg: RejectAcknowledgeResponseFromResource(); break;
@@ -72,61 +77,58 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             // FOr Setup or for Processing ? 
 
-            var requestingResource = _resourceStates.Single(x => x.Key == Agent.Sender);
-            requestingResource.Value.CurrentState = JobState.InSetup;
+            var requestingResource = _resourceSetupStates.Single(x => x.Key == Agent.Sender);
+            requestingResource.Value.CurrentState = JobState.Ready;
 
-            ///
-            // Same handling as requestJobStart only processing required
-            ///
-
+            if (_resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready))
+            {
+                Agent.Send(Hub.Instruction.BucketScope.SetBucketFix.Create(_jobConfirmation.Job.Key, _jobConfirmation.Job.HubAgent));
+                _resourceSetupStates.ForEach(x =>
+                {
+                    Resource.Instruction.BucketScope.DoSetup.Create(_jobConfirmation.Key, x.Key);
+                    x.Value.CurrentState = JobState.InProcess;
+                });
+                CreateSetupKpi();
+            }
         }
 
         /// <summary>
         /// Resource sent message as soon as the resource want to start with processing - only processing actors are required for this step
         /// </summary>
-        private void RequestJobStart()
+        private void RequestProcessingStart()
         {
             // trigger with JobState ?! --> parameter JobState entscheidet darüber, für welche Phasen angefragt werden soll? -- Konsistenz? 
-            var requestingResource = _resourceStates.Single(x => x.Key == Agent.Sender);
-            requestingResource.Value.CurrentState = JobState.InProcess;
+            var requestingResource = _resourceProcessingStates.Single(x => x.Key.Equals(Agent.Sender));
+            requestingResource.Value.CurrentState = JobState.Ready;
 
-            foreach(var setup in _jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.UsedInProcess == true))
-            {
-                var resourceRef = setup.Resource.IResourceRef as IActorRef;
-                //  skip if resource has already called finished
-                var resourceState = _resourceStates.Single(x => x.Key == resourceRef);
-                if (resourceState.Value.Equals(JobState.InProcess))
-                    continue;
-                Agent.Send(Resource.Instruction.BucketScope.ForceJob.Create(GetJobKey(), resourceRef));
-            }
-
-            //dictionary als type mit methode allin Process --> send to all start --> unterscheidung setup und process?
-            //Vielleicht nur doProcess? eigentlich müssen für das setup erstmal nur die setupresourcen zur Verfügung stehen
-            // zum do process dann nur die operations resources
-
-            if(_resourceStates.Count(x => x.Value.Equals(JobState.InProcess)) == _jobConfirmation.CapabilityProvider.ResourceSetups.Count(x => x.UsedInProcess == true))
-            {
-                foreach (var setup in _jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.UsedInProcess == true))
-                {
-                    Agent.Send(Resource.Instruction.BucketScope.DoSetup.Create(GetJobKey(), setup.Resource.IResourceRef as IActorRef));
-                }
-            }
+            TryToSetBucketFix();
         }
 
-        private void LockJob(FJobConfirmation jobConfirmation)
+        private void FinishSetup()
         {
-            foreach (var setups in _jobConfirmation.CapabilityProvider.ResourceSetups)
+            
+            var requestingResource = _resourceSetupStates.Single(x => x.Key == Agent.Sender);
+            requestingResource.Value.CurrentState = JobState.Finish;
+            TryToSetBucketFix();
+        }
+        private void TryToSetBucketFix()
+        {
+            if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))
             {
-                var resourceRef = setups.Resource.IResourceRef as IActorRef;
-                Agent.Send(Resource.Instruction.BucketScope.AcknowledgeJob.Create(jobConfirmation, resourceRef));
-                var requestingResource = _resourceStates.Single(x => x.Key == Agent.Sender);
-                requestingResource.Value.CurrentState = JobState.InProcessingQueue;
-            }
-            if (jobConfirmation.IsReset)
-            {
-                Terminate();
+                Agent.Send(Hub.Instruction.BucketScope.RequestFinalBucket.Create(_jobConfirmation.Job.Key, _jobConfirmation.Job.HubAgent));
             }
         }
+
+        private void DoWork(FJobConfirmation jobConfirmation)
+        {
+            _jobConfirmation = jobConfirmation;
+            _resourceProcessingStates.ForEach(x =>
+            {
+                Agent.Send(Resource.Instruction.Default.DoWork.Create(jobConfirmation.Job, x.Key));
+                x.Value.CurrentState = JobState.InProcess;
+            });
+        }
+
 
         private void AcknowledgeJob(FJobResourceConfirmation fJobResourceConfirmation)
         {
@@ -134,41 +136,13 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             _resourceProcessingStates.Clear();
 
             Agent.DebugMessage($"Acknowledge Proposal {GetJobKey()}");
-            var setupKey = Guid.NewGuid();
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
-                foreach( var scope in resourceScope.Value.Scopes)
-                {
-                    var resourceRef = resourceScope.Key;
-                    switch (scope)
-                    {
-                        case FProcessingSlot ps: 
-                            _resourceProcessingStates.Add(resourceRef, new StateHandle(JobState.InQueue));
-                            var pscopelist = new List<ITimeRange>() { ps };
-                            var pscopeConfirmation = new FScopeConfirmation(ListModule.OfSeq(pscopelist));
-                            //FJobConfirmation
-                            var jobConfirmation= _jobConfirmation.UpdateScopeConfirmation(pscopeConfirmation);
-                            Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
-                                        .Create(jobConfirmation // DANGER - TO TEST
-                                            , target: resourceRef));
-                            break;
-                        case FSetupSlot fs: 
-                            _resourceSetupStates.Add(resourceRef, new StateHandle(JobState.InQueue));
-                            var scopelist = new List<ITimeRange>() { fs };
-                            var scopeConfirmation = new FScopeConfirmation(ListModule.OfSeq(scopelist));
-                            var setupConfirmation = Convert.ChangeType(value: _jobConfirmation.UpdateScopeConfirmationAndKey(scopeConfirmation, setupKey)
-                                                                       ,conversionType: typeof(FSetupConfirmation));
-                            Agent.Send(instruction: Resource.Instruction.Default.AcknowledgeProposal
-                                        .Create((IConfirmation)setupConfirmation // DANGER - TO TEST
-                                            , target: resourceRef));
-                            break; 
-                        default:
-                            throw new Exception("Typemismatch on FScopeSlot");
-                    }
-                    Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} on resource {resourceRef.Path.Name}" +
-                                            $" with scope confirmation for {resourceScope.Value.GetScopeStart()} to {resourceScope.Value.GetScopeEnd()}"
+                var resourceRef = resourceScope.Key;
+                Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} on resource {resourceRef.Path.Name}" +
+                                        $" with scope confirmation for {resourceScope.Value.GetScopeStart()} to {resourceScope.Value.GetScopeEnd()}"
                                             , CustomLogger.PROPOSAL, LogLevel.Warn);
-                }
+                    Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(_jobConfirmation, target: resourceRef));
             }
         }
 
@@ -182,6 +156,22 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             Agent.DebugMessage($"Bucket {_jobConfirmation.Job.Name} is terminated!", CustomLogger.JOB, LogLevel.Warn);
             this.Agent.TryToFinish();
+        }
+
+        private void CreateSetupKpi()
+        {
+            var setupDuration = _jobConfirmation.Job.RequiredCapability
+                .ResourceCapabilityProvider.Sum(s =>
+                    s.ResourceSetups.Sum(d =>
+                        d.SetupTime));
+            var pubSetup = new FCreateSimulationResourceSetup(
+                                    expectedDuration: setupDuration,
+                                    duration: setupDuration,
+                                    start: Agent.CurrentTime,
+                                    resource: Agent.Name,
+                                    capabilityName: _jobConfirmation.Job.RequiredCapability.Name,
+                                    setupId: _jobConfirmation.Job.RequiredCapability.Id);
+            Agent.Context.System.EventStream.Publish(@event: pubSetup);
         }
     }
 }

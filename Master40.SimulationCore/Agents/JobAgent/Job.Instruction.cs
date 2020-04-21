@@ -1,11 +1,9 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using static FArticles;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
-using static FStockReservations;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.JobAgent
 {
@@ -37,37 +35,38 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 public FJobResourceConfirmation GetObjectFromMessage { get => Message as FJobResourceConfirmation; }
             }
 
-            public class LockJob : SimulationMessage
+            public class FinalBucket : SimulationMessage
             {
-                public static LockJob Create(FJobConfirmation message, IActorRef target)
+                public static FinalBucket Create(FJobConfirmation job, IActorRef target)
                 {
-                    return new LockJob(message: message, target: target);
+                    return new FinalBucket(job, target: target);
                 }
-                private LockJob(object message, IActorRef target) : base(message: message, target: target)
-                { }
+                private FinalBucket(FJobConfirmation job, IActorRef target) : base(message: job, target: target)
+                {
+                }
                 public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
             }
 
-            public class RequestJobStart : SimulationMessage
+            public class FinishSetup : SimulationMessage
             {
-                public static RequestJobStart Create(IActorRef target)
+                public static FinishSetup Create(IActorRef target)
                 {
-                    return new RequestJobStart(target: target);
+                    return new FinishSetup(message: null, target: target);
                 }
-                private RequestJobStart(IActorRef target) : base(message: null, target: target)
+                private FinishSetup(object message, IActorRef target) : base(message: message, target: target)
                 { }
             }
 
-            public class StartProcessing : SimulationMessage
+            public class RequestProcessingStart : SimulationMessage
             {
-                public static StartProcessing Create(IActorRef target)
+                public static RequestProcessingStart Create(IActorRef target)
                 {
-                    return new StartProcessing(target: target);
+                    return new RequestProcessingStart(target: target);
                 }
-                private StartProcessing(IActorRef target) : base(message: null, target: target)
+                private RequestProcessingStart(IActorRef target) : base(message: null, target: target)
                 { }
             }
-
+            
             public class RequestSetupStart : SimulationMessage
             {
                 public static RequestSetupStart Create(IActorRef target)
@@ -126,8 +125,6 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 {
                 }
             }
-            
-
         }
     }
 }

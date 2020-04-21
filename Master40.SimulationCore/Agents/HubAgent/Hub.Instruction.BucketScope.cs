@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
+using static FOperations;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -28,10 +29,23 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                     }
 
-                    public Guid GetObjectFromMessage
+                    public Guid GetObjectFromMessage => (Guid) Message;
+                }
+
+                public class RequestFinalBucket : SimulationMessage
+                {
+                    public static RequestFinalBucket Create(Guid key, IActorRef target)
                     {
-                        get => (Guid) Message;
+                        return new RequestFinalBucket(message: key, target: target);
                     }
+
+                    private RequestFinalBucket(object message, IActorRef target) : base(message: message,
+                        target: target)
+                    {
+
+                    }
+
+                    public Guid GetObjectFromMessage => (Guid) Message;
                 }
 
                 public class EnqueueOperation : SimulationMessage
@@ -46,10 +60,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                     }
 
-                    public FOperations.FOperation GetObjectFromMessage
-                    {
-                        get => Message as FOperations.FOperation;
-                    }
+                    public FOperation GetObjectFromMessage => Message as FOperation;
                 }
 
                 public class EnqueueBucket : SimulationMessage
@@ -61,13 +72,9 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                     private EnqueueBucket(object message, IActorRef target) : base(message: message, target: target)
                     {
-
                     }
 
-                    public Guid GetObjectFromMessage
-                    {
-                        get => (Guid) Message;
-                    }
+                    public Guid GetObjectFromMessage => (Guid) Message;
                 }
 
                 public class ResponseRequeueBucket : SimulationMessage
@@ -89,27 +96,7 @@ namespace Master40.SimulationCore.Agents.HubAgent
                         get => Message as FRequestToRequeues.FRequestToRequeue;
                     }
                 }
-
-
-                public class FinishBucket : SimulationMessage
-                {
-                    public static FinishBucket Create(IJobResults.IJobResult jobResult, IActorRef target)
-                    {
-                        return new FinishBucket(message: jobResult, target: target);
-                    }
-
-                    private FinishBucket(object message, IActorRef target) : base(message: message, target: target)
-                    {
-
-                    }
-
-                    public IJobResults.IJobResult GetObjectFromMessage
-                    {
-                        get => Message as IJobResults.IJobResult;
-                    }
-                }
             }
-
         }
     }
 }

@@ -204,7 +204,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (_planingQueue.UpdatePreCondition(startCondition: startCondition))
             {
                 UpdateProcessingQueue();
-                TryToWork();
             }
 
         }

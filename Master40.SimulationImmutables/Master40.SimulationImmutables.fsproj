@@ -27,6 +27,7 @@
     <Compile Include="Message\FArticle.fs" />
     <Compile Include="Message\FProductionResults.fs" />
 	  <Compile Include="Message\FBucket.fs" />
+    <Compile Include="Message\FSetup.fs" />
     <Compile Include="Message\FRequestToRequeues.fs" />
     <Compile Include="Message\FBucketResults.fs" />
     <Compile Include="Message\FRequestResource.fs" />

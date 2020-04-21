@@ -12,7 +12,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
     public class JobInProgress
     {
-        public FJobConfirmation Current { get; private set; }
+        public IConfirmation Current { get; private set; }
         public long StartTime { get; private set; }
         public long ResourceIsBusyUntil { get; set; } = 0;
         public bool IsSet => Current != null;
@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (IsSet)
                 return false;
             Current = jobConfirmation;
-            ResourceIsBusyUntil = currentTime + jobConfirmation.Job.Duration;
+            ResourceIsBusyUntil = jobConfirmation.ScopeConfirmation.GetScopeEnd();
             StartTime = currentTime;
             return true;
         }

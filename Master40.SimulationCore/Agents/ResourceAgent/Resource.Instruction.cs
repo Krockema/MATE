@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
+using System.Collections.Generic;
 using static FAgentInformations;
 using static FBuckets;
 using static FJobConfirmations;
@@ -8,6 +9,7 @@ using static FRequestProposalForCapabilityProviders;
 using static FRequestToRequeues;
 using static IConfirmations;
 using static IJobResults;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -53,15 +55,29 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
                 }
 
+                public class AcceptedProposals : SimulationMessage
+                {
+                    public static AcceptedProposals Create(IConfirmation message, IActorRef target)
+                    {
+                        return new AcceptedProposals(message: message, target: target);
+                    }
+                    private AcceptedProposals(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
+                }
+
+
                 public class DoWork : SimulationMessage
                 {
-                    public static DoWork Create(object message, IActorRef target)
+                    public static DoWork Create(IJob message, IActorRef target)
                     {
                         return new DoWork(message: message, target: target);
                     }
-                    private DoWork(object message, IActorRef target) : base(message: message, target: target)
+                    private DoWork(IJob message, IActorRef target) : base(message: message, target: target)
                     {
                     }
+                    public IJob GetObjectFromMessage { get => Message as IJob; }
                 }
 
                 public class RevokeJob : SimulationMessage
@@ -75,20 +91,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
-
-                public class TryToSetInProcessing : SimulationMessage
-                {
-                    public static TryToSetInProcessing Create(Guid message, IActorRef target)
-                    {
-                        return new TryToSetInProcessing(message: message, target: target);
-                    }
-                    private TryToSetInProcessing(object message, IActorRef target) : base(message: message, target: target)
-                    {
-                    }
-                    public Guid GetObjectFromMessage { get => (Guid)Message; }
-                }
-
-
             }
 
             public class BucketScope

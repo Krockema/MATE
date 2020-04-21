@@ -53,7 +53,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public void Replace(FBucket bucket)
         {
-            _jobConfirmations.SingleOrDefault(x => x.Job.Key == bucket.Key).Job = bucket;
+            _jobConfirmations.Single(x => x.Job.Key == bucket.Key).Job = bucket;
         }
 
         /// <summary>

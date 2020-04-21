@@ -9,6 +9,7 @@ using static FJobConfirmations;
 using static FPostponeds;
 using static FProposals;
 using static FRequestProposalForCapabilityProviders;
+using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -92,7 +93,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
-        internal override void UpdateAndRequeuePlanedJobs(FJobConfirmation jobConfirmation)
+        internal override void UpdateAndRequeuePlanedJobs(IConfirmation jobConfirmation)
         {
             Agent.DebugMessage(msg: "Old planning queue length = " + _planingQueue.Count);
             var toRequeue = _planingQueue.CutTailByStack(currentTime: Agent.CurrentTime, jobConfirmation);

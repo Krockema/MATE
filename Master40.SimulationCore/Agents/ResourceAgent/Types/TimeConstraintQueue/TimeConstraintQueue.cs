@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FBuckets;
-using static FJobConfirmations;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 using static FScopes;
@@ -17,7 +16,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
     public class TimeConstraintQueue : SortedList<long, IConfirmation>, IJobQueue
     {
         public int Limit { get; set; }
-
+        
         public TimeConstraintQueue(int limit)
         {
             Limit = limit;
@@ -25,17 +24,29 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
-            var bucket = GetFirstSatisfied(currentTime);
-            this.Remove(bucket.Key);
-            return bucket.Value;
+            var (key, value) = GetFirstSatisfied(currentTime);
+            this.Remove(key);
+            return value;
         }
 
+        public IConfirmation DequeueFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        {
+            var (key, confirmation) = GetFirst();
+            if (confirmation != null && confirmation.Job.StartConditions.Satisfied)
+            {
+                this.Remove(key);
+                return confirmation;
+            }
+            return null;
+        }
+        public KeyValuePair<long, IConfirmation> GetFirst()
+        {
+            var bucket = this.FirstOrDefault();
+            return bucket;
+        }
         public void Enqueue(IConfirmation jobConfirmation)
         {
-            foreach(var scope in jobConfirmation.ScopeConfirmation.Scopes)
-            {
-                this.Add(scope.Start, jobConfirmation);
-            }
+            this.Add(jobConfirmation.ScopeConfirmation.GetScopeStart(), jobConfirmation);
         }
 
         public KeyValuePair<long, IConfirmation> GetFirstSatisfied(long currentTime)
@@ -51,15 +62,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public bool HasQueueAbleJobs()
         {
-            var hasSatisfiedJob = false;
-            foreach (var job in this.Values)
-            {
-                if (((FBucket)job.Job).HasSatisfiedJob)
-                {
-                    hasSatisfiedJob = true;
-                }
-            }
-            return hasSatisfiedJob;
+            return this.Values.Any(job => ((FBucket) job.Job).HasSatisfiedJob);
         }
 
         public IEnumerable<T> GetJobsAs<T>()
@@ -222,23 +225,22 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Count > 0 ? this.Values.First() : null;
         }
 
-        public bool CheckScope(IConfirmation fJobConfirmation, long time)
+        public bool CheckScope(IConfirmation confirmation, long time)
         {
-            var jobPriority = fJobConfirmation.Job.Priority(time);
-            var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(time) <= jobPriority);
-            var scopeConfirmation = fJobConfirmation.ScopeConfirmation;
+            var priority = confirmation.Job.Priority(time);
+            var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(time) <= priority);
             var fitEnd = true;
             var fitStart = true;
             var pre = allWithLowerPriority.OrderByDescending(x => x.Key)
-                                                                      .FirstOrDefault(x => x.Key <= scopeConfirmation.GetScopeStart());
-            var post = allWithLowerPriority.FirstOrDefault(x => x.Key > scopeConfirmation.GetScopeStart());
+                                                                      .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
+            var post = allWithLowerPriority.FirstOrDefault(x => x.Key > confirmation.ScopeConfirmation.GetScopeEnd());
 
             if (pre.Value == null)
                 return true;
 
-            fitStart = pre.Value.ScopeConfirmation.GetScopeEnd() <= scopeConfirmation.GetScopeStart();
+            fitStart = pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
             if (post.Value != null)
-                  fitEnd = post.Key > scopeConfirmation.GetScopeEnd();
+                  fitEnd = post.Key > confirmation.ScopeConfirmation.GetScopeEnd();
 
             return fitStart && fitEnd;
         }
