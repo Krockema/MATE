@@ -18,11 +18,13 @@
         Created,
         ToDissolve,
         InQueue,
-        Requeue,
+        Revoked,
+        RevokeStarted,
         Ready,
         InProcess,
         InSetup,
         Finish
+
     }
 
     public enum ProducingState

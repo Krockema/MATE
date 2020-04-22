@@ -24,6 +24,16 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
+            public class AcknowledgeRevoke : SimulationMessage
+            {
+                public static AcknowledgeRevoke Create(IActorRef target)
+                {
+                    return new AcknowledgeRevoke(target: target);
+                }
+                private AcknowledgeRevoke(IActorRef target) : base(message: null, target: target)
+                { }
+            }
+
             public class RequestDissolve : SimulationMessage
             {
                 public static RequestDissolve Create(IActorRef target)
@@ -34,16 +44,6 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
-            public class AcknowledgeDissolve : SimulationMessage
-            {
-                public static AcknowledgeDissolve Create(IActorRef target)
-                {
-                    return new AcknowledgeDissolve(target: target);
-                }
-                private AcknowledgeDissolve(IActorRef target) : base(message: null, target: target)
-                { }
-            }
-            
 
             public class AcknowledgeJob : SimulationMessage
             {
@@ -118,32 +118,6 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
-            public class WithdrawArticleFromStock : SimulationMessage
-            {
-                public static WithdrawArticleFromStock Create(object message, IActorRef target)
-                {
-                    return new WithdrawArticleFromStock(message: message, target: target);
-                }
-                private WithdrawArticleFromStock(object message, IActorRef target) : base(message: message, target: target)
-                {
-
-                }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
-
-            }
-
-            public class AcceptAcknowledgeResponseFromResource : SimulationMessage
-            {
-                public static AcceptAcknowledgeResponseFromResource Create(IActorRef target)
-                {
-                    return new AcceptAcknowledgeResponseFromResource(target: target);
-                }
-                private AcceptAcknowledgeResponseFromResource(IActorRef target) : base(message: null, target: target)
-                {
-
-                }
-
-            }
 
             public class RejectAcknowledgeResponseFromResource : SimulationMessage
             {

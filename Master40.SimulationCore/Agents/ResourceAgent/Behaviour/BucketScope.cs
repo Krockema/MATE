@@ -64,7 +64,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void RevokeJob(Guid jobKey)
         {
-            Agent.Send(instruction: Job.Instruction.AcknowledgeDissolve.Create(_jobInProgress.Current.JobAgentRef));
+            Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(_jobInProgress.Current.JobAgentRef));
 
             if (_jobInProgress.Current.Job.Key.Equals(jobKey))
             {
@@ -132,7 +132,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (!isQueueAble)
             {
                 Agent.DebugMessage(msg: $"Reject proposal for: {jobConfirmation.Job.Name} {jobConfirmation.Key} with jobPrio: { jobConfirmation.Job.Priority(Agent.CurrentTime) } and send reject job to job agent", CustomLogger.PROPOSAL, LogLevel.Warn);
-                Agent.Send(instruction: Job.Instruction.RejectAcknowledgeResponseFromResource.Create(target: jobConfirmation.JobAgentRef));
+                Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: jobConfirmation.JobAgentRef));
                 return;
             }
 
