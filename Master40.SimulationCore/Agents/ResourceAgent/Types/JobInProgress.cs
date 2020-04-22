@@ -16,6 +16,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public long StartTime { get; private set; }
         public long ResourceIsBusyUntil { get; set; } = 0;
         public bool IsSet => Current != null;
+        public bool IsWorking {get; set; } = false;
         public void SetStartTime(long time) => StartTime = time;
         public int SetupId => Current.CapabilityProvider.Id;
         public string RequiredCapabilityName => Current.Job.RequiredCapability.Name;
@@ -33,6 +34,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public void Reset()
         {
             Current = null;
+            IsWorking = false;
             ResourceIsBusyUntil = 0;
             
         }

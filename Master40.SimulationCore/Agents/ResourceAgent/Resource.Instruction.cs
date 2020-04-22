@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using static FAgentInformations;
 using static FBuckets;
 using static FJobConfirmations;
+using static FOperations;
 using static FRequestProposalForCapabilityProviders;
 using static FRequestToRequeues;
 using static IConfirmations;
@@ -70,14 +71,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class DoWork : SimulationMessage
                 {
-                    public static DoWork Create(IJob message, IActorRef target)
+                    public static DoWork Create(FOperation message, IActorRef target)
                     {
                         return new DoWork(message: message, target: target);
                     }
-                    private DoWork(IJob message, IActorRef target) : base(message: message, target: target)
+                    private DoWork(FOperation message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public IJob GetObjectFromMessage { get => Message as IJob; }
+                    public FOperation GetObjectFromMessage { get => (FOperation)Message; }
                 }
 
                 public class RevokeJob : SimulationMessage
@@ -123,14 +124,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class FinishBucket : SimulationMessage
                 {
-                    public static FinishBucket Create(IJobResult message, IActorRef target)
+                    public static FinishBucket Create(IActorRef target)
                     {
-                        return new FinishBucket(message: message, target: target);
+                        return new FinishBucket(target: target);
                     }
-                    private FinishBucket(object message, IActorRef target) : base(message: message, target: target)
+                    private FinishBucket(IActorRef target) : base(message: null, target: target)
                     {
                     }
-                    public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
                 }
 
                 public class AskToRequeue : SimulationMessage

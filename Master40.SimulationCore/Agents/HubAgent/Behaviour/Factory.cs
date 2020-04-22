@@ -1,11 +1,12 @@
 ﻿using Master40.DB.Nominal;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType, long maxBucketSize)
+        public static IBehaviour Get(SimulationType simType, long maxBucketSize, WorkTimeGenerator workTimeGenerator)
         {
             IBehaviour behaviour;
             switch (simType)
@@ -17,7 +18,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     behaviour = DefaultSetup();
                     break;
                 case SimulationType.BucketScope:
-                    behaviour = BucketScope(maxBucketSize);
+                    behaviour = BucketScope(maxBucketSize, workTimeGenerator);
                     break;
                 default:
                     behaviour =  DefaultSetup();
@@ -32,9 +33,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return new DefaultSetup();
         }
 
-        private static IBehaviour BucketScope(long maxBucketSize)
+        private static IBehaviour BucketScope(long maxBucketSize, WorkTimeGenerator workTimeGenerator)
         {
-            return new BucketScope(maxBucketSize: maxBucketSize);
+            return new BucketScope(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
 
     }

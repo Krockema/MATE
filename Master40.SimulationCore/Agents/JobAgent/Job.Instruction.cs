@@ -57,6 +57,16 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
+            public class FinishProcessing : SimulationMessage
+            {
+                public static FinishProcessing Create(IActorRef target)
+                {
+                    return new FinishProcessing(message: null, target: target);
+                }
+                private FinishProcessing(object message, IActorRef target) : base(message: message, target: target)
+                { }
+            }
+
             public class RequestProcessingStart : SimulationMessage
             {
                 public static RequestProcessingStart Create(IActorRef target)
@@ -66,7 +76,17 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 private RequestProcessingStart(IActorRef target) : base(message: null, target: target)
                 { }
             }
-            
+
+            public class BucketIsFixed : SimulationMessage
+            {
+                public static BucketIsFixed Create(IActorRef target)
+                {
+                    return new BucketIsFixed(target: target);
+                }
+                private BucketIsFixed(IActorRef target) : base(message: null, target: target)
+                { }
+            }
+
             public class RequestSetupStart : SimulationMessage
             {
                 public static RequestSetupStart Create(IActorRef target)

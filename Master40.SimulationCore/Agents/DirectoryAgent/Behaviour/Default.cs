@@ -58,6 +58,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                         , time: Agent.CurrentTime
                         , simtype: SimulationType
                         , maxBucketSize: capabilityDefinition.MaxBucketSize
+                        , workTimeGenerator: capabilityDefinition.WorkTimeGenerator as WorkTimeGenerator
                         , debug: Agent.DebugThis
                         , principal: Agent.Context.Self)
                     , name: "Hub(" + capability.Name + ")");

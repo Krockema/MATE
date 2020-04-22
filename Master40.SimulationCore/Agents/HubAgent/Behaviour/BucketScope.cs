@@ -1,41 +1,39 @@
 ﻿using Akka.Actor;
+using Akka.Util.Internal;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types;
+using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Helper;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Util.Internal;
-using Master40.SimulationCore.Agents.JobAgent;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Master40.SimulationCore.Helper.DistributionProvider;
 using static FBuckets;
+using static FJobResourceConfirmations;
 using static FOperations;
 using static FProposals;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
-using static FUpdateStartConditions;
-using static IJobResults;
-using static IJobs;
 using static FScopeConfirmations;
-using Microsoft.FSharp.Collections;
-using Microsoft.VisualBasic;
-using static FJobResourceConfirmations;
-using static IConfirmations;
+using static FUpdateStartConditions;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
     public class BucketScope : DefaultSetup
     {
-        public BucketScope(long maxBucketSize, SimulationType simulationType = SimulationType.BucketScope)
+        public BucketScope(long maxBucketSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.BucketScope)
             : base(simulationType: simulationType)
         {
             _bucketManager = new BucketManager(maxBucketSize: maxBucketSize);
+            _workTimeGenerator = workTimeGenerator;
         }
         private List<FOperation> _unassigendOperations { get; } = new List<FOperation>();
-        private BucketManager _bucketManager { get; } 
+        private BucketManager _bucketManager { get; }
 
+        private WorkTimeGenerator _workTimeGenerator { get; }
         public override bool Action(object message)
         {
             var success = true;
@@ -46,7 +44,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
-                case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.RequestFinalBucket msg: SendFinalBucket(msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
@@ -64,6 +61,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             bucket = bucket.SetFixPlanned;
             _bucketManager.SetBucketSatisfied(bucket);
+
+            Agent.Send(Job.Instruction.BucketIsFixed.Create(Agent.Sender));
         }
 
         private void SendFinalBucket(Guid bucketKey)
@@ -72,7 +71,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = jobConfirmation.Job as FBucket;
 
             // Remove all Information from Hub
-            bucket.Operations.ForEach(operation => RemoveJobFromBucketManager(operation.Key));
+            bucket.Operations.ForEach(operation =>
+            {
+                operation.Operation.RandomizedDuration =
+                    _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration);
+                RemoveJobFromBucketManager(operation.Key);
+            });
             RemoveJobFromBucketManager(jobConfirmation.Job.Key);
 
             Agent.Send(Job.Instruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
@@ -135,7 +139,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             EnqueueBucket(jobConfirmation.Job.Key);
 
             //after creating new bucket, modify subsequent buckets
-            ModifyBucket(fOperation);
+            DissolveBucket(fOperation);
         }
         
         /// <summary>
@@ -146,31 +150,23 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// JobAgent Dissolves
         /// </summary>
         /// <param name="operation"></param>
-        private void Modify_SHOULD_BE_DESOLVE_Bucket(FOperation operation)
+        private void DissolveBucket(FOperation operation)
         {
-            var bucketsToModify = _bucketManager.FindAllBucketsLaterForwardStart(operation);
+            var bucketsToDissolve = _bucketManager.FindAllBucketsLaterForwardStart(operation);
 
-            if (bucketsToModify.Count > 0)
+            if (bucketsToDissolve.Count > 0)
             {
-                foreach (var modBucket in bucketsToModify)
+                foreach (var bucket in bucketsToDissolve)
                 {
-                    if (modBucket.IsConfirmed)
+                    if (bucket.IsConfirmed)
                     {
-                        //Send to first resource
-                        foreach(var setup in modBucket.CapabilityProvider.ResourceSetups)
-                        {
-                            if (setup.Resource.IResourceRef == null) continue;
-                            
-                            Agent.Send(
-                            Resource.Instruction.BucketScope. // TODO: RequeueBucket --> send to JobAgent
-                                .Create(modBucket.Job.Key, setup.Resource.IResourceRef as IActorRef));
 
-                        }
+                        Agent.Send(Job.Instruction.StartRequeue.Create(bucket.JobAgentRef));
                         
                     }
                     else
                     {
-                        ResetBucket(modBucket.Job.Key);
+                        ResetBucket(bucket.Job.Key);
                     }
 
                 }

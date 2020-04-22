@@ -131,16 +131,21 @@ namespace Master40.SimulationCore
 
         private void CreateHubAgents(IActorRef directory, Configuration configuration)
         {
+           
             var capabilities = _dBContext.ResourceCapabilities.Where(x => x.ParentResourceCapabilityId == null).ToList();
-            foreach (var capability in capabilities)
+            for (var index = 0; index < capabilities.Count; index++)
             {
+                WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration, index);
+                var capability = capabilities[index];
                 GetCapabilitiesRecursive(capability);
-                var hubInfo = new FResourceHubInformations.FResourceHubInformation(capability: capability, configuration.GetOption<MaxBucketSize>().Value);
+
+                var hubInfo = new FResourceHubInformations.FResourceHubInformation(capability: capability
+                                                                           ,workTimeGenerator: randomWorkTime
+                                                                              , maxBucketSize: configuration.GetOption<MaxBucketSize>().Value);
                 _simulation.SimulationContext.Tell(
                     message: Directory.Instruction.CreateResourceHubAgents.Create(hubInfo, directory),
                     sender: ActorRefs.NoSender);
             }
-            
         }
 
         private void GetCapabilitiesRecursive(M_ResourceCapability capability)

@@ -32,7 +32,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.Default.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
-                case BasicInstruction.FinishJob msg: FinishJob(jobResult: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(resourceInformation: msg.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown msg: ResourceBreakDown(breakDown: msg.GetObjectFromMessage); break;
                 default: return false;
@@ -167,15 +166,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
                                                     .Create(message: operation.Key
                                                            , target: operation.ProductionAgent));
-        }
-
-        internal virtual void FinishJob(IJobResult jobResult)
-        {
-            var operation = _operations.GetJobBy(jobResult.Key) as FOperation;
-
-            Agent.DebugMessage(msg: $"Resource called Item {operation.Operation.Name} {jobResult.Key} finished.");
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: operation.ProductionAgent));
-            _operations.RemoveWhere(x => x.Job.Key == operation.Key);
         }
 
         internal virtual void AddResourceToHub(FResourceInformation resourceInformation)

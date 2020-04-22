@@ -238,7 +238,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                       , end: Agent.CurrentTime + randomizedDuration
                                          , originalDuration: nextJobInProgress.Job.Duration
                                           , productionAgent: ((FOperation)nextJobInProgress.Job).ProductionAgent
-                                            , resourceAgent: Agent.Context.Self);
+                                       , capabilityProvider: nextJobInProgress.CapabilityProvider.Name);
 
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedDuration);
 

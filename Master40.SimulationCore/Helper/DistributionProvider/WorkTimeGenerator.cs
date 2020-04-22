@@ -7,10 +7,10 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
 {
     public class WorkTimeGenerator
     {
-        public static WorkTimeGenerator Create(Configuration configuration)
+        public static WorkTimeGenerator Create(Configuration configuration, int salt = 0)
         {
             return new WorkTimeGenerator(
-                seed: configuration.GetOption<Seed>().Value
+                seed: configuration.GetOption<Seed>().Value + salt
                 , deviation: configuration.GetOption<WorkTimeDeviation>().Value
                 , simNumber: configuration.GetOption<SimulationNumber>().Value);
         }
