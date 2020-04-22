@@ -11,11 +11,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// 
         /// </summary>
         /// <param name="resourceSetups"></param>
-        public void Add(CapabilityDefinition capabilityDefinition)
-        {
-            _capabilityDefinitions.Add(capabilityDefinition);
-        }
-
+      
         public CapabilityDefinition GetResourcesByCapability(M_ResourceCapability resourceCapability)
         {
             return _capabilityDefinitions.Single(x => x.HasCapability(resourceCapability));

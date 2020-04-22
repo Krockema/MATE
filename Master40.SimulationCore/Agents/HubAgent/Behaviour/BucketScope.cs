@@ -32,7 +32,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
         private List<FOperation> _unassigendOperations { get; } = new List<FOperation>();
         private BucketManager _bucketManager { get; }
-
         private WorkTimeGenerator _workTimeGenerator { get; }
         public override bool Action(object message)
         {
