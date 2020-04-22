@@ -24,6 +24,27 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
+            public class RequestDissolve : SimulationMessage
+            {
+                public static RequestDissolve Create(IActorRef target)
+                {
+                    return new RequestDissolve(target: target);
+                }
+                private RequestDissolve(IActorRef target) : base(message: null, target: target)
+                { }
+            }
+
+            public class AcknowledgeDissolve : SimulationMessage
+            {
+                public static AcknowledgeDissolve Create(IActorRef target)
+                {
+                    return new AcknowledgeDissolve(target: target);
+                }
+                private AcknowledgeDissolve(IActorRef target) : base(message: null, target: target)
+                { }
+            }
+            
+
             public class AcknowledgeJob : SimulationMessage
             {
                 public static AcknowledgeJob Create(FJobResourceConfirmation message,IActorRef target)

@@ -15,10 +15,13 @@
 
     public enum JobState
     {
+        Created,
+        ToDissolve,
         InQueue,
         Requeue,
         Ready,
         InProcess,
+        InSetup,
         Finish
     }
 

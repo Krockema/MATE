@@ -43,8 +43,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 //case Hub.Instruction.BucketScope.EnqueueOperation msg: EnqueueOperation(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
-                case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.RequestFinalBucket msg: SendFinalBucket(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.BucketScope.DissolveBucket msg: DissolveBucket(msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
                     break;
@@ -82,7 +82,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(Job.Instruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
         }
 
-        private void ResetBucket(Guid bucketKey)
+        private void DissolveBucket(Guid bucketKey)
         {
             var bucket = _bucketManager.GetBucketByBucketKey(bucketKey);
 
@@ -139,7 +139,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             EnqueueBucket(jobConfirmation.Job.Key);
 
             //after creating new bucket, modify subsequent buckets
-            DissolveBucket(fOperation);
+            RequestDissolveBucket(fOperation);
         }
         
         /// <summary>
@@ -150,7 +150,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// JobAgent Dissolves
         /// </summary>
         /// <param name="operation"></param>
-        private void DissolveBucket(FOperation operation)
+        private void RequestDissolveBucket(FOperation operation)
         {
             var bucketsToDissolve = _bucketManager.FindAllBucketsLaterForwardStart(operation);
 
@@ -161,12 +161,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     if (bucket.IsConfirmed)
                     {
 
-                        Agent.Send(Job.Instruction.StartRequeue.Create(bucket.JobAgentRef));
+                        Agent.Send(Job.Instruction.RequestDissolve.Create(bucket.JobAgentRef));
                         
                     }
                     else
                     {
-                        ResetBucket(bucket.Job.Key);
+                        DissolveBucket(bucket.Job.Key);
                     }
 
                 }
@@ -330,18 +330,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
             
         }
-
-        internal override void WithdrawRequiredArticles(Guid operationKey)
-        {
-            var operation = _bucketManager.GetOperationByOperationKey(operationKey);
-            if (operation == null)
-                throw new Exception("operation was not found in bucketManager ");
-            Agent.DebugMessage($"WithdrawRequiredArticles for operation {operation.Operation.Name} {operationKey} on {Agent.Context.Self.Path.Name}");
-            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
-            .Create(message: operation.Key
-                , target: operation.ProductionAgent));
-        }
-
+        
         internal void RequeueOperations(List<FOperation> operations)
         {
             foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())

@@ -8,6 +8,7 @@ using Master40.SimulationCore.Helper;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using static FBucketResults;
 using static FBuckets;
@@ -40,31 +41,111 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             _jobConfirmation = jobConfirmation;
             _resourceProcessingStates = new Dictionary<IActorRef, StateHandle>();
             _resourceSetupStates = new Dictionary<IActorRef, StateHandle>();
+            _resourceDistinctResourceStates = new Dictionary<IActorRef, StateHandle>();
+            _currentJobState = JobState.Created;
+
         }
 
         private FJobConfirmation _jobConfirmation { get; set; }
         private Guid GetJobKey() => _jobConfirmation.Job.Key;
         private Dictionary<IActorRef, StateHandle> _resourceProcessingStates { get; set; }
         private Dictionary<IActorRef, StateHandle> _resourceSetupStates { get; set; }
+        private Dictionary<IActorRef, StateHandle> _resourceDistinctResourceStates { get; set; }
+
+
         private IEnumerator<FOperation> _currentOperation { get; set;}
         private long _processingStart { get; set; }
+        private JobState _currentJobState { get; set; }
 
         public override bool Action(object message)
         {
             switch (message)
             {
                 case Job.Instruction.TerminateJob msg: Terminate(); break;
+                case Job.Instruction.RequestDissolve msg: RequestDissolve(); break;
+                case Job.Instruction.AcknowledgeDissolve msg: AcknowledgeDissolve(); break;
                 case Job.Instruction.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.RequestSetupStart msg: RequestSetupStart(); break;
                 case Job.Instruction.RequestProcessingStart msg: RequestProcessingStart(); break;
                 case Job.Instruction.FinishSetup msg: FinishSetup(); break;
                 case Job.Instruction.FinishProcessing msg: FinishProcessing(); break;
-                case Job.Instruction.FinalBucket msg: FinalizeBucket(msg.GetObjectFromMessage); break;
+                case Job.Instruction.BucketIsFixed msg: BucketIsFixed(); break;
+                case Job.Instruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
+                
                 // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
-                // case Job.Instruction.StartRequeue msg: StartRequeue(); break;
+                case Job.Instruction.StartRequeue msg: StartRequeue(); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void StartRequeue()
+        {
+            if (_currentJobState == JobState.Created)
+            {
+                _currentJobState = JobState.Requeue;
+
+                
+
+            }
+
+        }
+
+        private void AcknowledgeRequeue()
+        {
+
+            var resource = _resourceDistinctResourceStates.Single(x => x.Key.Equals(Agent.Sender));
+            resource.Value.CurrentState = JobState.Requeue;
+
+            if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.Requeue)))
+            {
+                Agent.Send(Hub.Instruction.BucketScope.EnqueueBucket.Create(_jobConfirmation.Key, target: _jobConfirmation.Job.HubAgent));
+
+            }
+        }
+
+
+        private void RequestDissolve()
+        {
+            if (_currentJobState == JobState.Created)
+            {
+                _currentJobState = JobState.ToDissolve;
+
+                foreach (var resource in resourceRefs)
+                {
+
+                    _resourceDistinctResourceStates.Add(resource, new StateHandle(JobState.Created));
+                    Agent.Send(Resource.Instruction.Default.RevokeJob.Create(_jobConfirmation.Key, target: resource));
+                }
+
+            }
+
+            //ignore request for dissolve
+        }
+
+        private void AcknowledgeDissolve()
+        {
+
+            var resource = _resourceDistinctResourceStates.Single(x => x.Key.Equals(Agent.Sender));
+            resource.Value.CurrentState = JobState.ToDissolve;
+
+            if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.ToDissolve)))
+            {
+                Agent.Send(Hub.Instruction.BucketScope.DissolveBucket.Create(_jobConfirmation.Key, target: _jobConfirmation.Job.HubAgent));
+
+                Terminate();
+            }
+
+        }
+
+        private void BucketIsFixed()
+        {
+            _resourceSetupStates.ForEach(x =>
+            {
+                Resource.Instruction.BucketScope.DoSetup.Create(_jobConfirmation.Key, x.Key);
+                x.Value.CurrentState = JobState.InProcess;
+            });
+            CreateSetupKpi();
         }
 
         /// <summary>
@@ -87,6 +168,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             //Clear all previous states
             _resourceSetupStates.Clear();
             _resourceProcessingStates.Clear();
+            _resourceDistinctResourceStates.Clear();
 
             Agent.DebugMessage($"Acknowledge Proposal {GetJobKey()}");
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
@@ -108,6 +190,13 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                     }
                 }
             }
+
+            var resourcesDistinct = _resourceProcessingStates.Select(x => x.Key).Union(_resourceSetupStates.Select(s => s.Key)).Distinct();
+
+            foreach (var resource in resourcesDistinct)
+            {
+                _resourceDistinctResourceStates.Add(resource, new StateHandle(JobState.Created));
+            }
         }
 
         /// <summary>
@@ -117,24 +206,19 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             // FOr Setup or for Processing ? 
 
-            var requestingResource = _resourceSetupStates.Single(x => x.Key == Agent.Sender);
+            var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(Agent.Sender));
             requestingResource.Value.CurrentState = JobState.Ready;
-
             if (_resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready)) 
             // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
             {
-                Agent.Send(Hub.Instruction.BucketScope.SetBucketFix.Create(_jobConfirmation.Job.Key, _jobConfirmation.Job.HubAgent));
+                _currentJobState = JobState.InSetup;
+                RequestToFixBucketOnHub();
             }
         }
 
-        private void BucketIsFixed()
+        private void RequestToFixBucketOnHub()
         {
-            _resourceSetupStates.ForEach(x =>
-            {
-                Resource.Instruction.BucketScope.DoSetup.Create(_jobConfirmation.Key, x.Key);
-                x.Value.CurrentState = JobState.InProcess;
-            });
-            CreateSetupKpi();
+            Agent.Send(Hub.Instruction.BucketScope.SetBucketFix.Create(_jobConfirmation.Job.Key, _jobConfirmation.Job.HubAgent));
         }
 
         /// <summary>
@@ -145,7 +229,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(Agent.Sender));
             requestingResource.Value.CurrentState = JobState.Finish;
-            TryToSetBucketFix();
+            RequestToFixBucketOnHub();
         }
 
         /// <summary>
@@ -157,7 +241,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             var requestingResource = _resourceProcessingStates.Single(x => x.Key.Equals(Agent.Sender));
             requestingResource.Value.CurrentState = JobState.Ready;
 
-            TryToSetBucketFix();
+            RequestFinalBucketFromHub();
         }
 
         private void FinishProcessing()
@@ -192,16 +276,16 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
 
 
-        private void TryToSetBucketFix()
+        private void RequestFinalBucketFromHub()
         {
             if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))
             {
+                _currentJobState = JobState.InProcess;
                 Agent.Send(Hub.Instruction.BucketScope.RequestFinalBucket.Create(_jobConfirmation.Job.Key, _jobConfirmation.Job.HubAgent));
             }
-
         }
 
-        private void FinalizeBucket(FJobConfirmation jobConfirmation)
+        private void FinalizedBucket(FJobConfirmation jobConfirmation)
         {
 
             _jobConfirmation = jobConfirmation;
@@ -239,7 +323,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
 
             Agent.DebugMessage(msg: $"Start withdraw for article {_currentOperation.Current.Operation.Name} {_currentOperation.Current.Key}");
-            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Current.Key, target: _currentOperation.Current.HubAgent));
+            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Current.Key, target: _currentOperation.Current.ProductionAgent));
 
             Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Current.Operation.Name}  Key: {_currentOperation.Current.Key} new Duration is {_currentOperation.Current.Operation.RandomizedDuration} " +
                                     $"from bucket {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} with {((FBucket)_jobConfirmation.Job).Operations.Count} operations " +
@@ -250,7 +334,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 Agent.Send(Resource.Instruction.Default.DoWork.Create( message: _currentOperation.Current
                                                                                 , target: x.Key));
                 x.Value.CurrentState = JobState.InProcess;
-
             });
         }
 
@@ -265,7 +348,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         }
 
 
-    public override bool AfterInit()
+        public override bool AfterInit()
         {
             Agent.DebugMessage($"Bucket {_jobConfirmation.Job.Name} is created!", CustomLogger.JOB, LogLevel.Warn);
             return base.AfterInit();

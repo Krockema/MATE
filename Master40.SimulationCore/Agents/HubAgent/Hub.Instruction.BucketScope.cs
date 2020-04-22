@@ -32,6 +32,21 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     public Guid GetObjectFromMessage => (Guid) Message;
                 }
 
+                public class DissolveBucket : SimulationMessage
+                {
+                    public static DissolveBucket Create(Guid key, IActorRef target)
+                    {
+                        return new DissolveBucket(message: key, target: target);
+                    }
+
+                    private DissolveBucket(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+
+                    public Guid GetObjectFromMessage => (Guid)Message;
+                }
+
                 public class RequestFinalBucket : SimulationMessage
                 {
                     public static RequestFinalBucket Create(Guid key, IActorRef target)

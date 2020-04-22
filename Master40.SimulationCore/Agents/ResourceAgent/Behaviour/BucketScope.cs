@@ -64,7 +64,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void RevokeJob(Guid jobKey)
         {
-            // ToDo:  revoke job and Setup !!
+            Agent.Send(instruction: Job.Instruction.AcknowledgeDissolve.Create(_jobInProgress.Current.JobAgentRef));
+
+            if (_jobInProgress.Current.Job.Key.Equals(jobKey))
+            {
+                _jobInProgress.Reset();
+                UpdateProcessingItem();
+                return;
+            }
+
             var jobConfirmation = _scopeQueue.GetConfirmation(jobKey);
 
             if (jobConfirmation != null)
@@ -249,6 +257,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             RequeueJobs(toRequeue);
             Agent.DebugMessage(msg: $"New scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
         }
+
         private void RequeueJobs(HashSet<IConfirmation> toRequeue)
         {
             foreach (var job in toRequeue)
