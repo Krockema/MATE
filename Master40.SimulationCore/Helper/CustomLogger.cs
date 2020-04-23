@@ -8,5 +8,6 @@ namespace Master40.SimulationCore.Helper
     {
         public const string PROPOSAL = "Proposal";
         public const string JOB = "Job";
+        public const string ENQUEUE = "Enqueue";
     }
 }

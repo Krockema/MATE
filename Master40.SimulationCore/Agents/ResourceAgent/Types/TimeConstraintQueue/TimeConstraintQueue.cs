@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using static FBuckets;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
@@ -32,7 +33,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public IConfirmation DequeueFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, confirmation) = GetFirst();
-            if (confirmation != null && confirmation.Job.StartConditions.Satisfied)
+            if (confirmation != null && ((FBucket)confirmation.Job).HasSatisfiedJob)
             {
                 this.Remove(key);
                 return confirmation;
@@ -65,6 +66,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Values.Any(job => ((FBucket) job.Job).HasSatisfiedJob);
         }
 
+        public bool FirstJobIsQueueAble()
+        {
+            return (this.Values.Count != 0) && ((FBucket)this.Values[0].Job).HasSatisfiedJob;
+        }
+
         public IEnumerable<T> GetJobsAs<T>()
         {
             return this.Values.Select(x => x.Job).Cast<T>();
@@ -78,7 +84,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public IConfirmation GetConfirmation(Guid jobKey)
         {
-            return this.Values.Single(x => x.Job.Key == jobKey);
+            return this.Values.SingleOrDefault(x => x.Job.Key == jobKey);
         }
 
         public bool RemoveJob(IConfirmation job)

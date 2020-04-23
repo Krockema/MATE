@@ -25,5 +25,3 @@ open System
                 member this.IsReset = this.ScopeConfirmation.Equals(null)
         member this.UpdateJob job = { this with Job = job } 
         member this.UpdateScopeConfirmation scopeConfirmations = {this with ScopeConfirmation = scopeConfirmations }
-        member this.UpdateScopeConfirmationAndKey scopeConfirmations setupKey = { this with ScopeConfirmation = scopeConfirmations;
-                                                                                            Key = setupKey; }

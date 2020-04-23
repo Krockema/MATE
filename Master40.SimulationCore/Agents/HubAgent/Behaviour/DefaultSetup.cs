@@ -10,7 +10,6 @@ using static FProposals;
 using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static FUpdateStartConditions;
-using static IJobResults;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {

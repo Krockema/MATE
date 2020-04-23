@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         IConfirmation DequeueFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
         void Enqueue(IConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
-
+        bool FirstJobIsQueueAble();
         List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
                                                 , long currentTime
                                                 , CapabilityProviderManager cpm

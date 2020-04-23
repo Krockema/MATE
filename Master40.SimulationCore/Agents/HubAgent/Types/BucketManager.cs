@@ -76,8 +76,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             var jobConfirmation = GetConfirmationByBucketKey(bucketKey);
             var removed = _jobConfirmations.Remove(jobConfirmation);
-            if (removed)
-                agent.Send(Job.Instruction.TerminateJob.Create(jobConfirmation.JobAgentRef));
             return removed;
         }
 
@@ -135,16 +133,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         }
 
-        public List<JobConfirmation> FindAllWithEqualCapability(FOperation fOperation)
+        public IEnumerable<JobConfirmation> FindAllWithEqualCapability(FOperation fOperation)
         {
-            return _jobConfirmations.Where(x => x.Job.RequiredCapability.Name == fOperation.RequiredCapability.Name 
-                                                         && !x.IsFixPlanned)
-                                    .ToList();
+            return _jobConfirmations.Where(x => x.Job.RequiredCapability.Name == fOperation.RequiredCapability.Name);
+        }
+
+        public IEnumerable<JobConfirmation> FindAllWithEqualCapabilityThatAreNotFixed(FOperation fOperation)
+        {
+            return FindAllWithEqualCapability(fOperation).Where(x => !x.IsFixPlanned);
         }
 
         public List<JobConfirmation> FindAllBucketsLaterForwardStart(FOperation operation)
         {
-            var matchingBuckets = FindAllWithEqualCapability(operation);
+            var matchingBuckets = FindAllWithEqualCapabilityThatAreNotFixed(operation);
             return matchingBuckets.Where(x => x.Job.ForwardStart > operation.ForwardStart).ToList();
         }
 

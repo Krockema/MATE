@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
+using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
@@ -16,6 +17,7 @@ using static FBuckets;
 using static FOperations;
 using static FPostponeds;
 using static FRequestProposalForCapabilityProviders;
+using static FResourceInformations;
 using static FUpdateStartConditions;
 using static IConfirmations;
 using static IJobResults;
@@ -45,6 +47,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var success = true;
             switch (message)
             {
+                case Resource.Instruction.Default.SetHubAgent msg: SetHubAgent(hubAgent: msg.GetObjectFromMessage.Ref); break;
+
                 case Resource.Instruction.Default.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.AcceptedProposals msg: AcceptProposals(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
@@ -53,6 +57,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 
                 case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
+
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
 
                 default:
@@ -62,14 +67,34 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return success;
         }
 
+        public override bool AfterInit()
+        {
+            var resourceAgent = Agent as Resource;
+            var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
+            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(
+                new FResourceInformation(resourceAgent._resource.Id, capabilityProviders, String.Empty, Agent.Context.Self)
+                , target: Agent.VirtualParent));
+            return true;
+        }
+
+        /// <summary>
+        /// Register the Resource in the System on Startup and Save the Hub agent.
+        /// </summary>
+        internal void SetHubAgent(IActorRef hubAgent)
+        {
+            // Save to Value Store
+            _agentDictionary.Add(key: "Default", value: hubAgent);
+            // Debug Message
+            Agent.DebugMessage(msg: "Successfully registered resource at : " + hubAgent.Path.Name);
+        }
+
         private void RevokeJob(Guid jobKey)
         {
-            Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(_jobInProgress.Current.JobAgentRef));
-
-            if (_jobInProgress.Current.Job.Key.Equals(jobKey))
+            if (_jobInProgress.IsSet && _jobInProgress.Current.Job.Key.Equals(jobKey))
             {
                 _jobInProgress.Reset();
                 UpdateProcessingItem();
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(_jobInProgress.Current.JobAgentRef));
                 return;
             }
 
@@ -79,6 +104,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             { 
                 _scopeQueue.RemoveJob(jobConfirmation);
                 UpdateAndRequeuePlanedJobs(jobConfirmation);
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(_jobInProgress.Current.JobAgentRef));
             }
         }
 
@@ -152,10 +178,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void UpdateProcessingItem()
         {
+            Agent.DebugMessage(msg: $"Try to Update Processing Item");
+
             // take the next scope and make it fix 
-            if(!_jobInProgress.IsSet && _scopeQueue.HasQueueAbleJobs())
+            if (!_jobInProgress.IsSet && _scopeQueue.FirstJobIsQueueAble())
             {
                 var job = _scopeQueue.DequeueFirstIfSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
+                
                 _jobInProgress.Set(job, Agent.CurrentTime);
                 
                 Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied: {job.Job.StartConditions.Satisfied} Try to start processing.");

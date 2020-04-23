@@ -30,7 +30,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _bucketManager = new BucketManager(maxBucketSize: maxBucketSize);
             _workTimeGenerator = workTimeGenerator;
         }
-        private List<FOperation> _unassigendOperations { get; } = new List<FOperation>();
         private BucketManager _bucketManager { get; }
         private WorkTimeGenerator _workTimeGenerator { get; }
         public override bool Action(object message)
@@ -44,6 +43,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.RequestFinalBucket msg: SendFinalBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.DissolveBucket msg: DissolveBucket(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(resourceInformation: msg.GetObjectFromMessage); break;
                 default:
                     success = base.Action(message);
                     break;
@@ -72,11 +72,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // Remove all Information from Hub
             bucket.Operations.ForEach(operation =>
             {
+                Agent.DebugMessage($"{operation.Key} from {((FBucket)jobConfirmation.Job).Name} has been removed before finalized.", CustomLogger.JOB, LogLevel.Warn);
+
                 operation.Operation.RandomizedDuration =
                     _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration);
-                RemoveJobFromBucketManager(operation.Key);
+                //RemoveJobFromBucketManager(operation.Key);
             });
-            RemoveJobFromBucketManager(jobConfirmation.Job.Key);
+            RemoveBucketOnStartBucketProcessing(jobConfirmation.Job.Key);
+
+            jobConfirmation.Job = bucket;
+            Agent.DebugMessage($"Send finalized {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count()} operations to Job Agent.", CustomLogger.JOB, LogLevel.Warn);
 
             Agent.Send(Job.Instruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
         }
@@ -92,8 +97,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             if (successRemove)
             {
+                Agent.DebugMessage(msg: $"Dissolve {bucket.Name} succeeded",CustomLogger.JOB, LogLevel.Warn);
+                
                 _proposalManager.Remove(bucket.Key);
-                _unassigendOperations.AddRange(bucket.Operations);
                 RequeueOperations(bucket.Operations.ToList());
             }
             //TODO multiple reset from one setupdefinition?
@@ -112,8 +118,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
-            _unassigendOperations.Add(operation);
-
             _bucketManager.AddOrUpdateBucketSize(job.RequiredCapability, job.Duration);
 
             EnqueueOperation(operation);
@@ -130,12 +134,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
+            
             var bucket = _bucketManager.AddToBucket(fOperation);
-            if (bucket != null) return;//if no bucket to add exists create a new one
+            if (bucket != null)
+            {
+                Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} at {bucket.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
+
+                return;//if no bucket to add exists create a new one
+
+            }
             
             var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent);
-            _unassigendOperations.Remove(fOperation);
             EnqueueBucket(jobConfirmation.Job.Key);
+
+            Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} at {jobConfirmation.Job.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
             //after creating new bucket, modify subsequent buckets
             RequestDissolveBucket(fOperation);
@@ -157,25 +169,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 foreach (var bucket in bucketsToDissolve)
                 {
-                    if (bucket.IsConfirmed)
-                    {
-
-                        Agent.Send(Job.Instruction.RequestDissolve.Create(bucket.JobAgentRef));
-                        
-                    }
-                    else
-                    {
-                        DissolveBucket(bucket.Job.Key);
-                    }
-
+                    Agent.DebugMessage(msg: $"Asking Job Agent to start dissolve {bucket.Job.Key}");
+                    Agent.Send(Job.Instruction.RequestDissolve.Create(bucket.JobAgentRef));
                 }
             }
         }
 
         internal void EnqueueBucket(Guid bucketKey)
         {
-            //TODO maybe ID
-
             //delete all proposals if exits
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
             if (jobConfirmation == null)
@@ -285,10 +286,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 
                 if (notSatisfiedOperations.Count > 0)
                 {
-                    bucket = _bucketManager.RemoveOperations(bucket, notSatisfiedOperations);
+                    jobConfirmation.Job = _bucketManager.RemoveOperations(bucket, notSatisfiedOperations);
                 }
                 //Setp 2. Requeue all unsatisfied operations
-                _unassigendOperations.AddRange(notSatisfiedOperations); 
                 RequeueOperations(notSatisfiedOperations);
             }
             else
@@ -300,33 +300,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
-            var operations = _unassigendOperations.Where(x => x.Key == startCondition.OperationKey);
-
-            if (operations.Count() > 0)
-            {
-                operations.First().SetStartConditions(startCondition);
-                return;
-            }
-
             var bucket = _bucketManager.GetBucketByOperationKey(startCondition.OperationKey);
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey: bucket.Key);
-            bucket = jobConfirmation.Job as FBucket;
 
             _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
 
-            if (!jobConfirmation.IsConfirmed || !bucket.Operations.Any(x => x.StartConditions.Satisfied))
-                return;
+            Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
+                                    $"| ArticleProvided: {startCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {startCondition.PreCondition} " +
+                                    $"to job agent {jobConfirmation.JobAgentRef}");
 
-            foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
-            {
-                var resourceRef = setup.Resource.IResourceRef as IActorRef;
-                Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
-                                        $"| ArticleProvided: {startCondition.ArticlesProvided} " +
-                                        $"| PreCondition: {startCondition.PreCondition} " +
-                                        $"to resource {resourceRef.Path.Name}");
-
-                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resourceRef));
-            }
+            Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: jobConfirmation.JobAgentRef));
             
         }
         

@@ -3,14 +3,11 @@ using Akka.Util.Internal;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.JobAgent.Types;
-using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Helper;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Data.HashFunction.xxHash;
 using System.Linq;
-using System.Security.AccessControl;
 using static FBucketResults;
 using static FBuckets;
 using static FCreateSimulationResourceSetups;
@@ -21,6 +18,8 @@ using static FOperations;
 using static FProcessingSlots;
 using static FSetupSlots;
 using static FUpdateSimulationJobs;
+using static FUpdateStartConditions;
+using Resource = Master40.SimulationCore.Agents.ResourceAgent.Resource;
 
 namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 {
@@ -60,7 +59,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             switch (message)
             {
-                case Job.Instruction.TerminateJob msg: Terminate(); break;
                 case Job.Instruction.RequestDissolve msg: StartDissolve(); break;
                 case Job.Instruction.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.RequestSetupStart msg: RequestSetupStart(); break;
@@ -70,12 +68,25 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 case Job.Instruction.BucketIsFixed msg: BucketIsFixed(); break;
                 case Job.Instruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
                 case Job.Instruction.AcknowledgeRevoke msg: AcknowledgeRevoke(); break;
-                
+                case BasicInstruction.UpdateStartConditions msg: UpdateStartConditions(msg.GetObjectFromMessage); break;
+
                 // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
                 case Job.Instruction.StartRequeue msg: StartRequeue(); break;
                 default: return false;
             }
             return true;
+        }
+
+        private void UpdateStartConditions(FUpdateStartCondition startCondition)
+        {
+            if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState == JobState.Created))
+            {
+                foreach(var resourceRef in _resourceDistinctResourceStates.Keys)
+                { 
+                    Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: resourceRef));
+                }
+            }
+
         }
 
         private void AcknowledgeRevoke()
@@ -87,11 +98,13 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 if (_dissolveRequested)
                 {
+                    Agent.DebugMessage($"Acknwoledge Dissolve {_jobConfirmation.Job.Name} and send to Hub", CustomLogger.JOB, LogLevel.Warn);
                     Agent.Send(Hub.Instruction.BucketScope.DissolveBucket.Create(_jobConfirmation.Key, _jobConfirmation.Job.HubAgent));
                     Terminate();
                     return;
                 }
 
+                Agent.DebugMessage($"Acknwoledge Requeue {_jobConfirmation.Job.Name} and send to Hub", CustomLogger.JOB, LogLevel.Warn);
                 Agent.Send(Hub.Instruction.BucketScope.EnqueueBucket.Create(_jobConfirmation.Key, _jobConfirmation.Job.HubAgent));
 
             }
@@ -103,6 +116,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void StartRequeue()
         {
+            Agent.DebugMessage($"Start Requeue for {_jobConfirmation.Job.Name} has been initiated", CustomLogger.JOB, LogLevel.Warn);
             StartRevoke();
         }
 
@@ -111,7 +125,14 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void StartDissolve()
         {
+            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready || x.CurrentState == JobState.Finish);
+            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready);
+            if (allSetupReady || allProcessingReady)
+            {
+                return;
+            }
             _dissolveRequested = true;
+            Agent.DebugMessage($"Start Dissolve for {_jobConfirmation.Job.Name} has been initiated", CustomLogger.JOB, LogLevel.Warn);
             StartRevoke();
         }
 
@@ -126,6 +147,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void BucketIsFixed()
         {
+            Agent.DebugMessage($"{_jobConfirmation.Job.Name} has been set fix", CustomLogger.JOB, LogLevel.Warn);
             _resourceSetupStates.ForEach(x =>
             {
                 Resource.Instruction.BucketScope.DoSetup.Create(_jobConfirmation.Key, x.Key);
@@ -156,14 +178,18 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             _resourceProcessingStates.Clear();
             _resourceDistinctResourceStates.Clear();
 
-            Agent.DebugMessage($"Acknowledge Proposal {GetJobKey()}");
+            Agent.DebugMessage($"Acknowledge Proposal {GetJobKey()}", CustomLogger.PROPOSAL, LogLevel.Warn);
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
                 var resourceRef = resourceScope.Key;
+
+                var _jobConfirmationForResource = _jobConfirmation.UpdateScopeConfirmation(resourceScope.Value);
+
                 Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} on resource {resourceRef.Path.Name}" +
                                         $" with scope confirmation for {resourceScope.Value.GetScopeStart()} to {resourceScope.Value.GetScopeEnd()}"
                     , CustomLogger.PROPOSAL, LogLevel.Warn);
-                Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(_jobConfirmation, target: resourceRef));
+
+                Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(_jobConfirmationForResource, target: resourceRef));
 
 
                 foreach (var scope in resourceScope.Value.Scopes)
@@ -171,7 +197,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                     switch (scope)
                     {
                         case FSetupSlot fs: _resourceSetupStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue)); break;
-                        case FProcessingSlot ps: _resourceSetupStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue)); break;
+                        case FProcessingSlot ps: _resourceProcessingStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue)); break;
                             default: throw new Exception("Wrong state implementation send.");
                     }
                 }
@@ -265,13 +291,15 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))
             {
+                Agent.DebugMessage($"All request for processing received for {_jobConfirmation.Job.Name}. Start finalize Bucket sent to Hub!", CustomLogger.JOB, LogLevel.Warn);
+
                 Agent.Send(Hub.Instruction.BucketScope.RequestFinalBucket.Create(_jobConfirmation.Job.Key, _jobConfirmation.Job.HubAgent));
             }
         }
 
         private void FinalizedBucket(FJobConfirmation jobConfirmation)
         {
-
+            Agent.DebugMessage($"Finalized {_jobConfirmation.Job.Name} received.", CustomLogger.JOB, LogLevel.Warn);
             _jobConfirmation = jobConfirmation;
             _processingStart = Agent.CurrentTime;
             DoWork();
@@ -284,8 +312,9 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// <param name="jobConfirmation"></param>
         private void DoWork()
         {
-
             _currentOperation = GetNextOperation();
+
+            Agent.DebugMessage($"Send start working with {_currentOperation} {_jobConfirmation.Job.Name} received.", CustomLogger.JOB, LogLevel.Warn);
 
             if (_currentOperation.Current == null)
             {
