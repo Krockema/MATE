@@ -1,9 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using static FArticles;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
-using static IJobs;
 
 namespace Master40.SimulationCore.Agents.JobAgent
 {
@@ -70,22 +68,24 @@ namespace Master40.SimulationCore.Agents.JobAgent
 
             public class FinishSetup : SimulationMessage
             {
-                public static FinishSetup Create(IActorRef target)
+                public static FinishSetup Create(IActorRef sender, IActorRef target)
                 {
                     return new FinishSetup(message: null, target: target);
                 }
-                private FinishSetup(object message, IActorRef target) : base(message: message, target: target)
+                private FinishSetup(IActorRef message, IActorRef target) : base(message: message, target: target)
                 { }
+                public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
             public class FinishProcessing : SimulationMessage
             {
-                public static FinishProcessing Create(IActorRef target)
+                public static FinishProcessing Create(IActorRef sender, IActorRef target)
                 {
-                    return new FinishProcessing(message: null, target: target);
+                    return new FinishProcessing(message: sender, target: target);
                 }
                 private FinishProcessing(object message, IActorRef target) : base(message: message, target: target)
                 { }
+                public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
             public class RequestProcessingStart : SimulationMessage

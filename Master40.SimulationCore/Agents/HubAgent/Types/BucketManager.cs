@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Akka.Actor;
+﻿using Master40.DB.DataModel;
+using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Helper;
-using Master40.SimulationCore.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FBuckets;
 using static FOperations;
-using static IJobs;
 using static FUpdateStartConditions;
-using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.JobAgent;
-using static FJobConfirmations;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -72,9 +68,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _jobConfirmations.SingleOrDefault(x => ((FBucket)x.Job).Operations.Any(y => y.Key == operationKey))?.Job as FBucket;
         }
 
-        public bool Remove(Guid bucketKey, Agent agent)
+        public bool Remove(Guid bucketKey)
         {
             var jobConfirmation = GetConfirmationByBucketKey(bucketKey);
+            var removed = _jobConfirmations.Remove(jobConfirmation);
+            return removed;
+        }
+
+        public bool Remove(JobConfirmation jobConfirmation)
+        {
             var removed = _jobConfirmations.Remove(jobConfirmation);
             return removed;
         }
@@ -210,10 +212,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             foreach (var operation in operationsToRemove)
             {
+                DecreaseBucketSize(operation.RequiredCapability.Id, operation.Operation.Duration);
                 bucket = bucket.RemoveOperation(operation);
             }
-
-            Replace(bucket);
 
             return bucket;
         }

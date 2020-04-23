@@ -157,6 +157,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     possibleProcessingPosition.RequireSetup = true;
                     long earliestProcessingStart = mainScope.Scope.Start + setupDuration;
                     long earliestSetupStart = mainScope.Scope.Start;
+                    setupSlot = new FSetupSlot(earliestSetupStart, earliestProcessingStart);
+                    processingSlot = new FProcessingSlot(start: earliestProcessingStart, end: earliestProcessingStart + jobDuration);
                     var mainProcessingSlots = new List<ITimeRange>();
                     if (setupResources.Count != 0) // Setup RESOURCE Is Required.
                     {

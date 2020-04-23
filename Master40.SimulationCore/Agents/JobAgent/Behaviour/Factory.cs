@@ -1,5 +1,4 @@
 ﻿using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Types;
 using static FJobConfirmations;
 

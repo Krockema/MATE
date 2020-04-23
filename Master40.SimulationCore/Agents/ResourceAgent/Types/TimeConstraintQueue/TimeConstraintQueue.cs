@@ -157,7 +157,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             if (!enumerator.MoveNext())
             {
                 isQueueAble = true;
-                isRequiringSetup = capabilityProviderManager.AlreadyEquipped(capabilityProviderId);
+                isRequiringSetup = (capabilityProviderManager.AlreadyEquipped(capabilityProviderId)) ? false : true;
                 // ignore first round
                 // totalwork bis max
             }

@@ -102,7 +102,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
                 Time = (int)(Collector.Time),
-                Resource = simulationResourceSetup.Resource,
+                Resource = simulationResourceSetup.CapabilityProvider,
                 CapabilityName = simulationResourceSetup.CapabilityName,
                 Start = (int)simulationResourceSetup.Start,
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration,

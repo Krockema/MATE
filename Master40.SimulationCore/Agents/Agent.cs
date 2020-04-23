@@ -3,14 +3,10 @@ using AkkaSim;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using Akka.Event;
 using LogLevel = NLog.LogLevel;
-using NLog;
-using Akka.Logger.NLog;
 
 namespace Master40.SimulationCore.Agents
 {

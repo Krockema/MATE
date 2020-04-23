@@ -60,6 +60,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             bucket = bucket.SetFixPlanned;
             _bucketManager.SetBucketSatisfied(bucket);
+            
+            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has been set fix, but can still add more operations.", CustomLogger.JOB, LogLevel.Warn);
 
             Agent.Send(Job.Instruction.BucketIsFixed.Create(Agent.Sender));
         }
@@ -69,6 +71,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var jobConfirmation = BucketCleanup(bucketKey);
             var bucket = jobConfirmation.Job as FBucket;
 
+            
             // Remove all Information from Hub
             bucket.Operations.ForEach(operation =>
             {
@@ -93,7 +96,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (bucket == null)
                 return;
 
-            var successRemove = _bucketManager.Remove(bucket.Key, Agent);
+            var successRemove = _bucketManager.Remove(bucket.Key);
             
             if (successRemove)
             {
@@ -138,7 +141,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = _bucketManager.AddToBucket(fOperation);
             if (bucket != null)
             {
-                Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} at {bucket.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
+                Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
                 return;//if no bucket to add exists create a new one
 
@@ -146,8 +149,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent);
             EnqueueBucket(jobConfirmation.Job.Key);
-
-            Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} at {jobConfirmation.Job.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
+             
+            Agent.DebugMessage($"New {jobConfirmation.Job.Name} has been created for Operation {fOperation.Operation.Name} {fOperation.Key}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
             //after creating new bucket, modify subsequent buckets
             RequestDissolveBucket(fOperation);
@@ -190,12 +193,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
+            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} starts new PROPOSAL request", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             jobConfirmation.ResetConfirmation();
             _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
             
 
-            Agent.DebugMessage($"Enqueue {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count} operations", CustomLogger.PROPOSAL, LogLevel.Warn);
             
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(jobConfirmation.Job.RequiredCapability);
 
@@ -277,6 +280,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         internal JobConfirmation BucketCleanup(Guid bucketKey)
         {
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
+            _bucketManager.Remove(jobConfirmation);
+            
+            Agent.DebugMessage($"Start finalize {jobConfirmation.Job.Name} from {((FBucket)jobConfirmation.Job).Name}", CustomLogger.JOB, LogLevel.Warn);
+
             var bucket = jobConfirmation.Job as FBucket;
             //refuse bucket if not exits anymore
             if (bucket != null)
@@ -287,9 +294,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 if (notSatisfiedOperations.Count > 0)
                 {
                     jobConfirmation.Job = _bucketManager.RemoveOperations(bucket, notSatisfiedOperations);
+
+                    //Setp 2. Requeue all unsatisfied operations
+                    RequeueOperations(notSatisfiedOperations);
                 }
-                //Setp 2. Requeue all unsatisfied operations
-                RequeueOperations(notSatisfiedOperations);
+
             }
             else
             {
@@ -311,38 +320,21 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                     $"to job agent {jobConfirmation.JobAgentRef}");
 
             Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: jobConfirmation.JobAgentRef));
-            
         }
         
         internal void RequeueOperations(List<FOperation> operations)
         {
+            Agent.DebugMessage(msg: $"Requeue operation of {operations.Count} operations", CustomLogger.ENQUEUE, LogLevel.Warn);
             foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
             {
-                Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}");
+                Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}", CustomLogger.ENQUEUE, LogLevel.Warn);
                 EnqueueOperation(operation);
-            }
-        }
-
-        /// <summary>
-        /// Job = Bucket
-        /// </summary>
-        /// <param name="jobResult"></param>
-        internal void RemoveJobFromBucketManager(Guid operationKey)
-        {
-            var operation =_bucketManager.RemoveOperation(operationKey);
-
-            // TODO Dynamic Lot Sizing
-            _bucketManager.DecreaseBucketSize(operation.RequiredCapability.Id, operation.Operation.Duration);
-            if (Agent.DebugThis)
-            {
-                var bucket = _bucketManager.GetBucketByOperationKey(operationKey: operation.Key);
-                Agent.DebugMessage(msg: $"Operation finished: {operation.Operation.Name} {operationKey} in bucket: {bucket.Name} {bucket.Key}");
             }
         }
 
         internal void RemoveBucketOnStartBucketProcessing(Guid jobKey)
         {
-            _bucketManager.Remove(jobKey, Agent);
+            _bucketManager.Remove(jobKey);
         }
 
     }

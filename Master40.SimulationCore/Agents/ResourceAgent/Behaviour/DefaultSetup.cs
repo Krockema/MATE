@@ -247,7 +247,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration
                                                                         , duration: setupDuration
                                                                            , start: Agent.CurrentTime
-                                                                        , resource: Agent.Name
+                                                              , capabilityProvider: _jobInProgress.Current.CapabilityProvider.Name
                                                                   , capabilityName: _jobInProgress.RequiredCapabilityName
                                                                          , setupId: _jobInProgress.SetupId);
                 Agent.Context.System.EventStream.Publish(@event: pubSetup);

@@ -236,7 +236,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
             _jobInProgress.SetStartTime(Agent.CurrentTime);
-            Agent.Send(instruction: Job.Instruction.FinishSetup.Create(target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
+            Agent.Send(instruction: Job.Instruction.FinishSetup.Create(Agent.Context.Self,target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
             Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
         }
 
@@ -249,7 +249,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.IsWorking = true;
 
-            Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(target: Agent.Sender),waitFor: operation.Operation.RandomizedDuration);
+            Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, Agent.Sender),waitFor: operation.Operation.RandomizedDuration);
             
         }
 

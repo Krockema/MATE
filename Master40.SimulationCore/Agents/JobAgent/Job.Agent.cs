@@ -1,9 +1,6 @@
 ﻿using Akka.Actor;
-using Master40.SimulationCore.Agents.Guardian;
-using Master40.SimulationCore.Helper;
-using System.Linq;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.HubAgent.Types;
+using Master40.SimulationCore.Helper;
 using static FJobConfirmations;
 
 namespace Master40.SimulationCore.Agents.JobAgent

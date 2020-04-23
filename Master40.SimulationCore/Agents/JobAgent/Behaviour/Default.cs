@@ -51,9 +51,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private Dictionary<IActorRef, StateHandle> _resourceSetupStates { get; set; } // setup
         private Dictionary<IActorRef, StateHandle> _resourceDistinctResourceStates { get; set; } // Dissolve und Requeue // 
 
-        private IEnumerator<FOperation> _currentOperation { get; set;}
+        private FOperation _currentOperation { get; set;}
         private long _processingStart { get; set; }
         private bool _dissolveRequested { get; set; }
+        private Queue<FOperation> _finalOperations { get; set; }
 
         public override bool Action(object message)
         {
@@ -98,13 +99,13 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 if (_dissolveRequested)
                 {
-                    Agent.DebugMessage($"Acknwoledge Dissolve {_jobConfirmation.Job.Name} and send to Hub", CustomLogger.JOB, LogLevel.Warn);
+                    Agent.DebugMessage($"Acknowledge Dissolve {_jobConfirmation.Job.Name} and send to Hub", CustomLogger.JOB, LogLevel.Warn);
                     Agent.Send(Hub.Instruction.BucketScope.DissolveBucket.Create(_jobConfirmation.Key, _jobConfirmation.Job.HubAgent));
                     Terminate();
                     return;
                 }
 
-                Agent.DebugMessage($"Acknwoledge Requeue {_jobConfirmation.Job.Name} and send to Hub", CustomLogger.JOB, LogLevel.Warn);
+                Agent.DebugMessage($"Acknowledge Requeue {_jobConfirmation.Job.Name} and send to Hub", CustomLogger.JOB, LogLevel.Warn);
                 Agent.Send(Hub.Instruction.BucketScope.EnqueueBucket.Create(_jobConfirmation.Key, _jobConfirmation.Job.HubAgent));
 
             }
@@ -186,7 +187,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 var _jobConfirmationForResource = _jobConfirmation.UpdateScopeConfirmation(resourceScope.Value);
 
                 Agent.DebugMessage(msg: $"Start AcknowledgeProposal for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} on resource {resourceRef.Path.Name}" +
-                                        $" with scope confirmation for {resourceScope.Value.GetScopeStart()} to {resourceScope.Value.GetScopeEnd()}"
+                                        $" with scope confirmation for {_jobConfirmationForResource.ScopeConfirmation.GetScopeStart()} to {_jobConfirmationForResource.ScopeConfirmation.GetScopeEnd()}"
                     , CustomLogger.PROPOSAL, LogLevel.Warn);
 
                 Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(_jobConfirmationForResource, target: resourceRef));
@@ -223,6 +224,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             if (_resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready)) 
             // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
             {
+                Agent.DebugMessage($"All request for setup received for {_jobConfirmation.Job.Name}. Start fix Bucket sent to Hub!", CustomLogger.JOB, LogLevel.Warn);
+
                 RequestToFixBucketOnHub();
             }
         }
@@ -262,6 +265,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))
             {
+
+                Agent.DebugMessage($"All finisih processing received for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
                 CreateOperationResults();
                 UpdateJobKpi();
 
@@ -274,11 +279,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void CreateOperationResults()
         {
-            var fOperationResult = new FOperationResult(key: _currentOperation.Current.Key
+            var fOperationResult = new FOperationResult(key: _currentOperation.Key
                 , creationTime: 0
                 , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + _currentOperation.Current.Operation.RandomizedDuration
-                , originalDuration: _currentOperation.Current.Operation.Duration
+                , end: Agent.CurrentTime + _currentOperation.Operation.RandomizedDuration
+                , originalDuration: _currentOperation.Operation.Duration
                 , productionAgent: ActorRefs.Nobody
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
@@ -301,6 +306,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             Agent.DebugMessage($"Finalized {_jobConfirmation.Job.Name} received.", CustomLogger.JOB, LogLevel.Warn);
             _jobConfirmation = jobConfirmation;
+            _finalOperations = new Queue<FOperation>(((FBucket)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.DueTime));
             _processingStart = Agent.CurrentTime;
             DoWork();
 
@@ -312,11 +318,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// <param name="jobConfirmation"></param>
         private void DoWork()
         {
-            _currentOperation = GetNextOperation();
+            _currentOperation = _finalOperations.Dequeue();
 
-            Agent.DebugMessage($"Send start working with {_currentOperation} {_jobConfirmation.Job.Name} received.", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage($"Start working with {_currentOperation} in {_jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
 
-            if (_currentOperation.Current == null)
+            if (_currentOperation == null)
             {
                 // TODO Test if this works
 
@@ -334,31 +340,20 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 return;
             }
 
-            Agent.DebugMessage(msg: $"Start withdraw for article {_currentOperation.Current.Operation.Name} {_currentOperation.Current.Key}");
-            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Current.Key, target: _currentOperation.Current.ProductionAgent));
+            Agent.DebugMessage(msg: $"Start withdraw for article {_currentOperation.Operation.Name} {_currentOperation.Key}");
+            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));
 
-            Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Current.Operation.Name}  Key: {_currentOperation.Current.Key} new Duration is {_currentOperation.Current.Operation.RandomizedDuration} " +
+            Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Operation.Name}  Key: {_currentOperation.Key} new Duration is {_currentOperation.Operation.RandomizedDuration} " +
                                     $"from bucket {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} with {((FBucket)_jobConfirmation.Job).Operations.Count} operations " +
                                     $"at resource {Agent.Context.Self.Path.Name}");
 
             _resourceProcessingStates.ForEach(x =>
             {
-                Agent.Send(Resource.Instruction.Default.DoWork.Create( message: _currentOperation.Current
+                Agent.Send(Resource.Instruction.Default.DoWork.Create( message: _currentOperation
                                                                                 , target: x.Key));
                 x.Value.CurrentState = JobState.InProcess;
             });
         }
-
-        private IEnumerator<FOperation> GetNextOperation ()
-        {
-            var operationEnumerator = ((FBucket)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.DueTime).GetEnumerator();
-            while (operationEnumerator.MoveNext())
-            {
-                yield return operationEnumerator.Current;
-            }
-            operationEnumerator.Dispose();
-        }
-
 
         public override bool AfterInit()
         {
@@ -376,24 +371,27 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                                     expectedDuration: setupDuration,
                                     duration: setupDuration,
                                     start: Agent.CurrentTime,
-                                    resource: Agent.Name,
+                                    capabilityProvider: _jobConfirmation.CapabilityProvider.Name,
                                     capabilityName: _jobConfirmation.Job.RequiredCapability.Name,
                                     setupId: _jobConfirmation.Job.RequiredCapability.Id);
-            Agent.Context.System.EventStream.Publish(@event: pubSetup);
+
+            //TODO NO tracking
+            //Agent.Context.System.EventStream.Publish(@event: pubSetup);
         }
 
 
         private void UpdateJobKpi()
         {
 
-            var pub = new FUpdateSimulationJob(job: _currentOperation.Current
+            var pub = new FUpdateSimulationJob(job: _currentOperation
                 , jobType: JobType.OPERATION
-                , duration: _currentOperation.Current.Operation.RandomizedDuration
+                , duration: _currentOperation.Operation.RandomizedDuration
                 , start: Agent.CurrentTime
                 , resource: _jobConfirmation.CapabilityProvider.Name
                 , bucket: _jobConfirmation.Job.Name
                 , setupId: _jobConfirmation.CapabilityProvider.Id);
-            Agent.Context.System.EventStream.Publish(@event: pub);
+            //TODO NO tracking
+            //Agent.Context.System.EventStream.Publish(@event: pub);
 
         }
 
@@ -408,7 +406,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , productionAgent: ActorRefs.Nobody
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
-            Agent.Context.System.EventStream.Publish(@event: pub);
+            //TODO NO tracking
+            //Agent.Context.System.EventStream.Publish(@event: pub);
         }
 
 

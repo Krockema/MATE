@@ -3,7 +3,7 @@
     type public FCreateSimulationResourceSetup = {
         Start : int64
         Duration : int64
-        Resource : string
+        CapabilityProvider : string
         CapabilityName : string
         ExpectedDuration : int64
         SetupId: int32
