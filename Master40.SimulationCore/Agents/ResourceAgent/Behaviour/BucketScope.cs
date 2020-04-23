@@ -54,11 +54,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
 
                 case Resource.Instruction.Default.RevokeJob msg: RevokeJob(msg.GetObjectFromMessage); break;
-                
-                case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
+               
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
 
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
+
+                case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
 
                 default:
                     success = base.Action(message);

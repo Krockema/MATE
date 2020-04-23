@@ -151,7 +151,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             Agent.DebugMessage($"{_jobConfirmation.Job.Name} has been set fix", CustomLogger.JOB, LogLevel.Warn);
             _resourceSetupStates.ForEach(x =>
             {
-                Resource.Instruction.BucketScope.DoSetup.Create(_jobConfirmation.Key, x.Key);
+                Agent.Send(Resource.Instruction.BucketScope.DoSetup.Create(_jobConfirmation.Key, x.Key));
                 x.Value.CurrentState = JobState.InProcess;
             });
             CreateSetupKpi();
@@ -240,10 +240,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void FinishSetup()
         {
-
             var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(Agent.Sender));
             requestingResource.Value.CurrentState = JobState.Finish;
-            RequestToFixBucketOnHub();
         }
 
         /// <summary>
