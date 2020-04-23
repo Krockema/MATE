@@ -284,10 +284,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + _currentOperation.Operation.RandomizedDuration
                 , originalDuration: _currentOperation.Operation.Duration
-                , productionAgent: ActorRefs.Nobody
+                , productionAgent: _currentOperation.ProductionAgent
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
-            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, fOperationResult.ProductionAgent));
+            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, _currentOperation.ProductionAgent));
         }
 
 

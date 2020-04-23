@@ -54,7 +54,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private static IBehaviour BucketScope(WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider)
         {
             //TODO - create config item.
-            return new BucketScope(planingJobQueueLength: 45
+            return new BucketScope(planingJobQueueLength: 960
                 , fixedJobQueueSize: 1
                 , workTimeGenerator: workTimeGenerator
                 , capabilityProvider: capabilityProvider);

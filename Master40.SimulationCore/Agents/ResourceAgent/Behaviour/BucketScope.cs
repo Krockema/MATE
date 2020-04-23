@@ -179,7 +179,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void UpdateProcessingItem()
         {
-            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} operations is Queueable: {_scopeQueue.FirstJobIsQueueAble()}", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} operations is QueueAble: {_scopeQueue.FirstJobIsQueueAble()}", CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
             if (!_jobInProgress.IsSet && _scopeQueue.FirstJobIsQueueAble())
