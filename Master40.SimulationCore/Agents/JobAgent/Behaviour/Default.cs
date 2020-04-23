@@ -80,7 +80,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void UpdateStartConditions(FUpdateStartCondition startCondition)
         {
-            if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState == JobState.Created))
+            if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.Created)))
             {
                 foreach(var resourceRef in _resourceDistinctResourceStates.Keys)
                 { 
@@ -179,7 +179,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             _resourceProcessingStates.Clear();
             _resourceDistinctResourceStates.Clear();
 
-            Agent.DebugMessage($"Acknowledge Proposal {GetJobKey()}", CustomLogger.PROPOSAL, LogLevel.Warn);
+            Agent.DebugMessage($"Acknowledge Proposal {_jobConfirmation.Job.Name} received", CustomLogger.PROPOSAL, LogLevel.Warn);
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
                 var resourceRef = resourceScope.Key;
@@ -242,8 +242,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(sender));
             requestingResource.Value.CurrentState = JobState.Finish;
-
-            // Request processing has already been sent to job agent -> just for renew state
+            RequestProcessingStart(sender);
         }
 
         /// <summary>
@@ -252,20 +251,21 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private void RequestProcessingStart(IActorRef sender)
         {
             // trigger with JobState ?! --> parameter JobState entscheidet darüber, für welche Phasen angefragt werden soll? -- Konsistenz? 
-            var requestingResource = _resourceProcessingStates.Single(x => x.Key.Equals(sender));
-            requestingResource.Value.CurrentState = JobState.Ready;
+            var (key, value) = _resourceProcessingStates.SingleOrDefault(x => x.Key.Equals(sender));
+            if(value == null) return;
+            value.CurrentState = JobState.Ready;
 
             RequestFinalBucketFromHub();
         }
 
         private void FinishProcessing(IActorRef sender)
         {
+            Agent.DebugMessage($"ONE of {_resourceProcessingStates.Count() } Finisih processing received for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
             var requestingResource = _resourceProcessingStates.Single(x => x.Key == sender);
             requestingResource.Value.CurrentState = JobState.Ready;
 
             if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))
             {
-
                 Agent.DebugMessage($"All finisih processing received for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
                 CreateOperationResults();
                 UpdateJobKpi();
@@ -318,7 +318,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// <param name="jobConfirmation"></param>
         private void DoWork()
         {
-            if (_finalOperations.Count < 1)
+            if (_finalOperations.Count == 0)
             {
                 CreateBucketKpi();
                 _resourceProcessingStates.ForEach(x =>
@@ -329,13 +329,12 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 });
 
                 Terminate();
-
                 return;
             }
 
             _currentOperation = _finalOperations.Dequeue();
 
-            Agent.DebugMessage($"Start working with {_currentOperation.Operation.Name} {_currentOperation.Key} in {_jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage($"Start working with {_currentOperation.Operation.Name} {_currentOperation.Key} in {_jobConfirmation.Job.Name} with {_finalOperations.Count} operations left", CustomLogger.JOB, LogLevel.Warn);
 
             Agent.DebugMessage(msg: $"Start withdraw for article {_currentOperation.Operation.Name} {_currentOperation.Key}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));

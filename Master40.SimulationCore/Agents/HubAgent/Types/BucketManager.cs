@@ -33,7 +33,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var bucket = MessageFactory.ToBucketScopeItem(fOperation, agent.Context.Self, agent.CurrentTime, bucketSize);
             var jobConfirmation = new JobConfirmation(bucket);
             jobConfirmation.SetJobAgent(agent.Context.ActorOf(Job.Props(agent.ActorPaths, jobConfirmation.ToImmutable(), agent.CurrentTime, agent.DebugThis, agent.Context.Self)
-                                       , $"JobAgent({bucket.Key})"));
+                                       , $"JobAgent({bucket.Name.ToActorName()})"));
             _jobConfirmations.Add(jobConfirmation);
             return jobConfirmation;
         }

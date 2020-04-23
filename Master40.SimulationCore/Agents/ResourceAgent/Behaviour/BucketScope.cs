@@ -179,7 +179,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void UpdateProcessingItem()
         {
-            Agent.DebugMessage(msg: $"Try to Update Processing Item");
+            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} operations is Queueable: {_scopeQueue.FirstJobIsQueueAble()}", CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
             if (!_jobInProgress.IsSet && _scopeQueue.FirstJobIsQueueAble())
@@ -237,8 +237,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
             _jobInProgress.SetStartTime(Agent.CurrentTime);
-            Agent.Send(instruction: Job.Instruction.FinishSetup.Create(Agent.Context.Self,target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
-            Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
+            Agent.Send(instruction: Job.Instruction.FinishSetup.Create(message: Agent.Context.Self,target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
         }
 
         /// <summary>

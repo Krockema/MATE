@@ -193,7 +193,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} starts new PROPOSAL request", CustomLogger.PROPOSAL, LogLevel.Warn);
+            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} start new proporsal request", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             jobConfirmation.ResetConfirmation();
             _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
@@ -207,7 +207,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 foreach (var setup in capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
                 {
                     var resourceRef = setup.Resource.IResourceRef as IActorRef;
-                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Key}", CustomLogger.PROPOSAL, LogLevel.Warn);
+                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Name}", CustomLogger.PROPOSAL, LogLevel.Warn);
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
                         .Create(new FRequestProposalForCapabilityProvider(jobConfirmation.Job
                                                                                 , capabilityProviderId : capabilityProvider.Id)
