@@ -40,6 +40,7 @@ namespace Master40.SimulationCore.Environment
                 var config = new SimulationConfig(
                     debugAkka: false // Debug Akka Core System
                     , debugAkkaSim: this.GetOption<DebugSystem>().Value // set AkkaSim in Debug Mode
+                    , addApplicationInsights: false
                     , interruptInterval: this.GetOption<KpiTimeSpan>().Value);
                 return config;
             }

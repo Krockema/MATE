@@ -194,12 +194,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 // ToDo : test behaviour of this method.
                 if (job.ScopeConfirmation.GetSetup() != null)
                 {
-                    Agent.Send(instruction: Job.Instruction.RequestSetupStart.Create(target: job.JobAgentRef));
+                    Agent.Send(instruction: Job.Instruction.RequestSetupStart.Create(message: Agent.Context.Self, target: job.JobAgentRef));
                     Agent.DebugMessage(msg: $"Ask for setupStart {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}");
                 }
                 else
                 {
-                    Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(target: job.JobAgentRef));
+                    Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(message: Agent.Context.Self, target: job.JobAgentRef));
                     Agent.DebugMessage(msg: $"Ask for Processing {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}");
                 }
 
@@ -238,7 +238,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
             _jobInProgress.SetStartTime(Agent.CurrentTime);
             Agent.Send(instruction: Job.Instruction.FinishSetup.Create(Agent.Context.Self,target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
-            Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
+            Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
         }
 
         /// <summary>

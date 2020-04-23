@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
     <PackageReference Include="EntityFrameworkCore.Cacheable" Version="2.0.1" />
-    <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.9.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
       <PrivateAssets>all</PrivateAssets>

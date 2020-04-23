@@ -62,10 +62,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 case Job.Instruction.RequestDissolve msg: StartDissolve(); break;
                 case Job.Instruction.AcknowledgeJob msg: AcknowledgeJob(msg.GetObjectFromMessage); break;
-                case Job.Instruction.RequestSetupStart msg: RequestSetupStart(); break;
-                case Job.Instruction.RequestProcessingStart msg: RequestProcessingStart(); break;
-                case Job.Instruction.FinishSetup msg: FinishSetup(); break;
-                case Job.Instruction.FinishProcessing msg: FinishProcessing(); break;
+                case Job.Instruction.RequestSetupStart msg: RequestSetupStart(msg.GetObjectFromMessage); break;
+                case Job.Instruction.RequestProcessingStart msg: RequestProcessingStart(msg.GetObjectFromMessage); break;
+                case Job.Instruction.FinishSetup msg: FinishSetup(msg.GetObjectFromMessage); break;
+                case Job.Instruction.FinishProcessing msg: FinishProcessing(msg.GetObjectFromMessage); break;
                 case Job.Instruction.BucketIsFixed msg: BucketIsFixed(); break;
                 case Job.Instruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
                 case Job.Instruction.AcknowledgeRevoke msg: AcknowledgeRevoke(); break;
@@ -215,7 +215,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// <summary>
         /// Resource send message when resource want to start setup for a job - only setup resources are required for this step
         /// </summary>
-        private void RequestSetupStart()
+        private void RequestSetupStart(IActorRef sender)
         {
             // FOr Setup or for Processing ? 
 
@@ -238,27 +238,29 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// <summary>
         /// Called from every setup resource, when setup was finished
         /// </summary>
-        private void FinishSetup()
+        private void FinishSetup(IActorRef sender)
         {
             var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(Agent.Sender));
             requestingResource.Value.CurrentState = JobState.Finish;
+
+            // Request processing has already been sent to job agent -> just for renew state
         }
 
         /// <summary>
         /// Resource sent message as soon as the resource want to start with processing - only processing actors are required for this step
         /// </summary>
-        private void RequestProcessingStart()
+        private void RequestProcessingStart(IActorRef sender)
         {
             // trigger with JobState ?! --> parameter JobState entscheidet darüber, für welche Phasen angefragt werden soll? -- Konsistenz? 
-            var requestingResource = _resourceProcessingStates.Single(x => x.Key.Equals(Agent.Sender));
+            var requestingResource = _resourceProcessingStates.Single(x => x.Key.Equals(sender));
             requestingResource.Value.CurrentState = JobState.Ready;
 
             RequestFinalBucketFromHub();
         }
 
-        private void FinishProcessing()
+        private void FinishProcessing(IActorRef sender)
         {
-            var requestingResource = _resourceProcessingStates.Single(x => x.Key == Agent.Sender);
+            var requestingResource = _resourceProcessingStates.Single(x => x.Key == sender);
             requestingResource.Value.CurrentState = JobState.Ready;
 
             if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))

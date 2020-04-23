@@ -9,19 +9,6 @@ namespace Master40.SimulationCore.Agents.JobAgent
     {
         public class Instruction
         {
-            /// <summary>
-            /// Terminates the Job, send from Hub
-            /// </summary>
-            public class TerminateJob : SimulationMessage
-            {
-                public static TerminateJob Create(IActorRef target)
-                {
-                    return new TerminateJob(target: target);
-                }
-                private TerminateJob(IActorRef target) : base(message: null, target: target)
-                { }
-            }
-
             public class AcknowledgeRevoke : SimulationMessage
             {
                 public static AcknowledgeRevoke Create(IActorRef target)
@@ -42,6 +29,16 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
             }
 
+            public class StartRequeue : SimulationMessage
+            {
+                public static StartRequeue Create(IActorRef target)
+                {
+                    return new StartRequeue(target: target);
+                }
+                private StartRequeue(IActorRef target) : base(message: null, target: target)
+                {
+                }
+            }
 
             public class AcknowledgeJob : SimulationMessage
             {
@@ -58,9 +55,9 @@ namespace Master40.SimulationCore.Agents.JobAgent
             {
                 public static FinalBucket Create(FJobConfirmation job, IActorRef target)
                 {
-                    return new FinalBucket(job, target: target);
+                    return new FinalBucket(message: job, target: target);
                 }
-                private FinalBucket(FJobConfirmation job, IActorRef target) : base(message: job, target: target)
+                private FinalBucket(FJobConfirmation message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
@@ -68,9 +65,9 @@ namespace Master40.SimulationCore.Agents.JobAgent
 
             public class FinishSetup : SimulationMessage
             {
-                public static FinishSetup Create(IActorRef sender, IActorRef target)
+                public static FinishSetup Create(IActorRef message, IActorRef target)
                 {
-                    return new FinishSetup(message: null, target: target);
+                    return new FinishSetup(message: message, target: target);
                 }
                 private FinishSetup(IActorRef message, IActorRef target) : base(message: message, target: target)
                 { }
@@ -79,9 +76,9 @@ namespace Master40.SimulationCore.Agents.JobAgent
 
             public class FinishProcessing : SimulationMessage
             {
-                public static FinishProcessing Create(IActorRef sender, IActorRef target)
+                public static FinishProcessing Create(IActorRef message, IActorRef target)
                 {
-                    return new FinishProcessing(message: sender, target: target);
+                    return new FinishProcessing(message: message, target: target);
                 }
                 private FinishProcessing(object message, IActorRef target) : base(message: message, target: target)
                 { }
@@ -90,12 +87,14 @@ namespace Master40.SimulationCore.Agents.JobAgent
 
             public class RequestProcessingStart : SimulationMessage
             {
-                public static RequestProcessingStart Create(IActorRef target)
+                public static RequestProcessingStart Create(IActorRef message, IActorRef target)
                 {
-                    return new RequestProcessingStart(target: target);
+                    return new RequestProcessingStart(message: message, target: target);
                 }
-                private RequestProcessingStart(IActorRef target) : base(message: null, target: target)
+                private RequestProcessingStart(object message, IActorRef target) : base(message: message, target: target)
                 { }
+
+                public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
             public class BucketIsFixed : SimulationMessage
@@ -110,36 +109,16 @@ namespace Master40.SimulationCore.Agents.JobAgent
 
             public class RequestSetupStart : SimulationMessage
             {
-                public static RequestSetupStart Create(IActorRef target)
+                public static RequestSetupStart Create(IActorRef message, IActorRef target)
                 {
-                    return new RequestSetupStart(target: target);
+                    return new RequestSetupStart(message: message, target: target);
                 }
-                private RequestSetupStart(IActorRef target) : base(message: null, target: target)
+                private RequestSetupStart(object message, IActorRef target) : base(message: message, target: target)
                 { }
+
+                public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
-
-            public class RejectAcknowledgeResponseFromResource : SimulationMessage
-            {
-                public static RejectAcknowledgeResponseFromResource Create(IActorRef target)
-                {
-                    return new RejectAcknowledgeResponseFromResource(target: target);
-                }
-                private RejectAcknowledgeResponseFromResource(IActorRef target) : base(message: null, target: target)
-                {
-                }
-            }
-
-            public class StartRequeue : SimulationMessage
-            {
-                public static StartRequeue Create(IActorRef target)
-                {
-                    return new StartRequeue(target: target);
-                }
-                private StartRequeue(IActorRef target) : base(message: null, target: target)
-                {
-                }
-            }
         }
     }
 }
