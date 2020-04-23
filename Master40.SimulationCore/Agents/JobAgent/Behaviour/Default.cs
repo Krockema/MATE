@@ -68,7 +68,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 case Job.Instruction.FinishProcessing msg: FinishProcessing(msg.GetObjectFromMessage); break;
                 case Job.Instruction.BucketIsFixed msg: BucketIsFixed(); break;
                 case Job.Instruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
-                case Job.Instruction.AcknowledgeRevoke msg: AcknowledgeRevoke(); break;
+                case Job.Instruction.AcknowledgeRevoke msg: AcknowledgeRevoke(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateStartConditions(msg.GetObjectFromMessage); break;
 
                 // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
@@ -90,9 +90,9 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         }
 
-        private void AcknowledgeRevoke()
+        private void AcknowledgeRevoke(IActorRef sender)
         {
-            _resourceDistinctResourceStates.TryGetValue(Agent.Sender, out var resourceStateHandle);
+            _resourceDistinctResourceStates.TryGetValue(sender, out var resourceStateHandle);
             resourceStateHandle.CurrentState = JobState.Revoked;
 
             if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.Revoked)))
@@ -219,7 +219,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             // FOr Setup or for Processing ? 
 
-            var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(Agent.Sender));
+            var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(sender));
             requestingResource.Value.CurrentState = JobState.Ready;
             if (_resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready)) 
             // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
@@ -240,7 +240,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void FinishSetup(IActorRef sender)
         {
-            var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(Agent.Sender));
+            var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(sender));
             requestingResource.Value.CurrentState = JobState.Finish;
 
             // Request processing has already been sent to job agent -> just for renew state
@@ -318,27 +318,24 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// <param name="jobConfirmation"></param>
         private void DoWork()
         {
-            _currentOperation = _finalOperations.Dequeue();
-
-            Agent.DebugMessage($"Start working with {_currentOperation} in {_jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
-
-            if (_currentOperation == null)
+            if (_finalOperations.Count < 1)
             {
-                // TODO Test if this works
-
                 CreateBucketKpi();
-
                 _resourceProcessingStates.ForEach(x =>
                 {
                     Agent.Send(Resource.Instruction.BucketScope.FinishBucket.Create(x.Key));
                     x.Value.CurrentState = JobState.Finish;
 
                 });
-                
+
                 Terminate();
 
                 return;
             }
+
+            _currentOperation = _finalOperations.Dequeue();
+
+            Agent.DebugMessage($"Start working with {_currentOperation.Operation.Name} {_currentOperation.Key} in {_jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
 
             Agent.DebugMessage(msg: $"Start withdraw for article {_currentOperation.Operation.Name} {_currentOperation.Key}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));

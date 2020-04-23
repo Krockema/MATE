@@ -11,12 +11,13 @@ namespace Master40.SimulationCore.Agents.JobAgent
         {
             public class AcknowledgeRevoke : SimulationMessage
             {
-                public static AcknowledgeRevoke Create(IActorRef target)
+                public static AcknowledgeRevoke Create(IActorRef message, IActorRef target)
                 {
-                    return new AcknowledgeRevoke(target: target);
+                    return new AcknowledgeRevoke(message: message, target: target);
                 }
-                private AcknowledgeRevoke(IActorRef target) : base(message: null, target: target)
+                private AcknowledgeRevoke(IActorRef message, IActorRef target) : base(message: message, target: target)
                 { }
+                public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
             public class RequestDissolve : SimulationMessage

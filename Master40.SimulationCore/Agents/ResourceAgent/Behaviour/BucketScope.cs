@@ -95,7 +95,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 _jobInProgress.Reset();
                 UpdateProcessingItem();
-                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(_jobInProgress.Current.JobAgentRef));
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
                 return;
             }
 
@@ -105,7 +105,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             { 
                 _scopeQueue.RemoveJob(jobConfirmation);
                 UpdateAndRequeuePlanedJobs(jobConfirmation);
-                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(_jobInProgress.Current.JobAgentRef));
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
             }
         }
 
@@ -250,7 +250,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.IsWorking = true;
 
-            Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, Agent.Sender),waitFor: operation.Operation.RandomizedDuration);
+            Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.Current.JobAgentRef),waitFor: operation.Operation.RandomizedDuration);
             
         }
 

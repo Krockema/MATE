@@ -63,7 +63,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has been set fix, but can still add more operations.", CustomLogger.JOB, LogLevel.Warn);
 
-            Agent.Send(Job.Instruction.BucketIsFixed.Create(Agent.Sender));
+            Agent.Send(Job.Instruction.BucketIsFixed.Create(jobConfirmation.JobAgentRef));
         }
 
         private void SendFinalBucket(Guid bucketKey)
