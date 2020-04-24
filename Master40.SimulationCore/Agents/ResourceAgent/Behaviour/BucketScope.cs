@@ -209,7 +209,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 
                 _jobInProgress.Set(job, Agent.CurrentTime);
                 
-                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied: {job.Job.StartConditions.Satisfied} Try to start processing.");
+                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied: {((FBucket)job.Job).HasSatisfiedJob} Try to start processing.");
                 
 
                 // ToDo : test behaviour of this method.
@@ -290,7 +290,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void RequeueAllRemainingJobs()
         {
-            Agent.DebugMessage(msg: "Start to Requeue all remaining Jobs");
             var item = _scopeQueue.FirstOrNull();
             if (item != null)
             {

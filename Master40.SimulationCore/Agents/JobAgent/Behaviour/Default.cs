@@ -94,7 +94,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         {
             _resourceDistinctResourceStates.TryGetValue(sender, out var resourceStateHandle);
             resourceStateHandle.CurrentState = JobState.Revoked;
+            StartToReque();
+        }
 
+        private void StartToReque()
+        {
             if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.Revoked)))
             {
                 if (_dissolveRequested)
@@ -109,7 +113,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 Agent.Send(Hub.Instruction.BucketScope.EnqueueBucket.Create(_jobConfirmation.Key, _jobConfirmation.Job.HubAgent));
 
             }
-
         }
 
         /// <summary>
@@ -118,6 +121,13 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private void StartRequeue()
         {
             Agent.DebugMessage($"Start Requeue for {_jobConfirmation.Job.Name} has been initiated", CustomLogger.JOB, LogLevel.Warn);
+            _resourceDistinctResourceStates.TryGetValue(Agent.Sender, out var state);
+            state.CurrentState = JobState.Revoked;
+            if (_resourceDistinctResourceStates.Count == 1)
+            {
+                StartToReque();
+                return;
+            }
             StartRevoke();
         }
 
@@ -140,10 +150,15 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private void StartRevoke()
         {
             if (_resourceDistinctResourceStates.Any(x => x.Value.CurrentState.Equals(JobState.RevokeStarted))) return;
-            _resourceDistinctResourceStates.ForEach(resource =>
-                    Agent.Send(Resource.Instruction.Default.RevokeJob
-                                                 .Create(_jobConfirmation.Key, target: resource.Key))
-            );
+            foreach (var resource in _resourceDistinctResourceStates)
+            {
+                if (resource.Value.CurrentState == JobState.Revoked)
+                    continue;
+                
+                resource.Value.CurrentState = JobState.RevokeStarted;
+                Agent.Send(Resource.Instruction.Default.RevokeJob
+                        .Create(_jobConfirmation.Key, target: resource.Key));
+            }
         }
 
         private void BucketIsFixed()

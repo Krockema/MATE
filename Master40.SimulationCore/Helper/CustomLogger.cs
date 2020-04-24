@@ -10,5 +10,6 @@ namespace Master40.SimulationCore.Helper
         public const string JOB = "Job";
         public const string ENQUEUE = "Enqueue";
         public const string PRIORITY = "Priority";
+        public const string SCHEDULING = "Scheduling";
     }
 }

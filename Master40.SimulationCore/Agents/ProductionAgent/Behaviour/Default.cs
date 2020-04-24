@@ -10,6 +10,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -257,10 +258,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
         private void SetForwardScheduling()
         {
-            Agent.DebugMessage(
-                msg:
-                $"AddForwardTime for {_articleToProduce.Article.Name} amount: {_forwardScheduleTimeCalculator.Count}  of {_forwardScheduleTimeCalculator.GetRequiredQuantity} ");
-
             if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(fArticle: _articleToProduce))
                 return;
 
@@ -274,11 +271,16 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 var newOperation = operation.SetForwardSchedule(earliestStart: earliestStart);
                 earliestStart = newOperation.ForwardEnd + newOperation.Operation.AverageTransitionDuration;
                 operationList.Add(item: newOperation);
+                Agent.DebugMessage(msg:
+                    $"EarliestForwardStart| {newOperation.ForwardStart} | End: {newOperation.ForwardEnd} | Prio { newOperation.Priority.Invoke(Agent.CurrentTime)} " +
+                    $"| for Operation {newOperation.Operation.Name} |Key: {newOperation.Key} | of Article {_articleToProduce.Article.Name}",
+                    CustomLogger.SCHEDULING, LogLevel.Warn);
+
             }
 
-            Agent.DebugMessage(
-                msg:
-                $"EarliestForwardStart {earliestStart} for Article {_articleToProduce.Article.Name} ArticleKey: {_articleToProduce.Key} send to {Agent.VirtualParent} ");
+            Agent.DebugMessage(msg:
+                $"EarliestForwardStart {earliestStart} for Article {_articleToProduce.Article.Name} ArticleKey: {_articleToProduce.Key} send to {Agent.VirtualParent.Path.Name} ",
+                CustomLogger.SCHEDULING, LogLevel.Warn);
 
             OperationManager.UpdateOperations(operations: operationList);
             Agent.Send(instruction: BasicInstruction.JobForwardEnd.Create(message: earliestStart,
