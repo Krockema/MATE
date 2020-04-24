@@ -187,6 +187,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 foreach (var bucket in bucketsToDissolve)
                 {
+                    if (bucket.IsRequestedToDissolve)
+                        continue;
+
+                    bucket.IsRequestedToDissolve = true;
                     Agent.DebugMessage(msg: $"Asking Job Agent to start dissolve {bucket.Job.Key}");
                     Agent.Send(Job.Instruction.RequestDissolve.Create(bucket.JobAgentRef));
                 }
@@ -340,6 +344,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey: bucket.Key);
 
             _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
+
+            if (jobConfirmation.IsRequestedToDissolve) return;
 
             Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +

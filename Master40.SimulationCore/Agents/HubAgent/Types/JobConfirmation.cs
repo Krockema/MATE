@@ -14,12 +14,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public M_ResourceCapabilityProvider CapabilityProvider { get; set; }
         public FScopeConfirmation ScopeConfirmation { get; set; }
         public bool IsConfirmed => CapabilityProvider != null;
+        public bool IsRequestedToDissolve { get; set; }
         public IActorRef JobAgentRef { get; private set; }
         public JobConfirmation(IJob job)
         {
             Job = job;
             CapabilityProvider = null;
             ScopeConfirmation = null;
+            IsRequestedToDissolve = false;
         }
 
         public bool IsFixPlanned => ((FBucket) Job).IsFixPlanned;

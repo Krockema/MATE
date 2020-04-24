@@ -161,13 +161,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void AcceptProposals(IConfirmation jobConfirmation)
         {
-            Agent.DebugMessage($"Start Acknowledge Job {jobConfirmation.Key} with Priority {jobConfirmation.Job.Priority(Agent.CurrentTime)}" +
-                               $"| scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
+            Agent.DebugMessage($"Start Acknowledge Job {jobConfirmation.Key} | scope : [{jobConfirmation.ScopeConfirmation.GetScopeStart()} to {jobConfirmation.ScopeConfirmation.GetScopeEnd()}]" +
+                               $" with Priority {jobConfirmation.Job.Priority(Agent.CurrentTime)}" +
+                               $" | scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
                                $" {((FBucket)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
 
             foreach (var job in _scopeQueue.GetAllJobs())
             {
-                Agent.DebugMessage($"{job.Key} with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+                Agent.DebugMessage($"{job.Key} | {job.Job.Name}| scope : [{job.ScopeConfirmation.GetScopeStart()} to {job.ScopeConfirmation.GetScopeEnd()}] | with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
             }
 
             var isQueueAble = _scopeQueue.CheckScope(jobConfirmation, Agent.CurrentTime);
@@ -200,7 +201,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             var isQueueAble = (job != null) ? $" {job.Job.Name} {job.Job.Key} ": " not satisfied";
             Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket." +
-                                    $"The first job is {isQueueAble}", CustomLogger.JOB, LogLevel.Warn);
+                                    $"The first job is {isQueueAble} and a Job is in progress: {_jobInProgress.IsSet}", CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
             if (!_jobInProgress.IsSet && job != null)

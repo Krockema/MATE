@@ -144,7 +144,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return queuingScopes;
         }
 
-        private List<FQueueingScope> GetScopesFor(long requiredTime, IJob job, int capabilityProviderId, bool usedForSetupAndProcess,  long currentTime, long totalWorkLoad, CapabilityProviderManager capabilityProviderManager)
+        private List<FQueueingScope> GetScopesFor(long requiredTime, IJob job, int capabilityProviderId, bool usedForSetupAndProcess,  long currentTime, long resourceBlockedUntil, CapabilityProviderManager capabilityProviderManager)
         {
             var scopes = new List<ITimeRange>();
             var positions = new List<FQueueingScope>();
@@ -154,11 +154,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var enumerator = allWithHigherPriority.GetEnumerator();
             var isQueueAble = false;
             var isRequiringSetup = true;
-            totalWorkLoad = currentTime;
+            var earliestStart = currentTime + resourceBlockedUntil;
             if (!enumerator.MoveNext())
             {
                 isQueueAble = true;
-                isRequiringSetup = (capabilityProviderManager.AlreadyEquipped(capabilityProviderId)) ? false : true;
+                isRequiringSetup = (!capabilityProviderManager.AlreadyEquipped(capabilityProviderId));
                 // ignore first round
                 // totalwork bis max
             }
@@ -167,9 +167,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 var current = enumerator.Current;
                 var preScopeEnd = current.Value.ScopeConfirmation.GetScopeEnd();
                 
-                isQueueAble = currentTime + Limit > totalWorkLoad || ((FBucket)job).HasSatisfiedJob;
+                isQueueAble = currentTime + Limit > earliestStart + ((FBucket)job).MaxBucketSize || ((FBucket)job).HasSatisfiedJob;
 
-                totalWorkLoad = preScopeEnd;
+                earliestStart = preScopeEnd;
                 
                 while (enumerator.MoveNext())
                 {
@@ -187,17 +187,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                         requiredTime -= setupTimeIfEquipped;
                     }
 
-                    if (requiredTime <= postScopeStart - preScopeEnd)
+                    if (requiredTime <= postScopeStart - earliestStart)
                     {
                         positions.Add(new FQueueingScope(isQueueAble: true,
                                                         isRequieringSetup: (setupTimeIfEquipped == 0), // setup is Required
-                                                        scope: new FScope(start: totalWorkLoad, end: postScopeStart)
+                                                        scope: new FScope(start: earliestStart, end: postScopeStart)
                                                         ));
 
                     }
                     current = post;
-                    totalWorkLoad = current.Value.ScopeConfirmation.GetScopeEnd();
-                    isQueueAble = currentTime + Limit > totalWorkLoad || ((FBucket)job).HasSatisfiedJob;
+                    earliestStart = current.Value.ScopeConfirmation.GetScopeEnd();
+                    isQueueAble = currentTime + Limit > earliestStart + ((FBucket)job).MaxBucketSize || ((FBucket)job).HasSatisfiedJob;
                 }
             }
 
@@ -206,7 +206,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             // Queue contains no job --> Add queable item
             positions.Add(new FQueueingScope(isQueueAble: isQueueAble,
                                                 isRequieringSetup: isRequiringSetup,
-                                                scope: new FScope(start: totalWorkLoad, end: long.MaxValue)
+                                                scope: new FScope(start: earliestStart, end: long.MaxValue)
                                                 ));
             return positions;
         }
