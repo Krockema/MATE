@@ -84,7 +84,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
                 {
                     //TODO Log this somewhere - not in System Debug
                     //System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
-                    fOperation.StartConditions.ArticlesProvided = true;
+                    fOperation.SetStartConditions(fOperation.StartConditions.PreCondition, true);
                 }
 
                 foreach (var bom in fOperation.Operation.ArticleBoms)

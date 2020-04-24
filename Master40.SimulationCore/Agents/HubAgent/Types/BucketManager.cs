@@ -4,6 +4,9 @@ using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.FSharp.Collections;
+using NLog;
 using static FBuckets;
 using static FOperations;
 using static FUpdateStartConditions;
@@ -44,7 +47,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         }
         public JobConfirmation GetConfirmationByBucketKey(Guid bucketKey)
         {
-            return _jobConfirmations.SingleOrDefault(x => x.Job.Key == bucketKey);
+            return _jobConfirmations.FirstOr((x => x.Job.Key == bucketKey), null);
         }
 
         public void Replace(FBucket bucket)
@@ -73,6 +76,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             var jobConfirmation = GetConfirmationByBucketKey(bucketKey);
             var removed = _jobConfirmations.Remove(jobConfirmation);
             return removed;
+        }
+
+        public JobConfirmation GetAndRemoveJob(Guid bucketKey)
+        {
+            var jobConfirmation = GetConfirmationByBucketKey(bucketKey);
+            if (jobConfirmation == null) return null;
+            _jobConfirmations.Remove(jobConfirmation);
+            return jobConfirmation;
         }
 
         public bool Remove(JobConfirmation jobConfirmation)
@@ -226,7 +237,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             if (bucket != null)
             {
                 var operation = bucket.Operations.Single(x => x.Key == operationKey);
-                operation.SetStartConditions(startCondition);
+                operation.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
                 Replace(bucket);
                 return true;
             }
@@ -234,28 +245,27 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return false;
         }
 
-        public bool SetBucketSatisfied(FBucket bucket)
-        {
-            bool preConditons = bucket.Operations.All(x => x.StartConditions.PreCondition);
-            bool articlesProvided = bucket.Operations.All(x => x.StartConditions.ArticlesProvided);
 
-            bucket.SetStartConditions(startCondition: new FUpdateStartCondition(operationKey: bucket.Key, preCondition: preConditons, articlesProvided: articlesProvided));
-            Replace(bucket);
-            return preConditons && articlesProvided;
-        }
-
-
-        public List<FOperation> GetAllNotSatifsiedOperation(FBucket bucket)
+        public (FBucket, List<FOperation>) RemoveNotSatisfiedOperations(FBucket bucket, Agent agent)
         {
             List<FOperation> notSatisfiedOperations = new List<FOperation>();
-            foreach (var operation in bucket.Operations)
+            var bucketOperations = bucket.Operations.ToList();
+            foreach (var operation in bucketOperations)
             {
+                agent.DebugMessage(msg:$"In RemoveNotSatisfiedOperations check the operation {operation.Key} {operation.Operation.Name} in {bucket.Name} has" +
+                                       $"| Satisfied: {operation.StartConditions.Satisfied} " +
+                                       $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
+                                       $"| PreCondition: {operation.StartConditions.PreCondition} ", CustomLogger.JOB, LogLevel.Warn);
+
                 if (!operation.StartConditions.Satisfied)
                 {
+                    agent.DebugMessage(msg: $"Operation {operation.Key} in {operation.Operation.Name} in {bucket.Name} will be removed because it is not satisfied!", CustomLogger.JOB, LogLevel.Warn);
+
                     notSatisfiedOperations.Add(operation);
+                    bucket = bucket.RemoveOperation(operation);
                 }
             }
-            return notSatisfiedOperations;
+            return (bucket, notSatisfiedOperations);
         }
 
         public void AddOrUpdateBucketSize(M_ResourceCapability capability, long duration)

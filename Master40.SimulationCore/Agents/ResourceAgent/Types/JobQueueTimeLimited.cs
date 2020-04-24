@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using static FJobConfirmations;
+using static FOperations;
 using static FUpdateStartConditions;
 using static IConfirmations;
 using static IJobs;
@@ -134,8 +135,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             var jobConfirmation = JobConfirmations.SingleOrDefault(x => x.Job.Key == startCondition.OperationKey);
             if (jobConfirmation == null) return false;
-            jobConfirmation.Job.StartConditions.ArticlesProvided = startCondition.ArticlesProvided;
-            jobConfirmation.Job.StartConditions.PreCondition = startCondition.PreCondition;
+            ((FOperation)jobConfirmation.Job).SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
             return jobConfirmation.Job.StartConditions.ArticlesProvided && jobConfirmation.Job.StartConditions.PreCondition;
         }
     }

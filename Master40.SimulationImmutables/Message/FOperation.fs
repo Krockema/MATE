@@ -19,7 +19,7 @@ open FUpdateStartConditions
           ForwardStart : int64 
           Start : int64
           End : int64 
-          StartConditions : FStartCondition
+          mutable StartConditions : FStartCondition
           Priority : int64 -> double
           ProductionAgent : IActorRef
           mutable HubAgent : IActorRef
@@ -64,12 +64,10 @@ open FUpdateStartConditions
             | _ -> invalidArg "Operation" "cannot compare value of different types" 
         override this.GetHashCode() = this.Key.GetHashCode()
         member this.SetFinished() = this.IsFinished <- true
-        member this.UpdatePoductionAgent p = { this with ProductionAgent = p }  
+        member this.UpdatePoductionAgent p = { this with ProductionAgent = p }
         member this.AsIjob = this :> IJob
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
-        member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
-                                                                                 this.StartConditions.PreCondition <- startCondition.PreCondition
+        member this.SetStartConditions preCondition articleProvided = this.StartConditions <- { PreCondition = preCondition; ArticlesProvided = articleProvided } 
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }
         member this.UpdateBucket bucketId = { this with Bucket = bucketId}
-        

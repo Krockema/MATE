@@ -12,7 +12,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public interface IJobQueue
     {
         IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
-        IConfirmation DequeueFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
+        IConfirmation GetFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
         void Enqueue(IConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
         bool FirstJobIsQueueAble();

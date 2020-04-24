@@ -30,12 +30,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return value;
         }
 
-        public IConfirmation DequeueFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        public IConfirmation GetFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, confirmation) = GetFirst();
             if (confirmation != null && ((FBucket)confirmation.Job).HasSatisfiedJob)
             {
-                this.Remove(key);
+                
                 return confirmation;
             }
             return null;
@@ -150,10 +150,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var positions = new List<FQueueingScope>();
 
             var jobPriority = job.Priority(currentTime);
-            var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
-            var enumerator = allWithLowerPriority.GetEnumerator();
+            var allWithHigherPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
+            var enumerator = allWithHigherPriority.GetEnumerator();
             var isQueueAble = false;
             var isRequiringSetup = true;
+            totalWorkLoad = currentTime;
             if (!enumerator.MoveNext())
             {
                 isQueueAble = true;
@@ -165,13 +166,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             {
                 var current = enumerator.Current;
                 var preScopeEnd = current.Value.ScopeConfirmation.GetScopeEnd();
+                
+                isQueueAble = currentTime + Limit > totalWorkLoad || ((FBucket)job).HasSatisfiedJob;
+
                 totalWorkLoad = preScopeEnd;
+                
                 while (enumerator.MoveNext())
                 {
                     // Limit? Job satisfied?
-                    isQueueAble = Limit > totalWorkLoad || ((FBucket)job).StartConditions.Satisfied;
-                    if(!isQueueAble)           
+                    if (!isQueueAble)
                         break;
+
 
                     var post = enumerator.Current;
                     var postScopeStart = post.Value.ScopeConfirmation.GetScopeStart();
@@ -192,6 +197,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     }
                     current = post;
                     totalWorkLoad = current.Value.ScopeConfirmation.GetScopeEnd();
+                    isQueueAble = currentTime + Limit > totalWorkLoad || ((FBucket)job).HasSatisfiedJob;
                 }
             }
 
@@ -234,12 +240,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public bool CheckScope(IConfirmation confirmation, long time)
         {
             var priority = confirmation.Job.Priority(time);
-            var allWithLowerPriority = this.Where(x => x.Value.Job.Priority(time) <= priority);
+            var allWithHigherPriority = this.Where(x => x.Value.Job.Priority(time) <= priority).ToList();
             var fitEnd = true;
             var fitStart = true;
-            var pre = allWithLowerPriority.OrderByDescending(x => x.Key)
-                                                                      .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
-            var post = allWithLowerPriority.FirstOrDefault(x => x.Key > confirmation.ScopeConfirmation.GetScopeEnd());
+
+            var pre = allWithHigherPriority.OrderByDescending(x => x.Key)
+                                           .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
+            var post = allWithHigherPriority.FirstOrDefault(x => x.Key > confirmation.ScopeConfirmation.GetScopeEnd());
 
             if (pre.Value == null)
                 return true;

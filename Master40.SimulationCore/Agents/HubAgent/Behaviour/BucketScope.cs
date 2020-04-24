@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (bucket == null) return;
             
             bucket = bucket.SetFixPlanned;
-            _bucketManager.SetBucketSatisfied(bucket);
+            _bucketManager.Replace(bucket);
             
             Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has been set fix, but can still add more operations.", CustomLogger.JOB, LogLevel.Warn);
 
@@ -71,22 +71,21 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var jobConfirmation = BucketCleanup(bucketKey);
             var bucket = jobConfirmation.Job as FBucket;
 
-            
-            // Remove all Information from Hub
             bucket.Operations.ForEach(operation =>
             {
-                Agent.DebugMessage($"{operation.Key} from {((FBucket)jobConfirmation.Job).Name} has been removed before finalized.", CustomLogger.JOB, LogLevel.Warn);
-
                 operation.Operation.RandomizedDuration =
                     _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration);
+
+                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} from {((FBucket)jobConfirmation.Job).Name} has new work time of {operation.Operation.RandomizedDuration}.", CustomLogger.JOB, LogLevel.Warn);
+
                 //RemoveJobFromBucketManager(operation.Key);
             });
-            RemoveBucketOnStartBucketProcessing(jobConfirmation.Job.Key);
 
             jobConfirmation.Job = bucket;
             Agent.DebugMessage($"Send finalized {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count()} operations to Job Agent.", CustomLogger.JOB, LogLevel.Warn);
 
             Agent.Send(Job.Instruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
+
         }
 
         private void DissolveBucket(Guid bucketKey)
@@ -117,7 +116,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var operation = (FOperation)job;
 
-            Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key} | with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}");
+            Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" + 
+                                    $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +
+                                    $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
+                                    $"| PreCondition: {operation.StartConditions.PreCondition}");
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
@@ -129,11 +131,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void EnqueueOperation(FOperation fOperation)
         {
-            var operationInBucket = _bucketManager.GetBucketByOperationKey(fOperation.Key);
 
+            Agent.DebugMessage(msg: $"Original FOperation before add to Bucket : {fOperation.Operation.Name} {fOperation.Key}" +
+                                    $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}" +
+                                    $"| ArticleProvided: {fOperation.StartConditions.ArticlesProvided} " +
+                                    $"| PreCondition: {fOperation.StartConditions.PreCondition}");
+
+            var operationInBucket = _bucketManager.GetBucketByOperationKey(fOperation.Key);
+            
             if (operationInBucket != null)
             {
-                Agent.DebugMessage($"{fOperation.Operation.Name} {fOperation.Key} is already in bucket");
+                Agent.DebugMessage($"{fOperation.Operation.Name} {fOperation.Key} is already in bucket", CustomLogger.ENQUEUE, LogLevel.Warn);
                 return;
             }
 
@@ -141,6 +149,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var bucket = _bucketManager.AddToBucket(fOperation);
             if (bucket != null)
             {
+                var operationInsideBucket = bucket.Operations.Single(x => x.Key.Equals(fOperation.Key));
+                
+                Agent.DebugMessage(msg: $"FOperation inside Bucket {operationInsideBucket.Operation.Name} {operationInsideBucket.Key}" +
+                                        $"| with start condition: {operationInsideBucket.StartConditions.Satisfied} with Id: {operationInsideBucket.Key}" +
+                                        $"| ArticleProvided: {operationInsideBucket.StartConditions.ArticlesProvided} " +
+                                        $"| PreCondition: {operationInsideBucket.StartConditions.PreCondition}");
+
                 Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
                 return;//if no bucket to add exists create a new one
@@ -279,42 +294,54 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         /// <param name="bucketKey"></param>
         internal JobConfirmation BucketCleanup(Guid bucketKey)
         {
-            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
-            _bucketManager.Remove(jobConfirmation);
+            var jobConfirmation = _bucketManager.GetAndRemoveJob(bucketKey);
             
-            Agent.DebugMessage($"Start finalize {jobConfirmation.Job.Name} from {((FBucket)jobConfirmation.Job).Name}", CustomLogger.JOB, LogLevel.Warn);
-
-            var bucket = jobConfirmation.Job as FBucket;
-            //refuse bucket if not exits anymore
-            if (bucket != null)
+            if (jobConfirmation != null)
             {
+                Agent.DebugMessage($"Start finalize {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count} operations left from {((FBucket)jobConfirmation.Job).Name}", CustomLogger.JOB, LogLevel.Warn);
+
+                var beforeCount = ((FBucket)jobConfirmation.Job).Operations.Count;
+                var removedCount = 0;
+
                 //Step 1. Clear Bucket from unsatisfied operations
-                var notSatisfiedOperations = _bucketManager.GetAllNotSatifsiedOperation(bucket);
-                
+                Agent.DebugMessage($"Start clearing {jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
+
+                var (bucket, notSatisfiedOperations) = _bucketManager.RemoveNotSatisfiedOperations(jobConfirmation.Job as FBucket, Agent);
+                jobConfirmation.Job = bucket;
+
                 if (notSatisfiedOperations.Count > 0)
                 {
-                    jobConfirmation.Job = _bucketManager.RemoveOperations(bucket, notSatisfiedOperations);
+                    removedCount = notSatisfiedOperations.Count;
+                    Agent.DebugMessage($"Clearing {removedCount} operations from {jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
 
                     //Setp 2. Requeue all unsatisfied operations
                     RequeueOperations(notSatisfiedOperations);
                 }
 
+                var afterCount = ((FBucket)jobConfirmation.Job).Operations.Count;
+
+                Agent.DebugMessage($"Clearing finished for {jobConfirmation.Job.Name} with {afterCount} operations left and {removedCount} operations requeued, startet with {beforeCount}", CustomLogger.JOB, LogLevel.Warn);
             }
             else
             {
                 throw new Exception("No bucket found. Sad times....");
             }
+
             return jobConfirmation;
         }
 
         internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
+            Agent.DebugMessage(msg: $"Received: Update and forward start condition for {startCondition.OperationKey}" +
+                                    $"| ArticleProvided: {startCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {startCondition.PreCondition} ");
+
             var bucket = _bucketManager.GetBucketByOperationKey(startCondition.OperationKey);
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey: bucket.Key);
 
             _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
 
-            Agent.DebugMessage(msg: $"Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
+            Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} " +
                                     $"to job agent {jobConfirmation.JobAgentRef}");
@@ -324,18 +351,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         
         internal void RequeueOperations(List<FOperation> operations)
         {
-            Agent.DebugMessage(msg: $"Requeue operation of {operations.Count} operations", CustomLogger.ENQUEUE, LogLevel.Warn);
+            var i = 0;
+            var remember = operations.Count;
+            Agent.DebugMessage(msg: $"Start Requeue operation of {operations.Count} operations", CustomLogger.ENQUEUE, LogLevel.Warn);
             foreach (var operation in operations.OrderBy(x => x.ForwardStart).ToList())
             {
-                Agent.DebugMessage(msg: $"Requeue operation {operation.Operation.Name} {operation.Key}", CustomLogger.ENQUEUE, LogLevel.Warn);
+                Agent.DebugMessage(msg: $"Now Requeue operation {operation.Operation.Name} {operation.Key}", CustomLogger.ENQUEUE, LogLevel.Warn);
                 EnqueueOperation(operation);
+                i++;
             }
-        }
 
-        internal void RemoveBucketOnStartBucketProcessing(Guid jobKey)
-        {
-            _bucketManager.Remove(jobKey);
+            Agent.DebugMessage($"Requeue {i} of {remember} operations finished", CustomLogger.ENQUEUE, LogLevel.Warn);
         }
-
     }
 }

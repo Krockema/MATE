@@ -2,7 +2,7 @@
 
     type public FStartCondition = 
         {
-            mutable PreCondition : bool
-            mutable ArticlesProvided : bool
+            PreCondition : bool
+            ArticlesProvided : bool
         }
         member this.Satisfied = this.PreCondition && this.ArticlesProvided

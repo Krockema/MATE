@@ -9,10 +9,10 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Event;
 using static FBuckets;
 using static FOperations;
 using static FPostponeds;
@@ -21,6 +21,7 @@ using static FResourceInformations;
 using static FUpdateStartConditions;
 using static IConfirmations;
 using static IJobResults;
+using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -33,7 +34,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
             _agentDictionary = new AgentDictionary();
             // SCOPELIMIT something like 960
-            _scopeQueue = new TimeConstraintQueue(limit: planingJobQueueLength);
+            _scopeQueue = new TimeConstraintQueue(limit: 960);
         }
 
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
@@ -105,7 +106,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             { 
                 _scopeQueue.RemoveJob(jobConfirmation);
                 UpdateAndRequeuePlanedJobs(jobConfirmation);
-                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: jobConfirmation.JobAgentRef));
             }
         }
 
@@ -128,6 +129,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
         {
+            Agent.DebugMessage($"Send Proposal for Job {requestProposal.Job.Key} with Priority {requestProposal.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+
+            foreach (var job in _scopeQueue.GetAllJobs())
+            {
+                Agent.DebugMessage($"{job.Key} with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+            }
+
             var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
                                                                 , cpm: _capabilityProviderManager
@@ -139,7 +147,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var jobPrio = requestProposal.Job.Priority(Agent.CurrentTime);
             Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
                 ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Scope.Start} and Prio: {jobPrio}"
-                : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PROPOSAL, LogLevel.Warn);
+                : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PRIORITY, LogLevel.Warn);
 
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePositions
@@ -153,12 +161,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void AcceptProposals(IConfirmation jobConfirmation)
         {
+            Agent.DebugMessage($"Start Acknowledge Job {jobConfirmation.Key} with Priority {jobConfirmation.Job.Priority(Agent.CurrentTime)}" +
+                               $"| scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
+                               $" {((FBucket)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
+
+            foreach (var job in _scopeQueue.GetAllJobs())
+            {
+                Agent.DebugMessage($"{job.Key} with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+            }
+
             var isQueueAble = _scopeQueue.CheckScope(jobConfirmation, Agent.CurrentTime);
 
             // If is not queueable 
             if (!isQueueAble)
             {
-                Agent.DebugMessage(msg: $"Reject proposal for: {jobConfirmation.Job.Name} {jobConfirmation.Key} with jobPrio: { jobConfirmation.Job.Priority(Agent.CurrentTime) } and send reject job to job agent", CustomLogger.PROPOSAL, LogLevel.Warn);
+                Agent.DebugMessage(msg: $"Reject proposal for: {jobConfirmation.Job.Name} {jobConfirmation.Key} with jobPrio: { jobConfirmation.Job.Priority(Agent.CurrentTime) } and send reject job to job agent", CustomLogger.PRIORITY, LogLevel.Warn);
                 Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: jobConfirmation.JobAgentRef));
                 return;
             }
@@ -168,7 +185,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             Agent.DebugMessage(msg: $"Accepted proposal on resource {Agent.Context.Self.Path.Name} and " +
                                     $"start enqueue {jobConfirmation.Job.Name} {jobConfirmation.Key} queueCount: {_scopeQueue.Count}" +
-                                    $"", CustomLogger.PROPOSAL, LogLevel.Warn);
+                                    $"", CustomLogger.PRIORITY, LogLevel.Warn);
 
             UpdateProcessingItem();
         }
@@ -179,12 +196,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void UpdateProcessingItem()
         {
-            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} operations is QueueAble: {_scopeQueue.FirstJobIsQueueAble()}", CustomLogger.JOB, LogLevel.Warn);
+            var job = _scopeQueue.GetFirstIfSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
+
+            var isQueueAble = (job != null) ? $" {job.Job.Name} {job.Job.Key} ": " not satisfied";
+            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket." +
+                                    $"The first job is {isQueueAble}", CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
-            if (!_jobInProgress.IsSet && _scopeQueue.FirstJobIsQueueAble())
+            if (!_jobInProgress.IsSet && job != null)
             {
-                var job = _scopeQueue.DequeueFirstIfSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
+                _scopeQueue.RemoveJob(job);
                 
                 _jobInProgress.Set(job, Agent.CurrentTime);
                 
@@ -213,7 +234,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (bucket != null)
             {
                 var operation = bucket.Operations.Single(x => x.Key == startCondition.OperationKey);
-                operation.SetStartConditions(startCondition: startCondition);
+                operation.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
                 Agent.DebugMessage($"Operation {operation.Operation.Name} {operation.Key} in {bucket.Name} has been startCondition set to: {operation.StartConditions.Satisfied} with preCondition: {operation.StartConditions.PreCondition} and articlesProvided {operation.StartConditions.ArticlesProvided}");
             }
             else
@@ -281,16 +302,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void UpdateAndRequeuePlanedJobs(IConfirmation jobConfirmation)
         {
-            Agent.DebugMessage(msg: $"Old scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
+            
             var toRequeue = _scopeQueue.GetTail(currentTime: Agent.CurrentTime, jobConfirmation);
             RequeueJobs(toRequeue);
-            Agent.DebugMessage(msg: $"New scope queue length on {Agent.Context.Self.Path.Name}: " + _scopeQueue.Count);
         }
 
         private void RequeueJobs(HashSet<IConfirmation> toRequeue)
         {
+            Agent.DebugMessage(msg: $"Remove {toRequeue.Count} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
+
             foreach (var job in toRequeue)
             {
+                Agent.DebugMessage(msg: $"Remove for requeue {job.Job.Name} {job.Key} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
                 _scopeQueue.RemoveJob(job);
                 Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: job.JobAgentRef));
             }

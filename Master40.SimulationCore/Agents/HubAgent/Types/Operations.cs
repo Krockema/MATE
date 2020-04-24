@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             var jobConfirmation = GetJobConfirmation(startCondition.OperationKey);
             var operation = jobConfirmation.Job as FOperation;
-            operation.SetStartConditions(startCondition: startCondition);
+            operation.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
             return jobConfirmation;
         }
 

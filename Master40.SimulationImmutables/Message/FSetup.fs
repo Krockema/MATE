@@ -8,9 +8,8 @@ open FStartConditions
 open IKeys
 open IJobs
 open Master40.DB.DataModel
-open FUpdateStartConditions
 
-    type public FSetup =
+   type public FSetup =
         { Key : Guid
           Name : string
           IsFixPlanned : bool
@@ -22,7 +21,7 @@ open FUpdateStartConditions
           Scope : int64
           Start : int64
           End : int64 
-          StartConditions : FStartCondition
+          mutable StartConditions : FStartCondition
           Priority : FSetup -> int64 -> double
           mutable HubAgent : IActorRef
           Operations : Set<FOperation>
@@ -60,8 +59,6 @@ open FUpdateStartConditions
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
-        member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
-                                                                                 this.StartConditions.PreCondition <- startCondition.PreCondition
         member this.SetFixPlanned = { this with IsFixPlanned = true}
         member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
         member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)
