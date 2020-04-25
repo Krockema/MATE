@@ -203,12 +203,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             var isQueueAble = (job != null) ? $"{job.Job.Name} {job.Job.Key} " : " not satisfied";
             var allPrios = "";
-            _scopeQueue.GetAllJobs().ForEach(x => allPrios += $" Prio: {x.Job.Priority(Agent.CurrentTime)} | Bucket {x.Job.Name} | {((FBucket)x.Job).Operations.First().Operation.Name}") ;
+            _scopeQueue.GetAllJobs().ForEach(x => allPrios += $"  | Bucket {x.Job.Name} | Prio: {x.Job.Priority(Agent.CurrentTime)} | Is Ready: {((FBucket)x.Job).HasSatisfiedJob } | {((FBucket)x.Job).Operations.First().Operation.Name} ") ;
 
 
             Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket. " + allPrios +
-                                    $"and any other job is {_scopeQueue.GetAllJobs().Any(x => ((FBucket)x.Job).HasSatisfiedJob)}" +
-                                    $"The first job is {isQueueAble} and a Job is in progress: {_jobInProgress.IsSet}", CustomLogger.JOB, LogLevel.Warn);
+                                    $" | Job is in progress: {_jobInProgress.IsSet}", CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
             if (!_jobInProgress.IsSet && job != null)
@@ -292,7 +291,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (next != null)
             {
                 var isOverdue = next.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime;
-                var isReady = ((FBucket) next.Job).HasSatisfiedJob;
+                var isReady = ((FBucket)next.Job).HasSatisfiedJob;
 
                 if (isOverdue && !isReady)
                 {

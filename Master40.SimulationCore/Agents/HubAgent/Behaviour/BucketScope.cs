@@ -348,7 +348,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             if (jobConfirmation.IsRequestedToDissolve) return;
 
-            Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name}" +
+            Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name} with key  {bucket.Key}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} " +
                                     $"to job agent {jobConfirmation.JobAgentRef}");
