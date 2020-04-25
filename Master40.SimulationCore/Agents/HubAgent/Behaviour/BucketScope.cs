@@ -278,7 +278,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 jobConfirmation.CapabilityProvider = possiblePosition.ResourceCapabilityProvider;
 
                 var jobResourceConfirmation = new FJobResourceConfirmation(jobConfirmation.ToImmutable(), new Dictionary<IActorRef, FScopeConfirmation>());
-                foreach (var setup in jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
+                var setups = jobConfirmation.CapabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical).ToList();
+                foreach (var setup in setups)
                 {
                     var resourceRef = setup.Resource.IResourceRef as IActorRef;
                     jobResourceConfirmation.ScopeConfirmations.Add(resourceRef,

@@ -14,11 +14,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             _capabilityInUse = new CapabilityInUse();
         }
 
-        internal void Mount(int capabilityProviderId)
+        internal void Mount(int capabilityId)
         {
-            if (!AlreadyEquipped(capabilityProviderId))
+            if (!AlreadyEquipped(capabilityId))
             {
-                var capabilityProvider = _resourceCapabilityProviders.Single(x => x.ResourceCapabilityId == capabilityProviderId);
+                var capabilityProvider = _resourceCapabilityProviders.Single(x => x.Id == capabilityId);
                 _capabilityInUse.Mount(capabilityProvider);
             }
 
@@ -29,11 +29,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return _capabilityInUse.ResourceCapabilityProvider?.ResourceCapability;
         }
 
-        internal bool AlreadyEquipped(int capabilityProviderId)
+        internal bool AlreadyEquipped(int capabilityId)
         {
             if(_capabilityInUse.ResourceCapabilityProvider == null)
                 return false;
-            return _capabilityInUse.ResourceCapabilityProvider.ResourceCapabilityId == capabilityProviderId;
+            return _capabilityInUse.ResourceCapabilityProvider.ResourceCapabilityId == capabilityId;
         }
 
         internal M_ResourceCapabilityProvider GetCapabilityProviderByCapability(int capabilityProviderId)
@@ -47,7 +47,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             //TODO Take care if 1 Capability can be done by multiply tools
 
-            var setupTime = _resourceCapabilityProviders.Single(x => x.Id == resourceCapabilityProviderId).ResourceSetups.Sum(x => x.SetupTime);
+            var setupTime = _resourceCapabilityProviders.Single(x => x.Id == resourceCapabilityProviderId)
+                                                            .ResourceSetups.Sum(x => x.SetupTime);
             return setupTime;
         }
 

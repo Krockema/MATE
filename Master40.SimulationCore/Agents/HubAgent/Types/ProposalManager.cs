@@ -282,17 +282,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             foreach (var position in possibleFQueueingPositions)
             {
-                var positionsToCompare = proposalArray[stage].PossibleSchedule as List<ITimeRange>;
-                var found = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position.Scope, x, requiredDuration));
-                if (null == found)
+                var positionsToCompare = (proposalArray[stage].PossibleSchedule as List<FQueueingScope>);
+                var pos = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position.Scope, x.Scope, requiredDuration));
+                
+                if (pos == null)
                     continue;
-                var min = (new[] { position.Scope.Start, found.Start }).Max();
-                var max = (new[] { position.Scope.End, found.End }).Min();
+                var min = (new[] { position.Scope.Start, pos.Scope.Start }).Max();
+                var max = (new[] { position.Scope.End, pos.Scope.End }).Min();
 
-                reducedSlots.Add(new FQueueingScope(isQueueAble: true, isRequieringSetup: false,
-                                        new FScope(start: min, end: max)));
+                reducedSlots.Add(new FQueueingScope(isQueueAble: true, isRequieringSetup: false, new FScope(start: min, end: max)));
             }
-
             if (proposalArray.Length >= stage) return reducedSlots;
 
             stage++;

@@ -59,7 +59,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
 
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
-
+ 
                 case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
 
                 default:
@@ -257,7 +257,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
                 $"Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
             
-            _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
+            _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
             _jobInProgress.SetStartTime(Agent.CurrentTime);
             Agent.Send(instruction: Job.Instruction.FinishSetup.Create(message: Agent.Context.Self,target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
         }
