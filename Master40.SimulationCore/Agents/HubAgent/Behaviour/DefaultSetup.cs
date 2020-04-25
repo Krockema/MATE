@@ -184,17 +184,5 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Machine Agent " + resourceInformation.Ref.Path.Name + " to Machine Pool: " + resourceInformation.RequiredFor);
         }
-
-        /*
-         //TODO not working at the moment - implement and change to _resourceManager
-        private void ResourceBreakDown(FBreakDown breakDown)
-        {
-            var brockenMachine = _resourceAgents.Single(predicate: x => breakDown.Resource == x.Value).Key;
-            _resourceAgents.Remove(key: brockenMachine);
-            Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: brockenMachine, logThis: true), waitFor: 45);
-
-            System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Hub");
-        }
-        */
     }
 }

@@ -11,8 +11,10 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using Akka.Event;
+using Akka.Util.Internal;
 using static FBuckets;
 using static FOperations;
 using static FPostponeds;
@@ -199,8 +201,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var job = _scopeQueue.GetFirstIfSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
 
-            var isQueueAble = (job != null) ? $" {job.Job.Name} {job.Job.Key} ": " not satisfied";
-            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket." +
+            var isQueueAble = (job != null) ? $"{job.Job.Name} {job.Job.Key} " : " not satisfied";
+            var allPrios = "";
+            _scopeQueue.GetAllJobs().ForEach(x => allPrios += $" Prio: {x.Job.Priority(Agent.CurrentTime)} | Bucket {x.Job.Name} | {((FBucket)x.Job).Operations.First().Operation.Name}") ;
+
+
+            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket. " + allPrios +
+                                    $"and any other job is {_scopeQueue.GetAllJobs().Any(x => ((FBucket)x.Job).HasSatisfiedJob)}" +
                                     $"The first job is {isQueueAble} and a Job is in progress: {_jobInProgress.IsSet}", CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
@@ -281,10 +288,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             _jobInProgress.Reset();
 
+            var next = _scopeQueue.FirstOrNull();
+            if (next != null)
+            {
+                var isOverdue = next.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime;
+                var isReady = ((FBucket) next.Job).HasSatisfiedJob;
+
+                if (isOverdue && !isReady)
+                {
+                    Agent.DebugMessage("Requeue because all jobs are overdue", CustomLogger.JOB, LogLevel.Warn);
+                    RequeueAllRemainingJobs();
+                }
+            }
             UpdateProcessingItem();
-            
-            //TODO  Maybe only if expected != acutal duration
-            RequeueAllRemainingJobs();
         }
 
 #endregion

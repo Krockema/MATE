@@ -7,18 +7,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class CapabilityProviderManager
     {
         private List<M_ResourceCapabilityProvider> _resourceCapabilityProviders { get; set; } = new List<M_ResourceCapabilityProvider>();
-        private CapabilityInUse _capabilityInUse { get; set; } 
+        private CapabilityProviderInUse _capabilityInUse { get; set; } 
         public CapabilityProviderManager(List<M_ResourceCapabilityProvider> resourceCapabilityProvider)
         {
             _resourceCapabilityProviders = resourceCapabilityProvider;
-            _capabilityInUse = new CapabilityInUse();
+            _capabilityInUse = new CapabilityProviderInUse();
         }
 
-        internal void Mount(int capabilityId)
+        internal void Mount(int capabilityProviderId)
         {
-            if (!AlreadyEquipped(capabilityId))
+            if(!AlreadyEquipped(capabilityProviderId))
             {
-                var capabilityProvider = _resourceCapabilityProviders.Single(x => x.Id == capabilityId);
+                var capabilityProvider = _resourceCapabilityProviders.Single(x => x.Id == capabilityProviderId);
                 _capabilityInUse.Mount(capabilityProvider);
             }
 
@@ -29,6 +29,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return _capabilityInUse.ResourceCapabilityProvider?.ResourceCapability;
         }
 
+        /// <summary>
+        /// Input: Capability
+        /// </summary>
+        /// <param name="capabilityId"></param>
+        /// <returns></returns>
         internal bool AlreadyEquipped(int capabilityId)
         {
             if(_capabilityInUse.ResourceCapabilityProvider == null)
