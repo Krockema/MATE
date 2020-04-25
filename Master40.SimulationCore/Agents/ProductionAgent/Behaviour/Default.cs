@@ -184,8 +184,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
                 articleDictionary.Operation.SetStartConditions(articleDictionary.Operation.StartConditions.PreCondition, true);
-
-
                 if (articleDictionary.Operation.HubAgent == null) return;
                 // // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions
