@@ -24,6 +24,7 @@ using static FUpdateStartConditions;
 using static IConfirmations;
 using static IJobResults;
 using LogLevel = NLog.LogLevel;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -61,9 +62,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
 
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
- 
-                case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
 
+                case Resource.Instruction.Default.TryToWork msg: UpdateProcessingItem(); break;
+                case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
+                case BasicInstruction.FinishSetup msg: FinishSetup(); break;
                 default:
                     success = base.Action(message);
                     break;
@@ -96,9 +98,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             if (_jobInProgress.IsSet && _jobInProgress.Current.Job.Key.Equals(jobKey))
             {
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
                 _jobInProgress.Reset();
                 UpdateProcessingItem();
-                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
                 return;
             }
 
@@ -170,7 +172,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             foreach (var job in _scopeQueue.GetAllJobs())
             {
-                Agent.DebugMessage($"{job.Key} | {job.Job.Name}| scope : [{job.ScopeConfirmation.GetScopeStart()} to {job.ScopeConfirmation.GetScopeEnd()}] | with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+                Agent.DebugMessage($"SCOPEQUEUE {job.Key} | {job.Job.Name}| scope : [{job.ScopeConfirmation.GetScopeStart()} to {job.ScopeConfirmation.GetScopeEnd()}] | with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+
+                foreach (var operation in ((FBucket) job.Job).Operations)
+                {
+                    Agent.DebugMessage($"SCOPEQUEUE {((FBucket)job.Job).Name} with Operation {operation.Operation.Name} {operation.Key} Prio: {((IJob)operation).Priority(Agent.CurrentTime)} PreCondition: {operation.StartConditions.PreCondition} ArticleProvided: {operation.StartConditions.ArticlesProvided}");
+                }
             }
 
             var isQueueAble = _scopeQueue.CheckScope(jobConfirmation, Agent.CurrentTime);
@@ -203,22 +210,34 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             var isQueueAble = (job != null) ? $"{job.Job.Name} {job.Job.Key} " : " not satisfied";
             var allPrios = "";
-            _scopeQueue.GetAllJobs().ForEach(x => allPrios += $"  | Bucket {x.Job.Name} | Prio: {x.Job.Priority(Agent.CurrentTime)} | Is Ready: {((FBucket)x.Job).HasSatisfiedJob } | {((FBucket)x.Job).Operations.First().Operation.Name} ") ;
+            _scopeQueue.GetAllJobs().ForEach(x => allPrios += $"  | Bucket {x.Job.Name} | Prio: {x.Job.Priority(Agent.CurrentTime)} | Is Ready: {((FBucket)x.Job).HasSatisfiedJob } | FirstOperation {((FBucket)x.Job).Operations.First().Operation.Name} | ScopeStart {x.Key}") ;
 
+            foreach (var scopeJob in _scopeQueue.GetAllJobs())
+            {
+                Agent.DebugMessage($"SCOPEQUEUE {scopeJob.Key} | {scopeJob.Job.Name}| scope : [{scopeJob.ScopeConfirmation.GetScopeStart()} to {scopeJob.ScopeConfirmation.GetScopeEnd()}] | with Priority {scopeJob.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+
+                foreach (var operation in ((FBucket)scopeJob.Job).Operations)
+                {
+                    Agent.DebugMessage($"SCOPEQUEUE {((FBucket)scopeJob.Job).Name} with Operation {operation.Operation.Name} {operation.Key} Prio: {((IJob)operation).Priority(Agent.CurrentTime)} PreCondition: {operation.StartConditions.PreCondition} ArticleProvided: {operation.StartConditions.ArticlesProvided}");
+                }
+            }
 
             Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket. " + allPrios +
                                     $" | Job is in progress: {_jobInProgress.IsSet}", CustomLogger.JOB, LogLevel.Warn);
 
+            // check Scope.Start >= Current Time
+                // Send Start self with UpdateProcessing Item,
+            // else 
+                // UpdateProcessingItem
+
             // take the next scope and make it fix 
             if (!_jobInProgress.IsSet && job != null)
-            {
+            {   
                 _scopeQueue.RemoveJob(job);
-                
-                _jobInProgress.Set(job, Agent.CurrentTime);
+                _jobInProgress.Set(job);
                 
                 Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied: {((FBucket)job.Job).HasSatisfiedJob} Try to start processing.");
                 
-
                 // ToDo : test behaviour of this method.
                 if (job.ScopeConfirmation.GetSetup() != null)
                 {
@@ -264,8 +283,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 $"Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
             
             _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
-            _jobInProgress.SetStartTime(Agent.CurrentTime);
-            Agent.Send(instruction: Job.Instruction.FinishSetup.Create(message: Agent.Context.Self,target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
+            _jobInProgress.Start();
+
+            Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
+        
+        }
+
+        internal void FinishSetup() // only in case it is not required for processing.
+        {
+            Agent.DebugMessage("Finished Setup, Resource is released to do next Task;");
+            NextTask();
+            UpdateProcessingItem();
         }
 
         /// <summary>
@@ -275,7 +303,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             Agent.DebugMessage($"Call start of {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}");
 
-            _jobInProgress.IsWorking = true;
+            _jobInProgress.Start();
 
             Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.Current.JobAgentRef),waitFor: operation.Operation.RandomizedDuration);
             
@@ -284,7 +312,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void FinishBucket()
         {
             Agent.DebugMessage(msg: $"Bucket finished work with {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} take next...");
-            
+            NextTask();
+            UpdateProcessingItem();
+        }
+
+        private void NextTask()
+        {
             _jobInProgress.Reset();
 
             var next = _scopeQueue.FirstOrNull();
@@ -292,15 +325,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 var isOverdue = next.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime;
                 var isReady = ((FBucket)next.Job).HasSatisfiedJob;
-
-                if (isOverdue && !isReady)
+                
+                if (isOverdue && !isReady || (_scopeQueue.HasQueueAbleJobs() && !isReady))
                 {
+                
                     Agent.DebugMessage("Requeue because all jobs are overdue", CustomLogger.JOB, LogLevel.Warn);
                     RequeueAllRemainingJobs();
                 }
             }
-            UpdateProcessingItem();
         }
+
 
 #endregion
 

@@ -6,6 +6,7 @@ using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using static FArticles;
 using static FBuckets;
 using static FOperations;
@@ -27,25 +28,29 @@ namespace Master40.SimulationCore.Helper
         /// <param name="firstOperation"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public static FOperation ToOperationItem(this M_Operation operation
+        public static FOperation ToOperationItem(this M_Operation m_operation
                                             , long dueTime
+                                            , long articleDue
                                             , IActorRef productionAgent
                                             , bool firstOperation
-                                            , long currentTime)
+                                            , long currentTime
+                                            , long remainingWork)
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    func: (time) => dueTime - operation.Duration - time
+                    func: (time) => (articleDue - time) - m_operation.Duration - remainingWork
                     // ENDE
                 );
 
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
+                                , articleDue: articleDue
                                 , creationTime: currentTime
                                 , forwardStart: currentTime
-                                , forwardEnd: currentTime + operation.Duration + operation.AverageTransitionDuration
-                                , backwardStart: dueTime - operation.Duration - operation.AverageTransitionDuration
+                                , forwardEnd: currentTime + m_operation.Duration + m_operation.AverageTransitionDuration
+                                , backwardStart: dueTime - m_operation.Duration - m_operation.AverageTransitionDuration
                                 , backwardEnd: dueTime
+                                , remainingWork: remainingWork
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
@@ -54,8 +59,8 @@ namespace Master40.SimulationCore.Helper
                                 , isFinished: false
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
-                                , operation: operation
-                                , requiredCapability: operation.ResourceCapability
+                                , operation: m_operation
+                                , requiredCapability: m_operation.ResourceCapability
                                 , bucket: String.Empty);
         }
 

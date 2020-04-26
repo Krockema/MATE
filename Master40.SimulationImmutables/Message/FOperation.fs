@@ -3,20 +3,20 @@
 open System
 open Akka.Actor
 open Master40.DB.DataModel
-open FProposals
 open FStartConditions
 open IKeys
 open IJobs
-open FUpdateStartConditions
     [<CustomEquality;CustomComparison>] 
     type public FOperation =
         { Key : Guid
           DueTime : int64 
+          ArticleDue : int64
           CreationTime : int64
           BackwardEnd : int64 
           BackwardStart : int64 
           ForwardEnd : int64 
           ForwardStart : int64 
+          RemainingWork : int64 
           Start : int64
           End : int64 
           mutable StartConditions : FStartCondition

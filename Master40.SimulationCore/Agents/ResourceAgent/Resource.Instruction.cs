@@ -81,6 +81,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     public FOperation GetObjectFromMessage { get => (FOperation)Message; }
                 }
 
+                public class TryToWork : SimulationMessage
+                {
+                    public static TryToWork Create(IActorRef target)
+                    {
+                        return new TryToWork(target: target);
+                    }
+                    private TryToWork(IActorRef target) : base(message: null, target: target)
+                    {
+                    }
+                }
+
                 public class RevokeJob : SimulationMessage
                 {
                     public static RevokeJob Create(Guid message, IActorRef target)

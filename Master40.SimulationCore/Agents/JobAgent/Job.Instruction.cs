@@ -63,18 +63,7 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 }
                 public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
             }
-
-            public class FinishSetup : SimulationMessage
-            {
-                public static FinishSetup Create(IActorRef message, IActorRef target)
-                {
-                    return new FinishSetup(message: message, target: target);
-                }
-                private FinishSetup(IActorRef message, IActorRef target) : base(message: message, target: target)
-                { }
-                public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
-            }
-
+            
             public class FinishProcessing : SimulationMessage
             {
                 public static FinishProcessing Create(IActorRef message, IActorRef target)

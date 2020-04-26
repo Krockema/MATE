@@ -19,6 +19,7 @@ using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;
 using static IJobResults;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
@@ -209,22 +210,26 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal void CreateJobsFromArticle(FArticle fArticle)
         {
             var lastDue = fArticle.DueTime;
+            var sumOperationdurations = 0L;
             var numberOfOperations = fArticle.Article.Operations.Count();
             var operationCounter = 0;
             foreach (var operation in fArticle.Article.Operations.OrderByDescending(keySelector: x => x.HierarchyNumber))
             {
                 operationCounter++;
                 var fJob = operation.ToOperationItem(dueTime: lastDue
+                    , articleDue: fArticle.DueTime
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)
-                    , currentTime: Agent.CurrentTime);
+                    , currentTime: Agent.CurrentTime
+                    , remainingWork: sumOperationdurations);
 
                 Agent.DebugMessage(
                     msg:
-                    $"Created operation: {operation.Name} | BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
+                    $"Created operation: {operation.Name} | Prio {fJob.Priority.Invoke(Agent.CurrentTime)} | Remaining Work {sumOperationdurations} | BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
                 Agent.DebugMessage(
                     msg:
                     $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} | Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
+                sumOperationdurations += operation.Duration;
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 OperationManager.AddOperation(fJob);
 

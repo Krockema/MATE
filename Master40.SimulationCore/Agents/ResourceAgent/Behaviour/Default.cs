@@ -218,7 +218,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             UpdateProcessingQueue();
 
-            _jobInProgress.Set(nextJobInProgress, currentTime: Agent.CurrentTime);
+            _jobInProgress.Set(nextJobInProgress);
 
             var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(duration: nextJobInProgress.Job.Duration);
             Agent.DebugMessage(msg: $"Starting Job {nextJobInProgress.Job.Name}  Key: {nextJobInProgress.Job.Key} new Duration is {randomizedDuration}");

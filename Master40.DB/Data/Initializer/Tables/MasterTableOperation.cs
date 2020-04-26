@@ -253,7 +253,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 ArticleId = articles.ENGINE_RACE_EXTENSION.Id,
                 Name = "Engine Race Extension: Cut shape",
                 Duration = 10,
-                ResourceCapabilityId = DrillTools.GetNext().Id,
+                ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
 

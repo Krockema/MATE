@@ -138,7 +138,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         internal void ProvideRequest(FArticleProvider fArticleProvider)
         {
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
-            Agent.DebugMessage(msg: $"Request for {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}");
+            Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}");
 
             _fArticle = _fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
             Agent.Send(instruction: BasicInstruction.ProvideArticle

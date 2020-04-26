@@ -1,6 +1,7 @@
 ﻿using System;
 using Akka.Actor;
 using AkkaSim.Definitions;
+using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Types;
 using static FBreakDowns;
 using static FAgentInformations;
@@ -141,6 +142,18 @@ namespace Master40.SimulationCore.Agents
             {
             }
             public FUpdateStartCondition GetObjectFromMessage { get => Message as FUpdateStartCondition; }
+        }
+
+        public class FinishSetup : SimulationMessage
+        {
+            public static FinishSetup Create(IActorRef message, IActorRef target)
+            {
+                return new FinishSetup(message: message, target: target);
+            }
+            private FinishSetup(IActorRef message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
         }
 
     }

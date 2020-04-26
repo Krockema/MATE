@@ -69,7 +69,7 @@ namespace Master40.SimulationCore
                 CreateCollectorAgents(configuration: configuration);
                 //if (_debugAgents) 
                 AddDeadLetterMonitor();
-                AddTimeMonitor();
+                //AddTimeMonitor();
 
                 // Create Guardians and Inject Childcreators
                 GenerateGuardians();

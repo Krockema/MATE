@@ -249,7 +249,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (required == null) return;
             var schedules = fProposal.PossibleSchedule as List<FQueueingScope>;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
-            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) " +
+            Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals} of {propSet.RequiredProposals}) " +
                                     $"for {bucket.Name} {bucket.Key} with Schedule: {schedules.First().Scope.Start} " +
                                     $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!", CustomLogger.PROPOSAL, LogLevel.Warn);
 
@@ -287,6 +287,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 }
                 Agent.Send(Job.Instruction.AcknowledgeJob.Create(jobResourceConfirmation, jobConfirmation.JobAgentRef));
+                Agent.DebugMessage($"Send Acknwoledge Job for {jobResourceConfirmation.JobConfirmation.Job.Name}"
+                                   , CustomLogger.PROPOSAL, LogLevel.Warn);
                 _proposalManager.Remove(bucket.Key);
             }
         }

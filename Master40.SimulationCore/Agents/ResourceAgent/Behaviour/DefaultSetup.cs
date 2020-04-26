@@ -228,7 +228,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             UpdateProcessingQueue();
 
-            _jobInProgress.Set(nextJobInProgress, currentTime: Agent.CurrentTime);
+            _jobInProgress.Set(nextJobInProgress);
 
             DoSetup();
         }
