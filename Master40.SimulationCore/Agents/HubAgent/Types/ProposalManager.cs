@@ -36,15 +36,22 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _proposalDictionary.TryAdd(jobKey, defs);
         }
 
-        public ProposalForCapabilityProviderSet AddProposal(FProposal fProposal)
+        public ProposalForCapabilityProviderSet AddProposal(FProposal fProposal, IActorRef sender)
         {
             if (!_proposalDictionary.TryGetValue(fProposal.JobKey, out var proposalForSetupDefinitionSet))
                 return null;
 
-            var proposalForCapabilityProvider = proposalForSetupDefinitionSet.Single(x => x.ProviderId == fProposal.CapabilityProviderId);
-
-            proposalForCapabilityProvider.Add(fProposal);
-                return proposalForSetupDefinitionSet;
+            foreach (var proposalForCapabilityProvider in proposalForSetupDefinitionSet)
+            {
+                foreach (var resource in proposalForCapabilityProvider.GetAllResources())
+                {
+                    if (resource.Equals(sender))
+                    {
+                        proposalForCapabilityProvider.Add(fProposal);
+                    }   
+                }
+            }
+            return proposalForSetupDefinitionSet;
         }
 
         public ProposalForCapabilityProviderSet GetProposalForSetupDefinitionSet(Guid jobKey)

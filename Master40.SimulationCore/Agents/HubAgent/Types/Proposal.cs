@@ -38,6 +38,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 .Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
         }
 
+        public List<IActorRef> GetAllResources()
+        {
+            return _capabilityProvider.ResourceSetups.Where(x => x.Resource.IResourceRef != null)
+                .Select(x => x.Resource.IResourceRef).Cast<IActorRef>().ToList();
+        }
+
         public bool AllProposalsReceived()
         {
             return _capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical).Count() == _proposals.Count;

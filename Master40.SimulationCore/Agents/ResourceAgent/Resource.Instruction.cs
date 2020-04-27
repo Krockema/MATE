@@ -34,14 +34,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
                 public class RequestProposal : SimulationMessage
                 {
-                    public static RequestProposal Create(FRequestProposalForCapabilityProvider message, IActorRef target)
+                    public static RequestProposal Create(FRequestProposalForCapability message, IActorRef target)
                     {
                         return new RequestProposal(message: message, target: target);
                     }
                     private RequestProposal(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FRequestProposalForCapabilityProvider GetObjectFromMessage { get => Message as FRequestProposalForCapabilityProvider; }
+                    public FRequestProposalForCapability GetObjectFromMessage { get => Message as FRequestProposalForCapability; }
                 }
 
                 public class AcknowledgeProposal : SimulationMessage
@@ -142,6 +142,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     private FinishBucket(IActorRef target) : base(message: null, target: target)
                     {
                     }
+                }
+
+                public class FinishTask : SimulationMessage
+                {
+                    public static FinishTask Create(string msg, IActorRef target)
+                    {
+                        return new FinishTask(message: msg, target: target);
+                    }
+                    private FinishTask(string message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public string GetObjectFromMessage  => (string)Message; 
                 }
 
                 public class AskToRequeue : SimulationMessage

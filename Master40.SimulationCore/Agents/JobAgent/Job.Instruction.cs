@@ -109,6 +109,15 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
+            public class TerminateJob : SimulationMessage
+            {
+                public static TerminateJob Create(IActorRef target)
+                {
+                    return new TerminateJob(target: target);
+                }
+                private TerminateJob(IActorRef target) : base(message: null, target: target)
+                { }
+            }
         }
     }
 }

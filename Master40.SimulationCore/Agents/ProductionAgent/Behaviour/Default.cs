@@ -19,8 +19,6 @@ using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;
 using static IJobResults;
-using static IJobs;
-
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
@@ -118,8 +116,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             CreateJobsFromArticle(fArticle: fArticle);
 
             var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: fArticle
-                , requestingAgent: Agent.Context.Self
-                , currentTime: Agent.CurrentTime);
+                                                                                , requestingAgent: Agent.Context.Self
+                                                                                , currentTime: Agent.CurrentTime
+                                                                                , Agent);
 
             for (var i = 0; i < requiredDispoAgents; i++)
             {
@@ -210,26 +209,26 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         internal void CreateJobsFromArticle(FArticle fArticle)
         {
             var lastDue = fArticle.DueTime;
-            var sumOperationdurations = 0L;
+            var sumOperationDurations = fArticle.RemainingDuration;
             var numberOfOperations = fArticle.Article.Operations.Count();
             var operationCounter = 0;
             foreach (var operation in fArticle.Article.Operations.OrderByDescending(keySelector: x => x.HierarchyNumber))
             {
                 operationCounter++;
                 var fJob = operation.ToOperationItem(dueTime: lastDue
-                    , articleDue: fArticle.DueTime
+                    , customerDue: fArticle.CustomerDue
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)
                     , currentTime: Agent.CurrentTime
-                    , remainingWork: sumOperationdurations);
+                    , remainingWork: sumOperationDurations);
 
                 Agent.DebugMessage(
                     msg:
-                    $"Created operation: {operation.Name} | Prio {fJob.Priority.Invoke(Agent.CurrentTime)} | Remaining Work {sumOperationdurations} | BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
-                Agent.DebugMessage(
-                    msg:
-                    $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} | Key: {fJob.Key}  ArticleKey: {fArticle.Key}");
-                sumOperationdurations += operation.Duration;
+                    $"Origin {fArticle.Article.Name} CustomerDue: {fArticle.CustomerDue} remainingDuration: {fArticle.RemainingDuration} Created operation: {operation.Name} | Prio {fJob.Priority.Invoke(Agent.CurrentTime)} | Remaining Work {sumOperationDurations} " +
+                    $"| BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}" + 
+                    $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} " +
+                    $"| Key: {fJob.Key}  ArticleKey: {fArticle.Key}", CustomLogger.SCHEDULING, LogLevel.Warn);
+                sumOperationDurations += operation.Duration;
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 OperationManager.AddOperation(fJob);
 

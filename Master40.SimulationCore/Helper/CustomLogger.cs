@@ -7,10 +7,10 @@ namespace Master40.SimulationCore.Helper
     public class CustomLogger
     {
         public const string PROPOSAL = "Proposal";
-        public const string JOB = "Job";
+        public const string JOB = "BaseJobInfo";
         public const string ENQUEUE = "Enqueue";
         public const string PRIORITY = "Priority";
         public const string SCHEDULING = "Scheduling";
-        public const string JOBSTATE = "Jobstate";
+        public const string JOBSTATE = "JobStateInfo";
     }
 }

@@ -6,6 +6,7 @@ using static FJobConfirmations;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 using static IConfirmations;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {
@@ -16,7 +17,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         void Enqueue(IConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
         bool FirstJobIsQueueAble();
-        List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapabilityProvider jobProposal
+        List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapability jobProposal
                                                 , long currentTime
                                                 , CapabilityProviderManager cpm
                                                 , long resourceBlockedUntil
@@ -34,6 +35,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         bool CheckScope(IConfirmation fJobConfirmation, long time);
         HashSet<IConfirmation> GetAllSubsequentJobs(long getScopeStart);
         HashSet<IConfirmation> GetAllJobs();
-
+        bool UpdateBucket(IJob job);
     }
 }

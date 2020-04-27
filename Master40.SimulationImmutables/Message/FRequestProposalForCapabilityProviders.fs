@@ -2,7 +2,7 @@
 
 open IJobs
 
-type public FRequestProposalForCapabilityProvider = {
+type public FRequestProposalForCapability = {
     Job : IJob
-    CapabilityProviderId : int32
+    CapabilityId : int32
 }

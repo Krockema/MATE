@@ -14,6 +14,8 @@ open FStockProviders
             StorageAgent: IActorRef
             Quantity : int
             DueTime : int64
+            CustomerDue : int64
+            RemainingDuration : int64
             OriginRequester : IActorRef
             DispoRequester : IActorRef
             ProviderList : System.Collections.Generic.List<FStockProvider> 

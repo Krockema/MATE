@@ -30,7 +30,7 @@ namespace Master40.SimulationCore.Helper
         /// <returns></returns>
         public static FOperation ToOperationItem(this M_Operation m_operation
                                             , long dueTime
-                                            , long articleDue
+                                            , long customerDue
                                             , IActorRef productionAgent
                                             , bool firstOperation
                                             , long currentTime
@@ -38,13 +38,13 @@ namespace Master40.SimulationCore.Helper
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    func: (time) => (articleDue - time) - m_operation.Duration - remainingWork
+                    func: (time) => (customerDue - time) - m_operation.Duration - remainingWork
                     // ENDE
                 );
 
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
-                                , articleDue: articleDue
+                                , customerDue: customerDue
                                 , creationTime: currentTime
                                 , forwardStart: currentTime
                                 , forwardEnd: currentTime + m_operation.Duration + m_operation.AverageTransitionDuration
@@ -104,6 +104,8 @@ namespace Master40.SimulationCore.Helper
 
         public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart
                                             , IActorRef requester
+                                            , long customerDue
+                                            , long remainingDuration
                                             , long currentTime)
         {
             return new FArticle(
@@ -117,6 +119,8 @@ namespace Master40.SimulationCore.Helper
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , isProvided: false
+                , customerDue: customerDue
+                , remainingDuration : remainingDuration
                 , providedAt: 0
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
@@ -125,7 +129,12 @@ namespace Master40.SimulationCore.Helper
             );
         }
 
-        public static FArticle ToRequestItem(this M_ArticleBom articleBom, FArticle requestItem, IActorRef requester, long currentTime)
+        public static FArticle ToRequestItem(this M_ArticleBom articleBom
+                                                , FArticle requestItem
+                                                , IActorRef requester
+                                                , long customerDue
+                                                , long remainingDuration
+                                                , long currentTime)
         {
             return new FArticle(
                 key: Guid.NewGuid()
@@ -137,6 +146,8 @@ namespace Master40.SimulationCore.Helper
                 , customerOrderId: requestItem.CustomerOrderId
                 , isHeadDemand: false
                 , providedAt: 0
+                , customerDue: customerDue
+                , remainingDuration: remainingDuration
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester

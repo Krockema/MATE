@@ -72,7 +72,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     
                     Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} | for {jobConfirmation.Job.Name } with { capabilityProvider.Id}");
                     Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
-                                            .Create(message: new FRequestProposalForCapabilityProvider(jobConfirmation.Job, capabilityProvider.Id)
+                                            .Create(message: new FRequestProposalForCapability(jobConfirmation.Job, capabilityProvider.Id)
                                                    , target: resourceRef));
 
                 }
@@ -88,7 +88,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             // get related operation and add proposal.
             var fOperation = _operations.GetJobBy(fProposal.JobKey) as FOperation;
             var resourceAgent = fProposal.ResourceAgent as IActorRef;
-            var propSet = _proposalManager.AddProposal(fProposal);
+            var propSet = _proposalManager.AddProposal(fProposal, resourceAgent);
 
             Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals}of{propSet.RequiredProposals}) for {fOperation.Key} with Schedule: {fProposal.PossibleSchedule} " +
                                    $"JobKey: {fProposal.JobKey} from: {resourceAgent.Path.Name}!");

@@ -11,7 +11,6 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
-using System.Data.HashFunction.xxHash;
 using System.Linq;
 using Akka.Event;
 using Akka.Util.Internal;
@@ -55,14 +54,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
                 case Resource.Instruction.Default.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.AcceptedProposals msg: AcceptProposals(msg.GetObjectFromMessage); break;
-                case BasicInstruction.UpdateStartConditions msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateJob msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
 
                 case Resource.Instruction.Default.RevokeJob msg: RevokeJob(msg.GetObjectFromMessage); break;
                
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
 
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
-
+                case Resource.Instruction.BucketScope.FinishTask msg: FinishTask(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.TryToWork msg: UpdateProcessingItem(); break;
                 case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
                 case BasicInstruction.FinishSetup msg: FinishSetup(); break;
@@ -120,18 +119,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
+        internal void RequestProposal(FRequestProposalForCapability requestProposal)
         {
             var jobConfirmation = _scopeQueue.GetConfirmation(requestProposal.Job.Key);
 
             if (jobConfirmation != null)
                 _scopeQueue.RemoveJob(jobConfirmation);
 
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityProviderId);
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityId);
             SendProposalTo(requestProposal);
         }
 
-        internal void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
+        internal void SendProposalTo(FRequestProposalForCapability requestProposal)
         {
             Agent.DebugMessage($"Send Proposal for Job {requestProposal.Job.Key} with Priority {requestProposal.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
 
@@ -150,13 +149,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var fPostponed = new FPostponed(offset: queuePositions.First().IsQueueAble ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
             var jobPrio = requestProposal.Job.Priority(Agent.CurrentTime);
             Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
-                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} with EstimatedStart: {queuePositions.First().Scope.Start} and Prio: {jobPrio}"
+                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} and has satisfiedJobs {((FBucket)requestProposal.Job).HasSatisfiedJob } with EstimatedStart: {queuePositions.First().Scope.Start} and Prio: {jobPrio}"
                 : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PRIORITY, LogLevel.Warn);
 
             // calculate proposal
             var proposal = new FProposals.FProposal(possibleSchedule: queuePositions
                 , postponed: fPostponed
-                , requestProposal.CapabilityProviderId
+                , requestProposal.CapabilityId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 
@@ -169,16 +168,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                $" with Priority {jobConfirmation.Job.Priority(Agent.CurrentTime)}" +
                                $" | scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
                                $" {((FBucket)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
+            
+            PrintScopeQueueBecauseWeAreVerzweifelt();
 
-            foreach (var job in _scopeQueue.GetAllJobs())
-            {
-                Agent.DebugMessage($"SCOPEQUEUE {job.Key} | {job.Job.Name}| scope : [{job.ScopeConfirmation.GetScopeStart()} to {job.ScopeConfirmation.GetScopeEnd()}] | with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
-
-                foreach (var operation in ((FBucket) job.Job).Operations)
-                {
-                    Agent.DebugMessage($"SCOPEQUEUE {((FBucket)job.Job).Name} with Operation {operation.Operation.Name} {operation.Key} Prio: {((IJob)operation).Priority(Agent.CurrentTime)} PreCondition: {operation.StartConditions.PreCondition} ArticleProvided: {operation.StartConditions.ArticlesProvided}");
-                }
-            }
 
             var isQueueAble = _scopeQueue.CheckScope(jobConfirmation, Agent.CurrentTime);
 
@@ -212,15 +204,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var allPrios = "";
             _scopeQueue.GetAllJobs().ForEach(x => allPrios += $"  | Bucket {x.Job.Name} | Prio: {x.Job.Priority(Agent.CurrentTime)} | Is Ready: {((FBucket)x.Job).HasSatisfiedJob } | FirstOperation {((FBucket)x.Job).Operations.First().Operation.Name} | ScopeStart {x.Key}") ;
 
-            foreach (var scopeJob in _scopeQueue.GetAllJobs())
-            {
-                Agent.DebugMessage($"SCOPEQUEUE {scopeJob.Key} | {scopeJob.Job.Name}| scope : [{scopeJob.ScopeConfirmation.GetScopeStart()} to {scopeJob.ScopeConfirmation.GetScopeEnd()}] | with Priority {scopeJob.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
-
-                foreach (var operation in ((FBucket)scopeJob.Job).Operations)
-                {
-                    Agent.DebugMessage($"SCOPEQUEUE {((FBucket)scopeJob.Job).Name} with Operation {operation.Operation.Name} {operation.Key} Prio: {((IJob)operation).Priority(Agent.CurrentTime)} PreCondition: {operation.StartConditions.PreCondition} ArticleProvided: {operation.StartConditions.ArticlesProvided}");
-                }
-            }
+            PrintScopeQueueBecauseWeAreVerzweifelt();
 
             Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket. " + allPrios +
                                     $" | Job is in progress: {_jobInProgress.IsSet}", CustomLogger.JOB, LogLevel.Warn);
@@ -253,21 +237,32 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             }
         }
 
-        internal void UpdateStartCondition(FUpdateStartCondition startCondition)
+        private void PrintScopeQueueBecauseWeAreVerzweifelt()
         {
-            var buckets = _scopeQueue.GetJobsAs<FBucket>();
-            var bucket = buckets?.SingleOrDefault(x => x.Operations.Any(x => x.Key == startCondition.OperationKey));
-            if (bucket != null)
+            foreach (var scopeJob in _scopeQueue.GetAllJobs())
             {
-                var operation = bucket.Operations.Single(x => x.Key == startCondition.OperationKey);
-                operation.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
-                Agent.DebugMessage($"Operation {operation.Operation.Name} {operation.Key} in {bucket.Name} has been startCondition set to: {operation.StartConditions.Satisfied} with preCondition: {operation.StartConditions.PreCondition} and articlesProvided {operation.StartConditions.ArticlesProvided}");
+                Agent.DebugMessage($"JOB from ScopeQueue {scopeJob.Key} | {scopeJob.Job.Name}| Is Ready {((FBucket)scopeJob.Job).HasSatisfiedJob} | scope : [{scopeJob.ScopeConfirmation.GetScopeStart()} to {scopeJob.ScopeConfirmation.GetScopeEnd()}] | with Priority {scopeJob.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
+
+                foreach (var operation in ((FBucket)scopeJob.Job).Operations)
+                {
+                    Agent.DebugMessage($"OPERATION from JOB {((FBucket)scopeJob.Job).Name} with Operation {operation.Operation.Name} {operation.Key} Prio: {((IJob)operation).Priority(Agent.CurrentTime)} PreCondition: {operation.StartConditions.PreCondition} ArticleProvided: {operation.StartConditions.ArticlesProvided}");
+                }
+            }
+        }
+
+        internal void UpdateStartCondition(IJob job)
+        {
+            var jobConfirmation = _scopeQueue.GetAllJobs().SingleOrDefault(x => x.Job.Key == job.Key);
+            if (jobConfirmation != null)
+            {
+                _scopeQueue.UpdateBucket(job);
+                Agent.DebugMessage($"Bucket {job.Key} {job.Name} found and updated");
             }
             else
             {
-                Agent.DebugMessage($"Bucket is not in Queue anymore");
+                Agent.DebugMessage($"Bucket {job.Key} {job.Name} is not in Queue anymore");
             }
-
+            RequeueIfNecessary();
             UpdateProcessingItem();
         }
 
@@ -276,7 +271,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         internal void DoSetup()
         {
-            var setupDuration = _capabilityProviderManager.GetSetupDurationByCapabilityProvider(_jobInProgress.Current.CapabilityProvider.Id);
+            var setupDuration = _capabilityProviderManager.GetSetupDurationByCapability(_jobInProgress.Current.CapabilityProvider.ResourceCapabilityId);
             //Start setup 
             Agent.DebugMessage(msg:
                 $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
@@ -285,14 +280,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
             _jobInProgress.Start();
 
-            Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef), waitFor: setupDuration);
-        
+            Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
         }
 
         internal void FinishSetup() // only in case it is not required for processing.
         {
             Agent.DebugMessage("Finished Setup, Resource is released to do next Task;");
-            NextTask();
+            NextTask(); // should only start setup if operations are fine 
             UpdateProcessingItem();
         }
 
@@ -305,9 +299,20 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.Start();
 
-            Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.Current.JobAgentRef),waitFor: operation.Operation.RandomizedDuration);
-            
+            Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration);
         }
+
+        private void FinishTask(string task)
+        {
+            if (task.Equals("SETUP"))
+            {
+                Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
+            }
+            else { 
+                Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.Current.JobAgentRef));
+            }
+        }
+
 
         internal void FinishBucket()
         {
@@ -319,22 +324,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void NextTask()
         {
             _jobInProgress.Reset();
+            RequeueIfNecessary();
+        }
 
+        private void RequeueIfNecessary()
+        {
             var next = _scopeQueue.FirstOrNull();
             if (next != null)
             {
                 var isOverdue = next.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime;
                 var isReady = ((FBucket)next.Job).HasSatisfiedJob;
-                
+
                 if (isOverdue && !isReady || (_scopeQueue.HasQueueAbleJobs() && !isReady))
                 {
-                
+
                     Agent.DebugMessage("Requeue because all jobs are overdue", CustomLogger.JOB, LogLevel.Warn);
                     RequeueAllRemainingJobs();
                 }
             }
         }
-
 
 #endregion
 

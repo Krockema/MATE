@@ -14,3 +14,4 @@ type public IConfirmation =
     abstract member CapabilityProvider: M_ResourceCapabilityProvider with get
     abstract member JobAgentRef : IActorRef with get
     abstract member IsReset: bool with get
+    abstract member UpdateJob : IJob -> IConfirmation

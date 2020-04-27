@@ -82,9 +82,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        internal virtual void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
+        internal virtual void RequestProposal(FRequestProposalForCapability requestProposal)
         {
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityProviderId);
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityId);
 
             if (_processingQueue.Contains(requestProposal.Job.Key))
                 return;
@@ -96,9 +96,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
-        internal virtual void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
+        internal virtual void SendProposalTo(FRequestProposalForCapability requestProposal)
         {
-            var setupDuration = GetSetupTime(requestProposal.CapabilityProviderId);
+            var setupDuration = GetSetupTime(requestProposal.CapabilityId);
 
             var queuePosition = _planingQueue.GetQueueAbleTime(job: requestProposal.Job
                                                      , currentTime: Agent.CurrentTime
@@ -117,7 +117,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
-                , capabilityProviderId: requestProposal.CapabilityProviderId
+                , capabilityId: requestProposal.CapabilityId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 

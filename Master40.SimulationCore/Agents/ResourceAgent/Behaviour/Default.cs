@@ -81,9 +81,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        private void RequestProposal(FRequestProposalForCapabilityProvider requestProposal)
+        private void RequestProposal(FRequestProposalForCapability requestProposal)
         {
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for SetupId " + requestProposal.CapabilityProviderId);
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for SetupId " + requestProposal.CapabilityId);
 
             SendProposalTo(requestProposal);
         }
@@ -92,7 +92,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// Send Proposal to Hub Client
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
+        internal void SendProposalTo(FRequestProposalForCapability requestProposal)
         {
             var queuePosition = _planingQueue.GetQueueAbleTime(job: requestProposal.Job
                                                      , currentTime: Agent.CurrentTime
@@ -107,7 +107,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
-                , requestProposal.CapabilityProviderId
+                , requestProposal.CapabilityId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 

@@ -41,19 +41,28 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return _capabilityInUse.ResourceCapabilityProvider.ResourceCapabilityId == capabilityId;
         }
 
-        internal M_ResourceCapabilityProvider GetCapabilityProviderByCapability(int capabilityProviderId)
+        internal M_ResourceCapabilityProvider GetCapabilityProviderByCapability(int capabilityId)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var resourceCapabilityProvider = _resourceCapabilityProviders.Single(x => x.Id == capabilityProviderId);
+            var resourceCapabilityProvider = _resourceCapabilityProviders.First(x => x.ResourceCapability.Id == capabilityId);
             return resourceCapabilityProvider;
         }
 
-        internal long GetSetupDurationByCapabilityProvider(int resourceCapabilityProviderId)
+        internal long GetSetupDurationByCapability(int resourceCapabilityId)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
 
-            var setupTime = _resourceCapabilityProviders.Single(x => x.Id == resourceCapabilityProviderId)
+            var setupTime = _resourceCapabilityProviders.First(x => x.ResourceCapabilityId == resourceCapabilityId)
                                                             .ResourceSetups.Sum(x => x.SetupTime);
+            return setupTime;
+        }
+
+        internal long GetSetupDurationByCapabilityProvider(int resourceCapabilityId)
+        {
+            //TODO Take care if 1 Capability can be done by multiply tools
+
+            var setupTime = _resourceCapabilityProviders.Single(x => x.ResourceCapabilityId == resourceCapabilityId)
+                .ResourceSetups.Sum(x => x.SetupTime);
             return setupTime;
         }
 

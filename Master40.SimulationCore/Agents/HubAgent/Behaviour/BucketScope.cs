@@ -100,9 +100,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (successRemove)
             {
                 Agent.DebugMessage(msg: $"Dissolve {bucket.Name} succeeded",CustomLogger.JOB, LogLevel.Warn);
-                
                 _proposalManager.Remove(bucket.Key);
                 RequeueOperations(bucket.Operations.ToList());
+
+                Agent.Send(Job.Instruction.TerminateJob.Create(Agent.Sender));
             }
             //TODO multiple reset from one setupdefinition?
             else
@@ -146,9 +147,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             
-            var bucket = _bucketManager.AddToBucket(fOperation);
-            if (bucket != null)
+            var jobConfirmation = _bucketManager.AddToBucket(fOperation);
+            if (jobConfirmation != null)
             {
+                var bucket = ((FBucket) jobConfirmation.Job);
                 var operationInsideBucket = bucket.Operations.Single(x => x.Key.Equals(fOperation.Key));
                 
                 Agent.DebugMessage(msg: $"FOperation inside Bucket {operationInsideBucket.Operation.Name} {operationInsideBucket.Key}" +
@@ -158,11 +160,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
+                Agent.Send(instruction: BasicInstruction.UpdateJob.Create(message: bucket, target: jobConfirmation.JobAgentRef));
+
                 return;//if no bucket to add exists create a new one
 
             }
             
-            var jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent);
+            jobConfirmation = _bucketManager.CreateBucket(fOperation: fOperation, Agent);
             EnqueueBucket(jobConfirmation.Job.Key);
              
             Agent.DebugMessage($"New {jobConfirmation.Job.Name} has been created for Operation {fOperation.Operation.Name} {fOperation.Key}", CustomLogger.ENQUEUE, LogLevel.Warn);
@@ -212,7 +216,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} start new proporsal request", CustomLogger.PROPOSAL, LogLevel.Warn);
+            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} start new proposal request", CustomLogger.PROPOSAL, LogLevel.Warn);
 
             jobConfirmation.ResetConfirmation();
             _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
@@ -220,20 +224,25 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(jobConfirmation.Job.RequiredCapability);
+            var distinctResources = new HashSet<IActorRef>();
 
             foreach (var capabilityProvider in capabilityDefinition.GetAllCapabilityProvider())
             {
                 foreach (var setup in capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical))
                 {
-                    var resourceRef = setup.Resource.IResourceRef as IActorRef;
-                    Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Name}", CustomLogger.PROPOSAL, LogLevel.Warn);
-                    Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
-                        .Create(new FRequestProposalForCapabilityProvider(jobConfirmation.Job
-                                                                                , capabilityProviderId : capabilityProvider.Id)
-                                                                                , target: resourceRef));
+                    distinctResources.Add(setup.Resource.IResourceRef as IActorRef);
                 }
             }
 
+            distinctResources.ForEach(resourceRef =>
+            {
+                Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Name}", CustomLogger.PROPOSAL, LogLevel.Warn);
+                Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
+                    .Create(new FRequestProposalForCapability(jobConfirmation.Job
+                            , capabilityId: jobConfirmation.Job.RequiredCapability.Id)
+                            , target: resourceRef));
+
+            });
         }
 
         internal override void ProposalFromResource(FProposal fProposal)
@@ -245,8 +254,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var bucket = jobConfirmation.Job as FBucket;
             var resourceAgent = fProposal.ResourceAgent as IActorRef;
-            var required = _proposalManager.AddProposal(fProposal);
-            if (required == null) return;
+            var required = _proposalManager.AddProposal(fProposal, Agent.Sender);
             var schedules = fProposal.PossibleSchedule as List<FQueueingScope>;
             var propSet = _proposalManager.GetProposalForSetupDefinitionSet(fProposal.JobKey);
             Agent.DebugMessage(msg: $"Proposal({propSet.ReceivedProposals} of {propSet.RequiredProposals}) " +
@@ -282,8 +290,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 foreach (var setup in setups)
                 {
                     var resourceRef = setup.Resource.IResourceRef as IActorRef;
-                    jobResourceConfirmation.ScopeConfirmations.Add(resourceRef,
-                        possiblePosition._queuingDictionary.Single(x => x.Key.Equals(setup.Resource.IResourceRef)).Value);
+                    var (actorRef, pos) = possiblePosition._queuingDictionary.FirstOrDefault(x => x.Key.Equals(setup.Resource.IResourceRef));
+                    if (pos == null)
+                        continue;
+                    jobResourceConfirmation.ScopeConfirmations.Add(resourceRef, pos);
 
                 }
                 Agent.Send(Job.Instruction.AcknowledgeJob.Create(jobResourceConfirmation, jobConfirmation.JobAgentRef));
@@ -342,12 +352,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage(msg: $"Received: Update and forward start condition for {startCondition.OperationKey}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} ");
-
-            var bucket = _bucketManager.GetBucketByOperationKey(startCondition.OperationKey);
-            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey: bucket.Key);
-
-            _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
-
+            
+            var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucket.Key);
             if (jobConfirmation.IsRequestedToDissolve) return;
 
             Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name} with key  {bucket.Key}" +
@@ -355,7 +362,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                     $"| PreCondition: {startCondition.PreCondition} " +
                                     $"to job agent {jobConfirmation.JobAgentRef}");
 
-            Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: startCondition, target: jobConfirmation.JobAgentRef));
+            Agent.Send(instruction: BasicInstruction.UpdateJob.Create(message: bucket, target: jobConfirmation.JobAgentRef));
         }
         
         internal void RequeueOperations(List<FOperation> operations)

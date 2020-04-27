@@ -166,7 +166,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 2)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 10)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
@@ -175,7 +175,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
-            simConfig.ReplaceOption(new DebugSystem(value: false));
+            simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);

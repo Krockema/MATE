@@ -10,13 +10,13 @@ open IJobs
     type public FOperation =
         { Key : Guid
           DueTime : int64 
-          ArticleDue : int64
           CreationTime : int64
           BackwardEnd : int64 
           BackwardStart : int64 
           ForwardEnd : int64 
           ForwardStart : int64 
           RemainingWork : int64 
+          CustomerDue : int64
           Start : int64
           End : int64 
           mutable StartConditions : FStartCondition

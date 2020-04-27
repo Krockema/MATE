@@ -9,6 +9,7 @@ using static FArticles;
 using static FArticleProviders;
 using static IJobResults;
 using static FUpdateStartConditions;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -142,6 +143,18 @@ namespace Master40.SimulationCore.Agents
             {
             }
             public FUpdateStartCondition GetObjectFromMessage { get => Message as FUpdateStartCondition; }
+        }
+
+        public class UpdateJob : SimulationMessage
+        {
+            public static UpdateJob Create(IJob message, IActorRef target)
+            {
+                return new UpdateJob(message: message, target: target);
+            }
+            private UpdateJob(IJob message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IJob GetObjectFromMessage => Message as IJob; 
         }
 
         public class FinishSetup : SimulationMessage

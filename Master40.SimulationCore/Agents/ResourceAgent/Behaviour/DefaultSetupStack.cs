@@ -62,10 +62,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: $"Jobs ready to start: {_processingQueue.Count} Try to start processing.");
         }
 
-        internal override void SendProposalTo(FRequestProposalForCapabilityProvider requestProposal)
+        internal override void SendProposalTo(FRequestProposalForCapability requestProposal)
         {
             //Get SetupDuration depending on ??? 
-            var setupDuration = GetSetupTime(requestProposal.CapabilityProviderId);
+            var setupDuration = GetSetupTime(requestProposal.CapabilityId);
 
             var queuePosition = _planingQueue.GetQueueAbleTimeByStack(job: requestProposal.Job
                 , currentTime: Agent.CurrentTime
@@ -86,7 +86,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             // calculate proposal
             var proposal = new FProposal(possibleSchedule: queuePosition.EstimatedStart
                 , postponed: fPostponed
-                , capabilityProviderId: requestProposal.CapabilityProviderId
+                , capabilityId: requestProposal.CapabilityId
                 , resourceAgent: Agent.Context.Self
                 , jobKey: requestProposal.Job.Key);
 

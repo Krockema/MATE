@@ -22,5 +22,5 @@ open System
                 member this.JobAgentRef with get() = this.JobAgentRef
                 member this.CapabilityProvider with get() = this.CapabilityProvider
                 member this.IsReset = this.ScopeConfirmation.Equals(null)        
-        member this.UpdateJob job = { this with Job = job }
+                member this.UpdateJob job = { this with Job = job } :> IConfirmation
         

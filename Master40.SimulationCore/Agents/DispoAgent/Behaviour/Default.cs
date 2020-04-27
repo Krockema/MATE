@@ -48,10 +48,9 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             _fArticle = requestArticle;
             Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.");
             // get related Storage Agent
-            Agent.Send(instruction: Directory.Instruction
-                                .RequestAgent
-                                .Create(discriminator: requestArticle.Article.Name
-                                    , target: Agent.ActorPaths.StorageDirectory.Ref));
+            Agent.Send(instruction: Directory.Instruction.RequestAgent
+                                    .Create(discriminator: requestArticle.Article.Name
+                                        , target: Agent.ActorPaths.StorageDirectory.Ref));
         }
 
         internal void ResponseFromDirectory(FAgentInformation hubInfo)
