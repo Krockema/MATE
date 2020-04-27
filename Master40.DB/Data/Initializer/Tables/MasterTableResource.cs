@@ -52,9 +52,9 @@ namespace Master40.DB.Data.Initializer.Tables
 
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling)
         {
-            CreateTools(_capability.CUTTING, setupTimeCutting, 2);
+            CreateTools(_capability.CUTTING, setupTimeCutting, 1);
             CreateTools(_capability.DRILLING, setupTimeDrilling, 0);
-            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 0);
+            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1);
         }
 
         

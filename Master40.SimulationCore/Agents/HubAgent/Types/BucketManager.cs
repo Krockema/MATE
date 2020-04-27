@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.FSharp.Collections;
 using NLog;
 using static FBuckets;
 using static FOperations;
@@ -19,8 +18,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
     /// </summary>
     public class BucketManager
     {
-        private List<JobConfirmation>  _jobConfirmations { get; set; } = new List<JobConfirmation>();
-        public Dictionary<int, BucketSize> CapabilityBucketSizeDictionary { get; set; } = new Dictionary<int, BucketSize>();
+        private List<JobConfirmation>  _jobConfirmations { get; } = new List<JobConfirmation>();
+        public Dictionary<int, BucketSize> CapabilityBucketSizeDictionary { get; } = new Dictionary<int, BucketSize>();
 
         private long MaxBucketSize { get; set; }
         
@@ -33,7 +32,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
 
             var bucketSize = GetBucketSize(fOperation.RequiredCapability.Id);
-            var bucket = MessageFactory.ToBucketScopeItem(fOperation, agent.Context.Self, agent.CurrentTime, bucketSize);
+            var bucket = fOperation.ToBucketScopeItem( agent.Context.Self, agent.CurrentTime, bucketSize);
             var jobConfirmation = new JobConfirmation(bucket);
             jobConfirmation.SetJobAgent(agent.Context.ActorOf(Job.Props(agent.ActorPaths, jobConfirmation.ToImmutable(), agent.CurrentTime, agent.DebugThis, agent.Context.Self)
                                        , $"JobAgent({bucket.Name.ToActorName()})"));
@@ -95,10 +94,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public FBucket Add(FBucket bucket, FOperation fOperation)
         {
             if (bucket == null) throw new Exception($"Bucket {bucket.Name} does not exits");
-
             bucket = bucket.AddOperation(fOperation);
-            Replace(bucket);
-
             return bucket;
         }
 
@@ -109,20 +105,22 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <param name="hubAgent"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public JobConfirmation AddToBucket(FOperation fOperation)
+        public JobConfirmation AddToBucket(FOperation fOperation, long time)
         {
             var matchingBuckets = FindAllWithEqualCapability(fOperation).Select(x => x.Job).Cast<FBucket>().ToList();
-
-            FBucket bucket = null;
 
             if (matchingBuckets != null)
             {
                 //Add
-                bucket = FindEarliestAndLatestScopeMatching(matchingBuckets, fOperation);
+                var bucket = FindEarliestAndLatestScopeMatching(matchingBuckets, fOperation, time);
                 if (bucket != null)
                 {
                     bucket = Add(bucket: bucket, fOperation: fOperation);
-                    return GetConfirmationByBucketKey(bucket.Key);
+
+                    var jobConfirmation = GetConfirmationByBucketKey(bucket.Key);
+                    if (jobConfirmation == null) throw new Exception("Tried to add bucket to unknown jobConfirmation");
+                    jobConfirmation.Job = bucket;
+                    return jobConfirmation;
                 }
 
             }
@@ -152,7 +150,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         /// <param name="buckets">gets a List of all bi</param>
         /// <param name="operation"></param>
         /// <returns></returns>
-        public FBucket FindEarliestAndLatestScopeMatching(List<FBucket> buckets, FOperation operation)
+        public FBucket FindEarliestAndLatestScopeMatching(List<FBucket> buckets, FOperation operation, long time)
         {
             List<FBucket> matchingBuckets = new List<FBucket>();
 
@@ -172,7 +170,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
             }
 
-            var matchingBucket = GetBucketWithMostLeftCapacity(matchingBuckets);
+            //var matchingBucket = GetBucketWithMostLeftCapacity(matchingBuckets);
+            var matchingBucket = matchingBuckets.OrderBy(x => x.Priority.Invoke(x).Invoke(time)).FirstOr(null);
 
             return matchingBucket;
         }
@@ -221,7 +220,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             if (bucket != null)
             {
                 var operation = bucket.Operations.Single(x => x.Key == operationKey);
-                operation.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
+                bucket.RemoveOperation(operation);
+
+                operation.SetStartConditions(preCondition: startCondition.PreCondition, articleProvided: startCondition.ArticlesProvided);
+                
+                bucket.AddOperation(operation);
                 Replace(bucket);
                 return bucket;
             }
@@ -261,7 +264,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 return;
             }
             // Create    
-            var bucketSize = new BucketSize {Duration = duration, Size = duration, Capability = capability};
+            var bucketSize = new BucketSize { Duration = duration, Size = duration, Capability = capability };
             CapabilityBucketSizeDictionary.Add(capability.Id, bucketSize);
             CalculateBucketSize();
         }

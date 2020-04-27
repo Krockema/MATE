@@ -175,7 +175,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
-            simConfig.ReplaceOption(new DebugSystem(value: true));
+            simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);

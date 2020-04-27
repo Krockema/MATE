@@ -64,4 +64,4 @@ open FUpdateStartConditions
         member this.SetStartConditions preCondition articleProvided = this.StartConditions <- { PreCondition = preCondition; ArticlesProvided = articleProvided } 
         member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
         member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)
-        member this.UpdateBucket bucketId = { this with Bucket = bucketId}
+        member this.UpdateBucket bucketId = { this with Bucket = bucketId }

@@ -87,7 +87,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private void UpdateJob(IJob job)
         {
             if (_bucketIsReadyToBeTerminated)
+            {
+                Agent.DebugMessage($" with {job.Key}  is ready to be terminated and will not be updated.");
                 return;
+            }
+                
 
             _jobConfirmation = _jobConfirmation.UpdateJob(job);
             foreach (var resourceRef in _resourceDistinctResourceStates.Keys)
@@ -151,8 +155,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready);
             if (allSetupReady || allProcessingReady)
             {
-                Agent.DebugMessage($"StartDissolve interrupted", CustomLogger.JOBSTATE, LogLevel.Warn);
-
+                Agent.DebugMessage($"StartDissolve interrupted setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +
+                                   $" processing ready {allProcessingReady} processing count: {_resourceProcessingStates.Count}", CustomLogger.JOBSTATE, LogLevel.Warn);
                 return;
             }
             _dissolveRequested = true;

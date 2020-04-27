@@ -147,18 +147,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             
-            var jobConfirmation = _bucketManager.AddToBucket(fOperation);
+            var jobConfirmation = _bucketManager.AddToBucket(fOperation, Agent.CurrentTime);
             if (jobConfirmation != null)
             {
                 var bucket = ((FBucket) jobConfirmation.Job);
                 var operationInsideBucket = bucket.Operations.Single(x => x.Key.Equals(fOperation.Key));
                 
-                Agent.DebugMessage(msg: $"FOperation inside Bucket {operationInsideBucket.Operation.Name} {operationInsideBucket.Key}" +
+                Agent.DebugMessage(msg: $"FOperation inside Bucket {operationInsideBucket.Operation.Name} {bucket.Key}" +
                                         $"| with start condition: {operationInsideBucket.StartConditions.Satisfied} with Id: {operationInsideBucket.Key}" +
                                         $"| ArticleProvided: {operationInsideBucket.StartConditions.ArticlesProvided} " +
                                         $"| PreCondition: {operationInsideBucket.StartConditions.PreCondition}");
 
-                Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
+                Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name} {bucket.Key} Send to {jobConfirmation.JobAgentRef.Path.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
                 Agent.Send(instruction: BasicInstruction.UpdateJob.Create(message: bucket, target: jobConfirmation.JobAgentRef));
 
@@ -208,11 +208,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (jobConfirmation == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
+                Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has no Corresponding jobConfirmation return;.", CustomLogger.PROPOSAL, LogLevel.Warn);
                 _proposalManager.Remove(bucketKey);
                 return;
             }
             if (jobConfirmation.IsFixPlanned)
             {
+                Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} is Fix Planned can not Enqueue it Again.", CustomLogger.PROPOSAL, LogLevel.Warn);
                 return;
             }
 
@@ -355,7 +357,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             
             var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucket.Key);
-            if (jobConfirmation.IsRequestedToDissolve) return;
+            // if (jobConfirmation.IsRequestedToDissolve)
+            // {
+            //     Agent.DebugMessage(msg: $"Bucket { jobConfirmation.Job.Key } { jobConfirmation.Job.Name } is requested to desolve, no update send.");
+            //     return;
+            // }
 
             Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name} with key  {bucket.Key}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
