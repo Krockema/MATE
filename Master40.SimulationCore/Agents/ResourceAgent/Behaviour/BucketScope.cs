@@ -97,6 +97,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             if (_jobInProgress.IsSet && _jobInProgress.Current.Job.Key.Equals(jobKey))
             {
+                Agent.DebugMessage(msg: $"Revoing Job from Processing {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key}");
                 Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
                 _jobInProgress.Reset();
                 UpdateProcessingItem();
@@ -106,11 +107,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var jobConfirmation = _scopeQueue.GetConfirmation(jobKey);
 
             if (jobConfirmation != null)
-            { 
+            {
+                Agent.DebugMessage(msg: $"Revoing Job from ScopeQueue {jobConfirmation.Job.Name} {jobConfirmation.Job.Key}");
                 _scopeQueue.RemoveJob(jobConfirmation);
                 UpdateAndRequeuePlanedJobs(jobConfirmation);
                 Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: jobConfirmation.JobAgentRef));
             }
+            Agent.DebugMessage(msg: $"Job could not be Revoked {jobKey} its already gone.");
         }
 
 #region Proporsal
@@ -253,15 +256,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void UpdateStartCondition(IJob job)
         {
             var jobConfirmation = _scopeQueue.GetAllJobs().SingleOrDefault(x => x.Job.Key == job.Key);
-            if (jobConfirmation != null)
-            {
-                _scopeQueue.UpdateBucket(job);
-                Agent.DebugMessage($"Bucket {job.Key} {job.Name} found and updated");
-            }
-            else
+            if (jobConfirmation == null)
             {
                 Agent.DebugMessage($"Bucket {job.Key} {job.Name} is not in Queue anymore");
+                return;   
             }
+            _scopeQueue.UpdateBucket(job);
+            Agent.DebugMessage($"Bucket {job.Key} {job.Name} found and updated");
             RequeueIfNecessary();
             UpdateProcessingItem();
         }

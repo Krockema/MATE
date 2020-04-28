@@ -26,5 +26,6 @@ namespace Master40.SimulationCore.Agents.HubAgent
         {
             // Do not Close agent by Finishmessage from Job
         }
+
     }
 }

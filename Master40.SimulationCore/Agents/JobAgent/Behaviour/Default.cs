@@ -106,10 +106,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             resourceStateHandle.CurrentState = JobState.Revoked;
             Agent.DebugMessage($"AcknowledgeRevoke: Change _resourceDistinctResourceStates for {sender.Path.Name} to {resourceStateHandle.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
-            StartToReque();
+            RequestRequeueFromHub();
         }
 
-        private void StartToReque()
+        private void RequestRequeueFromHub()
         {
             if (_resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.Revoked)))
             {
@@ -135,14 +135,14 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             _resourceDistinctResourceStates.TryGetValue(Agent.Sender, out var state);
             state.CurrentState = JobState.Revoked;
             Agent.DebugMessage($"StartRequeue: Change _resourceDistinctResourceStates for {Agent.Sender.Path.Name} to {state.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
-            if (_resourceDistinctResourceStates.Count == 1)
+            if (_resourceDistinctResourceStates.Count == 1 
+                || _resourceDistinctResourceStates.All(x => x.Value.CurrentState.Equals(JobState.Revoked)))
             {
                 Agent.DebugMessage($"Start Requeue for {_jobConfirmation.Job.Name} has been initiated", CustomLogger.JOB, LogLevel.Warn);
-                StartToReque();
+                RequestRequeueFromHub();
                 return;
 
             }
-            Agent.DebugMessage($"Start Revoke for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} has been initiated", CustomLogger.JOB, LogLevel.Warn);
             StartRevoke();
         }
 
@@ -172,12 +172,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 if (resource.Value.CurrentState == JobState.Revoked || resource.Value.CurrentState == JobState.RevokeStarted)
                     continue;
-                
+
                 resource.Value.CurrentState = JobState.RevokeStarted;
                 Agent.Send(Resource.Instruction.Default.RevokeJob
                         .Create(_jobConfirmation.Key, target: resource.Key));
                 Agent.DebugMessage($"StartRevoke from : Change _resourceDistinctResourceStates for {resource.Key.Path.Name} to {resource.Value.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
-
             }
         }
 

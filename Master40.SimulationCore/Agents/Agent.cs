@@ -55,6 +55,7 @@ namespace Master40.SimulationCore.Agents
             {
                 case BasicInstruction.Initialize i: InitializeAgent(behaviour: i.GetObjectFromMessage); break;
                 case BasicInstruction.ChildRef c: AddChild(childRef: c.GetObjectFromMessage); break;
+                case BasicInstruction.Break msg: PostAdvanceBreak(); break;
                 default:
                     if (!Behaviour.Action(message: (ISimulationMessage)o))
                         throw new Exception(message: this.Name + " is sorry, he doesn't know what to do!");
@@ -161,7 +162,18 @@ namespace Master40.SimulationCore.Agents
             DebugMessage(msg: Self + " finish has been called by " + Sender);
             base.Finish();
         }
+        protected override void PostAdvance()
+        {
+            //this.Do(BasicInstruction.Break.Create());
+        }
 
-    
+        private void PostAdvanceBreak()
+        {
+            // if (Agent.CurrentTime == 2000)
+            // {
+            //     System.Diagnostics.Debugger.Break();
+            // }
+        }
+
     }
 }

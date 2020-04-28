@@ -28,7 +28,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if (IsSet)
                 return false;
             Current = jobConfirmation;
-            ResourceIsBusyUntil = jobConfirmation.ScopeConfirmation.GetScopeEnd();
+            ResourceIsBusyUntil = jobConfirmation.Duration;
             return true;
         }
 

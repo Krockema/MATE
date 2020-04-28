@@ -138,7 +138,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.BucketScope, 1100, 240, 1920, 1337, ModelSize.Medium, ModelSize.Small, 0.025, false)]
+        [InlineData(SimulationType.BucketScope, 1100, 240, 1920, 1337, ModelSize.Medium, ModelSize.Medium, 0.025, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed
                                         , ModelSize resourceModelSize, ModelSize setupModelSize
                                         , double arrivalRate, bool distributeSetupsExponentially)

@@ -157,6 +157,17 @@ namespace Master40.SimulationCore.Agents
             public IJob GetObjectFromMessage => Message as IJob; 
         }
 
+        public class Break : SimulationMessage
+        {
+            public static Break Create()
+            {
+                return new Break();
+            }
+            private Break() : base(null, ActorRefs.NoSender)
+            {
+            }
+        }
+
         public class FinishSetup : SimulationMessage
         {
             public static FinishSetup Create(IActorRef message, IActorRef target)
