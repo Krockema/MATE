@@ -25,7 +25,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public List<FProposal> GetProposalsFor(List<IActorRef> actorRefs)
         {
             var proposals = new List<FProposal>();
-            actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x))));
+            actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x) 
+                                                                                    && !y.Postponed.IsPostponed)));
             return proposals;
         }
 

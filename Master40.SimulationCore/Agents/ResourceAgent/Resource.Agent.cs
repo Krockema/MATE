@@ -28,5 +28,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
         {
             Behaviour.AfterInit();
         }
+
+        protected override void PostAdvance()
+        {
+            this.Behaviour.PostAdvance();
+        }
     }
 }

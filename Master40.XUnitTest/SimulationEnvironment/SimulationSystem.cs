@@ -138,20 +138,20 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.BucketScope, 1100, 240, 1920, 1337, ModelSize.Medium, ModelSize.Medium, 0.025, false)]
+        [InlineData(SimulationType.BucketScope, 1100, 240, 1920, 1337, ModelSize.Medium, ModelSize.Medium, 0.03, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed
                                         , ModelSize resourceModelSize, ModelSize setupModelSize
                                         , double arrivalRate, bool distributeSetupsExponentially)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
+            // LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            // LogConfiguration.LogTo(TargetTypes.File, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
+            // LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
+            // LogConfiguration.LogTo(TargetTypes.File, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.File, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
+            // LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
+            // LogConfiguration.LogTo(TargetTypes.File, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
@@ -166,17 +166,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 10)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 60)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 0));
-            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
-            simConfig.ReplaceOption(new DebugSystem(value: false));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0));
+            simConfig.ReplaceOption(new DebugSystem(value: true));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

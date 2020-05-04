@@ -112,6 +112,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             toRequeue.UnionWith(toRequeue2);
             return toRequeue;
         }
+        
+
 
         public HashSet<IConfirmation> GetAllSubsequentJobs(long jobStart)
         {
@@ -146,7 +148,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
             var usedForSetupAndProcess = setup.UsedInProcess && setup.UsedInSetup;
 
-            var queuingScopes = GetScopesFor(requiredTimeforJob: requiredDuration, 
+            var queuingScopes = GetScopesFor(requiredTimeForJob: requiredDuration, 
                                                 jobProposal.Job, 
                                                 jobProposal.CapabilityId,
                                                 usedForSetupAndProcess, 
@@ -156,7 +158,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return queuingScopes;
         }
 
-        private List<FQueueingScope> GetScopesFor(long requiredTimeforJob, IJob job, int capabilityProviderId, bool usedForSetupAndProcess,  long currentTime, long resourceBlockedUntil, CapabilityProviderManager capabilityProviderManager)
+        private List<FQueueingScope> GetScopesFor(long requiredTimeForJob, IJob job, int capabilityProviderId, bool usedForSetupAndProcess,  long currentTime, long resourceBlockedUntil, CapabilityProviderManager capabilityProviderManager)
         {
             var scopes = new List<ITimeRange>();
             var positions = new List<FQueueingScope>();
@@ -183,9 +185,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 var currentJobPriority = current.Value.Job.Priority(currentTime);
                 isRequiringSetup = (!capabilityProviderManager.AlreadyEquipped(capabilityProviderId));
                 isQueueAble = currentTime + Limit > earliestStart + ((FBucket)job).MaxBucketSize || ((FBucket)job).HasSatisfiedJob;
-                
-                
-                earliestStart = !preIsReady && jobToPutIsReady && (currentJobPriority == jobPriority) ? earliestStart : preScopeEnd;
+
+                earliestStart = !preIsReady && jobToPutIsReady && (currentJobPriority >= jobPriority) ? earliestStart : preScopeEnd;
                 //earliestStart = preScopeEnd;
                 while (enumerator.MoveNext())
                 {
@@ -193,7 +194,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     if (!isQueueAble)
                         break;
 
-                    var requiredTime = requiredTimeforJob;
+                    var requiredTime = requiredTimeForJob;
                     var post = enumerator.Current;
                     var postScopeStart = post.Value.ScopeConfirmation.GetScopeStart();
                     var setupTimeIfEquipped = 0L;
@@ -203,7 +204,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                         requiredTime -= setupTimeIfEquipped;
                     }
 
-                    if (requiredTime <= postScopeStart - earliestStart)
+                    if (requiredTime <= postScopeStart - earliestStart 
+                        && requiredTime > 0)
                     {
                         positions.Add(new FQueueingScope(isQueueAble: true,
                                                         isRequieringSetup: (setupTimeIfEquipped == 0), // setup is Required
@@ -216,7 +218,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     preIsReady = ((FBucket) current.Value.Job).HasSatisfiedJob;
                     //earliestStart = current.Value.ScopeConfirmation.GetScopeEnd();
                     earliestStart = !preIsReady && jobToPutIsReady 
-                                    && currentJobPriority == jobPriority
+                                    && currentJobPriority >= jobPriority
                                     ? earliestStart : current.Value.ScopeConfirmation.GetScopeEnd();
                     isQueueAble = currentTime + Limit > earliestStart + ((FBucket)job).MaxBucketSize || ((FBucket)job).HasSatisfiedJob;
                 }
@@ -278,7 +280,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var jobToPutReady = ((FBucket)confirmation.Job).HasSatisfiedJob;
             fitStart = pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
             //fitStart = readyCondition || pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
-            if (pre.Value.Job.Priority(time) == priority && !preReady && jobToPutReady)
+            if (pre.Value.Job.Priority(time) >= priority && !preReady && jobToPutReady)
                 fitStart = true;
 
 

@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.SimulationMrp", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zpp", "Zpp\Zpp.csproj", "{EA86EC58-1FEA-48D3-9784-F6FD924008F3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AkkaSim", "..\AkkaSim\AkkaSim\AkkaSim.csproj", "{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,14 @@ Global
 		{EA86EC58-1FEA-48D3-9784-F6FD924008F3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EA86EC58-1FEA-48D3-9784-F6FD924008F3}.Release|x64.ActiveCfg = Release|Any CPU
 		{EA86EC58-1FEA-48D3-9784-F6FD924008F3}.Release|x64.Build.0 = Release|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Debug|x64.Build.0 = Debug|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Release|x64.ActiveCfg = Release|Any CPU
+		{F944346B-3A89-4AE8-8C9F-CEB7B8890ABB}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

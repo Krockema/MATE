@@ -223,8 +223,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             jobConfirmation.ResetConfirmation();
             _proposalManager.Add(jobConfirmation.Job.Key, _capabilityManager.GetAllCapabilityProvider(jobConfirmation.Job.RequiredCapability));
             
-
-            
             var capabilityDefinition = _capabilityManager.GetResourcesByCapability(jobConfirmation.Job.RequiredCapability);
             var distinctResources = new HashSet<IActorRef>();
 
@@ -282,6 +280,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
                 List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider, bucket);
+
+                if (possibleProcessingPositions.Count == 0)
+                {
+                    var postponedFor = (long) (bucket.MaxBucketSize * 0.8);
+                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
+                }
+
 
                 var possiblePosition = possibleProcessingPositions.OrderBy(x => x._processingPosition).First();
 

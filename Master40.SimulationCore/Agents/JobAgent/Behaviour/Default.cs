@@ -79,6 +79,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 case Job.Instruction.TerminateJob msg: Terminate(); break;
                 // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
                 case Job.Instruction.StartRequeue msg: StartRequeue(); break;
+                case Job.Instruction.DelayedStartNotification msg: RequestRevoke(); break;
                 default: return false;
             }
             return true;
@@ -161,6 +162,21 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
             _dissolveRequested = true;
             Agent.DebugMessage($"StartDissolve: successful", CustomLogger.JOBSTATE, LogLevel.Warn);
+
+            StartRevoke();
+        }
+
+        private void RequestRevoke()
+        {
+            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready || x.CurrentState == JobState.Finish);
+            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready);
+            if (allSetupReady || allProcessingReady)
+            {
+                Agent.DebugMessage($"RequestRevoke interrupted for {_jobConfirmation.Job.Name} setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +
+                                   $" processing ready {allProcessingReady} processing count: {_resourceProcessingStates.Count}", CustomLogger.JOB, LogLevel.Warn);
+                return;
+            }
+            Agent.DebugMessage($"RequestRevoke: successful for {_jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
 
             StartRevoke();
         }

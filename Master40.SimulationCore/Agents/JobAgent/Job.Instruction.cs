@@ -118,6 +118,18 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 private TerminateJob(IActorRef target) : base(message: null, target: target)
                 { }
             }
+
+            public class DelayedStartNotification : SimulationMessage
+            {
+                public static DelayedStartNotification Create(IActorRef target)
+                {
+                    return new DelayedStartNotification(message: null, target: target);
+                }
+                private DelayedStartNotification(object message, IActorRef target) : base(message: message, target: target)
+                {
+
+                }
+            }
         }
     }
 }

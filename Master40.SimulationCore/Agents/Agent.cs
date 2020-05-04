@@ -162,10 +162,10 @@ namespace Master40.SimulationCore.Agents
             DebugMessage(msg: Self + " finish has been called by " + Sender);
             base.Finish();
         }
-        protected override void PostAdvance()
-        {
-            //this.Do(BasicInstruction.Break.Create());
-        }
+        // protected override void PostAdvance()
+        // {
+        //     // 
+        // }
 
         private void PostAdvanceBreak()
         {
