@@ -75,8 +75,7 @@ namespace Master40.SimulationCore.Helper
                 // ENDE
             );
 
-            var operations = new List<FOperation>();
-            operations.Add(item: operation);
+            var operations = new List<FOperation> {operation};
 
             return new FBucket(key: Guid.NewGuid()
                 //, prioRule: prioRule.ToFSharpFunc()

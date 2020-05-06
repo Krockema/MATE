@@ -59,6 +59,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private FOperation _currentOperation { get; set;}
         private long _processingStart { get; set; }
         private bool _dissolveRequested { get; set; }
+        private bool _setupStarted { get; set; }
         private bool _bucketIsReadyToBeTerminated { get; set; } = false;
         private Queue<FOperation> _finalOperations { get; set; }
 
@@ -152,8 +153,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void StartDissolve()
         {
-            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready || x.CurrentState == JobState.Finish);
-            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready);
+            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready 
+                                                                                || x.CurrentState == JobState.Finish
+                                                                                || x.CurrentState == JobState.InProcess);
+            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready
+                                                                                          || x.CurrentState == JobState.InProcess);
             if (allSetupReady || allProcessingReady)
             {
                 Agent.DebugMessage($"StartDissolve interrupted setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +
@@ -168,8 +172,17 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void RequestRevoke()
         {
-            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready || x.CurrentState == JobState.Finish);
-            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready);
+            var allSetupReady = _resourceSetupStates.Values
+                                                        // .Where(x => !x.Key.Equals(Agent.Sender))
+                                                        //.Select(x => x.Value)
+                                                        .All(x => x.CurrentState == JobState.Ready 
+                                                                        || x.CurrentState == JobState.Finish 
+                                                                        || x.CurrentState == JobState.InProcess);
+            var allProcessingReady = _resourceProcessingStates.Values
+                                                                    // Where(x => !x.Key.Equals(Agent.Sender))
+                                                                   //.Select(x => x.Value)
+                                                                   .All(x => x.CurrentState == JobState.Ready
+                                                                                    || x.CurrentState == JobState.InProcess);
             if (allSetupReady || allProcessingReady)
             {
                 Agent.DebugMessage($"RequestRevoke interrupted for {_jobConfirmation.Job.Name} setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +

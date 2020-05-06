@@ -87,9 +87,10 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                         .Create(message: new FArticleProvider(articleKey: request.Key
-                                                                                             ,articleName: request.Article.Name
+                                                                                             , articleName: request.Article.Name
                                                                                              , articleFinishedAt: Agent.CurrentTime
-                                                                                             ,stockExchangeId: request.StockExchangeId
+                                                                                             , stockExchangeId: request.StockExchangeId
+                                                                                             , customerDue: request.CustomerDue
                                                                                              , provider: new List<FStockProvider>(new[] { new FStockProvider(stockExchange.TrackingGuid, "Purchase")}))
                                                                , target: request.DispoRequester
                                                               , logThis: false));

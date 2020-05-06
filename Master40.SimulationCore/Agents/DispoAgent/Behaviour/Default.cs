@@ -3,7 +3,6 @@ using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FAgentInformations;
@@ -14,6 +13,7 @@ using static FStockReservations;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using static Master40.SimulationCore.Agents.StorageAgent.Storage.Instruction;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
+using static Master40.Tools.ExtensionMethods.Negate;
 
 namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
@@ -85,6 +85,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                                                   , articleName: _fArticle.Article.Name
                                                   , stockExchangeId: reservation.TrackingId
                                                   , articleFinishedAt: Agent.CurrentTime
+                                                  , customerDue: _fArticle.CustomerDue
                                                   , provider: new List<FStockProvider>(new[] { new FStockProvider(reservation.TrackingId, "In Stock") })));
             }
 
@@ -140,6 +141,14 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}");
 
             _fArticle = _fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
+            if (fArticleProvider.ArticleKey.NotEqual(_fArticle.Key))
+            {
+                // TODO Add Logig here:
+                // Push Article / Customer Due
+                // Restart forward / backward scheduling
+                // Remember which child was notified if more then one part is Requested.
+            }
+
             Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                     .Create(message: fArticleProvider
                                                             ,target: Agent.VirtualParent 

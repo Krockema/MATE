@@ -301,6 +301,28 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return returnVal;
         }
 
+        public bool QueueHealthCheck(long currentTime)
+        {
+            if (this.Count <= 1) return false;
+
+            var array = this.ToArray();
+            var inTime = array[0].Value.ScopeConfirmation.GetScopeStart() > currentTime;
+            if (inTime) return false;
+
+            var priorityOfFirstElement = array[0].Value.Job.Priority(currentTime);
+            for (var i = 1; i < array.Length; i++)
+            {
+                var satisfied = array[i].Value.Job.StartConditions.Satisfied;
+                var priority = array[i].Value.Job.Priority(currentTime);
+                if (satisfied && priority >= priorityOfFirstElement)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public long Workload => this.Values.Sum(x => x.Job.Duration);
     }
 }
+

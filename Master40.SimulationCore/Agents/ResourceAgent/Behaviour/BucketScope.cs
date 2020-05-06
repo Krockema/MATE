@@ -213,16 +213,33 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal void UpdateProcessingItem()
         {
             var job = _scopeQueue.GetFirstIfSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
-            var insideJob = _jobInProgress.IsSet ? $" | Job in Progress {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} at work {_jobInProgress.IsWorking}  " +
-                                                   $"scope start {_jobInProgress.Current.ScopeConfirmation.GetScopeStart()} prio {_jobInProgress.Current.Job.Priority(Agent.CurrentTime)} | " : " | No job in Progress set |";
+
+
+            if (!_jobInProgress.IsSet && job == null)
+            {
+                Agent.DebugMessage(msg: $"Start Queue Health check.", CustomLogger.JOB, LogLevel.Warn);
+                if (_scopeQueue.QueueHealthCheck(Agent.CurrentTime))
+                {
+                    Agent.DebugMessage(msg: $"Queue seems unhealthy, try to requeue!", CustomLogger.JOB, LogLevel.Warn);
+                    RequeueAllRemainingJobs();
+                    return;
+                };
+            }
+
+            var insideJob = _jobInProgress.IsSet ? $" | Job in Progress {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} " +
+                                                         $"at work {_jobInProgress.IsWorking}  " +
+                                                         $"scope start {_jobInProgress.Current.ScopeConfirmation.GetScopeStart()} " +
+                                                         $"prio {_jobInProgress.Current.Job.Priority(Agent.CurrentTime)} | " 
+                                                       : $" | No job in Progress set |";
+            
             if (_jobInProgress.IsSet || (job != null && job.ScopeConfirmation.GetScopeStart() > Agent.CurrentTime))
             {
                 Agent.DebugMessage(msg: $"Invalid start conditions. To Start processing | " + insideJob, CustomLogger.JOB, LogLevel.Warn);
-
-                // Check Queue for more important and ready items -> requeue
-
                 return;
             }
+
+
+
             var isQueueAble = (job != null) ? $" To Progress {job.Job.Name} {job.Job.Key} scope start {job.ScopeConfirmation.GetScopeStart()} prio {job.Job.Priority(Agent.CurrentTime)}" : " not satisfied";
             var allPrios = "";
             _scopeQueue.GetAllJobs().ForEach(x => allPrios += $"  | Bucket {x.Job.Name} | Prio: {x.Job.Priority(Agent.CurrentTime)} " +
@@ -233,17 +250,21 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                     $" | Job is in progress: {_jobInProgress.IsSet}" + allPrios, CustomLogger.JOB, LogLevel.Warn);
 
             // if(current.scope.Start <=Current Time)
-                // Requeue becaus there is an issue
+            // Requeue becaus there is an issue
             // else
-                // try to update Processing Item.
-            
+            // try to update Processing Item.
+
+
+
+
             // take the next scope and make it fix 
             if (!_jobInProgress.IsSet && job != null )
             {   
                 _scopeQueue.RemoveJob(job);
                 _jobInProgress.Set(job);
                 
-                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied: {((FBucket)job.Job).HasSatisfiedJob} Try to start processing."
+                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied:" +
+                                        $" {((FBucket)job.Job).HasSatisfiedJob} Try to start processing."
                                     , CustomLogger.JOB, LogLevel.Warn);
                 
                 // ToDo : test behaviour of this method.

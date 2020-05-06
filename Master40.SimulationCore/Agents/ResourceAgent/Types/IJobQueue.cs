@@ -36,5 +36,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         HashSet<IConfirmation> GetAllSubsequentJobs(long getScopeStart);
         HashSet<IConfirmation> GetAllJobs();
         bool UpdateBucket(IJob job);
+        bool QueueHealthCheck(long currentTime);
     }
 }
