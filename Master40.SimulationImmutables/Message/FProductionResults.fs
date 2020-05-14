@@ -1,5 +1,5 @@
 ﻿module FProductionResults
-
+open Akka.Actor
 open System
 open IKeys
 
@@ -7,6 +7,8 @@ open IKeys
         { Key : Guid
           TrackingId : Guid
           CreationTime : int64
+          CustomerDue : int64
+          ProductionRef : IActorRef
           Amount : decimal
         } interface IKey with
                 member this.Key  with get() = this.Key

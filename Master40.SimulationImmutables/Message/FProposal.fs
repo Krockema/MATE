@@ -1,5 +1,4 @@
 ﻿module FProposals
-
 open Akka.Actor
 open System
 open FPostponeds
@@ -9,7 +8,7 @@ open FPostponeds
             PossibleSchedule : obj 
             Postponed : FPostponed
             CapabilityId : int32
-            ResourceAgent : obj
+            ResourceAgent : IActorRef
             JobKey: Guid
         }
 

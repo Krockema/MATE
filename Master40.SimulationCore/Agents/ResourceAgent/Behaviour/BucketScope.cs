@@ -12,17 +12,13 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Event;
 using Akka.Util.Internal;
-using NLog.LayoutRenderers;
 using static FBuckets;
 using static FOperations;
 using static FPostponeds;
 using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
-using static FUpdateStartConditions;
 using static IConfirmations;
-using static IJobResults;
 using LogLevel = NLog.LogLevel;
 using static IJobs;
 

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Master40.SimulationCore.Helper.DistributionProvider;
+using Master40.Tools.ExtensionMethods;
 using static FBuckets;
 using static FJobResourceConfirmations;
 using static FOperations;
@@ -361,13 +362,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                     $"| PreCondition: {startCondition.PreCondition} ");
             
             var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
-            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucket.Key);
-            // if (jobConfirmation.IsRequestedToDissolve)
-            // {
-            //     Agent.DebugMessage(msg: $"Bucket { jobConfirmation.Job.Key } { jobConfirmation.Job.Name } is requested to desolve, no update send.");
-            //     return;
-            // }
+            if (bucket.IsNull())
+            {
+                Agent.DebugMessage(msg: $"No Bucket found and should be at Work");
+                return;
+            }
 
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucket.Key);
+            
             Agent.DebugMessage(msg: $"Found Bucket Update and forward start condition: {startCondition.OperationKey} in {bucket.Name} with key  {bucket.Key}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} " +

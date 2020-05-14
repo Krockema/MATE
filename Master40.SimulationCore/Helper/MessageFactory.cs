@@ -107,8 +107,9 @@ namespace Master40.SimulationCore.Helper
                                             , long remainingDuration
                                             , long currentTime)
         {
-            return new FArticle(
-                key: Guid.NewGuid()
+            var article = new FArticle(
+                key: Guid.Empty
+                , keys: new FSharpSet<Guid>(new Guid[] { })
                 , dueTime: orderPart.CustomerOrder.DueTime
                 , quantity: orderPart.Quantity
                 , article: orderPart.Article
@@ -126,6 +127,7 @@ namespace Master40.SimulationCore.Helper
                 , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
+            return article.CreateProductionKeys.SetPrimaryKey;
         }
 
         public static FArticle ToRequestItem(this M_ArticleBom articleBom
@@ -135,8 +137,9 @@ namespace Master40.SimulationCore.Helper
                                                 , long remainingDuration
                                                 , long currentTime)
         {
-            return new FArticle(
-                key: Guid.NewGuid()
+            var article = new FArticle(
+                key: Guid.Empty
+                , keys: new FSharpSet<Guid>(new Guid[] { })
                 , dueTime: requestItem.DueTime
                 , creationTime: currentTime
                 , isProvided: false
@@ -154,6 +157,7 @@ namespace Master40.SimulationCore.Helper
                 , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
+            return article.CreateProductionKeys.SetPrimaryKey;
         }
     }
 

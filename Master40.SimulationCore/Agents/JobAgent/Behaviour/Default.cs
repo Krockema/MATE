@@ -93,8 +93,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 Agent.DebugMessage($" with {job.Key}  is ready to be terminated and will not be updated.");
                 return;
             }
-                
-
             _jobConfirmation = _jobConfirmation.UpdateJob(job);
             foreach (var resourceRef in _resourceDistinctResourceStates.Keys)
             { 

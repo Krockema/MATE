@@ -19,6 +19,8 @@ using static FOperations;
 using static FProductionResults;
 using static FThroughPutTimes;
 using static IJobResults;
+using static Master40.Tools.ExtensionMethods.Negate;
+
 namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
@@ -50,9 +52,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case BasicInstruction.ResponseFromDirectory msg: SetHubAgent(hub: msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: AddForwardTime(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ProvideArticle msg: ArticleProvided(msg.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateCustomerDueTimes msg: UpdateCustomerDueTimes(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
-
+                case BasicInstruction.RemovedChildRef msg: Agent.TryToFinish(); break;
                 default: return false;
             }
 
@@ -67,7 +70,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             {
                 nextOperation.SetStartConditions(true, nextOperation.StartConditions.ArticlesProvided);
                 Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} {nextOperation.Key} at {_articleToProduce.Article.Name} was set true.");
-                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition()
+                Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(nextOperation.CustomerDue)
                                                                                       ,target: nextOperation.HubAgent));
                 return;
             }
@@ -77,7 +80,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             //TODO add production amount to productionresult, currently static 1
             var productionResponse = new FProductionResult(key: _articleToProduce.Key
                                                   , trackingId: _articleToProduce.StockExchangeId
-                                                , creationTime: 0
+                                                , creationTime: _articleToProduce.CreationTime
+                                                 , customerDue: _articleToProduce.CustomerDue
+                                               , productionRef: Agent.Context.Self
                                                        ,amount: 1);
 
             Agent.Send(instruction: Storage.Instruction.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
@@ -91,9 +96,15 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                                             , end: Agent.CurrentTime);
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
-            Agent.TryToFinish();
+            TryToFinish();
 
         }
+
+        private void TryToFinish()
+        {
+            Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));
+        }
+
 
         private void StartProductionAgent(FArticle fArticle)
         {
@@ -187,8 +198,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 if (articleDictionary.Operation.HubAgent == null) return;
                 // // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions
-                                           .Create(message: articleDictionary.Operation.GetStartCondition()
-                                                  , target: articleDictionary.Operation.HubAgent));
+                                           .Create(message: articleDictionary.Operation
+                                                            .GetStartCondition(articleDictionary.Operation.CustomerDue)
+                                               , target: articleDictionary.Operation.HubAgent));
             }
 
         }
@@ -256,6 +268,26 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             _forwardScheduleTimeCalculator.Add(earliestStartForForwardScheduling: earliestStartForForwardScheduling);
             SetForwardScheduling();
         }
+
+        private void UpdateCustomerDueTimes(long customerDue)
+        {
+
+            _articleToProduce = _articleToProduce.UpdateCustomerDue(customerDue);
+            foreach (var operation in OperationManager.GetOperations)
+            {
+                if(IsNot(operation.IsFinished))
+                    Agent.Send(BasicInstruction.UpdateStartConditions
+                         .Create(message: operation.GetStartCondition(customerDue)
+                                , target: operation.HubAgent));
+            }
+
+            foreach (var dispoRef in Agent.VirtualChildren)
+            {
+                Agent.Send(BasicInstruction.UpdateCustomerDueTimes.Create(customerDue, dispoRef));
+            }
+
+        }
+
 
 
         private void SetForwardScheduling()

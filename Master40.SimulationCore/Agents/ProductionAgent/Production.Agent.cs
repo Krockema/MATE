@@ -3,7 +3,6 @@ using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using System.Linq;
-using static FArticles;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent
 {

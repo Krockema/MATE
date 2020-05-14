@@ -70,4 +70,5 @@ open IJobs
         member this.SetStartConditions preCondition articleProvided = this.StartConditions <- { PreCondition = preCondition; ArticlesProvided = articleProvided } 
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }
+        member this.UpdateCustomerDue due = { this with CustomerDue = due }
         member this.UpdateBucket bucketId = { this with Bucket = bucketId}

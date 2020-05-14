@@ -10,10 +10,17 @@ namespace Master40.Tools.ExtensionMethods
         {
             return !negate;
         }
-
+        public static bool IsNot(bool negate)
+        {
+            return !negate;
+        }
         public static bool NotEqual<T>(this T negate, T compareTo)
         {
             return IsFalse(negate.Equals(compareTo));
+        }
+        public static bool IsNull<T>(this T obj)
+        {
+            return obj == null;
         }
     }
 }

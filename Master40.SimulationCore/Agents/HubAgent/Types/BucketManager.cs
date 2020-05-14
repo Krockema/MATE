@@ -223,7 +223,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 bucket.RemoveOperation(operation);
 
                 operation.SetStartConditions(preCondition: startCondition.PreCondition, articleProvided: startCondition.ArticlesProvided);
-                
+                operation = operation.UpdateCustomerDue(startCondition.CustomerDue);
+
                 bucket.AddOperation(operation);
                 Replace(bucket);
                 return bucket;

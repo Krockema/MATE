@@ -1,10 +1,13 @@
-﻿using Master40.DB.DataModel;
+﻿using System;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
+using Akka.Actor;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -19,11 +22,17 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        internal Default(SimulationType simulationType = SimulationType.None) 
-                        : base(childMaker: null, simulationType: simulationType) { }
+        internal Default(SimulationType simulationType = SimulationType.None)
+            : base(childMaker: null, simulationType: simulationType)
+        {
+            fArticlesToProvide = new Dictionary<IActorRef, Guid>();
+        }
 
 
         internal FArticle _fArticle { get; set; }
+
+        internal Dictionary<IActorRef, Guid> fArticlesToProvide;
+
         internal int _quantityToProduce { get; set; }
 
         public override bool Action(object message)
@@ -37,11 +46,27 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 case Dispo.Instruction.ResponseFromSystemForBom r: ResponseFromSystemForBom(article: r.GetObjectFromMessage); break;
                 case Dispo.Instruction.WithdrawArticleFromStock r: WithdrawArticleFromStock(); break; // Withdraw initiated by ResourceAgent for Production
                 case BasicInstruction.ProvideArticle r: ProvideRequest(fArticleProvider: r.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateCustomerDueTimes msg: UpdateCustomerDueTimes(msg.GetObjectFromMessage); break;
+                case BasicInstruction.RemoveVirtualChild msg: RemoveVirtualChild(); break;
                 default: return false;
             }
             return true;
         }
-        
+        internal void UpdateCustomerDueTimes(long customerDue)
+        {
+            // Save Request Item.
+            _fArticle = _fArticle.UpdateCustomerDue(customerDue);
+            foreach (var productionRef in Agent.VirtualChildren)
+            {
+                Agent.Send(BasicInstruction.UpdateCustomerDueTimes.Create(customerDue, productionRef));
+            }
+        }
+
+        internal void RemoveVirtualChild()
+        {
+            Agent.VirtualChildren.Remove(Agent.Sender);
+            Agent.Send(BasicInstruction.RemovedChildRef.Create(Agent.Sender));
+        }
         internal void RequestArticle(FArticle requestArticle)
         {
             // Save Request Item.
@@ -79,7 +104,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             }
 
 
-            if (reservation.IsInStock && !_fArticle.IsHeadDemand)
+            if (reservation.IsInStock && IsNot(_fArticle.IsHeadDemand))
             {
                 ProvideRequest(new FArticleProvider(articleKey: _fArticle.Key
                                                   , articleName: _fArticle.Article.Name
@@ -141,12 +166,15 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}");
 
             _fArticle = _fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
-            if (fArticleProvider.ArticleKey.NotEqual(_fArticle.Key))
+
+            var providedArticles = fArticleProvider.Provider.Select(x => x.ProvidesArticleKey);
+            foreach (var articlesInProduction in fArticlesToProvide)
             {
-                // TODO Add Logig here:
-                // Push Article / Customer Due
-                // Restart forward / backward scheduling
-                // Remember which child was notified if more then one part is Requested.
+                if (IsFalse(providedArticles.Contains(articlesInProduction.Value)))
+                {
+                    Agent.Send(BasicInstruction.UpdateCustomerDueTimes
+                                .Create(fArticleProvider.CustomerDue, articlesInProduction.Key));
+                }
             }
 
             Agent.Send(instruction: BasicInstruction.ProvideArticle

@@ -175,6 +175,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                                                                                                            , articleName: article.Article.Name
                                                                                                            , stockExchangeId: article.StockExchangeId
                                                                                                            , articleFinishedAt: article.FinishedAt
+                                                                                                           , customerDue: article.CustomerDue
                                                                                                            , provider: article.ProviderList)
                                                                               , target: article.DispoRequester
                                                                              , logThis: false));

@@ -98,6 +98,18 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
+        public class RemovedChildRef : SimulationMessage
+        {
+            public static RemovedChildRef Create(IActorRef target, bool logThis = false)
+            {
+                return new RemovedChildRef(message: null, target: target, logThis: logThis);
+            }
+            private RemovedChildRef(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
+            {
+            }
+        }
+        
+
         public class WithdrawRequiredArticles : SimulationMessage
         {
             public static WithdrawRequiredArticles Create(Guid message, IActorRef target)
@@ -180,5 +192,18 @@ namespace Master40.SimulationCore.Agents
             public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
         }
 
+        public class UpdateCustomerDueTimes : SimulationMessage
+        {
+            public static UpdateCustomerDueTimes Create(long message, IActorRef target)
+            {
+                return new UpdateCustomerDueTimes(message: message, target: target);
+            }
+            private UpdateCustomerDueTimes(object message, IActorRef target) : base(message: message, target: target)
+            {
+
+            }
+            public long GetObjectFromMessage => (long)Message;
+        }
+       
     }
 }
