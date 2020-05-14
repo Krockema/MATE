@@ -55,7 +55,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 case BasicInstruction.UpdateCustomerDueTimes msg: UpdateCustomerDueTimes(msg.GetObjectFromMessage); break;
                 case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinishJob msg: FinishJob(msg.GetObjectFromMessage); break;
-                case BasicInstruction.RemovedChildRef msg: Agent.TryToFinish(); break;
+                case BasicInstruction.RemovedChildRef msg: TryToFinish(); break;
+                case BasicInstruction.RemoveVirtualChild msg: RemoveVirtualChild(); break;
                 default: return false;
             }
 
@@ -66,7 +67,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         {
             var nextOperation = OperationManager.GetNextOperation(key: jobResult.Key);
 
-            if (nextOperation != null)
+            if (nextOperation.IsNotNull())
             {
                 nextOperation.SetStartConditions(true, nextOperation.StartConditions.ArticlesProvided);
                 Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} {nextOperation.Key} at {_articleToProduce.Article.Name} was set true.");
@@ -74,9 +75,11 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                                                                                       ,target: nextOperation.HubAgent));
                 return;
             }
-            
+
+            _articleToProduce = _articleToProduce.SetProvided;
             Agent.DebugMessage(msg: $"All operations for article {_articleToProduce.Article.Name} {_articleToProduce.Key} finished.");
-            
+           
+
             //TODO add production amount to productionresult, currently static 1
             var productionResponse = new FProductionResult(key: _articleToProduce.Key
                                                   , trackingId: _articleToProduce.StockExchangeId
@@ -96,13 +99,40 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                                             , end: Agent.CurrentTime);
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
-            TryToFinish();
+
+            TryToRemoveChildRefFromProduction();
 
         }
 
+        internal void RemoveVirtualChild()
+        {
+            Agent.VirtualChildren.Remove(Agent.Sender);
+            Agent.Send(BasicInstruction.RemovedChildRef.Create(Agent.Sender));
+            TryToRemoveChildRefFromProduction();
+        }
+        private void TryToRemoveChildRefFromProduction()
+        {
+            if (Agent.VirtualChildren.Count == 0 && _articleToProduce.IsProvided)
+            {
+                Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));
+            }
+        }
         private void TryToFinish()
         {
-            Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));
+            if (_articleToProduce.IsProvided && Agent.VirtualChildren.Count == 0)
+            {
+                Agent.DebugMessage(
+                    msg: $"Shutdown for {_articleToProduce.Article.Name} " +
+                         $"(Key: {_articleToProduce.Key}, OrderId: {_articleToProduce.CustomerOrderId})"
+                    , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
+                Agent.TryToFinish();
+                return;
+            }
+
+            Agent.DebugMessage(
+                msg: $"Could not run shutdown for {_articleToProduce.Article.Name} " +
+                     $"(Key: {_articleToProduce.Key}, OrderId: {_articleToProduce.CustomerOrderId}) cause article is provided {_articleToProduce.IsProvided } and has childs left  {Agent.VirtualChildren.Count} "
+                , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
         }
 
 
@@ -114,7 +144,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             if (fArticle.Article.ArticleBoms.Any())
             {
                 Agent.DebugMessage(
-                    msg: "Article: " + fArticle.Article.Name + " (" + fArticle.Key + ") is last leave in BOM.");
+                    msg: "Article: " + fArticle.Article.Name + " (" + fArticle.Key + ") is last leave in BOM.", CustomLogger.SCHEDULING, LogLevel.Warn);
             }
 
             if (fArticle.Article.Operations == null)

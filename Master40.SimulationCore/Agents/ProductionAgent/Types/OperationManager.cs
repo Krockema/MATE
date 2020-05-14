@@ -79,7 +79,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             List<ArticleProvider> listAP = new List<ArticleProvider>();
             agent.DebugMessage($" Creating required articles for {articleToProduce.Article.Name} | remainingDuration: {articleToProduce.RemainingDuration}", CustomLogger.SCHEDULING, LogLevel.Warn);
             var remainingDuration = articleToProduce.RemainingDuration;
-            foreach (var fOperation in GetOperations) {
+            foreach (var fOperation in GetOperations.OrderByDescending(x => x.Operation.HierarchyNumber)) {
                 remainingDuration += fOperation.Operation.Duration;
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
                 if (fOperation.Operation.ArticleBoms.Count == 0)

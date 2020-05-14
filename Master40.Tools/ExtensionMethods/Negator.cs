@@ -22,5 +22,9 @@ namespace Master40.Tools.ExtensionMethods
         {
             return obj == null;
         }
+        public static bool IsNotNull<T>(this T obj)
+        {
+            return obj != null;
+        }
     }
 }

@@ -5,9 +5,9 @@ using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
-using System.Data.HashFunction.xxHash;
 using System.Linq;
 using Akka.Actor;
+using NLog;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -48,6 +48,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 case BasicInstruction.ProvideArticle r: ProvideRequest(fArticleProvider: r.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateCustomerDueTimes msg: UpdateCustomerDueTimes(msg.GetObjectFromMessage); break;
                 case BasicInstruction.RemoveVirtualChild msg: RemoveVirtualChild(); break;
+                case BasicInstruction.RemovedChildRef msg: TryToFinish(); break;
                 default: return false;
             }
             return true;
@@ -66,6 +67,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         {
             Agent.VirtualChildren.Remove(Agent.Sender);
             Agent.Send(BasicInstruction.RemovedChildRef.Create(Agent.Sender));
+            TryToRemoveChildRefFromProduction();
         }
         internal void RequestArticle(FArticle requestArticle)
         {
@@ -155,7 +157,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
         {
-            Agent.DebugMessage(msg:$"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
+            Agent.DebugMessage(msg:$"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}", CustomLogger.SCHEDULING, LogLevel.Warn);
             var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
             Agent.Send(instruction: msg);
         }
@@ -181,6 +183,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                                                     .Create(message: fArticleProvider
                                                             ,target: Agent.VirtualParent 
                                                            ,logThis: false));
+            
         }
 
         internal void WithdrawArticleFromStock()
@@ -189,7 +192,34 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             Agent.Send(instruction: WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));
-            Agent.TryToFinish();
+            _fArticle = _fArticle.SetProvided;
+            TryToRemoveChildRefFromProduction();
+        }
+
+        private void TryToRemoveChildRefFromProduction()
+        {
+            if (Agent.VirtualChildren.Count == 0 && _fArticle.IsProvided)
+            {
+                Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));
+            }
+        }
+
+        internal void TryToFinish()
+        {
+            if (Agent.VirtualChildren.Count == 0 && _fArticle.IsProvided)
+            {
+                Agent.DebugMessage(
+                    msg: $"Shutdown for {_fArticle.Article.Name} " +
+                         $"(Key: {_fArticle.Key}, OrderId: {_fArticle.CustomerOrderId})"
+                    , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
+                Agent.TryToFinish();
+                return;
+            }
+
+            Agent.DebugMessage(
+                msg: $"Could not run shutdown for {_fArticle.Article.Name} " +
+                     $"(Key: {_fArticle.Key}, OrderId: {_fArticle.CustomerOrderId}) cause article is provided {_fArticle.IsProvided } and has childs left  {Agent.VirtualChildren.Count} "
+                , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
         }
     }
 }
